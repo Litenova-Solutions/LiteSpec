@@ -60,7 +60,7 @@ A rule states one condition the module enforces, and the Spending module has thi
 | `policies/rules/policy-rules.yaml` | 1 |
 | `reminder-preferences/rules/reminder-preference-rules.yaml` | 1 |
 
-The first rule in the expense file shows the shape. It names its kind, the use case and aggregate it governs, the refusal code it returns, and the requirement it fulfills:
+The first rule in the expense file shows the shape. It names its kind, the use case and aggregate it governs, the refusal id it returns, and the requirement it fulfills:
 
 ```yaml
 - type: rule
@@ -71,7 +71,7 @@ The first rule in the expense file shows the shape. It names its kind, the use c
   governs:
   - use-case/spending.submit-expense
   - aggregate/spending.expense
-  refusal: spending.receipt-missing
+  refusal: refusal/spending.receipt-missing
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt
@@ -79,7 +79,7 @@ The first rule in the expense file shows the shape. It names its kind, the use c
 
 The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, that an export carries only approved expenses, and that personal data is erased after its retention.
 
-A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, so `rule/spending.receipt-filed-once` binds `aggregate/spending.expense` and `aggregate/spending.receipt`. The reminder-preference rule holds that only the manager the preference belongs to, or finance, changes the preference, refusing anyone else with `spending.not-preference-owner`. Each rule names a refusal code from the module's refusal set in `behavior/modules/spending/refusals.yaml`, and each refusal result carries one of those codes.
+A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, so `rule/spending.receipt-filed-once` binds `aggregate/spending.expense` and `aggregate/spending.receipt`. The reminder-preference rule holds that only the manager the preference belongs to, or finance, changes the preference, refusing anyone else with `spending.not-preference-owner`. Each rule names a refusal id from its aggregate's refusal set, and each refusal result carries one of those ids.
 
 ## The Use Cases
 
@@ -100,7 +100,7 @@ Every use case names its grant and the entry point that reaches it, and most nam
 | Export expenses | query | `permission/export-expenses` | `step/export-approved-expenses.export-batch` | none |
 | Erase personal data | command | `permission/remove-personal-data` | none | `domain-event/expense.personal-data-erased` |
 
-The Submit expense file lists its inputs, its results, and its scenarios. It takes a submission identifier, an amount, a currency, and an optional receipt. It has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the code `spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
+The Submit expense file lists its inputs, its results, and its scenarios. It takes a submission identifier, an amount, a currency, and an optional receipt. It has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the refusal `refusal/spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
 
 The flow steps run in the order the flow file gives them. Submit expense serves `step/submit-and-reimburse.submit-expense`, and Attach receipt serves `step/submit-and-reimburse.attach-receipt`. The flow file names no use case; each use case names the step it serves.
 
@@ -139,13 +139,13 @@ Four records act outside a single request:
 - The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` answers `domain-event/expense.submitted`: a submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. The reaction declares its outcomes, its failure handling, and its idempotency, and it carries no `compensates`, because it undoes no committed step.
 - The notification `notification/spending.approval-reminder` is the reminder itself. It names the manager as its audience, email as its channel, the external system that delivers it, and the rule that governs consent, once per expense.
 - The job `job/spending.erase-expired-personal-data` runs every day in the Europe/Amsterdam timezone and erases the personal data of decided expenses past their retention. It declares its outcomes, its failure handling, and its idempotency, and it runs `use-case/spending.erase-personal-data` once for each selected expense, asynchronously.
-- The settings file holds one value: `setting/spending.approval-reminder-delay` defaults to 72 hours, ranges from 1 to 120 hours, and the operator sets it through the configuration key `Spending:ApprovalReminderDelay`. The receipt threshold is not a setting: the policy aggregate holds it, and a manager changes it with Change receipt threshold.
+- The settings file holds one value: `setting/spending.approval-reminder-delay` defaults to 72 hours, ranges from 1 to 120 hours, and the operator sets it through the configuration path `Spending:ApprovalReminderDelay`. The receipt threshold is not a setting: the policy aggregate holds it, and a manager changes it with Change receipt threshold.
 
 ## The Permissions and the Access Chain
 
 The permission set in `behavior/modules/spending/permissions.yaml` names eight permissions, and two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`.
 
-The roles allow these permissions. The employee role allows submitting and listing, the approver role allows approving, listing, managing the policy, and managing reminder preferences, and the finance role allows reimbursing, listing, exporting, erasing, and managing reminder preferences, including the reimbursed-expenses list, which the reporting module names in `permission/list-reimbursed-expenses`. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
+Each permission names the roles that hold it in `grantedTo`. Submitting and listing name the employee role, approving, listing, managing the policy, and managing reminder preferences name the approver role, and reimbursing, listing, exporting, erasing, and managing reminder preferences name the finance role, including the reimbursed-expenses list, which the reporting module names in `permission/list-reimbursed-expenses`. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
 
 ## The Reporting Module
 
@@ -164,7 +164,7 @@ The module keeps one row for each reimbursed expense in `read-model/reporting.re
 
 The read model declares freshness `{mode: snapshot, within: PT5S, decidedBy: use-case/spending.reimburse-expense}`, so a reader sees a row at most five seconds old, and the reimburse command decides each figure it holds.
 
-The query `use-case/reporting.list-reimbursed-expenses` reads the read model under the grant `permission/list-reimbursed-expenses`, which the permission set tags as personal data, because each row names the employee who was paid. Its output group carries the same freshness with the same `decidedBy`. The query fulfills `requirement/approval.reimbursed-expenses-listed`, and the finance role allows it.
+The query `use-case/reporting.list-reimbursed-expenses` reads the read model under the grant `permission/list-reimbursed-expenses`, which the permission set tags as personal data, because each row names the employee who was paid. Its output group carries the same freshness with the same `decidedBy`. The query fulfills `requirement/approval.reimbursed-expenses-listed`, and the permission names the finance role in `grantedTo`.
 
 ## The External Systems
 

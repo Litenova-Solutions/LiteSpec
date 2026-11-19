@@ -9,7 +9,7 @@ Security covers who acts, what an operation touches, and what it keeps: authenti
 
 ### Actors, Roles, and Permissions
 
-Every protected operation answers one question: who may do what to which target. The actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role's scope sets its reach, such as one organization. A role allows permissions from the shared closed list, and each use case declares the permissions it needs.
+Every protected operation answers one question: who may do what to which target. The actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role's scope sets its reach, such as one organization. Each permission names the roles that hold it in `grantedTo`, and each use case declares the permissions it needs.
 
 The application guard authorizes every protected operation from those declarations, so two operations about the same record ask the same question. For example, the use case that approves an expense declares the permission it needs, and the guard resolves the caller's roles at the scope of that expense.
 

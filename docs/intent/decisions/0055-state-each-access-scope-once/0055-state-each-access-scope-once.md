@@ -1,6 +1,6 @@
 # State Each Access Scope Once
 
-Access in LiteSpec names a role, the reach of that role, and the permissions the role allows. This decision gives the scope of a grant one home, the role, so that the reach of a role is stated once and read the same wherever it is used.
+Access in LiteSpec names a role, the reach of that role, and the permissions naming the role in `grantedTo`. This decision gives the scope of a grant one home, the role, so that the reach of a role is stated once and read the same wherever it is used.
 
 ## Context
 
@@ -22,7 +22,7 @@ LiteSpec compared 3 options for where the scope of a grant lives. The table sets
 
 The role holds the scope of its grant. An actor's `holds` entry names the role only, and a permission names no scope. The instance that a person holds a role for, such as a particular tenant or team, is runtime data held by role assignments.
 
-A permission that two roles allow at different levels takes its reach from the role the caller holds. Holding a permission never bypasses a rule refusal, because a permission allows a call and the call still meets every rule.
+A permission naming two roles at different levels in `grantedTo` takes its reach from the role the caller holds. Holding a permission never bypasses a rule refusal, because a permission allows a call and the call still meets every rule.
 
 Each scope level a role names has a glossary term that states what the level covers in this product. A permission name opens with a verb from the use-case verb table, or with manage.
 

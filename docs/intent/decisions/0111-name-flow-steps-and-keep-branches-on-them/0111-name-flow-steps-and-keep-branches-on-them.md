@@ -21,7 +21,7 @@ LiteSpec compared 2 options for flow step ids and branch placement. The table se
 
 Each step carries its id as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case. List order is the main path, and no position lives in an id. The flow-level `branches` list is removed.
 
-Each branch sits on the step it leaves, in that step's `branches`. A branch states one `when` condition, and exactly one of `then`, naming the step of the same flow where the path continues, or `ends`, stating the outcome when the flow ends there. A branch that does work of its own states that work in `instead`, with its own `carries` and `system` where the work needs them.
+Each branch sits on the step it leaves, in that step's `branches`. A branch states one `when` condition, and exactly one of `then`, naming the step of the same flow where the path continues, or `ends`, stating the outcome when the flow ends there. A branch that does work of its own states that work in `instead`, with its own `carries` where the work needs it; the work is done by the step's performer.
 
 A step id is a real identifier in the record index, resolved by every link check, by `model query`, and by search. Screens and use cases cite `step/<flow>.<act>` in `serves`. Code never marks a step: code points one layer up, to the behavior serving it, and the trace walks from there.
 

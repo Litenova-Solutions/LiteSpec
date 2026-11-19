@@ -3,8 +3,8 @@ id: decision/0003-requirement-origin
 title: Requirement Origin
 context: "Most requirements name neither a carrying feature nor a basis. Every enforced Intent check still passes. No check reports these missing origins."
 options:
-  - name: Origin in feature, basedOn, or decides
-    pros: "Established practice treats a requirement without a stated origin as incomplete. The three sources answer different questions: which feature carries it, which fact grounds it, and which choice settles it."
+  - name: Origin in feature or basedOn
+    pros: "Established practice treats a requirement without a stated origin as incomplete. The two sources answer different questions: which feature carries it, and which fact grounds or choice settles it."
     cons: Authors must anchor most existing requirements, and list order becomes meaningful because the first entry is the parent.
   - name: Feature only
     pros: One uniform rule covers every requirement with no precedence to learn.
@@ -15,7 +15,7 @@ options:
   - name: Group under the requirement page
     pros: Every requirement already sits on a page, so placement needs no new field.
     cons: A page style is not a record type, and file grouping hides the origin gap completely because every requirement appears to have a parent.
-choice: Origin in feature, basedOn, or decides
+choice: Origin in feature or basedOn
 consequences: "`litespec/core/intent#identify-every-requirement` states the origin in its Statement. Every feature carries requirements, including shipped features."
 reopenedWhen: A requirement kind appears that no feature carries, no fact grounds, and no choice settles.
 basedOn:

@@ -4,9 +4,9 @@ LiteSpec checks each record twice: a JSON schema lets an editor check a YAML fil
 
 ## Context
 
-The schema and the model check disagreed on some local requirements. An editor validating against the schema accepted a role without `allows`, which the model check required. The same disagreement covered decision `choice`, empty research sources, module `dependsOn`, and empty policy values.
+The schema and the model check disagreed on some local requirements. An editor validating against the schema accepted a permission without `grantedTo`, which the model check required. The same disagreement covered decision `choice`, empty research sources, module `dependsOn`, and empty policy values.
 
-The schema also used `uniqueItems` on lists of objects, such as research sources and flow steps. That rule compares whole objects, so two entries that share one key both passed.
+The schema also used `uniqueItems` on lists of objects, such as research sources and flow steps. That rule compares whole objects, so two sources sharing one name, or two steps sharing one id, both passed.
 
 ## Options
 

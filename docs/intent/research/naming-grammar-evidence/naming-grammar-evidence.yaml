@@ -4,27 +4,27 @@ title: Naming Grammar Evidence
 sources:
   - url: https://cucumber.io/docs/gherkin/reference
     readOn: 2026-10-31
-    key: cucumber-docs-gherkin-reference
+    name: cucumber-docs-gherkin-reference
     note: The record read the Gherkin reference on 31 October 2026, including its keywords, Rule, and Background sections. Its index page notes an update on 27 October 2026.
   - url: https://github.com/cloudevents/spec
     readOn: 2026-10-31
-    key: github-cloudevents-spec
+    name: github-cloudevents-spec
     note: The record read the CloudEvents text as version 1.0.3-wip on 31 October 2026.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
-    key: record-schema
+    name: record-schema
     note: The 248 count comes from a fresh script run over the current record schema on 31 October 2026. The script output truncates definition counts per name, so the record relied only on the shape lists.
   - path: docs/intent/research/field-naming-evidence/field-naming-evidence.md
     readOn: 2026-10-31
-    key: field-naming-evidence
+    name: field-naming-evidence
     note: The consumer illustrations come second-hand from this record. It measured them on 30 October 2026 over 434 scanned files and the largest consumer built model.
   - path: docs/core/model.md
     readOn: 2026-10-31
-    key: model
+    name: model
     note: The record read the core model page to check the layer, aliases, and schema-version drift that research/field-naming-evidence reports.
   - path: schemas/glossary.schema.yaml
     readOn: 2026-10-31
-    key: glossary-schema
+    name: glossary-schema
     note: The record read the glossary schema to check the layer, aliases, and schema-version drift that research/field-naming-evidence reports.
 question: What does the 248-field inventory show about name collisions and value shapes, and which grammar follows from it?
 conclusion: The inventory counts 248 field names with 18 genuine collisions plus link-shaped justifications and string mini-languages. One grammar of eight word classes with no exceptions, objects for mini-languages, and American spelling follows.

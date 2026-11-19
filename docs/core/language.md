@@ -207,13 +207,13 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Strength:** required
 
-**Statement:** A field name MUST read naturally in its record type, keep one name for one concept across record types, and hold links to a record type when it names that type, in the singular or the plural.
+**Statement:** Every field name MUST carry the one meaning and shape the field table states for it, reading naturally in each record type that carries it, and hold links to a record type when it names that type, in the singular or the plural.
 
-**Rationale:** A reader meets a field inside one record, so its record type gives the name its meaning: a constraint's `scope` and a role's `scope` each read plainly where they stand. Forcing one meaning per word across every type pushes new fields toward names nobody uses. Two things stay fixed because they mislead across types: one concept keeps one name, so `summary` and `fulfills` read the same everywhere, and a name that names a record type, such as `rules`, always holds links to that type. Settled by [decision/0096-read-field-names-in-their-record-type](decision/0096-read-field-names-in-their-record-type).
+**Rationale:** A reader meets a field inside one record, so each name reads naturally where it stands. Its meaning and shape stay fixed across every record type: one name carries one meaning, so `excludes` states what a record does not cover on a product, a feature, a module, a role, an aggregate, an entry point, and a permission set alike, and `key` carries only an idempotency key. The field table holds one row per field name with its meaning, its shape, and the record types that use it. One concept keeps one name, so `summary` and `fulfills` read the same everywhere, and a name that names a record type, such as `rules`, always holds links to that type. A Claimwick constraint states its legal rules in `obligations`, because `rules` holds links to rule records. Settled by [decision/0096-read-field-names-in-their-record-type](decision/0096-read-field-names-in-their-record-type).
 
-**Example:** A Claimwick screen, the Expense List (`screen/claimwick-app.expense-list`), lists its `states` (Empty, Loading, Failed), and the expense aggregate (`aggregate/spending.expense`) lists its lifecycle `states` (Submitted, Approved, Refused, Reimbursed, Erased). Each reads plainly in its record. A Claimwick constraint states its legal rules in `obligations`, because `rules` holds links to rule records.
+**Example:** A module states what its area covers in `covers` and what it does not cover in `excludes`. An actor states the acts the product holds it to in `responsibilities`, the one record type that carries that name. A setting names its configuration path in `configurationPath`, and a research source carries its label in `name`.
 
-**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date.
+**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date, and reports a field name defined with two meanings or shapes and a field outside the field table.
 
 ### Name a Boolean as a Predicate
 

@@ -77,17 +77,18 @@ Each record has one identifier, short and unique across the product, such as `us
 
 ## Links Between Records
 
-Records point at each other by identifier, and each kind of link has one meaning. Access shows how links chain together: an actor holds a role, the role allows permissions, and the use case declares one grant.
+Records point at each other by identifier, and each kind of link has one meaning. Access shows how links chain together: an actor holds a role, each permission names the roles that hold it, and the use case declares one grant.
 
 ```yaml
 # intent/actors/employee/employee.yaml
 holds:
 - role/employee
 
-# intent/roles/employee/employee.yaml
-allows:
-- permission/request-expense
-- permission/list-expenses
+# behavior/modules/spending/permissions.yaml
+records:
+- id: permission/request-expense
+  grantedTo:
+  - role/employee
 
 # behavior/.../submit-expense/submit-expense.yaml
 access:

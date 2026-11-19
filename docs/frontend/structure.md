@@ -15,7 +15,7 @@ A frontend has three parts. The frame holds the cross-route values: client confi
 
 ### How Modules Mirror the Backend
 
-The module tree mirrors the backend module tree in kebab case: `{module}/{aggregates}/{use-case}/`, where module, aggregates, and use case are the backend's three grouping names. Kebab case means lowercase words joined by hyphens, so `ListExpenses` becomes `list-expenses` and `Expenses` becomes `expenses`. A module-level use case drops the aggregate segment in both trees.
+The module tree mirrors the backend module tree in kebab case: `{module}/{aggregates}/{use-case}/`, where module, aggregates, and use case are the backend's three grouping names. Kebab case means lowercase words joined by hyphens, so `ListExpenses` becomes `list-expenses` and `Expenses` becomes `expenses`. A module-level read drops the aggregate segment in both trees.
 
 A reader translates the three backend names to lowercase folders to find the frontend code that serves the use case.
 
@@ -58,7 +58,7 @@ That direction keeps four concerns separate: addresses in routes, use-case code 
 
 **Applies to:** artifact: any
 
-**Statement:** A use-case folder on a web or Blazor frontend MUST sit under the modules root at `{module}/{aggregates}/{use-case}/` in kebab case, resolving to the backend `Application/{Aggregates}/{UseCase}/` folder of the same names, with a module-level use case dropping the aggregate segment in both trees.
+**Statement:** A use-case folder on a web or Blazor frontend MUST sit under the modules root at `{module}/{aggregates}/{use-case}/` in kebab case, resolving to the backend `Application/{Aggregates}/{UseCase}/` folder of the same names, with a module-level read dropping the aggregate segment in both trees.
 
 **Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one aggregate folder with one folder per use case inside it, so the mirror names both. The mirror covers web and Blazor frontends; an Android frontend keeps no module mirror, as the [Android Stack](mobile/android/stack.md) states. The frontend structure test checks the mirror on every build, under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
@@ -78,7 +78,7 @@ In Claimwick, `use-case/spending.list-expenses` lists expenses. The backend impl
 
 The three backend names become three lowercase folder names, while the `Application/` layer segment has no counterpart in the frontend path.
 
-A query that describes no one aggregate keeps its record home under `use-cases/` beside its module, and drops the aggregate segment in both trees. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/read-spending-summary/` and `<backend>/Spending/Application/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
+A module-level read keeps its record home under `use-cases/` beside its module, and drops the aggregate segment in both trees. A query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/read-spending-summary/` and `<backend>/Spending/Application/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 

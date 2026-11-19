@@ -59,11 +59,11 @@ The weak version states the rule a second time. This satisfies `litespec/core/in
 
 ### List the Sources
 
-Give each entry in `sources` a `key`, its `url`, and the `readOn` date on which someone read it. Add `publishedOn` when the source states its publication date. A constraint can name several sources, with each one carrying its own dates.
+Give each entry in `sources` a `name`, its `url`, and the `readOn` date on which someone read it. Add `publishedOn` when the source states its publication date. A constraint can name several sources, with each one carrying its own dates.
 
 ```yaml
 sources:
-  - key: national-tax-law
+  - name: national-tax-law
     url: https://example.com/national-tax-law
     readOn: 2026-02-10
 ```
@@ -139,7 +139,7 @@ This satisfies `litespec/core/intent#state-each-constraint-rule-with-its-conditi
 
 ### Write Rules, One Paragraph per Rule
 
-Under Rules, restate each `obligations` item as its own paragraph with its condition. Each item states one outside rule as a fact and names its sources by key. Cite the source that states the rule as a reference link `[text][key]` to a key in `sources`. Keep to the outside obligation; what the product does about it belongs in Effect on the Product.
+Under Rules, restate each `obligations` item as its own paragraph with its condition. Each item states one outside rule as a fact and names its sources by name. Cite the source that states the rule as a reference link `[text][name]` to a name in `sources`. Keep to the outside obligation; what the product does about it belongs in Effect on the Product.
 
 | Instead of | Write |
 |:---|:---|
@@ -182,7 +182,7 @@ This satisfies `litespec/core/writing#use-literal-words` and `litespec/core/inte
 
 ### Run Model Render
 
-Run `litespec model render` from the consumer root. It appends a generated `source-links` region to the explanation file: one Markdown link definition per source, with its read date, such as `[national-tax-law]: https://example.com/national-tax-law "Read on 2026-02-10"`. Each `[text][key]` citation then works in a plain Markdown preview, without the book. The region is generated, so a hand edit inside it counts as drift.
+Run `litespec model render` from the consumer root. It appends a generated `source-links` region to the explanation file: one Markdown link definition per source, with its read date, such as `[national-tax-law]: https://example.com/national-tax-law "Read on 2026-02-10"`. Each `[text][name]` citation then works in a plain Markdown preview, without the book. The region is generated, so a hand edit inside it counts as drift.
 
 This satisfies `litespec/core/model#split-record-fields-from-explanation` as reworded for generated regions, and the [Model](../tools/model.md) command page states what `render` writes.
 

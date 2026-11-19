@@ -4,57 +4,57 @@ title: Intent Hierarchy Evidence
 sources:
   - url: https://www.mintlify.com/github/spec-kit/advanced/templates
     readOn: 2026-10-30
-    key: mintlify-github-spec-kit-advanced
+    name: mintlify-github-spec-kit-advanced
     note: A Mintlify mirror of the Spec Kit templates. The Spec Kit wording is second-hand through this mirror, and the record keeps it marked as secondary.
   - url: https://openspec.dev/docs/core-concepts
     readOn: 2026-10-30
-    key: openspec-docs-core-concepts
+    name: openspec-docs-core-concepts
   - url: https://kiro.dev/docs/specs/concepts
     readOn: 2026-10-30
-    key: kiro-docs-specs-concepts
+    name: kiro-docs-specs-concepts
   - url: https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/
     readOn: 2026-10-30
-    key: producttalk-glossary-discovery-opportunity
+    name: producttalk-glossary-discovery-opportunity
     note: A ProductTalk glossary page on the opportunity solution tree. It is a practitioner page, not the originator's book.
   - url: https://www.techtarget.com/searchsoftwarequality/definition/impact-mapping
     readOn: 2026-10-30
-    key: techtarget-searchsoftwarequality-definition
+    name: techtarget-searchsoftwarequality-definition
     note: A TechTarget page on impact mapping. It is a practitioner page, not the originator's book.
   - url: https://www.incose.org/wp-content/uploads/legacy/presentation/IS2013-pdf/3-3-1.pdf
     readOn: 2026-10-30
-    key: incose-wp-content-uploads-legacy
+    name: incose-wp-content-uploads-legacy
     note: INCOSE conference slides behind the ISO/IEC/IEEE 29148 level names, not the paywalled standard.
   - url: https://reqview-homepage.netlify.app/doc/iso-iec-ieee-29148-templates
     readOn: 2026-10-30
-    key: reqview-homepage-netlify-doc-iso-iec-ieee-29148
+    name: reqview-homepage-netlify-doc-iso-iec-ieee-29148
     note: ReqView template pages behind the ISO/IEC/IEEE 29148 level names, not the paywalled standard.
   - url: https://www.inf.ed.ac.uk/teaching/courses/seoc/2004_2005/resources/volere-template.pdf
     readOn: 2026-10-30
-    key: inf-ed-ac-teaching-courses-seoc
+    name: inf-ed-ac-teaching-courses-seoc
     note: A 2004 university copy of version 9 of the Volere template. The Volere claims stay unconfirmed beyond this copy.
   - url: https://www.aha.io/roadmapping/guide/release-management/what-is-user-story-mapping
     readOn: 2026-10-30
-    key: aha-roadmapping-guide-release-management
+    name: aha-roadmapping-guide-release-management
     note: An Aha guide page on user story mapping. It is a practitioner page, not the originator's book.
   - url: https://link.springer.com/10.1007/s00766-023-00408-9
     readOn: 2026-10-30
-    key: link-springer-s00766-023-00408-9
+    name: link-springer-s00766-023-00408-9
     note: A Springer article that the record identifies as Ruiz et al. 2023, behind the traceability cost claims.
   - path: docs/core/intent.md
     readOn: 2026-10-31
-    key: intent
+    name: intent
     note: The Intent core page, re-read on 31 October 2026 with the web citations kept.
   - path: docs/core/model.md
     readOn: 2026-10-31
-    key: model
+    name: model
     note: The core model page, re-read on 31 October 2026 with the web citations kept.
   - path: docs/tools/model.md
     readOn: 2026-10-30
-    key: model-2
+    name: model-2
     note: The model tool page, read with the other repository paths.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
-    key: record-schema
+    name: record-schema
     note: The record schema, re-read on 31 October 2026 with the web citations kept.
 question: Which Intent links does LiteSpec require and check? How should Intent group its requirements and name their reasons? What do outside tools and the largest consumer show?
 conclusion: Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links. In the largest consumer, 719 of 928 requirements name no origin while every enforced Intent check passes. Outside tools group each promise with the unit its author writes. Authors follow the page rather than the parent, so each feature holds its requirements as entries and reasons become one cites list.

@@ -17,7 +17,7 @@ Each layer answers one question, each layer is written from the layer above it a
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | goal, direction, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, reference-data, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, reference-data, permission, refusal-set, refusal, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -64,7 +64,8 @@ A record type is one kind of statement a project can write, and each type answer
 | `setting` | behavior | Which operator configuration does the running system read? |
 | `reference-data` | behavior | Which dated values does the running system look up? |
 | `permission` | behavior | Which single actions are allowed? |
-| `refusal-set` | behavior | Which refusal codes does a module declare? |
+| `refusal-set` | behavior | Which refusal codes does each aggregate and the module declare? |
+| `refusal` | behavior | What does one refusal mean? |
 | `entry-point` | behavior | How do people reach the product? |
 | `screen` | behavior | Which page does a person see through an entry point, and what does it offer? |
 | `external-system` | behavior | Which outside system exchanges what? |
@@ -74,7 +75,7 @@ A record type is one kind of statement a project can write, and each type answer
 
 The [intent page](intent.md) states the Intent records, the [behavior page](behavior.md) states the Behavior records, and the [access page](access.md) states the access records.
 
-Each record file holds the fields the record schema names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, a permission set per module holds permissions, and a refusal set per module holds refusal codes.
+Each record file holds the fields the record schema names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, a permission set per module holds permissions, and a refusal set per aggregate holds the codes that aggregate's rules raise, with the module's set holding only the codes no aggregate raises.
 
 The book renders the retention schedule from the data classes.
 
@@ -146,16 +147,16 @@ Each parent with child records holds them in a folder named for the child type i
 | `module-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/module-events/<name>/<name>.yaml` | aggregate | `module-event/<module>.<name>` |
 | `integration-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/integration-events/<name>/<name>.yaml` | aggregate | `integration-event/<name>` |
 | `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` |
-| `refusal-set` | Behavior | module | `behavior/modules/<m>/refusals.yaml` | module | `<module>.<name>` (code) |
+| `refusal-set` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregates>/refusals.yaml`, `behavior/modules/<m>/refusals.yaml` | aggregate or module | `refusal/<module>.<name>` (each entry's id; the code is the id's name) |
 | `entry-point` | Behavior | product | `behavior/entry-points/<entry-point>/entry-point.yaml` | product | `entry-point/<name>` |
 | `screen` | Behavior | entry point | `behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | entry point | `screen/<entry-point>.<name>` |
 | `external-system` | Behavior | product, module | `behavior/external-systems/<name>/<name>.yaml`, `behavior/modules/<m>/external-systems/<name>/<name>.yaml` | product or module | `external-system/<name>` |
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/`, `module-events/`, `integration-events/` and `rules/` folders. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/`, `module-events/`, `integration-events/` and `rules/` folders with its `refusals.yaml` beside `aggregate.yaml`. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
 
-A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
+A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A command use case at module level is a `record-placement-invalid` finding: every command belongs to the aggregate it changes, and module level keeps only module-wide reads. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
 A module, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the module, never a second name. A feature answers the problem whose folder holds it, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
 
@@ -165,13 +166,13 @@ Policy rules are Intent requirements or constraints; an invariant sits under its
 
 An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. An integration event sits under the aggregate whose domain event it translates, in its publishing module, or with its receiving module when inbound. A module event has exactly one publishing module, its own module. A second publishing module is an `event-publisher-invalid` finding. A module event sits under the aggregate whose domain event it translates. A module-level `module-events/` folder is a `record-placement-invalid` finding.
 
-List records (rule sets, setting sets, the permission set and the refusal set per module) are files whose entries take the file's scope node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
+List records (rule sets, setting sets, the permission set per module and the refusal sets per aggregate and module) are files whose entries take the file's scope node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
 
 An external system sits at the lowest scope node holding every record that calls it. A product-level external system called from one module only is an `external-system-placement-wide` finding.
 
 The book groups a use case's scenarios by result, and it shows each feature under the problem whose folder holds it. The first grouping is presentation; the second follows containment.
 
-`fulfilledBy` does not exist: a use case keeps `fulfills` pointing up to the requirement, and the book computes the inverse. `role.allows` is a declared down-link, like `decides` and `holds`.
+`fulfilledBy` does not exist: a use case keeps `fulfills` pointing up to the requirement, and the book computes the inverse. Every link points from the lower or later record to the higher or earlier one: each permission names the roles that grant it in `grantedTo`, each settled record names its decision in `basedOn`, and each external system names the actor it represents in `represents`. The reverse views are gathered for `model query` and the book, never stored.
 
 Module dependencies form a directed acyclic graph over Contracts references, `queries` edges, `commands` edges, and reactions to facts, beside the `dependsOn` links; a `module-dependency-invalid` finding reports a cycle.
 
@@ -324,6 +325,7 @@ An identifier is the one name every link and citation uses for a record. It name
 | `actor` | `actor/<name>` | `actor/employee` |
 | `role` | `role/<name>` | `role/approver` |
 | `permission` | `permission/<name>` | `permission/approve-expense` |
+| `refusal` | `refusal/<module>.<name>` | `refusal/spending.receipt-missing` |
 | `entry-point` | `entry-point/<name>` | `entry-point/claimwick-app` |
 | `screen` | `screen/<entry-point>.<name>` | `screen/claimwick-app.expense-list` |
 | `external-system` | `external-system/<name>` | `external-system/payout-bank` |
@@ -367,7 +369,7 @@ A Markdown link whose target is a record identifier cites that record. A flow st
 
 ### Links
 
-A link is a typed reference from one record to another, and each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. Each link property carries one meaning, so every verb reads the same everywhere.
+A link is a typed reference from one record to another, and each written link lives as a field on the record it starts from: a permission carries `grantedTo`, a rule carries `fulfills`, and so on. Each link property carries one meaning, so every verb reads the same everywhere.
 
 The table below is generated from the schema's `x-reads-as` and `x-read-back-as` annotations. Each link states how it reads in both directions, and the book takes its connection labels from those two phrases.
 
@@ -375,9 +377,11 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
 | `terms` | any record | term | uses | is used by |
+| `grantedTo` | permission | role | is granted to | grants |
 | `governs` | rule | aggregate, use case | governs | is governed by |
 | `binds` | rule | aggregate | binds | is bound by |
-| `basedOn` | rule | constraint, research | is based on | is a basis for |
+| `refusal` | rule, result | refusal | is refused as | is the refusal for |
+| `basedOn` | rule, requirement | constraint, research, decision | is based on | is a basis for |
 | `cites` | rule | constraint, research | cites | is cited by |
 | `fulfills` | rule, setting, use case, reaction, job, notification, screen | requirement | fulfills | is fulfilled by |
 | `releasedBy` | rule | use case | is released by | releases |
@@ -389,7 +393,6 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `servedContent.fulfills` | entry point | requirement | fulfills | is fulfilled by |
 | `users` | product | actor | is used by | uses |
 | `basedOn` | constraint | research | is based on | is a basis for |
-| `decides` | decision | generic record | decides | is decided by |
 | `basedOn` | decision | constraint, research, direction, requirement | is based on | is a basis for |
 | `supersedes` | decision | decision | supersedes | is superseded by |
 | `affects` | problem | actor | affects | is affected by |
@@ -398,16 +401,13 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `cites` | requirement | goal, direction, problem, feature, constraint, research, decision | cites | is cited by |
 | `except.fallback` | requirement | requirement | falls back to | is the fallback for |
 | `holds` | actor | role | holds | is held by |
-| `allows` | role | permission | allows | is allowed by |
 | `actor` | flow | actor | is taken by | takes |
 | `serves` | flow | goal | serves | is served by |
 | `answers` | flow | problem, constraint | answers | is answered by |
 | `steps.actor` | flow | actor | is performed by | performs |
-| `steps.system` | flow | external system | is performed by | performs |
 | `steps.carries` | flow | requirement | carries | is carried by |
 | `steps.branches.then` | flow | flow step | continues at | is continued from |
 | `steps.branches.carries` | flow | requirement | carries | is carried by |
-| `steps.branches.system` | flow | external system | is performed by | performs |
 | `dependsOn` | module | module | depends on | is depended on by |
 | `transitions.movedBy` | aggregate | use case, job | is moved by | moves |
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
@@ -422,6 +422,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `reads` | use case, reaction, job | aggregate, setting, read model, reference data | reads | is read by |
 | `consistency.boundBy` | use case | rule | is kept by | keeps |
 | `consistency.guards` | use case | aggregate | holds the guard of | is guarded by |
+| `conflicts.refusal` | use case | refusal | is refused as | is the refusal for |
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
 | `effects.queries` | use case, reaction, job | use case | queries | is queried by |
@@ -441,6 +442,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `audience` | notification | actor | is sent to | is the audience of |
 | `deliveredThrough` | notification | external system | is delivered through | delivers |
 | `claims.requirement` | notification | requirement | claims | is claimed by |
+| `represents` | external system | actor | represents | is represented by |
 | `processes.aggregate` | external system | aggregate | processes | is processed by |
 | `erasure.operation` | external system | external operation | is erased through | erases |
 | `erasure.event` | external system | published event | is erased through | carries the erasure of |
@@ -460,13 +462,14 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `offers` | screen | use case | offers | is offered by |
 | `leadsTo` | screen | screen | leads to | is reached from |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
+| `records.terms` | refusal set | term | uses | is used by |
 <!-- /generated:links -->
 
-Links point up a layer by default, from the behavior to the promise it keeps. Intent links point up: `serves`, `answers`, `fulfills`, `cites` and `advances` connect Behavior to Intent or Intent to the promise above it.
+Every link points up: from the lower or later record to the higher or earlier one. Intent links point up: `serves`, `answers`, `fulfills`, `cites`, `advances`, `grantedTo`, `basedOn` and `represents` connect Behavior to Intent or Intent to the promise above it. A flow names no use case, and a requirement names no rule.
 
 Effect and structure links follow the effect graph within Behavior: `runs`, `sends`, `calls`, `queries`, `commands`, `triggeredBy`, `translates`, `raises`, `offers`, `host`, `refusal`, `movedBy` and the read-model sources.
 
-The only down-links are `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, `holds`, which names the roles an actor holds, and `steps.system`, which names the external system that performs a flow step: a flow names no use case, and a requirement names no rule.
+`holds` stays: actor and role are both Intent, so an actor naming its roles is not a layer down-link. The reverse views are gathered, never stored: `model query` and the book read a role's permissions from the permissions naming it in `grantedTo`, a decision's settled records from the records naming it in `basedOn`, and a system actor's outside system from the external system naming it in `represents`.
 
 A read model carries no `fulfills`: the query that reads the read model fulfills the requirement. Each `servedContent` entry on a `browser` entry point carries `fulfills` naming the requirement its content meets.
 
@@ -556,7 +559,7 @@ A runtime value a record already states, such as an event classification or a re
 
 ### Where Code and Tests Sit
 
-Backend code follows the module layout: one `Contracts/` folder holding data only grouped by aggregate, one `Domain/` folder holding one folder per aggregate in the plural, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level use case, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/Payouts/RequestPayout/`.
+Backend code follows the module layout: one `Contracts/` folder holding data only grouped by aggregate, one `Domain/` folder holding one folder per aggregate in the plural, and the `Application/`, `Infrastructure/`, and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level read, in one tree. The layout mirrors the records, so the folder of a file already says which record it serves. The namespace and folder of a type that marks a record match the record's identifier and module. A handler marking `use-case/finance.request-payout` sits in `{Product}/Finance/Application/Payouts/RequestPayout/`.
 
 Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case, so acceptance tests mirror `{Module}/{Aggregates}/{UseCase}/`.
 
@@ -600,7 +603,7 @@ Each Intent type reaches Behavior in its own way:
 - A feature or requirement reaches a use case, screen, flow, or quality scenario in Behavior.
 - A constraint is answered by a requirement or by a flow.
 - Research is cited by a record that reaches Behavior.
-- A decision decides a record that reaches Behavior.
+- A decision is named in `basedOn` by a record that reaches Behavior.
 - A direction reaches nothing by design: decisions and requirements cite it, and no reach check reads it, as the [intent page](intent.md#directions) states.
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
@@ -1012,6 +1015,22 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Checked by:** `litespec model check` reports `reference-unknown` for a link whose target no record carries.
 
+### Point Every Link Up
+
+**ID:** `litespec/core/model#point-every-link-up`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every link MUST point from the lower or later record to the higher or earlier one, with no exceptions.
+
+**Rationale:** A link from a higher layer to a lower one makes the layers depend both ways: an Intent record cannot be written or read before the Behavior records it names. Each permission names the roles that grant it in `grantedTo`, each settled record names its decision in `basedOn`, and each external system names the actor it represents in `represents`, so every record is written before the records above it read it. The reverse views are gathered for `model query` and the book, never stored. `holds` stays: actor and role are both Intent, so it is not a layer down-link.
+
+**Example:** `permission/request-expense` names `role/employee` in `grantedTo`, and the book gathers the employee role's permissions from the permissions naming it.
+
+**Checked by:** `litespec model check` reports `link-direction-invalid` (level G) for a link from a higher layer to a lower one.
+
 ### Connect Every Behavior Record to Intent
 
 **ID:** `litespec/core/model#connect-every-behavior-record-to-intent`
@@ -1128,11 +1147,11 @@ Three findings cover the three gaps: `step-use-case-missing` names a step no use
 
 **Applies to:** artifact: record:decision
 
-**Statement:** Every product decision MUST name at least one record it settles in `decides`.
+**Statement:** Every product decision MUST be named in `basedOn` by at least one record it settles.
 
-**Rationale:** A decision that names nothing governs nothing. Naming at least one settled record gives the decision something to govern. A technical decision governs the code that follows it instead.
+**Rationale:** A decision that no settled record names governs nothing. Every link points from the lower or later record to the higher or earlier one, so the settled record names its decision in `basedOn` instead of the decision naming the record. A technical decision governs the code that follows it instead.
 
-**Checked by:** `litespec model check` reports `decision-decides-missing` for a product decision with an empty `decides` field.
+**Checked by:** `litespec model check` reports `decision-decides-missing` for a product decision that no settled record names in `basedOn`.
 
 ### Record Each Technical Choice as a Decision
 
@@ -1166,7 +1185,7 @@ Technical decisions sit under Implementation because they name technologies and 
 
 **Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is.
 
-Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis blocks at level G, like a product decision that decides nothing. A technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
+Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis blocks at level G, like a product decision that no settled record names. A technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
 
 **Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/approval-reminders.month-end-submission` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
@@ -1512,9 +1531,9 @@ title: Submit Expense
 
 **Statement:** A schema error on a rejected field or a link in the wrong field MUST name the field to use instead.
 
-**Rationale:** Some fields read naturally but belong elsewhere: `heldBy` on a permission, `required` on an output field, a notification under a step's `cites`. The record schema lists each rejected field with the field to use instead, and the link checks name the field for a misplaced link, so the error moves the author forward instead of leaving them to guess which of the many shapes they broke.
+**Rationale:** Some fields read naturally but belong elsewhere: `heldBy` on a permission, `required` on an output field, a notification under a step's `carries`. The record schema lists each rejected field with the field to use instead, and the link checks name the field for a misplaced link, so the error moves the author forward instead of leaving them to guess which of the many shapes they broke.
 
-**Example:** `heldBy` on a permission reports that the permission belongs on the role's `allows` list in `intent/roles/`.
+**Example:** `heldBy` on a permission reports that the permission names its roles in `grantedTo`.
 
 **Checked by:** `litespec model check` reports `record-invalid` naming the field to use instead.
 

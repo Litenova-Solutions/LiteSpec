@@ -727,9 +727,9 @@ Malformed caller input stays with Application validators, which report it as val
 
 **Applies to:** artifact: aggregate, value-object
 
-**Statement:** Each refusal code a module declares MUST be carried by at most one exception type, in the module that declares it.
+**Statement:** Each refusal code a module declares MUST be carried by at most one exception type, in the module that declares it, under the aggregate whose set declares the refusal.
 
-**Rationale:** A refusal code tells the caller which module refused and why. An exception in one module that carries another module's code blames the wrong owner. Two exception types carrying one code leave the caller unable to tell which rule failed, so the code stops meaning anything once it travels. Each module declares its codes once in its refusal set, under `litespec/core/use-cases#declare-each-modules-refusals-once`. Each exception type carries its rule's code from that set, under `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`. One carrying type per code in the declaring module keeps the blame and the rule behind each code fixed. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
+**Rationale:** A refusal code tells the caller which module refused and why. An exception in one module that carries another module's code blames the wrong owner. Two exception types carrying one code leave the caller unable to tell which rule failed, so the code stops meaning anything once it travels. Each aggregate declares the refusals its rules raise once in its own set, with the module's set keeping only the refusals no aggregate raises, under `litespec/core/use-cases#declare-each-aggregates-refusals-once` and `litespec/core/use-cases#declare-each-modules-refusals-once`. Each exception type carries its rule's code from that set in `Domain/{Aggregates}/Exceptions/`, under `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`. One carrying type per code in the declaring module keeps the blame and the rule behind each code fixed. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
 
 **Example:** The spending module declares `spending.receipt-missing`, and only its `ExpenseReceiptMissingException` carries that code:
 
@@ -746,7 +746,7 @@ public sealed partial class ExpenseReceiptMissingException : DomainException
 
 From the refusal result the rule names, the generator writes `public override string Code => "spending.receipt-missing";`. A receipt exception in the reporting module carrying `spending.receipt-missing`, or a second spending exception carrying the same code, breaks this rule.
 
-**Checked by:** `litespec model check` reports `refusal-module-foreign` (level S) for a refusal code carried from another module's code, and `refusal-code-duplicate` (level S) for a refusal code two exception types carry.
+**Checked by:** `litespec model check` reports `refusal-module-foreign` (level S) for a refusal code carried from another module's code, `refusal-code-duplicate` (level S) for a refusal code two exception types carry, and `code-placement-drift` or `record-placement-invalid` for a refusal and its exception declared under different homes.
 
 ## Conventions
 
@@ -851,16 +851,16 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 
 **Applies to:** artifact: aggregate
 
-**Default:** Declare a root whose file passes 500 lines as a partial class with one file per business action named `{Root}.{Action}.cs`, holding the action's rules in private members or private nested types.
+**Default:** Declare a root whose file passes 500 lines as a partial class with one folder per business action named `{Act}/`, holding the partial file `{Root}.{Act}.cs` with the action's inputs and its private rules.
 
 **Replacement:** A project names its own large-root layout in its Domain documentation.
 
-**Rationale:** A root grows with every business action it owns, and one file holding every action reads as one long listing. Splitting the root into one partial file per action keeps each action readable on its own while the root stays the one entry point to its aggregate. The action's rules stay private to the root, as private members or private nested types, so no caller reaches them past the root's methods. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
+**Rationale:** A root grows with every business action it owns, and one file holding every action reads as one long listing. Splitting the root into one folder per action keeps each action readable on its own while the root stays the one entry point to its aggregate. The name is the use case's act, so `Domain/Entries/PostInvoice/` mirrors `Application/Entries/PostInvoiceEntry/`. The action's rules stay private to the root, as private members or private nested types, so no caller reaches them past the root's methods. Settled by [decision/0104-reach-each-aggregate-only-through-its-root](decision/0104-reach-each-aggregate-only-through-its-root).
 
-**Example:** In the Claimwick product, the expense root keeps its identity and state in `Expense.cs`, its submission factory and allocation rules in `Expense.Submit.cs`, and its approval in `Expense.Approve.cs`:
+**Example:** In the Claimwick product, the expense root keeps its identity and state in `Expense.cs`, its submission factory and allocation rules in `Submit/Expense.Submit.cs`, and its approval in `Approve/Expense.Approve.cs`:
 
 ```csharp
-// Expense.Submit.cs
+// Submit/Expense.Submit.cs
 public sealed partial class Expense
 {
     public static Expense Submit(

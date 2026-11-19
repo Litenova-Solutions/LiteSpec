@@ -104,7 +104,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A protected multi-tenant operation MUST confirm actor and target tenancy, with the needed permission held at the resolved scope and the target belonging to it.
 
-**Rationale:** Checking the caller alone leaves the target unchecked. An authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role for the resolved tenant, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.
+**Rationale:** Checking the caller alone leaves the target unchecked. An authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role for the resolved tenant, the permission names the role in `grantedTo`, the use case declares that permission in its grant, and the target belongs to the same scope.
 
 **Reviewed for:** Does every protected operation refuse when the actor and target tenants mismatch? Check the authorization tests.
 

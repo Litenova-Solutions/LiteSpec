@@ -47,6 +47,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `read-model` | `behavior/modules/{module}/read-models/{name}` | `{name}.yaml` |
 | `reference-data` | `behavior/modules/{module}/reference-data/{name}` | `{name}.yaml` |
 | `permission` | `behavior/modules/{module}` | `permissions.yaml` |
+| `refusal-set` | `behavior/modules/{module}/aggregates/{aggregate}` | `refusals.yaml` |
 | `refusal-set` | `behavior/modules/{module}` | `refusals.yaml` |
 | `entry-point` | `behavior/entry-points/{entry-point}` | `entry-point.yaml` |
 | `screen` | `behavior/entry-points/{entry-point}/screens/{home}.{name}` | `{home}.{name}.yaml` |

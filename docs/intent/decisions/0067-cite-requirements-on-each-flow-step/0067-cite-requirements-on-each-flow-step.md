@@ -22,7 +22,7 @@ A step names the requirements it carries in its own `cites`. The flow keeps no `
 
 A step's `statement` and `failure` state what the person does and experiences. Numbers, limits, and conditions stay in the cited requirement. A failure states what the person sees and can do next, never the rule behind it. With a wrong code, no session starts and the person asks for a new code.
 
-A step names a person in `actor` or an external system in `system`. Jobs and reactions never appear in a step. They serve the step upward like use cases. A step stays in product terms while jobs and reactions serve it. An external system in a step is a relationship the flow states on purpose.
+A step names a person in `actor`, or the system actor standing for the outside system when no person acts. Jobs and reactions never appear in a step. They serve the step upward like use cases. A step stays in product terms while jobs and reactions serve it. A system actor in a step is a relationship the flow states on purpose, and the outside system's record names the actor in `represents`.
 
 A check tying citations to servers lands only if it proves cheap and sure on real records. Otherwise the rule stays reviewed rather than checked.
 

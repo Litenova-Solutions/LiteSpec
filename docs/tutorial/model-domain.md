@@ -81,17 +81,17 @@ Intent records say what the product promises; Behavior records say how the produ
     Every field names its data class, and each class carries its own retention: the period, what starts it, the basis, the purpose, what enforces it, and the exceptions. A personal or sensitive class that is retained or exempt needs an Intent decision or requirement that accepts it.
 8. Write the rules with kinds. Give each rule a person-chosen identifier of one to six lowercase words, and keep `not`, `no`, `never`, or `cannot` in the name when the statement uses it. This satisfies `litespec/core/domain-model#state-each-rule-with-its-kind` and `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name`.
 
-    | Rule | Kind | Statement | Refusal code |
+    | Rule | Kind | Statement | Refusal |
     |:---|:---|:---|:---|
-    | `rule/expense.receipt-required-above-threshold` | `precondition` | An expense above the policy threshold needs a receipt. | `spending.receipt-missing` |
-    | `rule/expense.approver-is-not-submitter` | `precondition` | An approver is not the submitter. | `spending.own-expense` |
-    | `rule/expense.reimbursed-once` | `invariant` | An expense is reimbursed at most once. | `spending.already-reimbursed` |
-    | `rule/expense.approved-before-reimbursement` | `precondition` | An expense is reimbursed only after approval. | `spending.not-approved` |
-    | `rule/receipt.attaches-before-decision` | `precondition` | A receipt attaches before the expense is decided. | `spending.expense-decided` |
+    | `rule/expense.receipt-required-above-threshold` | `precondition` | An expense above the policy threshold needs a receipt. | `refusal/spending.receipt-missing` |
+    | `rule/expense.approver-is-not-submitter` | `precondition` | An approver is not the submitter. | `refusal/spending.own-expense` |
+    | `rule/expense.reimbursed-once` | `invariant` | An expense is reimbursed at most once. | `refusal/spending.already-reimbursed` |
+    | `rule/expense.approved-before-reimbursement` | `precondition` | An expense is reimbursed only after approval. | `refusal/spending.not-approved` |
+    | `rule/receipt.attaches-before-decision` | `precondition` | A receipt attaches before the expense is decided. | `refusal/spending.expense-decided` |
 
     An `invariant` holds after every change to its aggregate, while a `precondition` guards the behavior before it runs and refuses caller-correctable input. A `calculation` derives a value and is proven by a scenario with `examples`. The remaining kinds cover atomicity, held reservations, and frozen values.
 
-    Each rule that refuses names its refusal code from the module's refusal set. This satisfies `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`. A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, or the check reports `rule-binds-missing`: `rule/spending.receipt-filed-once`, a receipt file supports one expense across spending, binds `aggregate/spending.expense` and `aggregate/spending.receipt`. This satisfies `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`.
+    Each rule that refuses names its refusal id from its aggregate's refusal set. This satisfies `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`. A rule whose `governs` names more than one aggregate names every governed aggregate in `binds`, or the check reports `rule-binds-missing`: `rule/spending.receipt-filed-once`, a receipt file supports one expense across spending, binds `aggregate/spending.expense` and `aggregate/spending.receipt`. This satisfies `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`.
 
     A value the business changes while the system runs, such as the receipt threshold a manager sets, is aggregate data: its range is a rule with a refusal, and its change is a use case with access and audit. A setting is operator configuration the running system reads, such as a provider timeout or a delay the operator tunes. Input shape stays in the validator, and current aggregate state stays in the aggregate. This satisfies `litespec/backend/application#separate-input-validation-from-invariants`.
 9. Name the people and what each may do. Write one actor record file per party, and one role record file per grantable set of permissions. Roles grant permissions, and each use case later declares its access against one grant. This satisfies `litespec/core/access#grant-permissions-through-roles` and `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
@@ -116,14 +116,14 @@ Intent records say what the product promises; Behavior records say how the produ
     Every edge the use case causes goes in `effects` with one verb and its timing: `sends` or `calls`. This satisfies `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`. Every input field names its origin and classification, and caller-supplied values on money or access paths carry bounding rules. This satisfies `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`. Every command names its idempotency, and when the project selects the audit extension, every command states its audit position. This satisfies `litespec/core/use-cases#name-the-idempotency-of-every-command` and `litespec/core/use-cases#state-the-audit-position-of-every-command`.
 
     A query changes nothing, and declares its `output` in `include` groups with freshness, plus its paging. This satisfies `litespec/core/use-cases#declare-every-query-output` and `litespec/core/use-cases#declare-paging-on-every-collection-query`. An output group whose figure a command re-decides names the deciding command or its aggregate in `freshness.decidedBy`, allowed only with `snapshot` or `eventual` freshness. The reimbursed-expenses list names `use-case/spending.reimburse-expense`, the command that decides each payout. This satisfies `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`.
-11. Name one result per ending. A result is one way a use case ends: `success`, or a named `refusal` with its stable `code`. Order the refusals by precedence, since the first match wins. This satisfies `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, and `litespec/backend/application#model-expected-use-case-refusals-explicitly`.
+11. Name one result per ending. A result is one way a use case ends: `success`, or a named `refusal` with its refusal id. Order the refusals by precedence, since the first match wins. This satisfies `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, and `litespec/backend/application#model-expected-use-case-refusals-explicitly`.
 
-    | Result | Outcome | Code | Reader Text |
+    | Result | Outcome | Refusal | Reader Text |
     |:---|:---|:---|:---|
     | `result/submit-expense.submitted` | `success` | None | The expense is submitted. |
-    | `result/submit-expense.receipt-missing` | `refusal` | `spending.receipt-missing` | Attach the receipt for this expense, then submit again. |
+    | `result/submit-expense.receipt-missing` | `refusal` | `refusal/spending.receipt-missing` | Attach the receipt for this expense, then submit again. |
 
-    A success carries its ending in `meaning`. A refusal names its `code` from the module's refusal set and keeps its `sentence`, while the meaning lives on the refusal set.
+    A success carries its ending in `meaning`. A refusal names its refusal id from its aggregate's refusal set and keeps its `sentence`, while the meaning lives on the refusal set.
 
     Leave the generic refusals out: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated` and `sign-in-too-old` derive from access and input, so the use case writes only its own. This satisfies `litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them`. A refusal that stores the attempt carries `recorded: true`, and a success with recorded outcomes inside it carries `codes`.
 

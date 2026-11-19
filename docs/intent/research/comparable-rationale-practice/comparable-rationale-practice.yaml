@@ -4,23 +4,23 @@ title: Comparable Rationale Practice
 sources:
   - url: https://peps.python.org/pep-0001/
     readOn: 2026-10-30
-    key: peps-python-pep-0001
+    name: peps-python-pep-0001
     note: "PEP 1 keeps rationale inside the proposal. The record read it in full."
   - url: https://raw.githubusercontent.com/rust-lang/rfcs/master/0000-template.md
     readOn: 2026-10-30
-    key: raw-githubusercontent-rust-lang-rfcs-master
+    name: raw-githubusercontent-rust-lang-rfcs-master
     note: "The Rust RFC template keeps rationale inside the proposal record. The record read it in full and takes its position that a merged RFC is shared agreement, not a final specification."
   - url: https://raw.githubusercontent.com/kubernetes/enhancements/master/keps/0000-kep-template/README.md
     readOn: 2026-10-30
-    key: raw-githubusercontent-kubernetes-enhancements
+    name: raw-githubusercontent-kubernetes-enhancements
     note: "The Kubernetes KEP template keeps rationale inside the proposal. The record read it in full and does not take its position of one directory per proposal."
   - url: https://adr.github.io/madr/
     readOn: 2026-10-30
-    key: adr-github-madr
+    name: adr-github-madr
     note: "MADR keeps rationale inside the decision record. The record read it in full and takes its position of one file per decision."
   - url: https://www.rfc-editor.org/rfc/rfc6855.txt
     readOn: 2026-10-30
-    key: rfc-editor-rfc-rfc6855
+    name: rfc-editor-rfc-rfc6855
     note: "RFC 6855 moves rationale into a non-normative appendix, separate from the protocol text. The record read it in full."
 question: How do comparable standards projects keep design rationale so readers can reference it beside the rules it produced?
 conclusion: Comparable projects keep rationale in numbered, dated, never-edited records beside the normative text - each stating its motivation, its drawbacks, and its unresolved questions - while the specification itself remains the only normative surface.

@@ -93,7 +93,7 @@ A second act of a person is a second step.
 
 The first weak version packs two acts into one step, so a reader cannot see where one act ends. The second states what the product does without the rule for how it computes the amount. This satisfies `litespec/core/intent#write-flow-steps-as-sentences-with-ids`.
 
-Give each step an `id` as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case, such as `step/submit-and-reimburse.submit-expense`. Give each step a `title`, a short Title Case name of its act such as `Submit Expense`, and take the act from the title's words in kebab case. List order is the main path; no position lives in an id. The book, the trace, and `model query` show the title, while the `statement` keeps the full sentence. Use an `actor` field only at a handoff, when a second person takes over a step. A step's `system` field names only an external system, because a job or a reaction never appears in a step.
+Give each step an `id` as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case, such as `step/submit-and-reimburse.submit-expense`. Give each step a `title`, a short Title Case name of its act such as `Submit Expense`, and take the act from the title's words in kebab case. List order is the main path; no position lives in an id. The book, the trace, and `model query` show the title, while the `statement` keeps the full sentence. Use an `actor` field only at a handoff, when a second actor takes over a step, or for the system actor standing for the outside system when no person acts. A job or a reaction never appears in a step.
 
 ### Give Each Blocker as the Step's Failure
 

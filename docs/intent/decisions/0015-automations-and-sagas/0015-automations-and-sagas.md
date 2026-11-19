@@ -29,13 +29,13 @@ An aggregate is an entity or a store. Coordination across aggregates is not a re
 
 No workflow-engine extension exists. `decision/0030-limit-the-jobs-extension` removes the workflow-engine subjects that the jobs extension held.
 
-An entry point leads from outside only. The kinds are `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, and `served-content`. The entry point states how a caller authenticates, in `auth`. The use case states who may act, in `grant` and `tenant`. An atomic write across aggregates stays allowed through an `atomicity` rule that `binds` the aggregates, and the use case's `writes` must equal that group.
+An entry point leads from outside only. The kinds are `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, and `served-content`. The entry point states how a caller authenticates, in `auth`. The use case states who may act, in `grant` and `tenant`. An atomic write across aggregates stays allowed through an `atomicity` rule that `binds` the aggregates, and the use case's `writes` must equal that group. The write also needs a decision record naming the use case and the invariant that needs both in one transaction.
 
 ## Consequences
 
 An aggregate carries no kind, a store is its own record type under `litespec/core/domain-model#keep-technical-state-out-of-behavior`, and no coordination kind exists. The provision `litespec/core/edges#give-each-entry-point-a-kind` carries the kinds only.
 
-The provision `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
+The provision `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` carries the 2 consistency modes. An atomic write across aggregates cites its bound rule and its decision record. A reaction that undoes a committed step names the step in `compensates`, as `litespec/core/automation#name-the-step-a-compensating-reaction-undoes` states.
 
 The provision `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind` keeps auth on the entry point. The provision `litespec/core/access#authorize-every-use-case-through-a-declared-grant` keeps the grant on the use case. Four provisions in the automation page carry the reaction trigger, the job kind, and the two name forms.
 

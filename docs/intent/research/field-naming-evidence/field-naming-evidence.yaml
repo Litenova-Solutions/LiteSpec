@@ -4,19 +4,19 @@ title: Field Naming Evidence
 sources:
   - path: schemas/record.schema.yaml
     readOn: 2026-10-30
-    key: record-schema
+    name: record-schema
     note: The record schema, read with the glossary schema and the template on 30 October 2026.
   - path: schemas/glossary.schema.yaml
     readOn: 2026-10-30
-    key: glossary-schema
+    name: glossary-schema
     note: The glossary schema, read with the record schema and the template on 30 October 2026. It defines neither layer nor aliases and pins version 2, so the record treats it as out of step.
   - path: templates/consumer/glossary.yaml
     readOn: 2026-10-30
-    key: glossary
+    name: glossary
     note: The consumer glossary template, read with the schemas on 30 October 2026. It requires layer and aliases on every term and pins schemaVersion 3.
   - path: docs/core/model.md
     readOn: 2026-10-30
-    key: model
+    name: model
     note: The core model page, read with the schemas and the template on 30 October 2026.
 question: Where does one field name carry two concepts, or one concept carry two names, across the record types?
 conclusion: The field set is mostly systematic, but five collisions - two status-like fields with unrelated values, the bare `by`, `source` with five meanings, `serves` with three target sets, and the flow `goal` sentence beside the goal record - produce invalid or misleading consumer data.

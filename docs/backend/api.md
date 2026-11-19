@@ -569,7 +569,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Applies to:** artifact: endpoint
 
-**Default:** Place each endpoint with its request and response models in the `WebApi/{Aggregates}/{UseCase}/` folder of its use case, or in the `WebApi/{UseCase}/` folder when its record is module-level, and host-only endpoints in the host.
+**Default:** Place each endpoint with its request and response models in the `WebApi/{Aggregates}/{UseCase}/` folder of its use case, or in the `WebApi/{UseCase}/` folder when its record is a module-level read, and host-only endpoints in the host.
 
 **Replacement:** A project names its endpoint layout in its backend documentation.
 
@@ -579,7 +579,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 ```text
 {Product}/
-  Posts/                            single aggregate whose name matches the module
+  Posts/                            one aggregate: every layer holds the plural aggregate folder
     Application/
       Posts/
         CreateDraft/                message, result, handler, validator

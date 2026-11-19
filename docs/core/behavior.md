@@ -76,7 +76,7 @@ Each record maps to one design pattern, and the stack pages state the code form 
 
 ### Quotas and Rate Limits
 
-A quota a customer's plan sets is a rule: it bounds what the customer may do, refuses with a refusal code, and differs by plan.
+A quota a customer's plan sets is a rule: it bounds what the customer may do, refuses with a refusal, and differs by plan.
 
 A technical rate limit protects the platform, not the plan, so it is declared in the extensions rather than as a rule.
 

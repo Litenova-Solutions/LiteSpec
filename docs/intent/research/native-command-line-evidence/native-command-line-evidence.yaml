@@ -4,19 +4,19 @@ title: Native Command Line Evidence
 sources:
   - url: https://learn.microsoft.com/en-us/dotnet/core/tools/rid-specific-tools
     readOn: 2026-11-09
-    key: rid-specific-tools
+    name: rid-specific-tools
     note: The record read this page for the package layout, the per-platform packing rule, and the publish order.
   - url: https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/cross-compile
     readOn: 2026-11-09
-    key: native-aot-cross-compile
+    name: native-aot-cross-compile
     note: The record read this page for the operating system and architecture limits, and for the linker each platform needs.
   - url: https://github.com/advisories/GHSA-p3jp-9v83-76w9
     readOn: 2026-11-09
-    key: ilcompiler-advisory
+    name: ilcompiler-advisory
     note: The record read this advisory for the vulnerable range and the first patched version.
   - path: apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj
     readOn: 2026-11-09
-    key: cli-project
+    name: cli-project
     note: The record read the CLI project file for the trial build. The warning counts, distribution runs, CI runs, and timings are the researcher's own measurements.
 question: Can the litespec command line ship as a native executable for every platform a consumer runs, and what does each platform need?
 conclusion: The CLI compiles with .NET Native AOT once every JSON document it writes is built as a node tree. It produces the same output as the build on the .NET runtime. A model check of the Claimwick example finishes in 1.32 s against 2.80 s. Each operating system builds its own executable. A glibc build runs only on a glibc as new as its build machine. The .NET 10 SDK packs one native tool package per platform behind the one LiteSpec.Cli package.

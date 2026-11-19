@@ -40,11 +40,11 @@ A broad question accepts any finding and supports no choice. A narrow question n
 
 ### List the Sources
 
-List every source the record relies on in `sources`. Each entry needs a `key`, the `url`, and the `readOn` date you read it. Add `publishedOn` when the source states when it was published, so the two dates stay apart.
+List every source the record relies on in `sources`. Each entry needs a `name`, the `url`, and the `readOn` date you read it. Add `publishedOn` when the source states when it was published, so the two dates stay apart.
 
 ```yaml
 sources:
-  - key: example-expense-study
+  - name: example-expense-study
     url: https://example.com/expense-study
     readOn: 2026-02-10
 ```
@@ -78,7 +78,7 @@ id: research/approval-time-benchmarks
 title: Approval Time Benchmarks
 question: How fast do small companies decide expenses?
 sources:
-  - key: example-expense-study
+  - name: example-expense-study
     url: https://example.com/expense-study
     readOn: 2026-02-10
     note: The study surveys small companies in one country and addresses managers who approve expenses.
@@ -95,7 +95,7 @@ The explanation file restates `findings`, `openQuestions`, and each source's `no
 
 ### Write One Claim per Finding
 
-State each finding as one item of `findings`, and restate each item under Findings in its own paragraph. Each item states one claim with the conditions it holds under, names its sources by key, and says whether the source states the claim or you infer it.
+State each finding as one item of `findings`, and restate each item under Findings in its own paragraph. Each item states one claim with the conditions it holds under, names its sources by name, and says whether the source states the claim or you infer it.
 
 | Instead of | Write |
 |:---|:---|
@@ -165,12 +165,12 @@ The weak version adds a product promise the research cannot make. The strong ver
 
 Run `litespec model render` from the consumer root. It appends a generated `source-links` region to the end of the explanation file, with one Markdown link definition per source, such as `[example-expense-study]: https://example.com/expense-study "Read on 2026-02-10"`.
 
-With those definitions in place, each `[text][key]` citation resolves in a plain Markdown preview. The region is generated, so never edit inside it by hand: a hand edit is drift.
+With those definitions in place, each `[text][name]` citation resolves in a plain Markdown preview. The region is generated, so never edit inside it by hand: a hand edit is drift.
 
 The [Model](../tools/model.md) command page states what `render` writes. `model check` reports `source-links-missing` when the region is absent and `source-links-drift` when it differs from the sources.
 
 ## Check
 
-- `litespec model check` exits `0` from the consumer root with no finding on the research record or its explanation file. It reports `reference-unknown` for a key the record does not declare, `source-link-bare` for a bare URL, and `source-unused` for a source no paragraph cites.
+- `litespec model check` exits `0` from the consumer root with no finding on the research record or its explanation file. It reports `reference-unknown` for a name the record does not declare, `source-link-bare` for a bare URL, and `source-unused` for a source no paragraph cites.
 - `litespec rules <path to the research record>` lists the judgment provisions above, and you have answered each one.
 - A reader who has never met you can say which claims the sources state, which are your inferences, what the sources leave open, and what each source covers.

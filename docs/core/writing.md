@@ -28,6 +28,7 @@ A title is the record's name wherever records are listed: book lists, outlines, 
 | rule | The assertion as a clause | A Claim Never Exceeds Its Policy Limit |
 | scenario | A phrase naming the case shown | Expense Above Threshold Without Receipt |
 | result | A phrase naming what is now true or what the caller is told | Expense Reimbursed |
+| refusal | A phrase naming the refused state | Receipt Missing |
 | domain event | A noun phrase naming what happened | Expense Submitted |
 | reaction | A verb phrase naming the act and its trigger | Send Receipt Reminder on Expense Submitted |
 | notification | A noun phrase naming the message | Receipt Reminder |
@@ -49,7 +50,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 |:---|:---|:---|
 | product | Scope, Users, Out of Scope | Scope: boundary; Users: users; Out of Scope: excludes |
 | actor | Responsibilities, Knowledge, Example (optional) | Responsibilities: responsibilities; Knowledge: knowledge; Example: none, illustration only |
-| role | Access, Limits | Access: allows, scope; Limits: limits |
+| role | Access, Excludes | Access: scope, and the permissions naming the role in `grantedTo` (computed); Excludes: excludes |
 | goal | Target, Measurement | Target: target; Measurement: measure, observations |
 | direction | None: free-form body after the lead | None: free-form body after the lead |
 | problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria | Affected Users: affects; Failure Cases: failureCases; Example: none, illustration only; Current Workaround: workaround; Cost: cost; Evidence: evidence; Resolution Criteria: resolutionCriteria |
@@ -59,8 +60,8 @@ A section marked optional is removed when it has nothing to say; every other sec
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) | Capabilities: the feature's requirements; Success Criteria: successCriteria; Boundaries: excludes; Example: none, illustration only |
 | requirement | Example (optional) | Example: none, illustration only |
 | flow | Example, Branches (optional) | Example: none, illustration only; Branches: steps.branches |
-| module | Responsibilities, Boundaries, Example (optional) | Responsibilities: responsibilities; Boundaries: excludes; Example: none, illustration only |
-| aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) | Lifecycle: states, transitions; Data and Retention: data, dataClasses; Example: none, illustration only; Limits: limits |
+| module | Covers, Boundaries, Example (optional) | Covers: covers; Boundaries: excludes; Example: none, illustration only |
+| aggregate | Lifecycle, Data and Retention, Example (optional), Excludes (optional) | Lifecycle: states, transitions; Data and Retention: data, dataClasses; Example: none, illustration only; Excludes: excludes |
 | use-case | Flow, Example (optional), Edge Cases (optional) | Flow: steps; Example: none, illustration only; Edge Cases: edgeCases |
 | rule-set | Rationale, Example (optional) | Rationale: each rule's rationale; Example: none, illustration only |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) | Trigger and Effect: triggeredBy, effects, outcomes; Failure Handling: onFailure; Example: none, illustration only |
@@ -70,7 +71,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | module-event | Consumers, Compatibility, Example (optional) | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
 | integration-event | Consumers, Compatibility, Example | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
 | external-system | Use, Data Shared, Failure Handling | Use: summary; Data Shared: processes, erasure; Failure Handling: operations |
-| entry-point | Audience, Authentication, Limits (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Limits: limits |
+| entry-point | Audience, Authentication, Excludes (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Excludes: excludes |
 | screen | Task, States, Example | Task: task; States: states; Example: none, illustration only |
 | permission-set | Risk, Boundaries (optional) | Risk: the risk of each permission; Boundaries: excludes |
 | setting-set | Defaults, Changes (optional) | Defaults: each setting's default, range, unit; Changes: each setting's setBy |

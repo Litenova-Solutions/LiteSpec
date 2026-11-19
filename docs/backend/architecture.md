@@ -28,7 +28,7 @@ Layers are not deployment units: the layers deploy together as one modular monol
 
 A [module](../reference/glossary.md) is one business area: it organizes the language, records, use cases, and ownership of that area. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. A [reaction](../reference/glossary.md) answers an event without a request, and a [job](../reference/glossary.md) runs work on a schedule or by hand.
 
-Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level use case, with `Infrastructure/` holding `Persistence/` nested by aggregate and one adapter folder per port. A use case that touches two aggregates sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
+Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level read, with `Infrastructure/` holding `Persistence/` nested by aggregate and one adapter folder per port. A command sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
 
 A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, one `On{Fact}/` folder per fact another module consumes, and one folder per public query or public command with its message and result. Other modules reference nothing outside it.
 
@@ -36,7 +36,7 @@ A module publishes its public surface in its `Contracts/` folder: data only, gro
 
 The tree fixes every type's address, so a reader moves from a Domain aggregate to its handler, its domain repository, and its endpoint without a map. Every node of the tree, from the product root down to a use case folder, holds the folders its level allows. Each level defines a closed set of folder names, and a check enforces it.
 
-Every folder name is a product noun (a module or an aggregate), a business act (a use case), one of the four layers, or a record kind the product speaks (`Ports`, `Notifications`, `ExternalSystems`, `ReadModels`, and inside Domain `Events` and `Exceptions`). No folder groups by mechanism, such as `Commands`, `Queries`, `Handlers`, or `Models`, or by caller.
+Every folder name is a product noun (a module or an aggregate), a business act (a use case), one of the four layers, a record kind the product speaks (`Ports`, `Notifications`, `ExternalSystems`, `ReadModels`), or a grouping from the closed set its place allows. A `Domain/{Aggregates}/` folder groups into `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`; a `Ports/{Port}/` folder groups its signature types into `Models/`; an `Infrastructure/{Port}/` folder groups its wire types into `Models/`. An agent never invents another grouping: a folder outside the allowed set is refused, and a folder past 20 files that holds none of its allowed groupings is a finding. No folder groups by caller, and no folder is named `Commands`, `Queries`, or `Handlers`.
 
 Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `Infrastructure/Development/`), because the folder states the layer and the lowest-folder rule already placed the type.
 
@@ -53,7 +53,7 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
       Teams/
         CreateTeam/              Command, Result, Handler, Validator, and the reactions and jobs that run it
         ArchiveTeam/             ArchiveTeamOnOrganizationClosedHandler: a reaction that runs this use case
-      ReadTeamDirectory/         a module-level use case: no aggregate folder
+      ReadTeamDirectory/         a module-level read: no aggregate folder
       Notifications/
         TeamWelcome/             a reaction that only sends this notification
       ExternalSystems/
@@ -61,7 +61,7 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
       ReadModels/
         MemberAccounts/          a read model of another module's published facts
     Ports/
-      {Port}/                    I{Port} and only the types its signatures name
+      {Port}/                    I{Port} with its signature types in Models/
     Infrastructure/
       Persistence/               module-wide store setup, with one folder per aggregate
         Teams/                   TeamRepository with its stored documents and mapping
@@ -75,21 +75,27 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 |:---|:---|
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/` |
-| Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level use case; no files |
+| Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level query; no files |
 | Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, one `On{Fact}/` folder per fact about the aggregate another module consumes, and one folder per public query or public command of that aggregate; no other files |
 | Module `Contracts/{Aggregates}/On{Fact}/` | the fact type with the types only it carries; no other files |
-| Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level use case folder | the message, its result, and the result parts; no other files |
+| Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level query folder | the message, its result, and the result parts; no other files |
 | Module `Domain/` | one folder per declared aggregate, in the plural |
-| Module `Domain/{Aggregates}/` | `Events/`, `Exceptions/`, files |
-| Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level use case, `Notifications/`, `ExternalSystems/`, `ReadModels/`, `Settings/` |
+| Module `Domain/{Aggregates}/` | the root's main file, the repository interface, `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, `Exceptions/` |
+| Module `Domain/{Aggregates}/{Act}/` | the partial file `{Root}.{Act}.cs`, the act's inputs, and its private rules; the name is the use case's act |
+| Module `Domain/{Aggregates}/Parts/` | the aggregate's entities and value objects |
+| Module `Domain/{Aggregates}/Facts/` | values passed in from other modules or the country pack |
+| Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level read, `Notifications/`, `ExternalSystems/`, `ReadModels/`, `Settings/` |
 | Module `Application/{Aggregates}/`, `WebApi/{Aggregates}/` | one folder per use case declared under that aggregate; no files |
 | Module `Application/Settings/` | the module options class; no other files |
 | Module `Ports/` | one folder per driven port of the module; no files |
-| Module `Ports/{Port}/` | the interface `I{Port}` and only the types its member signatures name |
+| Module `Ports/{Port}/` | the interface `I{Port}` and `Models/` |
+| Module `Ports/{Port}/Models/` | every type the interface's signatures name |
 | Module `Infrastructure/` | `Persistence/`, one folder per port the module implements |
+| Module `Infrastructure/{Port}/` | the adapter class and `Models/` |
+| Module `Infrastructure/{Port}/Models/` | the external system's wire types: requests, responses, file records |
 | Module `Infrastructure/Persistence/` | module-wide store setup, and one folder per aggregate with a repository |
 | Module `Infrastructure/Persistence/{Aggregates}/` | the aggregate's repository implementation, stored documents, and mapping |
-| Module `WebApi/` | the aggregate and module-level use case folders of use cases reached over HTTP |
+| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP |
 | Module `Application/Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `Application/ExternalSystems/` | one per external system a reaction or job of the module only calls |
 | Module `Application/ReadModels/` | one per declared read model of the module |
@@ -103,19 +109,19 @@ Kernel values stay in the product `Domain/`. Product-wide technical capabilities
 
 Two rules place each type inside the tree. `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` places behavior such as a rule calculation or an adapter in the use case, module, or product layer folder; every port of a module lives in its `Ports/` folder instead, whether one use case or many call it. Across modules a type is never shared, and the owning module publishes it in `Contracts/`. A message, result, result part, transport model, or mapping belongs to one use case and sits in its folder under `litespec/backend/architecture#give-each-use-case-its-own-models`.
 
-A file takes its layer from its top folder in the module. The role suffix in `litespec/workspace/naming#use-architectural-suffixes` states the file's role inside that layer: `Endpoint`, `RequestModel`, and `ResponseModel` sit in `WebApi/{Aggregates}/{UseCase}/`, and `Command`, `Query`, `Result`, `Handler`, `Validator`, and the use case's own steps sit in `Application/{Aggregates}/{UseCase}/`. Port interfaces sit in `Ports/{Port}/`, with their adapters in `Infrastructure/{Port}/`. A module-level use case drops the aggregate segment in each.
+A file takes its layer from its top folder in the module. The role suffix in `litespec/workspace/naming#use-architectural-suffixes` states the file's role inside that layer: `Endpoint`, `RequestModel`, and `ResponseModel` sit in `WebApi/{Aggregates}/{UseCase}/`, and `Command`, `Query`, `Result`, `Handler`, `Validator`, and the use case's own steps sit in `Application/{Aggregates}/{UseCase}/`. Port interfaces sit in `Ports/{Port}/`, with their adapters in `Infrastructure/{Port}/`. A module-level read drops the aggregate segment in each.
 
 Each trigger sits with what it runs. The event handler of a reaction and the class of a job sit in the `Application/` folder of the use case they run or, when they run none, in the `Application/Notifications/` folder of the notification they send or the `Application/ExternalSystems/` folder of the system they call. The `Application/ExternalSystems/` folder holds those trigger classes; the adapters they call live in the port adapter folders of `Infrastructure/`.
 
-A module keeps one plural aggregate folder holding one folder per use case inside each layer that serves it; a module-level use case sits directly in each layer that serves it. A module with one aggregate of its own name stays flat: its `Domain/` folder holds the aggregate's types directly.
+A module keeps one plural aggregate folder holding one folder per use case inside each layer that serves it; a module-level read sits directly in each layer that serves it. Every module keeps its plural aggregate folder in every layer and in the records, whatever its number of aggregates and even when the aggregate's name equals the module's: one shape everywhere lets a reader and an agent find code from a record without knowing how many aggregates a module has today, and a second aggregate added later moves nothing.
 
 Models stay separate, and data flows one way: request model, command, aggregate, result, response model. The endpoint maps the request in and the result out, and the handler returns a result, not the aggregate.
 
 ### Commands and Queries
 
-CQRS separates the command and query models inside the one Application layer: commands change state, queries read it. A command changes one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing.
+CQRS separates the command and query models inside the one Application layer: commands change state, queries read it. A command changes one aggregate instance through its domain repository, while a query projects read results without loading an aggregate and without writing.
 
-The declared exception is a use case whose record declares `consistency: atomic` over several aggregates, and it names each aggregate it changes.
+The declared exception is a use case whose record declares `consistency: atomic` over several aggregates with a decision record naming the use case and the invariant that needs both in one transaction, and it names each aggregate it changes.
 
 A reaction answers its trigger by running one command or sending a notification, and a scheduled or one-off job runs one command per item in its selection; neither travels the command pipeline itself. A handler sends no command and no event: only an endpoint, an event handler, and a job send a command, while a handler, reaction, or job sends another module's public query with a declared `queries` edge.
 
@@ -152,7 +158,7 @@ Writes cross the module boundary only upstream. A command changes only its own m
 
 ### From Records to Code
 
-Behavior records map onto code in one direction: each code element carries a mark pointing to the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code from the record. The code holds one plural aggregate folder with one folder per use case inside each layer that serves it, and one folder per module-level use case directly in each layer that serves it; each stack page states the mapping from a record path to its code folder. Reactions, jobs, notifications, settings, module events, and integration events map onto the code shapes the layer pages state.
+Behavior records map onto code in one direction: each code element carries a mark pointing to the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code from the record. The code holds one plural aggregate folder with one folder per use case inside each layer that serves it, and one folder per module-level read directly in each layer that serves it; each stack page states the mapping from a record path to its code folder. Reactions, jobs, notifications, settings, module events, and integration events map onto the code shapes the layer pages state.
 
 Nothing above Implementation is computed from code: code points up to the record it serves, and an undeclared edge or outcome is the defect.
 
@@ -216,13 +222,13 @@ The module boundary works the same way: a provider's public query or public comm
 
 **Applies to:** artifact: any
 
-**Statement:** Every module MUST organize its code as the module tree with one `Contracts/` folder, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level use case, and one `Infrastructure/` folder holding `Persistence/` nested by aggregate and one adapter folder per port, using only the folder names its level allows.
+**Statement:** Every module MUST organize its code as the module tree with one `Contracts/` folder, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level read, and one `Infrastructure/` folder holding `Persistence/` nested by aggregate and one adapter folder per port, using only the folder names its level allows.
 
 **Rationale:** One plural folder per declared aggregate under `Domain/`, one folder per driven port under `Ports/` with its adapter in `Infrastructure/`, one folder per aggregate under `Persistence/`, and one plural aggregate folder with one folder per use case inside each layer that serves it fix every type's address: a reader moves from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact, because a folder outside the allowed set is refused and no second organization grows beside the tree.
 
-A module publishes what other modules may reference in its `Contracts/` folder grouped by aggregate, every use case sits in the aggregate folder its record names or directly in the layer folders when its record is module-level, and each reaction and job sits in the folder of the use case it runs. A folder named for a fact would reference the commands of other use cases and pull them out of their folders, and a fact's reactions span modules, so no fact folder could ever show them all.
+A module publishes what other modules may reference in its `Contracts/` folder grouped by aggregate, every use case sits in the aggregate folder its record names or directly in the layer folders when its record is a module-level read, and each reaction and job sits in the folder of the use case it runs. A folder named for a fact would reference the commands of other use cases and pull them out of their folders, and a fact's reactions span modules, so no fact folder could ever show them all.
 
-An aggregate stays flat only when its plural name equals the single module name. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
+Every module keeps its plural aggregate folder in every layer, whatever its number of aggregates and even when the aggregate's name equals the module's. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
 The module tree shape is settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
 
@@ -231,11 +237,12 @@ A folder named for a technical grouping rather than a module defeats the rule: t
 **Example:**
 
 ```text
-# single-aggregate module whose aggregate name matches the module: Domain stays flat, layer folders nest under the plural aggregate folder
+# one aggregate: every layer holds the plural aggregate folder, even when the aggregate's name equals the module's
 Organizations/
   Contracts/
     Organizations/            the identifier, one On{Fact}/ folder per fact, and the public queries and public commands of the organization aggregate
-  Domain/                     the organization aggregate directly: Organization, OrganizationState
+  Domain/
+    Organizations/            Organization, OrganizationState, the organization repository contract
   Application/
     Organizations/
       CreateOrganization/     Command, Result, Handler, Validator
@@ -249,21 +256,21 @@ Spending/
     Expenses/                 ExpenseId, OnExpenseReimbursed/ExpenseReimbursedModuleEvent, ReadExpense/ (query and result)
     Policies/                 the identifier, one On{Fact}/ folder per fact, and the public queries and public commands of the policy aggregate
   Domain/
-    Expenses/                 Expense, ExpenseState, the expense repository contract
+    Expenses/                 Expense, the expense repository contract, and the act, part, fact, event, and refusal groupings
     Policies/
   Application/
     Expenses/
       SubmitExpense/
       ErasePersonalData/      the erase command, its handler, and the job that runs it
-    ReadExpenseDirectory/     a module-level use case: no aggregate folder
+    ReadExpenseDirectory/     a module-level read: no aggregate folder
     Notifications/
       ApprovalReminder/       the reaction that only sends the approval reminder
   Ports/
-    {Port}/                   I{Port} and only the types its signatures name
+    {Port}/                   I{Port} with its signature types in Models/
   Infrastructure/
     Persistence/              module-wide store setup, with one folder per aggregate
       Expenses/               the expense repository with its stored documents and mapping
-    {Port}/                   the adapter implementing Ports/{Port}/, same folder name
+    {Port}/                   the adapter implementing Ports/{Port}/, same folder name, with its wire types in Models/
   WebApi/
     Expenses/
       SubmitExpense/
@@ -276,6 +283,22 @@ fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 ```
 
 **Reviewed for:** Is any module, aggregate, use case, notification, external-system, or read-model folder without a declared record, with a forbidden folder name, or with a technical-grouping name? Look at the folder paths in each module.
+
+### Group a Folder That Holds Past Twenty Files
+
+**ID:** `litespec/backend/architecture#group-a-folder-that-holds-past-twenty-files`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A folder that holds past 20 files MUST hold the grouping folders the closed set of its place allows.
+
+**Rationale:** A folder past 20 files with no groupings reads as one long listing: a reader finds a file only by search, and review misses what the folder holds. Each kind of place has a short closed list of grouping folders, and an agent never invents another. A `Domain/{Aggregates}/` folder groups into `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`; a `Ports/{Port}/` folder groups its signature types into `Models/`; an `Infrastructure/{Port}/` folder groups its wire types into `Models/`. A use case folder holds everything flat with no groupings: it stays small once fan-out lives in a reaction or a job.
+
+**Example:** A `Domain/Entries/` folder past 20 files groups each root action into its own `{Act}/` folder, so `Domain/Entries/PostInvoice/` mirrors `Application/Entries/PostInvoiceEntry/`.
+
+**Checked by:** `litespec model check` reports `folder-ungrouped` for a folder past 20 files that holds none of its allowed groupings.
 
 ### Place a Type at the Lowest Folder That Holds Its Consumers
 
@@ -375,7 +398,7 @@ A step that only coordinates, such as mapping a request or loading two records i
 
 **Statement:** A command MUST mutate one aggregate through its domain repository while a query projects read results without loading an aggregate or writing.
 
-**Rationale:** Loading aggregates for a read enforces invariants the read does not need, and writing from projections enforces rules against stale shapes. Commands change one aggregate through its domain repository, following `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, with a use case declaring `consistency: atomic` over several aggregates as the declared exception.
+**Rationale:** Loading aggregates for a read enforces invariants the read does not need, and writing from projections enforces rules against stale shapes. Commands change one aggregate through its domain repository, following `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, with a use case declaring `consistency: atomic` over several aggregates and named with its invariant by a decision record as the declared exception.
 
 Queries project read results without loading an aggregate and write nothing, following `litespec/backend/application#keep-query-handlers-free-of-writes`. An enabled persistence extension may replace the read boundary for named aggregate paths, but a command still enforces no invariant from a read projection.
 

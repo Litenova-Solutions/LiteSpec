@@ -20,7 +20,7 @@ Verbs had also diverged. `serves` carried three target sets, `source` five meani
 
 Each link property in the record schema carries its reads-as and read-back phrases as annotations. The maintainer writes the Links table into a generated region of the model page. The book takes every connection label from the same annotations. A link with no phrases fails `validate`.
 
-The direction rule states what the links do. Intent links point up a layer. Effect and structure links follow the effect graph within Behavior. The only down-links are `decides`, `allows`, and `holds`.
+The direction rule states what the links do. Intent links point up a layer. Effect and structure links follow the effect graph within Behavior. No down-link remains: every link points from the lower or later record to the higher or earlier one, with no exceptions.
 
 One meaning per verb holds, as [decision/0004-features-advance-goals](decision/0004-features-advance-goals) chose for features. Screen `serves` stays explicit, since it names flow steps as a use case's `serves` does.
 

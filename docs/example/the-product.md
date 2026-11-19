@@ -84,7 +84,7 @@ A functional requirement carries its identifier, title, kind, statement, rationa
 
 ## The Research
 
-A research record states one outside fact that informs a choice. Claimwick keeps one, in `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.yaml`. Its sources carry a `key`, a `url`, and the day they were read, and the explanation cites each key:
+A research record states one outside fact that informs a choice. Claimwick keeps one, in `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.yaml`. Its sources carry a `name`, a `url`, and the day they were read, and the explanation cites each name:
 
 ```yaml
 type: research
@@ -94,7 +94,7 @@ summary: Small companies decide expenses within one week. The study behind this 
 sources:
 - url: https://example.com/expense-study
   readOn: 2026-02-10
-  key: example-expense-study
+  name: example-expense-study
 question: How fast do small companies decide expenses?
 conclusion: According to one small recent industry study, small companies decide expenses within one week.
 ```
@@ -103,7 +103,7 @@ The five-day requirement leans on this research without being decided by it. Its
 
 ## The Decision
 
-A decision record states one choice with the options it weighed. Claimwick set the receipt threshold at 25 EUR, recorded in `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml`. The record weighs three options with pros and cons each, and its `decides` field names the receipt requirement the choice settles:
+A decision record states one choice with the options it weighed. Claimwick set the receipt threshold at 25 EUR, recorded in `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml`. The record weighs three options with pros and cons each, and the receipt requirement names the choice in `basedOn`:
 
 ```yaml
 type: decision
@@ -123,18 +123,15 @@ options:
 choice: 25 EUR
 consequences: Small expenses stay light to submit.
 reopenedWhen: Finance sees abuse or friction.
-decides:
-- requirement/approval.above-threshold-receipt
-basedOn: []
 ```
 
 The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md`, holds the Context, Options, Decision, Consequences, and Revisit Conditions sections, with Evidence optional. The `reopenedWhen` field states what would make the team reopen the choice.
 
 ## The Constraint
 
-A constraint states one outside rule, the source it rests on, and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`: the law keeps business receipts for seven years. The record's `sources` list names the law with its key, its URL, and the day it was read, and the rule applies because the product stores receipts for reimbursed expenses.
+A constraint states one outside rule, the source it rests on, and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`: the law keeps business receipts for seven years. The record's `sources` list names the law with its name, its URL, and the day it was read, and the rule applies because the product stores receipts for reimbursed expenses.
 
-The explanation file holds Scope, Rules, and Effect on the Product. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file.
+The explanation file holds Scope, Rules, and Effect on the Product. Its Rules paragraph cites the law by its name as a reference link, and `model render` writes that link's definition into the file.
 
 Its Effect on the Product names the two requirements that carry the rule's effect, `requirement/approval.above-threshold-receipt` and `requirement/approval.erased-after-retention`. Each of them cites this constraint back, so the retention rule traces to the outside law that demands it.
 

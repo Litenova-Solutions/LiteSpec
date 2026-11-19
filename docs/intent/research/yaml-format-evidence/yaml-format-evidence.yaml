@@ -4,27 +4,27 @@ title: Can Editors Check YAML Against LiteSpec Schemas
 sources:
   - url: https://github.com/redhat-developer/yaml-language-server
     readOn: 2026-11-10
-    key: yaml-language-server
+    name: yaml-language-server
     note: The record read the YAML language server README in full on 10 November 2026.
   - url: https://yaml.org/spec/1.2.2/
     readOn: 2026-11-10
-    key: yaml-spec
+    name: yaml-spec
     note: The record read the YAML 1.2.2 page on 10 November 2026, covering only its first 100,000 characters, which include the superset statement in section 1.2 but not the data-model sentence.
   - url: https://www.nuget.org/packages/YamlDotNet/18.1.0
     readOn: 2026-11-10
-    key: yamldotnet-package
+    name: yamldotnet-package
     note: The record read the YamlDotNet license from its NuGet listing at version 18.1.0.
   - url: https://github.com/eemeli/yaml/blob/main/LICENSE
     readOn: 2026-11-10
-    key: yaml-npm-license
+    name: yaml-npm-license
     note: The record read the yaml license from the GitHub LICENSE file on the main branch, which holds the ISC license but is not the 2.9.1 release tag. The npm package page returned an error on the read, so the record did not check that the version matches.
   - path: schemas/litespec-project.schema.yaml
     readOn: 2026-11-10
-    key: project-schema
+    name: project-schema
     note: The record read this schema file on 10 November 2026 and checked its draft declaration on the first line.
   - path: schemas/record.schema.yaml
     readOn: 2026-11-10
-    key: record-schema
+    name: record-schema
     note: The record read this schema file on 10 November 2026 and checked its draft declaration on the first line.
 question: Can the YAML language server check LiteSpec's YAML files against YAML-held schemas, and which JSON Schema drafts must it read?
 conclusion: The language server reads a schema named by a modeline. It validates draft 2020-12, which every LiteSpec schema declares, and accepts a schema written in JSON or YAML.

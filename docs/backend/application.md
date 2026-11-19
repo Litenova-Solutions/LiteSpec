@@ -11,11 +11,11 @@ Each use case owns one folder with its message, result, handler, and endpoint. C
 
 ### The Use Case Folder
 
-Application code lives in the `Application/` layer folder of each module: one folder per aggregate that has use cases, with one folder per use case inside it, one folder per module-level use case, one folder beside each notification, external system, and read model that a module trigger serves, and one product folder holding the pipeline machinery. Every port of the module lives in the module `Ports/` folder instead, with its adapter in `Infrastructure/`.
+Application code lives in the `Application/` layer folder of each module: one folder per aggregate that has use cases, with one folder per use case inside it, one folder per module-level read, one folder beside each notification, external system, and read model that a module trigger serves, and one product folder holding the pipeline machinery. Every port of the module lives in the module `Ports/` folder instead, with its adapter in `Infrastructure/`.
 
-`Application/` and `WebApi/` each hold one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, and `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint. A module-level use case drops the aggregate segment in each. No `WebApi/` folder for the use case means no endpoint reaches it. Every port of the module lives in its own `Ports/{Port}/` folder instead of a use case folder, whether one use case or many call it, with its adapter in `Infrastructure/{Port}/`.
+`Application/` and `WebApi/` each hold one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, and `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint. A module-level read drops the aggregate segment in each. No `WebApi/` folder for the use case means no endpoint reaches it. Every port of the module lives in its own `Ports/{Port}/` folder instead of a use case folder, whether one use case or many call it, with its adapter in `Infrastructure/{Port}/`.
 
-The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Ports/{Port}/` folder holds the interface `I{Port}` and only the types its signatures name, and the `Infrastructure/{Port}/` folder holds the adapter implementing it.
+The `Application/{Aggregates}/{UseCase}/` folder holds the message, the result and its parts, the validator, the handler, the pipeline-read definitions, and the use case's own steps, together with the event handlers and the job that run the use case. The `WebApi/{Aggregates}/{UseCase}/` folder holds the endpoint with its request and response models. The `Ports/{Port}/` folder holds the interface `I{Port}` with the types its signatures name in `Models/`, and the `Infrastructure/{Port}/` folder holds the adapter implementing it with its wire types in `Models/`.
 
 Names that another module uses live outside any use case folder, in the owning module's `Contracts/` folder: data only, grouped by aggregate, with each aggregate folder holding its identifier, one `On{Fact}/` folder per fact, and its public queries and public commands with their messages and results. The pipeline machinery itself lives in the product `Application/` folder.
 
@@ -74,13 +74,13 @@ In Claimwick, the submit-expense command declares a `sends` edge to the approver
 
 **Applies to:** artifact: any
 
-**Statement:** Each command or query MUST own one folder named for its use case inside the plural aggregate folder of its aggregate in the `Application/` folder of its module, or directly in the `Application/` folder when its record is module-level, holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
+**Statement:** Each command or query MUST own one folder named for its use case inside the plural aggregate folder of its aggregate in the `Application/` folder of its module, or directly in the `Application/` folder when its record is a module-level read, holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
 
 **Rationale:** When handlers live in one folder, validators in another, and endpoints in a third, a single behavior spreads across the module. A change then touches six folders, and review misses one.
 
 One folder per use case inside the plural aggregate folder in `Application/` keeps the message, result, validator, handler, mapping, and pipeline-read values together, with the endpoint and transport models in the matching `WebApi/` folder, so a reviewer judges the whole behavior from one place. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`, and pipeline-read values sit beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
 
-**Reviewed for:** Does every command and query own one folder named for its use case inside the plural aggregate folder of its aggregate in the `Application/` folder of its module, or directly in the `Application/` folder when its record is module-level, with its message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
+**Reviewed for:** Does every command and query own one folder named for its use case inside the plural aggregate folder of its aggregate in the `Application/` folder of its module, or directly in the `Application/` folder when its record is a module-level read, with its message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
 
 ### Keep Use Case Folders Small
 
@@ -235,7 +235,7 @@ A handler that does more widens the unit of work, so one failing step rolls back
 
 A handler that sends a command nests one use case inside another: each command commits in its own pipeline, so a nested send commits first and survives an outer failure. A handler that publishes an event publishes state its act never announced; neither has a record that can declare it. The one message a handler sends is another module's public query with a declared `queries` edge, under `litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator`. The commit post-handler owns the transaction under `litespec/backend/persistence#commit-each-command-pipeline-once`, WebApi owns error mapping, the audit completion handler owns the trail, and the guard owns authorization.
 
-A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `writes` names, one method each, and the record states why the change cannot be eventual. The handler takes its repositories under `litespec/backend/application#write-only-aggregates-the-record-names`, and returns only the results and refusals the record declares under `litespec/backend/application#return-only-declared-results-and-refusals`.
+A use case whose record declares `consistency: atomic` over several aggregates, named with its invariant by a decision record, is the one exception: the handler loads, calls, and stages each aggregate its `writes` names, one method each, and the decision states why the change cannot be eventual. The handler takes its repositories under `litespec/backend/application#write-only-aggregates-the-record-names`, and returns only the results and refusals the record declares under `litespec/backend/application#return-only-declared-results-and-refusals`.
 
 **Example:** In the Claimwick product, `use-case/spending.approve-expense` runs through the command pipeline. The endpoint maps the request to the approve command, the command entry point dispatches it, validation and the authorization guard run, and the handler loads the expense, calls Approve on it, stages the expense, and returns the result.
 
@@ -259,9 +259,9 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Rationale:** A write outside `writes` is behavior the record hides, so the stack reader fails `write-undeclared` on it. Under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, the handler normally takes one domain repository for the one aggregate it changes, and stages only that aggregate.
 
-A use case whose record declares `consistency: atomic` over several aggregates takes one repository per named aggregate and stages each one. A query handler likewise projects only over the aggregates its record's `reads` names, through the read session.
+A use case whose record declares `consistency: atomic` over several aggregates, named with its invariant by a decision record, takes one repository per named aggregate and stages each one. A query handler likewise projects only over the aggregates its record's `reads` names, through the read session.
 
-**Example:** The `approve-expense` handler takes the expense repository and no other. Staging a second aggregate fails the check unless the record declares `consistency: atomic` over both.
+**Example:** The `approve-expense` handler takes the expense repository and no other. Staging a second aggregate fails the check unless the record declares `consistency: atomic` over both with its decision.
 
 **Checked by:** `litespec model check` reports `write-undeclared` (level S) for a handler that takes a repository whose aggregate sits outside the aggregates its record names in `writes` and `reads`; one domain repository serves each named aggregate.
 
@@ -405,11 +405,11 @@ Mirroring the Domain shape in the result keeps the layers aligned, so the data o
 
 **Applies to:** artifact: port
 
-**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` and only the types its signatures name, directly or through one named type, with its adapter in its `Infrastructure/{Port}/` folder, spelling for an external system the record name in PascalCase.
+**Statement:** Every port of a module MUST live in its own `Ports/{Port}/` folder holding the interface `I{Port}` with the types its signatures name in `Models/`, with its adapter in its `Infrastructure/{Port}/` folder holding its wire types in `Models/`, spelling for an external system the record name in PascalCase.
 
 **Rationale:** `Ports/` is the complete list of what the module needs from outside: every port of the module lives there, whether one use case or many call it, each in its own folder with its adapter beside it in `Infrastructure/`. A reader opening `Ports/` sees each outside dependency once, instead of hunting use case folders for interfaces. A port to an external system spells the external-system record name in PascalCase, so `external-system/mail-relay` gives `Ports/MailRelay/`; an in-process port takes a name for its capability. A module reaches another module through the provider's Contracts and the mediator, never through a port of its own, under `litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator`.
 
-The folder holds two levels of types: the types the interface signatures name, and the types those types name in their own signatures, such as a result part the interface reaches only through its result. Names found at the second level open no third.
+`Models/` holds every type the interface's signatures name, always, not only when many: `Parts/` is used only for an aggregate's entities and value objects, and `Models/` only for port and adapter signature and wire types, so each word means one thing.
 
 Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates: the module whose rules change when the port changes.
 
@@ -859,7 +859,7 @@ A message that leaves before its transaction commits promises work even when the
 
 **Applies to:** artifact: any
 
-**Default:** Place each use case in one folder per layer that serves it, inside the plural aggregate folder of its aggregate, with a module-level use case dropping the aggregate segment in each: `Application/{Aggregates}/{UseCase}/` with its message, result, handler, validator, pipeline definitions, own steps and triggers, and `WebApi/{Aggregates}/{UseCase}/` with its endpoint and transport models when it has an endpoint; place every port of the module in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`.
+**Default:** Place each use case in one folder per layer that serves it, inside the plural aggregate folder of its aggregate, with a module-level read dropping the aggregate segment in each: `Application/{Aggregates}/{UseCase}/` with its message, result, handler, validator, pipeline definitions, own steps and triggers, and `WebApi/{Aggregates}/{UseCase}/` with its endpoint and transport models when it has an endpoint; place every port of the module in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`.
 
 **Replacement:** A project names its own Application folder layout in its documentation.
 
@@ -872,10 +872,11 @@ The layer folders state each file's layer in the path and show by their presence
 ```text
 {Product}/
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
-  Posts/                                  single aggregate whose name matches the module: Domain holds the aggregate directly
+  Posts/                                  one aggregate: every layer holds the plural aggregate folder
     Contracts/
       Posts/          PostId, OnPostPublished/PostPublishedModuleEvent, ReadPost/ (query and result)
-    Domain/                               Post, PostState, and the post repository contract directly
+    Domain/
+      Posts/                              Post, PostState, and the post repository contract
     Application/
       Posts/
         CreateDraft/                      Command, Result, Handler, Validator, mapping
@@ -890,7 +891,7 @@ The layer folders state each file's layer in the path and show by their presence
         NewPost/
           NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification
     Ports/
-      PostsArchive/                       IPostsArchive and only the types its signatures name
+      PostsArchive/                       IPostsArchive with its signature types in Models/
     Infrastructure/
       Persistence/                        module-wide store setup, with one folder per aggregate
         Posts/                            PostRepository with its stored documents and mapping
@@ -922,11 +923,11 @@ The layer folders state each file's layer in the path and show by their presence
         GrantConsent/
 ```
 
-Module, aggregate, and use case order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
+Module, aggregate, and use case order follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
 Only a use case gets a folder named for it in an `Application/` or `WebApi/` folder, so every such folder name names one use case.
 
-A use case's own models stay in its folder under `litespec/backend/architecture#give-each-use-case-its-own-models`, and any other type sits in the node layer folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. An event handler or job lives with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`, with its mark under `litespec/backend/application#answer-each-reaction-in-one-marked-class`. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
+A use case's own models stay in its folder under `litespec/backend/architecture#give-each-use-case-its-own-models`, and any other type sits in the node layer folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. An event handler or job lives with what it runs, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`, with its mark under `litespec/backend/application#answer-each-reaction-in-one-marked-class`. A folder named for a fact, a service, or a caller, or a grouping outside the closed sets, breaks that reading; it is drift rather than a second convention.
 
 **Reviewed for:** Does every use-case path, layer folder, trigger folder, and result part name follow the layout? Look at each path under the modules.
 

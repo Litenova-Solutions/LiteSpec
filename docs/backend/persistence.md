@@ -102,7 +102,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
-**Rationale:** Under `atomic`, everything the handler staged commits in one unit of work, citing the rule in `boundBy` when `writes` names more than one aggregate. When `consistency` names `guards`, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under `per-record`, each record's command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.
+**Rationale:** Under `atomic`, everything the handler staged commits in one unit of work, citing the rule in `boundBy` and the decision in the rule's `basedOn` when `writes` names more than one aggregate. When `consistency` names `guards`, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under `per-record`, each record's command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.
 
 **Example:** The erase-expired-data job commits each expense alone under `per-record`, while the submit-expense command commits its staged aggregates together under `atomic`.
 
@@ -381,7 +381,7 @@ A tool that alters the schema from application startup is no reviewed step, whic
       CommitCommandPostHandler
     Events/
       DomainEventBuffer
-  Posts/                            single aggregate whose name matches the module
+  Posts/                            one aggregate: every layer holds the plural aggregate folder
     Infrastructure/
       Persistence/
         Posts/

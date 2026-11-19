@@ -4,7 +4,7 @@ A research record collects what outside sources establish about one question. Th
 
 ## Context
 
-Findings often carried prose attributions, and one named no listed source. Other findings named no source at all. The source checks passed when each key was linked once anywhere in the file, so a closing sentence that linked every key satisfied them while no finding was tied to a source.
+Findings often carried prose attributions, and one named no listed source. Other findings named no source at all. The source checks passed when each name was linked once anywhere in the file, so a closing sentence that linked every name satisfied them while no finding was tied to a source.
 
 The read date was treated as the date a rule applied. The provision that asked for it said that the read date shows when the outside fact was true, but a read date shows only when someone read the source.
 
@@ -18,13 +18,13 @@ LiteSpec compared 3 options for how a finding states its strength. The table set
 
 | Option | Gains | Costs |
 |:---|:---|:---|
-| Each finding cites its key and says whether the source states it | A reader sees what the source says and what the writer infers. | Every finding is rewritten, and each inference gets its own sentence. |
+| Each finding cites its source name and says whether the source states it | A reader sees what the source says and what the writer infers. | Every finding is rewritten, and each inference gets its own sentence. |
 | Three defined confidence levels | One short label per finding. | A label does not say what the source states. |
 | Structured findings with claim, source and kind fields | A check reads each field. | A finding's conditions have no field to sit in. |
 
 ## Decision
 
-Each paragraph under Findings states one claim with its conditions, cites its source key with a reference link, and says whether the source states the claim or the writer infers it. A sentence that states an inference names it as one.
+Each paragraph under Findings states one claim with its conditions, cites its source name with a reference link, and says whether the source states the claim or the writer infers it. A sentence that states an inference names it as one.
 
 Open Questions is its own section, and it holds what the sources do not establish, each as a question naming what to investigate. Source Notes holds what each source covers, the audience it addresses and where sources disagree.
 

@@ -8,7 +8,7 @@ options:
     cons: "Every actor file is rewritten, and a reader who wants what an actor may reach opens the role's files instead of the actor file."
   - name: "Keep Access narrowed to why the actor holds its role at its scope"
     pros: "The section stays, and the reason for the grant sits in the actor's own file."
-    cons: "The role's Limits section answers the same question, so two files state one reason."
+    cons: "The role's Excludes section answers the same question, so two files state one reason."
   - name: "Keep the sections and fix only the template prompts"
     pros: "No section moves and no file is rewritten for structure."
     cons: "The Access section still restates the role, and no section holds what the product assumes the user knows."

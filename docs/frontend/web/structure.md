@@ -18,6 +18,10 @@ The structure rules for thin route entries, import direction, public entry point
 - Public entry points: `litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages`
 - Test placement: `litespec/frontend/structure#place-tests-at-their-ownership-boundary`
 
+### The Grouping Folders of the Web Frame
+
+The frame folder groups its cross-route values by capability: `session/` holds the session read and permissions, `i18n/` holds the language choice, `api/` holds client configuration and API access, and `ui/` holds formatting and shell data. Each grouping names the capability its values serve, so a reader finds a value by what it is for, and an agent never invents another folder. The generated records file sits beside these folders, as `litespec/frontend/web/structure#generate-the-records-file-into-the-frame` states.
+
 ## Standards
 
 ### Use the Frontend Application Tree
@@ -148,6 +152,22 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 **Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. Placed in the frame folder, each has one home; placed in a route, each would exist once per route, with copies to keep equal. A browser API reached from a use-case module belongs here too, because a module renders and reads data rather than calling such APIs directly. This realizes litespec/frontend/structure#place-cross-route-values-in-the-frame.
 
 **Reviewed for:** Do all cross-route values and browser uses sit in the frame folder their stack page names? Check the frame folder and the route and module sources.
+
+### Group the Web Frame by Capability
+
+**ID:** `litespec/frontend/web/structure#group-the-web-frame-by-capability`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A web frontend MUST group its frame folder into `session/`, `i18n/`, `api/`, and `ui/`, with no other folder.
+
+**Rationale:** One flat frame folder reads as one long listing: a reader finds a value only by search, and review misses what the frame holds. Each grouping names the capability its values serve, so a reader finds a value by what it is for. An agent never invents another grouping: a folder outside the allowed set is refused, and a folder past 20 files that holds none of its allowed groupings is a finding.
+
+**Example:** The Claimwick web frontend holds its session read and permissions in `session/`, its language dictionaries in `i18n/`, its API client setup in `api/`, and its formatting and shell data in `ui/`.
+
+**Checked by:** `litespec model check` reports `folder-ungrouped` for a frame folder past 20 files that holds none of its allowed groupings.
 
 ### Use the Stack File Extension
 

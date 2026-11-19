@@ -75,13 +75,13 @@ The compiler and its analyzers ship with the SDK, so a different SDK can still b
 
 **Strength:** required
 
-**Statement:** An options class that binds a setting with a `key` MUST carry an `implements` mark naming the setting, with a `SectionName` constant and property that spell the setting's `key`.
+**Statement:** An options class that binds a setting with a `configurationPath` MUST carry an `implements` mark naming the setting, with a `SectionName` constant and property that spell the setting's `configurationPath`.
 
-**Rationale:** The options class is where configuration becomes a typed value the code reads. It is the code element that implements the setting, so marking it names the promise the class holds. Comparing its section name and property with the record's key finds a renamed section or a typo before the product starts with a default. This provision binds `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element` for .NET.
+**Rationale:** The options class is where configuration becomes a typed value the code reads. It is the code element that implements the setting, so marking it names the promise the class holds. Comparing its section name and property with the record's path finds a renamed section or a typo before the product starts with a default. This provision binds `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element` for .NET.
 
 **Example:** Claimwick's `SpendingOptions` class declares `SectionName = "Spending"`, an `ApprovalReminderDelay` property, and `/// <implements>setting/spending.approval-reminder-delay</implements>`.
 
-**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no options class marks, and `setting-key-drift` (level S) for a marked options class whose `SectionName` constant and property do not spell the setting's `key`.
+**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no options class marks, and `setting-key-drift` (level S) for a marked options class whose `SectionName` constant and property do not spell the setting's `configurationPath`.
 
 ## Conventions
 

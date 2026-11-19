@@ -87,9 +87,9 @@ Served content is a static script or legal text with its path, content type, cac
 | `audience` | The `actor/...` ids using this entry point, required. |
 | `session` | How long a session lasts, `{ lifetime, idleTimeout }` as ISO 8601 durations, where sessions apply. |
 | `reauthenticationTriggers` | When a fresh sign-in is required, one sentence per trigger. |
-| `limits` | What the entry point does not do, one sentence per limit. |
+| `excludes` | What the entry point does not do, one sentence per exclusion. |
 
-The explanation restates Audience from `audience`, Authentication from `authentication`, `session`, and `reauthenticationTriggers`, and Limits from `limits`.
+The explanation restates Audience from `audience`, Authentication from `authentication`, `session`, and `reauthenticationTriggers`, and Excludes from `excludes`.
 
 An entry point that people use states two things about its audience. Its `density` says how much each screen shows at once: `public-light` for pages that show little, `application-balanced` for screens that balance work and guidance, or `admin-dense` for screens that pack dense rows. Its `voice` says in a sentence or two how the product addresses that audience.
 
@@ -105,7 +105,7 @@ It names its `route`, the route template its stack uses: a web path, a Blazor `@
 
 An overlay with no route of its own names the screen it opens on in `host` instead. A screen carries exactly one of `route` and `host`, as [Give Every Screen a Route or a Host](#give-every-screen-a-route-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
 
-A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
+A screen states what a person can do there, and what the person sees follows from it. The results it shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's id. None of those are written on the screen. Intent never names a screen either: a flow step states what a person achieves, and the book adds the screen that carries the step as context.
 
 The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`.
 
@@ -117,7 +117,7 @@ A flow step is exercised when a passing test proved a scenario of a use case tha
 
 ### External Systems
 
-An external system is one system outside the bounded context that the product exchanges messages with. It stands alone and names no actor.
+An external system is one system outside the bounded context that the product exchanges messages with. It is named for the role the system plays, never for its vendor, and it states the vendor in `vendor`, so changing vendors changes one field and one adapter folder. It names the actor it represents in `represents`: an outside system that acts in a flow is an actor of kind `system`, and the system record names that actor.
 
 When the integration calls the product rather than the other way around, that is still an external system: one calling through an API entry point. Claimwick's payout bank is an external system whose charge operation the spending module calls.
 
@@ -129,6 +129,8 @@ Its `summary` states what the system does for the product and who operates it. I
 
 | Field | Meaning |
 |:---|:---|
+| `vendor` | The vendor behind the system, in a few words. |
+| `represents` | The `actor/...` the system stands for in flow steps. |
 | `operations` | `{ name, action, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; action is `send` or `receive`, `timeout` is an ISO 8601 duration, `retries` is optional prose. The outcome handling separates `rejected`, `accepted`, and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
 | `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported" | "manual" | "not-applicable", "reason": "..." }` with `basedOn`. `unsupported` means the operator cannot remove the data, `manual` means people remove it outside the product, and `not-applicable` means the system holds no personal data after the product sends it. |
 | `processes` | The aggregates and data classes the system holds, as `{ aggregate, dataClass }` entries. |
@@ -414,6 +416,54 @@ Its `summary` states what the system does for the product and who operates it. I
 **Rationale:** A static file modeled as a use case invents behavior where none exists: results, scenarios, and handlers for bytes that are served unchanged. Serving it as content keeps content apart from behavior.
 
 **Reviewed for:** Is every static script and legal text served through a browser entry point's `servedContent` list, with its path, content type, cache control, and versioning? Check the static files beside the `servedContent` entries.
+
+### Name Each External System for Its Role
+
+**ID:** `litespec/core/edges#name-each-external-system-for-its-role`
+
+**Strength:** required
+
+**Applies to:** artifact: record:external-system
+
+**Statement:** Each external system MUST be named for the role the system plays, never for its vendor.
+
+**Rationale:** A record named for its vendor ties the specification to one provider: changing vendors renames the record, its identifier, and every citation. A record named for the role keeps its name while vendors change, and the vendor sits in one `vendor` field beside it. A record whose name equals its vendor is a finding.
+
+**Example:** `external-system/identity-provider` names the role, with the vendor in `vendor`; `external-system/kinde` names the vendor and is reported.
+
+**Reviewed for:** Does every external-system record name the role the system plays, with no record named for its vendor? Check each record name beside its `vendor`.
+
+### State the Vendor of Each External System
+
+**ID:** `litespec/core/edges#state-the-vendor-of-each-external-system`
+
+**Strength:** required
+
+**Applies to:** artifact: record:external-system
+
+**Statement:** Each external system MUST state its vendor in `vendor`.
+
+**Rationale:** The vendor is the provider behind the role: who operates the system the record names. Stated in one field, a vendor change edits that field and the one adapter folder, and every operation, erasure position, and port name stays put.
+
+**Example:** `external-system/identity-provider` carries its provider in `vendor`.
+
+**Checked by:** `litespec model check` reports `record-invalid` for an external system without `vendor`.
+
+### Name the Actor Each External System Represents
+
+**ID:** `litespec/core/edges#name-the-actor-each-external-system-represents`
+
+**Strength:** required
+
+**Applies to:** artifact: record:external-system
+
+**Statement:** Each external system MUST name the actor it represents in `represents`.
+
+**Rationale:** An outside system that acts in a flow is an actor of kind `system`. Every link points from the lower or later record to the higher or earlier one, so the Behavior system record names its Intent actor in `represents` instead of the flow naming the system. The reverse view is gathered for `model query` and the book, never stored.
+
+**Example:** The text gateway record names the text gateway actor in `represents`, and the flow step sending the overdue notice names that actor in `actor`.
+
+**Checked by:** `litespec model check` reports `record-invalid` for an external system without `represents`, and `reference-unknown` for a `represents` naming no written actor.
 
 ### Describe Every External System Operation
 

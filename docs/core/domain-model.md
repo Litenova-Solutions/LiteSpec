@@ -13,13 +13,13 @@ Inside one deployment boundary, the product speaks one business language, as the
 
 A module is one business area. Its record sits at `behavior/modules/<m>/module.yaml` and carries a `summary` and the `dependsOn` links to the modules it relies on, as `litespec/core/behavior#shape-each-module-page` states, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups.
 
-Each child record sits in a typed folder inside its module, such as `aggregates/<aggregates>/`, `aggregates/<aggregates>/integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. The aggregate folder name is the plural of the aggregate name, while the record id stays singular. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. The explanation file beside the record restates Responsibilities from `responsibilities` and Boundaries from `excludes` and carries Example.
+Each child record sits in a typed folder inside its module, such as `aggregates/<aggregates>/`, `aggregates/<aggregates>/integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. The aggregate folder name is the plural of the aggregate name, while the record id stays singular. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. The explanation file beside the record restates Covers from `covers` and Boundaries from `excludes` and carries Example.
 
 | Field | Meaning |
 |:---|:---|
 | `summary` | What the area covers, in one paragraph. |
 | `dependsOn` | The modules this module relies on. |
-| `responsibilities` | What the area covers, one sentence per responsibility. |
+| `covers` | What the area covers, one sentence per covered area. |
 | `excludes` | What the area does not cover, one sentence per exclusion. |
 
 ### Glossary
@@ -44,7 +44,7 @@ A term that declares a project use-case verb carries `verbKind` with the kind it
 
 An aggregate is the product's consistency boundary: the state that stays valid together, guarded by its invariants and changed in one step through its root. Its identifier carries its module, so containment follows the identifier and needs no link field. Claimwick's expense aggregate carries states such as Approved and Reimbursed. An aggregate with no lifecycle declares the single state `Active`.
 
-An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. The optional `limits` field states what the aggregate does not do, one sentence per limit. The explanation file beside the record restates Limits from `limits` and carries Lifecycle, Data and Retention, and Example.
+An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. The optional `excludes` field states what the aggregate does not do, one sentence per exclusion. The explanation file beside the record restates Excludes from `excludes` and carries Lifecycle, Data and Retention, and Example.
 
 `transitions` lists every allowed change with the use case or job moving it. Each entry names the state left in `from`, the state entered in `to`, and the moving use case or job in `movedBy`. A creation, the change that brings an instance into being, writes `-` as the state left. A transition moved by time carries `after` with the ISO 8601 duration counted from entering its source state, and `movedBy` names the job.
 
@@ -65,13 +65,13 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal code its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. It states whether it restates the law, a contract, or a product choice in `source`, and a rule restating the law names the restated constraint or research record in `cites`. Its optional `rationale` states why the rule holds. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
+A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal its breach produces in `refusal` by the refusal's id, the requirements it carries in `fulfills`, and the constraints, research, and decisions behind it in `basedOn`. It states whether it restates the law, a contract, or a product choice in `source`, and a rule restating the law names the restated constraint or research record in `cites`. Its optional `rationale` states why the rule holds. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
 
 A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
 
 A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
-State one rule per condition: one rule states one condition and names its refusal code from the module's refusal set, and every use case that can break it lists the refusal result citing that code. For example, Claimwick's reimbursed-once rule states one condition with its refusal code, and every reimbursement lists the refusal result citing that code.
+State one rule per condition: one rule states one condition and names its refusal from its aggregate's refusal set, and every use case that can break it lists the refusal result citing that refusal. For example, Claimwick's reimbursed-once rule states one condition with its refusal, and every reimbursement lists the refusal result citing that refusal.
 
 | Kind | Meaning |
 |:---|:---|
@@ -212,7 +212,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A module rule governs records of its own module; a product-level rule governs records in any module and names each aggregate it governs.
 
-**Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its code.
+**Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its refusal.
 
 **Checked by:** `litespec model check` reports `rule-governs-drift` for `governs` disagreeing with the links that name the rule.
 
@@ -224,9 +224,9 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Applies to:** artifact: record:rule
 
-**Statement:** Each atomicity rule MUST name the aggregates it binds in `binds`.
+**Statement:** Each atomicity rule MUST name the aggregates it binds in `binds` and the decision behind the group in `basedOn`.
 
-**Rationale:** An atomic write across aggregates stays allowed only through its rule. The rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, and the check reports it at level A.
+**Rationale:** An atomic write across aggregates stays allowed only through its rule and its decision. The rule states the group and why, such as an order without its hold overselling, names in `basedOn` the decision recording why the invariant needs one transaction, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, and the check reports it at level A.
 
 **Example:** The library's hold rule binds the hold and the copy aggregates, so a hold without its copy never stands.
 
@@ -272,11 +272,11 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Applies to:** artifact: record:rule
 
-**Statement:** Each rule whose breach refuses a use case MUST name the refusal code in `refusal`.
+**Statement:** Each rule whose breach refuses a use case MUST name the refusal in `refusal` by the refusal's id.
 
-**Rationale:** A guarded rule without a named refusal leaves the ending unnamed, and callers branch on a refusal the records never predicted. Naming the refusal code from the module's refusal set ties the rule to every result citing that code, so the breach and the ending stay one fact. The [Use Cases page](use-cases.md) states the refusal set.
+**Rationale:** A guarded rule without a named refusal leaves the ending unnamed, and callers branch on a refusal the records never predicted. Naming the refusal from its aggregate's refusal set ties the rule to every result citing that refusal, so the breach and the ending stay one fact. The [Use Cases page](use-cases.md) states the refusal set.
 
-**Reviewed for:** Does every guarded rule name its refusal code in `refusal`? Check the rule entries beside the results citing their code.
+**Reviewed for:** Does every guarded rule name its refusal in `refusal`? Check the rule entries beside the results citing their refusal.
 
 ### State Each Rule's Source
 

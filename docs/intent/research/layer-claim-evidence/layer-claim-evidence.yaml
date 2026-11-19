@@ -4,15 +4,15 @@ title: Which Record Layers a Project Can Leave Out
 sources:
   - path: apps/cli/src/LiteSpec.Cli/Model/CompletionStages/CompletionCalculator.cs
     readOn: 2026-11-10
-    key: completion-calculator
+    name: completion-calculator
     note: Read at lines 403 to 407 and lines 437 to 452.
   - path: apps/cli/src/LiteSpec.Cli/Model/Checks/Proof/ProofChecks.cs
     readOn: 2026-11-10
-    key: proof-checks
+    name: proof-checks
     note: Read at lines 165 to 171.
   - path: schemas/record.schema.yaml
     readOn: 2026-11-10
-    key: record-schema
+    name: record-schema
     note: Read at lines 2823 to 2835.
 question: Which record layers can a project leave out without breaking a link, and what must each claim name?
 conclusion: A project can leave out Implementation or Proof alone, because each points at Behavior and not at the other. Behavior needs Intent, and Implementation and Proof each need Behavior.

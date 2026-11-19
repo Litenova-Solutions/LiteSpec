@@ -16,7 +16,7 @@ Start with:
 
 ### Place Each Element in Its Folder
 
-`Application/` and `WebApi/` each hold one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, and `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint. A module-level use case drops the aggregate segment in each. Every port of the module lives in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`. Put each file of the use case in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
+`Application/` and `WebApi/` each hold one plural aggregate folder with one folder per use case inside it: `Application/{Aggregates}/{UseCase}/` always, and `WebApi/{Aggregates}/{UseCase}/` when the use case has an endpoint. A module-level read drops the aggregate segment in each. Every port of the module lives in its own `Ports/{Port}/` folder with its adapter in `Infrastructure/{Port}/`. Put each file of the use case in the folder the table names, with the mark the table names. A row with no mark is placed by its folder alone.
 
 | Element | Goes In | Mark | Checked By |
 |:---|:---|:---|:---|

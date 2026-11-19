@@ -101,7 +101,7 @@ The project glossary is the record that defines each business term: its meaning,
 
 **Statement:** An aggregate root MUST be the only public mutation entry point for every invariant its transaction protects.
 
-**Rationale:** If outside code could set properties or call child mutations directly, it would change data around the root's checks. With the root as the only public mutation entry point, every change passes the invariant its transaction protects. A command with `consistency: atomic` changes every aggregate listed in its `writes` in one transaction, citing the rule in `boundBy` when it changes more than one.
+**Rationale:** If outside code could set properties or call child mutations directly, it would change data around the root's checks. With the root as the only public mutation entry point, every change passes the invariant its transaction protects. A command with `consistency: atomic` changes every aggregate listed in its `writes` in one transaction, citing the rule in `boundBy` and the decision in the rule's `basedOn` when it changes more than one.
 
 **Reviewed for:** Can any invariant be changed through a public mutation outside its aggregate root? Look at the public mutation entry points of each aggregate.
 
@@ -131,7 +131,7 @@ The project glossary is the record that defines each business term: its meaning,
 
 **Statement:** An aggregate MUST store another aggregate's typed identifier rather than an object reference.
 
-**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own, and Application loads each side through its own domain repository when a command coordinates several aggregates, with `consistency: atomic` citing the rule in `boundBy`.
+**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own, and Application loads each side through its own domain repository when a command coordinates several aggregates, with `consistency: atomic` citing the rule in `boundBy` and the decision in the rule's `basedOn`.
 
 **Reviewed for:** Does any aggregate field hold another aggregate as an object reference instead of a typed identifier? Look at the fields of each aggregate.
 
@@ -563,80 +563,87 @@ Application obtains each value through an owned port and passes it in. A method 
 
 **Applies to:** artifact: any
 
-**Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding its own states, events, refusals, concepts, and one folder per part its record declares.
+**Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding the root's main file and the repository interface at its top with the groupings `{Act}/`, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`.
 
 **Replacement:** A project names its own module layout in its documentation.
 
-**Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. A single aggregate stays flat only when its plural root name equals the module name; separate aggregates keep separate lifecycle, event, and refusal folders.
+**Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. Every aggregate keeps its own folder, whatever the module's number of aggregates. Each root action groups into its own `{Act}/` folder with its partial file, its inputs, and its private rules; entities, value objects, and state types sit in `Parts/`; values passed in from other modules or the country pack sit in `Facts/`; domain events sit in `Events/` and refusals in `Exceptions/`.
 
-A part is a data group the aggregate record declares with dotted field names, such as `parcel.*`. The part's child entity and the values only that child holds sit in a folder named for the part, such as `Parcels/`, while the part's events and refusals stay in the aggregate's `Events/` and `Exceptions/` folders. A type that belongs to no part stays at the root.
+A part is a data group the aggregate record declares with dotted field names, such as `parcel.*`. The part's child entity and the values only that child holds sit in `Parts/`, while the part's events and refusals stay in the aggregate's `Events/` and `Exceptions/` folders.
 
 **Example:**
 
 ```text
 {Product}/
   Domain/                         the shared kernel: the root, event, identity, and refusal contracts
-  Posts/                          one aggregate whose name matches the module: kept flat in the module folder
+  Posts/                          one aggregate: every layer holds the plural aggregate folder
     Domain/
-      Post
-      PostId
-      PostTitle
-      PostRepository
-      States/
-        PostState
-        PostDraftState
-        PostPublishedState
-        PostArchivedState
-      Events/
-        PostCreatedDomainEvent
-        PostPublishedDomainEvent
-      Exceptions/
-        PostIdentityRequired
-        PostAlreadyPublished
-  Shipping/                       one aggregate whose name differs from the module, with a domain union in a concept folder
-    Shipments/
-      Domain/
+      Posts/
+        Post                      the root's main file
+        PostRepository            the repository interface
+        CreateDraft/              the act's partial file, inputs, and private rules
+        Publish/
+        Parts/
+          PostId
+          PostTitle
+          PostState
+          PostDraftState
+          PostPublishedState
+          PostArchivedState
+        Events/
+          PostCreatedDomainEvent
+          PostPublishedDomainEvent
+        Exceptions/
+          PostIdentityRequired
+          PostAlreadyPublished
+  Shipping/                       one aggregate whose name differs from the module
+    Domain/
+      Shipments/
         Shipment
-        ShipmentId
         ShipmentRepository
-        Outcomes/
+        RecordOutcome/
+        Parts/
+          ShipmentId
           ShipmentOutcome
           ShipmentDeliveredOutcome
           ShipmentReturnedOutcome
           ShipmentLostOutcome
-        States/
           ShipmentState
           ShipmentPendingState
           ShipmentDispatchedState
           ShipmentDeliveredState
         Events/
           ShipmentOutcomeRecordedDomainEvent
+        Exceptions/
   Customers/                      more than one aggregate: one plural folder per aggregate
-    CustomerAccounts/
-      Domain/
+    Domain/
+      CustomerAccounts/
         CustomerAccount
-        CustomerAccountId
         CustomerAccountRepository
-        States/
+        Restrict/
+        Parts/
+          CustomerAccountId
           CustomerAccountState
           CustomerAccountClaimedState
         Events/
           CustomerAccountRestrictedDomainEvent
-    Consents/
-      Domain/
+        Exceptions/
+      Consents/
         Consent
-        ConsentId
         ConsentRepository
-        States/
+        Grant/
+        Parts/
+          ConsentId
           ConsentState
           ConsentGrantedState
         Events/
           ConsentGrantedDomainEvent
+        Exceptions/
 ```
 
 Each aggregate's domain repository stays with the aggregate it loads. The module, aggregate, and use case order follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. Each stack page states the file names and extensions that carry this layout.
 
-**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for a domain event outside its aggregate's `Events` folder.
+**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for a domain event outside its aggregate's `Events` folder, and `folder-ungrouped` for a folder past 20 files that holds none of its allowed groupings.
 
 ### Name Domain Types from Their Aggregate Root
 

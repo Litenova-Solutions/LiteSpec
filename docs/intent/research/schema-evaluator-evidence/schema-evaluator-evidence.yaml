@@ -4,23 +4,23 @@ title: Schema Evaluator Evidence
 sources:
   - url: https://www.nuget.org/packages/JsonSchema.Net/9.6.0/License
     readOn: 2026-11-09
-    key: jsonschema-net-eula
+    name: jsonschema-net-eula
     note: The record read the JsonSchema.Net 9.6.0 license for the fee terms and the exemption for self-compiled binaries. It read the license of every other release from its package metadata.
   - url: https://www.nuget.org/packages/LateApexEarlySpeed.Json.Schema
     readOn: 2026-11-09
-    key: lateapexearlyspeed
+    name: lateapexearlyspeed
     note: The record read this NuGet listing for license, release history, downloads, and dependencies.
   - url: https://www.nuget.org/packages/FormFinch.JsonSchemaValidation
     readOn: 2026-11-09
-    key: formfinch
+    name: formfinch
     note: The record read this NuGet listing for license, release history, downloads, and dependencies.
   - url: https://github.com/json-schema-org/JSON-Schema-Test-Suite
     readOn: 2026-11-09
-    key: test-suite
+    name: test-suite
     note: The record read the official JSON Schema Test Suite for its draft 2020-12 cases.
   - path: apps/model/src/LiteSpec.Standards/Schemas/SchemaEvaluator.cs
     readOn: 2026-11-09
-    key: schema-evaluator
+    name: schema-evaluator
     note: This source is the evaluator itself. The case counts and the comparison results are the researcher's own measurements.
 question: Which JSON Schema evaluator can LiteSpec's tools use with no fee, and does LiteSpec's own evaluator keep the messages the checks print?
 conclusion: JsonSchema.Net charges a maintenance fee for its binaries from version 9.0.0. No maintained free library fits Native AOT without extra dependencies, so LiteSpec evaluates JSON Schema itself. Its evaluator printed the library's messages on 9,828 real and mutated instances except where the library reported the rejected shape of a passing composite. It passed 757 of the 761 applicable cases of the JSON Schema Test Suite.

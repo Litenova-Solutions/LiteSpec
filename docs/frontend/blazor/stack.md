@@ -74,7 +74,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version the sta
 
 **Statement:** A Blazor frontend MUST hold the frame in `Frame/`, one `.razor` file per address in `Routes/`, and the use-case code in `Modules/` at `{module}/{aggregates}/{use-case}/` in kebab case, mirroring the backend `Application/` folder.
 
-**Rationale:** Three fixed roots let a reader and a tool find the frame, the addresses, and the use-case code in the same place in every Blazor frontend. Under `Modules/`, the three-segment mirror translates each backend use-case path by rule, with a module-level use case dropping the aggregate segment in both trees.
+**Rationale:** Three fixed roots let a reader and a tool find the frame, the addresses, and the use-case code in the same place in every Blazor frontend. Under `Modules/`, the three-segment mirror translates each backend use-case path by rule, with a module-level read dropping the aggregate segment in both trees.
 
 **Example:** The Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its list-expenses use-case code in `Modules/spending/expenses/list-expenses/`.
 

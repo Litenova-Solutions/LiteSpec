@@ -70,7 +70,7 @@ Architecture decision records keep one record per significant decision: the cont
 
 **Words:** decision, with options, choice, and consequences.
 
-**Differs:** Options are entries with `pros` and `cons`, which keeps the choice structured instead of prose. A decision links the records it decides and names what would change it. A later decision names the earlier one in `supersedes`, and the earlier record stays as context.
+**Differs:** Options are entries with `pros` and `cons`, which keeps the choice structured instead of prose. Each settled record names its decision in `basedOn`, and the decision names what would change it. A later decision names the earlier one in `supersedes`, and the earlier record stays as context.
 
 ## Role-Based Access Control
 

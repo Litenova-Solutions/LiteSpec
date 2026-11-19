@@ -9,7 +9,7 @@ Use Cases states the system's commands and queries: their verbs, inputs, effects
 
 ### Use Cases
 
-A use case is one goal that a single test proves through the public boundary. It is a page beside its aggregate, with one kind: command or query. A command changes the product. A query reads without changing it.
+A use case is one goal that a single test proves through the public boundary. It is a page beside its aggregate, with one kind: command or query. A command changes one aggregate instance: its record's `writes` names one aggregate, and its handler loads, changes, and stages one root. Another aggregate of the same module follows through a reaction to the domain event, with its own commit. A query reads without changing it.
 
 Each use case links back to the Intent it carries, as `litespec/core/model#connect-every-behavior-record-to-intent` states: the flow steps it serves in `serves`, and the requirements it carries in `fulfills`. It states who may act in `access`, and the entry points and modules reaching it in `reachedThrough`. It names the aggregates and read models it touches in `writes` and `reads`, and the events it raises in `raises`. Its results state how it ends. A public query lists its consuming modules in `reachedThrough`, and each consumer declares the edge in `effects.queries`. A public command lists its sending modules in `reachedThrough`, and each sending reaction or job declares the edge in `effects.commands`.
 
@@ -17,8 +17,8 @@ Each use case links back to the Intent it carries, as `litespec/core/model#conne
 |:---|:---|
 | `access` | `{ grant, tenant }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `authentication`, as [Access](access.md) states. |
 | `input` | Entries of `{ name, meaning, type, identifies, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `identifies` field names the record an `id` refers to, or the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `identifies` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
-| `writes`, `reads` | The ids of aggregates written, and the ids of aggregates, read models, and settings read. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. |
-| `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
+| `writes`, `reads` | The id of the one aggregate written, and the ids of aggregates, read models, and settings read. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. A command whose `writes` names more than one aggregate is allowed only when a decision record names the use case and the invariant needing both in one transaction. |
+| `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and the rule names in `basedOn` the decision recording why the invariant needs one transaction. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
 | `effects` | Entries of `{ sends / calls / queries / commands, timing, onFailure, onExhausted, before, forEach }` with exactly one verb. The timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A `queries` entry names the public query use case of another module the behavior reads and carries `inline` timing: the read runs within the handling. A `commands` entry names the public command use case of another module the behavior sends and carries `inline` timing: the send runs within the handling. A use case runs no other use case, declares no `commands` edge, and declares no integration event. A reaction runs the follow-on work, and an outbound integration event names the event it translates. The effect graph holds no cycle except through a domain event with a stated end condition, as `litespec/core/principles#end-every-effect-cycle-in-a-domain-event` states. |
 | `idempotency` | `{ mode, key, scope, reason, replay, recognizedBy }`, on a command only. The mode is `key`, `state`, or `none`. The `key` templates `{field}` placeholders over the input field names. The `scope` is `tenant`, `account`, `login`, or `global`. The `replay` is `returns-first-result`, `refuses`, or `acts-again`. Mode `state` also carries `recognizedBy` naming the state checked. A query carries no `idempotency`. |
 | `audit` | `{ level, target }` with level `required`, `optional`, or `none`, or `{ exemptBecause }` with its justification. The `audit` extension owns this field: a command declares it only when the project selects that extension. A level of `none` is not audited. Async work audits at request time. |
@@ -33,7 +33,7 @@ Each consistency mode defines its promise for the writes of one use case:
 | `atomic` | Every write in `writes` commits as one group |
 | `per-record` | Each write commits on its own; a failure leaves earlier writes in place |
 
-No mode reaches past the use case. Every follow-on state change runs after the commit, from a reaction or a job; reads and inline `calls` run inside the use case. A command writing one aggregate and reading no guarding aggregate is atomic by definition, so it carries no `consistency`.
+No mode reaches past the use case. Every follow-on state change runs after the commit, from a reaction or a job; reads and inline `calls` run inside the use case. A command writing one aggregate and reading no guarding aggregate is atomic by definition, so it carries no `consistency`. A command writing more than one aggregate is usually a sign the aggregate boundary is drawn wrong; it stays allowed only with its `atomicity` rule and the decision behind it.
 
 Each effect entry carries one `onFailure` shape: `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`. The `mode` is `retry`, `skip-and-log`, or `discard`. The `retry` and `ifExhausted` fields accompany `mode: retry`, while `deadLetter`, `surfacesIn`, and `runbook` are optional. The `onExhausted` field names the act when retries run out. The `before` field orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
@@ -116,9 +116,9 @@ A reaction takes its name from its trigger, and a job from the use case it runs,
 
 ### Results and Refusals
 
-Each use case ends in named results. A result is a child record with an `outcome` of `success` or `refusal`. A success carries `meaning`. A refusal names its `code` from the module's refusal set and keeps the `sentence` a person reads, with one sentence per interface language beside it in `sentences`.
+Each use case ends in named results. A result is a child record with an `outcome` of `success` or `refusal`. A success carries `meaning`. A refusal names its refusal in `refusal` by the refusal's id and keeps the `sentence` a person reads, with one sentence per interface language beside it in `sentences`.
 
-Each module declares its refusal codes once in `behavior/modules/<m>/refusals.yaml`, as [Declare Each Module's Refusals Once](#declare-each-modules-refusals-once) states. The set owns each code and its meaning; the book joins the meaning onto each result citing the code. A result's `code` names a code from its module's set. A rule's `refusal` names a code from the same set, and every result carrying that code is the rule's refusal in that use case. The problem type of a code is the project's `problemTypeBase` followed by the code's part after its module, or that part alone as a short name where the project declares no base.
+Each aggregate declares the refusals its rules raise once in its own `refusals.yaml`, as [Declare Each Aggregate's Refusals Once](#declare-each-aggregates-refusals-once) states, and the module's `refusals.yaml` keeps only the refusals no aggregate raises, as [Declare Each Module's Refusals Once](#declare-each-modules-refusals-once) states. Each refusal entry carries its `id` and `title` like every other entry; the code is the id's name, so `refusal/spending.receipt-missing` carries the code `spending.receipt-missing`. The set owns each refusal and its meaning; the book joins the meaning onto each result citing the refusal. A result's `refusal` names a refusal from its aggregate's set, or from the module's set for a refusal no aggregate raises. A rule's `refusal` names the same refusal, and every result carrying it is the rule's refusal in that use case. The problem type of a code is the project's `problemTypeBase` followed by the code's part after its module, or that part alone as a short name where the project declares no base.
 
 Refusals stand in precedence order with the derived refusals first, as [Order Every Refusal List by Precedence](#order-every-refusal-list-by-precedence) states. A code in use is retired with its replacement named and never reused, as [Retire Refusal Codes with Their Replacements](#retire-refusal-codes-with-their-replacements) states.
 
@@ -126,8 +126,8 @@ A refusal is a rejection or error in industry words; the record word stays refus
 
 | Field | Meaning |
 |:---|:---|
-| `code` | The stable refusal code from the module's refusal set, on a refusal, such as `spending.receipt-missing`. |
-| `meaning` | What the result means, on a success. A refusal carries no `meaning`: its code names the set entry holding it. |
+| `refusal` | The refusal id from the aggregate's or module's refusal set, on a refusal, such as `refusal/spending.receipt-missing`. The code is the id's name. |
+| `meaning` | What the result means, on a success. A refusal carries no `meaning`: its refusal id names the set entry holding it. |
 | `sentence`, `sentences` | The sentence a person reads, in the product's language, with one sentence per interface language beside it. |
 | `recorded` | Whether the attempt and its reason are stored. A validating refusal stores nothing. |
 | `codes` | The closed list of recorded outcomes inside a success result. |
@@ -166,7 +166,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 | `default`, `range`, `unit` | The default in the setting's `valueType`, the min-max or choices, and the unit. A money default holds an amount with its currency, a duration default holds an ISO 8601 duration, and a choice default names one of its `choices`. |
 | `dated` | `true` when each value applies from a date and never changes a posted record. |
 | `setBy` | `product`, `operator`, or `tenant`. |
-| `key` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`. Operator settings name it, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states. |
+| `configurationPath` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`. Operator settings name it, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states. |
 | `outOfRange` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
 | `fulfills` | The requirements the setting carries. |
@@ -387,6 +387,22 @@ A type on each field lets the builder compare the records with the generated con
 
 **Checked by:** `litespec model check` reports `write-undeclared` for a write outside `writes` and `reference-unknown` for an unknown aggregate.
 
+### Change One Aggregate in Each Command
+
+**ID:** `litespec/core/use-cases#change-one-aggregate-in-each-command`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case; when: command
+
+**Statement:** Each command MUST name one aggregate in `writes` and live under that aggregate, unless a decision record names the use case and the invariant needing more in one transaction.
+
+**Rationale:** A command that changes two aggregates in one transaction couples their consistency boundaries: one failing part rolls back work that had no reason to fail with it, and the change cannot move to eventual consistency later. One aggregate per command keeps each transaction on one boundary. Another aggregate of the same module follows through a reaction to the domain event, with its own commit, and time-based work is a job that selects instances and sends one command per instance. A command writing more than one aggregate is usually a sign the aggregate boundary is drawn wrong; it stays allowed only when a decision record names the use case and the invariant that needs both in one transaction, with the use case citing the invariant in `boundBy` and the rule naming the decision in `basedOn`. Every command belongs to the aggregate it changes, so a command at module level is a finding, and module level keeps only module-wide reads such as an export archive.
+
+**Example:** The reimburse-expense command names `aggregate/spending.expense` in `writes` and lives under the expenses aggregate. The reporting reaction to its reimbursed fact answers in its own transaction instead of joining the write.
+
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a command use case at module level.
+
 ### Cite the Invariants Most Writers Cite
 
 **ID:** `litespec/core/use-cases#cite-the-invariants-most-writers-cite`
@@ -415,7 +431,7 @@ A type on each field lets the builder compare the records with the generated con
 
 **Rationale:** Consistency left unsaid is read as atomic until a multi-aggregate write fails halfway. Declaring the mode states the promise: `atomic` commits every write in `writes` as one group, and `per-record` commits each write on its own. A command that writes one aggregate and reads an aggregate whose rule guards its write declares `atomic` with the guarding aggregates in `guards`, so the guard still holds when the command commits.
 
-An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `writes` holds exactly the aggregates the rule binds. A guarded command cites the guarding rule in `boundBy` and names in `guards` the aggregates it reads, and does not write. A group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. A command writing one aggregate and reading no guarding aggregate is atomic by definition and carries no `consistency`, and a query carries none. [Domain Model](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` reports `writes` differing from the bound group, and `atomicity-invalid` reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).
+An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `writes` holds exactly the aggregates the rule binds. The command also needs its decision, as `litespec/core/use-cases#change-one-aggregate-in-each-command` states. A guarded command cites the guarding rule in `boundBy` and names in `guards` the aggregates it reads, and does not write. A group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. A command writing one aggregate and reading no guarding aggregate is atomic by definition and carries no `consistency`, and a query carries none. [Domain Model](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` reports `writes` differing from the bound group, and `atomicity-invalid` reports a group above 4 aggregates. Settled by [decision/0076-remove-shapes-nothing-needs](decision/0076-remove-shapes-nothing-needs).
 
 **Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule. The self-checkout scan declares per-record consistency across its attempts. The submit-expense command writes the expense and reads the report, so it declares atomic consistency citing the open-report rule with the report in `guards`.
 
@@ -621,6 +637,22 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Checked by:** `litespec model check` reports `record-invalid` for an output field without `type`.
 
+### Declare Each Aggregate's Refusals Once
+
+**ID:** `litespec/core/use-cases#declare-each-aggregates-refusals-once`
+
+**Strength:** required
+
+**Applies to:** artifact: record:refusal-set
+
+**Statement:** Each aggregate MUST declare the refusals its rules raise once in `behavior/modules/<m>/aggregates/<aggregates>/refusals.yaml`, with each entry carrying its `id` and `title`.
+
+**Rationale:** Refusals declared per use case drift: one use case retires a code while its neighbor keeps it, and the same breach reports two refusals. Declaring each refusal once beside the aggregate whose rules raise it, mirroring `Domain/{Aggregates}/Exceptions/`, keeps one refusal and one meaning behind every result citing it. Each entry carries its `id` as `refusal/<module>.<name>` and its `title` like every other entry; the code is the id's name, so the code `spending.receipt-missing` stays the API's problem code and the audit trail's stored value. A result's `refusal` names a refusal from its aggregate's set, and a rule's `refusal` names the same refusal, so every result carrying it is that rule's refusal in that use case. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
+
+**Example:** The expense aggregate declares `refusal/spending.receipt-missing` with its meaning. The submit-expense refusal cites that id.
+
+**Checked by:** `litespec model check` reports `reference-unknown` for a result refusal missing from its aggregate's refusal set, `record-invalid` for a refusal entry without `id` or `title`, and `code-placement-drift` or `record-placement-invalid` for a refusal and its exception declared under different homes: a refusal declared under an aggregate whose exception lives under another aggregate or outside `Domain/`, or an aggregate's exception whose refusal is declared at module level.
+
 ### Declare Each Module's Refusals Once
 
 **ID:** `litespec/core/use-cases#declare-each-modules-refusals-once`
@@ -629,13 +661,13 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Applies to:** artifact: record:refusal-set
 
-**Statement:** Each module MUST declare its refusal codes once in `behavior/modules/<m>/refusals.yaml` with each code's meaning.
+**Statement:** Each module MUST declare in `behavior/modules/<m>/refusals.yaml` only refusals no aggregate raises, with each code's meaning.
 
-**Rationale:** Refusal codes declared per use case drift: one use case retires a code while its neighbor keeps it, and the same breach reports two codes. Declaring each code once per module, with its meaning, keeps one code and one meaning behind every result citing it. The code reads `<module>.<name>`. The project declares `problemTypeBase` once in `.litespec/project.yaml`: the problem type of a code is the base followed by the code's part after its module, and the code's part after its module as a short RFC 9457 type name where no base is declared. The book joins the meaning onto each result citing the code. A result's `code` names a code from its module's set, and a rule's `refusal` names the same code, so every result carrying it is that rule's refusal in its use case. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
+**Rationale:** A refusal an aggregate's rules raise is declared in that aggregate's set, as `litespec/core/use-cases#declare-each-aggregates-refusals-once` states. The module's set keeps only the refusals no aggregate raises: a file refused before any aggregate exists, or a module-wide refusal. The project declares `problemTypeBase` once in `.litespec/project.yaml`: the problem type of a code is the base followed by the code's part after its module, and the code's part after its module as a short RFC 9457 type name where no base is declared. The book joins the meaning onto each result citing the refusal. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
 
-**Example:** The spending module declares `spending.receipt-missing` with its meaning. The submit-expense refusal cites that code: with a `problemTypeBase` of `https://claimwick.example/problems/`, its problem type is `https://claimwick.example/problems/receipt-missing`, and without a base it is the short name, the part after the module.
+**Example:** The spending module declares a module-wide refusal with its meaning. With a `problemTypeBase` of `https://claimwick.example/problems/`, its problem type is the base followed by the code's part after the module, and without a base it is the short name, the part after the module.
 
-**Checked by:** `litespec model check` reports `reference-unknown` for a result code missing from its module's refusal set.
+**Checked by:** `litespec model check` reports `reference-unknown` for a result refusal missing from its module's refusal set, and `record-placement-invalid` for a module-level refusal raised by exactly one aggregate.
 
 ### End Every Use Case in Named Results
 
@@ -645,13 +677,13 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Applies to:** artifact: record:use-case, record:result
 
-**Statement:** Each use case MUST declare its success result and every refusal with its code.
+**Statement:** Each use case MUST declare its success result and, on every refusal result, its `refusal`.
 
-**Rationale:** Callers branch on named endings: success, or one refusal with its stable code. Without a named success, readers guess what good looks like. Without a code on a refusal, each architecture layer reports the same breach another way. The `use-case-success-missing` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
+**Rationale:** Callers branch on named endings: success, or one refusal result with its stable code. Without a named success, readers guess what good looks like. Without a refusal id on a refusal result, each architecture layer reports the same breach another way. The `use-case-success-missing` check reports a use case with no success result, and `result-undeclared` reports a refusal the records never declared.
 
-**Example:** The reimburse-expense command declares `reimbursed`, with the refusals `spending.not-approved` and `spending.already-reimbursed`.
+**Example:** The reimburse-expense command declares `reimbursed`, with the refusal results citing `refusal/spending.not-approved` and `refusal/spending.already-reimbursed`.
 
-**Checked by:** `litespec model check` reports `use-case-success-missing` for a use case with no success result; each refusal entry on the use-case page carries its code.
+**Checked by:** `litespec model check` reports `use-case-success-missing` for a use case with no success result; each refusal result on the use-case page carries its `refusal`.
 
 ### Name Each Refusal Code for the State That Refuses
 
@@ -661,13 +693,13 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Applies to:** artifact: record:result
 
-**Statement:** Each refusal code MUST read `<module>.<noun>-<state>` and name the state, not the failure.
+**Statement:** Each refusal id MUST read `refusal/<module>.<noun>-<state>` and name the state, not the failure.
 
-**Rationale:** The code is a public contract. The words `invalid`, `failed`, or `error` tell an integrator nothing to do. A code naming the state tells what holds and what to change. The prefix names the module that owns the refused state, which may differ from the module of the refusing use case. A code built at run time from a key, such as the conflict for a lost uniqueness key, declares its template in `refusals.composed`.
+**Rationale:** The code is the id's name, and it is a public contract. The words `invalid`, `failed`, or `error` tell an integrator nothing to do. A code naming the state tells what holds and what to change. The module segment names the module that owns the refused state, which may differ from the module of the refusing use case. A code built at run time from a key, such as the conflict for a lost uniqueness key, declares its template in `refusals.composed`.
 
-**Example:** `spending.receipt-missing` names the missing receipt. The code `spending.receipt-invalid` hides the state behind a vague word and is reported.
+**Example:** `refusal/spending.receipt-missing` names the missing receipt. The id `refusal/spending.receipt-invalid` hides the state behind a vague word and is reported.
 
-**Reviewed for:** Does every refusal code read `<module>.<noun>-<state>` and name its state? Look at the refusal codes on each use-case page.
+**Reviewed for:** Does every refusal id read `refusal/<module>.<noun>-<state>` and name its state? Look at the refusal ids on each use-case page.
 
 ### Retire Refusal Codes with Their Replacements
 
@@ -681,7 +713,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Rationale:** The code is a public contract, and clients branch on it. Renaming a code in use silently breaks them. Reusing a retired code for another state sends old clients down the new branch. Retiring the code with its replacement named keeps every past refusal readable and every new client on the new code.
 
-**Example:** The retired `spending.receipt-missing` result names `spending.receipt-absent` as its replacement. No later refusal reuses the old code.
+**Example:** The retired `refusal/spending.receipt-missing` names `refusal/spending.receipt-absent` as its replacement. No later refusal reuses the old code.
 
 **Reviewed for:** Which refusal codes in use were renamed or reused instead of retired with a named replacement? Look at the refusal codes beside their results.
 
@@ -943,13 +975,13 @@ A setting holds operator configuration read by the running system. A business va
 
 **Applies to:** artifact: record:setting
 
-**Statement:** A setting the operator sets MUST name its configuration path in `key`.
+**Statement:** A setting the operator sets MUST name its configuration path in `configurationPath`.
 
-**Rationale:** An operator setting reaches the product through configuration. The record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the product sets is held as data by an aggregate instead, and names no key.
+**Rationale:** An operator setting reaches the product through configuration. The record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the path, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the product sets is held as data by an aggregate instead, and names no path.
 
-**Example:** Claimwick's `setting/spending.approval-reminder-delay` is set by the operator. It carries `key` `Spending:ApprovalReminderDelay`.
+**Example:** Claimwick's `setting/spending.approval-reminder-delay` is set by the operator. It carries `configurationPath` `Spending:ApprovalReminderDelay`.
 
-**Checked by:** `litespec model check` reports `setting-key-missing` (level G) for a setting with `setBy: operator` and no `key`.
+**Checked by:** `litespec model check` reports `setting-key-missing` (level G) for a setting with `setBy: operator` and no `configurationPath`.
 
 ### Bind Every Keyed Setting in One Marked Element
 
@@ -959,13 +991,13 @@ A setting holds operator configuration read by the running system. A business va
 
 **Applies to:** artifact: record:setting; layer: implementation; trace: yes
 
-**Statement:** A setting with a `key` MUST be bound in code by one element that carries an `implements` mark naming the setting and whose name spells the key.
+**Statement:** A setting with a `configurationPath` MUST be bound in code by one element that carries an `implements` mark naming the setting and whose name spells the path.
 
-**Rationale:** A setting reaches the running product through configuration, and the code reads it as a typed value. The code element holding that value is where the record and the configuration meet, so marking it with the setting it implements names the promise the element holds. Comparing the element name with the record key finds a renamed section or a typo before the product starts on a default nobody chose. Each stack states the shape of the element.
+**Rationale:** A setting reaches the running product through configuration, and the code reads it as a typed value. The code element holding that value is where the record and the configuration meet, so marking it with the setting it implements names the promise the element holds. Comparing the element name with the record path finds a renamed section or a typo before the product starts on a default nobody chose. Each stack states the shape of the element.
 
-**Example:** Claimwick's approval-reminder-delay setting carries `key` `Spending:ApprovalReminderDelay`. One element carries an `implements` mark naming `setting/spending.approval-reminder-delay`, and its name spells the key.
+**Example:** Claimwick's approval-reminder-delay setting carries `configurationPath` `Spending:ApprovalReminderDelay`. One element carries an `implements` mark naming `setting/spending.approval-reminder-delay`, and its name spells the path.
 
-**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no marked element implements, and `setting-key-drift` (level S) for a marked element whose name does not spell the setting's `key`.
+**Checked by:** `litespec model check` reports `setting-unimplemented` (level S) for a keyed setting no marked element implements, and `setting-key-drift` (level S) for a marked element whose name does not spell the setting's `configurationPath`.
 
 ### State the Unit of Every Quantity Setting
 

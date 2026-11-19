@@ -4,15 +4,15 @@ title: Record Format Evidence
 sources:
   - url: https://yaml.org/spec/1.2/
     readOn: 2026-10-31
-    key: yaml-spec-1-2
+    name: yaml-spec-1-2
     note: The record read this specification for the core schema resolution rules behind the strict subset.
   - url: https://json-schema.org/
     readOn: 2026-10-31
-    key: json-schema
+    name: json-schema
     note: The record read this site for the validation claim that the subset relies on, and for the KSON superset claim that makes a later conversion mechanical.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
-    key: record-schema
+    name: record-schema
     note: The record read the shipped record schema as the validation target and for the key order. The survey comparison and the consumer counts are the researcher's own measurement.
 question: Which record format holds each fact once and validates against the record schema?
 conclusion: A strict YAML subset holds one record file per page with an optional explanation file beside it. It carries each fact once and validates against the unchanged record schema. The closest surveyed alternative stays in beta with no .NET implementation.

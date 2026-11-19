@@ -4,15 +4,15 @@ title: Research Conclusion Evidence
 sources:
   - path: templates/consumer/research.md
     readOn: 2026-10-30
-    key: research
+    name: research
     note: The record read the consumer research template on 30 October 2026.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-30
-    key: record-schema
+    name: record-schema
     note: The record read the record schema on 30 October 2026.
   - path: docs/core/intent.md
     readOn: 2026-10-30
-    key: intent
+    name: intent
     note: The record read the core Intent page on 30 October 2026.
 question: Do consumer research records state a conclusion a decision can cite, and where is that conclusion held?
 conclusion: Every consumer research record states its finding in Answer. Sixteen of twenty-nine restate what follows under seven different invented headings, and the register index repeats the conclusions outside the records. So the conclusion needs one field of its own.

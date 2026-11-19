@@ -4,31 +4,31 @@ title: Cross-Module Coupling Practice
 sources:
   - url: https://martinfowler.com/articles/201701-event-driven.html
     readOn: 2026-11-14
-    key: martinfowler-articles-201701-event-driven
+    name: martinfowler-articles-201701-event-driven
     note: Read through its published text and summary on 14 November 2026.
   - url: https://alistair.cockburn.us/hexagonal-architecture/
     readOn: 2026-11-14
-    key: cockburn-hexagonal-architecture
+    name: cockburn-hexagonal-architecture
     note: Read through its published text and summary on 14 November 2026.
   - url: https://jimmybogard.com/vertical-slice-architecture/
     readOn: 2026-11-14
-    key: jimmybogard-vertical-slice-architecture
+    name: jimmybogard-vertical-slice-architecture
     note: Read through its published text and summary on 14 November 2026.
   - url: https://github.com/kgrzybek/modular-monolith-with-ddd
     readOn: 2026-11-14
-    key: github-kgrzybek-modular-monolith-with-ddd
+    name: github-kgrzybek-modular-monolith-with-ddd
     note: Read through its published text and summary on 14 November 2026.
   - path: docs/backend/application.md
     readOn: 2026-11-14
-    key: application
+    name: application
     note: One of the release pages this research changed.
   - path: docs/backend/dotnet/architecture.md
     readOn: 2026-11-14
-    key: dotnet-architecture
+    name: dotnet-architecture
     note: One of the release pages this research changed.
   - path: schemas/record.schema.yaml
     readOn: 2026-11-14
-    key: record-schema
+    name: record-schema
     note: One of the release pages this research changed.
 question: How do comparable practices stop slices, handlers, and modules from coupling to each other's internals? What did a large consumer of LiteSpec 5 and 6 show about the shared folders and nested commands the rules allowed?
 conclusion: Outside practice couples within a slice and not between slices, lets a module learn another module's state from published events, and keeps ports for what the core asks of the outside; a large consumer showed that the allowed exemptions grew shared folders, nested commands, and cross-module readers, so 6.1 removes the exemptions, places every trigger with what it runs, derives publishing from the translated domain event, and adds the read-model record.

@@ -61,10 +61,12 @@ While it builds the model from records, code, routes, tests, and test runs, the 
       modules/
         {module}/
           permissions.yaml
+          refusals.yaml                       refusals no aggregate raises
           stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ external-systems/
           aggregates/
             {aggregate}/
               aggregate.yaml
+              refusals.yaml                   refusals the aggregate's rules raise
               use-cases/
                 {use-case}/
                   {use-case}.yaml   results and scenarios as entries
@@ -108,7 +110,7 @@ Neither the backend application nor a frontend application sits at the workspace
 
 A named record lives in its own folder as `<name>/<name>.yaml`, with its explanation `<name>.md` beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.
 
-An entry lives in its home file: permissions in the permissions file of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
+An entry lives in its home file: permissions in the permissions file of their module, refusals in the refusals file of their aggregate or, when no aggregate raises them, of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
 
 **Reviewed for:** Does the workspace tree match the canonical tree in this section, with each record at its type's home under `.litespec/`? Walk the tree from the workspace root.
 

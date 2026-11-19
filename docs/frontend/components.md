@@ -25,6 +25,10 @@ The boundary is enforced rather than described. A page reaching past the entry p
 
 Some drawings have no composite, such as a budget treemap, a receipt-scan preview, or a public marketing frame. They live in exception files whose names declare the exception, and they draw with semantic theme tokens, the named values the shared token definition holds. The file name keeps the exception visible, and the tokens keep it inside the product palette.
 
+### The Grouping Folders of the Shared UI Package
+
+The `components/` folder of the shared UI package groups its components by role: `fields/` holds form fields, `overlays/` holds dialogs and overlays, `layout/` holds floors, sections, and shells, `data/` holds tables and lists, `values/` holds formatted domain values such as money, dates, and states, and `feedback/` holds toasts, alerts, and data-state drawings. Only the `index` sits beside these folders. Each grouping names the role its components play, so a reader finds a component by what it does, and an agent never invents another folder.
+
 ## Standards
 
 ### Keep Shared UI in One Package
@@ -42,6 +46,22 @@ Some drawings have no composite, such as a budget treemap, a receipt-scan previe
 **Example:** The shared UI package holds the primitives in one folder beside the composites, and the composites import them.
 
 **Reviewed for:** Does every shared primitive and composite live in the shared package? Look in the workspace packages and the application sources.
+
+### Group the Shared UI Package by Role
+
+**ID:** `litespec/frontend/components#group-the-shared-ui-package-by-role`
+
+**Strength:** required
+
+**Applies to:** artifact: component
+
+**Statement:** A shared UI package MUST hold its components in the top-level `components/` folder, keeping only the `index` at its top level and grouping every component into `fields/`, `overlays/`, `layout/`, `data/`, `values/`, or `feedback/`, with no other folder.
+
+**Rationale:** One flat folder of components reads as one long listing: a reader finds a component only by search, and review misses what the package holds. Each grouping names the role its components play, so a reader finds a component by what it does. An agent never invents another grouping: a folder outside the allowed set is refused, and a folder past 20 files that holds none of its allowed groupings is a finding.
+
+**Example:** The Claimwick shared package holds its form fields in `fields/`, its expense dialog in `overlays/`, its entity section in `layout/`, its expense table in `data/`, its money display and status badge in `values/`, and its toasts in `feedback/`.
+
+**Checked by:** `litespec model check` reports `folder-ungrouped` for a `components/` folder past 20 files that holds none of its allowed groupings.
 
 ### Compose Composites in Page Code
 

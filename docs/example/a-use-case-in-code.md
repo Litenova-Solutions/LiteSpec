@@ -32,11 +32,11 @@ reads:
 
 The file also declares the input, the idempotency, and the results. The input carries a `requestId` the app mints for each submission attempt, the amount, the currency, and an optional receipt. Idempotency is `key` on `{requestId}`, scoped to the account, with `returns-first-result` replay: a retried request returns the first result instead of minting a second expense.
 
-The two results are `result/submit-expense.submitted`, a success, and `result/submit-expense.receipt-missing`, a refusal with the code `spending.receipt-missing` from the spending refusal set. The file has two scenarios, and the tests below prove them.
+The two results are `result/submit-expense.submitted`, a success, and `result/submit-expense.receipt-missing`, a refusal with the refusal `refusal/spending.receipt-missing` from the expense aggregate's refusal set. The file has two scenarios, and the tests below prove them.
 
 ## The Rule Behind the Refusal
 
-One rule stands behind the refusal: `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal code `spending.receipt-missing`. In code, the rule appears twice, as the exception that carries its stable code and as the check in the aggregate that raises it.
+One rule stands behind the refusal: `rule/expense.receipt-required-above-threshold` states that an expense above the policy threshold needs a receipt, and it names the refusal `refusal/spending.receipt-missing`. In code, the rule appears twice, as the exception that carries its stable code and as the check in the aggregate that raises it.
 
 The exception is `apps/api/src/Modules/Claimwick.Spending/Domain/Expenses/Exceptions/ExpenseReceiptMissingException.cs`, marked with `<implements>rule/expense.receipt-required-above-threshold</implements>`. It returns the code `spending.receipt-missing`.
 

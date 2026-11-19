@@ -4,87 +4,87 @@ title: Established Traceability Practice
 sources:
   - url: https://technav.ieee.org/topic/requirements-management/
     readOn: 2026-10-30
-    key: technav-ieee-topic-requirements-management
+    name: technav-ieee-topic-requirements-management
     note: The IEEE navigator topic page on requirements management. It states the traceability rule without the 3-level StRS, SyRS, and SRS wording, so the record follows the live page.
   - url: https://technav.ieee.org/topic/technical-requirements/
     readOn: 2026-10-30
-    key: technav-ieee-topic-technical-requirements
+    name: technav-ieee-topic-technical-requirements
     note: The IEEE navigator topic page on technical requirements. It states the traceability rule without the 3-level StRS, SyRS, and SRS wording, so the record follows the live page.
   - url: https://www.betterask.erni/the-need-for-requirements-traceability-within-development-projects/
     readOn: 2026-10-30
-    key: betterask-the-need-for-requirements
+    name: betterask-the-need-for-requirements
     note: An ERNI practitioner article on IREB traceability, published on 12 October 2022 and updated on 3 June 2024. Its IREB glossary wording is second-hand through Glinz 2022, so the wording needs checking against the IREB glossary PDF.
   - url: https://www.jamasoftware.com/requirements-management-guide/aerospace-and-defense/do-178c
     readOn: 2026-10-30
-    key: jamasoftware-requirements-management-guide
+    name: jamasoftware-requirements-management-guide
     note: Jama Software guidance on DO-178C. It is a vendor restatement, not the paywalled standard.
   - url: https://www.jamasoftware.com/legacy/requirements-management-guide/requirements-traceability/bidirectional-traceability/
     readOn: 2026-10-30
-    key: jamasoftware-legacy-requirements-management
+    name: jamasoftware-legacy-requirements-management
     note: Jama Software guidance on bidirectional traceability.
   - url: https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/relationships/relationship-status-indicator.html
     readOn: 2026-10-30
-    key: help-jamasoftware-ah-manage-content-coverage
+    name: help-jamasoftware-ah-manage-content-coverage
     note: Jama help on the relationship status indicator. The record drops the claim that coverage dashboards go stale, which stays unconfirmed.
   - url: https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/relationships/clear-suspect-links.html
     readOn: 2026-10-30
-    key: help-jamasoftware-ah-manage-content-coverage-2
+    name: help-jamasoftware-ah-manage-content-coverage-2
     note: Jama help on clearing suspect links. The record drops the claim that coverage dashboards go stale, which stays unconfirmed.
   - url: https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/live-trace-explorer/modify-a-tile-in-the-diagram.html
     readOn: 2026-10-30
-    key: help-jamasoftware-ah-manage-content-coverage-3
+    name: help-jamasoftware-ah-manage-content-coverage-3
     note: Jama help on modifying a tile in the live trace diagram. The record drops the claim that coverage dashboards go stale, which stays unconfirmed.
   - url: https://www.vector.com/en/business-unit/code-testing-and-verification/standards-and-compliance/functional-safety-industry-standards/
     readOn: 2026-10-30
-    key: vector-business-unit-code-testing-and
+    name: vector-business-unit-code-testing-and
     note: A Vector page on functional safety standards. It is a vendor restatement, not the paywalled standard.
   - url: https://link.springer.com/article/10.1007/s10664-014-9314-z
     readOn: 2026-10-30
-    key: link-springer-article-s10664-014-9314-z
+    name: link-springer-article-s10664-014-9314-z
     note: The Mader and Egyed experiment abstract in Springer's software quality journal. Its numbers come from the abstract, because the full text is paywalled, and they replace the task counts the source investigation reported.
   - url: http://wer.inf.puc-rio.br/WERpapers/artigos/artigos_WER09/werneck.pdf
     readOn: 2026-10-30
-    key: wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+    name: wer-inf-puc-rio-werpapers-artigos-artigos-wer09
     note: A comparison paper on i* and KAOS from PUC-Rio.
   - url: https://learn.microsoft.com/en-us/azure/devops/boards/queries/link-type-reference?view=azure-devops
     readOn: 2026-10-30
-    key: learn-microsoft-en-us-azure-devops
+    name: learn-microsoft-en-us-azure-devops
     note: Microsoft's Azure DevOps link type reference.
   - url: https://blogs.sw.siemens.com/polarion/links-between-work-items-and-their-intended-meaning/
     readOn: 2026-10-30
-    key: blogs-sw-siemens-polarion-links-between-work
+    name: blogs-sw-siemens-polarion-links-between-work
     note: A Siemens Polarion blog post on links between work items and their meaning.
   - url: https://blogs.sw.siemens.com/polarion/interconnecting-your-engineering-elements/
     readOn: 2026-10-30
-    key: blogs-sw-siemens-polarion-interconnecting-your
+    name: blogs-sw-siemens-polarion-interconnecting-your
     note: A Siemens Polarion blog post on interconnecting engineering elements.
   - url: https://linear.app/docs/parent-and-sub-issues
     readOn: 2026-10-30
-    key: linear-docs-parent-and-sub-issues
+    name: linear-docs-parent-and-sub-issues
     note: The Linear documentation on parent and sub-issues. It states no nesting depth limit and no completion counting, so the record follows that page.
   - url: https://www.modernanalyst.com/Careers/InterviewQuestions/tabid/128/ID/6793/What-is-Impact-Mapping.aspx
     readOn: 2026-10-30
-    key: modernanalyst-careers-interviewquestions-tabid
+    name: modernanalyst-careers-interviewquestions-tabid
     note: A Modern Analyst page on impact mapping. It is a practitioner page, not the originator's book.
   - url: https://www.prodpad.com/glossary/opportunity-solution-tree/
     readOn: 2026-10-30
-    key: prodpad-glossary-opportunity-solution-tree
+    name: prodpad-glossary-opportunity-solution-tree
     note: A ProdPad glossary entry on opportunity solution trees. It is a practitioner page, not the originator's book.
   - url: https://visual-paradigm.com/cn/guide/agile-software-development/what-is-user-story/
     readOn: 2026-10-30
-    key: visual-paradigm-cn-guide-agile-software
+    name: visual-paradigm-cn-guide-agile-software
     note: A Visual Paradigm guide on user stories. It is a practitioner page, not the originator's book.
   - url: https://qa.whatmatters.com/faqs/okrs-objectives-key-results-explanation-examples
     readOn: 2026-10-30
-    key: qa-whatmatters-faqs-okrs-objectives-key-results
+    name: qa-whatmatters-faqs-okrs-objectives-key-results
     note: A What Matters page on OKRs. It is a practitioner page, not the originator's book.
   - url: https://www.adammhoward.com/solavirtusinvicta/2013/10/27/traceability-matrix-myth-tricks
     readOn: 2026-10-30
-    key: adammhoward-solavirtusinvicta-traceability
+    name: adammhoward-solavirtusinvicta-traceability
     note: A blog post on the traceability matrix.
   - url: https://nkdagility.com/resources/blog/rethinking-product-backlog-navigating-through-the-weeds-of-complexity/
     readOn: 2026-10-30
-    key: nkdagility-resources-blog-rethinking-product
+    name: nkdagility-resources-blog-rethinking-product
     note: An nKdAgility post on the product backlog.
 question: What do established requirements and traceability practices require of hierarchy, and where do they warn against requiring it?
 conclusion: Established practice requires every requirement to name an origin and computes every inverse link, and it warns that links without training, named tolerances, and a promotion rule give no traceability.

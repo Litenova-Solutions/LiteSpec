@@ -4,7 +4,7 @@ An actor is a person, organization or system that uses the product. This decisio
 
 ## Context
 
-The Access section of an actor restated the access its role grants, and it added rules about sessions and sign-in. The role's own files already state the permissions and their limits, so the same grant appeared in two places and could drift.
+The Access section of an actor restated the access its role grants, and it added rules about sessions and sign-in. The role's own files already state the scope and what the grant does not cover, so the same grant appeared in two places and could drift.
 
 An actor often stated what users know as a fact about every user, for example that a user has no training in accounting. The actor had no section for an assumption of the product, so the writer put the assumption in the opening paragraph.
 
@@ -17,7 +17,7 @@ LiteSpec compared 3 options for the sections of an actor explanation. The table 
 | Option | Gains | Costs |
 |:---|:---|:---|
 | Responsibilities, Knowledge and Example, with Access removed | Each section says what the actor answers for or what the product assumes. | Every actor file is rewritten. |
-| Access narrowed to why the actor holds its role | The reason for the grant sits in the actor's own file. | The role's Limits section states the same reason. |
+| Access narrowed to why the actor holds its role | The reason for the grant sits in the actor's own file. | The role's Excludes section states the same reason. |
 | Sections kept, prompts fixed | No section moves. | The Access section keeps restating the role, and no section holds assumptions. |
 
 ## Decision

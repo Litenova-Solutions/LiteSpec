@@ -13,25 +13,25 @@ The [use cases](use-cases.md) page states the use cases that carry access, and t
 
 ### How Actor, Role, and Permission Connect
 
-Access follows one chain from actor to use case. An actor holds a role, the role carries its one scope and allows permissions, and the use case declares the grant it checks. When someone asks why a call was allowed or refused, the chain gives the whole answer: which actor held which role, what reach the role's scope states, which permission the role allowed, and which use case declared it.
+Access follows one chain from actor to use case. An actor holds a role, the role carries its one scope, each permission names the roles that grant it, and the use case declares the grant it checks. When someone asks why a call was allowed or refused, the chain gives the whole answer: which actor held which role, what reach the role's scope states, which permission named that role, and which use case declared it.
 
-This is role-based access control: permissions attach to roles, never to actors directly, and the role's scope bounds how far each permission reaches. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
+This is role-based access control: permissions attach to roles, never to actors directly, and the role's scope bounds how far each permission reaches. Every link points from the lower or later record to the higher or earlier one: the permission lives in Behavior and names its Intent roles in `grantedTo`, and the book gathers each role's permissions from the permissions naming it.
 
 ### Actors, Roles, and Scopes
 
-An actor is one party that acts in the product: a person acting directly, or an organization, a company or group acting as one party. The `kind` field says which, so a reviewer knows who answers for what the actor does. Each actor also states in `belongsToTeam` whether it belongs to the team that builds and runs the product. The actor states its responsibilities in `responsibilities`, the acts the product holds it to, and what the product assumes it knows in `knowledge`.
+An actor is one party that acts in the product: a person acting directly, an organization, a company or group acting as one party, or an outside system standing in a flow step. The `kind` field says which, so a reviewer knows who answers for what the actor does. Each actor also states in `belongsToTeam` whether it belongs to the team that builds and runs the product. The actor states its responsibilities in `responsibilities`, the acts the product holds it to, and what the product assumes it knows in `knowledge`.
 
-Software is never an actor. An outside system is recorded as an external system instead, and internal machinery gets no actor at all.
+An outside system that acts in a flow is an actor of kind `system`, and its external-system record names it in `represents`. Internal machinery gets no actor at all.
 
-A role is one named set of permissions granted together, and it holds the one scope of its grant. The scope is a kebab-case level naming how far the grant reaches, such as `platform`, `tenant`, or `self`, and the role is the only place that reach is stated. The role states its limits in `limits`, the acts inside its scope that the grant does not allow. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation.
+A role is one named set of permissions granted together, and it holds the one scope of its grant. The scope is a kebab-case level naming how far the grant reaches, such as `platform`, `tenant`, or `self`, and the role is the only place that reach is stated. The role states what the grant does not cover in `excludes`, the acts inside its scope that the grant does not cover. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation.
 
 An actor lists each role it holds in `holds`, by role identifier. A hold names only the role: the reach comes from the role's scope, and one actor's hold cannot widen or narrow it.
 
-Which tenant or team a person holds a role for is runtime data, not record data. A role assignment binds a scope instance beside the level: the tenant or team the hold reaches, or the person for a `self` grant. A role reaches the same level wherever an actor holds it, so a permission that two roles allow at different levels takes its reach from the role the caller holds.
+Which tenant or team a person holds a role for is runtime data, not record data. A role assignment binds a scope instance beside the level: the tenant or team the hold reaches, or the person for a `self` grant. A role reaches the same level wherever an actor holds it, so a permission that two roles grant at different levels takes its reach from the role the caller holds.
 
 ### Permissions
 
-A permission is one allowed action, and each module lists its own in `modules/<m>/permissions.yaml`. Each entry states in `meaning`, in one sentence, what it allows. Roles allow permissions from these lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
+A permission is one allowed action, and each module lists its own in `modules/<m>/permissions.yaml`. Each entry states in `meaning`, in one sentence, what it allows, and names in `grantedTo` the roles that grant it. Roles are granted permissions from these lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
 
 A permission name opens with a verb that says what the grant does: a verb from the use-case verb table on the [use cases](use-cases.md) page, a glossary verb of kind command or either, or `manage`. An optional `group` orders the permission beside its peers in role editors.
 
@@ -73,7 +73,7 @@ The use case cites the setting or plan behind the grant, as [Cite the Setting or
 
 ### Hierarchies, Derived Trust, and Delegation
 
-Hierarchies, derived trust, and delegation are patterns built from the same access parts, not extra grant forms. A hierarchy nests roles so a senior role allows what its junior roles allow. Derived trust lets one checked fact stand for another within one call. Delegation lets one actor act for another.
+Hierarchies, derived trust, and delegation are patterns built from the same access parts, not extra grant forms. A hierarchy nests roles so a senior role is granted what its junior roles are granted. Derived trust lets one checked fact stand for another within one call. Delegation lets one actor act for another.
 
 Each pattern proves its allowed and refused calls with scenarios, as [Prove Hierarchies Derived Trust and Delegation with Scenarios](#prove-hierarchies-derived-trust-and-delegation-with-scenarios) states. Grants that cross tenants through delegation use the tenancy extension, which states the declared grant each side carries.
 
@@ -81,11 +81,11 @@ Each pattern proves its allowed and refused calls with scenarios, as [Prove Hier
 
 An entry point is how people or systems reach the product from outside. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) lists the kinds, and each entry point declares its `authentication`. A device caller authenticates with its own authentication kind, `device`, and the protocol detail for devices lives in the devices extension.
 
-A browser entry point lists in `servedContent` the static content it serves, such as a script or a legal text: entries of `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so served content is content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. An entry point also names its `audience` in `actor/...` ids, and where sessions apply its `session` lifetime and idle timeout as ISO 8601 durations. Its `reauthenticationTriggers` states when a fresh sign-in is required, and its `limits` states what the entry point does not do. The explanation restates Audience from `audience`, Authentication from `authentication`, `session`, and `reauthenticationTriggers`, and Limits from `limits`.
+A browser entry point lists in `servedContent` the static content it serves, such as a script or a legal text: entries of `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so served content is content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. An entry point also names its `audience` in `actor/...` ids, and where sessions apply its `session` lifetime and idle timeout as ISO 8601 durations. Its `reauthenticationTriggers` states when a fresh sign-in is required, and its `excludes` states what the entry point does not do. The explanation restates Audience from `audience`, Authentication from `authentication`, `session`, and `reauthenticationTriggers`, and Excludes from `excludes`.
 
 ### External Systems
 
-An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It stands alone and names no actor: software is never an actor, so the outside party gets a system record instead. An integration that calls the product is an external system calling through an API entry point.
+An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It names the actor it represents in `represents`: an outside system that acts in a flow is an actor of kind `system`, and its system record names that actor. An integration that calls the product is an external system calling through an API entry point.
 
 It declares each operation the product may call in `operations`, with its action, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there does not run, with the Intent decision that accepts the limit.
 
@@ -121,11 +121,11 @@ An actor, role, or external system page carries a `summary` field that states wh
 
 **Statement:** An actor MUST name its kind in `kind`.
 
-**Rationale:** The kind says whether a human or an organization stands behind the actor, and that decides who answers for what the actor does. Without it, a reviewer assigns responsibility without knowing who stands behind the actor. Software stands behind no actor.
+**Rationale:** The kind says whether a human, an organization, or an outside system stands behind the actor, and that decides who answers for what the actor does. Without it, a reviewer assigns responsibility without knowing who stands behind the actor. A `system` actor stands for one outside system in flow steps, and that system's record names the actor in `represents`.
 
-**Example:** An employee actor carries `person`, and the library as a lending party carries `organization`.
+**Example:** An employee actor carries `person`, the library as a lending party carries `organization`, and the text gateway standing in a flow step carries `system`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an actor without `kind` and `record-invalid` for a kind outside person and organization.
+**Checked by:** `litespec model check` reports `record-invalid` for an actor without `kind` and `record-invalid` for a kind outside person, organization, and system.
 
 ### Record Every Role an Actor Holds
 
@@ -157,7 +157,7 @@ An actor, role, or external system page carries a `summary` field that states wh
 
 **Statement:** A role MUST name its one scope in `scope`.
 
-**Rationale:** The role is the only home of a grant's reach. The same permission allows platform-wide action in one grant and own-record action in another, so the scope decides what each grant actually reaches. Stating the reach on each hold or each permission as well would keep three copies of one value, and the copies would drift apart, so the role states it once and every permission reads its reach from the roles that allow it.
+**Rationale:** The role is the only home of a grant's reach. The same permission allows platform-wide action in one grant and own-record action in another, so the scope decides what each grant actually reaches. Stating the reach on each hold or each permission as well would keep three copies of one value, and the copies would drift apart, so the role states it once and every permission reads its reach from the roles that grant it.
 
 Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
 
@@ -171,15 +171,15 @@ Without a named scope, every grant reads as product-wide, and the narrowest gran
 
 **Strength:** required
 
-**Applies to:** artifact: record:role
+**Applies to:** artifact: record:role, record:permission
 
-**Statement:** A role MUST name the permissions it allows in `allows` and state its limits in `limits`.
+**Statement:** Each permission MUST name the roles that grant it in `grantedTo`, with each role's `excludes` stating what the grant does not cover.
 
-**Rationale:** The `allows` list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior. The `limits` state the acts inside the role's scope that the grant does not allow, so a reader sees the edge of the grant on the role itself.
+**Rationale:** The grant is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. Every link points from the lower or later record to the higher or earlier one, so the permission in Behavior names its Intent roles in `grantedTo` instead of the role naming the permission. A role that no permission names grants nothing, so every use case its holders run breaks the chain at the middle link. The `excludes` state the acts inside the role's scope that the grant does not cover, so a reader sees the edge of the grant on the role itself.
 
-**Example:** `role/employee` allows `permission/request-expense`, which the submit use case cites in its grant.
+**Example:** `permission/request-expense` names `role/employee` in `grantedTo`, and the submit use case cites that permission in its grant.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry or no `limits`, and `permission-unused` for a permission allowed by no role.
+**Checked by:** `litespec model check` reports `record-invalid` for a permission with no `grantedTo` entry or a role with no `excludes`, `permission-unused` for a permission no role grants, and `role-unused` for a role no permission names.
 
 ### State Every Permission with Its Meaning
 

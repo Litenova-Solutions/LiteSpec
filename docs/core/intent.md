@@ -17,7 +17,7 @@ Each Intent record type answers one question, so the question you are asking nam
 | Question | Record | Write It When | Skip It When | Familiar As |
 |:---|:---|:---|:---|:---|
 | What is the product and for whom? | product | Always, once | Never | Product brief |
-| Who touches the product? | actor | A person or organization appears in a problem, a flow or an access position | The candidate is a position (a role record) or a system (an external system record) | Stakeholder |
+| Who touches the product? | actor | A person, an organization, or an outside system appears in a problem, a flow or an access position | The candidate is a position (a role record) or internal machinery that takes no flow step | Stakeholder |
 | What software outcome do we want? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Product goal |
 | Which way might the product grow beyond what it promises now? | direction | A choice made now keeps a later way of growing open, or the owner wants a wish on record | You can name the pain and the offer: write the problem and the feature | Product direction |
 | What pain do people outside the team have today? | problem | You can name who suffers, what it costs them and what they do instead, with evidence | Only one solution is imaginable: it is a feature | Pain point |
@@ -43,7 +43,7 @@ The product states what it leaves out in `excludes`: only an `excludes` entry se
 
 Intent states what the product decided and why; Behavior states what the system does today. A rule or use case matches the code, while a requirement can describe a position the code does not carry yet.
 
-The two layers connect in one direction: Behavior records name the requirements they fulfill and the flow steps they serve. An Intent record never describes Behavior, with two narrow exceptions: a decision names the records it settles in `decides`, and an actor names its roles in `holds`.
+The two layers connect in one direction: Behavior records name the requirements they fulfill and the flow steps they serve. An Intent record never describes Behavior, with one narrow exception: an actor names its roles in `holds`, and actor and role are both Intent, so it is not a layer down-link. A settled record names its decision in `basedOn` instead of the decision naming the record.
 
 ### The Software Test
 
@@ -146,15 +146,15 @@ A flow leads one actor toward one goal, problem, or constraint. It carries `acto
 
 `summary` states the flow's purpose in up to four sentences: who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom. The book renders it first on the page, so a cold reader learns the purpose before the mechanics. `startedWhen` states the observable state in which the flow starts, in one sentence; `finishedWhen` states the end, in one sentence.
 
-Each step carries its `id` as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case, such as `step/submit-and-reimburse.submit-expense`. The id names the act, so a citation reads without opening the flow, and list order is the main path, so no position lives in an id. Each step carries its `title`, a short Title Case name of its act, and the id's act is the title's words in kebab case. The step states one act of its performer in one product sentence in `statement`. A step names another actor only at a handoff, in `actor`. It names the external system performing it in `system` when no person acts, and it names neither when the actor taking the flow performs it. A step carries at most one of `actor` and `system`. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `carries`. The flow carries no `carries` of its own; the model reads the union of its steps.
+Each step carries its `id` as `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case, such as `step/submit-and-reimburse.submit-expense`. The id names the act, so a citation reads without opening the flow, and list order is the main path, so no position lives in an id. Each step carries its `title`, a short Title Case name of its act, and the id's act is the title's words in kebab case. The step states one act of its performer in one product sentence in `statement`. A step names another actor only at a handoff, in `actor`: another person or organization, or the system actor standing for the outside system when no person acts. It names no performer when the actor taking the flow performs it. Where the flow can fail, the step carries its failure text in `failure`. Each step names the requirements it carries in `carries`. The flow carries no `carries` of its own; the model reads the union of its steps.
 
-Each branch sits on the step it leaves, in that step's `branches`. A branch states one `when` condition, and exactly one of `then`, naming the step of the same flow where the path continues, or `ends`, stating the outcome when the flow ends there. A branch that does work of its own states that work in `instead`, with its own `carries` and `system` where the work needs them.
+Each branch sits on the step it leaves, in that step's `branches`. A branch states one `when` condition, and exactly one of `then`, naming the step of the same flow where the path continues, or `ends`, stating the outcome when the flow ends there. A branch that does work of its own states that work in `instead`, with its own `carries` where the work needs them; the work is done by the step's performer.
 
-Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. Jobs and reactions never stand in `system`; they serve the step from above like use cases. Code never marks a step: code points one layer up, to the behavior serving it, and the trace walks from there.
+Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. Jobs and reactions never stand in `actor`; they serve the step from above like use cases. Code never marks a step: code points one layer up, to the behavior serving it, and the trace walks from there.
 
 The book shows each flow as record detail: `startedWhen`, the steps with their titles and sentences, their `failure` texts and their branches indented under them, `finishedWhen`, each step with the requirements it cites (with their statements, `except` entries, and fallbacks inline), the serving use cases' goals, and the Then clauses of their scenarios as context. Each step carries its trace: the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and the code files and tests behind them. Field names never render literally in flow detail.
 
-A step names another actor only at a handoff, and a flow with several reasons splits into several flows.
+A step names another actor only at a handoff, or the system actor standing for the outside system when no person acts, and a flow with several reasons splits into several flows.
 
 ### Staff Flows
 
@@ -220,7 +220,7 @@ The product lists what it leaves out in `excludes`, in plain sentences. Only an 
 
 **Rationale:** The folder fixes where a record sits; reachability fixes that it leads to software. An Intent record no Behavior answers is either work the backlog still holds or content that was never software, and without this rule nobody can tell which.
 
-A direction is the one exception: it states a way the product may grow and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior.
+A direction is the one exception: it states a way the product may grow and promises nothing yet, so it reaches nothing by design. Every other kind has its stated path: a goal reaches a flow or a quality requirement, a problem reaches a feature, a citing requirement, or an answering flow, a feature or requirement reaches a use case, a flow, or a quality scenario, a constraint is answered by a requirement or a flow, research is cited by a record that reaches Behavior, and a decision is named in `basedOn` by a record that reaches Behavior.
 
 **Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior.
 
@@ -566,21 +566,21 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Reviewed for:** Does any constraint or research record bundle claims with different sources, scopes, or rates of change, or split one answer across records? Look at the records the change adds.
 
-### Keep Actors to People and Organizations
+### Keep Actors to People Organizations and Systems
 
-**ID:** `litespec/core/intent#keep-actors-to-people-and-organizations`
+**ID:** `litespec/core/intent#keep-actors-to-people-organizations-and-systems`
 
 **Strength:** required
 
 **Applies to:** artifact: record:actor
 
-**Statement:** An actor MUST carry a `kind` of person or organization, state in `belongsToTeam` whether it belongs to the team building and running the product, state its responsibilities in `responsibilities`, and state what the product assumes it knows in `knowledge`.
+**Statement:** An actor MUST carry a `kind` of person, organization, or system, state in `belongsToTeam` whether it belongs to the team building and running the product, state its responsibilities in `responsibilities`, and state what the product assumes it knows in `knowledge`.
 
-**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport, or a renderer is never an actor. Only a person or an organization can hold a role, suffer a problem, and take a flow. `belongsToTeam` reads as a predicate about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. The `responsibilities` state the acts the product holds the actor to. The `knowledge` states the product's assumption about what the actor knows. The explanation file restates both fields in its Responsibilities and Knowledge sections. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** An actor answers for what it does. A person or an organization can hold a role, suffer a problem, and take a flow. A system actor stands for one outside system in flow steps, and that system's record names the actor in `represents`. Internal machinery such as a reaction, a job, a transport, or a renderer is never an actor. `belongsToTeam` reads as a predicate about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. The `responsibilities` state the acts the product holds the actor to. The `knowledge` states the product's assumption about what the actor knows. The explanation file restates both fields in its Responsibilities and Knowledge sections. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
-**Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system, not an actor.
+**Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway standing in a flow step is an actor of kind system, named by its external-system record in `represents`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person and organization, or with no `belongsToTeam`, `responsibilities`, or `knowledge`.
+**Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person, organization, and system, or with no `belongsToTeam`, `responsibilities`, or `knowledge`.
 
 ### State What the Product Assumes Each Actor Knows
 
@@ -606,13 +606,13 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:actor
 
-**Statement:** Every actor MUST be named by a flow, by a problem in `affects`, or by an access position in `holds`.
+**Statement:** Every actor MUST be named by a flow, by a problem in `affects`, by an access position in `holds`, or by an external system in `represents`.
 
-**Rationale:** An actor named by nothing is a party nobody suffers as, acts as, or grants to: a leftover, or a system or machine promoted beside real people. Naming each actor from the flow it takes, the pain it suffers, or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
+**Rationale:** An actor named by nothing is a party nobody suffers as, acts as, grants to, or stands for in a flow: a leftover, or a machine promoted beside real parties. Naming each actor from the flow it takes, the pain it suffers, the role it holds, or the outside system it stands for keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
-**Example:** The library reader is named by the borrow-and-return flow and by the due-date problem; the librarian is named by the holds of the librarian role.
+**Example:** The library reader is named by the borrow-and-return flow and by the due-date problem; the librarian is named by the holds of the librarian role; the text gateway actor is named by its external-system record in `represents`.
 
-**Checked by:** `litespec model check` reports `actor-unused` for an actor named by no flow, problem or access position.
+**Checked by:** `litespec model check` reports `actor-unused` for an actor named by no flow, problem, access position, or external system.
 
 ### Define Each Recurring Capitalized Phrase
 
@@ -642,7 +642,7 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked.
 
-The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `key`, `url`, and `readOn`, the shape research uses, so each rule cites its source by key. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. The `scope` states which subjects, transactions, and periods the rule covers. The `obligations` state each outside rule as one sourced statement with the keys of the sources that support it. The `productEffect` states what the rule changes in the product, naming each requirement that holds it. The `openPoints` hold optional questions about application. The explanation file restates each of these fields in its fixed sections.
+The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `name`, `url`, and `readOn`, the shape research uses, so each rule cites its source by name. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. The `scope` states which subjects, transactions, and periods the rule covers. The `obligations` state each outside rule as one sourced statement with the names of the sources that support it. The `productEffect` states what the rule changes in the product, naming each requirement that holds it. The `openPoints` hold optional questions about application. The explanation file restates each of these fields in its fixed sections.
 
 A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
@@ -656,13 +656,13 @@ A constraint can state `effectiveFrom`, the date its rule starts to bind, and ca
 
 **Applies to:** artifact: record:constraint
 
-**Statement:** Each item of a constraint's `obligations` MUST name in its `sources` one key of the constraint's `sources`, and the explanation holds the generated source-links region that writes each source's link definition.
+**Statement:** Each item of a constraint's `obligations` MUST name in its `sources` one name of the constraint's `sources`, and the explanation holds the generated source-links region that writes each source's link definition.
 
 **Rationale:** A reader checking an obligation needs the source beside it, and an obligation with two sources needs to show which one holds it. A law stating the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides.
 
 `model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Checked by:** `litespec model check` reports `constraint-obligation-source-unknown` for an `obligations` item naming a key the constraint's `sources` list does not hold; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for a key the constraint does not declare, and `source-unused` for a source no obligation cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
+**Checked by:** `litespec model check` reports `constraint-obligation-source-unknown` for an `obligations` item naming a name the constraint's `sources` list does not hold; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for a name the constraint does not declare, and `source-unused` for a source no obligation cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
 
 ### State Each Constraint Rule with Its Condition
 
@@ -688,13 +688,13 @@ Scope says whom the rule covers; it is separate from `applies`, which says wheth
 
 **Applies to:** artifact: record:research
 
-**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and state its `findings` in fields.
+**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `name`, `url`, and `readOn`, and state its `findings` in fields.
 
 **Rationale:** A fact without its source cannot be rechecked when a decision depends on it. `readOn` says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect: the date a rule starts, or the period it covers, is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory.
 
-The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `key`, `url`, and `readOn`, an optional `note` holding what a later reader needs about that source, and `publishedOn` where the source states its publication date. The `findings` state each claim with its sources, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. The `openQuestions` hold what the sources do not establish. The explanation file restates each of these fields in its fixed sections, citing a source with a reference link `[text][key]`; a bare URL, an unknown key, or an unused source is a finding. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
+The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `name`, `url`, and `readOn`, an optional `note` holding what a later reader needs about that source, and `publishedOn` where the source states its publication date. The `findings` state each claim with its sources, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. The `openQuestions` hold what the sources do not establish. The explanation file restates each of these fields in its fixed sections, citing a source with a reference link `[text][name]`; a bare URL, an unknown name, or an unused source is a finding. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, `findings`, or `sources`; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for an unknown key, and `source-unused` for an unused source.
+**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, `findings`, or `sources`; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for an unknown name, and `source-unused` for an unused source.
 
 ### State Each Research Finding with Its Source
 
@@ -704,13 +704,13 @@ The `conclusion` states in one sentence what the sources establish, with the con
 
 **Applies to:** artifact: record:research
 
-**Statement:** Each item of a research record's `findings` MUST state one claim with its conditions, name in its `sources` one key of the record's `sources`, and say whether the source states the claim or the writer infers it.
+**Statement:** Each item of a research record's `findings` MUST state one claim with its conditions, name in its `sources` one name of the record's `sources`, and say whether the source states the claim or the writer infers it.
 
 **Rationale:** A reader rechecking a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence stating it. A finding dropping a condition the source gives claims more than the source does, and one claim per item keeps each source tied to one statement.
 
 The record's question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Reviewed for:** Does any `findings` item state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each `findings` item beside its source. `litespec model check` reports `research-finding-source-unknown` for a `findings` item naming a key the record's `sources` list does not hold, and `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
+**Reviewed for:** Does any `findings` item state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each `findings` item beside its source. `litespec model check` reports `research-finding-source-unknown` for a `findings` item naming a name the record's `sources` list does not hold, and `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
 
 ### State Each Decision with Context and Choice
 
@@ -724,7 +724,7 @@ The record's question tests the findings: a finding answering another question b
 
 **Rationale:** A decision read cold needs its situation, its options, and its outcome in the same places every time. The `context` states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option in the explanation; the `choice` field names it, and `consequences` states what follows. The explanation file restates `context` in its Context section. Evidence holds the supporting material with its confidence where the choice rests on it.
 
-The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
+The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to be named in `basedOn` by at least one record it settles.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Decision in its explanation file.
 
@@ -926,13 +926,13 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Applies to:** artifact: record:flow
 
-**Statement:** A flow step MUST name at most one performer: another actor in `actor` at a handoff, or the external system in `system` when no person acts, and a step naming neither is performed by the actor taking the flow.
+**Statement:** A flow step MUST name at most one performer in `actor`: another actor at a handoff, or the system actor standing for the outside system when no person acts, and a step naming neither is performed by the actor taking the flow.
 
-**Rationale:** A step performed by machinery once forced a machine actor into Intent, where it sat beside real people and held no role. Naming the external system performing the step keeps the actor list to people and organizations, and states the reliance on that system as an intentional relationship. A step naming both an actor and a system names two performers for one act. Jobs and reactions never stand in `system`; they serve the step from above like use cases. Settled by [decision/0067-cite-requirements-on-each-flow-step](decision/0067-cite-requirements-on-each-flow-step).
+**Rationale:** Every link points from the lower or later record to the higher or earlier one, so a step names its performer in `actor` instead of naming an external system beside it. A step performed by machinery names the system actor standing for the outside system, and that system's record names the actor in `represents`, which states the reliance on that system as an intentional relationship. Jobs and reactions never stand in `actor`; they serve the step from above like use cases. Settled by [decision/0067-cite-requirements-on-each-flow-step](decision/0067-cite-requirements-on-each-flow-step).
 
-**Example:** In the library flow, the step sending the overdue notice names the text gateway in `system`; the steps the reader takes name no performer.
+**Example:** In the library flow, the step sending the overdue notice names the text gateway actor in `actor`; the steps the reader takes name no performer.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a flow step carrying both `actor` and `system`; `litespec model check` reports `record-invalid` for such a step or for a `system` naming no external system.
+**Checked by:** `litespec model check` reports `reference-unknown` for a flow step whose `actor` names no written actor.
 
 ### Keep Behavior Out of Intent
 
@@ -992,7 +992,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 The `id` names the step's act as a verb phrase in kebab case, scoped by its flow, as `step/submit-and-reimburse.submit-expense`: use cases, reactions, and jobs point up with `serves` to that id, and the citation reads without opening the flow. The `title` names the same act in Title Case, as `Submit Expense`, and the act is the title's words in kebab case, as `litespec/core/model#name-each-identifier-from-its-title` states. The book, the trace, and `model query` show the title, while the `statement` keeps the full sentence. A step naming its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. An act that only numbers the step, such as `s3` or `step-2`, says nothing and breaks on every inserted step, so the act names what the performer does.
 
-The performer and the failure text are optional: a step names another actor only at a handoff in `actor`, or the external system performing it in `system` when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067. Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
+The performer and the failure text are optional: a step names another actor only at a handoff in `actor`, or the system actor standing for the outside system when no person acts, and carries `failure` where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067. Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
 
 **Example:** The step `step/submit-and-reimburse.reimburse-expense` carries `Reimburse Expense` in `title`, states `Finance reimburses the approved expense.` in `statement`, and names no use case; `use-case/spending.reimburse-expense` names that id in `serves`.
 
@@ -1024,7 +1024,7 @@ The performer and the failure text are optional: a step names another actor only
 
 **Statement:** A flow MUST leave the order of its steps only through the `branches` of the step each path leaves, each branch stating one `when` condition and exactly one of the step it continues at in `then` or the outcome in `ends`.
 
-**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch on its step names where the path goes, so a check reads each path: `then` names a step of the same flow, and `ends` states the outcome when the flow ends there. One condition per branch keeps each path testable: two conditions joined by "or" are two branches. A branch that does work of its own states that work in `instead`, with its own `carries` and `system`, so the alternative reads beside the step it replaces. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
+**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch on its step names where the path goes, so a check reads each path: `then` names a step of the same flow, and `ends` states the outcome when the flow ends there. One condition per branch keeps each path testable: two conditions joined by "or" are two branches. A branch that does work of its own states that work in `instead`, with its own `carries`, so the alternative reads beside the step it replaces. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by [decision/0111-name-flow-steps-and-keep-branches-on-them](decision/0111-name-flow-steps-and-keep-branches-on-them).
 
 **Example:** The decide step carries a branch with `when` the manager rejects the expense and `ends` stating that the expense is rejected and no payout is made; the act of deciding stays the step.
 

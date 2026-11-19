@@ -166,7 +166,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Strength:** default
 
-**Default:** Group feature classes under `{Module}/{Aggregates}/{UseCase}/` folders in `Acceptance.Tests`, with a module-level use case dropping the aggregate segment.
+**Default:** Group feature classes under `{Module}/{Aggregates}/{UseCase}/` folders in `Acceptance.Tests`, with a module-level read dropping the aggregate segment.
 
 **Replacement:** A project names its own feature grouping in its documentation.
 

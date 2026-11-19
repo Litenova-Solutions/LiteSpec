@@ -1,6 +1,6 @@
 # Type Every Output and Declare Refusal Sets
 
-A use case ends by returning values or by refusing with a named reason. This decision types every output field and declares each module's refusal codes once, so callers and readers meet the same shapes everywhere.
+A use case ends by returning values or by refusing with a named reason. This decision types every output field and declares each aggregate's refusals once, so callers and readers meet the same shapes everywhere.
 
 ## Context
 
@@ -12,7 +12,7 @@ Rules spread the same way. One rule's condition could be refused two ways in two
 
 | Option | Gains | Costs |
 |:---|:---|:---|
-| Typed outputs with files and rows, one refusal set per module | Every output has a type; each code is declared once. | Outputs gain types; each module writes its set. |
+| Typed outputs with files and rows, one refusal set per aggregate | Every output has a type; each refusal is declared once. | Outputs gain types; each aggregate writes its set. |
 | Keep untyped outputs and per-result refusal prose | Nothing moves. | Files stay in prose; codes spread. |
 | A product-wide refusal list | One list holds every code. | Modules share codes they never raise. |
 
@@ -24,19 +24,19 @@ A list of rows takes `of` a shape. The shape holds typed fields, `required` per 
 
 Values the system derives leave the input list and become outputs or calculations.
 
-Each module declares its refusal codes once in its `refusals.yaml`. Each code carries its meaning and the problem type it maps to.
+Each aggregate declares the refusals its rules raise once in its own `refusals.yaml`, mirroring `Domain/{Aggregates}/Exceptions/`. Each entry carries its `id` and `title`; the code is the id's name. The module's `refusals.yaml` keeps only the refusals no aggregate raises.
 
-Results and rule `refusal` links cite the set.
+A result's `refusal` names a refusal from its aggregate's set, or from the module's set for a refusal no aggregate raises, and a rule's `refusal` names the same refusal.
 
 The product-wide generic refusals derive and are never written.
 
-One rule states one condition with its refusal code from the module's set. Every use case that can break the rule lists the refusal result citing that code. A module-level rule over several aggregates names them in `binds`, so the rule's scope comes from its home instead of a kind.
+One rule states one condition with its refusal from its aggregate's set. Every use case that can break the rule lists the refusal result citing that refusal. A module-level rule over several aggregates names them in `binds`, so the rule's scope comes from its home instead of a kind.
 
 ## Consequences
 
-Claimwick carries a refusal set per module that refuses, a file input, and typed outputs on every command. Each shape has one instance the docs cite.
+Claimwick carries a refusal set per aggregate that refuses, with the module's set keeping only the refusals no aggregate raises, a file input, and typed outputs on every command. Each shape has one instance the docs cite.
 
-A hand-written generic refusal is reported. A result code missing from its module's set is reported.
+A hand-written generic refusal is reported. A result refusal missing from its aggregate's set is reported.
 
 ## Evidence
 
