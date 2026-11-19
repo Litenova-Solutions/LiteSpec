@@ -209,7 +209,7 @@ A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-ca
 | Level | Allowed folders |
 |:---|:---|
 | Kernel project root | `Domain/`, `Values/`, `Auditing/`; no files |
-| Platform project root | `Persistence/`, `Messaging/`, `Access/`, `Http/`, `CountryPacks/`, `Modules/`; no files; inside a capability past 20 files, one folder per sub-area |
+| Platform project root | `Persistence/`, `Messaging/`, `Access/`, `Http/`, `CountryPacks/`, `Modules/`; no files; inside a capability past 20 files, one folder per sub-area. `CountryPacks/` keeps its loader and registry at its root and groups pack types by pack area: `Vat/`, `Charts/`, `Banking/`, `Filing/`, `Documents/`, `Country/` and `Retention/` |
 | `Modules/` folder | one project folder per declared module, and one Contracts project folder per declared module |
 | Module project root | `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/`, and the entry type file |
 | One modules project root, when the project keeps it | one folder per declared module |

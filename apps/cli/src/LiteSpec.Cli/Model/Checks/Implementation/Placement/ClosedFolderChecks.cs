@@ -33,7 +33,7 @@ internal static class ClosedFolderChecks
     /// <summary>Grouping folders under a Platform CountryPacks folder: one folder per pack sub-area.</summary>
     static readonly HashSet<string> CountryPackAreas = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Vat", "Charts", "Banking", "Filing", "Documents",
+        "Vat", "Charts", "Banking", "Filing", "Documents", "Country", "Retention",
     };
 
     /// <summary>Grouping folders under the shared UI package components folder: one folder per component role.</summary>
@@ -240,7 +240,7 @@ internal static class ClosedFolderChecks
 
             if (packs && !CountryPackAreas.Contains(area))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no CountryPacks area; CountryPacks holds Vat/, Charts/, Banking/, Filing/ and Documents/.", child, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no CountryPacks area; CountryPacks holds Vat/, Charts/, Banking/, Filing/, Documents/, Country/ and Retention/.", child, 1, null));
                 continue;
             }
 
