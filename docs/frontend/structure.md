@@ -58,9 +58,9 @@ That direction keeps four concerns separate: addresses in routes, use-case code 
 
 **Applies to:** artifact: any
 
-**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregates}/{use-case}/` in kebab case, resolving to the backend `Application/{Aggregates}/{UseCase}/` folder of the same names, with a module-level use case dropping the aggregate segment in both trees.
+**Statement:** A use-case folder on a web or Blazor frontend MUST sit under the modules root at `{module}/{aggregates}/{use-case}/` in kebab case, resolving to the backend `Application/{Aggregates}/{UseCase}/` folder of the same names, with a module-level use case dropping the aggregate segment in both trees.
 
-**Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one aggregate folder with one folder per use case inside it, so the mirror names both. The frontend structure test checks the mirror on every build, under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
+**Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case identifier resolves its frontend folder by rule. The backend holds one aggregate folder with one folder per use case inside it, so the mirror names both. The mirror covers web and Blazor frontends; an Android frontend keeps no module mirror, as the [Android Stack](mobile/android/stack.md) states. The frontend structure test checks the mirror on every build, under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
 **Example:** One backend folder and its frontend counterpart are the same path in two spellings:
 
@@ -84,7 +84,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 ![The backend folders Spending, Expenses, and ListExpenses beside the frontend folders spending, expenses, and list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
 
-**Reviewed for:** Does every use-case folder sit at `{module}/{aggregates}/{use-case}/` in kebab case and resolve to the backend folder of the same names, with a module-level use case dropping the aggregate segment in both trees? Check the module tree and the structure test proving the mirror.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a use-case folder whose path does not mirror its marked use case, and for a folder segment outside kebab case.
 
 ### Keep a Use Case Folder Flat
 
@@ -130,7 +130,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Example:** A shared query three use cases read sits flat in the module folder, not in a `shared/` folder beside them.
 
-**Reviewed for:** Does any folder under an application's `src` carry a refused name? Check the application folder tree.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a folder under the frontend modules root carrying a refused name.
 
 ### Keep a Route Entry Thin
 

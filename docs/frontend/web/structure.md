@@ -103,7 +103,7 @@ import type { LiteSpecMark } from "src/app/litespec-records";
 export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
 ```
 
-**Checked by:** `litespec model check` reports `mark-missing` (level S) for a use-case folder exporting no `litespec` constant, and `mark-unknown` (level S) for one naming a use case its path does not mirror.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a use-case folder exporting no `litespec` constant, `mark-unknown` (level S) for one naming no written use case, and `code-placement-drift` (level S) for a folder whose path does not mirror its marked use case.
 
 ### Generate the Records File into the Frame
 

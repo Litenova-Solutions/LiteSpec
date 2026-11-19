@@ -13,7 +13,7 @@ Inside one deployment boundary, the product speaks one business language, as the
 
 A module is one business area. Its record sits at `behavior/modules/<m>/module.yaml` and carries a `summary` and the `dependsOn` links to the modules it relies on, as `litespec/core/behavior#shape-each-module-page` states, in the home the [model page](model.md) names. Intent holds no module: each module is declared only in Behavior, beside the aggregates it groups.
 
-Each child record sits in a typed folder inside its module, such as `aggregates/<aggregates>/`, `integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. The aggregate folder name is the plural of the aggregate name, while the record id stays singular. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. The explanation file beside the record restates Responsibilities from `responsibilities` and Boundaries from `excludes` and carries Example.
+Each child record sits in a typed folder inside its module, such as `aggregates/<aggregates>/`, `aggregates/<aggregates>/integration-events/<name>/`, or `rules/`, as the [model page](model.md) places each type. The aggregate folder name is the plural of the aggregate name, while the record id stays singular. In Claimwick, the spending module groups the expense aggregate and the rules that govern it. The explanation file beside the record restates Responsibilities from `responsibilities` and Boundaries from `excludes` and carries Example.
 
 | Field | Meaning |
 |:---|:---|

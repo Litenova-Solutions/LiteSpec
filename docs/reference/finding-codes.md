@@ -234,6 +234,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `query-consumer-missing` | G | behavior | no | - | A use case names a module in `reachedThrough` that queries it from no record. | Query the use case from the module, or remove the module from `reachedThrough`. |
 | `command-target-invalid` | G | behavior | no | - | A `commands` edge names a use case that is not a command, or a command whose `reachedThrough` does not name the sending module. | Command a command use case that lists the sending module in `reachedThrough`. |
 | `command-consumer-missing` | G | behavior | no | - | A use case names a module in `reachedThrough` that commands it from no record. | Command the use case from the module, or remove the module from `reachedThrough`. |
+| `command-edge-invalid` | G | behavior | no | - | A use case declares a `commands` edge, which only a reaction or a job declares. | Move the `commands` edge to the reaction or job that sends the command. |
 
 ## Notes
 

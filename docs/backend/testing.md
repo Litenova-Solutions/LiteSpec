@@ -164,7 +164,7 @@ The table lives on the aggregate page, as `litespec/core/domain-model#connect-ev
 
 **Strength:** default
 
-**Default:** Mirror the production module, layer, aggregate, and use case folder names inside each test suite, so acceptance tests mirror `{Module}/{Aggregates}/{UseCase}/`.
+**Default:** Mirror the production module, aggregate, and use case folder names inside each test suite, so acceptance tests mirror `{Module}/{Aggregates}/{UseCase}/` with no layer segment.
 
 **Replacement:** A project names its test tree shape in its testing documentation.
 
@@ -172,27 +172,25 @@ The table lives on the aggregate page, as `litespec/core/domain-model#connect-ev
 
 Harness and flat files stay exempt: a `Support` folder and flat Architecture test files need no production counterpart. Adapter tests sit under the adapter's `Infrastructure/` path and are exempt by kind, because they prove a scenario through an adapter that owns no use case folder.
 
-**Example:** Each test tree mirrors the production module folders, including the layer level:
+**Example:** Each test tree mirrors the production module folders, with no layer segment:
 
 ```text
 Unit tests/
   Posts/
-    Application/
-      Posts/
-        CreateDraft/
-        GetPost/
+    Posts/
+      CreateDraft/
+      GetPost/
 Integration tests/
   Posts/
-    Application/
-      Posts/
-        CreateDraft/
+    Posts/
+      CreateDraft/
   Support/
 Architecture tests/
 ```
 
 The same module names appear in every test tree, apart from the exempt harness files and adapter tests.
 
-**Reviewed for:** Is any test tree breaking the production module folders outside the exempt harness files and adapter tests? Look at each test tree beside production.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a test folder under `{Module}/{Aggregates}/` naming no declared aggregate or use case, and `use-case-unimplemented` for a use case with scenarios and no `Application/` folder.
 
 ### Name Tests by Observable Behavior
 

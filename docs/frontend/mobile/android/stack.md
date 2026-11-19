@@ -60,9 +60,9 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version, the `s
 
 **Strength:** required
 
-**Statement:** An Android frontend MUST hold its frame in the host code of the platform project, its routes as screen classes under `Screens/`, and its use-case code as Application handlers.
+**Statement:** An Android frontend MUST hold its frame in the host code of the platform project, its routes as screen classes under `Screens/`, and its use-case code as Application handlers, with no module mirror: each screen maps to the records it serves through its mark.
 
-**Rationale:** Three fixed locations let a reader and a tool find the frame, the screens, and the use-case code in the same place in every Android app.
+**Rationale:** Three fixed locations let a reader and a tool find the frame, the screens, and the use-case code in the same place in every Android app. The three-segment module mirror does not apply on this stack: screens group by module under `Screens/`, and each screen class carries the mark of the screen it renders.
 
 **Example:** The Claimwick Android app keeps its navigation host in `Claimwick.Android`, its expense list screen in `Screens/Expenses/`, and its expense handlers in the Application project.
 
@@ -80,7 +80,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version, the `s
 
 **Example:** The Claimwick `ExpenseListScreen` carries `/// <implements>screen/claimwick-app.expense-list</implements>`.
 
-**Reviewed for:** Does every screen class under `Screens/` carry its screen mark? Check each screen file.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a screen mark outside the `Screens/` root.
 
 ### Keep Hosts and Failure Views Unmarked
 

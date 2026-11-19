@@ -13,7 +13,7 @@ A command is a message that changes business state, and a query reads from a rea
 
 A reaction answers a domain event of its own module, a module event, or an inbound integration event in one class that carries one mark naming its reaction record, and it sends at most one command. A scheduled or one-off job selects its items and sends its one command once per item.
 
-Only an endpoint, an event handler, and a job hold a mediator. A command handler, query handler, validator, step, or domain type sends nothing, and no type in a module project publishes an event.
+Only an endpoint, an event handler, and a job hold the command mediator. A command handler, query handler, reaction, or job holds the query mediator only to send another module's public query with a declared `queries` edge. A validator, step, or domain type sends nothing, no type in a module project publishes an event, and no type outside the platform holds the event mediator.
 
 In Claimwick, approving an expense sends `ApproveExpenseCommand` through `ICommandMediator`: validators check the input, the pipeline authorizes the approver, the handler records the approval, and one commit stores it.
 
@@ -37,7 +37,7 @@ A validator checks structural input, such as an empty title or a malformed ident
 
 The message carries the pipeline-stamped timestamp as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`), so the handler stamps decisions without reading a clock. Validation, authorization, idempotency, audit, holds, and the commit are pipeline stages, not handler code.
 
-Messages, provider calls, and writes to other aggregates run in event handlers after the commit, under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. The handler takes no `ICommandMediator`, `IQueryMediator`, or `IEventMediator`.
+Messages, provider calls, and writes to other aggregates run in event handlers after the commit, under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. The handler takes no `ICommandMediator` or `IEventMediator`; it takes `IQueryMediator` only to send another module's public query with a declared `queries` edge.
 
 A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `writes` names, one method each. This provision binds `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` and `litespec/backend/application#load-a-required-record-or-refuse-it` for .NET, where `GetByIdAsync` and `FindBy...Async` are the forms.
 
@@ -64,7 +64,7 @@ internal sealed class ApproveExpenseCommandHandler
 }
 ```
 
-**Checked by:** `dotnet build` reports `LS2012` for a handler that throws a forbidden refusal or takes the authorization guard, `LS2013` for an audit call that reads the message, `LS2014` for a find followed by a create, `LS2015` for a store inside a loop, and `LS2021` for a handler holding a mediator.
+**Checked by:** `dotnet build` reports `LS2012` for a handler that throws a forbidden refusal or takes the authorization guard, `LS2013` for an audit call that reads the message, `LS2014` for a find followed by a create, `LS2015` for a store inside a loop, and `LS2021` for a handler holding a command or event mediator.
 
 ### Report Input Problems as Validity
 
@@ -106,11 +106,11 @@ A read that writes makes retries and caching unsafe: repeating the query would r
 
 **Applies to:** artifact: reaction, job
 
-**Statement:** An event handler or job MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and its one declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the pipeline stages each raised domain event, each module event translating it, and each outbound integration event translating it in the same commit.
+**Statement:** An event handler or job MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, its one declared `runs` effect through `ICommandMediator`, and each declared `commands` edge through `ICommandMediator`, after the commit that stored the fact it answers, while the pipeline stages each raised domain event, each module event translating it, and each outbound integration event translating it in the same commit.
 
 **Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). The same commit stages each module event and each outbound integration event whose record translates a raised domain event. The platform collects each one beside its domain event. Each is built by its static `From` method from that domain event alone, so no module code publishes.
 
-After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`, sending one command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#give-each-handler-its-own-delivery`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
+After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs` and for each declared `commands` edge, sending each command in its own pipeline and commit. A scheduled or one-off job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#give-each-handler-its-own-delivery`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
 
 **Example:**
 
@@ -118,7 +118,7 @@ After that commit, an event handler answers each fact through its entry point: t
 // The commit step stores the changed aggregate and stages the facts it raised in one transaction.
 outbox.StageCollectedEvents();
 
-// Claimwick.Spending.Contracts/Expenses/Events/ExpenseReimbursedModuleEvent.cs: built from its domain event alone.
+// Claimwick.Spending.Contracts/Expenses/OnExpenseReimbursed/ExpenseReimbursedModuleEvent.cs: built from its domain event alone.
 public sealed record ExpenseReimbursedModuleEvent(ExpenseId ExpenseId, EmployeeId EmployeeId, Money Amount, DateTimeOffset ReimbursedAt)
 {
     public static ExpenseReimbursedModuleEvent From(ExpenseReimbursedDomainEvent fact) =>
@@ -126,7 +126,7 @@ public sealed record ExpenseReimbursedModuleEvent(ExpenseId ExpenseId, EmployeeI
 }
 ```
 
-**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares, and `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler or job and `LS2022` for an event published outside the platform.
+**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares, and `dotnet build` reports `LS2021` for a command or event mediator held outside an endpoint, event handler or job and `LS2022` for an event published outside the platform.
 
 ### Run Reactions in Dedicated Handlers
 
@@ -280,7 +280,7 @@ Claimwick's reimburse-expense command carries `ReimburseExpenseCommandAuthorizat
 
 **Applies to:** artifact: reaction, endpoint, job
 
-**Default:** Dispatch a command through `ICommandMediator.SendAsync` and a query through `IQueryMediator.QueryAsync`, from the LiteBus version the manifest pins, only from an endpoint, an event handler, or a job.
+**Default:** Dispatch a command through `ICommandMediator.SendAsync` only from an endpoint, an event handler, or a job, and a query through `IQueryMediator.QueryAsync` from those or from a handler with a declared `queries` edge, from the LiteBus version the manifest pins.
 
 **Replacement:** A project names its dispatch entry points in its Application documentation.
 

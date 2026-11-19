@@ -61,14 +61,14 @@ While it builds the model from records, code, routes, tests, and test runs, the 
       modules/
         {module}/
           permissions.yaml
-          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ module-events/ integration-events/ external-systems/
+          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ external-systems/
           aggregates/
             {aggregate}/
               aggregate.yaml
               use-cases/
                 {use-case}/
                   {use-case}.yaml   results and scenarios as entries
-              domain-events/ rules/
+              domain-events/ module-events/ integration-events/ rules/
     implementation/
       decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/
       operations/

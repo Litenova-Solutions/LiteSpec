@@ -79,7 +79,7 @@ The framework-generated `bin`, `obj`, and `publish` folders stay untracked.
 
 **Statement:** A screen MUST live under `Screens/` in the platform project, in a folder for its module when the product has more than one module.
 
-**Rationale:** A reader holding a module record finds its screens by path when screens group by module, the way the frontend module mirror maps use cases to folders. One folder for a single-module product would add a level that distinguishes nothing, so its screens sit directly under `Screens/`. Use-case code reached from a screen lives in Application, so the screen folder holds the screen and the handler holds the behavior. This realizes litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case only as far as the screen path follows the module name.
+**Rationale:** A reader holding a module record finds its screens by path when screens group by module. One folder for a single-module product would add a level that distinguishes nothing, so its screens sit directly under `Screens/`. Use-case code reached from a screen lives in Application, so the screen folder holds the screen and the handler holds the behavior. The three-segment module mirror does not apply: each screen maps to the records it serves through its mark, as the [Android Stack](android/stack.md) states.
 
 **Reviewed for:** Does every screen sit under `Screens/`, in its module folder in a multi-module product? Check the platform project tree.
 

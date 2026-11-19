@@ -214,7 +214,7 @@ For example, a Claimwick use case with no endpoint yet stays on its branch until
 
 **Example:** Claimwick's reimbursement commits the expense and raises its reimbursed fact, and a reaction in the reporting module answers the published fact in its own transaction.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an effect entry that names `sharesTransaction` or a use case that `runs` another use case; `dotnet build` reports `LS2021` for a mediator held outside an endpoint, event handler, or job, and `LS2022` for an event published by user code.
+**Checked by:** `litespec model check` reports `record-invalid` for an effect entry that names `sharesTransaction` or a use case that `runs` another use case; `dotnet build` reports `LS2021` for a command or event mediator held outside an endpoint, event handler, or job, and `LS2022` for an event published by user code.
 
 ### Confine Atomic Consistency to One Use Case
 

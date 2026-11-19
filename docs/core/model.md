@@ -143,8 +143,8 @@ Each parent with child records holds them in a folder named for the child type i
 | `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
 | `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` |
 | `reference-data` | Behavior | module | `behavior/modules/<m>/reference-data/<name>/<name>.yaml` | module | `reference-data/<module>.<name>` |
-| `module-event` | Behavior | module | `behavior/modules/<m>/module-events/<name>/<name>.yaml` | module | `module-event/<module>.<name>` |
-| `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/<name>/<name>.yaml` | module | `integration-event/<name>` |
+| `module-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/module-events/<name>/<name>.yaml` | aggregate | `module-event/<module>.<name>` |
+| `integration-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/integration-events/<name>/<name>.yaml` | aggregate | `integration-event/<name>` |
 | `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` |
 | `refusal-set` | Behavior | module | `behavior/modules/<m>/refusals.yaml` | module | `<module>.<name>` (code) |
 | `entry-point` | Behavior | product | `behavior/entry-points/<entry-point>/entry-point.yaml` | product | `entry-point/<name>` |
@@ -153,7 +153,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/`, `module-events/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/` and `rules/` folders. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/`, `module-events/`, `integration-events/` and `rules/` folders. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
 
 A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
@@ -163,7 +163,7 @@ A rule home is an aggregate name or a module name. A rule identifier keeps its h
 
 Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in `behavior/modules/<m>/rules/` rule-set files; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
 
-An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. An integration event sits with its publishing module, or with its receiving module when inbound. A module event has exactly one publishing module, its own module. A second publishing module is an `event-publisher-invalid` finding. A module event sits with its publishing module.
+An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. An integration event sits under the aggregate whose domain event it translates, in its publishing module, or with its receiving module when inbound. A module event has exactly one publishing module, its own module. A second publishing module is an `event-publisher-invalid` finding. A module event sits under the aggregate whose domain event it translates. A module-level `module-events/` folder is a `record-placement-invalid` finding.
 
 List records (rule sets, setting sets, the permission set and the refusal set per module) are files whose entries take the file's scope node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
 
@@ -425,7 +425,6 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
 | `effects.queries` | use case, reaction, job | use case | queries | is queried by |
-| `effects.commands` | use case, reaction, job | use case | commands | is commanded by |
 | `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
 | `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
 | `consentRule` | use case, notification | rule | needs consent under | sets consent for |
@@ -433,6 +432,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
 | `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
+| `effects.commands` | reaction, job | use case | commands | is commanded by |
 | `onFailure.surfacesIn` | reaction, job | entry point | surfaces in | surfaces |
 | `onFailure.runbook` | reaction, job | runbook | is answered by | answers |
 | `schedule.timezone.setting` | job | setting | takes its time zone from | is the time zone of |

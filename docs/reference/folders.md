@@ -42,8 +42,8 @@ Use this generated page to find the folder and file each record type lives in, r
 | `job` | `behavior/modules/{module}/jobs/{name}` | `{name}.yaml` |
 | `notification` | `behavior/modules/{module}/notifications/{name}` | `{name}.yaml` |
 | `setting` | `behavior/modules/{module}/settings` | `*` |
-| `module-event` | `behavior/modules/{module}/module-events/{name}` | `{name}.yaml` |
-| `integration-event` | `behavior/modules/{module}/integration-events/{name}` | `{name}.yaml` |
+| `module-event` | `behavior/modules/{module}/aggregates/{aggregate}/module-events/{name}` | `{name}.yaml` |
+| `integration-event` | `behavior/modules/{module}/aggregates/{aggregate}/integration-events/{name}` | `{name}.yaml` |
 | `read-model` | `behavior/modules/{module}/read-models/{name}` | `{name}.yaml` |
 | `reference-data` | `behavior/modules/{module}/reference-data/{name}` | `{name}.yaml` |
 | `permission` | `behavior/modules/{module}` | `permissions.yaml` |

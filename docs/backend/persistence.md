@@ -52,7 +52,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Example:** The submit-expense handler stages the new expense through the expense repository; it names no session and issues no store call of its own.
 
-**Checked by:** `litespec model check` reports `repository-unimplemented` (level S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository.
+**Checked by:** `litespec model check` reports `repository-unimplemented` (level S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository, and `code-placement-drift` for a repository implementation outside its aggregate's `Persistence/` folder.
 
 ### Query Through the Read Session
 
@@ -364,11 +364,11 @@ A tool that alters the schema from application startup is no reviewed step, whic
 
 **Applies to:** artifact: any
 
-**Default:** Place store setup in the product `Infrastructure/` folder and each module's repositories, mappings, and serialization in its own `Infrastructure/Persistence/` folder.
+**Default:** Place store setup in the product `Infrastructure/` folder, each module's store setup in its own `Infrastructure/Persistence/` folder, and each aggregate's repository implementation, stored documents, and mapping in `Infrastructure/Persistence/{Aggregates}/`.
 
 **Replacement:** A project names its persistence layout in its backend documentation.
 
-**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module. Every persistence type then has one discoverable home. Each module keeps its repositories and mappings in its own `Infrastructure/Persistence/` folder. Scattered configuration hides the provider setup across the product.
+**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module. Every persistence type then has one discoverable home. Each module keeps its store setup in its own `Infrastructure/Persistence/` folder, and each aggregate's repository implementation, stored documents, and mapping in `Infrastructure/Persistence/{Aggregates}/`, so every layer nests by aggregate. Scattered configuration hides the provider setup across the product.
 
 **Example:**
 
@@ -384,22 +384,25 @@ A tool that alters the schema from application startup is no reviewed step, whic
   Posts/                            single aggregate whose name matches the module
     Infrastructure/
       Persistence/
-        PostRepository
-        PostStoreConfiguration
-  Customers/                        two aggregates: repositories side by side
+        Posts/
+          PostRepository
+          PostStoreConfiguration
+  Customers/                        two aggregates: one folder per aggregate
     Infrastructure/
       Persistence/
-        CustomerAccountRepository
-        CustomerAccountStoreConfiguration
-        ConsentRepository
-        ConsentStoreConfiguration
+        CustomerAccounts/
+          CustomerAccountRepository
+          CustomerAccountStoreConfiguration
+        Consents/
+          ConsentRepository
+          ConsentStoreConfiguration
 ```
 
-The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`: each module keeps its repositories in its `Infrastructure/Persistence/` folder.
+The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`: each module keeps its repositories in its `Infrastructure/Persistence/{Aggregates}/` folders.
 
 Aggregate-specific configuration sits beside its aggregate's repository. Session and commit plumbing sit under the product store root.
 
-**Reviewed for:** Is any store setup, repository, or commit file sitting outside the product or module `Infrastructure/` folders? Look at the persistence files beside the module tree.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a repository implementation outside its aggregate's `Persistence/` folder, and for a use-case model or adapter file in `Persistence/`.
 
 ### Use One Session per Command
 

@@ -36,7 +36,7 @@ An event with several outcomes needs one reaction per outcome, because a reactio
 
 A module event is a fact one module publishes for the other modules of the same product. It is a contract between modules: the publishing module states the fact once, and each consuming module answers it from a reaction or copies it into a read model. The event travels in process through the transactional outbox, with no external transport. A module event never crosses the bounded context; a fact for readers outside the product is an integration event, as the [Edges and Screens page](edges.md#integration-events) states.
 
-The event carries the identifier `module-event/<module>.<name>`, such as `module-event/spending.expense-approved`, and lives at `.litespec/behavior/modules/<module>/module-events/<name>/<name>.yaml`, under its publishing module. The record carries `summary` and `compatibility`, and the explanation file beside it restates Compatibility from `compatibility` and holds Consumers.
+The event carries the identifier `module-event/<module>.<name>`, such as `module-event/spending.expense-approved`, and lives at `.litespec/behavior/modules/<module>/aggregates/<aggregates>/module-events/<name>/<name>.yaml`, under the aggregate whose domain event it translates. The record carries `summary` and `compatibility`, and the explanation file beside it restates Compatibility from `compatibility` and holds Consumers.
 
 | Field | Meaning |
 |:---|:---|
@@ -99,11 +99,11 @@ A use case that needs state from another module has three options:
 
 | Need | Use |
 |:---|:---|
-| The decision needs the owner's current value | The consumer port to the owning module, answered by the owner's public query, with the behavior declaring the edge in `effects.queries` |
+| The decision needs the owner's current value | The owner's public query, sent with the behavior declaring the edge in `effects.queries` |
 | The reading module needs the data reshaped and kept locally | A read model its own module keeps, named in `reads` |
 | A person sees figures from several owners on one page | A screen composing each owner's query, with no module reading another |
 
-The public query is the normal choice. The consumer port states what one consumer needs in its own types, and the provider's public query answers with the owner's current value and nothing else. The read model stays for data the consumer reshapes and keeps locally. A composed screen joins each owner's query at display time.
+The public query is the normal choice. The provider's public query answers with the owner's current value and nothing else. The read model stays for data the consumer reshapes and keeps locally. A composed screen joins each owner's query at display time.
 
 ### Long-Running Processes
 
@@ -315,11 +315,11 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** A decision that needs current truth MUST be decided in the owning module, never from a read model.
 
-**Rationale:** A read model lags by its freshness. Revoked permissions, available funds, reservations, and period locks move after the copy was taken, so deciding from a copy accepts a stale answer where the business needs the current one. The owning module decides instead, through its public query the command reads through its port to the owner, or by its own invariant. A read model serves reads the consumer reshapes and keeps locally.
+**Rationale:** A read model lags by its freshness. Revoked permissions, available funds, reservations, and period locks move after the copy was taken, so deciding from a copy accepts a stale answer where the business needs the current one. The owning module decides instead, through its public query the command sends with a declared `queries` edge, or by its own invariant. A read model serves reads the consumer reshapes and keeps locally.
 
 **Example:** The library refuses a hold on a lent copy by asking the lending module for current availability through its public query instead of reading a reporting copy.
 
-**Reviewed for:** Is every decision that needs current truth decided in the owning module? Check the reads beside the consumer ports.
+**Reviewed for:** Is every decision that needs current truth decided in the owning module? Check the reads beside the declared `queries` edges.
 
 ### Move a State by Time with a Timed Transition
 

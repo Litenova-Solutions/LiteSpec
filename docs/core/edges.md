@@ -49,7 +49,7 @@ expense A approved at 2026-03-30 14:00 -> counted in March as closed
 expense B approved at 2026-04-03 10:00 -> counted in April, although its event arrives with late March events
 ```
 
-This removes both the lock and the race: each arrival classifies itself against owner-written moments. Where comparing moments leaves the act unsettled, the acting module confirms with the owner before it commits, through its port to the owner answered by the owner's public query, as [Automation](automation.md) states.
+This removes both the lock and the race: each arrival classifies itself against owner-written moments. Where comparing moments leaves the act unsettled, the acting module confirms with the owner before it commits, through the owner's public query sent with a declared `queries` edge, as [Automation](automation.md) states.
 
 ### Notifications
 
@@ -461,7 +461,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** Claimwick counts an expense approved after the recorded March close toward April, even when its event arrives with late March events.
 
-**Reviewed for:** When one module acts on a fact another module owns, which owner-written moment or public query settles a late arrival? Check the timestamps and consumer ports beside each cross-module read.
+**Reviewed for:** When one module acts on a fact another module owns, which owner-written moment or public query settles a late arrival? Check the timestamps and declared `queries` edges beside each cross-module read.
 
 ### State Every Boundary Check as a Rule of Its Module
 

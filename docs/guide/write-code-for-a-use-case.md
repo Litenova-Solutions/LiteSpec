@@ -29,19 +29,19 @@ Start with:
 | Domain event | The `Events/` folder of the module `Domain/{Aggregates}/` folder | `implements` naming `domain-event/<aggregate>.<fact>` | See the [finding table](../tools/model.md) |
 | Refusal type | The `Exceptions/` folder of the module `Domain/{Aggregates}/` folder | `implements` naming `rule/<home>.<name>` | See the [finding table](../tools/model.md) |
 | Repository interface | The module `Domain/{Aggregates}/` folder | None; the module `Domain/{Aggregates}/` folder places it | See the [finding table](../tools/model.md) |
-| Repository implementation | The module `Infrastructure/Persistence/` folder | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | See the [finding table](../tools/model.md) |
+| Repository implementation | The module `Infrastructure/Persistence/{Aggregates}/` folder | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | See the [finding table](../tools/model.md) |
 | Endpoint | The `WebApi/{Aggregates}/{UseCase}/` folder, or the host for a host-only endpoint | `implements` naming `use-case/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Request and response models | The `WebApi/{Aggregates}/{UseCase}/` folder beside the endpoint | None; the folder places them | Review the transport models |
 | Reaction handler class | The `Application/{Aggregates}/{UseCase}/` folder when the reaction runs a use case; otherwise the `Application/Notifications/<Name>/` folder when it sends a notification, or `Application/ExternalSystems/<Name>/` when it calls one | `implements` naming `reaction/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Scheduled job | The `Application/{Aggregates}/{UseCase}/` folder of the use case the job runs | `implements` naming `job/<module>.<name>` | See the [finding table](../tools/model.md) |
-| Integration event | The `Contracts/{Aggregates}/Events/` folder of the owning module's Contracts project | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
-| Module event | The `Contracts/{Aggregates}/Events/` folder of the owning module's Contracts project | `implements` naming `module-event/<module>.<name>` | See the [finding table](../tools/model.md) |
+| Integration event | The `Contracts/{Aggregates}/On{Fact}/` folder of the owning module's Contracts project | `implements` naming `integration-event/<name>` | See the [finding table](../tools/model.md) |
+| Module event | The `Contracts/{Aggregates}/On{Fact}/` folder of the owning module's Contracts project | `implements` naming `module-event/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Public query message and result | The `Contracts/{Aggregates}/{UseCase}/` folder of the owning module's Contracts project | None; the handler folder places them | See the [finding table](../tools/model.md) |
 | Public command message and result | The `Contracts/{Aggregates}/{UseCase}/` folder of the owning module's Contracts project | None; the handler folder places them | See the [finding table](../tools/model.md) |
-| External-system port | The module `Ports/{Port}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
-| Consumer port to another module | The consumer `Ports/{Provider}/` folder, named for the provider module | None; the folder places it | Review the port beside the `queries` or `commands` edge |
+| External-system port | The module `Ports/{Port}/` folder, spelling the record name in PascalCase | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
 | Port adapter | The module `Infrastructure/{Port}/` folder | `implements` naming `external-system/<name>` | See the [finding table](../tools/model.md) |
-| Provider adapter | The consumer `Infrastructure/{Provider}/` folder, sending the provider's public queries and public commands | None; the folder places it | Review the adapter beside the `queries` or `commands` edge |
+| Public query sent to another module | The handler, reaction, or job that sends it | None; the `queries` edge on the sending record places it | See the [finding table](../tools/model.md) |
+| Public command sent to another module | The reaction or job that sends it | None; the `commands` edge on the sending record places it | See the [finding table](../tools/model.md) |
 | Read-model reader or projection | The `Application/ReadModels/<ReadModelPlural>/` folder | `implements` naming `read-model/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | See the [finding table](../tools/model.md) |
 

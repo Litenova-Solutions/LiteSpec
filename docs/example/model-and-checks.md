@@ -27,19 +27,17 @@ The project model joins a project's written records to its code, screens, and te
 .litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-reminder-preference' has scenarios with no passing proof.
 .litespec/intent/flows/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Flow step 'step/export-approved-expenses.export-batch' is served by a browser or device use case but by no screen.
 .litespec/intent/flows/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Flow step 'step/set-receipt-threshold.set-threshold' is served by a browser or device use case but by no screen.
-0 findings, 0 blocking, 20 covered.
+0 findings, 0 blocking, 21 covered.
 ```
 
-The 20 covered findings fall into six codes:
+The 21 covered findings fall into four codes:
 
 | Code | Count | Covered by |
 |:---|:---|:---|
+| `use-case-unverified` | 12 | `waiver/use-cases-unverified` |
 | `use-case-unreached` | 4 | `waiver/expense-screens-unimplemented` |
-| `use-case-unverified` | 11 | `waiver/use-cases-unverified` |
-| `step-screen-missing` | 2 | `waiver/expense-steps-unscreened` |
-| `use-case-unimplemented` | 1 | `waiver/export-expenses-unimplemented` |
-| `use-case-flow-missing` | 1 | `waiver/reimbursed-list-unserved` |
-| `use-case-endpoint-missing` | 1 | `waiver/export-expenses-unexposed` |
+| `step-screen-missing` | 3 | `waiver/expense-steps-unscreened` |
+| `use-case-flow-missing` | 2 | `waiver/reimbursed-list-unserved` and `waiver/read-expense-unserved` |
 
 Each code names one gap. The screen gap and the proof gap are real: the web app holds three screens, and no run records a passing proof for a scenario.
 

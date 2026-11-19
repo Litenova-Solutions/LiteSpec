@@ -14,9 +14,9 @@ The shared frontend pages in the [Frontend overview](../README.md) state the rul
 
 ### Where Each File Lives
 
-Blazor names the three frontend parts as folders: `Frame/` holds the frame, `Routes/` holds one `.razor` file per address, and `Modules/` holds the use-case code.
+Blazor names the three frontend parts as folders: `Frame/` holds the frame, `Routes/` holds one `.razor` file per address, and `Modules/` holds the use-case code at `{module}/{aggregates}/{use-case}/` in kebab case, mirroring the backend `Application/` folder the way the web mirror does.
 
-A Razor component is a `.razor` file with its code-behind in a partial class in the `.razor.cs` file beside it. On a route entry, that partial class also carries the screen mark. For example, the Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its expense use-case code in `Modules/expenses/`.
+A Razor component is a `.razor` file with its code-behind in a partial class in the `.razor.cs` file beside it. On a route entry, that partial class also carries the screen mark. For example, the Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its list-expenses use-case code in `Modules/spending/expenses/list-expenses/`.
 
 The client-only shape holds no server code, so the server-only code default in [Keep Server-Only Code Identifiable](../rendering.md#keep-server-only-code-identifiable) places nothing.
 
@@ -72,11 +72,11 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version the sta
 
 **Strength:** required
 
-**Statement:** A Blazor frontend MUST hold the frame in `Frame/`, one `.razor` file per address in `Routes/`, and the use-case code in `Modules/`.
+**Statement:** A Blazor frontend MUST hold the frame in `Frame/`, one `.razor` file per address in `Routes/`, and the use-case code in `Modules/` at `{module}/{aggregates}/{use-case}/` in kebab case, mirroring the backend `Application/` folder.
 
-**Rationale:** Three fixed roots let a reader and a tool find the frame, the addresses, and the use-case code in the same place in every Blazor frontend.
+**Rationale:** Three fixed roots let a reader and a tool find the frame, the addresses, and the use-case code in the same place in every Blazor frontend. Under `Modules/`, the three-segment mirror translates each backend use-case path by rule, with a module-level use case dropping the aggregate segment in both trees.
 
-**Example:** The Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its expense use-case code in `Modules/expenses/`.
+**Example:** The Claimwick expense console keeps its frame in `Frame/`, its expense list route in `Routes/ExpenseList.razor`, and its list-expenses use-case code in `Modules/spending/expenses/list-expenses/`.
 
 **Reviewed for:** Does every Blazor file sit in `Frame/`, `Routes/`, or `Modules/`? Check the project tree.
 
@@ -204,7 +204,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version the sta
 
 **Example:** The Claimwick `ExpenseList.razor.cs` carries `/// <implements>screen/claimwick-app.expense-list</implements>` on its partial class.
 
-**Reviewed for:** Does every route entry carry a screen mark on its partial class? Check each `.razor.cs` file under `Routes/`.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a screen mark outside the `Routes/` root.
 
 ### Keep Layouts and Error Components Unmarked
 
@@ -230,7 +230,7 @@ The `stack.dotnet` key in `litespec.manifest.yaml` pins the .NET version the sta
 
 **Rationale:** One entry point gives every form the same field wiring and the same display for a field refusal.
 
-**Example:** The Claimwick expense claim form in `Modules/expenses/` uses the shared form entry point, with no `EditForm` of its own.
+**Example:** The Claimwick expense claim form in `Modules/spending/expenses/claim-expense/` uses the shared form entry point, with no `EditForm` of its own.
 
 **Reviewed for:** Does every Blazor form build on the shared form entry point? Check the form components under `Routes/` and `Modules/`.
 
