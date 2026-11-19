@@ -543,7 +543,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Statement:** Each command carrying `idempotency` MUST state what a recognized replay does in `replay` and how the command recognizes it.
 
-**Rationale:** A repeat the command recognizes but handles nowhere either runs twice or fails without telling why: a double payout, or a refusal that hides the first success. Stating `returns-first-result`, `refuses`, or `acts-again` tells the caller what the repeat brings. A keyed command recognizes the repeat by the key the caller sends. A state command names the state it checks in `recognizedBy`, such as the posted entry the second booking meets.
+**Rationale:** A repeat the command recognizes but handles nowhere either runs twice or fails without telling why: a double payout, or a refusal that hides the first success. Stating `returns-first-result`, `refuses`, or `acts-again` tells the caller what the repeat brings. A keyed command recognizes the repeat by the key the caller sends. A state command names the state it checks in `recognizedBy`, such as the posted entry the second booking meets, and the command recognizes the repeat there, not by a stored key, which would outlive an undone state.
 
 **Example:** The reimburse-expense command replays with `returns-first-result`. A retried payout returns the first reimbursement instead of posting again.
 

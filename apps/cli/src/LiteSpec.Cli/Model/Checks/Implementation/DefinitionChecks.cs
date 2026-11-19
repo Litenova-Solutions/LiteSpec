@@ -343,13 +343,17 @@ internal static class DefinitionChecks
             return;
         }
 
-        if (mode == "none")
+        // Mode state recognizes a repeat by the aggregate's state, so the pipeline keys nothing: a stored key would
+        // outlive the state it mirrors and replay a stale result after an undo, such as a grant, a revoke and a grant again.
+        if (mode is "none" or "state")
         {
             if (!DeclaresIdempotencyExemption(text))
             {
                 findings.Add(new Finding(
                     "definition-drift",
-                    $"Idempotency definition '{definition}' declares no idempotency exemption for '{record.Id}'.",
+                    mode == "none"
+                        ? $"Idempotency definition '{definition}' declares no idempotency exemption for '{record.Id}'."
+                        : $"Idempotency definition '{definition}' declares no idempotency exemption for '{record.Id}', which recognizes a repeat by state; a pipeline key would outlive that state.",
                     file,
                     1,
                     record.Id));

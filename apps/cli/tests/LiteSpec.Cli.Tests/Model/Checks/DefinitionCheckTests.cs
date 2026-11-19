@@ -377,6 +377,38 @@ public sealed class DefinitionCheckTests
         Assert.Empty(Run(model));
     }
 
+    /// <summary>An idempotency definition declaring the exemption for a command its record recognizes by state reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void IdempotencyStateWithExemptReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "state", "recognizedBy": "the copy already lent to the member", "replay": "returns-first-result"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "declarations.Exempt<IdempotencyDeclaration>(\"recognized by state: the copy already lent to the member\")");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An idempotency definition keying a command its record recognizes by state reports definition-drift.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void IdempotencyStateWithKeyReportsDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "state", "recognizedBy": "the copy already lent to the member", "replay": "returns-first-result"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.Idempotent(Key.From(\"copy-id\"))");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("definition-drift", finding.Code);
+        Assert.Equal("Idempotency definition 'BorrowCopyCommandIdempotencyDefinition' declares no idempotency exemption for 'use-case/lending.borrow-copy', which recognizes a repeat by state; a pipeline key would outlive that state.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
     /// <summary>An idempotency definition declaring the exemption for a command the record makes idempotent reports definition-drift.</summary>
     /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
