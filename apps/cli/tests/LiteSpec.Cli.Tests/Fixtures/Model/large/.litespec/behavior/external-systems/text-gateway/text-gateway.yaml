@@ -2,6 +2,8 @@ type: external-system
 id: external-system/text-gateway
 title: Text gateway
 summary: The text gateway sends overdue notices to readers.
+vendor: Messageline
+represents: actor/text-gateway
 operations:
 - name: send-overdue-notice
   action: send

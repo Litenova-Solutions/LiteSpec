@@ -79,7 +79,7 @@ public sealed class DecisionBasisCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
-            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
+            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "context": "Shoppers ask for a receipt at the till.", "basedOn": []}"""));
 
         Assert.DoesNotContain("decision-basis-missing", TestModel.Codes(model));
     }

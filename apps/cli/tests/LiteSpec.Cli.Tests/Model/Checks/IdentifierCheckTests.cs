@@ -30,7 +30,7 @@ public sealed class IdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "query"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -127,7 +127,7 @@ public sealed class IdentifierCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "query"}"""));
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
@@ -239,8 +239,8 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0002-hold-window", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.hold-pickup-window"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0002-hold-window", Path.Combine(temp.Path, "decisions.yaml"), """{"choice": "Seven days"}"""));
 
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
@@ -253,8 +253,8 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0001-hold-window", Path.Combine(temp.Path, "hold.yaml"), """{"decides": ["requirement/borrowing.hold-pickup-window"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan.yaml"), """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0001-hold-window", Path.Combine(temp.Path, "hold.yaml"), """{"choice": "Seven days"}"""));
 
         var findings = Checker.Check(model).Findings.Where(found => found.Code == "record-key-duplicate").ToList();
         Assert.Equal(2, findings.Count);
@@ -271,8 +271,8 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0001-loan-period.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0001-loan-store", Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0001-loan-store.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0001-loan-period.yaml"), """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0001-loan-store", Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0001-loan-store.yaml"), """{"choice": "Twenty-one days"}"""));
 
         var findings = Checker.Check(model).Findings.Where(found => found.Code == "record-key-duplicate").ToList();
         Assert.Equal(2, findings.Count);
@@ -287,8 +287,8 @@ public sealed class IdentifierCheckTests
         var file = Path.Combine(temp.Path, "decisions.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", file, 1, """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0001-loan-period", file, 5, """{"decides": ["requirement/borrowing.loan-period-days"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", file, 1, """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0001-loan-period", file, 5, """{"choice": "Twenty-one days"}"""));
 
         Assert.Contains("identifier-duplicate", TestModel.Codes(model));
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
@@ -302,7 +302,7 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""));
+            TestModel.Record("decision", "decision/loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"choice": "Twenty-one days"}"""));
 
         Assert.Contains("identifier-invalid", TestModel.Codes(model));
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));

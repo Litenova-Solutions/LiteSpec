@@ -15,6 +15,4 @@ options:
 choice: 21 days
 consequences: Holds wait longer.
 reopenedWhen: Reader demand shifts.
-decides:
-- requirement/borrowing.loan-period-days
 basedOn: []

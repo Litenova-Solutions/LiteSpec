@@ -377,7 +377,7 @@ public sealed class OperationsCheckTests
         Assert.Contains("deploy/alerts/lending.yaml", limits, StringComparison.Ordinal);
     }
 
-    // The latency requirement, the decision that decides it, and the list-loans use case that
+    // The latency requirement, the decision it names in basedOn, and the list-loans use case that
     // fulfills it, so the requirement reaches Behavior as every Intent record must.
     static void WriteLatencyRequirement(string root)
     {
@@ -526,7 +526,10 @@ public sealed class OperationsCheckTests
           "environment": "Normal operation, the search index warm.",
           "response": "Each listing answers from the index.",
           "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
-          "check": "list-loans-load"
+          "check": "list-loans-load",
+          "basedOn": [
+            "decision/0003-term-start-listing"
+          ]
         }
         """;
 
@@ -551,7 +554,7 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    // The product decision that decides the latency requirement.
+    // The product decision the latency requirement names in basedOn.
     const string OriginJson = """
         {
           "type": "decision",
@@ -567,10 +570,7 @@ public sealed class OperationsCheckTests
           "choice": "Answer within 300 milliseconds",
           "consequences": "The listing reads from an index.",
           "reopenedWhen": "Term start load changes.",
-          "context": "Term start floods the loan listing.",
-          "decides": [
-            "requirement/performance.list-loans-latency"
-          ]
+          "context": "Term start floods the loan listing."
         }
         """;
 

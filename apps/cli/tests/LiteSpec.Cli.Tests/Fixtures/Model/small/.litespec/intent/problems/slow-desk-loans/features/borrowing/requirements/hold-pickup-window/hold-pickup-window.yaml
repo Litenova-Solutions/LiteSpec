@@ -6,3 +6,5 @@ statement: A ready hold waits seven days.
 rationale: A week gives readers time to reach the desk before the hold lapses.
 cites:
 - decision/0001-loan-period
+basedOn:
+- decision/0001-loan-period

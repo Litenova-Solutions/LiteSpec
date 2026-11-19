@@ -19,7 +19,7 @@ static class BookBodyDetail
         var explanation = WithoutTitle(BookRender.StrProp(record, "explanation") ?? "");
         (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
         Func<string, string?>? linkSource = string.Equals(BookRender.StrProp(record, "type"), "research", StringComparison.Ordinal)
-            ? key => SourceUrl(record, key)
+            ? name => SourceUrl(record, name)
             : null;
 
         string HtmlOf(string text) => BookMarkdown.Render(text, LinkRecord, linkSource);
@@ -57,16 +57,16 @@ static class BookBodyDetail
         return newline < 0 ? "" : normalized[(newline + 1)..];
     }
 
-    /// <summary>One research source key as its URL, or null when the record names no URL source under the key.</summary>
+    /// <summary>One research source name as its URL, or null when the record names no URL source under the name.</summary>
     /// <param name="record">The record.</param>
-    /// <param name="key">The source key.</param>
+    /// <param name="name">The source name.</param>
     /// <returns>The source URL, or null.</returns>
-    static string? SourceUrl(JsonObject record, string key)
+    static string? SourceUrl(JsonObject record, string name)
     {
         foreach (var source in BookRender.Fields(record)?["sources"] as JsonArray ?? [])
         {
             if (source is JsonObject entry
-                && string.Equals(BookRender.StrProp(entry, "key"), key, StringComparison.Ordinal))
+                && string.Equals(BookRender.StrProp(entry, "name"), name, StringComparison.Ordinal))
             {
                 return BookRender.StrProp(entry, "url");
             }

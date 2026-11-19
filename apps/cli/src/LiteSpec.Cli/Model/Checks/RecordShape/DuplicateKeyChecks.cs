@@ -29,7 +29,7 @@ internal static class DuplicateKeyChecks
             {
                 case RecordTypes.Constraint:
                 case RecordTypes.Research:
-                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Sources), RecordFields.Key, "source key", null, findings);
+                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Sources), RecordFields.Name, "source name", null, findings);
                     break;
 
                 case RecordTypes.Flow:

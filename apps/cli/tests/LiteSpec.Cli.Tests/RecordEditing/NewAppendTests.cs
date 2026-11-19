@@ -66,7 +66,7 @@ public sealed class NewAppendTests
         var after = File.ReadAllText(page);
         var inserted = AssertSingleInsertion(before, after, "id: result/borrow-copy.copy-on-loan");
         Assert.Contains("outcome: refusal", inserted);
-        Assert.Contains("code: lending.copy-on-loan", inserted);
+        Assert.Contains("refusal: refusal/lending.copy-on-loan", inserted);
 
         var success = after.IndexOf("result/borrow-copy.borrowed", StringComparison.Ordinal);
         var oldRefusal = after.IndexOf("result/borrow-copy.copy-unavailable", StringComparison.Ordinal);

@@ -29,7 +29,7 @@ records:
   id: result/cancel-hold.hold-ended
   title: Hold ended
   outcome: refusal
-  code: lending.hold-not-waiting
+  refusal: refusal/lending.hold-not-waiting
 - type: scenario
   id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
   title: Canceling a waiting hold succeeds

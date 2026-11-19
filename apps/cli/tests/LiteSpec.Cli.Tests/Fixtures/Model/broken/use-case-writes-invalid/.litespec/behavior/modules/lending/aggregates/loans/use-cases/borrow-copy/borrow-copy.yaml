@@ -1,0 +1,53 @@
+type: use-case
+id: use-case/lending.borrow-copy
+title: Borrow copy
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong lending hands a copy to a reader already past the loan limit.
+kind: command
+access:
+  grant: permission/borrow-copy
+  tenant: own
+serves:
+- step/borrow-and-return.borrow-copy
+fulfills:
+- requirement/borrowing.max-active-loans
+reachedThrough:
+- entry-point/library-app
+raises:
+- domain-event/loan.loan-borrowed
+reads:
+- setting/lending.active-loans-per-reader
+writes:
+- aggregate/lending.loan
+- aggregate/lending.copy
+steps:
+- statement: The reader borrows the copy from the shelf.
+idempotency:
+  mode: none
+  reason: Each call lends its own copy, and lending an unavailable copy is refused.
+records:
+- type: result
+  id: result/borrow-copy.borrowed
+  title: Borrowed
+  outcome: success
+  meaning: The copy is lent.
+- type: result
+  id: result/borrow-copy.copy-unavailable
+  title: Copy unavailable
+  outcome: refusal
+  refusal: refusal/lending.copy-not-available
+- type: scenario
+  id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
+  title: Borrowing an available copy succeeds
+  given: A copy sits available on its shelf.
+  when: The reader borrows the copy.
+  then: The loan is active.
+  result: result/borrow-copy.borrowed
+- type: scenario
+  id: scenario/borrow-copy.borrowing-an-unavailable-copy-is-refused
+  title: Borrowing an unavailable copy is refused
+  given: A copy is on loan to another reader.
+  when: The reader borrows the copy.
+  then: The lending is refused because the copy is unavailable.
+  result: result/borrow-copy.copy-unavailable
+  exercises:
+  - rule/loan.has-one-borrower

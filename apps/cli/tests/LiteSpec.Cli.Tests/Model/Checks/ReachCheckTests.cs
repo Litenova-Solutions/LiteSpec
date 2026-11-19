@@ -189,18 +189,18 @@ public sealed class ReachCheckTests
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>Decision Deciding Unreached Record Reports Intent Unreached.</summary>
+    /// <summary>Decision Settling An Unreached Record Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void DecisionDecidingUnreachedRecordReportsIntentUnreached()
+    public void DecisionSettlingUnreachedRecordReportsIntentUnreached()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""));
+            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"choice": "Seven days"}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["decision/0001-ghost-days"]}"""));
 
-        Assert.Contains("intent-unreached", TestModel.Codes(model));
+        Assert.Contains(Checker.Check(model).Findings, finding => finding.Code == "intent-unreached" && finding.Subject == "decision/0001-ghost-days");
     }
 
     /// <summary>A use case a reaction runs needs no flow of its own.</summary>
@@ -231,31 +231,31 @@ public sealed class ReachCheckTests
         var decisions = Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(decisions, "0001-ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""));
+            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(decisions, "0001-ghost-days.yaml"), """{"choice": "Seven days"}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["decision/0001-ghost-days"]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "intent-unreached" && finding.Subject == "decision/0001-ghost-days");
     }
 
-    /// <summary>Decision Deciding Reaching Record Passes.</summary>
+    /// <summary>Decision Settling A Reaching Record Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void DecisionDecidingReachingRecordPasses()
+    public void DecisionSettlingReachingRecordPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
+            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"choice": "Seven days"}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["decision/0001-ghost-days"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>Decision Without Decides Skips Intent Unreached.</summary>
+    /// <summary>Decision Settling Nothing Skips Intent Unreached.</summary>
     /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
     [Fact]
-    public void DecisionWithoutDecidesSkipsIntentUnreached()
+    public void DecisionSettlingNothingSkipsIntentUnreached()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -274,9 +274,27 @@ public sealed class ReachCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""));
+            TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self"}"""));
 
         Assert.Contains("role-unused", TestModel.Codes(model));
+    }
+
+    /// <summary>Role Named By No Permission Reports Role Unused.</summary>
+    /// <proves>litespec/core/access#grant-permissions-through-roles</proves>
+    [Fact]
+    public void RoleNamedByNoPermissionReportsRoleUnused()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": ["role/reader"]}"""),
+            TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader-role.yaml"), """{"scope": "self"}"""),
+            TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), """{"meaning": "Read own loans."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "role-unused");
+
+        Assert.Equal("Role 'role/reader' is named by no permission.", finding.Message);
+        Assert.Equal("role/reader", finding.Subject);
     }
 
     /// <summary>Role Held Passes.</summary>
@@ -288,8 +306,8 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": ["role/reader"]}"""),
-            TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader-role.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
-            TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), "{}"));
+            TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader-role.yaml"), """{"scope": "self"}"""),
+            TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), """{"meaning": "Read own loans.", "grantedTo": ["role/reader"]}"""));
 
         Assert.DoesNotContain("role-unused", TestModel.Codes(model));
     }
@@ -307,16 +325,16 @@ public sealed class ReachCheckTests
         Assert.Contains("permission-unused", TestModel.Codes(model));
     }
 
-    /// <summary>Permission Allowed Passes.</summary>
+    /// <summary>Permission Granted Passes.</summary>
     /// <proves>litespec/core/access#grant-permissions-through-roles</proves>
     [Fact]
-    public void PermissionAllowedPasses()
+    public void PermissionGrantedPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
-            TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), "{}"));
+            TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader.yaml"), """{"scope": "self"}"""),
+            TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), """{"meaning": "Read own loans.", "grantedTo": ["role/reader"]}"""));
 
         Assert.DoesNotContain("permission-unused", TestModel.Codes(model));
     }
@@ -329,9 +347,9 @@ public sealed class ReachCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("decision", "decision/0002-ghost-weeks", Path.Combine(temp.Path, "ghost-weeks.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
+            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"choice": "Seven days"}"""),
+            TestModel.Record("decision", "decision/0002-ghost-weeks", Path.Combine(temp.Path, "ghost-weeks.yaml"), """{"choice": "Fourteen days"}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["decision/0001-ghost-days", "decision/0002-ghost-weeks"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
@@ -360,7 +378,7 @@ public sealed class ReachCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""));
+            TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "role-unused");
         Assert.Equal("Role 'role/ghost' is held by no actor.", finding.Message);
@@ -378,7 +396,7 @@ public sealed class ReachCheckTests
             TestModel.Record("permission", "permission/ghost-read", Path.Combine(temp.Path, "ghost-read.yaml"), "{}"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "permission-unused");
-        Assert.Equal("Permission 'permission/ghost-read' is allowed by no role.", finding.Message);
+        Assert.Equal("Permission 'permission/ghost-read' is granted by no role.", finding.Message);
         Assert.Equal("permission/ghost-read", finding.Subject);
     }
 

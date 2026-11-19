@@ -52,7 +52,7 @@ public sealed class DecisionChecksTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
-            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "consequences": "Every receipt is provable.", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"]}"""));
+            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "consequences": "Every receipt is provable.", "reopenedWhen": "Paper costs double.", "context": "Shoppers ask for a receipt at the till."}"""));
 
         Assert.DoesNotContain("decision-kind-missing", TestModel.Codes(model));
     }
@@ -111,7 +111,7 @@ public sealed class DecisionChecksTests
         var model = ModuleModel(temp.Path);
         model.Records.Add(TestModel.Record(
             "decision", "decision/0001-receipt-rule", ProductDecisionFile(model.Config),
-            """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "consequences": "Every receipt is provable.", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"]}"""));
+            """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "consequences": "Every receipt is provable.", "reopenedWhen": "Paper costs double.", "context": "Shoppers ask for a receipt at the till."}"""));
         model.Records.Add(TestModel.Record(
             "requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"),
             """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""));

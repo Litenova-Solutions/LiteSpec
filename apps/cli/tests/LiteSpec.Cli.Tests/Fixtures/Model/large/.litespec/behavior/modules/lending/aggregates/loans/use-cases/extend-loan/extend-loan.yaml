@@ -29,7 +29,7 @@ records:
   id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
-  code: lending.extension-refused
+  refusal: refusal/lending.extension-refused
 - type: scenario
   id: scenario/extend-loan.extending-an-active-loan-succeeds
   title: Extending an active loan succeeds

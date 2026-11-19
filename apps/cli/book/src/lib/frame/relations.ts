@@ -70,7 +70,7 @@ export function performersFor(
   const grant = isRecord(access) ? String(access["grant"] ?? "") : "";
   if (grant.startsWith("permission/") === false) return [];
   const out: { id: string; via: string }[] = [];
-  for (const role of insFor(readers, grant, "allows")) {
+  for (const role of insFor(readers, grant, "grantedTo")) {
     for (const actor of insFor(readers, role, "holds")) {
       out.push({ id: actor, via: "via " + readers.title(grant) + ", role " + readers.title(role) });
     }
@@ -100,7 +100,10 @@ export function upOneFor(
     return known(outsFor(readers, id, "fulfills")) ?? known(outsFor(readers, id, "serves"));
   }
   if (type === "flow") return known(outsFor(readers, id, "serves")) ?? known(outsFor(readers, id, "answers"));
-  if (type === "decision") return known(outsFor(readers, id, "decides"));
+  if (type === "decision")
+    return known(
+      insFor(readers, id, "basedOn").filter((x) => readers.typeOf(x) === "rule" || readers.typeOf(x) === "requirement"),
+    );
   if (type === "requirement") return known(outsFor(readers, id, "cites"));
   if (type === "feature") return known(outsFor(readers, id, "advances"));
   if (type === "domain-event") {

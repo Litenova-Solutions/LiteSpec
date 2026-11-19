@@ -15,5 +15,4 @@ options:
 choice: 21 days
 consequences: Holds wait longer.
 reopenedWhen: Reader demand shifts.
-decides: []
 basedOn: []

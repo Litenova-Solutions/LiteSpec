@@ -29,7 +29,7 @@ records:
   id: result/return-copy.loan-inactive
   title: Loan inactive
   outcome: refusal
-  code: lending.loan-not-active
+  refusal: refusal/lending.loan-not-active
 - type: scenario
   id: scenario/return-copy.returning-a-borrowed-copy-succeeds
   title: Returning a borrowed copy succeeds

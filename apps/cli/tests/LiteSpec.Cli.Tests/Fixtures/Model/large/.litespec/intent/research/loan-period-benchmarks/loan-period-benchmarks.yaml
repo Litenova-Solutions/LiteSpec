@@ -4,7 +4,7 @@ title: Loan period benchmarks
 sources:
 - url: https://example.com/loan-study
   readOn: 2026-01-15
-  key: example-loan-study
+  name: example-loan-study
 question: How long do city libraries lend?
 conclusion: City libraries lend for two to four weeks.
 findings:

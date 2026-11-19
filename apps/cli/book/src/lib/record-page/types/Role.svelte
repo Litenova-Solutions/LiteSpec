@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, esc, stripStep } from "$lib/frame";
+  import { book, dedupe, esc, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import BulletList from "../blocks/BulletList.svelte";
@@ -7,27 +7,27 @@
   import { inlineRefHtml, tdHtml } from "../page-html";
   import { stringField, stringList } from "../page-values";
 
-  // A role: the permissions it allows with the limits on its scope.
+  // A role: the permissions granted to it with what its scope excludes.
   type Props = { id: string; r: BookRecord };
-  let { r }: Props = $props();
-  const allows = $derived(stringList(r.fields ?? {}, "allows"));
-  const limits = $derived(stringList(r.fields ?? {}, "limits"));
+  let { id, r }: Props = $props();
+  const granted = $derived(dedupe(book.ins(id, "grantedTo").filter((p) => p.startsWith("permission/"))).sort());
+  const excludes = $derived(stringList(r.fields ?? {}, "excludes"));
   const scope = $derived(stringField(r.fields ?? {}, "scope") ?? "");
 </script>
 
 {#if scope}
   <PageSection blockKey="scope" heading="role.scope"><p class="m-0 text-sm">{scope}</p></PageSection>
 {/if}
-{#if allows.length}
-  <PageSection blockKey="allows" heading="allows" count={allows.length}>
+{#if granted.length}
+  <PageSection blockKey="grantedTo" heading="grantedTo" count={granted.length}>
     <DataTable
       head={["Permission", "Meaning"]}
-      rows={allows.map((p) => [tdHtml(inlineRefHtml(book, p)), tdHtml(esc(String(book.get(stripStep(p))?.fields?.meaning ?? "")))])}
+      rows={granted.map((p) => [tdHtml(inlineRefHtml(book, p)), tdHtml(esc(String(book.get(stripStep(p))?.fields?.meaning ?? "")))])}
     />
   </PageSection>
 {/if}
-{#if limits.length}
-  <PageSection blockKey="limits" heading="limits" count={limits.length}>
-    <BulletList items={limits} />
+{#if excludes.length}
+  <PageSection blockKey="limits" heading="excludes" count={excludes.length}>
+    <BulletList items={excludes} />
   </PageSection>
 {/if}

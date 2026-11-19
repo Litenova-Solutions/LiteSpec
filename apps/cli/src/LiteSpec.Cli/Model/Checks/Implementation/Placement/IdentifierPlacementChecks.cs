@@ -484,10 +484,7 @@ internal static class IdentifierPlacementChecks
 
         var module = home?.ModuleDisplay ?? ModuleDisplayOf(config, match.Value.Module);
 
-        // A module whose single aggregate has the module's name keeps the aggregate's types directly in Domain.
-        return SameName(match.Value.Aggregate, match.Value.Module)
-            ? $"{module}/Domain"
-            : $"{module}/Domain/{match.Value.Expected}";
+        return $"{module}/Domain/{match.Value.Expected}";
     }
 
     /// <summary>The Contracts tree name of one module as printed in an expected path.</summary>

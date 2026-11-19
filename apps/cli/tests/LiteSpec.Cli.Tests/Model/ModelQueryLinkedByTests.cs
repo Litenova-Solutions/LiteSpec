@@ -103,6 +103,84 @@ public sealed class ModelQueryLinkedByTests
         Assert.Contains("effects", fields.EnumerateArray().Select(field => field.GetString()));
     }
 
+    /// <summary>A permission naming its roles appears in each role's linkedBy through grantedTo.</summary>
+    /// <proves>litespec/core/agent#select-task-context</proves>
+    [Fact]
+    public void GrantedPermissionAppearsInRoleLinkedBy()
+    {
+        using var temp = TestCli.Temp("query-linked-by");
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "{}");
+
+        var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
+        model.Records.Add(Rec(
+            "role", "role/reader", Path.Combine(temp.Path, "reader.yaml"),
+            """{"summary": "Readers act on their own loans.", "scope": "self"}"""));
+        model.Records.Add(Rec(
+            "permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"),
+            """{"meaning": "Read own loans.", "grantedTo": ["role/reader"]}"""));
+
+        var output = RecordQuery.Query(model, "role/reader");
+
+        Assert.NotNull(output);
+        using var parsed = JsonDocument.Parse(output);
+        var linkedBy = parsed.RootElement.GetProperty("linkedBy");
+        Assert.True(linkedBy.TryGetProperty("permission/read-loans", out var fields));
+        Assert.Contains("grantedTo", fields.EnumerateArray().Select(field => field.GetString()));
+    }
+
+    /// <summary>A rule naming its decision appears in the decision's linkedBy through basedOn.</summary>
+    /// <proves>litespec/core/agent#select-task-context</proves>
+    [Fact]
+    public void SettledRuleAppearsInDecisionLinkedBy()
+    {
+        using var temp = TestCli.Temp("query-linked-by");
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "{}");
+
+        var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
+        model.Records.Add(Rec(
+            "decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan-period.yaml"),
+            """{"title": "Loan period", "choice": "21 days"}"""));
+        model.Records.Add(Rec(
+            "rule", "rule/loan.extended-before-due", Path.Combine(temp.Path, "loan-rules.yaml"),
+            """{"title": "Extended before due", "kind": "precondition", "statement": "A loan extends only before its due date.", "basedOn": ["decision/0001-loan-period"]}"""));
+
+        var output = RecordQuery.Query(model, "decision/0001-loan-period");
+
+        Assert.NotNull(output);
+        using var parsed = JsonDocument.Parse(output);
+        var linkedBy = parsed.RootElement.GetProperty("linkedBy");
+        Assert.True(linkedBy.TryGetProperty("rule/loan.extended-before-due", out var fields));
+        Assert.Contains("basedOn", fields.EnumerateArray().Select(field => field.GetString()));
+    }
+
+    /// <summary>An external system naming its actor appears in the actor's linkedBy through represents.</summary>
+    /// <proves>litespec/core/agent#select-task-context</proves>
+    [Fact]
+    public void RepresentingSystemAppearsInActorLinkedBy()
+    {
+        using var temp = TestCli.Temp("query-linked-by");
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "{}");
+
+        var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
+        model.Records.Add(Rec(
+            "actor", "actor/text-gateway", Path.Combine(temp.Path, "gateway.yaml"),
+            """{"summary": "The text gateway sends overdue notices.", "kind": "system"}"""));
+        model.Records.Add(Rec(
+            "external-system", "external-system/text-gateway", Path.Combine(temp.Path, "text-gateway.yaml"),
+            """{"summary": "The text gateway sends overdue notices.", "vendor": "Messageline", "represents": "actor/text-gateway"}"""));
+
+        var output = RecordQuery.Query(model, "actor/text-gateway");
+
+        Assert.NotNull(output);
+        using var parsed = JsonDocument.Parse(output);
+        var linkedBy = parsed.RootElement.GetProperty("linkedBy");
+        Assert.True(linkedBy.TryGetProperty("external-system/text-gateway", out var fields));
+        Assert.Contains("represents", fields.EnumerateArray().Select(field => field.GetString()));
+    }
+
     /// <summary>Builds one in-memory record from its JSON body.</summary>
     /// <param name="type">The record type.</param>
     /// <param name="id">The record identifier.</param>

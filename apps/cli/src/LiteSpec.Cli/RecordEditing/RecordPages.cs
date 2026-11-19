@@ -38,7 +38,7 @@ static class RecordPages
         ["scenario"] = "its use-case, reaction or job file",
         ["step"] = "its flow file",
         ["domain-event"] = "its aggregate file",
-        ["refusal-set"] = ".litespec/behavior/modules/<m>/refusals.yaml",
+        ["refusal-set"] = ".litespec/behavior/modules/<m>/aggregates/<aggregate>/refusals.yaml, or .litespec/behavior/modules/<m>/refusals.yaml for a refusal no aggregate raises",
         ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/aggregates/<aggregate>/integration-events/",
         ["setting"] = "a setting-set file under .litespec/behavior/modules/<m>/settings/",
         ["permission"] = ".litespec/behavior/modules/<m>/permissions.yaml",

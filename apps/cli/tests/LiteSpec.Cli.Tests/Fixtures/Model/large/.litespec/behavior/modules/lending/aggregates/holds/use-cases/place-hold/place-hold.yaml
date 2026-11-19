@@ -29,7 +29,7 @@ records:
   id: result/place-hold.hold-already-waiting
   title: Hold already waiting
   outcome: refusal
-  code: lending.hold-already-waiting
+  refusal: refusal/lending.hold-already-waiting
 - type: scenario
   id: scenario/place-hold.placing-a-hold-succeeds
   title: Placing a hold succeeds

@@ -9,7 +9,7 @@ records:
   statement: A hold names one copy.
   governs:
   - use-case/lending.place-hold
-  refusal: lending.hold-already-waiting
+  refusal: refusal/lending.hold-already-waiting
   basedOn: []
   fulfills:
   - requirement/borrowing.hold-pickup-window
@@ -20,7 +20,7 @@ records:
   statement: A hold cancels only from Waiting.
   governs:
   - use-case/lending.cancel-hold
-  refusal: lending.hold-not-waiting
+  refusal: refusal/lending.hold-not-waiting
   basedOn: []
   fulfills:
   - requirement/borrowing.hold-pickup-window

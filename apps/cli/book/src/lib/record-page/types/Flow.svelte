@@ -108,7 +108,7 @@
       {#each jf.steps as s, i (s.id ?? i)}
         {@const by = (srv[String(s.id ?? "")] ?? []).map(String)}
         {@const scr = (screens[String(s.id ?? "")] ?? []).map(String)}
-        {@const sys = !!s.system}
+        {@const sys = String(book.get(stripStep(String(s.actor ?? "")))?.fields?.kind ?? "") === "system"}
         {@const reach = reachOf(s.id)}
         {@const joined = joinedTo.get(i + 1) ?? []}
         {@const leaving = branchesFrom.get(i + 1) ?? []}
@@ -133,12 +133,6 @@
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="text-text-secondary">{book.fieldLabel("actor")}:</span>
                   <RecordLink id={String(s.actor)} />
-                </div>
-              {/if}
-              {#if s.system}
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-text-secondary">{book.fieldLabel("system")}:</span>
-                  <RecordLink id={String(s.system)} />
                 </div>
               {/if}
               {#if Array.isArray(s.carries) && s.carries.length}
@@ -228,7 +222,6 @@
               {@const ends = String(b.ends ?? "")}
               {@const instead = String(b.instead ?? "")}
               {@const bcarries = Array.isArray(b.carries) ? b.carries.map(String) : []}
-              {@const bsystem = String(b.system ?? "")}
               <div class="mt-3 grid grid-cols-[16px_minmax(0,1fr)] gap-2 bg-layer px-3 py-2 text-sm">
                 <RecordIcon name="branch" class="mt-0.5 size-4 text-text-secondary" />
                 <div>
@@ -243,12 +236,6 @@
                     <div class="mt-1 flex flex-wrap items-center gap-2">
                       <span class="text-text-secondary">{book.fieldLabel("carries", "flow")}:</span>
                       {#each bcarries as c, j (c + "#" + j)}{#if j > 0}{", "}{/if}<RecordLink id={c} />{/each}
-                    </div>
-                  {/if}
-                  {#if bsystem}
-                    <div class="mt-1 flex flex-wrap items-center gap-2">
-                      <span class="text-text-secondary">{book.fieldLabel("system")}:</span>
-                      <RecordLink id={bsystem} />
                     </div>
                   {/if}
                 </div>

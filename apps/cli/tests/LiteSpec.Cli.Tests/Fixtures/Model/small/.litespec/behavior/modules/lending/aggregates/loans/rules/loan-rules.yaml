@@ -9,7 +9,7 @@ records:
   statement: A loan has one borrower.
   governs:
   - use-case/lending.borrow-copy
-  refusal: lending.copy-not-available
+  refusal: refusal/lending.copy-not-available
   basedOn: []
   fulfills:
   - requirement/borrowing.max-active-loans
@@ -32,7 +32,7 @@ records:
   statement: A loan extends only before its due date.
   governs:
   - use-case/lending.extend-loan
-  refusal: lending.extension-refused
+  refusal: refusal/lending.extension-refused
   basedOn: []
   fulfills:
   - requirement/borrowing.loan-period-days
@@ -43,7 +43,7 @@ records:
   statement: A loan returns only while active.
   governs:
   - use-case/lending.return-copy
-  refusal: lending.loan-not-active
+  refusal: refusal/lending.loan-not-active
   basedOn: []
   fulfills:
   - requirement/borrowing.loan-period-days

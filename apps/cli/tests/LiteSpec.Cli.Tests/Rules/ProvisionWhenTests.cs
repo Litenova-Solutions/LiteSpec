@@ -147,7 +147,7 @@ public sealed class ProvisionWhenTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/application#ask-another-module-one-question-through-a-decision-port:", result.Output);
-        Assert.Contains("- litespec/backend/application#reach-another-module-through-one-port-per-provider:", result.Output);
+        Assert.Contains("- litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator:", result.Output);
         Assert.Contains("- litespec/backend/architecture#read-another-module-only-through-its-contracts:", result.Output);
         Assert.Contains("- litespec/backend/architecture#send-commands-and-queries-upstream:", result.Output);
     }
@@ -165,7 +165,7 @@ public sealed class ProvisionWhenTests
 
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("litespec/backend/application#ask-another-module-one-question-through-a-decision-port", result.Output);
-        Assert.DoesNotContain("litespec/backend/application#reach-another-module-through-one-port-per-provider", result.Output);
+        Assert.DoesNotContain("litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator", result.Output);
         Assert.DoesNotContain("litespec/backend/architecture#read-another-module-only-through-its-contracts", result.Output);
         Assert.DoesNotContain("litespec/backend/architecture#send-commands-and-queries-upstream", result.Output);
     }

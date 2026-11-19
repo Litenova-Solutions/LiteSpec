@@ -31,7 +31,7 @@
     }),
   );
   const model = $derived(aggregateModel(f, r));
-  const limits = $derived(stringList(f, "limits"));
+  const excludes = $derived(stringList(f, "excludes"));
   const evs = $derived(book.eventsOf(id));
   const stateRows = $derived(
     model.states.map((s) => [
@@ -114,8 +114,8 @@
 {#if evs.length}
   <PageSection blockKey="events" heading="Domain events" count={evs.length}><RecordList ids={evs} /></PageSection>
 {/if}
-{#if limits.length}
-  <PageSection blockKey="limits" heading="limits" count={limits.length}>
-    <BulletList items={limits} />
+{#if excludes.length}
+  <PageSection blockKey="limits" heading="excludes" count={excludes.length}>
+    <BulletList items={excludes} />
   </PageSection>
 {/if}

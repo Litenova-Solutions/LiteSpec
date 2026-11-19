@@ -54,6 +54,9 @@ public sealed class ModelCheckTests
         "use-case-success-missing",
         "widening-cites-missing",
         "write-undeclared",
+        "link-direction-invalid",
+        "use-case-writes-invalid",
+        "folder-ungrouped",
     ];
 
     /// <summary>Gets the finding codes as theory rows, one row per broken overlay.</summary>

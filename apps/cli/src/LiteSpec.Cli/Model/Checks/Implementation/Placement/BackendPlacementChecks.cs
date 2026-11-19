@@ -192,14 +192,18 @@ internal static class BackendPlacementChecks
             return false;
         }
 
-        if (segments.Length < 3 || SameAggregate(segments[1], path.Aggregate))
+        // A Domain type directly in its layer belongs in its aggregate folder: every
+        // module keeps its plural aggregate folder whatever its number of aggregates.
+        if (segments.Length < 3)
         {
-            return false;
+            var direct = RawModulePath(model.Config, element.File) is { } raw && raw.Length >= 3 ? raw[1] : segments[0];
+            var expected = ExpectedAggregateFolder(model, path.Module!, path.Aggregate!);
+
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits directly in '{direct}/', but marks '{mark.RecordId}', so it belongs in '{expected}/'.", mark.File, mark.Line, mark.RecordId));
+            return true;
         }
 
-        // A module with one aggregate of its own name stays flat, so the aggregate
-        // folder is missing only when the aggregate names its own folder.
-        if (SameName(path.Aggregate, path.Module!) && segments.Length == 3)
+        if (SameAggregate(segments[1], path.Aggregate))
         {
             return false;
         }

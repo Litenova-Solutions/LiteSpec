@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class SourceLinkCheckTests
 {
     /// <summary>The sourced constraint fields the cases share.</summary>
-    const string ConstraintFields = """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""";
+    const string ConstraintFields = """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""";
 
     /// <summary>The source-links region the sources state, as the render writes it.</summary>
     const string Region = "<!-- generated:source-links -->\n[ordinance]: https://example.com/ordinance \"Read on 2026-01-10\"\n<!-- /generated:source-links -->";

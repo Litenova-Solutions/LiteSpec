@@ -6,10 +6,10 @@
   import BulletList from "../blocks/BulletList.svelte";
   import { stringList } from "../page-values";
 
-  // A module: what it is responsible for, what it excludes, and how many records of each behavior kind it holds.
+  // A module: what it covers, what it excludes, and how many records of each behavior kind it holds.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
-  const responsibilities = $derived(stringList(r.fields ?? {}, "responsibilities"));
+  const covers = $derived(stringList(r.fields ?? {}, "covers"));
   const excludes = $derived(stringList(r.fields ?? {}, "excludes"));
   const KINDS = ["aggregate", "use-case", "rule", "domain-event", "module-event", "integration-event", "reaction", "permission", "job", "notification", "setting", "read-model", "reference-data"];
   const all = $derived(KINDS.flatMap((t) => book.descByType(id, t, 6)));
@@ -20,9 +20,9 @@
   );
 </script>
 
-{#if responsibilities.length}
-  <PageSection blockKey="resp" heading="responsibilities" count={responsibilities.length}>
-    <BulletList items={responsibilities} />
+{#if covers.length}
+  <PageSection blockKey="resp" heading="covers" count={covers.length}>
+    <BulletList items={covers} />
   </PageSection>
 {/if}
 {#if excludes.length}

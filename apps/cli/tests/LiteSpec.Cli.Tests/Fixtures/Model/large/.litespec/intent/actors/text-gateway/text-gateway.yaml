@@ -1,0 +1,12 @@
+type: actor
+id: actor/text-gateway
+title: Text Gateway
+summary: The text gateway sends overdue notices to readers.
+kind: system
+belongsToTeam: false
+responsibilities:
+- The text gateway sends overdue notices to readers.
+- The text gateway records a delivery receipt for each notice.
+knowledge:
+- The product assumes the text gateway accepts one notice per call.
+- The product assumes the text gateway keeps receipts for a day.

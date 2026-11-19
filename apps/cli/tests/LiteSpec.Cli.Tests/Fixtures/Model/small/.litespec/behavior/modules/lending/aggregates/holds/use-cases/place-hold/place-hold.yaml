@@ -27,4 +27,4 @@ records:
   id: result/place-hold.hold-already-waiting
   title: Hold already waiting
   outcome: refusal
-  code: lending.hold-already-waiting
+  refusal: refusal/lending.hold-already-waiting

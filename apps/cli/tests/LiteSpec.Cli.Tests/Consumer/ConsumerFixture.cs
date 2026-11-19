@@ -74,12 +74,12 @@ static class ConsumerFixture
             """),
         new(".litespec/intent/problems/slow-delivery/features/pricing/requirements/flat-fee/flat-fee.yaml",
             """
-            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}
+            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"],"basedOn":["decision/0001-launch"]}
             """,
             null),
         new(".litespec/intent/decisions/0001-launch/0001-launch.yaml",
             """
-            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"context":"The shop opens with one fee it can state on every page."}
+            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","basedOn":[],"context":"The shop opens with one fee it can state on every page."}
             """,
             """
             # Launch with a Flat Fee
@@ -123,12 +123,12 @@ static class ConsumerFixture
             """),
         new(".litespec/intent/roles/customer/customer.yaml",
             """
-            {"type":"role","id":"role/customer","title":"Customer","summary":"A customer holds this role on their own orders.","scope":"self","allows":["permission/cancel-order"],"limits":["The customer acts only on their own orders.","The customer holds no other permission."]}
+            {"type":"role","id":"role/customer","title":"Customer","summary":"A customer holds this role on their own orders.","scope":"self","excludes":["The customer acts only on their own orders.","The customer holds no other permission."]}
             """,
             null),
         new(".litespec/behavior/modules/orders/permissions.yaml",
             """
-            {"type":"permission-set","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed."}]}
+            {"type":"permission-set","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed.","grantedTo":["role/customer"]}]}
             """,
             null),
         new(".litespec/behavior/entry-points/web/entry-point.yaml",
@@ -138,7 +138,7 @@ static class ConsumerFixture
             null),
         new(".litespec/behavior/modules/orders/module.yaml",
             """
-            {"type":"module","id":"module/orders","title":"Orders","summary":"Orders keeps every order claim and cancels it before shipment.","dependsOn":[],"responsibilities":["Orders keeps every order claim.","Orders cancels an order claim before shipment."],"excludes":["Orders depends on no other module.","Orders calls no other module."]}
+            {"type":"module","id":"module/orders","title":"Orders","summary":"Orders keeps every order claim and cancels it before shipment.","dependsOn":[],"covers":["Orders keeps every order claim.","Orders cancels an order claim before shipment."],"excludes":["Orders depends on no other module.","Orders calls no other module."]}
             """,
             """
             # Orders
@@ -148,12 +148,12 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/refusals.yaml",
             """
-            {"type":"refusal-set","summary":"The refusals the orders module returns.","records":[{"code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused."}]}
+            {"type":"refusal-set","summary":"The refusals the orders module returns.","records":[{"id":"refusal/orders.cancel-refused","title":"Cancel Refused","meaning":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/rules/order-claim-rules.yaml",
             """
-            {"type":"rule-set","title":"Order claim rules","summary":"A customer cancels an order claim only before its shipment leaves.","records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order","aggregate/orders.order-claim"],"refusal":"orders.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]}]}
+            {"type":"rule-set","title":"Order claim rules","summary":"A customer cancels an order claim only before its shipment leaves.","records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order","aggregate/orders.order-claim"],"refusal":"refusal/orders.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
@@ -182,7 +182,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"input":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","identifies":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","target":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"steps":[{"statement":"The customer sends the order identifier.","cites":["aggregate/orders.order-claim"]},{"statement":"Orders checks the cancel rule against the shipment.","cites":["rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders refuses the cancel with `orders.cancel-refused` when the shipment already left.","cites":["result/cancel-order.cancel-refused","rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders cancels the claim and raises the canceled event.","cites":["result/cancel-order.order-canceled","domain-event/order-claim.order-canceled","aggregate/orders.order-claim"]}],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","code":"orders.cancel-refused","sentence":"The shipment already left, so the cancel is refused."}]}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"input":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","identifies":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","target":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"steps":[{"statement":"The customer sends the order identifier.","cites":["aggregate/orders.order-claim"]},{"statement":"Orders checks the cancel rule against the shipment.","cites":["rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders refuses the cancel with `orders.cancel-refused` when the shipment already left.","cites":["result/cancel-order.cancel-refused","rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders cancels the claim and raises the canceled event.","cites":["result/cancel-order.order-canceled","domain-event/order-claim.order-canceled","aggregate/orders.order-claim"]}],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","refusal":"refusal/orders.cancel-refused","sentence":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
     ];

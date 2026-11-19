@@ -87,9 +87,9 @@ internal static class ProofChecks
         // validation, never thrown by handler code, so only written refusals count.
         foreach (var result in results.Where(left => !left.Derived && left.Field(RecordFields.Outcome) == "refusal"))
         {
-            if (result.Field(RecordFields.Code) is { } code && !thrown.Contains(code) && !IsComposedFromLiteral(model, code))
+            if (RefusalCode.Of(result) is { } code && !thrown.Contains(code) && !IsComposedFromLiteral(model, code))
             {
-                findings.Add(new Finding("refusal-unimplemented", $"Result '{result.Id}' names code '{code}', which no code throws.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-unimplemented", $"Result '{result.Id}' names refusal '{result.Field(RecordFields.Refusal)}', which no code throws.", result.File, result.Line, SubjectOf(result)));
             }
         }
 

@@ -16,13 +16,13 @@ public sealed class DuplicateKeyCheckTests
     [InlineData(
         "research",
         "research/loan-period-benchmarks",
-        """{"sources": [{"key": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"key": "benchmark-report", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
-        "Record 'research/loan-period-benchmarks' names source key 'benchmark-report' twice.")]
+        """{"sources": [{"name": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"name": "benchmark-report", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+        "Record 'research/loan-period-benchmarks' names source name 'benchmark-report' twice.")]
     [InlineData(
         "constraint",
         "constraint/library-privacy-law",
-        """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/a", "readOn": "2026-01-10"}, {"key": "ordinance", "url": "https://example.com/b", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
-        "Record 'constraint/library-privacy-law' names source key 'ordinance' twice.")]
+        """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/a", "readOn": "2026-01-10"}, {"name": "ordinance", "url": "https://example.com/b", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
+        "Record 'constraint/library-privacy-law' names source name 'ordinance' twice.")]
     [InlineData(
         "flow",
         "flow/loan-desk",
@@ -100,7 +100,7 @@ public sealed class DuplicateKeyCheckTests
                 "research",
                 "research/loan-period-benchmarks",
                 Path.Combine(temp.Path, ".litespec", "record.yaml"),
-                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"key": "lending-survey", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
+                """{"sources": [{"name": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"name": "lending-survey", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }

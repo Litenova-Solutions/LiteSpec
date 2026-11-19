@@ -27,4 +27,4 @@ records:
   id: result/cancel-hold.hold-ended
   title: Hold ended
   outcome: refusal
-  code: lending.hold-not-waiting
+  refusal: refusal/lending.hold-not-waiting

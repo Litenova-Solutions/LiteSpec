@@ -5,7 +5,7 @@
 
 import { dedupe } from "$lib/frame";
 import type { BookRecord, RecordFields } from "$lib/frame";
-import { freshnessDecidedBy, freshnessNoteHtml, isRecord, objectList, pagingRows, stringField, useCaseFields } from "../page-values";
+import { freshnessDecidedBy, freshnessNoteHtml, isRecord, objectList, pagingRows, refusalCodeOf, stringField, useCaseFields } from "../page-values";
 
 /** One result linked from a use case, with its record resolved. */
 export interface UseCaseResultInput {
@@ -77,7 +77,7 @@ export function useCaseModel(f: RecordFields, r: BookRecord, results: UseCaseRes
   const uf = useCaseFields(f);
   const rows = results.map(({ id, record }) => {
     const qf = record.fields ?? {};
-    const code = stringField(qf, "code");
+    const code = refusalCodeOf(stringField(qf, "refusal") ?? stringField(qf, "code") ?? "") || null;
     return {
       id,
       title: record.title,

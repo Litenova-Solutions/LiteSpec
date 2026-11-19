@@ -109,7 +109,7 @@ public sealed class PermissionScopeTests
         AssertProblem(RunConsumer(folder.Path), "unknown property 'scope'");
     }
 
-    /// <summary>A permission entry carrying heldBy names the role allows list.</summary>
+    /// <summary>A permission entry carrying heldBy names the grantedTo list.</summary>
     /// <proves>litespec/core/model#name-the-field-to-use-instead-in-schema-errors</proves>
     [Fact(DisplayName = "permission entry carrying heldBy")]
     public void PermissionEntryCarryingHeldBy()
@@ -119,7 +119,7 @@ public sealed class PermissionScopeTests
             folder.Path,
             ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["heldBy"] = "role/owner");
-        AssertProblem(RunConsumer(folder.Path), "unknown property 'heldBy'. Add the permission to the role's `allows` list in `intent/roles/`.");
+        AssertProblem(RunConsumer(folder.Path), "unknown property 'heldBy'. Name the roles in the permission's `grantedTo` list.");
     }
 
     /// <summary>Permission entry with an unknown property.</summary>

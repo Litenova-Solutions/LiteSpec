@@ -27,4 +27,4 @@ records:
   id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
-  code: lending.extension-refused
+  refusal: refusal/lending.extension-refused

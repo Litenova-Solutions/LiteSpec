@@ -49,7 +49,7 @@
         {:else if grant === "anonymous" || grant === "system"}
           grant: {grant}
         {:else}
-          No role allows this permission.
+          No role grants this permission.
           {#if grant.indexOf("self") === 0}
             <span class="mt-1 block text-xs tracking-[0.32px] text-text-helper"
               >The grant is on the caller's own person, so no role table applies.</span

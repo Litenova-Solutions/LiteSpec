@@ -265,9 +265,9 @@ internal static class GraphChecks
     {
         var refusingRules = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
 
-        foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Refusal) is { Length: > 0 }))
+        foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && RefusalCode.Of(record) is { Length: > 0 }))
         {
-            var code = rule.Field(RecordFields.Refusal)!;
+            var code = RefusalCode.Of(rule)!;
 
             if (!refusingRules.TryGetValue(code, out var rules))
             {
@@ -443,9 +443,9 @@ internal static class GraphChecks
         var refusing = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         foreach (var rule in model.Records.Where(record =>
-            record.Type == RecordTypes.Rule && record.Field(RecordFields.Refusal) is { Length: > 0 }))
+            record.Type == RecordTypes.Rule && RefusalCode.Of(record) is { Length: > 0 }))
         {
-            var code = rule.Field(RecordFields.Refusal)!;
+            var code = RefusalCode.Of(rule)!;
 
             if (!refusing.TryGetValue(code, out var rules))
             {
@@ -488,7 +488,7 @@ internal static class GraphChecks
         foreach (var result in model.Records.Where(record =>
             record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal"))
         {
-            if (result.Field(RecordFields.Code) is not { Length: > 0 } code
+            if (RefusalCode.Of(result) is not { Length: > 0 } code
                 || !refusing.TryGetValue(code, out var rules)
                 || !Identifiers.TrySplit(result.Id, out _, out var home, out _)
                 || home is not { Length: > 0 }
@@ -562,7 +562,7 @@ internal static class GraphChecks
 
         foreach (var result in model.Records.Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal"))
         {
-            if (result.Field(RecordFields.Code) is not { Length: > 0 } code
+            if (RefusalCode.Of(result) is not { Length: > 0 } code
                 || !Identifiers.TrySplit(result.Id, out _, out var home, out _)
                 || home is not { Length: > 0 }
                 || ModelBuilder.UseCaseOf(model, home) is not { } owner)
@@ -570,7 +570,7 @@ internal static class GraphChecks
                 continue;
             }
 
-            foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Refusal) == code))
+            foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && RefusalCode.Of(record) == code))
             {
                 Reach(rule.Id, owner.Id);
             }
@@ -638,7 +638,7 @@ internal static class GraphChecks
             return null;
         }
 
-        return result.Field(RecordFields.Code);
+        return RefusalCode.Of(result);
     }
 
     /// <summary>The rule identifiers each input of a use case names.</summary>

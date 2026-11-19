@@ -8,8 +8,9 @@
   import { proseOf } from "../page-prose";
   import { objectList, stringField } from "../page-values";
 
-  // A decision: the choice, what it supersedes and what supersedes it, the options
-  // weighed, the code following it by module, and when it reopens.
+  // A decision: the choice, the records it settles, what it supersedes and what
+  // supersedes it, the options weighed, the code following it by module, and
+  // when it reopens.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f = $derived(r.fields ?? {});
@@ -19,6 +20,14 @@
   const opts = $derived(objectList(f, "options"));
   const consequences = $derived(proseOf(r, "consequences"));
   const reopenedWhen = $derived(stringField(f, "reopenedWhen"));
+  const settled = $derived(
+    dedupe(
+      book.ins(id, "basedOn").filter((x) => {
+        const kind = book.typeOf(x);
+        return kind === "rule" || kind === "requirement";
+      }),
+    ).sort(),
+  );
   const supersedes = $derived(dedupe(book.outs(id, "supersedes")).sort());
   const supersededBy = $derived(dedupe(book.ins(id, "supersedes")).sort());
   const followers = $derived(
@@ -69,6 +78,11 @@
 {/if}
 {#if consequences}
   <PageSection blockKey="cons" heading="consequences"><RenderedProse html={consequences} /></PageSection>
+{/if}
+{#if settled.length}
+  <PageSection blockKey="settled" heading="Settled records" count={settled.length}>
+    <RecordList ids={settled} />
+  </PageSection>
 {/if}
 {#if opts.length}
   <PageSection blockKey="opts" heading="options" count={opts.length}>

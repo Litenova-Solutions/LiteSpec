@@ -176,7 +176,7 @@ static class ProofConfirmation
 
         if (result?.Field(RecordFields.Outcome) == "refusal")
         {
-            return result.Field(RecordFields.Code) is { } code && test.Codes.Contains(code, StringComparer.Ordinal);
+            return RefusalCode.Of(result) is { } code && test.Codes.Contains(code, StringComparer.Ordinal);
         }
 
         var sentences = new HashSet<string>(StringComparer.Ordinal);
@@ -759,7 +759,7 @@ static class ProofConfirmation
     /// <returns>True when the test asserts the refusal.</returns>
     private static bool Asserts(ProjectModel model, CodeScenarioTest test, Record refusal)
     {
-        if (refusal.Field(RecordFields.Code) is not { } code)
+        if (RefusalCode.Of(refusal) is not { } code)
         {
             return false;
         }

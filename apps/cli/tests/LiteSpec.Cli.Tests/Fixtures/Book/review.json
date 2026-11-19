@@ -1358,7 +1358,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/integration-events/loan-borrowed.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/integration-events/loan-borrowed/loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "integration-event",
@@ -1446,7 +1446,7 @@
       "decider": null,
       "decideBy": null,
       "line": 3,
-      "file": ".litespec/behavior/modules/lending/module-events/loan-borrowed/loan-borrowed.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/module-events/loan-borrowed/loan-borrowed.yaml",
       "fields": {
         "type": "module-event",
         "id": "module-event/lending.loan-borrowed",

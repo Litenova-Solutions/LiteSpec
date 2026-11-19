@@ -229,8 +229,8 @@ internal static class MarkChecks
 
     /// <summary>
     ///     The use-case folder of a handler or endpoint: the third segment of module,
-    ///     aggregate and use case, or the second of a flat module and use case. Null when
-    ///     the file sits directly in its module folder, where no use-case folder names it.
+    ///     aggregate and use case, or the second of a module and its module-level use case.
+    ///     Null when the file sits directly in its module folder, where no use-case folder names it.
     /// </summary>
     /// <param name="segments">The file path segments with the module folder first and the file name last.</param>
     /// <returns>The use case folder segment, or null when the file sits directly in its module folder.</returns>

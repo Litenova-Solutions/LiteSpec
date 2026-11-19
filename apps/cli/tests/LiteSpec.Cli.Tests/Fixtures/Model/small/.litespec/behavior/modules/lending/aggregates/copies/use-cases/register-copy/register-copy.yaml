@@ -27,4 +27,4 @@ records:
   id: result/register-copy.copy-already-registered
   title: Copy already registered
   outcome: refusal
-  code: lending.copy-already-registered
+  refusal: refusal/lending.copy-already-registered

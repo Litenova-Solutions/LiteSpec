@@ -44,9 +44,9 @@ internal static class ResultScenarioChecks
             }
             else if (result.Field(RecordFields.Outcome) == "refusal")
             {
-                var code = result.Field(RecordFields.Code);
-                var message = code is { Length: > 0 }
-                    ? $"Result '{result.Id}' names code '{code}', which is shown by no scenario."
+                var refusal = result.Field(RecordFields.Refusal);
+                var message = refusal is { Length: > 0 }
+                    ? $"Result '{result.Id}' names refusal '{refusal}', which is shown by no scenario."
                     : $"Result '{result.Id}' is shown by no scenario.";
 
                 findings.Add(new Finding(

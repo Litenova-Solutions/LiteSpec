@@ -9,7 +9,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The reach checks: every use case sits in a flow, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held, and every permission is allowed.</summary>
+/// <summary>The reach checks: every use case sits in a flow, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held and named, and every permission is granted.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/layers#write-each-layer-from-the-layer-above-it</follows>
 /// <follows>litespec/core/intent#reach-every-intent-record-with-behavior</follows>
@@ -53,11 +53,11 @@ internal static class ReachChecks
         // declares a domain guard that no caller reaches, such as one a validator pre-empts.
         var declared = model.Records
             .Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal")
-            .Select(record => record.Field(RecordFields.Code))
+            .Select(record => RefusalCode.Of(record))
             .Concat(model.Records
                 .Where(record => record.Type == RecordTypes.Rule)
-                .Select(record => record.Field(RecordFields.Refusal))
-                .Where(refusal => refusal is not null && !refusal.StartsWith("result/", StringComparison.Ordinal)))
+                .Select(record => RefusalCode.Of(record))
+                .Where(code => code is not null && !code.StartsWith("result/", StringComparison.Ordinal)))
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
 
@@ -228,14 +228,20 @@ internal static class ReachChecks
 
         foreach (var decision in model.Records.Where(record => record.Type == RecordTypes.Decision && !record.Derived && !MarkChecks.UnderImplementationDecisions(model.Config, record.File)))
         {
-            var decides = decision.Ids(RecordFields.Decides);
+            // A decision reaches Behavior through the rules and requirements that name it
+            // in basedOn: the settled records gather the reverse view the decision stated.
+            var settled = model.Records
+                .Where(record => record.Type is RecordTypes.Rule or RecordTypes.Requirement
+                    && record.Ids(RecordFields.BasedOn).Contains(decision.Id, StringComparer.Ordinal))
+                .Select(record => record.Id)
+                .ToList();
 
-            if (decides.Count == 0)
+            if (settled.Count == 0)
             {
                 continue;
             }
 
-            var reaches = decides.Any(id => DecidedReaches(model, id, reachingRequirements, reachingFeatures, reachingProblems, reachingFlows));
+            var reaches = settled.Any(id => DecidedReaches(model, id, reachingRequirements, reachingFeatures, reachingProblems, reachingFlows));
 
             if (!reaches)
             {
@@ -273,16 +279,31 @@ internal static class ReachChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunPermissionOrphan(ProjectModel model, List<Finding> findings)
     {
-        var allowed = model.Records
-            .Where(record => record.Type == RecordTypes.Role)
-            .SelectMany(record => record.Ids(RecordFields.Allows))
-            .ToHashSet(StringComparer.Ordinal);
-
         foreach (var permission in model.Records.Where(record => record.Type == RecordTypes.Permission && !record.Derived))
         {
-            if (!allowed.Contains(permission.Id))
+            // Each permission names the roles that hold it; a permission no role grants is unused.
+            if (permission.Ids(RecordFields.GrantedTo).Count == 0)
             {
-                findings.Add(new Finding("permission-unused", $"Permission '{permission.Id}' is allowed by no role.", permission.File, permission.Line, SubjectOf(permission)));
+                findings.Add(new Finding("permission-unused", $"Permission '{permission.Id}' is granted by no role.", permission.File, permission.Line, SubjectOf(permission)));
+            }
+        }
+    }
+
+    /// <summary>Reports role-unused for a role no permission names.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunRoleGranted(ProjectModel model, List<Finding> findings)
+    {
+        var named = model.Records
+            .Where(record => record.Type == RecordTypes.Permission)
+            .SelectMany(record => record.Ids(RecordFields.GrantedTo))
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var role in model.Records.Where(record => record.Type == RecordTypes.Role && !record.Derived))
+        {
+            if (!named.Contains(role.Id))
+            {
+                findings.Add(new Finding("role-unused", $"Role '{role.Id}' is named by no permission.", role.File, role.Line, SubjectOf(role)));
             }
         }
     }

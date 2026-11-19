@@ -224,6 +224,16 @@ export interface ResultInfo {
   meaning: string;
 }
 
+/** The wire code of a refusal reference: the home and name of a refusal id, else the value itself. */
+export function refusalCodeOf(refusal: string | null | undefined): string {
+  if (!refusal) return "";
+  const slash = refusal.indexOf("/");
+  if (slash < 0) return refusal;
+  const prefix = refusal.slice(0, slash);
+  const rest = refusal.slice(slash + 1);
+  return prefix === "refusal" && rest.includes(".") ? rest : refusal;
+}
+
 /** The result a scenario shows, read from its result record. */
 export function resultInfoOf(result: BookRecord | null | undefined): ResultInfo | null {
   if (!result) return null;
@@ -231,7 +241,7 @@ export function resultInfoOf(result: BookRecord | null | undefined): ResultInfo 
   return {
     title: result.title,
     outcome: stringField(f, "outcome") ?? "",
-    code: stringField(f, "code") ?? "",
+    code: refusalCodeOf(stringField(f, "refusal") ?? stringField(f, "code") ?? ""),
     meaning: stringField(f, "meaning") ?? "",
   };
 }
@@ -247,7 +257,7 @@ export function refusalOf(
     info: {
       title: refusal.title,
       outcome: "",
-      code: stringField(f, "code") ?? "",
+      code: refusalCodeOf(refusalId),
       meaning: stringField(f, "meaning") ?? "",
     },
     id: refusalId,

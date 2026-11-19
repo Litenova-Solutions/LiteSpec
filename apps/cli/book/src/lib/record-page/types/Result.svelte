@@ -6,13 +6,13 @@
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import ScenarioCard from "../shared/ScenarioCard.svelte";
-  import { isRecord, stringField } from "../page-values";
+  import { isRecord, refusalCodeOf, stringField } from "../page-values";
 
   // A result: what it means, its code, its problem type, and the scenarios that show it.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
-  const code = $derived(stringField(f, "code"));
+  const code = $derived(refusalCodeOf(stringField(f, "refusal") ?? stringField(f, "code") ?? "") || null);
   const problemType = $derived(stringField(f, "problemType"));
   const sentence = $derived(stringField(f, "sentence"));
   const sentences = $derived.by(() => {

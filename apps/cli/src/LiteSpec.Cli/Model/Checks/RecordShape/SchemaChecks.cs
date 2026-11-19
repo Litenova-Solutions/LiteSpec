@@ -215,7 +215,7 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Actor:
-                RequireEnum(record, RecordFields.Kind, ["person", "organization"], findings);
+                RequireEnum(record, RecordFields.Kind, ["person", "organization", "system"], findings);
                 RequireArray(record, RecordFields.Responsibilities, 1, findings);
                 RequireArray(record, RecordFields.Knowledge, 1, findings);
                 RequireRoleHolds(record, findings);
@@ -223,12 +223,12 @@ internal static class SchemaChecks
 
             case RecordTypes.Role:
                 RequirePattern(record, RecordFields.Scope, @"^[a-z0-9]+(-[a-z0-9]+)*$", "kebab-case", findings);
-                RequireIds(record, RecordFields.Allows, 1, findings);
-                RequireArray(record, RecordFields.Limits, 1, findings);
+                RequireArray(record, RecordFields.Excludes, 1, findings);
                 break;
 
             case RecordTypes.Permission:
                 RequireString(record, RecordFields.Meaning, findings);
+                RequireIds(record, RecordFields.GrantedTo, 1, findings);
                 break;
 
             case RecordTypes.Flow:
@@ -261,7 +261,7 @@ internal static class SchemaChecks
 
             case RecordTypes.Module:
                 RequireArray(record, RecordFields.DependsOn, 0, findings);
-                RequireArray(record, RecordFields.Responsibilities, 1, findings);
+                RequireArray(record, RecordFields.Covers, 1, findings);
                 RequireArray(record, RecordFields.Excludes, 1, findings);
                 break;
 
@@ -281,7 +281,7 @@ internal static class SchemaChecks
                     RequireIds(record, RecordFields.Binds, 1, findings);
                 }
 
-                // A rule that refuses names its refusal code, which the module's refusal set holds.
+                // A rule that refuses names its refusal, which the module's refusal set holds.
                 if (record.Has(RecordFields.Refusal))
                 {
                     RequireString(record, RecordFields.Refusal, findings);
@@ -359,7 +359,9 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.ExternalSystem:
-                CheckExternalSystem(record, findings);
+                RequireString(record, RecordFields.Vendor, findings);
+                RequireIds(record, RecordFields.Represents, 1, findings);
+                CheckExternalSystem(model, record, findings);
                 break;
 
             case RecordTypes.Result:
@@ -367,24 +369,22 @@ internal static class SchemaChecks
 
                 if (record.Field(RecordFields.Outcome) == "refusal")
                 {
-                    // A refusal result names its code and sentence; the module's refusal set holds the meaning.
+                    // A refusal result names its refusal and sentence; the module's refusal set holds the meaning.
                     if (record.Has(RecordFields.Meaning))
                     {
-                        findings.Add(new Finding("record-invalid", $"Result '{record.Id}' holds meaning; a refusal result names its code and sentence, and the module's refusal set holds the meaning.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding("record-invalid", $"Result '{record.Id}' holds meaning; a refusal result names its refusal and sentence, and the module's refusal set holds the meaning.", record.File, record.Line, SubjectOf(record)));
                     }
 
-                    RequireString(record, RecordFields.Code, findings);
+                    RequireString(record, RecordFields.Refusal, findings);
 
-                    if (record.Field(RecordFields.Code) is { } code
-                        && (code.Length == 0
-                            || !Identifiers.RefusalCode().IsMatch(code)
-                            || Identifiers.RefusalCode().Match(code).Value != code))
+                    if (record.Field(RecordFields.Refusal) is { } refusal
+                        && !IsRefusalId(refusal))
                     {
-                        findings.Add(new Finding("record-invalid", $"Result '{record.Id}' has code '{code}', which is not a refusal code.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding("record-invalid", $"Result '{record.Id}' has refusal '{refusal}', which is not a refusal identifier.", record.File, record.Line, SubjectOf(record)));
                     }
-                    else if (record.Field(RecordFields.Code) is { } written)
+                    else if (record.Field(RecordFields.Refusal) is { } written)
                     {
-                        CheckGenericRefusal(record, written, findings);
+                        CheckGenericRefusal(record, RefusalCode.CodeOf(written) ?? written, findings);
                         CheckRefusalCode(model, record, written, findings);
                     }
                 }
@@ -772,8 +772,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>
-    ///     Reports a step whose use case, system or carried requirements name a record
-    ///     of another type. A step performs with an external system only, and carries
+    ///     Reports a step whose use case or carried requirements name a record
+    ///     of another type. A step performs with an actor and carries
     ///     the requirements it cites, and nothing else. The step's actor is a link
     ///     field, so the link check judges it.
     /// </summary>
@@ -794,14 +794,6 @@ internal static class SchemaChecks
             findings.Add(new Finding("record-invalid", $"Step '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
         }
 
-        // A step performs with an external system only; jobs and reactions never appear in a step.
-        if (Str(record.Raw, RecordFields.System) is { Length: > 0 } systemId
-            && model.ById.TryGetValue(systemId, out var systemRecord)
-            && systemRecord.Type != RecordTypes.ExternalSystem)
-        {
-            findings.Add(new Finding("record-invalid", $"Step '{record.Id}' names system '{systemId}', which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
-        }
-
         foreach (var cited in LinkStrings(record.Raw, RecordFields.Carries))
         {
             if (model.ById.TryGetValue(Identifiers.BaseId(cited), out var citedRecord) && citedRecord.Type != RecordTypes.Requirement)
@@ -814,7 +806,7 @@ internal static class SchemaChecks
     /// <summary>
     ///     Reports a step branch that lacks its condition, holds then and ends together
     ///     or neither, joins two conditions with or, continues at a step of another
-    ///     flow, or names a system or carried requirement of another type. A branch
+    ///     flow, or names a carried requirement of another type. A branch
     ///     that continues nowhere names no step, so the citation check owns it.
     /// </summary>
     /// <param name="model">The loaded project model that resolves each branch target.</param>
@@ -880,13 +872,6 @@ internal static class SchemaChecks
                 {
                     findings.Add(new Finding("record-invalid", $"Step '{record.Id}' continues at '{then}', which is a step of another flow.", record.File, record.Line, SubjectOf(record)));
                 }
-            }
-
-            if (Str(branch, RecordFields.System) is { Length: > 0 } systemId
-                && model.ById.TryGetValue(systemId, out var systemRecord)
-                && systemRecord.Type != RecordTypes.ExternalSystem)
-            {
-                findings.Add(new Finding("record-invalid", $"Step '{record.Id}' names system '{systemId}' in a branch, which is a {systemRecord.Type}.", record.File, record.Line, SubjectOf(record)));
             }
 
             foreach (var cited in LinkStrings(branch, RecordFields.Carries))
@@ -1022,13 +1007,24 @@ internal static class SchemaChecks
         }
     }
 
-    /// <summary>Reports a refusal code that is neither derived nor named in the refusal set of its module.</summary>
+    /// <summary>Whether the value is a refusal identifier: refusal with a module home and a name.</summary>
+    /// <param name="value">The value under test.</param>
+    /// <returns>True for a refusal identifier; otherwise false.</returns>
+    private static bool IsRefusalId(string value) =>
+        Identifiers.TrySplit(value, out var prefix, out var home, out var name)
+        && prefix == "refusal"
+        && home is { Length: > 0 }
+        && name.Length > 0;
+
+    /// <summary>Reports a refusal that is neither derived nor named in the refusal set of its module.</summary>
     /// <param name="model">The loaded project model that holds each module's refusal set.</param>
-    /// <param name="record">The record that names the refusal code.</param>
-    /// <param name="code">The refusal code under test, or null when the record names none.</param>
+    /// <param name="record">The record that names the refusal.</param>
+    /// <param name="refusal">The refusal identifier under test, or null when the record names none.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRefusalCode(ProjectModel model, Record record, string? code, List<Finding> findings)
+    private static void CheckRefusalCode(ProjectModel model, Record record, string? refusal, List<Finding> findings)
     {
+        var code = RefusalCode.CodeOf(refusal);
+
         if (code is not { Length: > 0 } || IsGenericRefusal(code) || record.Module is not { Length: > 0 } module)
         {
             return;
@@ -1036,7 +1032,7 @@ internal static class SchemaChecks
 
         if (!model.RefusalSets.Any(entry => entry.Module == module && entry.Code == code))
         {
-            findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' names refusal '{code}', which the refusal set of module '{module}' does not declare.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' names refusal '{refusal}', which the refusal set of module '{module}' does not declare.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1216,11 +1212,23 @@ internal static class SchemaChecks
         }
     }
 
-    /// <summary>Reports an external system's prose send, receive or failure field, and each operation with an unknown outcome that names no handling.</summary>
-    /// <param name="record">The external system record whose fields are judged.</param>
+    /// <summary>Reports an external system whose represents names no system actor, an external system's prose send, receive or failure field, and each operation with an unknown outcome that names no handling.</summary>
+    /// <param name="model">The loaded project model that resolves each represented actor.</param>
+    /// <param name="record">The external-system record whose represents and operations are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckExternalSystem(Record record, List<Finding> findings)
+    private static void CheckExternalSystem(ProjectModel model, Record record, List<Finding> findings)
     {
+        // The system names the system actor it represents; a name no record holds
+        // is reference-unknown, so only a held record of another kind reports here.
+        foreach (var represented in record.Ids(RecordFields.Represents))
+        {
+            if (model.ById.TryGetValue(Identifiers.BaseId(represented), out var actor)
+                && (actor.Type != RecordTypes.Actor || actor.Field(RecordFields.Kind) != "system"))
+            {
+                findings.Add(new Finding("record-invalid", $"External system '{record.Id}' represents '{represented}', which is no system actor.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+
         foreach (var field in new[] { RecordFields.Sends, RecordFields.Receives, RecordFields.Failure })
         {
             if (record.Has(field))

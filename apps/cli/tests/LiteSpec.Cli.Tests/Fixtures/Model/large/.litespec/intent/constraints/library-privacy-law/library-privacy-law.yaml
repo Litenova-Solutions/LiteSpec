@@ -4,7 +4,7 @@ title: Library privacy law
 summary: Reader records stay private under the city library privacy ordinance.
 authority: City library privacy ordinance.
 sources:
-- key: privacy-ordinance
+- name: privacy-ordinance
   url: https://example.com/privacy-ordinance
   readOn: 2026-01-10
 kind: organizational

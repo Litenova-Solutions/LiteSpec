@@ -109,6 +109,20 @@ public sealed class BookLexiconTests
         Assert.Equal(
             new List<string> { "waiver" },
             closedBy["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+
+        var grantedTo = Row("grantedTo");
+        Assert.Equal("is granted to", grantedTo["forward"]!.GetValue<string>());
+        Assert.Equal("grants", grantedTo["inverse"]!.GetValue<string>());
+        Assert.Equal(
+            new List<string> { "permission" },
+            grantedTo["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+
+        var represents = Row("represents");
+        Assert.Equal("represents", represents["forward"]!.GetValue<string>());
+        Assert.Equal("is represented by", represents["inverse"]!.GetValue<string>());
+        Assert.Equal(
+            new List<string> { "external-system" },
+            represents["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
     }
 
     /// <summary>A freshness decider under a named output group reads as its freshness row, with or without the leading record type.</summary>
@@ -202,7 +216,7 @@ public sealed class BookLexiconTests
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var basedOn = lexicon.Links.Single(link => link.Field == "basedOn");
         Assert.Equal(
-            new List<string> { "rule", "constraint", "decision", "external-system" },
+            new List<string> { "requirement", "rule", "constraint", "decision", "external-system" },
             basedOn.Carriers.ToList());
         Assert.True(lexicon.TryPhrase("basedOn", "decision", out var forward, out var inverse));
         Assert.Equal("is based on", forward);
@@ -309,6 +323,10 @@ public sealed class BookLexiconTests
         Assert.Equal("Currency", lexicon.Fields["currency"]);
         Assert.Equal("Authentication", lexicon.Fields["authentication"]);
         Assert.Equal("Grant", lexicon.Fields["grant"]);
+        Assert.Equal("Granted to", lexicon.Fields["grantedTo"]);
+        Assert.Equal("Represents", lexicon.Fields["represents"]);
+        Assert.Equal("Vendor", lexicon.Fields["vendor"]);
+        Assert.Equal("Configuration path", lexicon.Fields["configurationPath"]);
         Assert.Equal("Tenant", lexicon.Fields["tenant"]);
         Assert.Equal("Initial delay", lexicon.Fields["initialDelay"]);
         Assert.Equal("Max delay", lexicon.Fields["maxDelay"]);

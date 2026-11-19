@@ -31,7 +31,7 @@ records:
   id: result/borrow-copy.copy-unavailable
   title: Copy unavailable
   outcome: refusal
-  code: lending.copy-not-available
+  refusal: refusal/lending.copy-not-available
 - type: scenario
   id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
   title: Borrowing an available copy succeeds

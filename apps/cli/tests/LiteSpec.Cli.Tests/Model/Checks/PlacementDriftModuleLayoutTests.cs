@@ -118,6 +118,54 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Empty(Run(model));
     }
 
+    /// <summary>An aggregate root directly in Domain reports the aggregate folder it belongs in.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void AggregateRootDirectlyInDomainReportsAggregateFolder()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loan.cs");
+        model.Code.Elements.Add(Element(CodeKind.AggregateRoot, "Loan", file, "aggregate/lending.loan"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Aggregate root 'Loan' sits directly in 'Domain/', but marks 'aggregate/lending.loan', so it belongs in 'Loans/'.", finding.Message);
+        Assert.Equal("aggregate/lending.loan", finding.Subject);
+    }
+
+    /// <summary>An aggregate root of a same-named aggregate directly in Domain reports the aggregate folder: no single-aggregate shortcut stays flat.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void SameNamedAggregateRootDirectlyInDomainReportsAggregateFolder()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Directory", "Domain", "Directory.cs");
+        model.Code.Elements.Add(Element(CodeKind.AggregateRoot, "Directory", file, "aggregate/directory.directory"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Aggregate root 'Directory' sits directly in 'Domain/', but marks 'aggregate/directory.directory', so it belongs in 'Directories/'.", finding.Message);
+        Assert.Equal("aggregate/directory.directory", finding.Subject);
+    }
+
+    /// <summary>An aggregate root in its Domain aggregate folder reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void AggregateRootInDomainAggregateFolderReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "Loan.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans", "Loan");
+        model.Code.Elements.Add(Element(CodeKind.AggregateRoot, "Loan", file, "aggregate/lending.loan"));
+
+        Assert.Empty(Run(model));
+    }
+
     /// <summary>A rule exception in its module Contracts folder reports that the folder names no declared aggregate.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
@@ -428,10 +476,10 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Equal("File 'apps/api/src/Library.Modules/Lending/WebApi/Loans/BorrowCopy/BorrowCopyCommandHandler.cs' is not a transport type, which sits in Application/, not WebApi/.", finding.Message);
     }
 
-    /// <summary>A folder in the Kernel reports that the Kernel holds files only.</summary>
+    /// <summary>A folder in the Kernel outside its grouping folders reports the Kernel folders.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void KernelFolderReportsFilesOnly()
+    public void KernelFolderOutsideGroupingsReportsKernelFolders()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
@@ -441,7 +489,7 @@ public sealed class PlacementDriftModuleLayoutTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("Folder 'apps/api/src/Library.Kernel/Shared' sits in the Kernel, which holds files only.", finding.Message);
+        Assert.Equal("Folder 'apps/api/src/Library.Kernel/Shared' names no Kernel folder; the Kernel holds Domain/, Values/ and Auditing/.", finding.Message);
         Assert.Null(finding.Subject);
     }
 

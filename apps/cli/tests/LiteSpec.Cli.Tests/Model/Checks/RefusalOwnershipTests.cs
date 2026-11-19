@@ -157,7 +157,8 @@ public sealed class RefusalOwnershipTests
             "spending",
             "spending.receipt-missing",
             "The expense is above the receipt threshold and carries no receipt.",
-            Path.Combine(root, "refusals.yaml")));
+            Path.Combine(root, "refusals.yaml"),
+            null));
 
         return model;
     }

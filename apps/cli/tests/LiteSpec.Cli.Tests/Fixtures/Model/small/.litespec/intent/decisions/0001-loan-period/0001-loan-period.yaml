@@ -15,9 +15,4 @@ options:
 choice: 21 days
 consequences: Holds wait longer.
 reopenedWhen: Reader demand shifts.
-decides:
-- requirement/borrowing.max-active-loans
-- requirement/borrowing.loan-period-days
-- requirement/borrowing.hold-pickup-window
-- requirement/borrowing.copy-shelf-home
 basedOn: []

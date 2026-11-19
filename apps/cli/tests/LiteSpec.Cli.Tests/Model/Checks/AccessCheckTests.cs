@@ -132,7 +132,7 @@ public sealed class AccessCheckTests
             finding.Code == "record-invalid" && finding.Message.Contains("grants system", StringComparison.Ordinal));
     }
 
-    /// <summary>Builds a role record with its scope and one allowed permission.</summary>
+    /// <summary>Builds a role record with its scope.</summary>
     /// <param name="root">The consumer root the role file sits under.</param>
     /// <param name="name">The role name, which names its folder and file.</param>
     /// <param name="scope">The scope level the role names.</param>
@@ -142,7 +142,7 @@ public sealed class AccessCheckTests
             "role",
             "role/" + name,
             Path.Combine(root, ".litespec", "intent", "roles", name, name + ".yaml"),
-            "{\"scope\": \"" + scope + "\", \"allows\": [\"permission/approve-expense\"], \"summary\": \"A role.\"}");
+            "{\"scope\": \"" + scope + "\", \"summary\": \"A role.\"}");
 
     /// <summary>Builds a permission record with its meaning.</summary>
     /// <param name="root">The consumer root the permission file sits under.</param>

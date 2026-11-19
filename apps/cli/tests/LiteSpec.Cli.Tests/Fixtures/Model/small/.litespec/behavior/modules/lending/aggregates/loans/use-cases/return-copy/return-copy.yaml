@@ -27,4 +27,4 @@ records:
   id: result/return-copy.loan-inactive
   title: Loan inactive
   outcome: refusal
-  code: lending.loan-not-active
+  refusal: refusal/lending.loan-not-active

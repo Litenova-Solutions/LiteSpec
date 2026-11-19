@@ -26,7 +26,7 @@ records:
     id: result/return-copy.loan-inactive
     title: Loan inactive
     outcome: refusal
-    code: lending.loan-never-existed
+    refusal: refusal/lending.loan-never-existed
     meaning: The loan is inactive.
   - type: scenario
     id: scenario/return-copy.returning-a-borrowed-copy-succeeds

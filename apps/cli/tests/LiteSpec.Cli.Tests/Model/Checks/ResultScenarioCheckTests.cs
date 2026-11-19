@@ -52,14 +52,14 @@ public sealed class ResultScenarioCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "refusal", "code": "spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}"""));
+            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "result-scenario-missing").ToList();
         var finding = Assert.Single(findings);
 
         Assert.Equal("G", finding.Tier);
         Assert.Contains("result/submit-expense.receipt-missing", finding.Message, StringComparison.Ordinal);
-        Assert.Contains("names code 'spending.receipt-missing'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("names refusal 'refusal/spending.receipt-missing'", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Derived Result With No Scenario Passes.</summary>

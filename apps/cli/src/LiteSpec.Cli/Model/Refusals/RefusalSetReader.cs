@@ -7,9 +7,11 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Refusals;
 
 /// <summary>
-///     The refusal sets of the model and the generic refusals it derives. Each module declares its codes once in
-///     <c>behavior/modules/&lt;m&gt;/refusals.yaml</c>, under the <c>records</c> list. The six generic refusals are
-///     derived from a use case's access, inputs and kind, and are never written.
+///     The refusal sets of the model and the generic refusals it derives. Each aggregate declares the refusals
+///     its rules raise in <c>behavior/modules/&lt;m&gt;/aggregates/&lt;a&gt;/refusals.yaml</c>, and the module
+///     declares only refusals no aggregate raises in <c>behavior/modules/&lt;m&gt;/refusals.yaml</c>, each under
+///     the <c>records</c> list. The six generic refusals are derived from a use case's access, inputs and kind,
+///     and are never written.
 /// </summary>
 /// <follows>litespec/core/use-cases#declare-each-modules-refusals-once</follows>
 static class RefusalSetReader
@@ -20,10 +22,10 @@ static class RefusalSetReader
         "forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old",
     ];
 
-    /// <summary>Reads every module's refusal set.</summary>
+    /// <summary>Reads every aggregate's and every module's refusal set.</summary>
     /// <param name="config">The consumer configuration holding the behavior folder.</param>
-    /// <param name="problems">The findings a set that does not read or holds a malformed code is reported into.</param>
-    /// <returns>The declared refusal codes, in module then file order.</returns>
+    /// <param name="problems">The findings a set that does not read or holds a malformed refusal is reported into.</param>
+    /// <returns>The declared refusals, in module then aggregate then file order.</returns>
     public static List<RefusalEntry> Read(ConsumerConfig config, List<Finding> problems)
     {
         var entries = new List<RefusalEntry>();
@@ -37,54 +39,78 @@ static class RefusalSetReader
         foreach (var folder in Directory.GetDirectories(modules).OrderBy(folder => folder, StringComparer.Ordinal))
         {
             var module = Path.GetFileName(folder);
-            var file = Path.Combine(folder, "refusals.yaml");
+            ReadFile(module, null, Path.Combine(folder, "refusals.yaml"), entries, problems);
 
-            if (!File.Exists(file))
+            var aggregates = Path.Combine(folder, "aggregates");
+
+            if (!Directory.Exists(aggregates))
             {
                 continue;
             }
 
-            JsonText root;
-
-            try
+            foreach (var aggregateFolder in Directory.GetDirectories(aggregates).OrderBy(candidate => candidate, StringComparer.Ordinal))
             {
-                root = YamlText.Parse(File.ReadAllText(file));
-            }
-            catch (JsonTextException exception)
-            {
-                problems.Add(new Finding("record-invalid", $"Refusal set '{file}' could not be read: {exception.Message}", file, exception.Line, null));
-                continue;
-            }
-
-            if (root.Kind != JsonKind.Object
-                || !root.TryGetProperty(RecordFields.Records, out var list)
-                || list.Kind != JsonKind.Array)
-            {
-                problems.Add(new Finding("record-invalid", $"Refusal set '{file}' holds no records list of refusal codes.", file, 1, null));
-                continue;
-            }
-
-            foreach (var item in list.Items)
-            {
-                var code = TextOf(item, RecordFields.Code);
-                var meaning = TextOf(item, RecordFields.Meaning);
-
-                if (code.Length == 0 || !code.StartsWith(module + ".", StringComparison.Ordinal))
-                {
-                    problems.Add(new Finding(
-                        "record-invalid",
-                        $"Refusal '{code}' in '{file}' needs a code named <module>.<name>.",
-                        file,
-                        item.Line,
-                        null));
-                    continue;
-                }
-
-                entries.Add(new RefusalEntry(module, code, meaning, file));
+                ReadFile(module, Path.GetFileName(aggregateFolder), Path.Combine(aggregateFolder, "refusals.yaml"), entries, problems);
             }
         }
 
         return entries;
+    }
+
+    /// <summary>Reads one refusal set file into entries, reporting a file that does not read.</summary>
+    /// <param name="module">The module that holds the file.</param>
+    /// <param name="aggregate">The aggregate folder that holds the file, or null for a module-level file.</param>
+    /// <param name="file">The refusal set file path.</param>
+    /// <param name="entries">The entries read so far, appended in place.</param>
+    /// <param name="problems">The findings a set that does not read or holds a malformed refusal is reported into.</param>
+    private static void ReadFile(string module, string? aggregate, string file, List<RefusalEntry> entries, List<Finding> problems)
+    {
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        JsonText root;
+
+        try
+        {
+            root = YamlText.Parse(File.ReadAllText(file));
+        }
+        catch (JsonTextException exception)
+        {
+            problems.Add(new Finding("record-invalid", $"Refusal set '{file}' could not be read: {exception.Message}", file, exception.Line, null));
+            return;
+        }
+
+        if (root.Kind != JsonKind.Object
+            || !root.TryGetProperty(RecordFields.Records, out var list)
+            || list.Kind != JsonKind.Array)
+        {
+            problems.Add(new Finding("record-invalid", $"Refusal set '{file}' holds no records list of refusals.", file, 1, null));
+            return;
+        }
+
+        foreach (var item in list.Items)
+        {
+            var id = TextOf(item, RecordFields.Id);
+            var meaning = TextOf(item, RecordFields.Meaning);
+
+            if (!LiteSpec.Model.Identifiers.TrySplit(id, out var prefix, out var home, out var name)
+                || prefix != "refusal"
+                || home != module
+                || name.Length == 0)
+            {
+                problems.Add(new Finding(
+                    "record-invalid",
+                    $"Refusal '{id}' in '{file}' needs an id named refusal/<module>.<name>.",
+                    file,
+                    item.Line,
+                    null));
+                continue;
+            }
+
+            entries.Add(new RefusalEntry(module, home + "." + name, meaning, file, aggregate, item.Line));
+        }
     }
 
     /// <summary>The problem type of a refusal code: the project's base followed by the code's part after its module.</summary>

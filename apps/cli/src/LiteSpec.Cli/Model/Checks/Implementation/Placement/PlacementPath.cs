@@ -233,10 +233,9 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
 
         var expected = new List<string> { Naming.Pascal(path.Module) };
 
-        // A use case under an aggregate names its plural aggregate folder, as its code folder
-        // does. Any other record names its aggregate, except under a same-named aggregate,
-        // whose types sit directly in Domain.
-        if (path.Aggregate is not null && (path.IsUseCase || !SameName(path.Aggregate, path.Module)))
+        // A record under an aggregate names its plural aggregate folder, as its code folder
+        // does: every module keeps the folder whatever its number of aggregates.
+        if (path.Aggregate is not null)
         {
             expected.Add(ExpectedAggregateFolder(model, path.Module, path.Aggregate));
         }

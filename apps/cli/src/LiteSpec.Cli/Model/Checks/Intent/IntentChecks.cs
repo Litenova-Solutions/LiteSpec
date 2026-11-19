@@ -8,12 +8,11 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Intent;
 
-/// <summary>The Intent checks: a problem is an outside pain with evidence, an actor is a person or organization named from a flow, a problem or an access position, and a goal is moved by a flow or a quality requirement.</summary>
+/// <summary>The Intent checks: a problem is an outside pain with evidence, an actor is a person, organization or system named from a flow, a problem, an access position or a represented external system, and a goal is moved by a flow or a quality requirement.</summary>
 /// <follows>litespec/core/intent#admit-only-outside-pains-as-problems</follows>
 /// <follows>litespec/core/intent#grade-problem-evidence-by-kind</follows>
 /// <follows>litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position</follows>
 /// <follows>litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement</follows>
-/// <follows>litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system</follows>
 /// <follows>litespec/core/intent#define-each-recurring-capitalized-phrase</follows>
 internal static class IntentChecks
 {
@@ -23,16 +22,12 @@ internal static class IntentChecks
     /// <summary>The field listing the evidence entries of a problem.</summary>
     private const string Evidence = "evidence";
 
-    /// <summary>The flow step field naming the system record performing the step when no person acts.</summary>
-    private const string System = "system";
-
     /// <summary>Runs every Intent check.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckProblems(model, findings);
-        CheckFlowSteps(model, findings);
         CheckActorsNamed(model, findings);
         CheckGoalsMoved(model, findings);
         CheckUndefinedPhrases(model, findings);
@@ -122,56 +117,7 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports each flow step naming both an actor and a system, or a system of the wrong type.</summary>
-    /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckFlowSteps(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow && !record.Derived))
-        {
-            if (flow.Raw.ValueKind != JsonValueKind.Object
-                || !flow.Raw.TryGetProperty(RecordFields.Steps, out var steps)
-                || steps.ValueKind != JsonValueKind.Array)
-            {
-                continue;
-            }
-
-            foreach (var step in steps.EnumerateArray())
-            {
-                if (step.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                var hasActor = step.TryGetProperty(RecordFields.Actor, out var actor)
-                    && actor.ValueKind == JsonValueKind.String;
-                var hasSystem = step.TryGetProperty(System, out var system)
-                    && system.ValueKind == JsonValueKind.String;
-
-                if (hasActor && hasSystem)
-                {
-                    findings.Add(new Finding(
-                        "record-invalid",
-                        $"Flow '{flow.Id}' holds a step naming both an actor and a system.",
-                        flow.File, flow.Line, SubjectOf(flow)));
-                    continue;
-                }
-
-                if (hasSystem
-                    && system.GetString() is { } systemId
-                    && model.ById.TryGetValue(systemId, out var target)
-                    && target.Type is not (RecordTypes.ExternalSystem or RecordTypes.Job or RecordTypes.Reaction))
-                {
-                    findings.Add(new Finding(
-                        "record-invalid",
-                        $"Flow '{flow.Id}' names system '{systemId}', which is a {target.Type}.",
-                        flow.File, flow.Line, SubjectOf(flow)));
-                }
-            }
-        }
-    }
-
-    /// <summary>Reports each actor named by no flow, problem or access position.</summary>
+    /// <summary>Reports each actor named by no flow, problem, access position or external system.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckActorsNamed(ProjectModel model, List<Finding> findings)
@@ -221,6 +167,16 @@ internal static class IntentChecks
             }
         }
 
+        // A system actor stands for the external system that represents it, so the
+        // representing system names it the way a flow names a person.
+        foreach (var system in model.Records.Where(record => record.Type == RecordTypes.ExternalSystem))
+        {
+            foreach (var id in system.Ids(RecordFields.Represents))
+            {
+                named.Add(id);
+            }
+        }
+
         foreach (var actor in model.Records.Where(record => record.Type == RecordTypes.Actor
                      && !record.Derived))
         {
@@ -228,7 +184,7 @@ internal static class IntentChecks
             {
                 findings.Add(new Finding(
                     "actor-unused",
-                    $"Actor '{actor.Id}' is named by no flow, problem or access position.",
+                    $"Actor '{actor.Id}' is named by no flow, problem, access position or external system.",
                     actor.File, actor.Line, SubjectOf(actor)));
             }
         }

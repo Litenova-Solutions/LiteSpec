@@ -11,7 +11,7 @@
   import { codeOf, refLink, td, thRow } from "../shared/record-cells";
   import { objectField, objectList, screenFields, stringField, stringList } from "../page-values";
 
-  // An entry point: who uses it, how authentication holds, its limits, the content it serves, and the navigation map.
+  // An entry point: who uses it, how authentication holds, what it excludes, the content it serves, and the navigation map.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
@@ -21,7 +21,7 @@
   const lifetime = $derived(session ? (stringField(session, "lifetime") ?? "") : "");
   const idleTimeout = $derived(session ? (stringField(session, "idleTimeout") ?? "") : "");
   const reauth = $derived(stringList(f, "reauthenticationTriggers"));
-  const limits = $derived(stringList(f, "limits"));
+  const excludes = $derived(stringList(f, "excludes"));
   const served = $derived(objectList(f, "servedContent"));
   // The screens of this entry point in outline order: the screens placed
   // below it, and the screens naming it as their entry point.
@@ -81,9 +81,9 @@
     <BulletList items={reauth} />
   </PageSection>
 {/if}
-{#if limits.length}
-  <PageSection blockKey="limits" heading="limits" count={limits.length}>
-    <BulletList items={limits} />
+{#if excludes.length}
+  <PageSection blockKey="limits" heading="excludes" count={excludes.length}>
+    <BulletList items={excludes} />
   </PageSection>
 {/if}
 {#if served.length}

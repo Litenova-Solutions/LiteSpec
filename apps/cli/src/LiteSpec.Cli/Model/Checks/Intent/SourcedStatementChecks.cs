@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Intent;
 
-/// <summary>The sourced-statement checks: a constraint obligation or a research finding names source keys the record's sources hold.</summary>
+/// <summary>The sourced-statement checks: a constraint obligation or a research finding names source names the record's sources hold.</summary>
 /// <follows>litespec/core/intent#cite-a-source-for-each-constraint-rule</follows>
 /// <follows>litespec/core/intent#state-each-research-finding-with-its-source</follows>
 internal static class SourcedStatementChecks
@@ -17,7 +17,7 @@ internal static class SourcedStatementChecks
     {
         foreach (var record in model.Records.Where(record => !record.IsEntry && record.Type is RecordTypes.Constraint or RecordTypes.Research))
         {
-            var keys = SourceKeysOf(record);
+            var names = SourceNamesOf(record);
             var field = record.Type == RecordTypes.Constraint ? RecordFields.Obligations : RecordFields.Findings;
             var code = record.Type == RecordTypes.Constraint ? "constraint-obligation-source-unknown" : "research-finding-source-unknown";
             var label = record.Type == RecordTypes.Constraint ? "Constraint" : "Research";
@@ -41,26 +41,26 @@ internal static class SourcedStatementChecks
                 foreach (var source in sources.EnumerateArray())
                 {
                     if (source.ValueKind != JsonValueKind.String
-                        || source.GetString() is not { Length: > 0 } key)
+                        || source.GetString() is not { Length: > 0 } name)
                     {
                         continue;
                     }
 
-                    if (!keys.Contains(key, StringComparer.Ordinal))
+                    if (!names.Contains(name, StringComparer.Ordinal))
                     {
-                        findings.Add(new Finding(code, $"{label} '{record.Id}' names source key '{key}' in {field} that its sources do not hold.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding(code, $"{label} '{record.Id}' names source name '{name}' in {field} that its sources do not hold.", record.File, record.Line, SubjectOf(record)));
                     }
                 }
             }
         }
     }
 
-    /// <summary>The source keys a constraint or research record declares.</summary>
+    /// <summary>The source names a constraint or research record declares.</summary>
     /// <param name="record">The record whose sources are read.</param>
-    /// <returns>Each declared source key in written order.</returns>
-    private static List<string> SourceKeysOf(Record record)
+    /// <returns>Each declared source name in written order.</returns>
+    private static List<string> SourceNamesOf(Record record)
     {
-        var keys = new List<string>();
+        var names = new List<string>();
 
         if (record.Raw.ValueKind == JsonValueKind.Object
             && record.Raw.TryGetProperty(RecordFields.Sources, out var sources)
@@ -69,15 +69,15 @@ internal static class SourcedStatementChecks
             foreach (var entry in sources.EnumerateArray())
             {
                 if (entry.ValueKind == JsonValueKind.Object
-                    && entry.TryGetProperty(RecordFields.Key, out var key)
-                    && key.ValueKind == JsonValueKind.String
-                    && key.GetString() is { Length: > 0 } name)
+                    && entry.TryGetProperty(RecordFields.Name, out var entryName)
+                    && entryName.ValueKind == JsonValueKind.String
+                    && entryName.GetString() is { Length: > 0 } name)
                 {
-                    keys.Add(name);
+                    names.Add(name);
                 }
             }
         }
 
-        return keys;
+        return names;
     }
 }

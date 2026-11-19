@@ -107,7 +107,7 @@ static class ModelLinks
 
         foreach (var result in model.Records.Where(record => record.Type == RecordTypes.Result))
         {
-            if (result.Field(RecordFields.Code) is { } code && codes.TryGetValue(code, out var path))
+            if (RefusalCode.Of(result) is { } code && codes.TryGetValue(code, out var path))
             {
                 model.Implements.Add(new ImplementsLink(path, result.Id, "result"));
             }

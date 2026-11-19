@@ -154,7 +154,7 @@ internal static class RefusalOwnershipChecks
     /// <summary>Whether the class carries refusal codes as an exception type: its name ends with Exception, Failure or Refusal.</summary>
     /// <param name="name">The simple class name.</param>
     /// <returns>True when the name ends with Exception, Failure or Refusal.</returns>
-    private static bool IsExceptionType(string name) =>
+    internal static bool IsExceptionType(string name) =>
         name.EndsWith("Exception", StringComparison.Ordinal)
         || name.EndsWith("Failure", StringComparison.Ordinal)
         || name.EndsWith("Refusal", StringComparison.Ordinal);

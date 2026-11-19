@@ -8,7 +8,7 @@ using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.Intent;
 
-/// <summary>The source checks: a research or constraint explanation cites every source by key and links no URL directly.</summary>
+/// <summary>The source checks: a research or constraint explanation cites every source by name and links no URL directly.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class ResearchSourceChecks
 {
@@ -24,36 +24,36 @@ internal static class ResearchSourceChecks
                 continue;
             }
 
-            var sources = SourceKeysOf(record);
+            var sources = SourceNamesOf(record);
             var declared = new HashSet<string>(sources, StringComparer.OrdinalIgnoreCase);
             var cited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var prose = LinkChecks.WithoutCode(SourceLinks.Strip(explanation));
             var starts = LineStarts(explanation);
 
-            // A reference link cites its source by key even when its label shows the URL,
+            // A reference link cites its source by name even when its label shows the URL,
             // so labels are blanked, keeping every offset, before bare URLs are read.
             var unlabelled = ReferenceLink.Replace(prose, link =>
                 "[" + new string(' ', link.Groups["text"].Length) + link.Value[(1 + link.Groups["text"].Length)..]);
 
             foreach (Match match in BareUrl.Matches(unlabelled))
             {
-                findings.Add(new Finding("source-link-bare", $"Research explanation links '{Identifiers.TrimCitation(match.Value)}' directly; cite a source key instead.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
+                findings.Add(new Finding("source-link-bare", $"Research explanation links '{Identifiers.TrimCitation(match.Value)}' directly; cite a source name instead.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
             }
 
             foreach (Match match in ReferenceLink.Matches(prose))
             {
-                var key = match.Groups["key"].Value.Trim();
+                var name = match.Groups["key"].Value.Trim();
 
-                if (key.Length == 0)
+                if (name.Length == 0)
                 {
-                    key = match.Groups["text"].Value.Trim();
+                    name = match.Groups["text"].Value.Trim();
                 }
 
-                cited.Add(key);
+                cited.Add(name);
 
-                if (!declared.Contains(key))
+                if (!declared.Contains(name))
                 {
-                    findings.Add(new Finding("reference-unknown", $"Research explanation cites source key '{key}', which the record's sources do not name.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
+                    findings.Add(new Finding("reference-unknown", $"Research explanation cites source name '{name}', which the record's sources do not name.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
                 }
             }
 
@@ -62,17 +62,17 @@ internal static class ResearchSourceChecks
                 CheckFindingSources(record, explanationFile, prose, findingsBody, starts, findings);
             }
 
-            foreach (var key in sources.Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (var name in sources.Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                if (!cited.Contains(key))
+                if (!cited.Contains(name))
                 {
-                    findings.Add(new Finding("source-unused", $"Record '{record.Id}' names source key '{key}', which its explanation cites nowhere.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("source-unused", $"Record '{record.Id}' names source name '{name}', which its explanation cites nowhere.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
     }
 
-    /// <summary>Reports finding-source-missing for each Findings paragraph that cites no source key with a reference link.</summary>
+    /// <summary>Reports finding-source-missing for each Findings paragraph that cites no source name with a reference link.</summary>
     /// <param name="record">The research record whose Findings are read.</param>
     /// <param name="explanationFile">The explanation file the Findings sit in.</param>
     /// <param name="prose">The explanation prose with code and the generated region blanked, offset for offset.</param>
@@ -107,12 +107,12 @@ internal static class ResearchSourceChecks
     private static string Excerpt(string text) =>
         text.Length <= 60 ? text : text[..60] + "...";
 
-    /// <summary>The source keys a research record declares.</summary>
+    /// <summary>The source names a research record declares.</summary>
     /// <param name="record">The research record whose sources are read.</param>
-    /// <returns>Each declared source key in written order.</returns>
-    private static List<string> SourceKeysOf(Record record)
+    /// <returns>Each declared source name in written order.</returns>
+    private static List<string> SourceNamesOf(Record record)
     {
-        var keys = new List<string>();
+        var names = new List<string>();
 
         if (record.Raw.ValueKind == JsonValueKind.Object
             && record.Raw.TryGetProperty(RecordFields.Sources, out var sources)
@@ -121,16 +121,16 @@ internal static class ResearchSourceChecks
             foreach (var entry in sources.EnumerateArray())
             {
                 if (entry.ValueKind == JsonValueKind.Object
-                    && entry.TryGetProperty(RecordFields.Key, out var key)
-                    && key.ValueKind == JsonValueKind.String
-                    && key.GetString() is { Length: > 0 } name)
+                    && entry.TryGetProperty(RecordFields.Name, out var entryName)
+                    && entryName.ValueKind == JsonValueKind.String
+                    && entryName.GetString() is { Length: > 0 } name)
                 {
-                    keys.Add(name);
+                    names.Add(name);
                 }
             }
         }
 
-        return keys;
+        return names;
     }
 
     /// <summary>Splits a text at each blank line, the boundary of one paragraph.</summary>
@@ -142,6 +142,6 @@ internal static class ResearchSourceChecks
     /// <summary>Finds each URL outside code in a research explanation.</summary>
     private static readonly Regex BareUrl = new(@"https?://[^\s<>""')\]]+", RegexOptions.Compiled);
 
-    /// <summary>Finds each reference link outside code, so its key resolves against the record's sources.</summary>
+    /// <summary>Finds each reference link outside code, so its name resolves against the record's sources.</summary>
     private static readonly Regex ReferenceLink = new(@"(?<![!])\[(?<text>[^\]\r\n]+)\]\[(?<key>[^\]\r\n]*)\]", RegexOptions.Compiled);
 }

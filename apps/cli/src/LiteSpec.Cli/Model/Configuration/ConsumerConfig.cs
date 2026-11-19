@@ -111,6 +111,9 @@ sealed class ConsumerConfig
     /// <summary>Gets the generated client's sources.</summary>
     public string ApiClientSrc { get; private set; } = "";
 
+    /// <summary>Gets the shared UI package root, from <c>ui.package.path</c>; empty when the project declares none.</summary>
+    public string SharedUiPackageRoot { get; private set; } = "";
+
     /// <summary>Gets where test result files live.</summary>
     public string TestResultsDir { get; private set; } = "";
 
@@ -332,6 +335,13 @@ sealed class ConsumerConfig
         config.Frontends = ReadFrontends(config.Root, document);
         config.ApiClientSrc = Path.Combine(
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
+
+        if (ObjectAt(document, "ui") is { } ui
+            && ObjectAt(ui, "package") is { } package
+            && StringAt(package, "path") is { } packagePath)
+        {
+            config.SharedUiPackageRoot = Combine(config.Root, packagePath);
+        }
         config.TestResultsDir = Combine(config.Root, ReadString(paths, "testResults", "TestResults"));
         config.ContractPath = ReadString(paths, "contract", "") is { Length: > 0 } contract ? Combine(config.Root, contract) : null;
 

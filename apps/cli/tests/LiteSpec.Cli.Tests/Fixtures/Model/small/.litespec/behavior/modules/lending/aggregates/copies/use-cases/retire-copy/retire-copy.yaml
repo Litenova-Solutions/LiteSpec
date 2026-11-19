@@ -27,4 +27,4 @@ records:
   id: result/retire-copy.copy-on-loan
   title: Copy on loan
   outcome: refusal
-  code: lending.copy-on-loan
+  refusal: refusal/lending.copy-on-loan
