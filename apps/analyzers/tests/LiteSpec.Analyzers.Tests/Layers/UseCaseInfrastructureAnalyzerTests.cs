@@ -279,6 +279,18 @@ public sealed class UseCaseInfrastructureAnalyzerTests
                         }
                     }
                     """),
+                ("Claimwick.Export/Infrastructure/Persistence/Workspaces/WorkspaceRepository.cs", """
+                    using Claimwick.Export.Domain.Workspaces;
+
+                    namespace Claimwick.Export.Infrastructure.Persistence.Workspaces;
+
+                    internal sealed class WorkspaceRepository
+                    {
+                        internal void Store(Workspace workspace)
+                        {
+                        }
+                    }
+                    """),
             ],
             assemblyName: "Claimwick.Export");
 }

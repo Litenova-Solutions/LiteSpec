@@ -51,11 +51,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
             ],
             assemblyName: "Shop.Orders");
 
-    /// <summary>LS2021 reports a query handler taking the query mediator.</summary>
+    /// <summary>LS2021 accepts a query handler taking the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
-    [Fact(DisplayName = "LS2021 reports a query handler taking the query mediator")]
-    public Task ReportsAQueryHandlerTakingTheQueryMediator() =>
+    [Fact(DisplayName = "LS2021 accepts a query handler taking the query mediator")]
+    public Task AcceptsAQueryHandlerTakingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
                 ("Shop.Orders.Contracts/Stubs.cs", Stubs),
@@ -64,7 +64,27 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
                     namespace Shop.Orders.Application.ListOrders;
 
-                    internal sealed class ListOrdersQueryHandler({|LS2021:IQueryMediator|} queries)
+                    internal sealed class ListOrdersQueryHandler(IQueryMediator queries)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    /// <summary>LS2021 accepts a command handler taking the query mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 accepts a command handler taking the query mediator")]
+    public Task AcceptsACommandHandlerTakingTheQueryMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderCommandHandler.cs", """
+                    using LiteBus.Queries.Abstractions;
+
+                    namespace Shop.Orders.Application.PlaceOrder;
+
+                    internal sealed class PlaceOrderCommandHandler(IQueryMediator queries)
                     {
                     }
                     """),
@@ -112,11 +132,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
             ],
             assemblyName: "Shop.Orders");
 
-    /// <summary>LS2021 reports a property of a non-entry type holding the query mediator.</summary>
+    /// <summary>LS2021 accepts a property of a handler holding the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
-    [Fact(DisplayName = "LS2021 reports a property of a non-entry type holding the query mediator")]
-    public Task ReportsAPropertyHoldingTheQueryMediator() =>
+    [Fact(DisplayName = "LS2021 accepts a property of a handler holding the query mediator")]
+    public Task AcceptsAPropertyHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
                 ("Shop.Orders.Contracts/Stubs.cs", Stubs),
@@ -127,7 +147,27 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
                     internal sealed class ListOrdersQueryHandler
                     {
-                        public {|LS2021:IQueryMediator|} Queries { get; } = null!;
+                        public IQueryMediator Queries { get; } = null!;
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    /// <summary>LS2021 reports a validator taking the query mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 reports a validator taking the query mediator")]
+    public Task ReportsAValidatorTakingTheQueryMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/PlaceOrder/PlaceOrderValidator.cs", """
+                    using LiteBus.Queries.Abstractions;
+
+                    namespace Shop.Orders.Application.PlaceOrder;
+
+                    internal sealed class PlaceOrderValidator({|LS2021:IQueryMediator|} queries)
+                    {
                     }
                     """),
             ],
@@ -156,11 +196,11 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
             ],
             assemblyName: "Shop.Orders");
 
-    /// <summary>LS2021 accepts an endpoint taking the command mediator.</summary>
+    /// <summary>LS2021 reports an endpoint holding the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
-    [Fact(DisplayName = "LS2021 accepts an endpoint taking the command mediator")]
-    public Task AcceptsAnEndpointTakingTheCommandMediator() =>
+    [Fact(DisplayName = "LS2021 reports an endpoint holding the command mediator")]
+    public Task ReportsAnEndpointHoldingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
                 ("Shop.Orders.Contracts/Stubs.cs", Stubs),
@@ -169,7 +209,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
                     namespace Shop.Orders.Application.PlaceOrder;
 
-                    internal sealed class PlaceOrderEndpoint(ICommandMediator mediator)
+                    internal sealed class PlaceOrderEndpoint({|LS2021:ICommandMediator|} mediator)
                     {
                     }
                     """),
@@ -287,31 +327,32 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
             ],
             assemblyName: "Shop.Platform");
 
-    [Fact(DisplayName = "LS2021 accepts a provider adapter holding the query and command mediators")]
-    public Task AcceptsAProviderAdapterHoldingTheQueryAndCommandMediators() =>
+    /// <summary>LS2021 reports an adapter holding the query and command mediators.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 reports an adapter holding the query and command mediators")]
+    public Task ReportsAnAdapterHoldingTheQueryAndCommandMediators() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
                 ("Shop.Orders.Contracts/Stubs.cs", Stubs),
-                ("Shop.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", """
-                    namespace Shop.Billing.Contracts.Invoices.ReadInvoice;
-
-                    public sealed record ReadInvoiceQuery;
-                    """),
                 ("Shop.Orders/Infrastructure/Billing/BillingAdapter.cs", """
                     using LiteBus.Commands.Abstractions;
                     using LiteBus.Queries.Abstractions;
 
                     namespace Shop.Orders.Infrastructure.Billing;
 
-                    internal sealed class BillingAdapter(IQueryMediator queries, ICommandMediator commands)
+                    internal sealed class BillingAdapter({|LS2021:IQueryMediator|} queries, {|LS2021:ICommandMediator|} commands)
                     {
                     }
                     """),
             ],
             assemblyName: "Shop.Orders");
 
-    [Fact(DisplayName = "LS2021 reports a port adapter holding the query mediator")]
-    public Task ReportsAPortAdapterHoldingTheQueryMediator() =>
+    /// <summary>LS2021 reports an adapter holding the query mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 reports an adapter holding the query mediator")]
+    public Task ReportsAnAdapterHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
                 ("Shop.Orders.Contracts/Stubs.cs", Stubs),
@@ -327,22 +368,62 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
             ],
             assemblyName: "Shop.Orders");
 
-    [Fact(DisplayName = "LS2021 reports a provider adapter holding the event mediator")]
-    public Task ReportsAProviderAdapterHoldingTheEventMediator() =>
+    /// <summary>LS2021 reports an adapter holding the event mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 reports an adapter holding the event mediator")]
+    public Task ReportsAnAdapterHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
                 ("Shop.Orders.Contracts/Stubs.cs", Stubs),
-                ("Shop.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", """
-                    namespace Shop.Billing.Contracts.Invoices.ReadInvoice;
-
-                    public sealed record ReadInvoiceQuery;
-                    """),
-                ("Shop.Orders/Infrastructure/Billing/BillingAdapter.cs", """
+                ("Shop.Orders/Infrastructure/PaymentGateway/PaymentGatewayAdapter.cs", """
                     using LiteBus.Events.Abstractions;
 
-                    namespace Shop.Orders.Infrastructure.Billing;
+                    namespace Shop.Orders.Infrastructure.PaymentGateway;
 
-                    internal sealed class BillingAdapter({|LS2021:IEventMediator|} events)
+                    internal sealed class PaymentGatewayAdapter({|LS2021:IEventMediator|} events)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    /// <summary>LS2021 reports a reaction holding the event mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 reports a reaction holding the event mediator")]
+    public Task ReportsAReactionHoldingTheEventMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/SubmitPayment/SubmitPaymentOnOrderPlacedHandler.cs", """
+                    using LiteBus.Events.Abstractions;
+
+                    namespace Shop.Orders.Application.SubmitPayment;
+
+                    public sealed record OrderPlacedEvent;
+
+                    internal sealed class SubmitPaymentOnOrderPlacedHandler({|LS2021:IEventMediator|} events) : IEventHandler<OrderPlacedEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    /// <summary>LS2021 accepts a job holding the query mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 accepts a job holding the query mediator")]
+    public Task AcceptsAJobHoldingTheQueryMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ExpireOrders/ExpireOrdersJob.cs", """
+                    using LiteBus.Queries.Abstractions;
+
+                    namespace Shop.Orders.Application.ExpireOrders;
+
+                    internal sealed class ExpireOrdersJob(IQueryMediator queries)
                     {
                     }
                     """),

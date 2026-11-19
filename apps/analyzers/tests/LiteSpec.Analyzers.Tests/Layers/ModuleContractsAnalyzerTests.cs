@@ -6,11 +6,11 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2029, contract types named outside their layer, and LS2030, interfaces in Contracts.</summary>
 public sealed class ModuleContractsAnalyzerTests
 {
-    /// <summary>LS2029 reports a handler naming another module's public query.</summary>
+    /// <summary>LS2029 accepts a handler naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2029 reports a handler naming another module's public query")]
-    public Task ReportsAHandlerNamingAnotherModulesQuery() =>
+    [Fact(DisplayName = "LS2029 accepts a handler naming another module's public query")]
+    public Task AcceptsAHandlerNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
                 ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookQueryHandler.cs", """
@@ -20,7 +20,7 @@ public sealed class ModuleContractsAnalyzerTests
 
                     internal sealed class BorrowBookQueryHandler
                     {
-                        internal void Handle({|LS2029:ReadBookQuery|} query)
+                        internal void Handle(ReadBookQuery query)
                         {
                         }
                     }
@@ -29,6 +29,35 @@ public sealed class ModuleContractsAnalyzerTests
                     namespace Claimwick.Books.Contracts.Books.ReadBook;
 
                     internal sealed class ReadBookQuery
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 accepts a handler naming another module's public result.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 accepts a handler naming another module's public result")]
+    public Task AcceptsAHandlerNamingAnotherModulesResult() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookQueryHandler.cs", """
+                    using Claimwick.Books.Contracts.Books.ReadBook;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class BorrowBookQueryHandler
+                    {
+                        internal void Handle(ReadBookResult result)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/ReadBook/ReadBookResult.cs", """
+                    namespace Claimwick.Books.Contracts.Books.ReadBook;
+
+                    internal sealed class ReadBookResult
                     {
                     }
                     """),
@@ -120,11 +149,11 @@ public sealed class ModuleContractsAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2029 accepts an adapter naming the provider's public query.</summary>
+    /// <summary>LS2029 reports an adapter naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2029 accepts an adapter naming the provider's public query")]
-    public Task AcceptsAnAdapterNamingTheProviderQuery() =>
+    [Fact(DisplayName = "LS2029 reports an adapter naming another module's public query")]
+    public Task ReportsAnAdapterNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
                 ("Claimwick.Modules/Reading/Infrastructure/Books/BooksAdapter.cs", """
@@ -134,7 +163,7 @@ public sealed class ModuleContractsAnalyzerTests
 
                     internal sealed class BooksAdapter
                     {
-                        internal ReadBookQuery Query() => new();
+                        internal {|LS2029:ReadBookQuery|} Query() => new();
                     }
                     """),
                 ("Claimwick.Modules/Books/Contracts/Books/ReadBook/ReadBookQuery.cs", """
@@ -211,7 +240,7 @@ public sealed class ModuleContractsAnalyzerTests
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
                 ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookQueryHandler.cs", """
-                    using Claimwick.Books.Contracts.Books.Events;
+                    using Claimwick.Books.Contracts.Books.OnBookLent;
 
                     namespace Claimwick.Reading.Application.BorrowBook;
 
@@ -222,8 +251,8 @@ public sealed class ModuleContractsAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Books/Contracts/Books/Events/BookLentModuleEvent.cs", """
-                    namespace Claimwick.Books.Contracts.Books.Events;
+                ("Claimwick.Modules/Books/Contracts/Books/OnBookLent/BookLentModuleEvent.cs", """
+                    namespace Claimwick.Books.Contracts.Books.OnBookLent;
 
                     internal sealed record BookLentModuleEvent(System.Guid Book);
                     """),
@@ -284,11 +313,11 @@ public sealed class ModuleContractsAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2029 reports a module-level public query named outside an adapter.</summary>
+    /// <summary>LS2029 accepts a module-level public query named by a handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2029 reports a module-level public query named outside an adapter")]
-    public Task ReportsAModuleLevelQueryNamedOutsideAnAdapter() =>
+    [Fact(DisplayName = "LS2029 accepts a module-level public query named by a handler")]
+    public Task AcceptsAModuleLevelQueryNamedByAHandler() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
                 ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookQueryHandler.cs", """
@@ -298,7 +327,7 @@ public sealed class ModuleContractsAnalyzerTests
 
                     internal sealed class BorrowBookQueryHandler
                     {
-                        internal void Handle({|LS2029:SearchCatalogQuery|} query)
+                        internal void Handle(SearchCatalogQuery query)
                         {
                         }
                     }
@@ -342,21 +371,32 @@ public sealed class ModuleContractsAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2029 accepts an adapter naming the provider's public command.</summary>
+    /// <summary>LS2029 accepts a reaction naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2029 accepts an adapter naming the provider's public command")]
-    public Task AcceptsAnAdapterNamingTheProviderCommand() =>
+    [Fact(DisplayName = "LS2029 accepts a reaction naming another module's public command")]
+    public Task AcceptsAReactionNamingAnotherModulesCommand() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
-                ("Claimwick.Modules/Reading/Infrastructure/Books/BooksAdapter.cs", """
+                ("Claimwick.Modules/Reading/Application/BorrowBook/Stubs.cs", """
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    public interface IEventHandler<TEvent>
+                    {
+                    }
+
+                    public sealed record BookReservedEvent;
+                    """),
+                ("Claimwick.Modules/Reading/Application/BorrowBook/LendBookOnBookReservedHandler.cs", """
                     using Claimwick.Books.Contracts.Books.LendBook;
 
-                    namespace Claimwick.Reading.Infrastructure.Books;
+                    namespace Claimwick.Reading.Application.BorrowBook;
 
-                    internal sealed class BooksAdapter
+                    internal sealed class LendBookOnBookReservedHandler : IEventHandler<BookReservedEvent>
                     {
-                        internal LendBookCommand Command() => new();
+                        internal void Handle(LendBookCommand command)
+                        {
+                        }
                     }
                     """),
                 ("Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", """
@@ -369,11 +409,105 @@ public sealed class ModuleContractsAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2029 reports a module-level public command named outside an adapter.</summary>
+    /// <summary>LS2029 accepts a job naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
-    [Fact(DisplayName = "LS2029 reports a module-level public command named outside an adapter")]
-    public Task ReportsAModuleLevelCommandNamedOutsideAnAdapter() =>
+    [Fact(DisplayName = "LS2029 accepts a job naming another module's public command")]
+    public Task AcceptsAJobNamingAnotherModulesCommand() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/LendOverdueBooksJob.cs", """
+                    using Claimwick.Books.Contracts.Books.LendBook;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class LendOverdueBooksJob
+                    {
+                        internal void Handle(LendBookCommand command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", """
+                    namespace Claimwick.Books.Contracts.Books.LendBook;
+
+                    internal sealed class LendBookCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 accepts a reaction naming another module's public query.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 accepts a reaction naming another module's public query")]
+    public Task AcceptsAReactionNamingAnotherModulesQuery() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/Stubs.cs", """
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    public interface IEventHandler<TEvent>
+                    {
+                    }
+
+                    public sealed record BookReservedEvent;
+                    """),
+                ("Claimwick.Modules/Reading/Application/BorrowBook/NotifyOnBookReservedHandler.cs", """
+                    using Claimwick.Books.Contracts.Books.ReadBook;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class NotifyOnBookReservedHandler : IEventHandler<BookReservedEvent>
+                    {
+                        internal void Handle(ReadBookQuery query)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/ReadBook/ReadBookQuery.cs", """
+                    namespace Claimwick.Books.Contracts.Books.ReadBook;
+
+                    internal sealed class ReadBookQuery
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 reports an adapter naming another module's public command.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 reports an adapter naming another module's public command")]
+    public Task ReportsAnAdapterNamingAnotherModulesCommand() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Infrastructure/Books/BooksAdapter.cs", """
+                    using Claimwick.Books.Contracts.Books.LendBook;
+
+                    namespace Claimwick.Reading.Infrastructure.Books;
+
+                    internal sealed class BooksAdapter
+                    {
+                        internal {|LS2029:LendBookCommand|} Command() => new();
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", """
+                    namespace Claimwick.Books.Contracts.Books.LendBook;
+
+                    internal sealed class LendBookCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 reports a module-level public command named by a handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 reports a module-level public command named by a handler")]
+    public Task ReportsAModuleLevelCommandNamedByAHandler() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
             [
                 ("Claimwick.Modules/Reading/Application/BorrowBook/BorrowBookCommandHandler.cs", """
@@ -419,15 +553,15 @@ public sealed class ModuleContractsAnalyzerTests
                     {
                     }
                     """),
-                ("Claimwick.Modules/Books/Contracts/Books/Events/IBookLent.cs", """
-                    namespace Claimwick.Books.Contracts.Books.Events;
+                ("Claimwick.Modules/Books/Contracts/Books/OnBookLent/IBookLent.cs", """
+                    namespace Claimwick.Books.Contracts.Books.OnBookLent;
 
                     internal interface {|LS2030:IBookLent|}
                     {
                     }
                     """),
-                ("Claimwick.Modules/Books/Contracts/Books/Events/BookLentModuleEvent.cs", """
-                    namespace Claimwick.Books.Contracts.Books.Events;
+                ("Claimwick.Modules/Books/Contracts/Books/OnBookLent/BookLentModuleEvent.cs", """
+                    namespace Claimwick.Books.Contracts.Books.OnBookLent;
 
                     internal sealed record BookLentModuleEvent(System.Guid Book);
                     """),

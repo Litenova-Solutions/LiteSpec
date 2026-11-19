@@ -313,11 +313,11 @@ internal static class Descriptors
         "'{0}' lives in module '{1}' outside its Contracts folder",
         "A module names another module's types only through its Contracts folder, including through global using directives.");
 
-    /// <summary>The LS2021 descriptor: A type that is not an entry point holds a message mediator.</summary>
+    /// <summary>The LS2021 descriptor: A type holds a mediator its role may not hold.</summary>
     public static readonly DiagnosticDescriptor LS2021 = Create("LS2021", LayersCategory, CommandHandlerStages,
         "Message Sent Outside an Entry Point",
-        "'{0}' holds '{1}', which only an endpoint, reaction, or job may hold",
-        "A type that is not an endpoint, reaction, or job holds no command, query, or event mediator, except a provider adapter in Infrastructure/{Provider}/, which holds the query and command mediators to send that module's public queries and public commands. A use case handler loads, calls one act, and stages; follow-on work runs from an endpoint, a reaction, or a job after the commit.");
+        "'{0}' holds '{1}', {2}",
+        "A command or query handler holds the query mediator to send another module's public query. A reaction or a job holds the command and query mediators. No module type holds the event mediator: only the pipeline publishes events. A use case handler loads, calls one act, and stages; follow-on work runs from a reaction or a job after the commit.");
 
     /// <summary>The LS2022 descriptor: User code publishes an event.</summary>
     public static readonly DiagnosticDescriptor LS2022 = Create("LS2022", LayersCategory, EmitAfterCommit,
@@ -366,7 +366,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2029 = Create("LS2029", LayersCategory, RespectLayerDirection,
         "File names a contract type outside its layer",
         "{0} uses '{1}', {2}",
-        "A Domain, Application, Ports, WebApi, or Infrastructure file outside a provider adapter names no public query, public command or result of another module's Contracts project: only the adapter in 'Infrastructure/{Provider}/' sends another module's public queries and public commands. A Platform file names no module identifier.");
+        "A handler, a reaction, or a job names another module's public query or query result to send it through the query mediator, and only a reaction or a job names another module's public command or command result. Every other module file names no public query, public command or result of another module's Contracts project. A Platform file names no module identifier.");
 
     /// <summary>The LS2030 descriptor: Contracts project declares an interface.</summary>
     public static readonly DiagnosticDescriptor LS2030 = Create("LS2030", LayersCategory, ContractsData,

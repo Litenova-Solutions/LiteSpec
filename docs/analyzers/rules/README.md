@@ -44,7 +44,7 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2031` run across layers
 - [LS2018: File Names a Type Outside Its Layer](ls2018.md): reports an Application, Ports, or WebApi file naming a type its layer may not use.
 - [LS2019: Use Case Names a Type of Another Use Case](ls2019.md): reports a use case folder naming a type from another use case folder.
 - [LS2020: Module Names a Type Outside Another Module's Contracts](ls2020.md): reports a module naming another module past its `Contracts/` folder.
-- [LS2021: Message Sent Outside an Entry Point](ls2021.md): reports a mediator held outside an endpoint, reaction, or job.
+- [LS2021: Message Sent Outside an Entry Point](ls2021.md): reports a command mediator held outside a reaction or a job, a query mediator held outside a handler, reaction, or job, and an event mediator held outside the platform.
 - [LS2022: Event Published by User Code](ls2022.md): reports user code naming the event mediator or an event publisher.
 - [LS2023: Class Implements Two Message Definitions](ls2023.md): reports a class implementing two message definition contracts.
 - [LS2024: Module Holds Platform-Owned Capability Code](ls2024.md): reports serializer, store, guard, or converter code in a module.
@@ -52,7 +52,7 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2031` run across layers
 - [LS2026: Model Duplicated in Two Use Case Folders](ls2026.md): reports a record declared with the same members in two use case folders.
 - [LS2027: Application Does Infrastructure Work](ls2027.md): reports archive, serialization, or document work in Application.
 - [LS2028: Module Exposes a Public Type Outside Contracts](ls2028.md): reports a public type in a module project outside its entry type.
-- [LS2029: File Names a Contract Type Outside Its Layer](ls2029.md): reports another module's public query, public command, or result named outside the provider adapter, and a module identifier named in the Platform.
+- [LS2029: File Names a Contract Type Outside Its Layer](ls2029.md): reports another module's public query or result named outside a handler, reaction, or job, a public command named outside a reaction or a job, and a module identifier named in the Platform.
 - [LS2030: Contracts Project Declares an Interface](ls2030.md): reports an interface in a Contracts project, which publishes data only.
 - [LS2031: Event Name Lacks Its Kind Suffix](ls2031.md): reports an event type whose name does not end in its kind suffix.
 

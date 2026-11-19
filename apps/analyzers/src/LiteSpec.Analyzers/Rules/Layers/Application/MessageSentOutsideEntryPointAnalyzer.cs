@@ -9,18 +9,15 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>
-///     LS2021: a type that is not an endpoint, reaction or job holds no command, query or event mediator,
-///     so only the three entry points send a use case message. The platform composes the pipeline and is exempt,
-///     with the shared kernel of a one-modules-project solution. A provider adapter in
-///     <c>Infrastructure/{Provider}/</c>, where the compilation references the provider module's Contracts
-///     project, may hold the query and command mediators: it is the one place that sends another module's public
-///     queries and public commands.
+///     LS2021: a command or query handler holds the query mediator to send another module's public query, a
+///     reaction or a job holds the command and query mediators, and no module type holds the event mediator.
+///     The platform composes the pipeline and is exempt, with the shared kernel of a one-modules-project solution.
 /// </summary>
 /// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
 {
-    /// <summary>The simple names of the mediators a type outside an entry point may not hold.</summary>
+    /// <summary>The simple names of the mediators a type may hold only in its role.</summary>
     private static readonly ImmutableHashSet<string> MediatorNames = ImmutableHashSet.Create(
         StringComparer.Ordinal,
         "ICommandMediator",
@@ -50,15 +47,13 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         }
 
         var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
-        var providers = ProviderModules(context.Compilation);
-        context.RegisterSymbolAction(c => AnalyzeSymbol(c, scope, providers), SymbolKind.Parameter, SymbolKind.Field, SymbolKind.Property);
+        context.RegisterSymbolAction(c => AnalyzeSymbol(c, scope), SymbolKind.Parameter, SymbolKind.Field, SymbolKind.Property);
     }
 
     /// <summary>Analyzes a constructor parameter, field or property holding a mediator.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="scope">Whether the rule applies to each file.</param>
-    /// <param name="providers">The modules whose Contracts project the compilation references.</param>
-    private static void AnalyzeSymbol(SymbolAnalysisContext context, FileScope scope, ImmutableHashSet<string> providers)
+    private static void AnalyzeSymbol(SymbolAnalysisContext context, FileScope scope)
     {
         var symbol = context.Symbol;
         if (symbol.IsImplicitlyDeclared || !scope.AppliesTo(symbol))
@@ -86,17 +81,17 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
                 return;
         }
 
-        if (owner is null || !IsMediator(held) || IsEntryPoint(owner) || TypeLocation(symbol) is not Location location)
+        if (owner is null || !IsMediator(held) || TypeLocation(symbol) is not Location location)
         {
             return;
         }
 
-        if (held.Name != "IEventMediator" && ProviderAdapterFolder(location.SourceTree?.FilePath) is string provider && providers.Contains(provider))
+        if (MayHold(owner, held.Name))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS2021, location, owner.Name, held.Name));
+        context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS2021, location, owner.Name, held.Name, ReasonFor(held.Name)));
     }
 
     /// <summary>Returns true when the type is one of the mediators by its simple name; otherwise false.</summary>
@@ -105,16 +100,80 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
     private static bool IsMediator(ITypeSymbol type) =>
         type is INamedTypeSymbol named && MediatorNames.Contains(named.Name);
 
+    /// <summary>Returns true when the type may hold the mediator: a handler, reaction or job holds the query mediator, and a reaction or a job holds the command mediator; otherwise false.</summary>
+    /// <param name="owner">The type holding the mediator.</param>
+    /// <param name="mediator">The simple name of the mediator held.</param>
+    /// <returns>True when the holder's role may hold the mediator; otherwise false.</returns>
+    private static bool MayHold(INamedTypeSymbol owner, string mediator)
+    {
+        if (mediator.Equals("IQueryMediator", StringComparison.Ordinal))
+        {
+            return IsHandler(owner) || IsReactionOrJob(owner);
+        }
+
+        if (mediator.Equals("ICommandMediator", StringComparison.Ordinal))
+        {
+            return IsReactionOrJob(owner);
+        }
+
+        return false;
+    }
+
+    /// <summary>Returns why the holder may not hold the mediator.</summary>
+    /// <param name="mediator">The simple name of the mediator held.</param>
+    /// <returns>The reason clause naming the roles that may hold the mediator.</returns>
+    private static string ReasonFor(string mediator)
+    {
+        if (mediator.Equals("IQueryMediator", StringComparison.Ordinal))
+        {
+            return "which only a handler, a reaction, or a job may hold";
+        }
+
+        if (mediator.Equals("ICommandMediator", StringComparison.Ordinal))
+        {
+            return "which only a reaction or a job may hold";
+        }
+
+        return "which only the platform may hold";
+    }
+
+    /// <summary>Returns true when the type is a command or query handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is a command or query handler; otherwise false.</returns>
+    private static bool IsHandler(INamedTypeSymbol type)
+    {
+        if (type.TypeKind != TypeKind.Class)
+        {
+            return false;
+        }
+
+        if (type.Name.EndsWith("CommandHandler", StringComparison.Ordinal)
+            || type.Name.EndsWith("QueryHandler", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        foreach (var contract in type.AllInterfaces)
+        {
+            if (contract.Name is "ICommandHandler" or "IQueryHandler")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>
-    ///     Returns true when the type is an endpoint, a reaction or a job: a type named *Endpoint or *Job, a type
-    ///     deriving from BackgroundService, or a type implementing IEventHandler. A WebApi file lies outside the
-    ///     rule's layers, so an endpoint in a WebApi folder never reaches this check.
+    ///     Returns true when the type is a reaction or a job: a type named *Job, a type deriving from
+    ///     BackgroundService, or a type implementing IEventHandler; otherwise false. An endpoint dispatches its own
+    ///     use case message through a method parameter, which this rule ignores, and holds no mediator.
     /// </summary>
     /// <param name="type">The type under inspection.</param>
-    /// <returns>True when the type is an entry point; otherwise false.</returns>
-    private static bool IsEntryPoint(INamedTypeSymbol type)
+    /// <returns>True when the type is a reaction or a job; otherwise false.</returns>
+    private static bool IsReactionOrJob(INamedTypeSymbol type)
     {
-        if (type.Name.EndsWith("Endpoint", StringComparison.Ordinal) || type.Name.EndsWith("Job", StringComparison.Ordinal))
+        if (type.Name.EndsWith("Job", StringComparison.Ordinal))
         {
             return true;
         }
@@ -136,64 +195,6 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         }
 
         return false;
-    }
-
-    /// <summary>The module names whose Contracts project the compilation references or compiles: `{Product}.{Module}.Contracts` gives `{Module}`.</summary>
-    /// <param name="compilation">The compilation under analysis.</param>
-    /// <returns>The referenced provider module names.</returns>
-    private static ImmutableHashSet<string> ProviderModules(Compilation compilation)
-    {
-        var names = ImmutableHashSet.CreateBuilder<string>(StringComparer.Ordinal);
-        foreach (var reference in compilation.ReferencedAssemblyNames)
-        {
-            const string Suffix = ".Contracts";
-            if (!reference.Name.EndsWith(Suffix, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            var stem = reference.Name.Substring(0, reference.Name.Length - Suffix.Length);
-            var dot = stem.LastIndexOf('.');
-            names.Add(dot < 0 ? stem : stem.Substring(dot + 1));
-        }
-
-        foreach (var tree in compilation.SyntaxTrees)
-        {
-            foreach (var segment in tree.FilePath.Replace('\\', '/').Split('/'))
-            {
-                const string Suffix = ".Contracts";
-                if (segment.EndsWith(Suffix, StringComparison.Ordinal))
-                {
-                    var stem = segment.Substring(0, segment.Length - Suffix.Length);
-                    var dot = stem.LastIndexOf('.');
-                    names.Add(dot < 0 ? stem : stem.Substring(dot + 1));
-                }
-            }
-        }
-
-        return names.ToImmutable();
-    }
-
-    /// <summary>The adapter folder a file sits in under `Infrastructure/`, or null when it sits in no adapter folder.</summary>
-    /// <param name="filePath">The file path.</param>
-    /// <returns>The folder name after `Infrastructure/`, or null.</returns>
-    private static string? ProviderAdapterFolder(string? filePath)
-    {
-        if (!CodeMap.IsAdapter(filePath))
-        {
-            return null;
-        }
-
-        var segments = filePath!.Replace('\\', '/').Split('/');
-        for (var index = 0; index + 2 < segments.Length; index++)
-        {
-            if (segments[index].Equals("Infrastructure", StringComparison.Ordinal))
-            {
-                return segments[index + 1];
-            }
-        }
-
-        return null;
     }
 
     /// <summary>Returns true when the assembly holds the pipeline: the platform, or the shared kernel of a one-modules-project solution; otherwise false.</summary>

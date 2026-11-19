@@ -17,7 +17,7 @@ public sealed class CodeMapContractsTests
     [Fact]
     public void SiblingContractsFileMapsToItsOwnerModule()
     {
-        const string path = "Modules/Claimwick.Spending.Contracts/Expenses/Events/ExpenseReimbursedModuleEvent.cs";
+        const string path = "Modules/Claimwick.Spending.Contracts/Expenses/OnExpenseReimbursed/ExpenseReimbursedModuleEvent.cs";
         var map = MapFor("Claimwick.Spending.Contracts", path);
 
         Assert.True(CodeMap.IsContracts(path));
@@ -71,9 +71,12 @@ public sealed class CodeMapContractsTests
     public void PersistenceFileIsNoAdapter()
     {
         const string path = "Modules/Claimwick.Spending/Infrastructure/Persistence/ExpenseRepository.cs";
+        const string nested = "Modules/Claimwick.Spending/Infrastructure/Persistence/Expenses/ExpenseRepository.cs";
 
         Assert.False(CodeMap.IsAdapter(path));
         Assert.Null(MapFor("Claimwick.Spending", path).UseCaseOf(path));
+        Assert.False(CodeMap.IsAdapter(nested));
+        Assert.Null(MapFor("Claimwick.Spending", nested).UseCaseOf(nested));
     }
 
     /// <summary>A type in a use case folder below an aggregate folder is a public query, public command or result.</summary>
@@ -102,17 +105,19 @@ public sealed class CodeMapContractsTests
             "Claimwick.Modules/Books/Contracts/Books/BookId.cs", "BookId"));
     }
 
-    /// <summary>A type in an Events folder is a fact, never a public query or public command.</summary>
+    /// <summary>A type in an On{Fact} folder is a fact, never a public query or public command.</summary>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
-    public void ContractsEventsFileIsNoPublicQueryOrCommand()
+    public void ContractsFactFolderFileIsNoPublicQueryOrCommand()
     {
         Assert.False(Contracts.IsPublicQueryOrCommand(
-            "Modules/Claimwick.Books.Contracts/Books/Events/BookLentModuleEvent.cs", "BookLentModuleEvent"));
+            "Modules/Claimwick.Books.Contracts/Books/OnBookLent/BookLentModuleEvent.cs", "BookLentModuleEvent"));
         Assert.False(Contracts.IsPublicQueryOrCommand(
-            "Claimwick.Modules/Books/Contracts/Books/Events/BookLentModuleEvent.cs", "BookLentModuleEvent"));
+            "Claimwick.Modules/Books/Contracts/Books/OnBookLent/BookLentModuleEvent.cs", "BookLentModuleEvent"));
         Assert.False(Contracts.IsPublicQueryOrCommand(
-            "Claimwick.Modules/Books/Contracts/Books/Events/BookQuery.cs", "BookQuery"));
+            "Claimwick.Modules/Books/Contracts/Books/OnBookLent/BookLentLine.cs", "BookLentLine"));
+        Assert.False(Contracts.IsPublicQueryOrCommand(
+            "Claimwick.Modules/Books/Contracts/Books/OnBookLent/BookQuery.cs", "BookQuery"));
     }
 
     /// <summary>A query, command or result directly in a Contracts top folder is a module-level public query or public command.</summary>

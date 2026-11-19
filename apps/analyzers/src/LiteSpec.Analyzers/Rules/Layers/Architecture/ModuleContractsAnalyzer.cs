@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
-/// <summary>LS2029: a module file outside a provider adapter names no public query or public command of another module, and a Platform file names no module identifier. LS2030: a Contracts project declares no interface.</summary>
+/// <summary>LS2029: a handler, reaction or job names another module's public query or query result, only a reaction or a job names its public command or command result, and a Platform file names no module identifier. LS2030: a Contracts project declares no interface.</summary>
 /// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -57,7 +57,7 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (map.ModuleOf(node.SyntaxTree.FilePath) is not string module || CodeMap.IsAdapter(node.SyntaxTree.FilePath))
+        if (map.ModuleOf(node.SyntaxTree.FilePath) is not string module)
         {
             return;
         }
@@ -66,7 +66,8 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
             || type is null
             || CodeMap.SourceFileOf(type, context.Compilation) is not string file
             || map.ModuleOf(file) is not string other
-            || other.Equals(module, StringComparison.Ordinal))
+            || other.Equals(module, StringComparison.Ordinal)
+            || MayName(type, context))
         {
             return;
         }
@@ -77,7 +78,118 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
             node.Identifier.GetLocation(),
             Where(scope, node, module),
             name,
-            "which is a public query, public command or result of module '" + provider + "'; only the adapter in 'Infrastructure/" + provider + "/' may name it"));
+            ReasonFor(type, provider)));
+    }
+
+    /// <summary>Returns true when the type containing the name may name the referenced contract type: a handler, reaction or job names a public query or query result, and only a reaction or a job names a public command or command result; otherwise false.</summary>
+    /// <param name="type">The referenced contract type.</param>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <returns>True when the holder's role may name the referenced type; otherwise false.</returns>
+    private static bool MayName(INamedTypeSymbol type, SyntaxNodeAnalysisContext context)
+    {
+        if (ContainingType(context) is not INamedTypeSymbol holder)
+        {
+            return false;
+        }
+
+        if (IsCommandSide(type.Name))
+        {
+            return IsReactionOrJob(holder);
+        }
+
+        return IsHandler(holder) || IsReactionOrJob(holder);
+    }
+
+    /// <summary>Returns why the holder may not name the referenced contract type.</summary>
+    /// <param name="type">The referenced contract type.</param>
+    /// <param name="provider">The display name of the provider module.</param>
+    /// <returns>The reason clause naming the provider module and the roles that may name the type.</returns>
+    private static string ReasonFor(INamedTypeSymbol type, string provider)
+    {
+        if (IsCommandSide(type.Name))
+        {
+            return "which is a public command or command result of module '" + provider + "'; only a reaction or a job may name it";
+        }
+
+        return "which is a public query or query result of module '" + provider + "'; only a handler, a reaction, or a job may name it";
+    }
+
+    /// <summary>Returns true when the contract type sits on the command side: a public command, a command result, or a command result part; otherwise false.</summary>
+    /// <param name="typeName">The simple name of the referenced contract type.</param>
+    /// <returns>True when the name carries the command role; otherwise false.</returns>
+    private static bool IsCommandSide(string typeName) =>
+        typeName.Contains("Command", StringComparison.Ordinal);
+
+    /// <summary>Returns the type containing the name, or null when no type contains it.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <returns>The containing type, or null.</returns>
+    private static INamedTypeSymbol? ContainingType(SyntaxNodeAnalysisContext context)
+    {
+        for (var symbol = context.ContainingSymbol; symbol is not null; symbol = symbol.ContainingSymbol)
+        {
+            if (symbol is INamedTypeSymbol type)
+            {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Returns true when the type is a command or query handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is a command or query handler; otherwise false.</returns>
+    private static bool IsHandler(INamedTypeSymbol type)
+    {
+        if (type.TypeKind != TypeKind.Class)
+        {
+            return false;
+        }
+
+        if (type.Name.EndsWith("CommandHandler", StringComparison.Ordinal)
+            || type.Name.EndsWith("QueryHandler", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        foreach (var contract in type.AllInterfaces)
+        {
+            if (contract.Name is "ICommandHandler" or "IQueryHandler")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Returns true when the type is a reaction or a job: a type named *Job, a type deriving from BackgroundService, or a type implementing IEventHandler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is a reaction or a job; otherwise false.</returns>
+    private static bool IsReactionOrJob(INamedTypeSymbol type)
+    {
+        if (type.Name.EndsWith("Job", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
+        {
+            if (current.Name == "BackgroundService")
+            {
+                return true;
+            }
+        }
+
+        foreach (var contract in type.AllInterfaces)
+        {
+            if (contract.Name == "IEventHandler")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Analyzes the name in a Platform file.</summary>
