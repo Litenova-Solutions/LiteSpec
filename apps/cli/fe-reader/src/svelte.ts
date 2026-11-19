@@ -7,8 +7,8 @@
 // holding a +page.svelte; its mark comes from the module script of the
 // +page.svelte, because SvelteKit refuses any other export from a +page.ts.
 // Each route also counts the calls and navigations of its ancestor layouts,
-// the +layout.ts and +layout.server.ts files above it, with the frame modules
-// those layouts import.
+// the +layout.ts and +layout.server.ts files above it, with every file those
+// layouts reach through the frame and the use-case modules.
 
 import { collectLayoutCalls, collectLayoutNavigations, collectRouteCalls, collectRouteNavigations, CallScope, RouteEntry } from "./calls";
 import { baseName, canonical, isFile, isWithin, joinPath, listDirsRecursive, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
@@ -91,13 +91,13 @@ function byFileLine(a: { file: string; line: number }, b: { file: string; line: 
 
 // Every Svelte route entry: each folder below the routes root holding a
 // +page.svelte. Entries come out sorted by file. Each route counts its own
-// calls and navigations plus every ancestor layout's, with the frame modules
-// the layouts import.
+// calls and navigations plus every ancestor layout's, with every file the
+// layouts reach through the frame and the use-case modules.
 export function readSvelteRoutes(
   routesAbs: string,
   modulesAbs: string,
   frameAbs: string,
-  scope: Omit<CallScope, "routeDirAbs" | "modulesAbs">,
+  scope: Omit<CallScope, "routeDirAbs" | "modulesAbs" | "frameAbs">,
   context: ReaderContext,
 ): RouteFacts[] {
   const routes: RouteFacts[] = [];
@@ -121,13 +121,13 @@ export function readSvelteRoutes(
       ]
       : [{ absPath: pageAbs, dirAbs }];
     const layouts = layoutEntries(routesAbs, dirAbs);
-    const layoutScope = { frameAbs, operations: scope.operations, aliases: scope.aliases };
+    const layoutScope = { frameAbs, modulesAbs, operations: scope.operations, aliases: scope.aliases };
     const calls: CallFacts[] = [
-      ...collectRouteCalls(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs }, context),
+      ...collectRouteCalls(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs, frameAbs }, context),
       ...collectLayoutCalls(layouts, layoutScope, context),
     ].sort(byFileLine);
     const navigations: NavigationFacts[] = [
-      ...collectRouteNavigations(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs }, context),
+      ...collectRouteNavigations(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs, frameAbs }, context),
       ...collectLayoutNavigations(layouts, layoutScope, context),
     ].sort(byFileLine);
     routes.push({

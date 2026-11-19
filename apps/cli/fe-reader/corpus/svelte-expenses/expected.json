@@ -46,9 +46,14 @@
           ],
           "calls": [
             {
+              "operation": "getExpense",
+              "file": "src/lib/app/helpers.ts",
+              "line": 8
+            },
+            {
               "operation": "fetchExpenses",
               "file": "src/lib/app/session.ts",
-              "line": 4
+              "line": 8
             },
             {
               "operation": "listExpenses",
@@ -59,6 +64,11 @@
               "operation": "fetchExpenses",
               "file": "src/lib/modules/spending/list-expenses/client.ts",
               "line": 6
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5
             },
             {
               "operation": "getExpense",
@@ -105,7 +115,12 @@
             {
               "operation": "fetchExpenses",
               "file": "src/lib/app/session.ts",
-              "line": 4
+              "line": 8
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5
             },
             {
               "operation": "getExpense",
@@ -138,9 +153,19 @@
           "marks": [],
           "calls": [
             {
+              "operation": "getExpense",
+              "file": "src/lib/app/helpers.ts",
+              "line": 8
+            },
+            {
               "operation": "fetchExpenses",
               "file": "src/lib/app/session.ts",
-              "line": 4
+              "line": 8
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5
             },
             {
               "operation": "listExpenses",
@@ -165,7 +190,12 @@
             {
               "operation": "fetchExpenses",
               "file": "src/lib/app/session.ts",
-              "line": 4
+              "line": 8
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5
             },
             {
               "operation": "listExpenses",
@@ -192,7 +222,12 @@
             {
               "operation": "fetchExpenses",
               "file": "src/lib/app/session.ts",
-              "line": 4
+              "line": 8
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5
             },
             {
               "operation": "listExpenses",

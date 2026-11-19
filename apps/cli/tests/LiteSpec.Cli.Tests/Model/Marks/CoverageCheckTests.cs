@@ -91,6 +91,40 @@ public sealed class CoverageCheckTests
         Assert.Contains("entry-point/library-app", finding.Message);
     }
 
+    /// <summary>Pipeline Handler Carrying The Use Case Mark Reports No Endpoint Missing.</summary>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void PipelineHandlerCarryingTheUseCaseMarkReportsNoEndpointMissing()
+    {
+        using var temp = WritePipelineConsumer("Infrastructure/Pipeline");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-endpoint-missing");
+
+        Assert.Empty(findings);
+    }
+
+    /// <summary>Pipeline Handler Endpoint Needs No Screen Call.</summary>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void PipelineHandlerEndpointNeedsNoScreenCall()
+    {
+        using var temp = WritePipelineConsumer("Infrastructure/Pipeline");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-unreached");
+
+        Assert.Empty(findings);
+    }
+
+    /// <summary>Use Case Mark Outside Pipeline Still Reports Endpoint Missing.</summary>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void UseCaseMarkOutsidePipelineStillReportsEndpointMissing()
+    {
+        using var temp = WritePipelineConsumer("Infrastructure/Handlers");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-endpoint-missing");
+
+        var finding = Assert.Single(findings);
+        Assert.Equal("use-case/identity.complete-sign-in", finding.Subject);
+    }
+
     /// <summary>Declared Edge No Code Takes Reports Effect Unimplemented.</summary>
     /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
     [Fact]
@@ -290,6 +324,141 @@ public sealed class CoverageCheckTests
                     public Task<LendOverdueCopiesResult> HandleAsync(LendOverdueCopiesCommand command, CancellationToken cancellationToken)
                     {
                         throw new NotImplementedException();
+                    }
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>Writes a consumer where a hosted sign-in completes through a ticket handler in the given Infrastructure folder, with no mapped endpoint and no screen.</summary>
+    /// <param name="handlerFolder">The Infrastructure folder holding the ticket handler, such as <c>Infrastructure/Pipeline</c>.</param>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WritePipelineConsumer(string handlerFolder)
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, ".litespec/project.yaml", """
+                schemaVersion: 1
+                project:
+                  name: Marks Fixture
+                size: small
+                shape: server
+                stacks:
+                - dotnet
+                layers:
+                  intent: litespec
+                  behavior: litespec
+                  implementation: litespec
+                  proof: litespec
+                reviewedLiteSpecVersion: 7.0.0
+                paths:
+                  docs: .litespec
+                  behaviorDocs: .litespec/behavior
+                  glossary: .litespec/glossary.yaml
+                  testRoots:
+                  - apps/api/tests
+                stackConfig:
+                  dotnet:
+                    modules: apps/api/src/Modules/Library.Identity
+                frontends: []
+                """);
+            Write(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/entry-points.yaml", """
+                {
+                  "type": "entry-point-set",
+                  "title": "Entry points",
+                  "records": [
+                    {
+                      "type": "entry-point",
+                      "id": "entry-point/identity-app",
+                      "title": "Identity app",
+                      "kind": "browser",
+                      "authentication": ["session"],
+                      "audience": ["actor/reader"]
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/entry-points.md", """
+                # Entry points
+
+                The identity app serves each signed-in person.
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/identity/aggregates/sessions/use-cases/complete-sign-in/complete-sign-in.yaml", """
+                {
+                  "type": "use-case",
+                  "id": "use-case/identity.complete-sign-in",
+                  "title": "Complete sign in",
+                  "kind": "command",
+                  "steps": [
+                    {"statement": "The provider redirects the browser to the host callback."},
+                    {"statement": "Identity completes the sign in and opens the session."}
+                  ],
+                  "reachedThrough": ["entry-point/identity-app"],
+                  "records": [
+                    {
+                      "type": "result",
+                      "id": "result/complete-sign-in.signed-in",
+                      "title": "Signed in",
+                      "outcome": "success",
+                      "meaning": "The person is signed in."
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/identity/aggregates/sessions/use-cases/complete-sign-in/complete-sign-in.md", """
+                # Complete sign in
+
+                The provider callback completes the hosted sign in.
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Identity/Application/CompleteSignIn/CompleteSignInCommand.cs", """
+                namespace Library.Identity.Application.CompleteSignIn;
+
+                public sealed record CompleteSignInCommand(Guid Subject);
+
+                public sealed record CompleteSignInCommandResult(Guid SessionId);
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Identity/Application/CompleteSignIn/CompleteSignInCommandHandler.cs", """
+                namespace Library.Identity.Application.CompleteSignIn;
+
+                /// <implements>use-case/identity.complete-sign-in</implements>
+                public sealed class CompleteSignInCommandHandler
+                    : ICommandHandler<CompleteSignInCommand, CompleteSignInCommandResult>
+                {
+                    public Task<CompleteSignInCommandResult> HandleAsync(CompleteSignInCommand command, CancellationToken cancellationToken)
+                    {
+                        return Task.FromResult(new CompleteSignInCommandResult(Guid.Empty));
+                    }
+                }
+                """);
+            Write(temp.Path, $"apps/api/src/Modules/Library.Identity/{handlerFolder}/CompleteSignInTicketHandler.cs", $$"""
+                namespace Library.Identity.{{handlerFolder.Replace("/", ".")}};
+
+                /// <implements>use-case/identity.complete-sign-in</implements>
+                public sealed class CompleteSignInTicketHandler : ISignInTicketHandler
+                {
+                    private readonly ICommandMediator commands;
+
+                    public CompleteSignInTicketHandler(ICommandMediator commands)
+                    {
+                        this.commands = commands;
+                    }
+
+                    public async Task HandleAsync(SignInTicket ticket, CancellationToken cancellationToken)
+                    {
+                        await commands.SendAsync(new CompleteSignInCommand(ticket.Subject), cancellationToken);
                     }
                 }
                 """);

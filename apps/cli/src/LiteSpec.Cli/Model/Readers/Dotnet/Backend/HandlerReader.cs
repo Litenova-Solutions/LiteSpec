@@ -146,11 +146,13 @@ static class HandlerReader
     {
         var dispatches = DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified);
 
-        // A registration host names no mediator: it registers the command for the runtime to run,
-        // so each message it constructs is the runs edge it takes.
+        // A registration host sends no command: it registers the commands for the runtime to run,
+        // so each message it constructs is the runs edge it takes, except a message it already
+        // sends itself, such as the query that selects what to register.
         if (!dispatches.Any(dispatch => dispatch.Verb == "runs"))
         {
-            dispatches.AddRange(ConstructedMessages(declared, tree, file));
+            dispatches.AddRange(ConstructedMessages(declared, tree, file)
+                .Where(constructed => !dispatches.Any(dispatch => dispatch.Target == constructed.Target)));
         }
 
         model.Jobs.Add(new CodeJob(

@@ -1385,7 +1385,7 @@ A test that verifies a choice no record states shows a missing record, which is 
 
 **Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` has no event handler carrying its mark, so the check reports `reaction-unimplemented` and blocks.
 
-**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity aggregate, and `use-case-unreached` (level S) for a browser use case no screen calls.
+**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity aggregate, and `use-case-unreached` (level S) for a browser use case no screen calls; a request pipeline handler carrying the use case mark serves as its endpoint and needs no screen call.
 
 ### Organize the Book by the Record Layers
 

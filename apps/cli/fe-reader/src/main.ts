@@ -50,7 +50,7 @@ function readFrontend(request: FrontendRequest, cacheDir: string | null): Fronte
     request.platform === "svelte"
       ? readSvelteRoutes(routesAbs, modulesAbs, frameAbs, { operations, aliases }, context)
       : request.platform === "react"
-        ? readReactRoutes(routesAbs, modulesAbs, { operations, aliases }, context)
+        ? readReactRoutes(routesAbs, modulesAbs, frameAbs, { operations, aliases }, context)
         : [];
   const tests = readTests(request.testRoots.map(at), context);
   diagnostics.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));

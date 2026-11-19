@@ -726,7 +726,7 @@ internal static class MarkChecks
         }
     }
 
-    /// <summary>Reports each browser or API use case that no endpoint element marks.</summary>
+    /// <summary>Reports each browser or API use case that no endpoint element or pipeline handler marks.</summary>
     /// <param name="model">The loaded project model that holds every use case and each endpoint element.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseExposed(ProjectModel model, List<Finding> findings)
@@ -743,14 +743,49 @@ internal static class MarkChecks
                 && point.Type == RecordTypes.EntryPoint
                 && point.Field(RecordFields.Kind) is "browser" or "api");
 
-            if (entry is null
-                || model.Code.Elements.Any(element => element.Kind == CodeKind.Endpoint && element.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == useCase.Id)))
+            if (entry is null || HasEndpoint(model, useCase.Id))
             {
                 continue;
             }
 
             findings.Add(new Finding("use-case-endpoint-missing", $"Use case '{useCase.Id}' is reached through '{entry}', but no endpoint carries its mark.", useCase.File, useCase.Line, SubjectOf(useCase)));
         }
+    }
+
+    /// <summary>Whether a use case is exposed: an endpoint element or a pipeline handler carries a mark naming it.</summary>
+    /// <param name="model">The loaded project model that holds each marked code element.</param>
+    /// <param name="useCaseId">The use case identifier the mark must name.</param>
+    /// <returns>True when an endpoint element or a type under an <c>Infrastructure/Pipeline/</c> folder carries a non-follows mark naming the use case.</returns>
+    private static bool HasEndpoint(ProjectModel model, string useCaseId) =>
+        model.Code.Elements.Any(element => element.Kind == CodeKind.Endpoint
+                && element.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == useCaseId))
+            || HasPipelineEndpoint(model, useCaseId);
+
+    /// <summary>Whether a pipeline handler carries a mark naming the use case: a type under an <c>Infrastructure/Pipeline/</c> folder with the use case's implements mark serves as its endpoint.</summary>
+    /// <param name="model">The loaded project model that holds each marked code element.</param>
+    /// <param name="useCaseId">The use case identifier the mark must name.</param>
+    /// <returns>True when a pipeline handler carries a non-follows mark naming the use case.</returns>
+    private static bool HasPipelineEndpoint(ProjectModel model, string useCaseId) =>
+        model.Code.Elements.Any(element => IsPipelineHandler(element.File)
+            && element.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == useCaseId));
+
+    /// <summary>Whether the file sits under a module <c>Infrastructure/Pipeline/</c> folder: an <c>Infrastructure</c> folder holding a <c>Pipeline</c> folder above the file, at any depth.</summary>
+    /// <param name="file">The full path of the file under test.</param>
+    /// <returns>True when the file sits under an <c>Infrastructure/Pipeline/</c> folder.</returns>
+    private static bool IsPipelineHandler(string file)
+    {
+        var folders = file.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        for (var index = 0; index + 2 < folders.Length; index++)
+        {
+            if (string.Equals(folders[index], "Infrastructure", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(folders[index + 1], "Pipeline", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Reports each declared effect edge of a use case, reaction or job that no handler or host dispatch takes.</summary>
@@ -809,7 +844,7 @@ internal static class MarkChecks
         }
     }
 
-    /// <summary>Reports each browser or device use case that no screen calls on a frontend serving its entry point.</summary>
+    /// <summary>Reports each browser or device use case that no screen calls on a frontend serving its entry point, except a use case a provider callback runs through a pipeline handler.</summary>
     /// <param name="model">The loaded project model that holds every use case, screen and frontend.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseReached(ProjectModel model, List<Finding> findings)
@@ -817,6 +852,13 @@ internal static class MarkChecks
         foreach (var useCase in model.Records)
         {
             if (useCase.Type != RecordTypes.UseCase)
+            {
+                continue;
+            }
+
+            // A use case a provider callback runs needs no screen call: its
+            // pipeline handler is its endpoint.
+            if (HasPipelineEndpoint(model, useCase.Id))
             {
                 continue;
             }

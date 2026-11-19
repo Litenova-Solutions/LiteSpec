@@ -82,6 +82,11 @@
           ],
           "calls": [
             {
+              "operation": "getExpense",
+              "file": "src/app/helpers.ts",
+              "line": 8
+            },
+            {
               "operation": "listExpenses",
               "file": "src/modules/spending/list-expenses/client.ts",
               "line": 4

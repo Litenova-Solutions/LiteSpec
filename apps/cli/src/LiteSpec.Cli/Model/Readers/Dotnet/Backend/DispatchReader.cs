@@ -267,10 +267,10 @@ static class DispatchReader
             _ => null,
         };
 
-    /// <summary>The type a local builds before the call, for a message held in a local.</summary>
+    /// <summary>The type a local builds or declares before the call, for a message held in a local.</summary>
     /// <param name="invocation">The dispatch invocation.</param>
     /// <param name="name">The local's name.</param>
-    /// <returns>The type a local builds before the call, or null when it builds none.</returns>
+    /// <returns>The type a local builds or declares before the call, or null when it names none.</returns>
     public static string? LocalConstruction(InvocationExpressionSyntax invocation, string name)
     {
         var scope = invocation.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault();
@@ -286,6 +286,14 @@ static class DispatchReader
                 && declarator.Initializer?.Value is ObjectCreationExpressionSyntax creation)
             {
                 return DotnetNames.SimpleTypeName(creation.Type);
+            }
+
+            // A local declared with its message type names the message however it is built,
+            // for example by a factory method on a posting.
+            if (declarator.Identifier.ValueText == name
+                && declarator.Parent is VariableDeclarationSyntax { Type: { IsVar: false } declaredType })
+            {
+                return DotnetNames.SimpleTypeName(declaredType);
             }
         }
 

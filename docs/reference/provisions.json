@@ -308,7 +308,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An endpoint MUST map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.",
-      "rationale": "When one endpoint class serves several operations, their input mappings, dispatches, and result mappings mix, and the class changes for unrelated routes. One endpoint class per route operation gives each route a single owner for all three.",
+      "rationale": "When one endpoint class serves several operations, their input mappings, dispatches, and result mappings mix, and the class changes for unrelated routes. One endpoint class per route operation gives each route a single owner for all three. A use case a provider callback runs is the exception: the pipeline handler in the module \u0060Infrastructure/Pipeline/\u0060 folder carries the use case mark as its endpoint, so the use case maps no route and no screen calls it.",
       "example": "At startup, the application discovers endpoint implementations, registers each one once, and maps them in deterministic name order. Discovery uses the platform\u0027s own reflection and dependency injection. It needs no separate scanning package."
     },
     {
@@ -2772,7 +2772,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A WebApi endpoint MUST implement \u0060IEndpoint\u0060, map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.",
-      "rationale": "When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route silently affects another, and a second routing pattern grows beside the first unnoticed. This provision binds \u0060litespec/backend/api#map-one-operation-per-endpoint\u0060 for .NET.",
+      "rationale": "When one class serves one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place. Without that rule, operations share classes or helpers, so a change to one route silently affects another, and a second routing pattern grows beside the first unnoticed. A use case a provider callback runs is the exception: the pipeline handler in the module \u0060Infrastructure/Pipeline/\u0060 folder carries the use case mark as its endpoint, so it implements no \u0060IEndpoint\u0060 and no screen calls it. This provision binds \u0060litespec/backend/api#map-one-operation-per-endpoint\u0060 for .NET.",
       "example": "The platform owns this contract:\n\n\u0060\u0060\u0060csharp\ninternal interface IEndpoint\n{\n    void MapEndpoint(IEndpointRouteBuilder endpoints);\n}\n\u0060\u0060\u0060\n\nAt startup, the platform scans every module assembly the host adds through its entry type for non-abstract \u0060IEndpoint\u0060 implementations, registers each one once as a singleton, and the host calls \u0060MapEndpoint\u0060 in type-name order. The scan uses framework reflection and dependency injection, so no extra scanning package is needed."
     },
     {
@@ -10433,7 +10433,7 @@
       "anchor": "implement-each-mapped-behavior-record-behind-a-mark",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060aggregate-unimplemented\u0060, \u0060reaction-unimplemented\u0060, \u0060job-unimplemented\u0060, \u0060external-system-unimplemented\u0060, and \u0060use-case-endpoint-missing\u0060 (level S) for a record no mark names, where \u0060aggregate-unimplemented\u0060 fires only for an entity aggregate, and \u0060use-case-unreached\u0060 (level S) for a browser use case no screen calls.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060aggregate-unimplemented\u0060, \u0060reaction-unimplemented\u0060, \u0060job-unimplemented\u0060, \u0060external-system-unimplemented\u0060, and \u0060use-case-endpoint-missing\u0060 (level S) for a record no mark names, where \u0060aggregate-unimplemented\u0060 fires only for an entity aggregate, and \u0060use-case-unreached\u0060 (level S) for a browser use case no screen calls; a request pipeline handler carrying the use case mark serves as its endpoint and needs no screen call.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:aggregate, record:reaction, record:job, record:external-system, record:use-case",
@@ -13421,8 +13421,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each use case a caller reaches from outside MUST name the entry points that reach it in \u0060reachedThrough\u0060.",
-      "rationale": "A use case with no named entry point is reachable from anywhere or nowhere. Readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A public query names the consuming modules beside or instead of entry points, under \u0060litespec/core/use-cases#list-the-consumer-modules-of-a-public-query\u0060, and a public command names the sending modules, under \u0060litespec/core/use-cases#list-the-sending-modules-of-a-public-command\u0060, so the provider side of every synchronous cross-module edge is declared. A use case that only a reaction or a job runs has no entry point of its own, and the \u0060runs\u0060 edge of that reaction or job already shows how it is reached.",
-      "example": ""
+      "rationale": "A use case with no named entry point is reachable from anywhere or nowhere. Readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A public query names the consuming modules beside or instead of entry points, under \u0060litespec/core/use-cases#list-the-consumer-modules-of-a-public-query\u0060, and a public command names the sending modules, under \u0060litespec/core/use-cases#list-the-sending-modules-of-a-public-command\u0060, so the provider side of every synchronous cross-module edge is declared. A use case that only a reaction or a job runs has no entry point of its own, and the \u0060runs\u0060 edge of that reaction or job already shows how it is reached. A use case a provider callback runs names the entry point the host serves: the provider redirects the browser to the host callback, and the pipeline handler in the module \u0060Infrastructure/Pipeline/\u0060 folder runs the use case under its mark. That handler is the use case endpoint, so the use case needs no mapped endpoint route and no screen call.",
+      "example": "The library \u0060complete-sign-in\u0060 use case names the library app entry point in \u0060reachedThrough\u0060. The provider redirects the browser to the host callback, where the ticket handler in the \u0060Infrastructure/Pipeline/\u0060 folder runs the use case under its mark. No endpoint maps the callback route and no screen calls the use case."
     },
     {
       "id": "litespec/core/use-cases#name-the-events-each-use-case-raises",

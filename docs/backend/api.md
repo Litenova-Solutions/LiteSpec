@@ -49,7 +49,7 @@ Comments on handlers are not contract documentation: operations carry explicit s
 
 **Statement:** An endpoint MUST map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
-**Rationale:** When one endpoint class serves several operations, their input mappings, dispatches, and result mappings mix, and the class changes for unrelated routes. One endpoint class per route operation gives each route a single owner for all three.
+**Rationale:** When one endpoint class serves several operations, their input mappings, dispatches, and result mappings mix, and the class changes for unrelated routes. One endpoint class per route operation gives each route a single owner for all three. A use case a provider callback runs is the exception: the pipeline handler in the module `Infrastructure/Pipeline/` folder carries the use case mark as its endpoint, so the use case maps no route and no screen calls it.
 
 **Example:** At startup, the application discovers endpoint implementations, registers each one once, and maps them in deterministic name order. Discovery uses the platform's own reflection and dependency injection. It needs no separate scanning package.
 

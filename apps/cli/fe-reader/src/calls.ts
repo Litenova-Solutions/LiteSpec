@@ -2,10 +2,12 @@
 // operation is a named function export of the generated client folder,
 // reported as the client exports it. Calls are collected from the route entry files and
 // from every file reached through relative and alias imports within the
-// route's own folder and the use-case module folders the entry imports
-// directly. The frame and shared packages are never followed from a route.
-// Layout files contribute separately: each layout counts its own calls and
-// the calls of the frame modules it imports for every route under it.
+// route's own folder, the frame and the use-case modules, following imports
+// transitively with cycle protection. Shared packages are never followed:
+// only relative and alias imports resolve to project files. Layout files
+// contribute separately: each layout counts its own calls and the calls of
+// every file reached through the frame and the use-case modules it imports
+// for every route under it.
 
 import { absolute, baseName, canonical, isFile, isWithin, joinPath, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
 import { FileFacts, FileKind, readFacts } from "./parse";
@@ -115,12 +117,14 @@ export interface RouteEntry {
 export interface CallScope {
   routeDirAbs: string;
   modulesAbs: string;
+  frameAbs: string;
   operations: Map<string, string>;
   aliases: Record<string, string>;
 }
 
 export interface LayoutScope {
   frameAbs: string;
+  modulesAbs: string;
   operations: Map<string, string>;
   aliases: Record<string, string>;
 }
@@ -132,13 +136,14 @@ interface VisitedFile {
 }
 
 // Every file reached from the route entries, following imports within the
-// route folder and the modules root: a route reaches its modules, and a module
-// may compose another use case's module, which the screen then offers too. The
-// frame and shared packages are never followed. Files are visited once.
+// route folder, the frame and the modules root: a route reaches its modules
+// and the frame helpers it uses, and a module may compose another use case's
+// module, which the screen then offers too. Shared packages are never
+// followed. Files are visited once.
 function walkRouteFiles(entries: RouteEntry[], scope: CallScope, context: ReaderContext): VisitedFile[] {
   const found: VisitedFile[] = [];
   const inScope = (absPath: string): boolean =>
-    isWithin(scope.routeDirAbs, absPath) || isWithin(scope.modulesAbs, absPath);
+    isWithin(scope.routeDirAbs, absPath) || isWithin(scope.modulesAbs, absPath) || isWithin(scope.frameAbs, absPath);
 
   const visited = new Set<string>();
   const queue: VisitedFile[] = [];
@@ -164,11 +169,14 @@ function walkRouteFiles(entries: RouteEntry[], scope: CallScope, context: Reader
 }
 
 // Every file reached from the layout entries: the layout files themselves and
-// the frame modules they import, following frame imports transitively. Route
-// folders and use-case modules are never followed from a layout: the layout's
-// own file and the frame modules it imports are the layout's contribution.
+// every file reached through the frame and the modules root, as far as calls
+// are followed for routes: a layout reaches the frame helpers it uses and the
+// use-case modules those helpers read. Route folders and shared packages are
+// never followed from a layout. Files are visited once.
 function walkLayoutFiles(entries: RouteEntry[], scope: LayoutScope, context: ReaderContext): VisitedFile[] {
   const found: VisitedFile[] = [];
+  const inScope = (absPath: string): boolean =>
+    isWithin(scope.frameAbs, absPath) || isWithin(scope.modulesAbs, absPath);
   const visited = new Set<string>();
   const queue: VisitedFile[] = [];
   for (const entry of entries) {
@@ -183,7 +191,7 @@ function walkLayoutFiles(entries: RouteEntry[], scope: LayoutScope, context: Rea
     found.push(current);
     for (const specifier of current.facts.imports) {
       const target = resolveImport(specifier, current.dirAbs, scope.aliases);
-      if (target === null || visited.has(canonical(target)) || !isWithin(scope.frameAbs, target)) continue;
+      if (target === null || visited.has(canonical(target)) || !inScope(target)) continue;
       visited.add(canonical(target));
       const facts = readFacts(target, kindOf(target), context);
       if (facts !== null) queue.push({ absPath: target, dirAbs: parentDir(target), facts });

@@ -531,6 +531,61 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal("EraseLoanCommand", dispatch.Target);
     }
 
+    /// <summary>A registration job that selects through a query keeps the query as a queries dispatch and the registered command as runs.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void RegistrationJobQueryStaysAQueriesDispatch()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Application", "RemindBorrowers"), "RemindBorrowersJob.cs", """
+            namespace Library.App.Application.RemindBorrowers;
+
+            /// <implements>job/lending.remind-borrowers</implements>
+            public sealed class RemindBorrowersJob(IQueryMediator queries)
+            {
+                public async Task<List<ICommand>> CreateBatchAsync(CancellationToken cancellationToken)
+                {
+                    var page = await queries.QueryAsync(new ListLoansQuery(), cancellationToken: cancellationToken);
+                    return [new RemindBorrowerCommand()];
+                }
+            }
+            """);
+
+        var dispatches = Read(temp.Path).Jobs.Single().Dispatches!;
+
+        Assert.Equal(2, dispatches.Count);
+        Assert.Contains(dispatches, dispatch => dispatch.Verb == "queries" && dispatch.Target == "ListLoansQuery");
+        Assert.Contains(dispatches, dispatch => dispatch.Verb == "runs" && dispatch.Target == "RemindBorrowerCommand");
+    }
+
+    /// <summary>A reaction sending a command held in a local declared with its type collects that command.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void ReactionSendOfATypedLocalIsCollected()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Application", "NotifyReader"), "NotifyReaderOnLoanReturnedHandler.cs", """
+            namespace Library.App.Application.NotifyReader;
+
+            /// <implements>reaction/lending.notify-reader-on-loan-returned</implements>
+            public sealed class NotifyReaderOnLoanReturnedHandler(ICommandMediator commands) : IEventHandler<LoanReturnedDomainEvent>
+            {
+                public async Task HandleAsync(LoanReturnedDomainEvent @event, CancellationToken cancellationToken)
+                {
+                    NotifyReaderCommand command = Notices.ForReturn(@event);
+                    await commands.SendAsync(command, cancellationToken);
+                }
+            }
+            """);
+
+        var dispatch = Assert.Single(Read(temp.Path).Reactions.Single().Dispatches!);
+
+        Assert.Equal("runs", dispatch.Verb);
+        Assert.Equal("NotifyReaderCommand", dispatch.Target);
+    }
+
     static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteDomainFolder(string root) =>
