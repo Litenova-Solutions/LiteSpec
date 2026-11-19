@@ -127,7 +127,7 @@ public sealed class FolderGroupingCheckTests
         var finding = Assert.Single(Run(model));
 
         Assert.Equal("code-placement-drift", finding.Code);
-        Assert.Contains("Vat/, Charts/, Banking/, Filing/ and Documents/", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("Vat/, Charts/, Banking/, Filing/, Documents/, Country/ and Retention/", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Platform Capability Past Twenty Files Reports Ungrouped.</summary>
