@@ -232,11 +232,11 @@ The shared UI rules live on [Controlled UI Governance](../ui.md): the baseline, 
 
 **Applies to:** artifact: any
 
-**Statement:** The state-to-tone table MUST live in the states file its stack states: `src/app/states.tsx` on React and `src/lib/app/states.ts` on Svelte.
+**Statement:** The state-to-tone table MUST live in the states file its stack states: `src/app/ui/states.tsx` on React and `src/lib/app/ui/states.ts` on Svelte.
 
 **Rationale:** One file per stack holds every state tone, so a state shows the same tone on every route. This realizes litespec/frontend/ui#select-a-tone-from-the-closed-set.
 
-**Example:** The library product maps its overdue state to its warning tone in `src/app/states.tsx` on React, and the Claimwick console maps its overdue state in `src/lib/app/states.ts` on Svelte.
+**Example:** The library product maps its overdue state to its warning tone in `src/app/ui/states.tsx` on React, and the Claimwick console maps its overdue state in `src/lib/app/ui/states.ts` on Svelte.
 
 **Reviewed for:** Does every state-to-tone mapping live in the states file its stack states? Search the `src` tree for tone maps.
 

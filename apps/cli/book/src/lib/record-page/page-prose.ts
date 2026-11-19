@@ -92,7 +92,7 @@ export function bodySectionsOf(r: BookRecord): BodySectionView[] {
     .filter((s) => (s.html || "").trim())
     .map((s) => ({
       ...s,
-      kind: /^Limits$/.test(s.h) ? "risk" : /^Example$/.test(s.h) ? "example" : /^Open Points$/.test(s.h) ? "questions" : "default",
+      kind: /^(Excludes|Boundaries)$/.test(s.h) ? "risk" : /^Example$/.test(s.h) ? "example" : /^Open Points$/.test(s.h) ? "questions" : "default",
     }));
 }
 
@@ -118,5 +118,5 @@ export const PROSE_ORDER = [
   "summary", "purpose", "whatHappens", "offering", "position", "refusals", "situation", "whyItMatters",
   "consequences", "delivery", "exposure", "exitWhen", "impact", "prerequisites", "procedure",
   "verification", "recovery", "escalation",
-  "workaround", "cost", "scope", "productEffect", "context", "compatibility", "task",
+  "workaround", "cost", "scope", "coverage", "productEffect", "context", "compatibility", "task",
 ];

@@ -197,10 +197,15 @@ internal sealed class CodeMap
             return !SharedApplicationFolders.Contains(child);
         }
 
-        return layer.Equals("WebApi", StringComparison.Ordinal);
+        if (layer.Equals("WebApi", StringComparison.Ordinal))
+        {
+            return !child.Equals("Pipeline", StringComparison.Ordinal);
+        }
+
+        return false;
     }
 
-    /// <summary>Returns true when the file sits in an Infrastructure adapter folder: below Infrastructure but outside Persistence; otherwise false.</summary>
+    /// <summary>Returns true when the file sits in an Infrastructure adapter folder: below Infrastructure but outside Persistence and Messaging; otherwise false.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>True when an adapter folder holds the file; otherwise false.</returns>
     public static bool IsAdapter(string? filePath)
@@ -215,7 +220,8 @@ internal sealed class CodeMap
         {
             if (segments[index].Equals("Infrastructure", StringComparison.Ordinal))
             {
-                return !segments[index + 1].Equals("Persistence", StringComparison.Ordinal);
+                return !segments[index + 1].Equals("Persistence", StringComparison.Ordinal)
+                    && !segments[index + 1].Equals("Messaging", StringComparison.Ordinal);
             }
         }
 
@@ -469,7 +475,7 @@ internal sealed class CodeMap
     /// <returns>The root as a forward-slash directory path, or null.</returns>
     private static string? ModuleProjectRootOf(List<string> paths, string assemblyName)
     {
-        if (IsModulesAssembly(assemblyName) || IsSharedKernelAssembly(assemblyName))
+        if (IsModulesAssembly(assemblyName) || IsProductWideAssembly(assemblyName))
         {
             return null;
         }
@@ -520,7 +526,7 @@ internal sealed class CodeMap
     /// <returns>The root as a forward-slash directory path, or null.</returns>
     private static string? ApplicationRootOf(List<string> paths, string assemblyName)
     {
-        if (IsSharedKernelAssembly(assemblyName) || ProjectRootOf(paths, assemblyName) is not string root)
+        if (IsProductWideAssembly(assemblyName) || ProjectRootOf(paths, assemblyName) is not string root)
         {
             return null;
         }
@@ -537,12 +543,17 @@ internal sealed class CodeMap
         assemblyName.Equals("Modules", StringComparison.Ordinal)
         || assemblyName.EndsWith(".Modules", StringComparison.Ordinal);
 
-    /// <summary>Returns true when the assembly is the shared kernel; otherwise false.</summary>
+    /// <summary>
+    ///     Returns true when the assembly is a product-wide project, the Kernel or the Platform; otherwise false.
+    ///     Neither is a module, so its layer folders (the Kernel's <c>Domain/</c>) never open module detection.
+    /// </summary>
     /// <param name="assemblyName">The compilation assembly name.</param>
-    /// <returns>True when the assembly name ends with the SharedKernel segment; otherwise false.</returns>
-    private static bool IsSharedKernelAssembly(string assemblyName) =>
-        assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
-        || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal);
+    /// <returns>True when the assembly name ends with the Kernel or Platform segment; otherwise false.</returns>
+    private static bool IsProductWideAssembly(string assemblyName) =>
+        assemblyName.Equals("Kernel", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal)
+        || assemblyName.Equals("Platform", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".Platform", StringComparison.Ordinal);
 
     /// <summary>
     ///     Returns true when a source file sits in a product layer folder directly under the root:

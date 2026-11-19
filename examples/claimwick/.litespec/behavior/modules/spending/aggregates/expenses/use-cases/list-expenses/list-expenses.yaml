@@ -21,7 +21,7 @@ output:
       - name: expenses
         meaning: The set of rows with one row per expense, newest first.
         type: list
-        identifies:
+        rowShape:
           fields:
           - name: expenseId
             meaning: The listed expense.

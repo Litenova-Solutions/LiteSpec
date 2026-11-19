@@ -347,7 +347,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2026 = Create("LS2026", LayersCategory, UseCaseIsolation,
         "Model duplicated in two use case folders",
         "'{0}' in use case '{1}' duplicates the model in use case '{2}'{3}",
-        "A shape two use cases need is declared once beside the aggregate they share, or referenced from the shared kernel when it is a shared value. Copying it into each use case folder breaks isolation.",
+        "A shape two use cases need is declared once beside the aggregate they share, or referenced from the Kernel when it is a shared value. Copying it into each use case folder breaks isolation.",
         compilationEnd: true);
 
     /// <summary>The LS2027 descriptor: Application does infrastructure work.</summary>

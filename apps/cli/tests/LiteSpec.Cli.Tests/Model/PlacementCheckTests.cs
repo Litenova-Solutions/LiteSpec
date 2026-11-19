@@ -849,7 +849,7 @@ public sealed class PlacementCheckTests
         // The Loans folder also names no port folder, and BorrowCopy sits in it outside Models/.
         Assert.Equal(3, placed.Count);
         Assert.Contains(placed, finding => finding.Message == "Adapter 'TextGatewayAdapter' sits in folder 'BorrowCopy', but marks 'external-system/text-gateway', so it belongs in 'Lending/Infrastructure/TextGateway/'.");
-        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Infrastructure/Loans/BorrowCopy' sits in adapter 'Loans', which holds only its Models/ grouping.");
+        Assert.Contains(placed, finding => finding.Message == "Folder 'apps/api/src/Library.Modules/Lending/Infrastructure/Loans/BorrowCopy' sits in adapter 'Loans', which holds only its Models/ and Parts/ groupings.");
     }
 
     /// <summary>An adapter beside the port its mark names reports nothing, whatever its own class name.</summary>
@@ -863,7 +863,7 @@ public sealed class PlacementCheckTests
         var port = ProductFile(temp.Path, "Lending", "Ports", "TextGateway", "ITextGateway.cs");
         WriteSource(port, "namespace Library.Lending.Ports.TextGateway;\n\npublic interface ITextGateway\n{\n}\n");
         var adapter = ProductFile(temp.Path, "Lending", "Infrastructure", "TextGateway", "TextGatewaySmtpClient.cs");
-        WriteSource(adapter, "namespace Library.Lending.Infrastructure.TextGateway;\n\npublic sealed class TextGatewaySmtpClient\n{\n}\n");
+        WriteSource(adapter, "namespace Library.Lending.Infrastructure.TextGateway;\n\npublic sealed class TextGatewaySmtpClient : ITextGateway\n{\n}\n");
         model.Code.Elements.Add(Element(CodeKind.Port, "ITextGateway", port, "external-system/text-gateway"));
         model.Code.Elements.Add(Element(CodeKind.Adapter, "TextGatewaySmtpClient", adapter, "external-system/text-gateway"));
 
@@ -887,9 +887,11 @@ public sealed class PlacementCheckTests
 
         var placed = Run(model);
 
-        // The ExternalSystems folder also names no port folder, and the port also names no adapter folder.
-        Assert.Equal(3, placed.Count);
+        // The ExternalSystems folder also names no port folder, the port also names no adapter folder,
+        // and the client sits beside no adapter of that folder.
+        Assert.Equal(4, placed.Count);
         Assert.Contains(placed, finding => finding.Message == "Adapter 'TextGatewaySmtpClient' sits in folder 'ExternalSystems', but marks 'external-system/text-gateway', so it belongs in 'Lending/Infrastructure/TextGateway/'.");
+        Assert.Contains(placed, finding => finding.Message == "Type 'TextGatewaySmtpClient' in adapter folder 'apps/api/src/Library.Modules/Lending/Infrastructure/ExternalSystems' sits beside the adapter; it belongs in 'Models/' when the external system shapes it, or in 'Parts/' when the adapter calls it.");
     }
 
     /// <summary>A port with no adapter folder of the same name reports the adapter folder it pairs with.</summary>

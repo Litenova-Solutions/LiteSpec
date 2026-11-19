@@ -44,7 +44,7 @@ Compare it with the frontend rendering rules and you see the gap: the rules ask 
 
 ## The Shared UI Package
 
-The screen is composed from `@claimwick/ui`, which lives in `packages/ui`. The route imports `ListPage` and `DataTable` from `@claimwick/ui/floorplans`. The floorplan file `packages/ui/src/floorplans/list-page.svelte` is exported through `packages/ui/src/floorplans/index.ts`, and the table is `packages/ui/src/components/data-table.svelte`.
+The screen is composed from `@claimwick/ui`, which lives in `packages/ui`. The route imports `ListPage` and `DataTable` from `@claimwick/ui/floorplans`. The floorplan file `packages/ui/src/floorplans/list-page.svelte` is exported through `packages/ui/src/floorplans/index.ts`, and the table is `packages/ui/src/components/data/data-table.svelte`.
 
 The package pins its baseline in `packages/ui/ui-source-lock.yaml`. The lock names the generator `shadcn-svelte` at CLI version `1.7.0`, and it lists the components the package holds with their status. The design contract at `packages/ui/DESIGN.md` names the three page frames the package allows, `list-page`, `record-page`, and `form-page`, and maps each to its floorplan; the screen uses `list-page`.
 

@@ -38,7 +38,7 @@ public sealed class ProseReferenceCheckTests
                 "waiver",
                 "waiver/ghost-route",
                 Path.Combine(temp.Path, "ghost-route.yaml"),
-                """{"kind": "gap", "covers": ["mark-missing"], "paths": ["src/Ghost.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exitWhen": "The gap closes when `decision/0084-no-such-decision` lands.", "expiresOn": "2999-01-01"}"""));
+                """{"kind": "gap", "waives": ["mark-missing"], "paths": ["src/Ghost.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exitWhen": "The gap closes when `decision/0084-no-such-decision` lands.", "expiresOn": "2999-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "reference-unknown");
         Assert.Equal("G", finding.Tier);

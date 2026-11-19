@@ -136,25 +136,25 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
             ],
             assemblyName: "Shop.Orders");
 
-    /// <summary>LS2022 accepts the event mediator in the shared kernel, which holds the publishing pipeline.</summary>
+    /// <summary>LS2022 accepts the event mediator in the Kernel, which holds the publishing pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
-    [Fact(DisplayName = "LS2022 accepts the event mediator in the shared kernel")]
-    public Task AcceptsTheEventMediatorInTheSharedKernel() =>
+    [Fact(DisplayName = "LS2022 accepts the event mediator in the Kernel")]
+    public Task AcceptsTheEventMediatorInTheKernel() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
             [
-                ("Shop.SharedKernel/Stubs.cs", Stubs),
-                ("Shop.SharedKernel/Application/Pipeline/PublishOutbox.cs", """
+                ("Shop.Kernel/Stubs.cs", Stubs),
+                ("Shop.Kernel/Application/Pipeline/PublishOutbox.cs", """
                     using LiteBus.Events.Abstractions;
 
-                    namespace Shop.SharedKernel.Pipeline;
+                    namespace Shop.Kernel.Pipeline;
 
                     internal sealed class PublishOutbox(IEventMediator events)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.SharedKernel");
+            assemblyName: "Shop.Kernel");
 
     /// <summary>LS2022 stays quiet for a name written only in a documentation comment.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

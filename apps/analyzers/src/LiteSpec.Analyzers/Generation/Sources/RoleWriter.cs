@@ -133,7 +133,7 @@ internal static class RoleWriter
             text.AppendLine();
         }
 
-        text.AppendLine("        internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Allows);");
+        text.AppendLine("        internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Permissions);");
         text.AppendLine();
         text.AppendLine("        public static System.Collections.Generic.IReadOnlyList<LiteSpecRole> All { get; } = new LiteSpecRole[]");
         text.AppendLine("        {");
@@ -168,21 +168,21 @@ internal static class RoleWriter
     /// <returns>The entry text as text.</returns>
     private static string RoleEntryText(NamedRole role)
     {
-        var allows = new StringBuilder();
+        var permissions = new StringBuilder();
 
-        foreach (var allowed in role.Facts.Allows)
+        foreach (var permission in role.Facts.Permissions)
         {
-            if (allows.Length > 0)
+            if (permissions.Length > 0)
             {
-                allows.Append(", ");
+                permissions.Append(", ");
             }
 
-            allows.Append("\"" + Escape(allowed) + "\"");
+            permissions.Append("\"" + Escape(permission) + "\"");
         }
 
         return "new LiteSpecRole(\""
             + Escape(role.Facts.Id) + "\", \""
             + Escape(role.Facts.Scope) + "\", new string[] { "
-            + (allows.Length > 0 ? allows.ToString() + " " : string.Empty) + "})";
+            + (permissions.Length > 0 ? permissions.ToString() + " " : string.Empty) + "})";
     }
 }

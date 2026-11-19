@@ -28,15 +28,15 @@ Layers are not deployment units: the layers deploy together as one modular monol
 
 A [module](../reference/glossary.md) is one business area: it organizes the language, records, use cases, and ownership of that area. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. A [reaction](../reference/glossary.md) answers an event without a request, and a [job](../reference/glossary.md) runs work on a schedule or by hand.
 
-Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level read, with `Infrastructure/` holding `Persistence/` nested by aggregate and one adapter folder per port. A command sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
+Every module organizes its code as the module tree: one `Contracts/` folder for its public surface, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, and the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it, plus one folder per module-level read, with `Infrastructure/` holding `Persistence/` nested by aggregate, `Messaging/` with the module's message pipeline pieces, and one adapter folder per port, and `WebApi/` also holding `Pipeline/` with the module's HTTP pipeline pieces serving no single use case. A command sits in the aggregate folder its record names: the record tree already groups use cases by aggregate, and the code mirrors the records.
 
-A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, one `On{Fact}/` folder per fact another module consumes, and one folder per public query or public command with its message and result. Other modules reference nothing outside it.
+A module publishes its public surface in its `Contracts/` folder: data only, grouped by aggregate. Each `Contracts/{Aggregates}/` folder holds the identifier another module carries, the types facts or messages of more than one aggregate carry when the aggregate owns the concept, one `On{Fact}/` folder per fact another module consumes, and one folder per public query or public command with its message and result. Other modules reference nothing outside it.
 
 ### The Module Tree
 
 The tree fixes every type's address, so a reader moves from a Domain aggregate to its handler, its domain repository, and its endpoint without a map. Every node of the tree, from the product root down to a use case folder, holds the folders its level allows. Each level defines a closed set of folder names, and a check enforces it.
 
-Every folder name is a product noun (a module or an aggregate), a business act (a use case), one of the four layers, a record kind the product speaks (`Ports`, `Notifications`, `ExternalSystems`, `ReadModels`), or a grouping from the closed set its place allows. A `Domain/{Aggregates}/` folder groups into `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`; a `Ports/{Port}/` folder groups its signature types into `Models/`; an `Infrastructure/{Port}/` folder groups its wire types into `Models/`. An agent never invents another grouping: a folder outside the allowed set is refused, and a folder past 20 files that holds none of its allowed groupings is a finding. No folder groups by caller, and no folder is named `Commands`, `Queries`, or `Handlers`.
+Every folder name is a product noun (a module or an aggregate), a business act (a use case), one of the four layers, a record kind the product speaks (`Ports`, `Notifications`, `ExternalSystems`, `ReadModels`), or a grouping from the closed set its place allows. A `Domain/{Aggregates}/` folder groups into `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`; a `Ports/{Port}/` folder groups its signature types into `Models/`; an `Infrastructure/{Port}/` folder groups its wire types into `Models/` and the collaborators its adapter needs into `Parts/`; a `WebApi/Pipeline/` folder past 20 files groups into one folder per protocol. An agent never invents another grouping: a folder outside the allowed set is refused, and a folder past 20 files that holds none of its allowed groupings is a finding. No folder groups by caller, and no folder is named `Commands`, `Queries`, or `Handlers`.
 
 Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `Infrastructure/Development/`), because the folder states the layer and the lowest-folder rule already placed the type.
 
@@ -65,8 +65,10 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
     Infrastructure/
       Persistence/               module-wide store setup, with one folder per aggregate
         Teams/                   TeamRepository with its stored documents and mapping
-      {Port}/                    the adapter implementing Ports/{Port}/, same folder name
+      Messaging/                 the domain-to-module event mapping, audit writers
+      {Port}/                    the adapter implementing Ports/{Port}/, same folder name, with its wire types in Models/ and its collaborators in Parts/
     WebApi/
+      Pipeline/                  middleware, authorization conditions, authentication handlers
       Teams/
         CreateTeam/              Endpoint, RequestModel, ResponseModel
 ```
@@ -76,13 +78,13 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 | Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/` |
 | Module `Contracts/` | one folder per aggregate with anything public, in the plural, and one folder per public module-level query; no files |
-| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, one `On{Fact}/` folder per fact about the aggregate another module consumes, and one folder per public query or public command of that aggregate; no other files |
+| Module `Contracts/{Aggregates}/` | the aggregate identifier when another module carries it, the types facts or messages of more than one aggregate carry when the aggregate owns the concept, one `On{Fact}/` folder per fact about the aggregate another module consumes, and one folder per public query or public command of that aggregate; no other files |
 | Module `Contracts/{Aggregates}/On{Fact}/` | the fact type with the types only it carries; no other files |
 | Module `Contracts/{Aggregates}/{UseCase}/` and each public module-level query folder | the message, its result, and the result parts; no other files |
 | Module `Domain/` | one folder per declared aggregate, in the plural |
-| Module `Domain/{Aggregates}/` | the root's main file, the repository interface, `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, `Exceptions/` |
-| Module `Domain/{Aggregates}/{Act}/` | the partial file `{Root}.{Act}.cs`, the act's inputs, and its private rules; the name is the use case's act |
-| Module `Domain/{Aggregates}/Parts/` | the aggregate's entities and value objects |
+| Module `Domain/{Aggregates}/` | the root's main file, the repository interface as the aggregate's only store interface, the root's partial files for a concern no single act owns (`{Root}.{Concern}.cs`), `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, `Exceptions/` |
+| Module `Domain/{Aggregates}/{Act}/` | the partial file `{Root}.{Act}.cs`, the act's inputs, its private rules, and the steps only it calls; the name is the use case's act |
+| Module `Domain/{Aggregates}/Parts/` | the aggregate's entities, value objects, state types, and the stateless rules several acts share |
 | Module `Domain/{Aggregates}/Facts/` | values passed in from other modules or the country pack |
 | Module `Application/` | one folder per declared aggregate that has use cases, one folder per declared module-level read, `Notifications/`, `ExternalSystems/`, `ReadModels/`, `Settings/` |
 | Module `Application/{Aggregates}/`, `WebApi/{Aggregates}/` | one folder per use case declared under that aggregate; no files |
@@ -90,12 +92,15 @@ Inside a product layer folder, subfolders stay free (`Application/Pipeline/`, `I
 | Module `Ports/` | one folder per driven port of the module; no files |
 | Module `Ports/{Port}/` | the interface `I{Port}` and `Models/` |
 | Module `Ports/{Port}/Models/` | every type the interface's signatures name |
-| Module `Infrastructure/` | `Persistence/`, one folder per port the module implements |
-| Module `Infrastructure/{Port}/` | the adapter class and `Models/` |
+| Module `Infrastructure/` | `Persistence/`, `Messaging/`, one folder per port the module implements |
+| Module `Infrastructure/Messaging/` | the module's message pipeline pieces: the domain-to-module event mapping, audit writers, and the resolvers and mappers the module registers into the message pipeline; files only |
+| Module `Infrastructure/{Port}/` | the adapter class, its options class `{Adapter}Options.cs`, `Models/`, and `Parts/` when the adapter needs collaborators; several adapters of one port sit side by side |
 | Module `Infrastructure/{Port}/Models/` | the external system's wire types: requests, responses, file records |
-| Module `Infrastructure/Persistence/` | module-wide store setup, and one folder per aggregate with a repository |
+| Module `Infrastructure/{Port}/Parts/` | the collaborators the adapter calls |
+| Module `Infrastructure/Persistence/` | module-wide store setup, and one folder per aggregate with a repository; no other files |
 | Module `Infrastructure/Persistence/{Aggregates}/` | the aggregate's repository implementation, stored documents, and mapping |
-| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP |
+| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP, and `Pipeline/` |
+| Module `WebApi/Pipeline/` | the module's HTTP pipeline pieces serving no single use case: middleware, authorization conditions, authentication handlers; files only, past 20 files one folder per protocol holding that protocol's wire types beside its pieces |
 | Module `Application/Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `Application/ExternalSystems/` | one per external system a reaction or job of the module only calls |
 | Module `Application/ReadModels/` | one per declared read model of the module |
@@ -222,9 +227,9 @@ The module boundary works the same way: a provider's public query or public comm
 
 **Applies to:** artifact: any
 
-**Statement:** Every module MUST organize its code as the module tree with one `Contracts/` folder, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level read, and one `Infrastructure/` folder holding `Persistence/` nested by aggregate and one adapter folder per port, using only the folder names its level allows.
+**Statement:** Every module MUST organize its code as the module tree with one `Contracts/` folder, one `Domain/` folder holding one folder per declared aggregate in the plural, one `Ports/` folder holding one folder per driven port of the module, the `Application/` and `WebApi/` layer folders holding one plural aggregate folder with one folder per use case inside it plus one folder per module-level read, with `WebApi/` also holding `Pipeline/`, and one `Infrastructure/` folder holding `Persistence/` nested by aggregate, `Messaging/`, and one adapter folder per port, using only the folder names its level allows.
 
-**Rationale:** One plural folder per declared aggregate under `Domain/`, one folder per driven port under `Ports/` with its adapter in `Infrastructure/`, one folder per aggregate under `Persistence/`, and one plural aggregate folder with one folder per use case inside each layer that serves it fix every type's address: a reader moves from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact, because a folder outside the allowed set is refused and no second organization grows beside the tree.
+**Rationale:** One plural folder per declared aggregate under `Domain/`, one folder per driven port under `Ports/` with its adapter in `Infrastructure/`, `Messaging/` with the module's message pipeline pieces, one folder per aggregate under `Persistence/`, `Pipeline/` with the module's HTTP pipeline pieces, and one plural aggregate folder with one folder per use case inside each layer that serves it fix every type's address: a reader moves from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact, because a folder outside the allowed set is refused and no second organization grows beside the tree.
 
 A module publishes what other modules may reference in its `Contracts/` folder grouped by aggregate, every use case sits in the aggregate folder its record names or directly in the layer folders when its record is a module-level read, and each reaction and job sits in the folder of the use case it runs. A folder named for a fact would reference the commands of other use cases and pull them out of their folders, and a fact's reactions span modules, so no fact folder could ever show them all.
 
@@ -270,8 +275,10 @@ Spending/
   Infrastructure/
     Persistence/              module-wide store setup, with one folder per aggregate
       Expenses/               the expense repository with its stored documents and mapping
-    {Port}/                   the adapter implementing Ports/{Port}/, same folder name, with its wire types in Models/
+    Messaging/                the domain-to-module event mapping, audit writers
+    {Port}/                   the adapter implementing Ports/{Port}/, same folder name, with its wire types in Models/ and its collaborators in Parts/
   WebApi/
+    Pipeline/                 middleware, authorization conditions, authentication handlers
     Expenses/
       SubmitExpense/
 ```
@@ -294,7 +301,7 @@ fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 
 **Statement:** A folder that holds past 20 files MUST hold the grouping folders the closed set of its place allows.
 
-**Rationale:** A folder past 20 files with no groupings reads as one long listing: a reader finds a file only by search, and review misses what the folder holds. Each kind of place has a short closed list of grouping folders, and an agent never invents another. A `Domain/{Aggregates}/` folder groups into `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`; a `Ports/{Port}/` folder groups its signature types into `Models/`; an `Infrastructure/{Port}/` folder groups its wire types into `Models/`. A use case folder holds everything flat with no groupings: it stays small once fan-out lives in a reaction or a job.
+**Rationale:** A folder past 20 files with no groupings reads as one long listing: a reader finds a file only by search, and review misses what the folder holds. Each kind of place has a short closed list of grouping folders, and an agent never invents another. A `Domain/{Aggregates}/` folder groups into `{Act}/` per root action, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`; a `Ports/{Port}/` folder groups its signature types into `Models/`; an `Infrastructure/{Port}/` folder groups its wire types into `Models/` and the collaborators its adapter needs into `Parts/`; a `WebApi/Pipeline/` folder past 20 files groups into one folder per protocol. A use case folder holds everything flat with no groupings: it stays small once fan-out lives in a reaction or a job.
 
 **Example:** A `Domain/Entries/` folder past 20 files groups each root action into its own `{Act}/` folder, so `Domain/Entries/PostInvoice/` mirrors `Application/Entries/PostInvoiceEntry/`.
 

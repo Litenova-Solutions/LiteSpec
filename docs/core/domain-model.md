@@ -57,7 +57,7 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 | `onErasure` | `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`. |
 | `basis` | The constraint, requirement, and decision identifiers behind the retention. |
 | `period`, `periodStartsAt` | The retention period as an ISO 8601 duration, or `{ "mode": "none", "reason": "..." }`, with the date it counts from: a `domain-event/`, `module-event/`, or `integration-event/` identifier, an aggregate date field as `aggregate/<module>.<aggregate>#<field>`, a state transition written `<state> to <state>`, `financial-year-end` or `calendar-year-end`, or `{ "event": ..., "rounding": ... }` counting from an event or field rounded up to a calendar end. |
-| `holds` | Pauses to deletion, each with its `reason`, the `heldOn` date the hold starts, and the `liftedOn` date the hold ends, left out while the hold stands. |
+| `retentionHolds` | Pauses to deletion, each with its `reason`, the `heldOn` date the hold starts, and the `liftedOn` date the hold ends, left out while the hold stands. |
 | `enforcedBy` | The `job/` or `use-case/` identifiers carrying out the erasure. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class, and the retention conflicts with the winning duty and its basis. |

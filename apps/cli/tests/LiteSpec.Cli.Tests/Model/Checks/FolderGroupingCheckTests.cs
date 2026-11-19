@@ -40,44 +40,52 @@ public sealed class FolderGroupingCheckTests
         Assert.Contains("Domain/, Values/ and Auditing/", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Kernel Past Twenty Files Reports Ungrouped.</summary>
+    /// <summary>Kernel Root File Reports Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void KernelPastTwentyFilesReportsUngrouped()
+    public void KernelRootFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "Money.cs");
+        WriteSource(file, "namespace Library.Kernel;\n\npublic sealed record Money(decimal Amount);\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(file, finding.Path);
+        Assert.Contains("holds no files; move it into Domain/, Values/ or Auditing/", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Kernel Root Files Report Drift At Any Count.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void KernelRootFilesReportDriftAtAnyCount()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
         WriteFiles(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel"), "KernelPart", 21, ".cs");
 
-        var finding = Assert.Single(Run(model));
+        var findings = Run(model);
 
-        Assert.Equal("folder-ungrouped", finding.Code);
-        Assert.Contains("21 files", finding.Message, StringComparison.Ordinal);
+        Assert.Equal(21, findings.Count);
+        Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
     }
 
-    /// <summary>Kernel Twenty Files Pass.</summary>
+    /// <summary>Kernel Root Files With Grouping Still Report Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void KernelTwentyFilesPass()
-    {
-        using var temp = TestCli.Temp("grouping");
-        var model = GroupingModel(temp.Path);
-        WriteFiles(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel"), "KernelPart", 20, ".cs");
-
-        Assert.Empty(Run(model));
-    }
-
-    /// <summary>Kernel Past Twenty Files With Grouping Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
-    [Fact]
-    public void KernelPastTwentyFilesWithGroupingPasses()
+    public void KernelRootFilesWithGroupingStillReportDrift()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
         WriteFiles(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel"), "KernelPart", 21, ".cs");
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Kernel", "Domain"));
 
-        Assert.Empty(Run(model));
+        var findings = Run(model);
+
+        Assert.Equal(21, findings.Count);
+        Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
     }
 
     /// <summary>Platform Auditing Reports Drift.</summary>
@@ -146,6 +154,35 @@ public sealed class FolderGroupingCheckTests
         var model = GroupingModel(temp.Path);
         WriteFiles(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "Access"), "AccessPart", 21, ".cs");
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "Access", "Policies"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Platform Root File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PlatformRootFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CompositionExtensions.cs");
+        WriteSource(file, "namespace Library.Platform;\n\npublic static class CompositionExtensions\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(file, finding.Path);
+        Assert.Contains("holds no files; move it into its capability folder", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Platform Root Project File Passes.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PlatformRootProjectFilePasses()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "Library.Platform.csproj"), "<Project Sdk=\"Microsoft.NET.Sdk\" />\n");
 
         Assert.Empty(Run(model));
     }
@@ -232,6 +269,130 @@ public sealed class FolderGroupingCheckTests
         WriteFiles(aggregate, "LoanPart", 20, ".cs");
 
         Assert.Empty(Run(model));
+    }
+
+    /// <summary>Domain State Beside Root Reports Parts.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainStateBesideRootReportsParts()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var state = ModuleFile(temp.Path, "Lending", "Domain", "Loans", "LoanActiveState.cs");
+        WriteSource(state, "namespace Library.Lending.Domain.Loans;\n\npublic sealed record LoanActiveState : LoanState;\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(state, finding.Path);
+        Assert.Contains("belongs in 'Parts/'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Domain States In Parts Pass.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainStatesInPartsPass()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Parts", "LoanState.cs"), "namespace Library.Lending.Domain.Loans.Parts;\n\npublic abstract record LoanState;\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Parts", "LoanActiveState.cs"), "namespace Library.Lending.Domain.Loans.Parts;\n\npublic sealed record LoanActiveState : LoanState;\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Domain Partial File Beside Root Passes.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainPartialFileBesideRootPasses()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Loan.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic sealed partial class Loan\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "ILoanRepository.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic interface ILoanRepository\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Loan.Lines.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic sealed partial class Loan\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Domain Single Store Interface Passes.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainSingleStoreInterfacePasses()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Loan.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic sealed class Loan\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "ILoanRepository.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic interface ILoanRepository\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Domain Second Store Interface Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainSecondStoreInterfaceReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "ILoanRepository.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic interface ILoanRepository\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "Domain", "Loans", "ILoanArchiveRepository.cs"), "namespace Library.Lending.Domain.Loans;\n\npublic interface ILoanArchiveRepository\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("declares 2 store interfaces ('ILoanArchiveRepository', 'ILoanRepository')", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Domain Parts Event File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainPartsEventFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var stray = ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Parts", "LoanFiledEvent.cs");
+        WriteSource(stray, "namespace Library.Lending.Domain.Loans.Parts;\n\npublic sealed record LoanFiledEvent;\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("belongs in 'Events/'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Domain Facts Exception File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainFactsExceptionFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var stray = ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Facts", "LoanLimitException.cs");
+        WriteSource(stray, "namespace Library.Lending.Domain.Loans.Facts;\n\npublic sealed class LoanLimitException : Exception\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("belongs in 'Exceptions/'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Domain Events Exception File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void DomainEventsExceptionFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var stray = ModuleFile(temp.Path, "Lending", "Domain", "Loans", "Events", "LoanLimitException.cs");
+        WriteSource(stray, "namespace Library.Lending.Domain.Loans.Events;\n\npublic sealed class LoanLimitException : Exception\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("belongs in 'Exceptions/'", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Port Models With Named Types Pass.</summary>
@@ -333,7 +494,7 @@ public sealed class FolderGroupingCheckTests
             "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
         WriteSource(
             ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
-            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter : ICountryPack\n{\n    public Task<PackResponse> FetchAsync() => throw new NotImplementedException();\n}\n");
         WriteSource(
             ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "Models", "PackResponse.cs"),
             "namespace Library.Lending.Infrastructure.CountryPack.Models;\n\npublic sealed record PackResponse(int Total);\n");
@@ -359,33 +520,145 @@ public sealed class FolderGroupingCheckTests
         var finding = Assert.Single(Run(model));
 
         Assert.Equal("code-placement-drift", finding.Code);
-        Assert.Contains("only its Models/ grouping", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("only its Models/ and Parts/ groupings", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Adapter Past Twenty Files Reports Ungrouped.</summary>
+    /// <summary>Adapter Wire Type Beside Adapter Reports Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
-    public void AdapterPastTwentyFilesReportsUngrouped()
+    public void AdapterWireTypeBesideAdapterReportsDrift()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
         WriteSource(
             ModuleFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
             "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
-        var adapter = Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "x.cs"))!;
-        WriteSource(Path.Combine(adapter, "CountryPackAdapter.cs"), "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
-        WriteFiles(adapter, "PackWire", 20, ".cs");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+        var stray = ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "PackResponse.cs");
+        WriteSource(stray, "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed record PackResponse(int Total);\n");
 
         var finding = Assert.Single(Run(model));
 
-        Assert.Equal("folder-ungrouped", finding.Code);
-        Assert.Contains("21 files", finding.Message, StringComparison.Ordinal);
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("belongs in 'Models/' when the external system shapes it, or in 'Parts/' when the adapter calls it", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Persistence Past Twenty Files Reports Ungrouped.</summary>
+    /// <summary>Adapter Implementing Port Passes.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterImplementingPortPasses()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Ports", "MailRelay", "IMailRelay.cs"),
+            "namespace Library.Lending.Ports.MailRelay;\n\npublic interface IMailRelay\n{\n    Task SendAsync(string key);\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "MailRelay", "MailRelayMessenger.cs"),
+            "namespace Library.Lending.Infrastructure.MailRelay;\n\npublic sealed class MailRelayMessenger : IMailRelay\n{\n    public Task SendAsync(string key) => Task.CompletedTask;\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Several Adapters Side By Side Pass.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void SeveralAdaptersSideBySidePass()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CsvCountryPack.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CsvCountryPack : ICountryPack\n{\n    public Task<int> Ping() => Task.FromResult(0);\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "JsonCountryPack.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class JsonCountryPack : ICountryPack\n{\n    public Task<int> Ping() => Task.FromResult(0);\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Adapter Options And Parts Pass.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterOptionsAndPartsPass()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter : ICountryPack\n{\n    public CountryPackAdapter(PackRetry retry, CountryPackAdapterOptions options)\n    {\n    }\n\n    public Task<PackResponse> FetchAsync() => throw new NotImplementedException();\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapterOptions.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapterOptions\n{\n    public string Endpoint { get; set; } = \"\";\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "Models", "PackResponse.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack.Models;\n\npublic sealed record PackResponse(int Total);\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "Parts", "PackRetry.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack.Parts;\n\npublic sealed class PackRetry\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Adapter Models Type No Adapter Names Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterModelsTypeNoAdapterNamesReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+        var stray = ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "Models", "RateCache.cs");
+        WriteSource(stray, "namespace Library.Lending.Infrastructure.CountryPack.Models;\n\npublic sealed class RateCache\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("is named by no adapter file", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Adapter Parts Type No Adapter Names Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void AdapterPartsTypeNoAdapterNamesReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Ports", "CountryPack", "ICountryPack.cs"),
+            "namespace Library.Lending.Ports.CountryPack;\n\npublic interface ICountryPack\n{\n    Task<int> Ping();\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "CountryPackAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.CountryPack;\n\npublic sealed class CountryPackAdapter\n{\n}\n");
+        var stray = ModuleFile(temp.Path, "Lending", "Infrastructure", "CountryPack", "Parts", "RateCache.cs");
+        WriteSource(stray, "namespace Library.Lending.Infrastructure.CountryPack.Parts;\n\npublic sealed class RateCache\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(stray, finding.Path);
+        Assert.Contains("is named by no adapter file", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Persistence Root Files Report Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void PersistencePastTwentyFilesReportsUngrouped()
+    public void PersistenceRootFilesReportDrift()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
@@ -394,16 +667,17 @@ public sealed class FolderGroupingCheckTests
         var persistence = Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Infrastructure", "Persistence");
         WriteFiles(persistence, "LoanStore", 21, ".cs");
 
-        var finding = Assert.Single(Run(model));
+        var findings = Run(model);
 
-        Assert.Equal("folder-ungrouped", finding.Code);
-        Assert.Contains("one folder per aggregate", finding.Message, StringComparison.Ordinal);
+        Assert.Equal(21, findings.Count);
+        Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
+        Assert.All(findings, finding => Assert.Contains("holds only module-wide store setup", finding.Message, StringComparison.Ordinal));
     }
 
-    /// <summary>Persistence Past Twenty Files Without Aggregates Passes.</summary>
+    /// <summary>Persistence Root Files Without Aggregates Report Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void PersistencePastTwentyFilesWithoutAggregatesPasses()
+    public void PersistenceRootFilesWithoutAggregatesReportDrift()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
@@ -411,7 +685,153 @@ public sealed class FolderGroupingCheckTests
         var persistence = Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Reporting", "Infrastructure", "Persistence");
         WriteFiles(persistence, "ReportStore", 21, ".cs");
 
+        var findings = Run(model);
+
+        Assert.Equal(21, findings.Count);
+        Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
+    }
+
+    /// <summary>Persistence Root Mapping File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PersistenceRootMappingFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        model.Records.Add(Rec("module/lending", "lending", temp.Path));
+        model.Records.Add(AggregateRec("aggregate/lending.loan", "lending", "loans", temp.Path));
+        var file = ModuleFile(temp.Path, "Lending", "Infrastructure", "Persistence", "LoanStoreConfiguration.cs");
+        WriteSource(file, "namespace Library.Lending.Infrastructure.Persistence;\n\npublic sealed class LoanStoreConfiguration\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(file, finding.Path);
+        Assert.Contains("holds only module-wide store setup ('LendingStoreContribution.cs')", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Persistence Nested Mapping File Passes.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PersistenceNestedMappingFilePasses()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        model.Records.Add(Rec("module/lending", "lending", temp.Path));
+        model.Records.Add(AggregateRec("aggregate/lending.loan", "lending", "loans", temp.Path));
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "Persistence", "Loans", "LoanStoreConfiguration.cs"),
+            "namespace Library.Lending.Infrastructure.Persistence.Loans;\n\npublic sealed class LoanStoreConfiguration\n{\n}\n");
+        WriteSource(
+            ModuleFile(temp.Path, "Lending", "Infrastructure", "Persistence", "LendingStoreContribution.cs"),
+            "namespace Library.Lending.Infrastructure.Persistence;\n\npublic sealed class LendingStoreContribution\n{\n}\n");
+
         Assert.Empty(Run(model));
+    }
+
+    /// <summary>Persistence Adapter File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PersistenceAdapterFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        model.Records.Add(Rec("module/lending", "lending", temp.Path));
+        model.Records.Add(AggregateRec("aggregate/lending.loan", "lending", "loans", temp.Path));
+        var nested = ModuleFile(temp.Path, "Lending", "Infrastructure", "Persistence", "Loans", "MailRelayAdapter.cs");
+        WriteSource(nested, "namespace Library.Lending.Infrastructure.Persistence.Loans;\n\npublic sealed class MailRelayAdapter\n{\n}\n");
+        var root = ModuleFile(temp.Path, "Lending", "Infrastructure", "Persistence", "PayoutBankClient.cs");
+        WriteSource(root, "namespace Library.Lending.Infrastructure.Persistence;\n\npublic sealed class PayoutBankClient\n{\n}\n");
+
+        var findings = Run(model);
+
+        Assert.Equal(2, findings.Count);
+        Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
+        Assert.All(findings, finding => Assert.Contains("holds an adapter, which sits in its Infrastructure/{Port}/ folder, not in Persistence/", finding.Message, StringComparison.Ordinal));
+    }
+
+    /// <summary>Web Api Pipeline Files Pass.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void WebApiPipelineFilesPass()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "CurrentActorMiddleware.cs"), "namespace Library.Lending.WebApi.Pipeline;\n\npublic sealed class CurrentActorMiddleware\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "RecentSignInCondition.cs"), "namespace Library.Lending.WebApi.Pipeline;\n\npublic sealed class RecentSignInCondition\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Web Api Pipeline Protocol Folders Pass.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void WebApiPipelineProtocolFoldersPass()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "OAuth", "OAuthHandler.cs"), "namespace Library.Lending.WebApi.Pipeline.OAuth;\n\npublic sealed class OAuthHandler\n{\n}\n");
+        WriteSource(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "OAuth", "OAuthToken.cs"), "namespace Library.Lending.WebApi.Pipeline.OAuth;\n\npublic sealed record OAuthToken(string Value);\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Web Api Pipeline Past Twenty Files Reports Ungrouped.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void WebApiPipelinePastTwentyFilesReportsUngrouped()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var pipeline = Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "x.cs"))!;
+        WriteFiles(pipeline, "PipelinePart", 21, ".cs");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("folder-ungrouped", finding.Code);
+        Assert.Contains("group them into one folder per protocol", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Web Api Pipeline Protocol Nested Folder Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void WebApiPipelineProtocolNestedFolderReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "WebApi", "Pipeline", "OAuth", "x.cs"))!, "Cache"));
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("which holds files only", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Infrastructure Messaging Files Pass.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void InfrastructureMessagingFilesPass()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteSource(ModuleFile(temp.Path, "Lending", "Infrastructure", "Messaging", "LoanEventMapping.cs"), "namespace Library.Lending.Infrastructure.Messaging;\n\npublic sealed class LoanEventMapping\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>Infrastructure Messaging Subfolder Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void InfrastructureMessagingSubfolderReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(ModuleFile(temp.Path, "Lending", "Infrastructure", "Messaging", "x.cs"))!, "Cache"));
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Contains("which holds files only", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Use Case Past Twenty Files Reports Ungrouped.</summary>
@@ -500,9 +920,26 @@ public sealed class FolderGroupingCheckTests
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
         WriteSource(Path.Combine(temp.Path, "apps", "web", "src", "lib", "app", "session", "session.ts"), "export {};\n");
-        WriteSource(Path.Combine(temp.Path, "apps", "web", "src", "lib", "app", "money.ts"), "export {};\n");
+        WriteSource(Path.Combine(temp.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts"), "export {};\n");
 
         Assert.Empty(Run(model));
+    }
+
+    /// <summary>Shared App Root File Reports Drift.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void SharedAppRootFileReportsDrift()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "app", "money.ts");
+        WriteSource(file, "export type Money = {\n  amount: string;\n  currency: string;\n};\n\nexport function formatMoney(money: Money): string {\n  return `${money.currency} ${money.amount}`;\n}\n");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("code-placement-drift", finding.Code);
+        Assert.Equal(file, finding.Path);
+        Assert.Contains("move it into session/, i18n/, api/ or ui/", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Shared App Folder Outside Groups Reports Drift.</summary>
@@ -520,19 +957,19 @@ public sealed class FolderGroupingCheckTests
         Assert.Contains("session/, i18n/, api/ and ui/", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Shared App Past Twenty Files Reports Ungrouped.</summary>
+    /// <summary>Shared App Root Files Report Drift.</summary>
     /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void SharedAppPastTwentyFilesReportsUngrouped()
+    public void SharedAppRootFilesReportDrift()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
         WriteFiles(Path.Combine(temp.Path, "apps", "web", "src", "lib", "app"), "shared", 21, ".ts");
 
-        var finding = Assert.Single(Run(model));
+        var findings = Run(model);
 
-        Assert.Equal("folder-ungrouped", finding.Code);
-        Assert.Contains("21 files", finding.Message, StringComparison.Ordinal);
+        Assert.Equal(21, findings.Count);
+        Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
     }
 
     /// <summary>React Shared App Folder Outside Groups Reports Drift.</summary>

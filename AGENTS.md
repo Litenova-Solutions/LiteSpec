@@ -66,7 +66,7 @@ Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#s
 
 ## Placing Records
 
-A record's folder says where its content belongs, and a link field says why the record exists. Nest a record under another record only when its whole content lies within that record, as a requirement lies within its feature. A record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field: a feature stands under the product and names the problems it answers in `solves`, and a flow sits under the product and names its goal in `serves` or its problem or constraint in `answers`.
+A record's folder says where its content belongs, and a link field says why the record exists. Nest a record under another record only when its whole content lies within that record, as a requirement lies within its feature. A record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field: a feature stands in the folder of the problem it answers and names the goal it advances in `advances`, and a flow sits under the product and names its goal in `serves` or its problem or constraint in `answers`.
 
 Apply this when you add a record type, give a type a new parent or home in the Placement Table, or choose between the homes a type allows. A folder chosen for the reason a record exists, rather than for its content, is the defect.
 

@@ -34,7 +34,7 @@
           </tr>
         </thead>
         <tbody class="[&_tr:hover_td]:bg-layer-hover [&_tr:hover_th]:bg-layer-hover">
-          {#each sources as x, i (String(x.key ?? i))}
+          {#each sources as x, i (String(x.name ?? i))}
             {@const readOn = stringField(x, "readOn")}
             {@const published = stringField(x, "publishedOn")}
             {@const note = stringField(x, "note")}
@@ -43,7 +43,7 @@
             {@const title = stringField(x, "title")}
             <tr>
               <th scope="row" class="bg-layer border-t border-border-subtle px-4 py-3 text-left align-top font-normal">
-                {#if x.key}<code class="bg-layer-accent px-1 font-mono text-xs">{String(x.key)}</code>{" "}{/if}
+                {#if x.name}<code class="bg-layer-accent px-1 font-mono text-xs">{String(x.name)}</code>{" "}{/if}
                 {#if x.path}
                   {#if title}<span>{title}</span>{" "}{/if}
                   <code class="bg-layer-accent px-1 font-mono text-xs">{String(x.path)}</code>

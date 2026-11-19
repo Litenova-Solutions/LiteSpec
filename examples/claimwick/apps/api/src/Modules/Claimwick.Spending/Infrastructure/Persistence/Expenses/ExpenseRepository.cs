@@ -1,5 +1,6 @@
 using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Domain.Expenses;
+using Claimwick.Spending.Domain.Expenses.Parts;
 using Marten;
 
 namespace Claimwick.Spending.Infrastructure.Persistence.Expenses;

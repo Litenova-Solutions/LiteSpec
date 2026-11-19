@@ -17,7 +17,7 @@ namespace LiteSpec.Analyzers.Generation.Sources;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class GeneratedSourceWriter
 {
-    /// <summary>Writes every source the inputs call for, or nothing without a usable project file, with no records and no marks, or in the shared kernel.</summary>
+    /// <summary>Writes every source the inputs call for, or nothing without a usable project file, with no records and no marks, or in the Kernel.</summary>
     /// <param name="context">The source production context.</param>
     /// <param name="records">The record facts.</param>
     /// <param name="types">The marked types.</param>
@@ -28,9 +28,9 @@ internal static class GeneratedSourceWriter
         ImmutableArray<MarkedType> types,
         HostModel host)
     {
-        // The shared kernel reads layer None with no module project and no host,
-        // so it generates nothing.
-        if (host.Layer == ArchitectureLayer.None && !host.ModuleProject)
+        // A compilation that is neither a module project nor a host (the Kernel, the
+        // Platform) generates nothing.
+        if (!host.ModuleProject && !host.ModuleHost)
         {
             return;
         }

@@ -103,7 +103,7 @@ sealed class UiSession
         // A waiver carries an expiry date and stops being live once that date
         // passes. A waiver with no expiry date is lasting and never expires. This
         // check is time dependent by design; every other check in this validator
-        // depends only on repository files. Only waivers whose covers name a UI
+        // depends only on repository files. Only waivers whose waives name a UI
         // page are read here; the rest belong to the checks that enforce them.
         var today = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         foreach (var waiver in uiWaivers)
@@ -439,7 +439,7 @@ sealed class UiSession
     }
 
     // A rule override is a waiver record: .litespec/governance/waivers/<name>.yaml
-    // whose covers list names the provision it sets aside, with the reason and the
+    // whose waives list names the provision it sets aside, with the reason and the
     // expiry date. The consumer validator owns the record shape; this validator reads
     // the waivers its own gates need and enforces the expiry date.
     /// <summary>
@@ -483,7 +483,7 @@ sealed class UiSession
                 continue;
             }
 
-            if (!root.TryGetProperty("covers", out var covers) || covers.ValueKind != JsonValueKind.Array)
+            if (!root.TryGetProperty("waives", out var covers) || covers.ValueKind != JsonValueKind.Array)
             {
                 continue;
             }

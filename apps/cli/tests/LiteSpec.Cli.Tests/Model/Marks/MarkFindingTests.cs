@@ -189,6 +189,108 @@ public sealed class MarkFindingTests
         }
     }
 
+    /// <summary>A root split across its main file and an act folder reports no mark missing when the main file carries the mark.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact]
+    public void SplitFolderRootMarkedOnMainFileReportsNothing()
+    {
+        using var temp = WriteSplitFolderConsumer();
+        var missing = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-missing");
+
+        Assert.Empty(missing);
+    }
+
+    /// <summary>Writes a consumer in the module layout where one root splits into its marked main file and an unmarked part in an act folder.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WriteSplitFolderConsumer()
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            WriteFile(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  }
+                }
+                """);
+            WriteFile(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/entries/aggregate.yaml", """
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.entry",
+                  "title": "Entry",
+                  "states": [
+                    {
+                      "name": "Active",
+                      "meaning": "The record is open."
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/entries/aggregate.md", """
+                # Entry
+
+                A record stays open.
+                """);
+
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Entries/Entry.cs", """
+                namespace Library.Lending.Domain.Entries;
+
+                /// <implements>aggregate/lending.entry</implements>
+                public sealed partial class Entry : AggregateRoot<EntryId>
+                {
+                    public string State { get; private set; } = "active";
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Entries/PostEntry/Entry.PostEntry.cs", """
+                namespace Library.Lending.Domain.Entries;
+
+                public sealed partial class Entry
+                {
+                    private string PostingNote() => "posted";
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
     static void WriteFile(string root, string relative, string text)
     {
         var destination = Path.Combine(root, relative);

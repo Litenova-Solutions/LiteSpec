@@ -163,12 +163,13 @@ public sealed class ModuleContractsAnalyzer : LayerAnalyzer
         return false;
     }
 
-    /// <summary>Returns true when the type is a reaction or a job: a type named *Job, a type deriving from BackgroundService, or a type implementing IEventHandler; otherwise false.</summary>
+    /// <summary>Returns true when the type is a reaction or a job: a type named *Job or *Worker, a type deriving from BackgroundService, or a type implementing IEventHandler; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
     /// <returns>True when the type is a reaction or a job; otherwise false.</returns>
     private static bool IsReactionOrJob(INamedTypeSymbol type)
     {
-        if (type.Name.EndsWith("Job", StringComparison.Ordinal))
+        if (type.Name.EndsWith("Job", StringComparison.Ordinal)
+            || type.Name.EndsWith("Worker", StringComparison.Ordinal))
         {
             return true;
         }

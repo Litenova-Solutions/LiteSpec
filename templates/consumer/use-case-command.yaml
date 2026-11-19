@@ -105,15 +105,15 @@ effects:
 idempotency:
   mode: <key|state|none>
   key: <key template over input fields, such as order-{orderId}>
-  scope: <tenant|account|login|global, or remove this line>
+  keyScope: <tenant|account|login|global, or remove this line>
   replay: <returns-first-result|refuses|acts-again, or remove this line>
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this command needs no idempotency, or remove this line>
 consentRule: rule/<home>.<name, or remove this line>
-# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level and target.
+# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level and target kind.
 audit:
   level: <required|optional|none>
-  target: <what the audit trail records for this command>
+  targetKind: <what the audit trail records for this command>
 background: <what the caller sees while the command runs on, or remove this line>
 records:
 - type: result

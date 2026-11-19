@@ -2,9 +2,9 @@ type: waiver
 id: waiver/slow-review-waiver
 title: Slow Review Waiver
 kind: gap
-covers:
+waives:
   - litespec/backend/application#keep-command-handlers-to-load-call-and-stage
-subject:
+appliesTo:
   - use-case/billing.send-invoice
 reason: The billing handler calls two aggregates until the split ships.
 consequences: The handler loads the invoice and the ledger in one call until the split ships.

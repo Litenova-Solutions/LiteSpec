@@ -285,7 +285,7 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports an of that names no record for an id, a choice with no choices, a list with no row shape, or a file with no content types and size.</summary>
+    /// <summary>Reports an identifies that names no record for an id, a choice with no choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither.</summary>
     /// <param name="model">The loaded project model that resolves the id field target.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -296,13 +296,19 @@ internal static class ContractChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckContractOf(ProjectModel model, Record record, string label, string array, string name, string type, JsonElement entry, List<Finding> findings)
     {
-        var has = entry.TryGetProperty(RecordFields.Identifies, out var of);
+        var hasId = entry.TryGetProperty(RecordFields.Identifies, out var of);
+        var hasRow = entry.TryGetProperty(RecordFields.RowShape, out var rowShape);
 
         if (type == "id")
         {
-            if (!has || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
+            if (hasRow)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with no of record.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with a rowShape that only list carries.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (!hasId || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with no identifies.", record.File, record.Line, SubjectOf(record)));
                 return;
             }
 
@@ -321,12 +327,18 @@ internal static class ContractChecks
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type choice with no choices.", record.File, record.Line, SubjectOf(record)));
             }
 
+            RefuseShapes(record, label, array, name, type, hasId, hasRow, findings);
             return;
         }
 
         if (type == "list")
         {
-            CheckRowShape(record, label, array, name, has ? of : default, findings);
+            if (hasId)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with an identifies that only id carries.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            CheckRowShape(record, label, array, name, hasRow ? rowShape : default, findings);
             return;
         }
 
@@ -340,12 +352,32 @@ internal static class ContractChecks
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type file with no contentTypes and maxSize.", record.File, record.Line, SubjectOf(record)));
             }
 
+            RefuseShapes(record, label, array, name, type, hasId, hasRow, findings);
             return;
         }
 
-        if (has)
+        RefuseShapes(record, label, array, name, type, hasId, hasRow, findings);
+    }
+
+    /// <summary>Reports an identifies or rowShape on a contract field type that carries neither.</summary>
+    /// <param name="record">The record that holds the contract field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input or payload.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="type">The contract field type quoted in each finding.</param>
+    /// <param name="hasId">Whether the field carries identifies.</param>
+    /// <param name="hasRow">Whether the field carries rowShape.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void RefuseShapes(Record record, string label, string array, string name, string type, bool hasId, bool hasRow, List<Finding> findings)
+    {
+        if (hasId)
         {
-            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with an of that only id and list carry.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with an identifies that only id carries.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (hasRow)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with a rowShape that only list carries.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -357,16 +389,16 @@ internal static class ContractChecks
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="array">The contract array field name, input, payload or output.</param>
     /// <param name="name">The contract field name quoted in each finding.</param>
-    /// <param name="of">The of object of the list field, or a default element when the field states none.</param>
+    /// <param name="rowShape">The rowShape object of the list field, or a default element when the field states none.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void CheckRowShape(Record record, string label, string array, string name, JsonElement of, List<Finding> findings)
+    internal static void CheckRowShape(Record record, string label, string array, string name, JsonElement rowShape, List<Finding> findings)
     {
-        if (of.ValueKind != JsonValueKind.Object
-            || !of.TryGetProperty(RecordFields.Fields, out var rowFields)
+        if (rowShape.ValueKind != JsonValueKind.Object
+            || !rowShape.TryGetProperty(RecordFields.Fields, out var rowFields)
             || rowFields.ValueKind != JsonValueKind.Array
             || rowFields.GetArrayLength() == 0)
         {
-            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with no of row fields.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with no rowShape.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -398,13 +430,13 @@ internal static class ContractChecks
             }
         }
 
-        if (of.TryGetProperty(RecordFields.MinItems, out var minItems)
+        if (rowShape.TryGetProperty(RecordFields.MinItems, out var minItems)
             && (minItems.ValueKind != JsonValueKind.Number || !minItems.TryGetInt32(out var count) || count < 0))
         {
             findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds minItems on {array} field '{name}' that is no non-negative whole number.", record.File, record.Line, SubjectOf(record)));
         }
 
-        if (!of.TryGetProperty(RecordFields.Unique, out var unique))
+        if (!rowShape.TryGetProperty(RecordFields.Unique, out var unique))
         {
             return;
         }

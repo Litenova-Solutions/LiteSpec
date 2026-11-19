@@ -49,6 +49,7 @@ static class FrontendReadBuilder
         }
 
         var byRoute = new Dictionary<string, List<EndpointRow>>(StringComparer.Ordinal);
+        var prefixed = new List<(string Prefix, EndpointRow Row)>();
 
         foreach (var endpoint in code.Endpoints)
         {
@@ -70,7 +71,15 @@ static class FrontendReadBuilder
                 byRoute[path] = rows;
             }
 
-            rows.Add(new EndpointRow(endpoint.Operation, endpoint.UseCaseId, endpoint.Method, endpoint.Route, endpoint.File));
+            var row = new EndpointRow(endpoint.Operation, endpoint.UseCaseId, endpoint.Method, endpoint.Route, endpoint.File);
+            rows.Add(row);
+
+            // A parameterized route is also matched by its fixed prefix, so a
+            // navigation carrying a concrete value or a template head reaches it.
+            if (FixedPrefix(path) is { } prefix)
+            {
+                prefixed.Add((prefix, row));
+            }
         }
 
         var screens = new List<CodeScreen>();
@@ -119,7 +128,7 @@ static class FrontendReadBuilder
             {
                 var path = NormalizePath(navigation.Path);
 
-                if (path.Length == 0 || !byRoute.TryGetValue(path, out var rows))
+                if (path.Length == 0 || MatchRoute(path, byRoute, prefixed) is not { Count: > 0 } rows)
                 {
                     continue;
                 }
@@ -251,6 +260,52 @@ static class FrontendReadBuilder
         }
 
         return path.StartsWith('/') ? path : "";
+    }
+
+    /// <summary>The fixed prefix a parameterized route is matched by: the normalized route up to its first parameter, without a trailing slash, or null when the route names no parameter or no usable prefix.</summary>
+    /// <param name="path">The normalized endpoint route.</param>
+    /// <returns>The fixed prefix, or null when the route matches by exact path only.</returns>
+    private static string? FixedPrefix(string path)
+    {
+        var open = path.IndexOf('{');
+
+        if (open < 0)
+        {
+            return null;
+        }
+
+        var prefix = path[..open].TrimEnd('/');
+
+        return prefix.Length > 1 ? prefix : null;
+    }
+
+    /// <summary>Every endpoint row a navigation reaches: the rows of its exact route, plus the rows of each parameterized route whose fixed prefix it starts with at a segment boundary.</summary>
+    /// <param name="path">The normalized navigation path.</param>
+    /// <param name="byRoute">The endpoint rows by exact normalized route.</param>
+    /// <param name="prefixed">The endpoint rows of parameterized routes with their fixed prefixes, in endpoint order.</param>
+    /// <returns>The matched rows, exact matches first, or an empty list when nothing matches.</returns>
+    private static List<EndpointRow> MatchRoute(
+        string path,
+        Dictionary<string, List<EndpointRow>> byRoute,
+        List<(string Prefix, EndpointRow Row)> prefixed)
+    {
+        var matched = new List<EndpointRow>();
+
+        if (byRoute.TryGetValue(path, out var exact))
+        {
+            matched.AddRange(exact);
+        }
+
+        foreach (var (prefix, row) in prefixed)
+        {
+            if (path.Equals(prefix, StringComparison.Ordinal)
+                || path.StartsWith(prefix + "/", StringComparison.Ordinal))
+            {
+                matched.Add(row);
+            }
+        }
+
+        return matched;
     }
 
     /// <summary>One marked element per use-case module folder in the facts, in file and line order.</summary>

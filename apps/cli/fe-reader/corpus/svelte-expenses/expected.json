@@ -46,6 +46,11 @@
           ],
           "calls": [
             {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 4
+            },
+            {
               "operation": "listExpenses",
               "file": "src/lib/modules/spending/list-expenses/client.ts",
               "line": 5
@@ -61,6 +66,11 @@
               "line": 4
             },
             {
+              "operation": "getExpense",
+              "file": "src/routes/(shop)/+layout.server.ts",
+              "line": 4
+            },
+            {
               "operation": "listExpenses",
               "file": "src/routes/(shop)/expenses/+page.ts",
               "line": 7
@@ -69,9 +79,20 @@
               "operation": "getExpense",
               "file": "src/routes/(shop)/expenses/expense-table.svelte",
               "line": 4
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5
             }
           ],
-          "navigations": []
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7
+            }
+          ]
         },
         {
           "file": "src/routes/(shop)/expenses/[id]/+page.svelte",
@@ -82,28 +103,83 @@
           ],
           "calls": [
             {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 4
+            },
+            {
               "operation": "getExpense",
               "file": "src/lib/modules/spending/list-receipts/reader.ts",
               "line": 4
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/routes/(shop)/+layout.server.ts",
+              "line": 4
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5
             }
           ],
-          "navigations": []
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7
+            }
+          ]
         },
         {
           "file": "src/routes/about/+page.svelte",
           "line": 1,
           "address": "/about",
           "marks": [],
-          "calls": [],
-          "navigations": []
+          "calls": [
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 4
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7
+            }
+          ]
         },
         {
           "file": "src/routes/broken/+page.svelte",
           "line": 1,
           "address": "/broken",
           "marks": [],
-          "calls": [],
-          "navigations": []
+          "calls": [
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 4
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7
+            }
+          ]
         },
         {
           "file": "src/routes/sign-in/+page.svelte",
@@ -112,8 +188,24 @@
           "marks": [
             "screen/web.sign-in"
           ],
-          "calls": [],
+          "calls": [
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 4
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5
+            }
+          ],
           "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7
+            },
             {
               "path": "/auth/login?next=/home",
               "file": "src/routes/sign-in/+page.svelte",
@@ -125,24 +217,29 @@
               "line": 14
             },
             {
-              "path": "/auth/callback?code=",
+              "path": "/auth/logout",
               "file": "src/routes/sign-in/+page.svelte",
               "line": 15
             },
             {
-              "path": "/auth/login",
+              "path": "/auth/callback?code=",
               "file": "src/routes/sign-in/+page.svelte",
-              "line": 21
+              "line": 16
             },
             {
               "path": "/auth/login",
               "file": "src/routes/sign-in/+page.svelte",
-              "line": 23
+              "line": 22
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 24
             },
             {
               "path": "/auth/login?next=/home",
               "file": "src/routes/sign-in/+page.svelte",
-              "line": 26
+              "line": 27
             }
           ]
         }

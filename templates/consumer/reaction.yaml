@@ -58,7 +58,7 @@ onFailure:
 idempotency:
   mode: <key|state|none>
   key: <key template, such as reminder-{expenseId}, or remove this line>
-  scope: <tenant|account|login|global, or remove this line>
+  keyScope: <tenant|account|login|global, or remove this line>
   replay: <returns-first-result|refuses|acts-again, or remove this line>
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this reaction needs no idempotency, or remove this line>

@@ -49,17 +49,17 @@ public sealed class BookRecordsCompleteTests
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.Equal("Scope", lexicon.Fields["scope"]);
-        Assert.Equal("Coverage", lexicon.Fields["constraint.scope"]);
-        Assert.Equal("Coverage", BookLexicon.FieldLabel("scope", "constraint"));
+        Assert.Equal("Coverage", lexicon.Fields["constraint.coverage"]);
+        Assert.Equal("Coverage", BookLexicon.FieldLabel("coverage", "constraint"));
         Assert.Equal("Scope", BookLexicon.FieldLabel("scope", "unknown-type"));
 
-        Assert.Equal("Screen states", lexicon.Fields["screen.states"]);
-        Assert.Equal("Screen states", BookLexicon.FieldLabel("states", "screen"));
+        Assert.Equal("Display states", lexicon.Fields["screen.displayStates"]);
+        Assert.Equal("Display states", BookLexicon.FieldLabel("displayStates", "screen"));
         Assert.Equal("Carries", lexicon.Fields["domain-event.carries"]);
         Assert.Equal("Carries", BookLexicon.FieldLabel("carries", "domain-event"));
 
         var json = lexicon.ToJson()["fields"]!.AsObject();
-        Assert.Equal("Coverage", json["constraint.scope"]!.GetValue<string>());
+        Assert.Equal("Coverage", json["constraint.coverage"]!.GetValue<string>());
         Assert.Equal("Scope", json["role.scope"]!.GetValue<string>());
     }
 

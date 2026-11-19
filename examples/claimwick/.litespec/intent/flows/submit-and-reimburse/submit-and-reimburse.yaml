@@ -35,8 +35,8 @@ steps:
     ends: The expense is rejected and no payout is made.
 - id: step/submit-and-reimburse.reimburse-expense
   title: Reimburse Expense
-  statement: Finance reimburses the approved expense.
-  actor: actor/finance
+  statement: The payout bank settles the approved expense.
+  actor: actor/payout-bank
   failure: The expense is not approved, so it waits and no payout is made.
   carries:
   - requirement/approval.expense-reimbursed-at-most-once

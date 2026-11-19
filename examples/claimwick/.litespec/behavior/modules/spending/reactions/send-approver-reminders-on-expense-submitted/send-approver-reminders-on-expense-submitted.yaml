@@ -36,7 +36,7 @@ onFailure:
 idempotency:
   mode: key
   key: approval-reminder-{expenseId}
-  scope: global
+  keyScope: global
 reads:
 - aggregate/spending.expense
 - aggregate/spending.reminder-preference

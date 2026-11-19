@@ -9,7 +9,7 @@ Privacy and Retention states how the product handles personal data: each data cl
 
 ### Retention on the Data Class
 
-Each aggregate data class declares how long its fields are kept. The declaration holds the `period` with the date it counts from in `periodStartsAt`, the `basis` for keeping the fields, the `purpose`, the `enforcedBy` naming what carries out the erasure, any `exceptions`, and any `holds` pausing deletion, as the [Domain Model page](domain-model.md) states.
+Each aggregate data class declares how long its fields are kept. The declaration holds the `period` with the date it counts from in `periodStartsAt`, the `basis` for keeping the fields, the `purpose`, the `enforcedBy` naming what carries out the erasure, any `exceptions`, and any `retentionHolds` pausing deletion, as the [Domain Model page](domain-model.md) states.
 
 The book renders the retention schedule from the data classes: one row per class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. The schedule states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record, and the project's counsel confirms the wording.
 
@@ -67,7 +67,7 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Example:** Claimwick's finance team places a hold on the expense ledger while the tax office audits the year, and the expiry job leaves held rows until the hold lifts.
 
-**Reviewed for:** Does every data class under audit, objection, or dispute carry its hold with its reason and start date, with deletion paused until the hold lifts? Check `holds` on each data class beside the enforcement runs.
+**Reviewed for:** Does every data class under audit, objection, or dispute carry its hold with its reason and start date, with deletion paused until the hold lifts? Check `retentionHolds` on each data class beside the enforcement runs.
 
 ### Round an Event Start to a Calendar End
 

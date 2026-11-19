@@ -21,6 +21,26 @@ public sealed class ModuleVisibilityAnalyzerTests
             ],
             assemblyName: "Claimwick.Spending");
 
+    /// <summary>LS2028 stays quiet in the Kernel, whose grouping folders include Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    [Fact(DisplayName = "LS2028 stays quiet in the Kernel, whose grouping folders include Domain")]
+    public Task StaysQuietInTheKernel() =>
+        Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(
+            [
+                ("Claimwick.Kernel/Domain/AggregateRoot.cs", """
+                    namespace Claimwick.Kernel.Domain;
+
+                    public abstract class AggregateRoot;
+                    """),
+                ("Claimwick.Kernel/Values/Money.cs", """
+                    namespace Claimwick.Kernel.Values;
+
+                    public readonly record struct Money(decimal Amount, string Currency);
+                    """),
+            ],
+            assemblyName: "Claimwick.Kernel");
+
     /// <summary>LS2028 stays quiet in a sibling Contracts project compilation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>

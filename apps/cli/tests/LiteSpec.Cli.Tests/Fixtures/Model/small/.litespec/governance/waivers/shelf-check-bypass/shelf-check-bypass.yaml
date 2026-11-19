@@ -2,9 +2,9 @@ type: waiver
 id: waiver/shelf-check-bypass
 title: Shelf check bypass
 kind: gap
-covers:
+waives:
   - litespec/backend/application#enforce-target-authorization-in-the-pipeline
-subject:
+appliesTo:
 - use-case/lending.register-copy
 reason: The import runs before opening.
 consequences: The morning import skips the quiet check. The bypass ends when the import moves after opening.

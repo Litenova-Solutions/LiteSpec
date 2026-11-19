@@ -30,8 +30,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["use-case-unimplemented"],
-                    ["subject"] = ["use-case/lending.list-loans"],
+                    ["waives"] = ["use-case-unimplemented"],
+                    ["appliesTo"] = ["use-case/lending.list-loans"],
                 }),
         ];
 
@@ -65,8 +65,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["use-case-unimplemented"],
-                    ["subject"] = ["use-case/lending.list-loans"],
+                    ["waives"] = ["use-case-unimplemented"],
+                    ["appliesTo"] = ["use-case/lending.list-loans"],
                 }),
         ];
 
@@ -100,8 +100,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["use-case-unimplemented"],
-                    ["subject"] = ["use-case/lending.list-loans"],
+                    ["waives"] = ["use-case-unimplemented"],
+                    ["appliesTo"] = ["use-case/lending.list-loans"],
                 }),
         ];
 
@@ -135,7 +135,7 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["behavior-unrecorded"],
+                    ["waives"] = ["behavior-unrecorded"],
                     ["paths"] = ["src/**"],
                 }),
         ];
@@ -170,7 +170,7 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["behavior-unrecorded"],
+                    ["waives"] = ["behavior-unrecorded"],
                     ["paths"] = ["docs/**"],
                 }),
         ];
@@ -205,8 +205,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"],
-                    ["subject"] = ["use-case/lending.list-loans"],
+                    ["waives"] = ["litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"],
+                    ["appliesTo"] = ["use-case/lending.list-loans"],
                 }),
         ];
 
@@ -247,8 +247,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"],
-                    ["subject"] = ["use-case/lending.list-loans"],
+                    ["waives"] = ["litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"],
+                    ["appliesTo"] = ["use-case/lending.list-loans"],
                 }),
         ];
 
@@ -282,8 +282,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["waiver-expired"],
-                    ["subject"] = ["waiver/list-loans-unimplemented"],
+                    ["waives"] = ["waiver-expired"],
+                    ["appliesTo"] = ["waiver/list-loans-unimplemented"],
                 }),
         ];
 
@@ -317,8 +317,8 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["proves-unreached"],
-                    ["subject"] = ["use-case/lending.list-loans"],
+                    ["waives"] = ["proves-unreached"],
+                    ["appliesTo"] = ["use-case/lending.list-loans"],
                 }),
         ];
 

@@ -1,5 +1,7 @@
-using Claimwick.Kernel;
+using Claimwick.Kernel.Domain;
+using Claimwick.Kernel.Values;
 using Claimwick.Spending.Domain.Policies.Exceptions;
+using Claimwick.Spending.Domain.Policies.Parts;
 
 namespace Claimwick.Spending.Domain.Policies;
 

@@ -28,6 +28,6 @@ onFailure:
 idempotency:
   mode: key
   key: loan-due-{loanId}
-  scope: global
+  keyScope: global
 fulfills:
 - requirement/borrowing.max-active-loans

@@ -37,7 +37,7 @@ internal sealed class FieldValidator
     // (litespec/core/language#name-each-field-by-its-word-class)
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
-        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "writes", "covers",
+        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "writes", "waives",
             "affects", "holds", "offers", "sends", "translates", "admits", "carries",
             "binds", "exercises", "represents"],
         StringComparer.Ordinal);

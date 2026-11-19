@@ -507,9 +507,9 @@ internal sealed class TraceabilityContext
         /// <param name="waiver">The waiver record under inspection.</param>
         public LiveException(IRecordFields waiver)
         {
-            Subjects = new HashSet<string>(waiver.Ids("subject"), StringComparer.Ordinal);
+            Subjects = new HashSet<string>(waiver.Ids("appliesTo"), StringComparer.Ordinal);
             Paths = waiver.Ids("paths");
-            Codes = new HashSet<string>(waiver.Ids("covers"), StringComparer.Ordinal);
+            Codes = new HashSet<string>(waiver.Ids("waives"), StringComparer.Ordinal);
         }
 
         /// <summary>Gets the subjects for the live waiver.</summary>

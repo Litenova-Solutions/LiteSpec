@@ -151,15 +151,6 @@ internal static class RepositoryUseChecks
         }
     }
 
-    /// <summary>
-    ///     Reports each aggregate a use case changes whose domain repository
-    ///     interface no Infrastructure class implements. The check reads the
-    ///     Infrastructure layer through the backend reader, so a consumer with
-    ///     no Infrastructure folder in any module carries no persistence layer
-    ///     for it to judge, and only writes entries naming an aggregate are
-    ///     read: a store and an aggregate whose Domain declares no repository
-    ///     name nothing to implement.
-    /// </summary>
     /// <summary>Whether any module holds an Infrastructure folder: the module project itself, or one module folder under the single modules project.</summary>
     /// <param name="model">The loaded project model that holds the module roots.</param>
     /// <returns>True when an Infrastructure folder exists in any module.</returns>
@@ -337,7 +328,7 @@ internal static class RepositoryUseChecks
         }
     }
 
-    /// <summary>Raises a finding for each written aggregate with no repository implementation.</summary>
+    /// <summary>Raises a finding for each written aggregate with no repository implementation, whether its Domain interface is missing or no Infrastructure class implements it. The check reads the Infrastructure layer through the backend reader, so a consumer with no Infrastructure folder in any module carries no persistence layer for it to judge, and only writes entries naming an aggregate are read.</summary>
     /// <param name="model">The loaded project model that holds every use case and the scanned repository implementations.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRepositoryUnimplemented(ProjectModel model, List<Finding> findings)
@@ -366,11 +357,6 @@ internal static class RepositoryUseChecks
                 }
 
                 var face = $"I{Naming.Pascal(name)}Repository";
-
-                if (!model.Code.DomainTypes.Any(type => type.Name == face))
-                {
-                    continue;
-                }
 
                 if (implemented.Contains(face))
                 {

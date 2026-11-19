@@ -402,7 +402,7 @@ The module folders follow `litespec/backend/architecture#organize-code-by-module
 
 Aggregate-specific configuration sits beside its aggregate's repository. Session and commit plumbing sit under the product store root.
 
-**Checked by:** `litespec model check` reports `code-placement-drift` for a repository implementation outside its aggregate's `Persistence/` folder, and for a use-case model or adapter file in `Persistence/`.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a repository implementation outside its aggregate's `Persistence/` folder, for a use-case model or adapter file in `Persistence/`, and for any other file directly in `Persistence/` outside module-wide store setup.
 
 ### Use One Session per Command
 

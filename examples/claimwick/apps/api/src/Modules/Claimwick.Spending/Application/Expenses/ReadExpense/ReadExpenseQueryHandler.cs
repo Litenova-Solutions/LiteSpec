@@ -1,5 +1,6 @@
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 using Claimwick.Spending.Domain.Expenses;
+using Claimwick.Spending.Domain.Expenses.Parts;
 using LiteBus.Queries.Abstractions;
 using Marten;
 

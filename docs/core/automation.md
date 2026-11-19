@@ -81,7 +81,7 @@ The name is a singular noun phrase for the thing the model keeps one row per, su
 | Field | Meaning |
 |:---|:---|
 | `keyedBy` | The `aggregate/...` of another module the read model keeps one row per. |
-| `fields` | `{ name, meaning, type, identifies, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `module-event/<module>.<name>#<field>` or `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `identifies`, `many` and `classification` have the same meaning as on use-case inputs. |
+| `fields` | `{ name, meaning, type, identifies, rowShape, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `module-event/<module>.<name>#<field>` or `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `identifies`, `rowShape`, `many` and `classification` have the same meaning as on use-case inputs. |
 | `erasedBy` | On a `personal` or `sensitive` field, the `module-event/...` or `integration-event/...` whose arrival erases the field, required. |
 | `removedBy` | The `module-event/...` or `integration-event/...` ids whose arrival removes the row, optional. |
 | `freshness` | How stale a row may be when a reader sees it: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |

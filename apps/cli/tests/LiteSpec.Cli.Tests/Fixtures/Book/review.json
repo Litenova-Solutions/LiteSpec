@@ -1178,20 +1178,20 @@
         "title": "Kiosk Cache",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "litespec/ext/cache#define-cache-invalidation"
         ],
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ],
         "reason": "The kiosk caches the catalog for a day.",
         "expiresOn": "2027-01-01"
       },
       "links": {
-        "covers": [
+        "waives": [
           "litespec/ext/cache#define-cache-invalidation"
         ],
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ]
       }
@@ -1213,17 +1213,17 @@
         "title": "Offline Kiosk",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "kiosk-offline"
         ],
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ],
         "reason": "The kiosk cannot lend offline yet.",
         "expiresOn": "2026-01-01"
       },
       "links": {
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ]
       }

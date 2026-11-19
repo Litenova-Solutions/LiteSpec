@@ -25,7 +25,7 @@ components:
   address: button
   status: baseline
   paths:
-  - src/components/button.svelte
+  - src/components/fields/button.svelte
   digest: sha256:619cebd87a292563d5d5712353a7098db70803e158a583875535fd20c6e577c4
   dependencies:
   - bits-ui
@@ -36,6 +36,6 @@ components:
   address: skeleton
   status: baseline
   paths:
-  - src/components/skeleton.svelte
+  - src/components/feedback/skeleton.svelte
   digest: sha256:8a7c81ee6a2ff42a566569cfd030c32188befb90d625a83fe87eef4e89fe25e4
   dependencies: []

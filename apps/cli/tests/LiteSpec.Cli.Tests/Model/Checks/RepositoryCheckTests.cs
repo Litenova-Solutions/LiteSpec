@@ -88,6 +88,20 @@ public sealed class RepositoryCheckTests
         Assert.DoesNotContain("repository-unimplemented", TestModel.Codes(model));
     }
 
+    /// <summary>Reader Fixture Without A Domain Interface Reports.</summary>
+    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    [Fact]
+    public void ReaderFixtureWithoutADomainInterfaceReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        WriteProject(temp.Path);
+        Directory.CreateDirectory(Path.Combine(temp.Path, "src", "App", "Infrastructure"));
+        var model = ChangedLoanModel(temp.Path);
+        model.Code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
+
+        Assert.Contains("repository-unimplemented", TestModel.Codes(model));
+    }
+
     /// <summary>A model whose borrow-copy use case changes the loan aggregate.</summary>
     /// <param name="root">The fixture root folder the record files sit under.</param>
     /// <returns>The project model holding the use case and the aggregate.</returns>

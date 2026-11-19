@@ -18,7 +18,7 @@
     type ListExpensesResponse,
   } from "@claimwick/api";
   import { ListPage } from "@claimwick/ui/floorplans";
-  import { formatMoney } from "#lib/app/money.ts";
+  import { formatMoney } from "#lib/app/ui/money.ts";
   import { sentenceFor } from "./refusals.ts";
 
   const expenseId = page.params.expenseId ?? "";

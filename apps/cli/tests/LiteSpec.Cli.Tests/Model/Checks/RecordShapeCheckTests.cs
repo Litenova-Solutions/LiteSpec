@@ -124,7 +124,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "scope": "tenant"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "keyScope": "tenant"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "placeholder 'copy' names no input field"));
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
@@ -138,13 +138,13 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "notice per loan", "scope": "tenant"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "notice per loan", "keyScope": "tenant"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "with no {field} placeholder"));
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
-    /// <summary>Unknown Scope Reports.</summary>
+    /// <summary>Unknown KeyScope Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
     public void UnknownScopeReports()
@@ -152,12 +152,12 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "keyScope": "branch"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "tenant, account, login, global"));
     }
 
-    /// <summary>Valid Key And Scope Pass Shape.</summary>
+    /// <summary>Valid Key And KeyScope Pass Shape.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
     [Fact]
     public void ValidKeyAndScopePassShape()
@@ -165,7 +165,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy.", "type": "text", "required": true}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "keyScope": "login"}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -178,7 +178,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "keyScope": "global"}}"""));
 
         Assert.False(Reports(model, "record-invalid", "idempotency key"));
     }

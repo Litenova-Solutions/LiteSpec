@@ -21,7 +21,7 @@ leadsTo:
 - screen/claimwick-app.expense-record
 - screen/claimwick-app.new-expense
 task: The employee scans the list for one expense, opens it to read or act on it, or starts a new one.
-states:
+displayStates:
 - name: Empty
   shows: The list says it is empty and points to the new expense form.
 - name: Loading

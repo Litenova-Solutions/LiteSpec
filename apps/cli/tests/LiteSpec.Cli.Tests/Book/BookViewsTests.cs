@@ -416,7 +416,7 @@ public sealed class BookViewsTests
         Assert.DoesNotContain(quiet, edge => Str(edge, "key") == "feature.advances");
     }
 
-    /// <summary>Findings sit on their records, open and known apart, with the waiver covers and expiry.</summary>
+    /// <summary>Findings sit on their records, open and known apart, with the waiver waives and expiry.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void FindingsSitOnTheirRecordsWithWaiverExpiry()
@@ -435,7 +435,7 @@ public sealed class BookViewsTests
         Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
 
         var waiver = details.Values.First(detail => Str(detail, "type") == "waiver");
-        Assert.True(Arr(Obj(waiver, "fields"), "covers").Count > 0);
+        Assert.True(Arr(Obj(waiver, "fields"), "waives").Count > 0);
         Assert.True((Str(Obj(waiver, "fields"), "expiresOn") ?? "").Length > 0);
     }
 

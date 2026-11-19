@@ -21,15 +21,15 @@ public sealed class OptedOutGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
-    /// <summary>The shared kernel generates no registry, permissions or roles.</summary>
+    /// <summary>The Kernel generates no registry, permissions or roles.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "The shared kernel generates no registry, permissions or roles")]
-    public void SharedKernelGeneratesNothing()
+    [Fact(DisplayName = "The Kernel generates no registry, permissions or roles")]
+    public void KernelGeneratesNothing()
     {
         var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Claimwick.SharedKernel; internal sealed class Placeholder;"),
+            RecordPages.Sources("namespace Claimwick.Kernel.Domain; internal sealed class Placeholder;"),
             RecordPages.Files("attribute", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order", "permission/view-ledger"))),
-            assemblyName: "Claimwick.SharedKernel");
+            assemblyName: "Claimwick.Kernel");
 
         Assert.Empty(run.Sources);
         Assert.Empty(run.ReportedDiagnostics);

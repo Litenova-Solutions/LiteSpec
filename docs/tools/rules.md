@@ -32,7 +32,7 @@ A provision applies when its scope meets the target. An artifact-scoped provisio
 - `audit-adoption` for the decision the audit extension selection names in its `decision` field.
 - `project` meets no record, so a project provision never returns on a code path.
 
-A marked provision identifier always comes back. Project conventions print beside the LiteSpec provisions when their scope glob matches the path, or their scope vocabulary matches the target's stack, concern, and artifact. A live waiver takes the place of the provision its `covers` names, so the replacement shows where the original stood; an expired waiver changes nothing.
+A marked provision identifier always comes back. Project conventions print beside the LiteSpec provisions when their scope glob matches the path, or their scope vocabulary matches the target's stack, concern, and artifact. A live waiver takes the place of the provision its `waives` names, so the replacement shows where the original stood; an expired waiver changes nothing.
 
 For a code target, provisions matched only through a marked record collapse to one line per record: `use-case/spending.approve-expense: <n> provisions about the record; model check checks <m>; run rules use-case/spending.approve-expense for the rest`. A record path or record ID still prints them in full, each conditional provision with its condition shown. A path that marks no record leaves conditional provisions out.
 

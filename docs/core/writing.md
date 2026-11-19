@@ -54,7 +54,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | goal | Target, Measurement | Target: target; Measurement: measure, observations |
 | direction | None: free-form body after the lead | None: free-form body after the lead |
 | problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria | Affected Users: affects; Failure Cases: failureCases; Example: none, illustration only; Current Workaround: workaround; Cost: cost; Evidence: evidence; Resolution Criteria: resolutionCriteria |
-| constraint | Scope, Rules, Effect on the Product, Open Points (optional) | Scope: scope; Rules: obligations; Effect on the Product: productEffect; Open Points: openPoints |
+| constraint | Scope, Rules, Effect on the Product, Open Points (optional) | Scope: coverage; Rules: obligations; Effect on the Product: productEffect; Open Points: openPoints |
 | research | Findings, Open Questions (optional), Source Notes (optional) | Findings: findings; Open Questions: openQuestions; Source Notes: sources (their `note`) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions | Context: context; Options: options; Decision: choice; Consequences: consequences; Evidence: basedOn; Revisit Conditions: reopenedWhen |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) | Capabilities: the feature's requirements; Success Criteria: successCriteria; Boundaries: excludes; Example: none, illustration only |
@@ -72,11 +72,11 @@ A section marked optional is removed when it has nothing to say; every other sec
 | integration-event | Consumers, Compatibility, Example | Consumers: the records that read the event (computed); Compatibility: compatibility; Example: none, illustration only |
 | external-system | Use, Data Shared, Failure Handling | Use: summary; Data Shared: processes, erasure; Failure Handling: operations |
 | entry-point | Audience, Authentication, Excludes (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Excludes: excludes |
-| screen | Task, States, Example | Task: task; States: states; Example: none, illustration only |
+| screen | Task, States, Example | Task: task; States: displayStates; Example: none, illustration only |
 | permission-set | Risk, Boundaries (optional) | Risk: the risk of each permission; Boundaries: excludes |
 | setting-set | Defaults, Changes (optional) | Defaults: each setting's default, range, unit; Changes: each setting's setBy |
 | runbook | Prerequisites, Steps, Verification, Recovery | Prerequisites: prerequisites; Steps: procedure; Verification: verification; Recovery: recovery |
-| waiver | Provision, Reason, Risk, Expiry | Provision: covers; Reason: reason; Risk: consequences; Expiry: expiresOn, exitWhen |
+| waiver | Provision, Reason, Risk, Expiry | Provision: waives; Reason: reason; Risk: consequences; Expiry: expiresOn, exitWhen |
 
 A decision record compares its options with pros and cons, as `litespec/core/intent#record-each-decision-option-with-pros-and-cons` states, with its context and choice as `litespec/core/intent#state-each-decision-with-context-and-choice` states.
 

@@ -69,10 +69,10 @@ internal static class ClosedFolderChecks
         "Notifications", "ExternalSystems", "ReadModels", "Settings",
     };
 
-    /// <summary>Fixed folders under a module Infrastructure folder besides its adapter folders: its persistence.</summary>
+    /// <summary>Fixed folders under a module Infrastructure folder besides its adapter folders: its persistence and its message pipeline pieces.</summary>
     static readonly HashSet<string> InfrastructureFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Persistence",
+        "Persistence", "Messaging",
     };
 
     /// <summary>The layer folders a use case folder sits under.</summary>
@@ -102,8 +102,11 @@ internal static class ClosedFolderChecks
     /// <summary>The file name suffixes of a use case query message and result, which sit in the use case folder of their Contracts aggregate.</summary>
     static readonly string[] QuerySuffixes = ["QueryResult.cs", "Query.cs"];
 
-    /// <summary>The file name suffixes of a fact: a module event or an integration event, which sit in the Events folder of their Contracts aggregate.</summary>
+    /// <summary>The file name suffixes of a fact: a module event or an integration event, which sit in the On fact folder of their Contracts aggregate.</summary>
     static readonly string[] FactSuffixes = ["ModuleEvent.cs", "IntegrationEvent.cs"];
+
+    /// <summary>The file name suffixes of an adapter: an adapter class or client, which sit in their Infrastructure port folder and never in Persistence.</summary>
+    static readonly string[] AdapterSuffixes = ["Adapter.cs", "Client.cs"];
 
     /// <summary>
     ///     Reports every backend and frontend folder outside the closed folder sets, and every module and
@@ -163,14 +166,12 @@ internal static class ClosedFolderChecks
         CheckSharedComponents(model.Config, findings);
     }
 
-    /// <summary>Reports every folder under the Kernel root outside its grouping folders, and the root past 20 files with none of them.</summary>
+    /// <summary>Reports every folder under the Kernel root outside its grouping folders, and every file directly at the root, at any count: the root holds no files.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckKernelRoot(ConsumerConfig config, List<Finding> findings)
     {
-        var children = ChildFolders(config.KernelRoot);
-
-        foreach (var child in children)
+        foreach (var child in ChildFolders(config.KernelRoot))
         {
             var name = Path.GetFileName(child);
 
@@ -183,10 +184,18 @@ internal static class ClosedFolderChecks
             findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Kernel folder; the Kernel holds Domain/, Values/ and Auditing/.", child, 1, null));
         }
 
-        CheckUngrouped(config, config.KernelRoot, children, child => KernelFolders.Contains(Path.GetFileName(child)), "group them into Domain/, Values/ or Auditing/", findings, [".cs"]);
+        foreach (var file in ChildFiles(config.KernelRoot))
+        {
+            if (Path.GetFileName(file).EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in the Kernel root, which holds no files; move it into Domain/, Values/ or Auditing/.", file, 1, null));
+        }
     }
 
-    /// <summary>Reports every folder under the Platform root that breaks its closed set of capability folders, and each capability past 20 files with no sub-area.</summary>
+    /// <summary>Reports every folder under the Platform root that breaks its closed set of capability folders, every file directly at the root, at any count, and each capability past 20 files with no sub-area.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPlatformRoot(ConsumerConfig config, List<Finding> findings)
@@ -202,6 +211,16 @@ internal static class ClosedFolderChecks
             }
 
             findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Platform folder.", child, 1, null));
+        }
+
+        foreach (var file in ChildFiles(config.PlatformRoot))
+        {
+            if (Path.GetFileName(file).EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in the Platform root, which holds no files; move it into its capability folder.", file, 1, null));
         }
     }
 
@@ -1086,7 +1105,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under one aggregate in Domain outside its grouping folders, every exception file beside the root instead of its Exceptions folder, every event file outside its Events folder, and the aggregate past 20 files with no grouping folder.</summary>
+    /// <summary>Reports every folder under one aggregate in Domain outside its grouping folders, every exception file beside the root instead of its Exceptions folder, every event file outside its Events folder, every state file beside the root instead of its Parts folder, a second store interface for the aggregate, and the aggregate past 20 files with no grouping folder.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="aggregate">The absolute aggregate folder under Domain.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -1104,9 +1123,14 @@ internal static class ClosedFolderChecks
                 {
                     CheckExceptionsFiles(config, child, findings);
                 }
-                else if (!string.Equals(name, "Events", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(name, "Events", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckEventsFiles(config, child, findings);
+                }
+                else
                 {
                     CheckUseCaseFilesOnly(config, child, "grouping", findings);
+                    CheckGroupingEventFiles(config, child, findings);
                 }
 
                 continue;
@@ -1133,9 +1157,82 @@ internal static class ClosedFolderChecks
             {
                 findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds an event outside its Events/ folder; it belongs in 'Events/'.", file, 1, null));
             }
+            else if (fileName.EndsWith("State.cs", StringComparison.Ordinal))
+            {
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds a state beside its aggregate root; it belongs in 'Parts/'.", file, 1, null));
+            }
         }
 
+        CheckStoreInterfaces(config, aggregate, findings);
+
         CheckUngrouped(config, aggregate, children, child => AggregateSubFolders.Contains(Path.GetFileName(child)) || IsActFolder(child, Path.GetFileName(child)), "group them into Events/, Exceptions/, Parts/, Facts/ or one folder per root action", findings, [".cs"]);
+    }
+
+    /// <summary>Reports a second store interface beside one aggregate root: the repository interface is the aggregate's only store interface.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="aggregate">The absolute aggregate folder under Domain.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckStoreInterfaces(ConsumerConfig config, string aggregate, List<Finding> findings)
+    {
+        var faces = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var file in ChildFiles(aggregate))
+        {
+            if (!file.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (var face in InterfacesOf(file))
+            {
+                if (face.Name.EndsWith("Repository", StringComparison.Ordinal))
+                {
+                    faces.Add(face.Name);
+                }
+            }
+        }
+
+        if (faces.Count > 1)
+        {
+            var held = string.Join(", ", faces.Order(StringComparer.Ordinal).Select(face => $"'{face}'"));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, aggregate)}' declares {faces.Count} store interfaces ({held}); the repository interface is the aggregate's only store interface.", aggregate, 1, null));
+        }
+    }
+
+    /// <summary>Reports every event or exception file under one Parts or Facts grouping, which hold entities, values, shared rules and passed-in values only.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="grouping">The absolute Parts or Facts folder under Domain.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckGroupingEventFiles(ConsumerConfig config, string grouping, List<Finding> findings)
+    {
+        foreach (var file in ChildFiles(grouping))
+        {
+            var fileName = Path.GetFileName(file);
+
+            if (fileName.EndsWith("Exception.cs", StringComparison.Ordinal))
+            {
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds an exception outside its Exceptions/ folder; it belongs in 'Exceptions/'.", file, 1, null));
+            }
+            else if (fileName.EndsWith("Event.cs", StringComparison.Ordinal))
+            {
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds an event outside its Events/ folder; it belongs in 'Events/'.", file, 1, null));
+            }
+        }
+    }
+
+    /// <summary>Reports every exception file under one aggregate Events folder, which holds domain events only.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="events">The absolute Events folder under Domain.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckEventsFiles(ConsumerConfig config, string events, List<Finding> findings)
+    {
+        foreach (var file in ChildFiles(events))
+        {
+            if (Path.GetFileName(file).EndsWith("Exception.cs", StringComparison.Ordinal))
+            {
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds an exception outside its Exceptions/ folder; it belongs in 'Exceptions/'.", file, 1, null));
+            }
+        }
     }
 
     /// <summary>Whether a Domain aggregate child folder is one root action's folder: it holds the root partial named for the act.</summary>
@@ -1241,7 +1338,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module.</summary>
+    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module and no Pipeline folder.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="webApi">The absolute WebApi folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
@@ -1256,6 +1353,12 @@ internal static class ClosedFolderChecks
 
         foreach (var child in ChildFolders(webApi))
         {
+            if (string.Equals(Path.GetFileName(child), "Pipeline", StringComparison.OrdinalIgnoreCase))
+            {
+                CheckPipelineLevel(config, child, findings);
+                continue;
+            }
+
             if (owned.Count == 0)
             {
                 CheckUseCaseFolder(config, child, "WebApi", findings);
@@ -1279,12 +1382,28 @@ internal static class ClosedFolderChecks
         {
             if (owned.Count > 0)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case.", file, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case, and Pipeline/.", file, 1, null));
             }
         }
     }
 
-    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence folder and no port folder of the module: each adapter folder pairs with one port folder of the same name. An adapter folder naming a provider module is drift: a module reaches another module through its Contracts, not an adapter.</summary>
+    /// <summary>Reports every folder under a module Pipeline folder that holds folders of its own, and the Pipeline folder past 20 files with no protocol folder. The top keeps the module's HTTP pipeline pieces serving no single use case; past 20 files, one folder per protocol holds that protocol's wire types beside its pieces.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="pipeline">The absolute Pipeline folder of one module.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckPipelineLevel(ConsumerConfig config, string pipeline, List<Finding> findings)
+    {
+        var children = ChildFolders(pipeline);
+
+        foreach (var child in children)
+        {
+            CheckUseCaseFilesOnly(config, child, "protocol", findings);
+        }
+
+        CheckUngrouped(config, pipeline, children, _ => true, "group them into one folder per protocol", findings, [".cs"]);
+    }
+
+    /// <summary>Reports every folder under a module Infrastructure folder that names no Persistence folder, no Messaging folder and no port folder of the module: each adapter folder pairs with one port folder of the same name. An adapter folder naming a provider module is drift: a module reaches another module through its Contracts, not an adapter.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="infrastructure">The absolute Infrastructure folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
@@ -1299,9 +1418,15 @@ internal static class ClosedFolderChecks
         {
             var name = Path.GetFileName(child);
 
-            if (InfrastructureFolders.Contains(name))
+            if (string.Equals(name, "Persistence", StringComparison.OrdinalIgnoreCase))
             {
                 CheckPersistenceLevel(config, child, moduleName, aggregates, findings);
+                continue;
+            }
+
+            if (string.Equals(name, "Messaging", StringComparison.OrdinalIgnoreCase))
+            {
+                CheckUseCaseFilesOnly(config, child, "folder", findings);
                 continue;
             }
 
@@ -1321,29 +1446,111 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every subfolder under one adapter folder outside its Models/ grouping, and the adapter past 20 files with none. The top keeps the adapter class; the external system's wire types sit in Models/.</summary>
+    /// <summary>
+    ///     Reports the shape of one adapter folder: a subfolder outside Models/ and Parts/, a type beside the
+    ///     adapter class instead of Models/ or Parts/, and a Models/ or Parts/ type no adapter file names. The top
+    ///     keeps the adapter class with its options class; the external system's wire types sit in Models/, and the
+    ///     collaborators the adapter needs sit in Parts/. Several adapters of one port sit side by side.
+    /// </summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="adapter">The absolute adapter folder under Infrastructure.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
     private static void CheckAdapterFolder(ConsumerConfig config, string adapter, List<Finding> findings)
     {
-        var children = ChildFolders(adapter);
-
-        foreach (var child in children)
+        foreach (var child in ChildFolders(adapter))
         {
-            if (string.Equals(Path.GetFileName(child), "Models", StringComparison.OrdinalIgnoreCase))
+            var name = Path.GetFileName(child);
+
+            if (string.Equals(name, "Models", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(name, "Parts", StringComparison.OrdinalIgnoreCase))
             {
                 CheckUseCaseFilesOnly(config, child, "grouping", findings);
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' sits in adapter '{Path.GetFileName(adapter)}', which holds only its Models/ grouping.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' sits in adapter '{Path.GetFileName(adapter)}', which holds only its Models/ and Parts/ groupings.", child, 1, null));
         }
 
-        CheckUngrouped(config, adapter, children, child => string.Equals(Path.GetFileName(child), "Models", StringComparison.OrdinalIgnoreCase), "group the wire types into Models/", findings, [".cs"]);
+        var adapterName = Path.GetFileName(adapter);
+        var relative = PathText.Relative(config.Root, adapter);
+        var types = AdapterTypesOf(adapter);
+
+        // A named type keeps its own parts: the check follows the adapter files one level
+        // into the types they name, so a wire part the adapter names only through its response stays.
+        var named = AdapterFileIdentifiers(adapter);
+
+        foreach (var type in types)
+        {
+            if (!IsDirectChild(adapter, type.File) && named.Contains(type.Name))
+            {
+                named.UnionWith(type.SignatureNames);
+            }
+        }
+
+        foreach (var type in types.OrderBy(candidate => candidate.File, StringComparer.Ordinal).ThenBy(candidate => candidate.Line))
+        {
+            if (IsDirectChild(adapter, type.File))
+            {
+                if (!IsAdapterType(type, adapterName) && !Path.GetFileName(type.File).EndsWith("Options.cs", StringComparison.Ordinal))
+                {
+                    findings.Add(new Finding("code-placement-drift", $"Type '{type.Name}' in adapter folder '{relative}' sits beside the adapter; it belongs in 'Models/' when the external system shapes it, or in 'Parts/' when the adapter calls it.", type.File, type.Line, null));
+                }
+            }
+            else if (!named.Contains(type.Name))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Type '{type.Name}' in adapter folder '{relative}' is named by no adapter file; move it to Domain/{{Aggregates}}/ or the use case folder that uses it.", type.File, type.Line, null));
+            }
+        }
     }
 
-    /// <summary>Reports every folder under a module Persistence folder that names no declared aggregate of the module, every use case message, result or transport model directly beside them, and the folder past 20 files with no aggregate folder. The Persistence root holds only module-wide store setup; each aggregate's repository implementation, stored documents and mapping sit in its own aggregate folder.</summary>
+    /// <summary>Whether a declared type is one of its adapter folder's adapters: a class implementing the port interface, or a class named for an adapter. Several adapters of one port sit side by side.</summary>
+    /// <param name="type">The declared type under test.</param>
+    /// <param name="port">The adapter folder name as written on disk.</param>
+    /// <returns>True for a class implementing the port interface or named with the Adapter suffix; otherwise false.</returns>
+    private static bool IsAdapterType(PortDeclaredType type, string port) =>
+        !type.IsInterface
+        && (type.Name.EndsWith("Adapter", StringComparison.Ordinal)
+            || type.BaseNames.Any(baseName => string.Equals(baseName, "I" + port, StringComparison.OrdinalIgnoreCase)));
+
+    /// <summary>The simple type names the C# files directly in one adapter folder name anywhere in their text: the names the adapter and options files state.</summary>
+    /// <param name="adapter">The absolute adapter folder under Infrastructure.</param>
+    /// <returns>The identifier names; a file that cannot be read reads as empty.</returns>
+    private static HashSet<string> AdapterFileIdentifiers(string adapter)
+    {
+        var names = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var file in ChildFiles(adapter))
+        {
+            if (!file.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) || !File.Exists(file))
+            {
+                continue;
+            }
+
+            SyntaxTree tree;
+
+            try
+            {
+                tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file));
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            foreach (var identifier in tree.GetRoot().DescendantNodes().OfType<SimpleNameSyntax>())
+            {
+                if (!identifier.Identifier.IsMissing && identifier.Identifier.Span.Length > 0)
+                {
+                    names.Add(identifier.Identifier.ValueText);
+                }
+            }
+        }
+
+        return names;
+    }
+
+    /// <summary>Reports every folder under a module Persistence folder that names no declared aggregate of the module, every file directly at the root outside module-wide store setup, at any count, every use case message, result or transport model under it, and every adapter file under it. The Persistence root holds only module-wide store setup; each aggregate's repository implementation, stored documents and mapping sit in its own aggregate folder.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="persistence">The absolute Persistence folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
@@ -1351,9 +1558,7 @@ internal static class ClosedFolderChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPersistenceLevel(ConsumerConfig config, string persistence, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, List<Finding> findings)
     {
-        var children = ChildFolders(persistence);
-
-        foreach (var child in children)
+        foreach (var child in ChildFolders(persistence))
         {
             var name = Path.GetFileName(child);
 
@@ -1363,11 +1568,23 @@ internal static class ClosedFolderChecks
             }
         }
 
-        // A module with no declared aggregate states no grouping, so only a module
-        // with aggregates groups its persistence by aggregate.
-        if (aggregates.Any(aggregate => SameName(moduleName, aggregate.Module)))
+        var setup = moduleName + "StoreContribution.cs";
+
+        foreach (var file in ChildFiles(persistence))
         {
-            CheckUngrouped(config, persistence, children, child => aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameName(Path.GetFileName(child), aggregate.Expected)), "group them into one folder per aggregate", findings, [".cs"]);
+            var fileName = Path.GetFileName(file);
+
+            // A use case model or adapter file at the root is reported by the scan
+            // below with its own remedy, so the root stays silent for those shapes.
+            if (string.Equals(fileName, setup, StringComparison.OrdinalIgnoreCase)
+                || fileName.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase)
+                || UseCaseModelSuffixes.Any(suffix => fileName.EndsWith(suffix, StringComparison.Ordinal))
+                || AdapterSuffixes.Any(suffix => fileName.EndsWith(suffix, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Persistence/, which holds only module-wide store setup ('{setup}') and one folder per aggregate.", file, 1, null));
         }
 
         List<string> files;
@@ -1391,6 +1608,10 @@ internal static class ClosedFolderChecks
             if (UseCaseModelSuffixes.Any(suffix => fileName.EndsWith(suffix, StringComparison.Ordinal)))
             {
                 findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds a message, result or transport model, which sits in its use case folder, not in Persistence/.", file, 1, null));
+            }
+            else if (AdapterSuffixes.Any(suffix => fileName.EndsWith(suffix, StringComparison.Ordinal)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' holds an adapter, which sits in its Infrastructure/{{Port}}/ folder, not in Persistence/.", file, 1, null));
             }
         }
     }
@@ -1732,20 +1953,20 @@ internal static class ClosedFolderChecks
     private static bool IsDirectChild(string folder, string file) =>
         string.Equals(Path.GetDirectoryName(file), folder, StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>One top-level type declared in a port folder: its name, file, line, whether it is an interface, and the simple type names its member signatures name.</summary>
+    /// <summary>One top-level type declared in a port or adapter folder: its name, file, line, whether it is an interface, the simple type names its member signatures name, and the simple names its base list states.</summary>
     /// <param name="Name">The simple type name as declared.</param>
     /// <param name="File">The file declaring the type.</param>
     /// <param name="Line">The 1-based line of the type name.</param>
     /// <param name="IsInterface">Whether the declaration is an interface.</param>
     /// <param name="SignatureNames">The simple type names its members name: parameter and return types with their type arguments, then property, field and event types.</param>
-    sealed record PortDeclaredType(string Name, string File, int Line, bool IsInterface, HashSet<string> SignatureNames);
+    /// <param name="BaseNames">The simple type names its base list states: base classes and implemented interfaces with their type arguments.</param>
+    sealed record PortDeclaredType(string Name, string File, int Line, bool IsInterface, HashSet<string> SignatureNames, HashSet<string> BaseNames);
 
     /// <summary>The top-level types each C# file in a port folder declares, in file order, with the simple type names each member signature names: the interface beside its Models/ grouping.</summary>
     /// <param name="port">The absolute port folder under Ports.</param>
     /// <returns>The declared types in file order, each with its signature names; a file that cannot be read reads as empty.</returns>
     private static List<PortDeclaredType> PortTypesOf(string port)
     {
-        var types = new List<PortDeclaredType>();
         var files = ChildFiles(port);
         var models = ChildFolders(port).FirstOrDefault(child => string.Equals(Path.GetFileName(child), "Models", StringComparison.OrdinalIgnoreCase));
 
@@ -1753,6 +1974,37 @@ internal static class ClosedFolderChecks
         {
             files.AddRange(ChildFiles(models));
         }
+
+        return DeclaredTypesOf(files);
+    }
+
+    /// <summary>The top-level types each C# file in an adapter folder declares, in file order: the adapter and options files beside the Models/ and Parts/ groupings.</summary>
+    /// <param name="adapter">The absolute adapter folder under Infrastructure.</param>
+    /// <returns>The declared types in file order, each with its signature names; a file that cannot be read reads as empty.</returns>
+    private static List<PortDeclaredType> AdapterTypesOf(string adapter)
+    {
+        var files = ChildFiles(adapter);
+
+        foreach (var child in ChildFolders(adapter))
+        {
+            var name = Path.GetFileName(child);
+
+            if (string.Equals(name, "Models", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(name, "Parts", StringComparison.OrdinalIgnoreCase))
+            {
+                files.AddRange(ChildFiles(child));
+            }
+        }
+
+        return DeclaredTypesOf(files);
+    }
+
+    /// <summary>The top-level types the C# files declare, in file order, with the simple type names each member signature names.</summary>
+    /// <param name="files">The absolute files to read.</param>
+    /// <returns>The declared types in file order, each with its signature names; a file that cannot be read reads as empty.</returns>
+    private static List<PortDeclaredType> DeclaredTypesOf(List<string> files)
+    {
+        var types = new List<PortDeclaredType>();
 
         foreach (var file in files)
         {
@@ -1799,9 +2051,18 @@ internal static class ClosedFolderChecks
                 }
 
                 var names = new HashSet<string>(StringComparer.Ordinal);
+                var bases = new HashSet<string>(StringComparer.Ordinal);
 
                 if (declared is TypeDeclarationSyntax type)
                 {
+                    if (type.BaseList is not null)
+                    {
+                        foreach (var baseType in type.BaseList.Types)
+                        {
+                            AddSignatureNames(baseType.Type, bases);
+                        }
+                    }
+
                     if (type.ParameterList is not null)
                     {
                         foreach (var parameter in type.ParameterList.Parameters)
@@ -1833,7 +2094,7 @@ internal static class ClosedFolderChecks
                     _ => default,
                 };
                 var line = tree.GetLineSpan(identifier.Span).StartLinePosition.Line + 1;
-                types.Add(new PortDeclaredType(identifier.ValueText, file, line, declared is InterfaceDeclarationSyntax, names));
+                types.Add(new PortDeclaredType(identifier.ValueText, file, line, declared is InterfaceDeclarationSyntax, names, bases));
             }
         }
 
@@ -2116,7 +2377,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a web frontend shared app folder outside its area groupings, and the folder past 20 files with none of them. The top keeps nothing; shared session, messages, calls and layout sit in their areas.</summary>
+    /// <summary>Reports every folder under a web frontend shared app folder outside its area groupings, and every file directly at its root outside the generated records file, at any count. The top keeps only the generated records file; shared session, messages, calls and layout sit in their areas.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="frontend">The frontend whose shared app folder is checked.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -2129,9 +2390,7 @@ internal static class ClosedFolderChecks
             return;
         }
 
-        var children = ChildFolders(app);
-
-        foreach (var child in children)
+        foreach (var child in ChildFolders(app))
         {
             var name = Path.GetFileName(child);
 
@@ -2144,7 +2403,15 @@ internal static class ClosedFolderChecks
             findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no shared app area; the shared app folder holds session/, i18n/, api/ and ui/.", child, 1, null));
         }
 
-        CheckUngrouped(config, app, children, child => AppGroups.Contains(Path.GetFileName(child)), "group them into session/, i18n/, api/ or ui/", findings);
+        foreach (var file in ChildFiles(app))
+        {
+            if (string.Equals(Path.GetFileName(file), "litespec-records.ts", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in the shared app folder, which holds only 'litespec-records.ts' and its area folders; move it into session/, i18n/, api/ or ui/.", file, 1, null));
+        }
     }
 
     /// <summary>Whether a folder name is kebab case: lowercase letters and digits in hyphen-separated words.</summary>

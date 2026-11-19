@@ -8,14 +8,17 @@
   import { codeOf, muted, refLink, tag, td, thRow } from "../shared/record-cells";
   import { objectField, objectList, stringField } from "../page-values";
 
-  // An external system: the decision choosing its provider, its operations, and how erasure reaches it.
+  // An external system: its vendor, the actor it represents, the decision
+  // choosing its provider, its operations, and how erasure reaches it.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
+  const vendor = $derived(stringField(f, "vendor") ?? "");
+  const represents = $derived(stringField(f, "represents") ?? "");
   const decidedBy = $derived(
     dedupe(
       (r.in ?? [])
-        .filter((e) => e.key === "decides" || e.key.endsWith(".decides"))
+        .filter((e) => e.key === "chooses")
         .map((e) => stripStep(e.id))
         .filter((x) => x.startsWith("decision/")),
     ).sort(),
@@ -46,6 +49,14 @@
   }
 </script>
 
+{#if vendor}
+  <PageSection blockKey="vendor" heading="vendor"><p class="m-0 text-sm">{vendor}</p></PageSection>
+{/if}
+{#if represents}
+  <PageSection blockKey="represents" heading="represents">
+    <RecordList ids={[represents]} />
+  </PageSection>
+{/if}
 {#if decidedBy.length}
   <PageSection blockKey="dec" heading="Decision" count={decidedBy.length}>
     <RecordList ids={decidedBy} />

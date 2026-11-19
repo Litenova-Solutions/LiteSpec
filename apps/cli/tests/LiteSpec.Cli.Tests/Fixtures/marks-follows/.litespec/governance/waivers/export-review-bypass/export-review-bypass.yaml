@@ -2,9 +2,9 @@ type: waiver
 id: waiver/export-review-bypass
 title: Export review bypass
 kind: gap
-covers:
+waives:
   - litespec/backend/persistence#commit-each-command-pipeline-once
-subject:
+appliesTo:
   - use-case/lending.borrow-copy
 reason: The nightly export commits per batch, not per pipeline
 consequences: The export step commits per batch until it moves to the pipeline.

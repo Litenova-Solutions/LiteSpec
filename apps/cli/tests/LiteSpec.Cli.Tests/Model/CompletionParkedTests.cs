@@ -124,7 +124,7 @@ public sealed class CompletionParkedTests
                 "waiver",
                 "waiver/borrowing.max-loans-standing",
                 Path.Combine(temp.Path, "standing.yaml"),
-                """{"kind": "lasting", "subject": ["requirement/borrowing.max-loans"], "covers": ["requirement-fulfillment-missing"], "reason": "The check never ships.", "consequences": "Loans run without the check."}"""));
+                """{"kind": "lasting", "appliesTo": ["requirement/borrowing.max-loans"], "waives": ["requirement-fulfillment-missing"], "reason": "The check never ships.", "consequences": "Loans run without the check."}"""));
 
         CompletionCalculator.Compute(model);
 
@@ -198,5 +198,5 @@ public sealed class CompletionParkedTests
             "waiver",
             id,
             Path.Combine(root, id.Replace('/', '.') + ".yaml"),
-            $$"""{"kind": "gap", "subject": ["{{subject}}"], "covers": ["requirement-fulfillment-missing"], "reason": "The work ships later.", "closedBy": ["{{subject}}"], "exit": "The work ships.", "expiresOn": "{{expiresOn}}"}""");
+            $$"""{"kind": "gap", "appliesTo": ["{{subject}}"], "waives": ["requirement-fulfillment-missing"], "reason": "The work ships later.", "closedBy": ["{{subject}}"], "exit": "The work ships.", "expiresOn": "{{expiresOn}}"}""");
 }

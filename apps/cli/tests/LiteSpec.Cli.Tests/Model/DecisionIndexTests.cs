@@ -230,15 +230,15 @@ public sealed class DecisionIndexTests
         + (basedOn is null ? "" : ", \"basedOn\": [\"" + basedOn + "\"]")
         + "}";
 
-    /// <summary>A waiver naming its title, covers and kind: a gap with its expiry and closing record, or a lasting waiver with its consequences.</summary>
+    /// <summary>A waiver naming its title, waives and kind: a gap with its expiry and closing record, or a lasting waiver with its consequences.</summary>
     /// <param name="title">The waiver title.</param>
-    /// <param name="covers">The codes, provisions or pages the waiver covers.</param>
+    /// <param name="covers">The waives items: the codes, provisions or pages.</param>
     /// <param name="expiresOn">The expiry date of a gap, or null for a lasting waiver.</param>
     /// <returns>The waiver fields as JSON.</returns>
     static string WaiverJson(string title, string[] covers, string? expiresOn) =>
         "{\"title\": \"" + title + "\""
-        + ", \"covers\": [" + string.Join(", ", covers.Select(cover => "\"" + cover + "\"")) + "]"
-        + ", \"subject\": [\"use-case/spending.export-expenses\"]"
+        + ", \"waives\": [" + string.Join(", ", covers.Select(cover => "\"" + cover + "\"")) + "]"
+        + ", \"appliesTo\": [\"use-case/spending.export-expenses\"]"
         + ", \"reason\": \"Export waits for the finance file format.\""
         + (expiresOn is null
             ? ", \"kind\": \"lasting\", \"consequences\": \"The weekend export runs outside review.\""

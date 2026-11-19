@@ -1,6 +1,8 @@
 using LiteSpec.Cli.Model.Checks.Implementation.Placement;
 using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Checks.Proof;
@@ -76,7 +78,7 @@ internal static class RefusalPlacementChecks
         }
     }
 
-    /// <summary>Reports a module-level refusal raised from exactly one aggregate: it belongs under that aggregate. A refusal raised from several aggregates stays module-level, and a refusal no code raises stays with refusal-unimplemented.</summary>
+    /// <summary>Reports a module-level refusal raised from exactly one aggregate: it belongs under that aggregate. A refusal raised from several aggregates stays module-level, a refusal no code raises stays with refusal-unimplemented, and a carrier outside Domain/ or directly in Domain/ is placed wrong wherever its refusal is declared.</summary>
     /// <param name="model">The loaded project model that holds the scanned code.</param>
     /// <param name="entry">The module-level refusal entry.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -94,7 +96,25 @@ internal static class RefusalPlacementChecks
 
             var (found, aggregate) = DomainAggregateOf(carrier.File);
 
-            if (found && aggregate is not null)
+            if (!found)
+            {
+                findings.Add(new Finding(
+                    "code-placement-drift",
+                    $"Code '{entry.Code}' is declared at module level, but '{carrier.Class}' carries it outside Domain/.",
+                    carrier.File,
+                    carrier.Line,
+                    null));
+            }
+            else if (aggregate is null)
+            {
+                findings.Add(new Finding(
+                    "code-placement-drift",
+                    $"Code '{entry.Code}' is declared at module level, but '{carrier.Class}' carries it directly in Domain/.",
+                    carrier.File,
+                    carrier.Line,
+                    null));
+            }
+            else
             {
                 raising.Add(aggregate);
             }
@@ -111,19 +131,75 @@ internal static class RefusalPlacementChecks
         }
     }
 
-    /// <summary>The carriers of a refusal code: each declaring literal on an exception type, in file then line order.</summary>
-    /// <param name="model">The loaded project model that holds the scanned literals.</param>
+    /// <summary>The carriers of a refusal code: each declaring literal on an exception type, and each rule exception without a hand-written Code whose rule mark names the refusal, in file then line order.</summary>
+    /// <param name="model">The loaded project model that holds the scanned literals and the marked rule exceptions.</param>
     /// <param name="code">The refusal code.</param>
     /// <returns>The carrying literals in file then line order.</returns>
-    private static List<CodeLiteral> CarriersOf(ProjectModel model, string code) =>
-        model.Code.Literals
+    private static List<CodeLiteral> CarriersOf(ProjectModel model, string code)
+    {
+        var carriers = model.Code.Literals
             .Where(literal => literal.Declares
                 && string.Equals(literal.Value, code, StringComparison.Ordinal)
                 && literal.Class is not null
                 && RefusalOwnershipChecks.IsExceptionType(literal.Class))
+            .ToList();
+
+        var held = carriers
+            .Select(literal => (literal.Value, literal.File, literal.Class))
+            .ToHashSet();
+
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.Kind != CodeKind.RuleException
+                || element.RuntimeValue is not null
+                || element.Class.Length == 0
+                || !RefusalOwnershipChecks.IsExceptionType(element.Class))
+            {
+                continue;
+            }
+
+            if (!MarksRuleRefusing(model, element, code))
+            {
+                continue;
+            }
+
+            if (held.Add((code, element.File, element.Class)))
+            {
+                carriers.Add(new CodeLiteral(code, element.File, element.Line, element.Class, Declares: true));
+            }
+        }
+
+        return carriers
             .OrderBy(literal => literal.File, StringComparer.Ordinal)
             .ThenBy(literal => literal.Line)
             .ToList();
+    }
+
+    /// <summary>Whether the rule exception marks a rule refusing with the code: one of its rule marks resolves to a rule record whose refusal is the code.</summary>
+    /// <param name="model">The loaded project model that holds every rule record.</param>
+    /// <param name="element">The marked rule exception without a hand-written Code.</param>
+    /// <param name="code">The refusal code.</param>
+    /// <returns>True when such a rule mark exists.</returns>
+    private static bool MarksRuleRefusing(ProjectModel model, MarkedElement element, string code)
+    {
+        foreach (var mark in element.Marks)
+        {
+            if (mark.Verb == MarkVerb.Follows
+                || !mark.RecordId.StartsWith("rule/", StringComparison.Ordinal)
+                || !model.ById.TryGetValue(mark.RecordId, out var rule)
+                || rule.Type != RecordTypes.Rule)
+            {
+                continue;
+            }
+
+            if (string.Equals(RefusalCodes.ResultCode(model, rule), code, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>The Domain aggregate folder a file sits in: whether a Domain folder holds it, and the aggregate folder above the file, or null directly in Domain/.</summary>
     /// <param name="file">The absolute file path.</param>

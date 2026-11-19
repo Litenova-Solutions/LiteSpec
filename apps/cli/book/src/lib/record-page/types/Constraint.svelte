@@ -8,13 +8,13 @@
   import SourceList from "../SourceList.svelte";
   import { objectList, stringField, stringList } from "../page-values";
 
-  // A constraint: the authority behind it, its scope, the rules it states, the effect on the product, and what it requires.
+  // A constraint: the authority behind it, its coverage, the rules it states, the effect on the product, and what it requires.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
   const authority = $derived(stringField(f, "authority") ?? "");
-  const scope = $derived(stringField(f, "scope") ?? "");
-  const scopeHtml = $derived(scope ? inline(book, scope, r.src ?? null) : "");
+  const coverage = $derived(stringField(f, "coverage") ?? "");
+  const coverageHtml = $derived(coverage ? inline(book, coverage, r.src ?? null) : "");
   const obligations = $derived(objectList(f, "obligations"));
   const productEffect = $derived(stringField(f, "productEffect") ?? "");
   const productEffectHtml = $derived(productEffect ? inline(book, productEffect, r.src ?? null) : "");
@@ -23,7 +23,7 @@
   const requires = $derived(r.requires ?? []);
 
   function sourceOf(key: string): RecordFields | undefined {
-    return sources.find((x) => String(x.key ?? "") === key);
+    return sources.find((x) => String(x.name ?? "") === key);
   }
 
   function sourceHref(key: string): string | null {
@@ -36,8 +36,8 @@
 <PageSection blockKey="src" heading="authority">
   <RenderedProse html={inline(book, authority, r.src ?? null)} />
 </PageSection>
-{#if scope}
-  <PageSection blockKey="scope" heading="constraint.scope"><RenderedProse html={scopeHtml} /></PageSection>
+{#if coverage}
+  <PageSection blockKey="coverage" heading="constraint.coverage"><RenderedProse html={coverageHtml} /></PageSection>
 {/if}
 {#if obligations.length}
   <PageSection blockKey="obl" heading="obligations" count={obligations.length}>

@@ -7,7 +7,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// The compilation facts the generator reads beside the records and the marks: the project layer,
 /// whether the compilation is a module project, and whether xUnit v3 is referenced.
 /// The layer follows the assembly name suffix: a module project names no layer.
-/// The assembly ending .SharedKernel is the shared kernel and generates nothing.
+/// The Kernel and Platform assemblies are product-wide projects and generate nothing.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class HostModel : IEquatable<HostModel>
@@ -50,22 +50,26 @@ internal sealed class HostModel : IEquatable<HostModel>
         var layer = ArchitectureLayerResolver.FromAssemblyName(assemblyName);
 
         // A module project names no layer and generates the registry, the permissions and
-        // the roles. The assembly ending .SharedKernel reads layer None with no module
-        // project and no host, so it generates nothing.
-        var moduleProject = layer == ArchitectureLayer.None
-            && !IsSharedKernelAssembly(assemblyName);
-
-        var moduleHost = layer != ArchitectureLayer.None;
+        // the roles. The Kernel and Platform assemblies are neither a module project nor a
+        // host (their names map to the Domain and Infrastructure layers), so they generate nothing.
+        var productWide = IsProductWideAssembly(assemblyName);
+        var moduleProject = layer == ArchitectureLayer.None && !productWide;
+        var moduleHost = layer != ArchitectureLayer.None && !productWide;
 
         return new HostModel(layer, moduleProject, xunitV3, moduleHost);
     }
 
-    /// <summary>Returns true when the assembly is the shared kernel; otherwise false.</summary>
+    /// <summary>
+    ///     Returns true when the assembly is a product-wide project, the Kernel or the Platform; otherwise false.
+    ///     Neither is a module, so its layer folders (the Kernel's <c>Domain/</c>) never open module detection.
+    /// </summary>
     /// <param name="assemblyName">The compilation assembly name.</param>
-    /// <returns>True when the assembly name ends with the SharedKernel segment; otherwise false.</returns>
-    private static bool IsSharedKernelAssembly(string assemblyName) =>
-        assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
-        || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal);
+    /// <returns>True when the assembly name ends with the Kernel or Platform segment; otherwise false.</returns>
+    private static bool IsProductWideAssembly(string assemblyName) =>
+        assemblyName.Equals("Kernel", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal)
+        || assemblyName.Equals("Platform", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".Platform", StringComparison.Ordinal);
 
     /// <inheritdoc />
     public bool Equals(HostModel? other) =>

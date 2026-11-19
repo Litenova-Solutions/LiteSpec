@@ -64,7 +64,7 @@ Mocks follow `litespec/frontend/web/testing#keep-web-test-mocks-to-the-stack-lib
 
 The shadcn/ui registry is built with the `shadcn` CLI, pinned in the manifest as `shadcn`. One registry command builds the UI artifacts the same way in every React frontend.
 
-The state-to-tone table maps each application state to one tone. One table keeps every state in the same tone on every route: the library product maps its overdue state to its warning tone in `src/app/states.tsx`.
+The state-to-tone table maps each application state to one tone. One table keeps every state in the same tone on every route: the library product maps its overdue state to its warning tone in `src/app/ui/states.tsx`.
 
 The registry follows `litespec/frontend/web/ui#publish-one-registry-item-per-floorplan`, and the tone table follows `litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file`.
 

@@ -7,7 +7,7 @@
 <script lang="ts">
   import { createQuery } from "@tanstack/svelte-query";
   import { DataTable, ListPage } from "@claimwick/ui/floorplans";
-  import { formatMoney } from "#lib/app/money.ts";
+  import { formatMoney } from "#lib/app/ui/money.ts";
   import { listExpensesQueryFn, listExpensesQueryKey } from "#lib/modules/spending/list-expenses-query.ts";
 
   const columns = [

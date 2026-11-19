@@ -9,7 +9,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// for the attribute style, an event's Classification, a rule exception's Code, the assembly
 /// registry, one constant per permission, and one entry per role. The project file and the
 /// record files arrive as additional files; with no project file, or settings that fail to
-/// parse, the generator stays silent, as it does in the shared kernel, which generates
+/// parse, the generator stays silent, as it does in the Kernel, which generates
 /// nothing. Without an Implementation claim it also writes no
 /// source and reports no diagnostic, whatever the records state. Every pipeline model holds
 /// strings and equatable arrays only, so an edit to an unrelated file reruns nothing the edit

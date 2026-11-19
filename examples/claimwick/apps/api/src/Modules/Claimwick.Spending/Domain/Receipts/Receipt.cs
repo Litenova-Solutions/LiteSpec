@@ -1,5 +1,6 @@
-using Claimwick.Kernel;
+using Claimwick.Kernel.Domain;
 using Claimwick.Spending.Contracts.Expenses;
+using Claimwick.Spending.Domain.Receipts.Parts;
 
 namespace Claimwick.Spending.Domain.Receipts;
 
@@ -17,6 +18,7 @@ internal sealed class Receipt : AggregateRoot<Guid>
     public ReceiptState State { get; private set; }
 
     /// <summary>Attaches one receipt to an expense.</summary>
+    /// <implements>use-case/spending.attach-receipt</implements>
     public static Receipt Attach(Guid id, ExpenseId expenseId, DateTimeOffset attachedAt) =>
         new(id, expenseId, attachedAt);
 }

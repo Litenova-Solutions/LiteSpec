@@ -144,7 +144,7 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
             return "which lives in the " + target + " layer";
         }
 
-        if (target == ArchitectureLayer.Domain && !IsIdentifier(type) && !IsSharedKernel(type, map, compilation))
+        if (target == ArchitectureLayer.Domain && !IsIdentifier(type) && !IsKernel(type, map, compilation))
         {
             return "which is a Domain type outside typed identifiers and shared-kernel values";
         }
@@ -182,12 +182,12 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
     private static bool IsIdentifier(INamedTypeSymbol type) =>
         type.Name.EndsWith("Id", StringComparison.Ordinal);
 
-    /// <summary>Returns true when the type lives in the shared kernel; otherwise false.</summary>
+    /// <summary>Returns true when the type lives in the Kernel; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
-    /// <returns>True when the type lives in the shared kernel.</returns>
-    private static bool IsSharedKernel(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
+    /// <returns>True when the type lives in the Kernel.</returns>
+    private static bool IsKernel(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
         (CodeMap.SourceFileOf(type, compilation) is string file && map.ModuleOf(file) is null)
         || IsKernelAssembly(type.ContainingAssembly?.Name);
 
@@ -209,8 +209,8 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
         !string.IsNullOrEmpty(assemblyName)
         && (assemblyName!.Equals("Kernel", StringComparison.Ordinal)
             || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal)
-            || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
-            || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal));
+            || assemblyName.Equals("Kernel", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal));
 
     /// <summary>Returns true when the namespace is an ASP.NET Core namespace; otherwise false.</summary>
     /// <param name="containing">The containing namespace, or null when the compilation does not provide it.</param>

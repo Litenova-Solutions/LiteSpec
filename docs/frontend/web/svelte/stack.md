@@ -76,7 +76,7 @@ Mocks follow `litespec/frontend/web/testing#keep-web-test-mocks-to-the-stack-lib
 
 The registry is built with the `shadcn-svelte` CLI, pinned in the manifest as `shadcn-svelte`. One registry command builds the UI artifacts the same way in every Svelte frontend.
 
-The state-to-tone table maps each application state to one tone. One table keeps every state in the same tone on every route: the Claimwick console maps its overdue state to its warning tone in `src/lib/app/states.ts`.
+The state-to-tone table maps each application state to one tone. One table keeps every state in the same tone on every route: the Claimwick console maps its overdue state to its warning tone in `src/lib/app/ui/states.ts`.
 
 The registry follows `litespec/frontend/web/ui#publish-one-registry-item-per-floorplan`, and the tone table follows `litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file`.
 

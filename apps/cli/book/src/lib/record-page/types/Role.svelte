@@ -27,7 +27,7 @@
   </PageSection>
 {/if}
 {#if excludes.length}
-  <PageSection blockKey="limits" heading="excludes" count={excludes.length}>
+  <PageSection blockKey="excludes" heading="excludes" count={excludes.length}>
     <BulletList items={excludes} />
   </PageSection>
 {/if}

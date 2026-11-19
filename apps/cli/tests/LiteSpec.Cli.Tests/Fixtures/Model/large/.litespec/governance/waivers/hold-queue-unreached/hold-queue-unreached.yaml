@@ -2,9 +2,9 @@ type: waiver
 id: waiver/hold-queue-unreached
 title: Hold queue unreached
 kind: gap
-covers:
+waives:
 - intent-unreached
-subject:
+appliesTo:
 - feature/hold-queue
 reason: The hold queue ships after the borrowing flow proves out.
 exitWhen: The hold queue holds no requirement yet. The gap closes when its first requirement lands.

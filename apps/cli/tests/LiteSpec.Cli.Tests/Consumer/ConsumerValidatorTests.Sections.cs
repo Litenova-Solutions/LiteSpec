@@ -194,7 +194,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/constraints/tax-retention/tax-retention.yaml",
-            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","sources":[{"name":"tax-guidance","url":"https://example.com/tax","readOn":"2026-01-01"}],"kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","scope":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","sources":[{"name":"tax-guidance","url":"https://example.com/tax","readOn":"2026-01-01"}],"kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","coverage":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
@@ -207,7 +207,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/constraints/tax-retention/tax-retention.yaml",
-            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","summary":"The tax office requires receipts for seven years.","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","scope":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","summary":"The tax office requires receipts for seven years.","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","coverage":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'sources'");
     }
 
@@ -299,7 +299,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-review-bypass.yaml",
-            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","kind":"lasting","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"consequences":"The export runs outside review."}""");
+            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","kind":"lasting","waives":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"appliesTo":["use-case/orders.cancel-order"],"consequences":"The export runs outside review."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'reason'");
     }
 
@@ -312,7 +312,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-unimplemented.yaml",
-            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"expiresOn":"2027-01-01"}""");
+            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","waives":["behavior-unrecorded"],"appliesTo":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"expiresOn":"2027-01-01"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'exitWhen'");
     }
 
@@ -325,11 +325,11 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-review-bypass.yaml",
-            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","kind":"gap","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","closedBy":["use-case/orders.cancel-order"],"expiresOn":"2027-01-01","exitWhen":"The export moves into review."}""");
+            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","kind":"gap","waives":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"appliesTo":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","closedBy":["use-case/orders.cancel-order"],"expiresOn":"2027-01-01","exitWhen":"The export moves into review."}""");
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/waivers/export-unimplemented.yaml",
-            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"exitWhen":"The export ships before the date.","expiresOn":"2027-01-01"}""");
+            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","kind":"gap","waives":["behavior-unrecorded"],"appliesTo":["use-case/orders.cancel-order"],"reason":"The export ships later.","closedBy":["use-case/orders.cancel-order"],"exitWhen":"The export ships before the date.","expiresOn":"2027-01-01"}""");
         AssertAbsent(RunConsumer(folder.Path, "--all"), "requires an H2");
     }
 

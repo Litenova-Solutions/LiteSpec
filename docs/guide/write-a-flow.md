@@ -30,7 +30,7 @@ Give each flow one actor and one reason. An actor who takes two paths toward two
 
 A staff flow follows the same shape. Finance exporting the approved batch is a flow that finance takes, with one reason, `startedWhen`, `finishedWhen`, and steps with their branches. A scheduled promise, such as a nightly erasure, is a requirement that a job fulfills, not a flow.
 
-This satisfies `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` and `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`.
+This satisfies `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` and `litespec/core/intent#perform-each-flow-step-with-an-actor`.
 
 ### Give the Flow Its One Reason
 

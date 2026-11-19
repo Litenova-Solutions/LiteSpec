@@ -45,7 +45,7 @@
   const audit = $derived(guarantees ? objectField(f, "audit") : undefined);
   const exemptBecause = $derived(stringField(audit, "exemptBecause"));
   const auditLevel = $derived(stringField(audit, "level"));
-  const auditTarget = $derived(stringField(audit, "target"));
+  const auditTarget = $derived(stringField(audit, "targetKind"));
   const writesStatement = $derived.by(() => {
     const first = writes[0];
     if (!first) return "";

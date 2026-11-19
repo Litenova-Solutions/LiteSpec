@@ -276,12 +276,12 @@ function jsxNavigationTarget(opening: ts.JsxOpeningLikeElement): ts.Expression |
   return null;
 }
 
-// Every full-page navigation of a source in source order: an assignment to a
-// location `href`, a `location.assign` or `location.replace` call, a call to a
-// `goto` imported from SvelteKit's navigation module, and a literal `href` on
-// an anchor, `Link` or `Button`, or `action` on a form. Only literal paths or
-// template literals with a literal path prefix count; anything dynamic is
-// never a navigation.
+// Every full-page navigation of a source in source order: an assignment to the
+// location itself or to a location `href`, a `location.assign` or
+// `location.replace` call, a call to a `goto` imported from SvelteKit's
+// navigation module, and a literal `href` on an anchor, `Link` or `Button`, or
+// `action` on a form. Only literal paths or template literals with a literal
+// path prefix count; anything dynamic is never a navigation.
 export function collectNavigations(sourceFile: ts.SourceFile, lineOffset: number, gotoNames: Set<string>): NavigationSite[] {
   const navigations: NavigationSite[] = [];
   const push = (target: ts.Expression | null, node: ts.Node): void => {
@@ -292,7 +292,8 @@ export function collectNavigations(sourceFile: ts.SourceFile, lineOffset: number
   walk(sourceFile, node => {
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       const left = unwrapExpression(node.left);
-      if (ts.isPropertyAccessExpression(left) && left.name.text === "href" && isLocationTarget(left.expression)) {
+      if (isLocationTarget(left)
+        || (ts.isPropertyAccessExpression(left) && left.name.text === "href" && isLocationTarget(left.expression))) {
         push(node.right, node);
       }
       return;

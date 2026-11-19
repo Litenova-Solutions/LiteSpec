@@ -70,7 +70,8 @@ public sealed class FrontendRecordsTests
         Assert.Contains("export type UseCaseId = never;", text);
         Assert.Contains("export type ScreenId = never;", text);
         Assert.Contains("export type ProofTargetId = never;", text);
-        Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId; readonly offers?: readonly UseCaseId[] }", text);
+        Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }", text);
+        Assert.DoesNotContain("offers", text);
         Assert.Contains("export function proves(id: ProofTargetId)", text);
         Assert.EndsWith("\n", text);
     }
@@ -104,7 +105,7 @@ public sealed class FrontendRecordsTests
         export type UseCaseId = "use-case/lending.borrow-copy" | "use-case/lending.list-loans";
         export type ScreenId = never;
         export type ProofTargetId = never;
-        export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId; readonly offers?: readonly UseCaseId[] }
+        export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }
         export function proves(id: ProofTargetId): { annotation: [{ type: "proves"; description: ProofTargetId }] } {
           return { annotation: [{ type: "proves", description: id }] };
         }

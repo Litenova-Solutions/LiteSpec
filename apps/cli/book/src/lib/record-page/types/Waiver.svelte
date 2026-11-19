@@ -8,7 +8,7 @@
   import { proseOf } from "../page-prose";
   import { stringField, stringList } from "../page-values";
 
-  // A waiver: its kind, exit and consequences, what it covers, and why it holds.
+  // A waiver: its kind, exit and consequences, what it sets aside, and why it holds.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
@@ -18,8 +18,8 @@
   const closedBy = $derived(stringList(f, "closedBy"));
   const paths = $derived(stringList(f, "paths"));
   const reason = $derived(stringField(f, "reason"));
-  const covers = $derived(
-    Array.isArray(f.covers) ? f.covers.map((c) => `<span class="${codeCls}">${esc(c)}</span>`).join(" ") : provisionHtml(f.covers),
+  const waives = $derived(
+    Array.isArray(f.waives) ? f.waives.map((c) => `<span class="${codeCls}">${esc(c)}</span>`).join(" ") : provisionHtml(f.waives),
   );
 </script>
 
@@ -33,7 +33,7 @@
 {#if consequences}
   <PageSection blockKey="cons" heading="consequences"><RenderedProse html={consequences} /></PageSection>
 {/if}
-<PageSection blockKey="cov" heading="covers">{@html covers}</PageSection>
+<PageSection blockKey="cov" heading="waives">{@html waives}</PageSection>
 {#if closedBy.length}
   <PageSection blockKey="closed" heading="closedBy" count={closedBy.length}>
     <div class="flex flex-wrap gap-1">

@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The waivers: waiver records under <c>.litespec/governance/waivers/</c> whose
-///     covers names the provisions, pages or finding codes they replace, with the subject records
+///     waives names the provisions, pages or finding codes they replace, with the appliesTo records
 ///     or paths they replace them on. A live waiver shows in place of the provisions it covers.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -136,7 +136,7 @@ internal sealed class WaiverFiles
         }
 
         var id = Text(root, "id");
-        var covers = Items(root, "covers");
+        var covers = Items(root, "waives");
 
         if (id.Length == 0 || covers.Count == 0)
         {
@@ -154,7 +154,7 @@ internal sealed class WaiverFiles
             id,
             Text(root, "title"),
             covers,
-            Items(root, "subject"),
+            Items(root, "appliesTo"),
             Items(root, "paths"),
             Text(root, "reason"),
             Text(root, "consequences"),

@@ -180,13 +180,13 @@ The named target is the reason for the shape the class carries, so review judges
 
 **Applies to:** artifact: record:use-case
 
-**Default:** Group each module use case in its own folder under a plural kebab-case aggregate subdirectory, which holds the aggregate's `aggregate.yaml`; a module with one aggregate of the module's own name may keep its use cases in the module's `use-cases/` folder.
+**Default:** Group each module use case in its own folder under a plural kebab-case aggregate subdirectory, which holds the aggregate's `aggregate.yaml`.
 
 **Replacement:** A consumer names its own module file grouping in its documentation.
 
 **Rationale:** Each aggregate needs its own directory for its `aggregate.yaml` and use cases, so grouping use case folders under a plural kebab-case aggregate subdirectory gives every aggregate one home. The use case identifier stays `use-case/<module>.<name>`; only the directory changes. Each module keeps the same typed layout, so a module with one aggregate has the same folders as any other. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
-**Reviewed for:** Does every use case folder sit in the module's `use-cases/` folder or its aggregate subdirectory? Check each use case folder, holding its `<use-case>.yaml`, against the module layout.
+**Reviewed for:** Does every use case folder sit in its aggregate subdirectory? Check each use case folder, holding its `<use-case>.yaml`, against the module layout.
 
 ### Keep Operational and Security References Under Operations
 

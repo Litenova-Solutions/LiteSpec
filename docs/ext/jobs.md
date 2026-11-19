@@ -345,7 +345,7 @@ Each procedure names the interface that performs it: a command, an endpoint, or 
 
 **Statement:** A scheduled-job store MUST derive each occurrence identity from its schedule ID and scheduled instant.
 
-**Rationale:** Schedule ID plus scheduled instant gives each planned time one stable identity across retries and replicas. Retries of one occurrence then share their idempotency scope, and two replicas recognize the same occurrence.
+**Rationale:** Schedule ID plus scheduled instant gives each planned time one stable identity across retries and replicas. Retries of one occurrence then share their idempotency key scope, and two replicas recognize the same occurrence.
 
 **Reviewed for:** Does every occurrence identity in the store carry the schedule ID and the scheduled instant? Check the occurrence identity column.
 
@@ -389,11 +389,11 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Applies to:** artifact: job
 
-**Statement:** A scheduled job MUST use its occurrence identity as the command idempotency scope.
+**Statement:** A scheduled job MUST use its occurrence identity as the command idempotency key scope.
 
 **Rationale:** Every retry of one occurrence replays the same scheduled business action. The occurrence identity scopes the command idempotency key to make that hold. A key scoped any wider would merge separate occurrences into one.
 
-**Reviewed for:** Does every retry of one occurrence use its occurrence identity as the idempotency scope? Check the command idempotency keys.
+**Reviewed for:** Does every retry of one occurrence use its occurrence identity as the idempotency key scope? Check the command idempotency keys.
 
 ### Allow Completion Only with a Current Fencing Value
 
@@ -643,11 +643,11 @@ The key space grows with the schedule's frequency and its retention: a per-secon
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** An export query MUST state its `audit` reason and target.
+**Statement:** An export query MUST state its `audit` reason and target kind.
 
 **Rationale:** An export file concentrates sensitive rows into one downloadable object. The use case states why the bulk read is audited and where the audit lands. Without the stated audit, the concentrated read leaves no trace a reviewer can follow.
 
-**Reviewed for:** Does every export query state its `audit` reason and target? Check the export query beside the report.
+**Reviewed for:** Does every export query state its `audit` reason and target kind? Check the export query beside the report.
 
 ### Support Report Cancellation
 

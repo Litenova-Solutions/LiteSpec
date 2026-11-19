@@ -241,7 +241,7 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
     /// <param name="type">The type under inspection.</param>
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
-    /// <returns>True when the type lives in the shared kernel.</returns>
+    /// <returns>True when the type lives in the Kernel.</returns>
     private static bool IsSharedValue(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
         (CodeMap.SourceFileOf(type, compilation) is string file && map.ModuleOf(file) is null)
         || IsKernelAssembly(type.ContainingAssembly?.Name);
@@ -253,6 +253,6 @@ public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
         !string.IsNullOrEmpty(assemblyName)
         && (assemblyName!.Equals("Kernel", StringComparison.Ordinal)
             || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal)
-            || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
-            || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal));
+            || assemblyName.Equals("Kernel", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal));
 }

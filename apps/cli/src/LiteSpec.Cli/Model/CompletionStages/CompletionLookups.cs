@@ -248,7 +248,7 @@ sealed class CompletionLookups
         return asserting;
     }
 
-    /// <summary>The live waiver parking each record, by record id: the first live waiver in id order naming it in subject, with its expiry date or null for a lasting waiver.</summary>
+    /// <summary>The live waiver parking each record, by record id: the first live waiver in id order naming it in appliesTo, with its expiry date or null for a lasting waiver.</summary>
     /// <param name="model">The built project model.</param>
     /// <returns>The parking waiver per parked record id.</returns>
     static Dictionary<string, (string Waiver, string? ExpiresOn)> ParkingWaivers(ProjectModel model)
@@ -267,7 +267,7 @@ sealed class CompletionLookups
 
             var expiresOn = waiver.Field(RecordFields.ExpiresOn);
 
-            foreach (var subject in waiver.Ids(RecordFields.Subject))
+            foreach (var subject in waiver.Ids(RecordFields.AppliesTo))
             {
                 parked.TryAdd(subject, (waiver.Id, expiresOn));
             }

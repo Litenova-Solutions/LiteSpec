@@ -25,7 +25,7 @@ public sealed class RoleTests
         Assert.Contains("public const string Approver = \"role/approver\";", roles, StringComparison.Ordinal);
         Assert.Contains("public const string Employee = \"role/employee\";", roles, StringComparison.Ordinal);
         Assert.Contains("public const string Finance = \"role/finance\";", roles, StringComparison.Ordinal);
-        Assert.Contains("internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Allows);", roles, StringComparison.Ordinal);
+        Assert.Contains("internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Permissions);", roles, StringComparison.Ordinal);
 
         var approver = "new LiteSpecRole(\"role/approver\", \"team\", new string[] { \"permission/list-expenses\", \"permission/approve-expense\", \"permission/manage-policy\" })";
         var employee = "new LiteSpecRole(\"role/employee\", \"self\", new string[] { \"permission/submit-expense\", \"permission/list-expenses\" })";
@@ -78,7 +78,7 @@ public sealed class RoleTests
         Assert.Equal("platform", Property(entry, "Scope"));
         Assert.Equal(
             new[] { "permission/list-expenses", "permission/reimburse-expense", "permission/export-expenses", "permission/erase-personal-data" },
-            ((System.Collections.IEnumerable)Property(entry, "Allows")!).Cast<string>().ToArray());
+            ((System.Collections.IEnumerable)Property(entry, "Permissions")!).Cast<string>().ToArray());
 
         var all = roles.GetProperty("All", BindingFlags.Public | BindingFlags.Static);
         Assert.NotNull(all);

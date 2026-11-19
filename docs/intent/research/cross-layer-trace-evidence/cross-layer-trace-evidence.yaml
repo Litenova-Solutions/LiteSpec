@@ -275,12 +275,12 @@ findings:
     sources:
       - model
       - recordtypes
-  - statement: "Of 22 waivers, 5 name neither `subject` nor `code`, so they govern nothing that a tool names."
+  - statement: "Of 22 waivers, 5 name neither `appliesTo` nor `code`, so they govern nothing that a tool names."
     sources:
       - model
       - recordtypes
       - model-2
-  - statement: "No waiver subject grammar covers one flow step."
+  - statement: "No waiver appliesTo grammar covers one flow step."
     sources:
       - model
       - recordtypes

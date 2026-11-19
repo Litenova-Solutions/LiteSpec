@@ -3,9 +3,9 @@ id: waiver/expense-steps-unscreened
 title: Expense Steps Unscreened
 summary: The web app holds three screens, so three flow steps served through the browser have no screen.
 kind: gap
-covers:
+waives:
 - step-screen-missing
-subject:
+appliesTo:
 - step/export-approved-expenses.export-batch
 - step/set-receipt-threshold.set-threshold
 - step/submit-and-reimburse.set-reminder-preference

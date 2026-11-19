@@ -431,7 +431,7 @@ public sealed class StackReaderTests
           "entryPoint": "entry-point/library-app",
           "route": "/loans",
           "task": "The reader reviews their loans and opens one to read it.",
-          "states": [
+          "displayStates": [
             {
               "name": "Empty",
               "shows": "The screen says there are no loans to review."

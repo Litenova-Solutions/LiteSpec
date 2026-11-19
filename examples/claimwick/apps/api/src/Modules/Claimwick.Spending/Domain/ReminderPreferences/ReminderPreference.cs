@@ -1,5 +1,6 @@
-using Claimwick.Kernel;
+using Claimwick.Kernel.Domain;
 using Claimwick.Spending.Domain.ReminderPreferences.Exceptions;
+using Claimwick.Spending.Domain.ReminderPreferences.Parts;
 
 namespace Claimwick.Spending.Domain.ReminderPreferences;
 

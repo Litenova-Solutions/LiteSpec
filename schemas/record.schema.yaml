@@ -650,12 +650,8 @@ $defs:
         uniqueItems: true
         items:
           $ref: '#/$defs/nonEmptyString'
-  contractFieldOf:
-    anyOf:
-    - $ref: '#/$defs/genericRecordId'
-    - $ref: '#/$defs/contractListShape'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so an id names a record, a list holds rows, a choice lists its choices and a file names its media types and size.
+    description: Ties a value field's type to the properties that type needs, so an id names a record in identifies, a list names its row shape in rowShape, a choice lists its choices and a file names its media types and size.
     allOf:
     - if:
         required:
@@ -677,22 +673,30 @@ $defs:
             const: list
       then:
         required:
-        - identifies
+        - rowShape
         properties:
-          identifies:
+          rowShape:
             $ref: '#/$defs/contractListShape'
     - if:
         required:
         - type
         properties:
           type:
-            enum:
-            - id
-            - list
+            const: id
       else:
         not:
           required:
           - identifies
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: list
+      else:
+        not:
+          required:
+          - rowShape
     - if:
         required:
         - type
@@ -739,7 +743,7 @@ $defs:
     type: object
     additionalProperties: false
     x-rejected-fields:
-      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on list-row fields under `identifies`."
+      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on list-row fields under `rowShape`."
     required:
     - name
     - meaning
@@ -752,9 +756,11 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/contractFieldOf'
+        $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      rowShape:
+        $ref: '#/$defs/contractListShape'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
@@ -1063,7 +1069,7 @@ $defs:
         - none
       key:
         $ref: '#/$defs/nonEmptyString'
-      scope:
+      keyScope:
         enum:
         - tenant
         - account
@@ -1090,7 +1096,7 @@ $defs:
       then:
         required:
         - key
-        - scope
+        - keyScope
     - if:
         required:
         - mode
@@ -1117,14 +1123,14 @@ $defs:
     additionalProperties: false
     required:
     - level
-    - target
+    - targetKind
     properties:
       level:
         enum:
         - required
         - optional
         - none
-      target:
+      targetKind:
         $ref: '#/$defs/nonEmptyString'
   auditExempt:
     type: object
@@ -1277,7 +1283,7 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/dataClassException'
-      holds:
+      retentionHolds:
         type: array
         minItems: 1
         items:
@@ -1506,9 +1512,11 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/contractFieldOf'
+        $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      rowShape:
+        $ref: '#/$defs/contractListShape'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
@@ -1534,9 +1542,11 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/contractFieldOf'
+        $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      rowShape:
+        $ref: '#/$defs/contractListShape'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
@@ -1872,9 +1882,11 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/contractFieldOf'
+        $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      rowShape:
+        $ref: '#/$defs/contractListShape'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
@@ -2706,7 +2718,7 @@ $defs:
     - kind
     - applies
     - appliesBecause
-    - scope
+    - coverage
     - obligations
     - productEffect
     properties:
@@ -2747,7 +2759,7 @@ $defs:
         type: boolean
       appliesBecause:
         $ref: '#/$defs/nonEmptyString'
-      scope:
+      coverage:
         $ref: '#/$defs/nonEmptyString'
       obligations:
         type: array
@@ -3818,9 +3830,11 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/contractFieldOf'
+        $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      rowShape:
+        $ref: '#/$defs/contractListShape'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       many:
@@ -3912,7 +3926,7 @@ $defs:
     - id
     - title
     - kind
-    - covers
+    - waives
     - reason
     properties:
       type:
@@ -3933,7 +3947,7 @@ $defs:
         x-read-back-as: is used by
       records:
         $ref: '#/$defs/recordsArray'
-      covers:
+      waives:
         type: array
         minItems: 1
         uniqueItems: true
@@ -3942,9 +3956,9 @@ $defs:
           - $ref: '#/$defs/standardsProvisionId'
           - $ref: '#/$defs/standardsPageId'
           - $ref: '#/$defs/findingCode'
-        x-reads-as: covers
-        x-read-back-as: is covered by
-      subject:
+        x-reads-as: waives
+        x-read-back-as: is waived by
+      appliesTo:
         $ref: '#/$defs/waiverSubjectArray'
         x-reads-as: applies to
         x-read-back-as: is applied to
@@ -3969,7 +3983,7 @@ $defs:
     allOf:
     - anyOf:
       - required:
-        - subject
+        - appliesTo
       - required:
         - paths
     - if:
@@ -4157,7 +4171,7 @@ $defs:
     - id
     - title
     - task
-    - states
+    - displayStates
     properties:
       type:
         const: screen
@@ -4200,7 +4214,7 @@ $defs:
         x-read-back-as: is reached from
       task:
         $ref: '#/$defs/nonEmptyString'
-      states:
+      displayStates:
         type: array
         minItems: 1
         items:

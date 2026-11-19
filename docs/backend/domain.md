@@ -481,7 +481,7 @@ A flow that finds a record or creates it is two use cases that the boundary owni
 
 A type in a folder that holds no aggregate root, and that is not the product `Domain/` folder, is the one place the derivation fails. A domain service that holds one rule calculation is not a part: it carries its `rule/` mark. A row or projection a port returns is not a part either: it is the port's answer, shaped for a reader, and it sits with its port.
 
-**Example:** In the Claimwick product, `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Domain/Expenses/` and carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
+**Example:** In the Claimwick product, `IExpenseRepository` sits beside the `Expense` root in `Spending/Domain/Expenses/`, `ExpenseState` sits in its `Parts/` grouping, and both carry no mark; the builder lists them as parts of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
 
 **Checked by:** `litespec model check` reports `part-parent-missing` (level S) for an unmarked Domain type whose folder holds no aggregate root and is not the product `Domain/` folder, and the model output lists each part under its aggregate.
 
@@ -563,11 +563,11 @@ Application obtains each value through an owned port and passes it in. A method 
 
 **Applies to:** artifact: any
 
-**Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding the root's main file and the repository interface at its top with the groupings `{Act}/`, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`.
+**Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding the root's main file, the repository interface as the aggregate's only store interface, and the root's partial files for a concern no single act owns at its top with the groupings `{Act}/`, `Parts/`, `Facts/`, `Events/`, and `Exceptions/`.
 
 **Replacement:** A project names its own module layout in its documentation.
 
-**Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. Every aggregate keeps its own folder, whatever the module's number of aggregates. Each root action groups into its own `{Act}/` folder with its partial file, its inputs, and its private rules; entities, value objects, and state types sit in `Parts/`; values passed in from other modules or the country pack sit in `Facts/`; domain events sit in `Events/` and refusals in `Exceptions/`.
+**Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. Every aggregate keeps its own folder, whatever the module's number of aggregates. Each root action groups into its own `{Act}/` folder with its partial file, its inputs, its private rules, and the steps only it calls; entities, value objects, state types, and the stateless rules several acts share sit in `Parts/`; values passed in from other modules or the country pack sit in `Facts/`; domain events sit in `Events/` and refusals in `Exceptions/`.
 
 A part is a data group the aggregate record declares with dotted field names, such as `parcel.*`. The part's child entity and the values only that child holds sit in `Parts/`, while the part's events and refusals stay in the aggregate's `Events/` and `Exceptions/` folders.
 
@@ -643,7 +643,7 @@ A part is a data group the aggregate record declares with dotted field names, su
 
 Each aggregate's domain repository stays with the aggregate it loads. The module, aggregate, and use case order follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. Each stack page states the file names and extensions that carry this layout.
 
-**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for a domain event outside its aggregate's `Events` folder, and `folder-ungrouped` for a folder past 20 files that holds none of its allowed groupings.
+**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for a domain event outside its aggregate's `Events` folder, for a state beside its aggregate root, and for a second store interface of one aggregate, and `folder-ungrouped` for a folder past 20 files that holds none of its allowed groupings.
 
 ### Name Domain Types from Their Aggregate Root
 

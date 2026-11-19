@@ -1,7 +1,9 @@
-using Claimwick.Kernel;
+using Claimwick.Kernel.Domain;
+using Claimwick.Kernel.Values;
 using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Domain.Expenses.Events;
 using Claimwick.Spending.Domain.Expenses.Exceptions;
+using Claimwick.Spending.Domain.Expenses.Parts;
 using Claimwick.Spending.Domain.Receipts.Events;
 using Claimwick.Spending.Domain.Receipts.Exceptions;
 

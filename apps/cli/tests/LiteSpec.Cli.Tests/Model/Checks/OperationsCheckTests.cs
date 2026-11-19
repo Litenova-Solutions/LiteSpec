@@ -742,10 +742,10 @@ public sealed class OperationsCheckTests
           "id": "waiver/list-loans-latency-unwatched",
           "title": "List loans latency unwatched",
           "kind": "gap",
-          "covers": [
+          "waives": [
             "quality-alert-missing"
           ],
-          "subject": [
+          "appliesTo": [
             "requirement/performance.list-loans-latency"
           ],
           "closedBy": [

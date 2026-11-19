@@ -1027,6 +1027,48 @@ public sealed class BookOutlineTests
         Assert.Contains(loan!.Children, child => string.Equals(child.Id, "domain-event/other.loan-borrowed", StringComparison.Ordinal));
     }
 
+    /// <summary>An aggregate sorts its domain, module and integration events by type, whatever their titles.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void AggregateChildrenSortEventsByType()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
+            Record(
+                "domain-event",
+                "domain-event/loan.mike-borrowed",
+                "Mike Borrowed",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/domain-events/mike-borrowed.yaml"),
+            Record(
+                "module-event",
+                "module-event/lending.zulu-posted",
+                "Zulu Posted",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/module-events/zulu-posted/zulu-posted.yaml"),
+            Record(
+                "integration-event",
+                "integration-event/alpha-shipped",
+                "Alpha Shipped",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/aggregates/loans/integration-events/alpha-shipped/alpha-shipped.yaml"));
+
+        var outline = BookOutline.Build(model);
+
+        var loan = Find(outline.Layers, "aggregate/lending.loan");
+        Assert.NotNull(loan);
+        Assert.Equal(
+            ["domain-event/loan.mike-borrowed", "module-event/lending.zulu-posted", "integration-event/alpha-shipped"],
+            loan!.Children.Select(child => child.Id).ToList());
+    }
+
     static JsonObject Record(
         string type,
         string id,

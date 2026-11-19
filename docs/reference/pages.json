@@ -737,7 +737,7 @@
       "path": "analyzers/rules/ls5012",
       "style": "reference",
       "area": "analyzers",
-      "title": "LS5012: Role Allows an Undeclared Permission",
+      "title": "LS5012: Permission Grants an Undeclared Role",
       "intent": "",
       "sections": [
         "Reference",

@@ -17,6 +17,7 @@ export type ScreenId =
   | "screen/claimwick-app.new-expense";
 export type ProofTargetId =
   | "decision/0001-receipt-threshold"
+  | "decision/0002-attach-receipt-writes-two-aggregates"
   | "decision/0004-serve-receipts-behind-one-proxy"
   | "decision/0005-render-receipts-as-pdf"
   | "external-system/event-bus"
@@ -42,6 +43,7 @@ export type ProofTargetId =
   | "litespec/frontend/components#add-a-missing-composite-to-the-shared-package"
   | "litespec/frontend/components#compose-composites-in-page-code"
   | "litespec/frontend/components#expose-card-and-section-titles-as-headings"
+  | "litespec/frontend/components#group-the-shared-ui-package-by-role"
   | "litespec/frontend/components#keep-component-inputs-narrow"
   | "litespec/frontend/components#keep-domain-values-typed-until-display"
   | "litespec/frontend/components#keep-error-boundaries-scoped"
@@ -394,6 +396,7 @@ export type ProofTargetId =
   | "litespec/frontend/web/rendering#declare-titles-and-indexing-policy-on-every-route"
   | "litespec/frontend/web/rendering#show-route-failure-on-the-error-surface"
   | "litespec/frontend/web/structure#generate-the-records-file-into-the-frame"
+  | "litespec/frontend/web/structure#group-the-web-frame-by-capability"
   | "litespec/frontend/web/structure#keep-web-layouts-error-surfaces-and-route-groups-unmarked"
   | "litespec/frontend/web/structure#locate-the-frame-in-the-app-folder"
   | "litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case"
@@ -477,7 +480,7 @@ export type ProofTargetId =
   | "scenario/submit-expense.lowered-threshold-refuses-waiting-expense"
   | "scenario/submit-expense.submitting-with-a-receipt-succeeds"
   | "scenario/submit-expense.submitting-without-a-receipt-is-refused";
-export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId; readonly offers?: readonly UseCaseId[] }
+export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }
 export function proves(id: ProofTargetId): { annotation: [{ type: "proves"; description: ProofTargetId }] } {
   return { annotation: [{ type: "proves", description: id }] };
 }

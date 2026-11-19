@@ -228,7 +228,7 @@ public sealed class RulesCommandTests
         Assert.DoesNotContain("show-a-loading-state-on-every-route", result.Output);
     }
 
-    /// <summary>A live waiver replaces the provision its covers names; an expired one does not.</summary>
+    /// <summary>A live waiver replaces the provision its waives names; an expired one does not.</summary>
     /// <proves>litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver</proves>
     [Fact]
     public void RulesWaiverReplacesCoveredProvision()

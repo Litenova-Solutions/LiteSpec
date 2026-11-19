@@ -1,4 +1,4 @@
-using Claimwick.Kernel;
+using Claimwick.Kernel.Values;
 
 namespace Claimwick.Spending.Contracts.Expenses;
 

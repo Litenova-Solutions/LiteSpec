@@ -67,6 +67,39 @@ public sealed class QueryEdgeCheckTests
             finding.Code is "query-target-invalid" or "query-consumer-missing");
     }
 
+    /// <summary>Use Case Querying Its Own Module Query Reports.</summary>
+    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    [Fact]
+    public void UseCaseQueryingItsOwnModuleQueryReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Consumer(temp.Path, "use-case/reporting.record-reimbursement", """{"kind": "command", "steps": [{"statement": "Reporting records the reimbursement."}], "effects": [{"queries": "use-case/reporting.read-ledger", "timing": "inline"}]}"""),
+            TestModel.Record("use-case", "use-case/reporting.read-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "read-ledger.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "query-target-invalid");
+        Assert.Equal("use-case/reporting.record-reimbursement", finding.Subject);
+        Assert.Contains("its own module", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Reaction Querying Its Own Module Query Reports.</summary>
+    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    [Fact]
+    public void ReactionQueryingItsOwnModuleQueryReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/reporting.confirm-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "reactions.yaml"), """{"triggeredBy": ["module-event/spending.expense-reimbursed"], "effects": [{"queries": "use-case/reporting.read-ledger"}], "outcomes": [{"name": "completed", "meaning": "The ledger is confirmed."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "state", "recognizedBy": "state"}}"""),
+            TestModel.Record("module-event", "module-event/spending.expense-reimbursed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events.yaml"), """{"summary": "The expense was reimbursed."}"""),
+            TestModel.Record("use-case", "use-case/reporting.read-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "read-ledger.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "query-target-invalid");
+        Assert.Equal("reaction/reporting.confirm-ledger", finding.Subject);
+        Assert.Contains("its own module", finding.Message, StringComparison.Ordinal);
+    }
+
     /// <summary>Public Query No Module Queries Reports.</summary>
     /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]

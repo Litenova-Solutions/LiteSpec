@@ -5,9 +5,9 @@ summary: <what is set aside and why, or remove this line>
 kind: <gap|lasting>
 terms:
 - <term id, or remove this line>
-covers:
+waives:
 - <provision id, page id or finding code>
-subject:
+appliesTo:
 - <record id>
 paths:
 - <path the waiver applies to, or remove this line>

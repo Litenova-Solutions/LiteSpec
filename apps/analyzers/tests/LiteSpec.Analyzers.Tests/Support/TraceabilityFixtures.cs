@@ -185,8 +185,8 @@ internal static class TraceabilityFixtures
             """);
 
     /// <summary>A gap waiver covering the codes on the subjects and paths until 2099, or a lasting waiver when no expiry is given.</summary>
-    /// <param name="covers">The covers list: finding codes the waiver covers.</param>
-    /// <param name="subjects">The subject identifiers the waiver covers, or null for none.</param>
+    /// <param name="covers">The waives list: finding codes the waiver covers.</param>
+    /// <param name="subjects">The appliesTo identifiers the waiver covers, or null for none.</param>
     /// <param name="paths">The file paths the waiver covers, or null for none.</param>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="expiresOn">The date the waiver expires, as ISO date text, or null for a lasting waiver.</param>
@@ -208,8 +208,8 @@ internal static class TraceabilityFixtures
               "type": "waiver",
               "id": "{{id}}",
               "title": "Marks deferred",
-              "covers": [{{string.Join(", ", covers.Select(Quote))}}],
-              "subject": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}],
+              "waives": [{{string.Join(", ", covers.Select(Quote))}}],
+              "appliesTo": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}],
               "paths": [{{string.Join(", ", (paths ?? []).Select(Quote))}}],
               "reason": "Marks are deferred."{{tail}}
             }

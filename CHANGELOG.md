@@ -154,7 +154,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - The record that sets a required provision, page or finding code aside is the waiver: `type: waiver`, identifiers `waiver/<name>`, the folders `.litespec/governance/waivers/` and `.litespec/governance/modules/<module>/waivers/`, the page `docs/core/waivers.md`, the template `templates/consumer/waiver.yaml`, and the codes `waiver-expired`, `waiver-invalid` and `waiver-duplicate`. Decision 0014, One Waiver Record, records why.
 - The advisory exit inside a provision is the `**Deviation:**` part again, so one word no longer names both the exit that needs no record and the record that sets a required rule aside. `litespec/core/waivers#deviate-from-advice-without-a-record` and `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver` state the two.
 - Every waiver states its kind: `gap` for work the team means to close, `lasting` for a choice the project keeps. A gap carries `expiresOn`, `exitWhen` and `closedBy`, the records whose change closes the gap; a lasting waiver carries `consequences` and no end date.
-- `model check` reports `waiver-duplicate` when two live waivers cover the same finding code, provision or page on the same subject record or the same path, and `reference-unknown` for a `closedBy` entry that names no written record.
+- `model check` reports `waiver-duplicate` when two live waivers cover the same finding code, provision or page on the same appliesTo record or the same path, and `reference-unknown` for a `closedBy` entry that names no written record.
 - The `waiver-index` region lists every waiver of the product in the README of the product `governance/waivers/` folder, with a Module column; gaps by `expiresOn` with their `closedBy`, then lasting waivers with their consequences.
 - The book waiver page shows the kind, the closing records and the consequences, and Claimwick's waivers state their kinds and closing records.
 - The new rules are `litespec/core/waivers#state-the-kind-of-every-waiver`, `litespec/core/waivers#name-the-records-that-close-a-gap` and `litespec/core/waivers#cover-each-finding-with-one-waiver`.
@@ -417,29 +417,63 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (163):
+Added (240):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
+- `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
+- `litespec/backend/application#declare-a-port-only-for-what-the-module-does-not-compute`
+- `litespec/backend/application#declare-every-commands-edge-on-the-sender`
+- `litespec/backend/application#declare-every-port-in-the-module-ports-folder`
+- `litespec/backend/application#declare-shared-access-conditions-as-composable-policies`
+- `litespec/backend/application#keep-use-case-folders-small`
 - `litespec/backend/application#read-another-modules-state-through-a-read-model`
+- `litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator`
+- `litespec/backend/application#send-public-commands-in-process`
 - `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`
 - `litespec/backend/application#write-only-aggregates-the-record-names`
 - `litespec/backend/architecture#give-each-use-case-its-own-models`
+- `litespec/backend/architecture#give-every-module-relationship-one-direction`
+- `litespec/backend/architecture#group-a-folder-that-holds-past-twenty-files`
+- `litespec/backend/architecture#merge-modules-that-need-each-others-model`
+- `litespec/backend/architecture#produce-file-formats-in-infrastructure`
 - `litespec/backend/architecture#repeat-coordination-never-a-rule`
+- `litespec/backend/architecture#run-every-spanning-process-from-its-most-downstream-participant`
+- `litespec/backend/architecture#send-commands-and-queries-upstream`
 - `litespec/backend/architecture#subscribe-across-modules-only-to-module-events`
 - `litespec/backend/domain#change-each-aggregate-through-its-marked-act`
 - `litespec/backend/domain#name-domain-types-from-their-aggregate-root`
 - `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`
+- `litespec/backend/domain#reach-an-aggregate-only-through-its-root`
+- `litespec/backend/dotnet/api#compose-the-host-in-programcs`
+- `litespec/backend/dotnet/api#convert-money-with-the-platform-converter`
 - `litespec/backend/dotnet/application#dispatch-read-model-projections-immediately`
 - `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories-and-writes`
 - `litespec/backend/dotnet/application#name-every-outbox-subscriber`
 - `litespec/backend/dotnet/application#report-immediate-dispatch-beside-the-backlog`
 - `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`
-- `litespec/backend/dotnet/architecture#place-each-read-model-in-its-module-read-models-folder`
+- `litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project`
+- `litespec/backend/dotnet/architecture#expose-one-public-entry-type-per-module`
+- `litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point`
+- `litespec/backend/dotnet/architecture#hold-each-layer-in-its-own-folder`
+- `litespec/backend/dotnet/architecture#keep-business-values-in-the-kernel`
+- `litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner`
+- `litespec/backend/dotnet/architecture#keep-technical-capabilities-in-the-platform`
+- `litespec/backend/dotnet/architecture#name-no-business-identifier-in-the-platform`
+- `litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder`
+- `litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions`
+- `litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project`
+- `litespec/backend/dotnet/architecture#register-each-module-through-its-entry-point`
+- `litespec/backend/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules`
 - `litespec/backend/dotnet/config#bind-every-keyed-setting-in-one-options-class`
+- `litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root`
+- `litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier`
+- `litespec/backend/dotnet/domain#split-a-large-root-into-one-file-per-action`
 - `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`
+- `litespec/backend/dotnet/naming#name-every-event-type-by-its-kind`
 - `litespec/backend/dotnet/naming#put-the-cancellation-token-last`
 - `litespec/backend/dotnet/persistence#implement-the-unit-of-work-boundary`
 - `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock`
+- `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`
 - `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests`
 - `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`
 - `litespec/core/access#authorize-every-use-case-through-a-declared-grant`
@@ -447,6 +481,7 @@ Added (163):
 - `litespec/core/access#evaluate-access-in-one-order`
 - `litespec/core/access#keep-permission-sets-to-entries`
 - `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
+- `litespec/core/access#model-a-hosted-sign-in-as-use-cases`
 - `litespec/core/agent#scope-every-convention-to-files-it-governs`
 - `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`
 - `litespec/core/authoring#open-each-page-with-a-lead`
@@ -464,31 +499,41 @@ Added (163):
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
 - `litespec/core/automation#run-each-effect-on-its-own`
 - `litespec/core/behavior#group-module-rules-by-theme`
+- `litespec/core/domain-model#date-every-reference-data-row`
+- `litespec/core/domain-model#keep-reference-data-rows-from-overlapping`
 - `litespec/core/domain-model#keep-technical-state-out-of-behavior`
 - `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`
+- `litespec/core/domain-model#name-the-record-each-law-rule-restates`
 - `litespec/core/domain-model#record-when-each-frozen-value-freezes-and-where-it-lives`
+- `litespec/core/domain-model#state-each-rules-source`
 - `litespec/core/domain-model#state-what-each-rule-governs`
 - `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`
 - `litespec/core/edges#give-every-screen-a-route-or-a-host`
 - `litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve`
+- `litespec/core/edges#name-each-external-system-for-its-role`
 - `litespec/core/edges#name-how-every-inbound-integration-event-arrives`
+- `litespec/core/edges#name-the-actor-each-external-system-represents`
 - `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`
+- `litespec/core/edges#resolve-late-arrivals-against-owner-written-facts`
 - `litespec/core/edges#serve-static-files-as-served-content`
+- `litespec/core/edges#state-every-boundary-check-as-a-rule-of-its-module`
 - `litespec/core/edges#state-the-density-and-voice-of-each-entry-point`
 - `litespec/core/edges#state-the-outcome-of-every-outside-call`
+- `litespec/core/edges#state-the-vendor-of-each-external-system`
 - `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`
 - `litespec/core/intent#branch-a-flow-only-between-its-steps`
 - `litespec/core/intent#build-nothing-from-a-direction`
 - `litespec/core/intent#cite-the-direction-a-decision-keeps-open`
+- `litespec/core/intent#keep-actors-to-people-organizations-and-systems`
 - `litespec/core/intent#keep-dates-and-priorities-out-of-directions`
 - `litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for`
 - `litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement`
 - `litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position`
-- `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`
+- `litespec/core/intent#perform-each-flow-step-with-an-actor`
 - `litespec/core/intent#place-product-wide-commitments-as-product-requirements`
+- `litespec/core/intent#reach-every-flow-step-by-a-path`
 - `litespec/core/intent#record-goal-outcomes-as-observations`
 - `litespec/core/intent#record-research-with-its-question-conclusion-and-sources`
-- `litespec/core/intent#solve-problems-with-standalone-features`
 - `litespec/core/intent#state-each-decision-with-context-and-choice`
 - `litespec/core/intent#state-each-direction-in-its-statement`
 - `litespec/core/intent#state-each-flow-blocker-as-a-step-failure`
@@ -498,26 +543,38 @@ Added (163):
 - `litespec/core/intent#summarize-every-flow-before-its-steps`
 - `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
 - `litespec/core/language#read-each-field-name-in-its-record-type`
+- `litespec/core/model#cite-reference-data-instead-of-literal-values`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`
 - `litespec/core/model#keep-the-whole-specification-in-the-records`
 - `litespec/core/model#name-records-in-prose-by-their-identifiers`
+- `litespec/core/model#name-the-field-to-use-instead-in-schema-errors`
 - `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
+- `litespec/core/model#point-every-link-up`
+- `litespec/core/model#report-one-shape-in-schema-errors`
 - `litespec/core/model#serve-every-flow-step`
 - `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`
 - `litespec/core/principles#add-new-machinery-only-for-a-current-requirement`
 - `litespec/core/principles#confine-atomic-consistency-to-one-use-case`
 - `litespec/core/principles#share-no-transaction-across-an-edge`
+- `litespec/core/privacy#pause-deletion-while-a-hold-stands`
+- `litespec/core/privacy#round-an-event-start-to-a-calendar-end`
 - `litespec/core/release#verify-connected-flows`
 - `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`
 - `litespec/core/stacks#name-every-provision-a-replacement-replaces`
 - `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element`
+- `litespec/core/use-cases#change-one-aggregate-in-each-command`
+- `litespec/core/use-cases#cite-the-invariants-most-writers-cite`
 - `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`
+- `litespec/core/use-cases#declare-each-aggregates-refusals-once`
 - `litespec/core/use-cases#declare-each-modules-refusals-once`
 - `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
 - `litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit`
 - `litespec/core/use-cases#keep-each-scenario-inside-its-operation`
+- `litespec/core/use-cases#list-the-consumer-modules-of-a-public-query`
+- `litespec/core/use-cases#list-the-sending-modules-of-a-public-command`
 - `litespec/core/use-cases#mark-every-provider-verified-input`
 - `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`
+- `litespec/core/use-cases#name-only-a-provided-way-out-in-each-refusal-sentence`
 - `litespec/core/use-cases#name-the-idempotency-of-every-command`
 - `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`
 - `litespec/core/use-cases#prove-every-guard-against-a-competing-command`
@@ -536,7 +593,13 @@ Added (163):
 - `litespec/core/writing#explain-the-same-specification-the-records-state`
 - `litespec/core/writing#update-a-record-and-its-explanation-together`
 - `litespec/core/writing#use-one-mechanical-form-for-each-fact`
+- `litespec/ext/audit#chain-records-to-expose-tampering`
 - `litespec/ext/audit#declare-which-commands-are-audited`
+- `litespec/ext/audit#delete-expired-records-through-a-separate-operator-account`
+- `litespec/ext/audit#delete-records-when-their-retention-ends`
+- `litespec/ext/audit#record-each-segment-deletion-in-the-following-segment`
+- `litespec/ext/audit#segment-the-audit-chain-by-category-and-calendar-year`
+- `litespec/ext/audit#state-the-checkpoint-interval-as-the-detection-window`
 - `litespec/ext/cache#state-the-staleness-each-cached-query-accepts`
 - `litespec/ext/concurrency#require-caller-versions-only-for-declared-conflicts`
 - `litespec/ext/delivery#close-incident-waivers-within-seven-days`
@@ -545,6 +608,7 @@ Added (163):
 - `litespec/ext/delivery#link-each-operations-file-to-its-decision`
 - `litespec/ext/delivery#link-every-runbook-to-its-caller`
 - `litespec/ext/jobs#keep-worker-orchestration-separate-from-report-rules`
+- `litespec/ext/jobs#name-a-varying-time-zone-by-its-source`
 - `litespec/ext/jobs#record-the-schedule-on-the-job-record`
 - `litespec/ext/mcp#keep-secrets-and-personal-data-out-of-descriptions-and-logs`
 - `litespec/ext/outbox#deliver-module-facts-in-process-without-a-broker`
@@ -559,10 +623,15 @@ Added (163):
 - `litespec/ext/queues#show-the-score-beside-each-item`
 - `litespec/ext/queues#state-the-claim-mode`
 - `litespec/ext/realtime#measure-polling-before-choosing-realtime`
+- `litespec/frontend/components#group-the-shared-ui-package-by-role`
 - `litespec/frontend/data#brand-every-identifier-from-the-contract`
 - `litespec/frontend/data#compose-a-screen-from-each-owners-query`
+- `litespec/frontend/data#hold-every-monetary-amount-in-the-frame-money-type`
 - `litespec/frontend/mobile/screens#route-app-links-to-flow-entry-screens`
 - `litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built`
+- `litespec/frontend/patterns/feedback-and-states#route-error-frame`
+- `litespec/frontend/patterns/feedback-and-states#route-loading-frame`
+- `litespec/frontend/patterns/page-frames#entry-page`
 - `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
 - `litespec/frontend/ui#keep-token-values-in-one-token-file`
 - `litespec/frontend/ui#link-each-screen-to-its-next-screens`
@@ -576,15 +645,24 @@ Added (163):
 - `litespec/frontend/web/data#build-a-web-form-on-the-shared-form-entry-point`
 - `litespec/frontend/web/data#resolve-copy-through-the-stack-dictionary-library`
 - `litespec/frontend/web/rendering#show-route-failure-on-the-error-surface`
+- `litespec/frontend/web/structure#group-the-web-frame-by-capability`
 - `litespec/frontend/web/structure#keep-web-layouts-error-surfaces-and-route-groups-unmarked`
 - `litespec/frontend/web/structure#mark-each-web-route-entry-with-its-screen`
 - `litespec/frontend/web/structure#use-the-stack-file-extension`
 - `litespec/frontend/web/testing#keep-web-test-mocks-to-the-stack-libraries`
+- `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`
 - `litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file`
+- `litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class`
+- `litespec/workspace/design#give-each-class-one-responsibility`
+- `litespec/workspace/design#implement-one-capability-per-class`
+- `litespec/workspace/design#name-each-definition-after-its-message-and-concern`
+- `litespec/workspace/design#take-shared-behavior-through-composition`
+- `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (196):
+Removed (218):
 
+- `litespec/backend/application#declare-a-port-where-its-consumers-meet`
 - `litespec/backend/application#emit-declared-integration-events-after-commit`
 - `litespec/backend/application#expose-store-state-through-ports`
 - `litespec/backend/application#send-messages-after-commit`
@@ -593,12 +671,29 @@ Removed (196):
 - `litespec/backend/domain#call-the-marked-act-from-each-command-handler`
 - `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
 - `litespec/backend/domain#use-these-domain-names`
+- `litespec/backend/dotnet/api#keep-programcs-as-composition`
 - `litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators`
 - `litespec/backend/dotnet/api#place-endpoints-in-their-use-case-folders`
 - `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories`
 - `litespec/backend/dotnet/application#use-the-use-case-folder-layout`
+- `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`
+- `litespec/backend/dotnet/architecture#use-one-public-assembly-marker`
 - `litespec/backend/dotnet/domain#document-every-public-domain-contract`
 - `litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout`
+- `litespec/backend/dotnet/ext/layer-projects#keep-application-dependencies-narrow`
+- `litespec/backend/dotnet/ext/layer-projects#keep-domain-package-free`
+- `litespec/backend/dotnet/ext/layer-projects#keep-net-production-and-test-projects-separate`
+- `litespec/backend/dotnet/ext/layer-projects#keep-one-application-assembly`
+- `litespec/backend/dotnet/ext/layer-projects#keep-the-test-projects-the-size-requires`
+- `litespec/backend/dotnet/ext/layer-projects#mirror-modules-in-folders-and-namespaces`
+- `litespec/backend/dotnet/ext/layer-projects#run-litespecanalyzers-in-every-application-project`
+- `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`
+- `litespec/backend/dotnet/ext/layer-projects#use-the-domain-module-layout`
+- `litespec/backend/dotnet/ext/layer-projects#use-the-endpoint-folder-layout`
+- `litespec/backend/dotnet/ext/layer-projects#use-the-operation-folder-layout`
+- `litespec/backend/dotnet/ext/layer-projects#use-the-project-reference-graph`
+- `litespec/backend/dotnet/ext/layer-projects#use-this-baseline-package-ownership`
+- `litespec/backend/dotnet/ext/layer-projects#use-this-infrastructure-layout`
 - `litespec/backend/dotnet/naming#check-architectural-role-suffixes`
 - `litespec/backend/dotnet/naming#check-repository-variable-names`
 - `litespec/backend/dotnet/naming#check-result-part-names`
@@ -637,7 +732,6 @@ Removed (196):
 - `litespec/core/edges#serve-static-content-through-served-content`
 - `litespec/core/edges#show-every-refusal-a-screen-can-reach`
 - `litespec/core/intent#add-no-behavior-in-an-explanation-file`
-- `litespec/core/intent#answer-one-problem-with-each-feature`
 - `litespec/core/intent#branch-a-journey-only-between-its-steps`
 - `litespec/core/intent#build-nothing-from-a-vision`
 - `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`
@@ -645,6 +739,7 @@ Removed (196):
 - `litespec/core/intent#describe-every-journey`
 - `litespec/core/intent#explain-each-requirement-in-one-line`
 - `litespec/core/intent#group-product-records-by-problem`
+- `litespec/core/intent#keep-actors-to-people-and-organizations`
 - `litespec/core/intent#keep-company-operation-out-of-intent`
 - `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
 - `litespec/core/intent#keep-intent-in-its-homes`
@@ -701,6 +796,8 @@ Removed (196):
 - `litespec/core/writing#compare-real-options-in-each-decision-record`
 - `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`
 - `litespec/ext/audit#declare-audit-selection-on-every-command`
+- `litespec/ext/audit#provide-tamper-evidence`
+- `litespec/ext/audit#retain-each-category-for-its-declared-period`
 - `litespec/ext/cache#record-accepted-cache-staleness`
 - `litespec/ext/concurrency#limit-version-checks`
 - `litespec/ext/delivery#close-incident-departures-within-seven-days`
@@ -708,6 +805,8 @@ Removed (196):
 - `litespec/ext/delivery#point-each-operations-file-at-its-decision`
 - `litespec/ext/delivery#provide-release-delivery-controls`
 - `litespec/ext/delivery#provide-release-operating-visibility`
+- `litespec/ext/integrations#group-provider-code`
+- `litespec/ext/integrations#keep-ports-near-use-cases`
 - `litespec/ext/jobs#carry-the-schedule-on-the-job-record`
 - `litespec/ext/jobs#confirm-bulk-money-actions-out-of-band`
 - `litespec/ext/jobs#order-queue-items-by-score`
@@ -782,7 +881,7 @@ Removed (196):
 - `litespec/frontend/web/svelte/stack#use-the-svelte-extension-on-shared-files`
 - `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-Renamed (168):
+Renamed (161):
 
 - `litespec/backend/api#keep-endpoint-dependencies-transport-focused` to `litespec/backend/api#keep-business-dependencies-out-of-endpoints`
 - `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape` to `litespec/backend/api#mirror-each-closed-set-on-the-wire`
@@ -799,17 +898,12 @@ Renamed (168):
 - `litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values` to `litespec/backend/domain#identify-each-aggregate-with-a-typed-version-7-identifier`
 - `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` to `litespec/backend/domain#model-every-closed-set-as-a-type-hierarchy`
 - `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract` to `litespec/backend/domain#take-identity-and-events-from-the-shared-root-contract`
-- `litespec/backend/dotnet/api#keep-programcs-as-composition` to `litespec/backend/dotnet/api#compose-the-host-in-programcs`
 - `litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit` to `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object`
 - `litespec/backend/dotnet/domain#mark-each-changing-root-method-with-one-use-case` to `litespec/backend/dotnet/domain#mark-each-state-changing-root-method-with-its-use-case`
 - `litespec/backend/dotnet/ext/bdd#drive-public-behavior` to `litespec/backend/dotnet/ext/bdd#call-public-boundaries-from-bdd-steps`
 - `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module` to `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`
 - `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario` to `litespec/backend/dotnet/ext/bdd#trace-every-bdd-scenario-to-its-scenario`
 - `litespec/backend/dotnet/ext/bdd#translate-business-phrases` to `litespec/backend/dotnet/ext/bdd#translate-business-phrases-into-test-driver-calls`
-- `litespec/backend/dotnet/ext/layer-projects#run-litespecanalyzers-in-every-application-project` to `litespec/backend/dotnet/ext/layer-projects#run-the-litespec-analyzers-in-every-layer-project`
-- `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects` to `litespec/backend/dotnet/ext/layer-projects#package-each-layer-as-its-own-project`
-- `litespec/backend/dotnet/ext/layer-projects#use-this-baseline-package-ownership` to `litespec/backend/dotnet/ext/layer-projects#assign-each-baseline-package-to-its-owning-project`
-- `litespec/backend/dotnet/ext/layer-projects#use-this-infrastructure-layout` to `litespec/backend/dotnet/ext/layer-projects#keep-persistence-in-one-infrastructure-folder`
 - `litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason` to `litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason`
 - `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution` to `litespec/backend/dotnet/workspace#list-every-deployable-unit-in-the-root-solution`
 - `litespec/backend/persistence#bound-aggregate-document-growth` to `litespec/backend/persistence#keep-unbounded-collections-out-of-aggregate-documents`
@@ -845,13 +939,11 @@ Renamed (168):
 - `litespec/ext/audit#exclude-secrets-and-payment-data` to `litespec/ext/audit#keep-secrets-and-payment-data-from-the-trail`
 - `litespec/ext/audit#exclude-state-snapshots` to `litespec/ext/audit#keep-state-copies-from-audit-records`
 - `litespec/ext/audit#give-the-trail-a-read-path` to `litespec/ext/audit#provide-a-use-case-that-reads-the-trail`
-- `litespec/ext/audit#provide-tamper-evidence` to `litespec/ext/audit#chain-records-to-expose-tampering`
 - `litespec/ext/audit#record-a-bulk-read-inside-its-own-boundary` to `litespec/ext/audit#audit-bulk-reads-inside-one-boundary`
 - `litespec/ext/audit#record-bulk-export` to `litespec/ext/audit#audit-every-bulk-export`
 - `litespec/ext/audit#record-delegated-administrative-access` to `litespec/ext/audit#mark-actions-taken-under-a-support-grant`
 - `litespec/ext/audit#record-the-operation-trace-identity` to `litespec/ext/audit#link-each-record-to-its-operation-trace`
 - `litespec/ext/audit#reject-an-undeclared-command` to `litespec/ext/audit#fail-the-build-for-commands-without-an-audit-declaration`
-- `litespec/ext/audit#retain-each-category-for-its-declared-period` to `litespec/ext/audit#delete-records-when-their-retention-ends`
 - `litespec/ext/audit#state-the-action-as-use-case-identity` to `litespec/ext/audit#name-each-action-after-its-use-case`
 - `litespec/ext/cache#emit-a-signal-for-each-degraded-cache-path` to `litespec/ext/cache#distinguish-cache-misses-errors-and-degraded-responses`
 - `litespec/ext/cache#record-a-manual-cache-invalidation` to `litespec/ext/cache#record-each-manual-cache-invalidation`
@@ -957,8 +1049,9 @@ Extensions added (1):
 
 - `queues`
 
-Extensions removed (1):
+Extensions removed (2):
 
+- `layer-projects`
 - `stage`
 
 <!-- /generated:provision-diff -->

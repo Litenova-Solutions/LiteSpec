@@ -2,5 +2,5 @@ namespace Library.Lending.BorrowCopy;
 
 internal sealed class BorrowCopyCommandIdempotencyDefinition : IIdempotencyDefinition<BorrowCopyCommand>
 {
-    public IdempotencyDeclaration Idempotency => IdempotencyDeclaration.NotIdempotent();
+    public IdempotencyDeclaration Idempotency => new Exempt<IdempotencyDeclaration>("Each call lends its own copy, and lending an unavailable copy is refused.");
 }

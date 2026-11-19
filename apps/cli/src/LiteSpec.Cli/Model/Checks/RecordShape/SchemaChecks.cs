@@ -149,7 +149,7 @@ internal static class SchemaChecks
                 RequireEnum(record, RecordFields.Kind, ["technical", "organizational", "convention", "legal"], findings);
                 RequireBoolean(record, RecordFields.Applies, findings);
                 RequireString(record, RecordFields.AppliesBecause, findings);
-                RequireString(record, RecordFields.Scope, findings);
+                RequireString(record, RecordFields.Coverage, findings);
                 RequireArray(record, RecordFields.Obligations, 1, findings);
                 RequireString(record, RecordFields.ProductEffect, findings);
                 break;
@@ -465,7 +465,7 @@ internal static class SchemaChecks
 
             case RecordTypes.Screen:
                 RequireString(record, RecordFields.Task, findings);
-                RequireArray(record, RecordFields.States, 1, findings);
+                RequireArray(record, RecordFields.DisplayStates, 1, findings);
                 if (record.Has(RecordFields.Route) && record.Has(RecordFields.Host))
                 {
                     findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries route and host.", record.File, record.Line, SubjectOf(record)));
@@ -483,7 +483,7 @@ internal static class SchemaChecks
 
             case RecordTypes.Waiver:
                 RequireString(record, RecordFields.Reason, findings);
-                RequireArray(record, RecordFields.Covers, 1, findings);
+                RequireArray(record, RecordFields.Waives, 1, findings);
                 RequireEnum(record, RecordFields.Kind, ["gap", "lasting"], findings);
                 CheckWaiverScope(record, findings);
                 CheckWaiverKind(record, findings);
@@ -507,13 +507,13 @@ internal static class SchemaChecks
     }
 
     /// <summary>Reports a waiver naming neither the records nor the paths it covers.</summary>
-    /// <param name="record">The waiver record whose subject and paths fields are judged.</param>
+    /// <param name="record">The waiver record whose appliesTo and paths fields are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckWaiverScope(Record record, List<Finding> findings)
     {
-        if (record.Ids(RecordFields.Subject).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
+        if (record.Ids(RecordFields.AppliesTo).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
         {
-            findings.Add(new Finding("record-invalid", $"Waiver '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Waiver '{record.Id}' names neither appliesTo nor paths.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1205,7 +1205,7 @@ internal static class SchemaChecks
 
             if (output.ValueKind == JsonValueKind.Object
                 && Str(output, RecordFields.Type) == "list"
-                && output.TryGetProperty(RecordFields.Identifies, out var rows))
+                && output.TryGetProperty(RecordFields.RowShape, out var rows))
             {
                 Behavior.ContractChecks.CheckRowShape(record, "Use case", "output", Str(output, RecordFields.Name) ?? "(no name)", rows, findings);
             }
@@ -1218,6 +1218,14 @@ internal static class SchemaChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckExternalSystem(ProjectModel model, Record record, List<Finding> findings)
     {
+        // A record named for its vendor ties the specification to one provider; the role name stays while vendors change.
+        if (record.Field(RecordFields.Vendor) is { Length: > 0 } vendor
+            && Identifiers.TrySplit(record.Id, out _, out _, out var name)
+            && SameVendorName(name, vendor))
+        {
+            findings.Add(new Finding("record-invalid", $"External system '{record.Id}' is named for its vendor '{vendor}'; name it for the role the system plays.", record.File, record.Line, SubjectOf(record)));
+        }
+
         // The system names the system actor it represents; a name no record holds
         // is reference-unknown, so only a held record of another kind reports here.
         foreach (var represented in record.Ids(RecordFields.Represents))
@@ -1257,6 +1265,20 @@ internal static class SchemaChecks
             }
         }
     }
+
+    /// <summary>Whether the record name equals the vendor once case and separators are ignored: the record is named for its vendor.</summary>
+    /// <param name="name">The identifier name segment of the external system.</param>
+    /// <param name="vendor">The vendor the record states.</param>
+    /// <returns>True when both normalize to one name; otherwise false.</returns>
+    private static bool SameVendorName(string name, string vendor) =>
+        NormalizeName(name).Length > 0
+        && string.Equals(NormalizeName(name), NormalizeName(vendor), StringComparison.Ordinal);
+
+    /// <summary>The name as letters and digits in lower case: separators, spaces and casing carry no meaning.</summary>
+    /// <param name="value">The name or vendor under test.</param>
+    /// <returns>The normalized name.</returns>
+    private static string NormalizeName(string value) =>
+        new string(value.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
 
     /// <summary>Reports a scenario whose example rows do not share one set of keys.</summary>
     /// <param name="record">The scenario record whose example rows are compared.</param>
@@ -1500,7 +1522,7 @@ internal static class SchemaChecks
         }
     }
 
-    /// <summary>The idempotency scopes a key may name.</summary>
+    /// <summary>The key scopes an idempotency key may name.</summary>
     private static readonly string[] IdempotencyScopes = ["tenant", "account", "login", "global"];
 
     /// <summary>A {field} placeholder inside an idempotency key template.</summary>
@@ -1509,10 +1531,10 @@ internal static class SchemaChecks
         RegexOptions.CultureInvariant);
 
     /// <summary>
-    ///     The idempotency key and scope: the key templates {field} placeholders over
-    ///     the record's input field names, and the scope names one of the four tenancies.
+    ///     The idempotency key and key scope: the key templates {field} placeholders over
+    ///     the record's input field names, and the key scope names one of the four tenancies.
     /// </summary>
-    /// <param name="record">The record whose idempotency key and scope are judged.</param>
+    /// <param name="record">The record whose idempotency key and key scope are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIdempotency(Record record, List<Finding> findings)
     {
@@ -1523,12 +1545,12 @@ internal static class SchemaChecks
             return;
         }
 
-        if (idempotency.TryGetProperty(RecordFields.Scope, out var scope)
+        if (idempotency.TryGetProperty(RecordFields.KeyScope, out var scope)
             && scope.ValueKind == JsonValueKind.String
             && scope.GetString() is { } scopeName
             && !IdempotencyScopes.Contains(scopeName, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds idempotency scope '{scopeName}' outside {string.Join(", ", IdempotencyScopes)}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds idempotency keyScope '{scopeName}' outside {string.Join(", ", IdempotencyScopes)}.", record.File, record.Line, SubjectOf(record)));
         }
 
         if (!idempotency.TryGetProperty(RecordFields.Key, out var key)

@@ -23,7 +23,7 @@ The standards-selected stack versions resolve from `litespec.manifest.yaml`, whi
 
 Baseline behavior sometimes gives way to an extension or a waiver. A replacement then names every baseline provision ID it replaces, so reviewers see the exact boundary of the change, and everything unnamed stays active.
 
-A waiver names the provision in `covers`; there is no separate type or folder. `rules <path>` shows the waiver in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named.
+A waiver names the provision in `waives`; there is no separate type or folder. `rules <path>` shows the waiver in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named.
 
 Each extension also states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
@@ -60,7 +60,7 @@ A selection can name a stack, shape, page, or extension that no page applies. Th
 
 **Statement:** An extension or a waiver MUST name every baseline provision ID it replaces.
 
-**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A waiver names the provision in `covers`, and `rules <path>` shows the waiver in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
+**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A waiver names the provision in `waives`, and `rules <path>` shows the waiver in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
 
 **Reviewed for:** Does every extension and waiver name each baseline provision it replaces? Check each replacement against the baseline provisions it touches.
 

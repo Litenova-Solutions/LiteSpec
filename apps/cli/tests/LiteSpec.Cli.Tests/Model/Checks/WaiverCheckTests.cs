@@ -5,7 +5,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the waiver checks against hand-built models: coverage by code, provision, page and path, the kind shapes, the overlap of two live waivers, the invalid covers items, and expiry.</summary>
+/// <summary>Proves the waiver checks against hand-built models: coverage by code, provision, page and path, the kind shapes, the overlap of two live waivers, the invalid waives items, and expiry.</summary>
 public sealed class WaiverCheckTests
 {
     /// <summary>The page whose Checked by line names mark-missing.</summary>
@@ -20,9 +20,9 @@ public sealed class WaiverCheckTests
     /// <summary>The lasting shape: its kind and consequences, with no expiry, exit or closing records.</summary>
     const string LastingShape = ", \"kind\": \"lasting\", \"consequences\": \"The route stays unmarked.\"";
 
-    /// <summary>A model holding one marked code element with no mark, so mark-missing fires on its path, and one waiver naming the covers.</summary>
+    /// <summary>A model holding one marked code element with no mark, so mark-missing fires on its path, and one waiver naming the waives.</summary>
     /// <param name="temp">The temporary folder the model's files sit in.</param>
-    /// <param name="covers">The covers items as a JSON array.</param>
+    /// <param name="covers">The waives items as a JSON array.</param>
     /// <param name="extraFields">Further JSON members of the waiver, each beginning with a comma.</param>
     /// <returns>The waiver record and the model holding it.</returns>
     private static (LiteSpec.Cli.Model.Records.Record Waiver, ProjectModel Model) ModelWithUnmarkedHandler(string temp, string covers, string extraFields)
@@ -31,7 +31,7 @@ public sealed class WaiverCheckTests
             "waiver",
             "waiver/ghost-route",
             Path.Combine(temp, "ghost-route.yaml"),
-            "{\"covers\": " + covers + ", \"paths\": [\"src/GhostReaction.cs\"], \"reason\": \"Infrastructure.\"" + extraFields + "}");
+            "{\"waives\": " + covers + ", \"paths\": [\"src/GhostReaction.cs\"], \"reason\": \"Infrastructure.\"" + extraFields + "}");
         var model = TestModel.Model(TestModel.Config(temp), waiver);
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
@@ -40,18 +40,18 @@ public sealed class WaiverCheckTests
         return (waiver, model);
     }
 
-    /// <summary>One gap waiver with the covers and subject, closed by itself.</summary>
+    /// <summary>One gap waiver with the waives and appliesTo, closed by itself.</summary>
     /// <param name="temp">The temporary folder the model's files sit in.</param>
     /// <param name="id">The waiver record id.</param>
-    /// <param name="covers">The covers items as a JSON array.</param>
-    /// <param name="subject">The subject items as a JSON array.</param>
+    /// <param name="covers">The waives items as a JSON array.</param>
+    /// <param name="subject">The appliesTo items as a JSON array.</param>
     /// <returns>The waiver record.</returns>
     private static LiteSpec.Cli.Model.Records.Record GapWaiver(string temp, string id, string covers, string subject) =>
         TestModel.Record(
             "waiver",
             id,
             Path.Combine(temp, id.Split('/')[1] + ".yaml"),
-            "{\"kind\": \"gap\", \"covers\": " + covers + ", \"subject\": " + subject + ", \"reason\": \"Infrastructure.\", \"closedBy\": [\"" + id + "\"], \"exitWhen\": \"The gap closes.\", \"expiresOn\": \"2999-01-01\"}");
+            "{\"kind\": \"gap\", \"waives\": " + covers + ", \"appliesTo\": " + subject + ", \"reason\": \"Infrastructure.\", \"closedBy\": [\"" + id + "\"], \"exitWhen\": \"The gap closes.\", \"expiresOn\": \"2999-01-01\"}");
 
     /// <summary>A gap waiver holds the finding its path names until its expiry date, and reports no expiry before it.</summary>
     /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
@@ -106,7 +106,7 @@ public sealed class WaiverCheckTests
             "waiver",
             "waiver/other-route",
             Path.Combine(temp.Path, "other-route.yaml"),
-            "{\"kind\": \"gap\", \"covers\": [\"mark-missing\"], \"paths\": [\"src/OtherReaction.cs\"], \"reason\": \"Infrastructure.\", \"closedBy\": [\"waiver/other-route\"], \"exitWhen\": \"The route is marked.\", \"expiresOn\": \"2999-01-01\"}");
+            "{\"kind\": \"gap\", \"waives\": [\"mark-missing\"], \"paths\": [\"src/OtherReaction.cs\"], \"reason\": \"Infrastructure.\", \"closedBy\": [\"waiver/other-route\"], \"exitWhen\": \"The route is marked.\", \"expiresOn\": \"2999-01-01\"}");
         var model = TestModel.Model(TestModel.Config(temp.Path), waiver);
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
@@ -197,7 +197,7 @@ public sealed class WaiverCheckTests
         Assert.Contains("exit", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>A waiver naming neither subject nor paths reports record-invalid.</summary>
+    /// <summary>A waiver naming neither appliesTo nor paths reports record-invalid.</summary>
     /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
     [Fact]
     public void WaiverNamingNeitherSubjectNorPathsReports()
@@ -205,10 +205,10 @@ public sealed class WaiverCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("waiver", "waiver/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), "{\"kind\": \"gap\", \"covers\": [\"use-case-unimplemented\"], \"reason\": \"Listing waits for the search index.\", \"closedBy\": [\"waiver/list-loans-unimplemented\"], \"exitWhen\": \"The search index ships.\", \"expiresOn\": \"2999-01-01\"}"));
+            TestModel.Record("waiver", "waiver/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), "{\"kind\": \"gap\", \"waives\": [\"use-case-unimplemented\"], \"reason\": \"Listing waits for the search index.\", \"closedBy\": [\"waiver/list-loans-unimplemented\"], \"exitWhen\": \"The search index ships.\", \"expiresOn\": \"2999-01-01\"}"));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("names neither subject nor paths", StringComparison.Ordinal));
-        Assert.Equal("Waiver 'waiver/list-loans-unimplemented' names neither subject nor paths.", finding.Message);
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("names neither appliesTo nor paths", StringComparison.Ordinal));
+        Assert.Equal("Waiver 'waiver/list-loans-unimplemented' names neither appliesTo nor paths.", finding.Message);
         Assert.Equal("waiver/list-loans-unimplemented", finding.Subject);
     }
 

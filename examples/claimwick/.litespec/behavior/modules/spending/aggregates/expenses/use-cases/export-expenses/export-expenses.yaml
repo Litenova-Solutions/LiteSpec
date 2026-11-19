@@ -20,7 +20,7 @@ output:
       - name: rows
         meaning: The set of rows with one row per approved expense.
         type: list
-        identifies:
+        rowShape:
           fields:
           - name: expenseId
             meaning: The approved expense.

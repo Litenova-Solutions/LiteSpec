@@ -292,7 +292,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("waiver", "waiver/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"kind": "gap", "waives": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));
@@ -311,7 +311,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("waiver", "waiver/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exitWhen": "The gap closes.", "expiresOn": "2000-01-01"}"""));
+            TestModel.Record("waiver", "waiver/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"kind": "gap", "waives": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "closedBy": ["waiver/ghost-route"], "exitWhen": "The gap closes.", "expiresOn": "2000-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));

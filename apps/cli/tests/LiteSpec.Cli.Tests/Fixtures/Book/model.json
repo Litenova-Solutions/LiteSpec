@@ -827,20 +827,20 @@
         "title": "Shelf check bypass",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
         ],
-        "subject": [
+        "appliesTo": [
           "use-case/lending.register-copy"
         ],
         "reason": "The import runs before opening.",
         "expiresOn": "2027-01-01"
       },
       "links": {
-        "covers": [
+        "waives": [
           "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
         ],
-        "subject": [
+        "appliesTo": [
           "use-case/lending.register-copy"
         ]
       }
@@ -963,17 +963,17 @@
         "title": "Retire copy unimplemented",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "use-case-unimplemented"
         ],
-        "subject": [
+        "appliesTo": [
           "use-case/lending.retire-copy"
         ],
         "reason": "Retirement waits for the weeding policy.",
         "expiresOn": "2027-06-01"
       },
       "links": {
-        "subject": [
+        "appliesTo": [
           "use-case/lending.retire-copy"
         ]
       }

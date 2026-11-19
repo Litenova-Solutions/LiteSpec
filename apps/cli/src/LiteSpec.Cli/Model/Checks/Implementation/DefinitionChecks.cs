@@ -345,11 +345,11 @@ internal static class DefinitionChecks
 
         if (mode == "none")
         {
-            if (!text.Contains("NotIdempotent", StringComparison.Ordinal))
+            if (!DeclaresIdempotencyExemption(text))
             {
                 findings.Add(new Finding(
                     "definition-drift",
-                    $"Idempotency definition '{definition}' declares no NotIdempotent exemption for '{record.Id}'.",
+                    $"Idempotency definition '{definition}' declares no idempotency exemption for '{record.Id}'.",
                     file,
                     1,
                     record.Id));
@@ -358,11 +358,11 @@ internal static class DefinitionChecks
             return;
         }
 
-        if (text.Contains("NotIdempotent", StringComparison.Ordinal))
+        if (text.Contains("NotIdempotent", StringComparison.Ordinal) || DeclaresIdempotencyExemption(text))
         {
             findings.Add(new Finding(
                 "definition-drift",
-                $"Idempotency definition '{definition}' declares NotIdempotent, but '{record.Id}' requires idempotency.",
+                $"Idempotency definition '{definition}' declares an idempotency exemption, but '{record.Id}' requires idempotency.",
                 file,
                 1,
                 record.Id));
@@ -381,6 +381,13 @@ internal static class DefinitionChecks
                 record.Id));
         }
     }
+
+    /// <summary>Whether the definition declares the idempotency exemption with its reason: the generic exemption over the idempotency declaration.</summary>
+    /// <param name="text">The definition file text.</param>
+    /// <returns>True when the text exempts the idempotency declaration; otherwise false.</returns>
+    private static bool DeclaresIdempotencyExemption(string text) =>
+        text.Contains("Exempt", StringComparison.Ordinal)
+        && text.Contains("IdempotencyDeclaration", StringComparison.Ordinal);
 
     /// <summary>Whether the handler adds the audit target it learns while running through the audit scope.</summary>
     /// <param name="handler">The handler whose file is read.</param>

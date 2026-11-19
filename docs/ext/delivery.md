@@ -311,7 +311,7 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Example:** Claimwick's `requirement/approval-reminders.month-end-submission` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
-**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no waiver covering `quality-alert-missing` lists in its `subject`.
+**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no waiver covering `quality-alert-missing` lists in its `appliesTo`.
 
 ### Link Each Operations File to Its Decision
 

@@ -23,6 +23,7 @@ internal static class IdentifierChecks
         RecordTypes.Notification,
         RecordTypes.Setting,
         RecordTypes.ReadModel,
+        RecordTypes.ModuleEvent,
     };
 
     /// <summary>Types whose name segment stays unique in the product.</summary>
@@ -553,6 +554,7 @@ internal static class IdentifierChecks
         RecordTypes.Notification => "Notification",
         RecordTypes.Setting => "Setting",
         RecordTypes.ReadModel => "Read model",
+        RecordTypes.ModuleEvent => "Module event",
         _ => "Record",
     };
 }

@@ -183,6 +183,130 @@ public sealed class RecordFolderLayoutTests
         Assert.Contains(findings, found => found.Subject == "integration-event/entry-posted");
     }
 
+    /// <summary>A module event under another aggregate than its translated domain event is misplaced.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "a module event under another aggregate than its translated domain event is misplaced")]
+    public void ModuleEventTranslatingAnotherAggregatesEventReports()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var entries = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(entries, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var fines = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "aggregate.yaml");
+        File.WriteAllText(fines, "type: aggregate\nid: aggregate/books.fine\ntitle: Fine\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "module-events", "fine-paid", "fine-paid.yaml");
+        File.WriteAllText(file, "type: module-event\nid: module-event/books.fine-paid\ntitle: Fine paid\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
+            TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
+            TestModel.Record("domain-event", "domain-event/fine.paid", fines, """{"meaning": "A fine was paid."}"""),
+            TestModel.Record("module-event", "module-event/books.fine-paid", file, """{"translates": "domain-event/fine.paid"}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module event 'module-event/books.fine-paid' sits in aggregate folder 'entries', but the domain event it translates lives in 'fines'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>An integration event under another aggregate than its translated domain event is misplaced.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "an integration event under another aggregate than its translated domain event is misplaced")]
+    public void IntegrationEventTranslatingAnotherAggregatesEventReports()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var entries = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(entries, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var fines = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "aggregate.yaml");
+        File.WriteAllText(fines, "type: aggregate\nid: aggregate/books.fine\ntitle: Fine\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "integration-events", "fine-paid", "fine-paid.yaml");
+        File.WriteAllText(file, "type: integration-event\nid: integration-event/fine-paid\ntitle: Fine paid\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
+            TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
+            TestModel.Record("domain-event", "domain-event/fine.paid", fines, """{"meaning": "A fine was paid."}"""),
+            TestModel.Record("integration-event", "integration-event/fine-paid", file, """{"translates": "domain-event/fine.paid"}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Integration event 'integration-event/fine-paid' sits in aggregate folder 'entries', but the domain event it translates lives in 'fines'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>An integration event in another module than its translated domain event is misplaced.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "an integration event in another module than its translated domain event is misplaced")]
+    public void IntegrationEventTranslatingAnotherModulesEventReports()
+    {
+        using var temp = TestCli.Temp("layout");
+        var lendingModule = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var financeModule = PathAt(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml");
+        var lendingLoans = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml");
+        File.WriteAllText(lendingLoans, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
+        var financeLoans = PathAt(temp.Path, ".litespec", "behavior", "modules", "finance", "aggregates", "loans", "aggregate.yaml");
+        File.WriteAllText(financeLoans, "type: aggregate\nid: aggregate/finance.loan\ntitle: Loan\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "integration-events", "fine-paid", "fine-paid.yaml");
+        File.WriteAllText(file, "type: integration-event\nid: integration-event/fine-paid\ntitle: Fine paid\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", lendingModule, """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/finance", financeModule, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", lendingLoans, "{}"),
+            TestModel.Record("aggregate", "aggregate/finance.loan", financeLoans, "{}"),
+            TestModel.Record("domain-event", "domain-event/loan.fine-paid", financeLoans, """{"meaning": "A fine was paid."}"""),
+            TestModel.Record("integration-event", "integration-event/fine-paid", file, """{"translates": "domain-event/loan.fine-paid"}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Integration event 'integration-event/fine-paid' sits in module 'lending', but the domain event it translates lives in module 'finance'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>A module event under the aggregate of its translated domain event passes the placement checks.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "a module event under the aggregate of its translated domain event passes the placement checks")]
+    public void ModuleEventMatchingTranslatesAggregatePasses()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var entries = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(entries, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "module-events", "entry-posted", "entry-posted.yaml");
+        File.WriteAllText(file, "type: module-event\nid: module-event/books.entry-posted\ntitle: Entry posted\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
+            TestModel.Record("domain-event", "domain-event/entry.posted", entries, """{"meaning": "An entry was posted."}"""),
+            TestModel.Record("module-event", "module-event/books.entry-posted", file, """{"translates": "domain-event/entry.posted"}"""));
+
+        Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
+    }
+
+    /// <summary>A module event whose translates names no record stays silent here: the link check owns the dangling target.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "a module event whose translates names no record stays silent in the folder checks")]
+    public void ModuleEventWithUnresolvableTranslatesStaysSilent()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var entries = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(entries, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "module-events", "entry-posted", "entry-posted.yaml");
+        File.WriteAllText(file, "type: module-event\nid: module-event/books.entry-posted\ntitle: Entry posted\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
+            TestModel.Record("module-event", "module-event/books.entry-posted", file, """{"translates": "domain-event/ghost.missing"}"""));
+
+        Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
+    }
+
     /// <summary>A screen folder named for its home and name holds the screen beside it.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact(DisplayName = "a screen folder named for its home and name holds the screen beside it")]

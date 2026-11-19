@@ -124,7 +124,7 @@ The `strength` field grades how binding a provision is:
 
 | Value | Meaning |
 |:---|:---|
-| `required` | Follow it; set it aside only through a [waiver](waivers.md) whose `covers` names the provision, with a reason. |
+| `required` | Follow it; set it aside only through a [waiver](waivers.md) whose `waives` names the provision, with a reason. |
 | `default` | Follow it unless the project chooses otherwise, and record the choice. |
 | `advisory` | Experience; apply it with judgement and record nothing. |
 
@@ -245,11 +245,11 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Strength:** required
 
-**Statement:** A project that sets aside a provision of Strength `required` MUST record a waiver whose `covers` names the provision, with a reason.
+**Statement:** A project that sets aside a provision of Strength `required` MUST record a waiver whose `waives` names the provision, with a reason.
 
 **Rationale:** A rule binds every project it reaches. If a project quietly skips a required rule, its records claim it follows the standard when it doesn't. The [waiver record](waivers.md) names the provision and the reason. A gap waiver's expiry date marks a gap the team means to close, so the waiver stays visible and ends instead of lingering.
 
-**Example:** Claimwick ships its weekend export without the review step. It records a waiver whose `covers` names the authorization provision and whose reason states the choice.
+**Example:** Claimwick ships its weekend export without the review step. It records a waiver whose `waives` names the authorization provision and whose reason states the choice.
 
 **Reviewed for:** Does every waiver from a provision of Strength `required` name a provision, page, or finding code, and give a reason? Check each file under `.litespec/governance/waivers/`.
 

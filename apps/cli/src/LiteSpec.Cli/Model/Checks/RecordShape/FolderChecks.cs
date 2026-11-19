@@ -506,6 +506,7 @@ internal static class FolderChecks
         }
 
         CheckAggregateFolder(model, record, folders, findings);
+        CheckEventTranslates(model, record, folders, findings);
 
         // The entries of a file share its page's file, so the folder finding names the page once.
         if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName))
@@ -564,6 +565,57 @@ internal static class FolderChecks
                 ? $"Aggregate '{record.Id}' sits in folder '{written}', but its folder is the plural of its name: '{expected}'."
                 : $"{Label(record.Type)} '{record.Id}' sits in aggregate folder '{written}', but its aggregate lives in '{expected}'.",
             record.File, record.Line, SubjectOf(record)));
+    }
+
+    /// <summary>Reports a module or integration event filed under another module or aggregate than the domain event it translates.</summary>
+    /// <param name="model">The loaded project model that holds the translated domain event.</param>
+    /// <param name="record">The event record whose folder is inspected.</param>
+    /// <param name="folders">The record file path as folders anchored at its record layer.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckEventTranslates(ProjectModel model, Record record, string[] folders, List<Finding> findings)
+    {
+        if (record.Type != RecordTypes.ModuleEvent && record.Type != RecordTypes.IntegrationEvent)
+        {
+            return;
+        }
+
+        if (folders is not ["behavior", "modules", var module, "aggregates", var written, ..])
+        {
+            return;
+        }
+
+        // A missing or dangling translates is owned by the shape and link checks, so one defect draws one finding.
+        var translatedIds = record.Ids(RecordFields.Translates);
+        var translated = translatedIds.Count > 0 ? translatedIds[0] : null;
+
+        if (translated is not { Length: > 0 }
+            || !model.ById.TryGetValue(Identifiers.BaseId(translated), out var domainEvent)
+            || domainEvent.Type != RecordTypes.DomainEvent)
+        {
+            return;
+        }
+
+        if (!UnderRoot(model.Config, domainEvent.File, out var eventSegments)
+            || eventSegments is not ["behavior", "modules", var eventModule, "aggregates", var eventAggregate, ..])
+        {
+            return;
+        }
+
+        if (!string.Equals(eventModule, module, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "record-placement-invalid",
+                $"{Label(record.Type)} '{record.Id}' sits in module '{module}', but the domain event it translates lives in module '{eventModule}'.",
+                record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (!string.Equals(eventAggregate, written, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "record-placement-invalid",
+                $"{Label(record.Type)} '{record.Id}' sits in aggregate folder '{written}', but the domain event it translates lives in '{eventAggregate}'.",
+                record.File, record.Line, SubjectOf(record)));
+        }
     }
 
     /// <summary>Whether the file is the glossary.</summary>

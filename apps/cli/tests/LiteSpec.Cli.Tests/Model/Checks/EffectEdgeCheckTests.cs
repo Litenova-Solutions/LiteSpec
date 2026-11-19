@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
 
@@ -158,6 +159,147 @@ public sealed class EffectEdgeCheckTests
 
         Assert.Contains("effect-undeclared", TestModel.Codes(model));
         Assert.Contains("effect-unimplemented", TestModel.Codes(model));
+    }
+
+    /// <summary>Handler Calling A Declared Port Operation Takes Its Calls Edge.</summary>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    [Fact]
+    public void HandlerCallingADeclaredPortOperationTakesItsCallsEdge()
+    {
+        using var temp = WriteCallsConsumer();
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+
+        Assert.Contains(model.Records, record => record.Id == "use-case/books.post-entry");
+        var handler = Assert.Single(model.Code.Handlers, found => found.UseCaseId == "use-case/books.post-entry");
+        var dispatch = Assert.Single(handler.Dispatches!);
+
+        Assert.Equal("calls", dispatch.Verb);
+        Assert.Equal("ReadReferenceRateAsync", dispatch.Target);
+        Assert.Equal("IExchangeRateSource", dispatch.Detail);
+
+        var codes = Checker.Check(model).Findings.Select(finding => finding.Code).ToList();
+
+        Assert.DoesNotContain("effect-unimplemented", codes);
+        Assert.DoesNotContain("effect-undeclared", codes);
+    }
+
+    /// <summary>Writes a consumer where a handler holds a marked port in a field and calls its operation for a declared calls edge.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WriteCallsConsumer()
+    {
+        var temp = TestCli.Temp("checks");
+
+        try
+        {
+            WriteFile(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Effect Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "books-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  }
+                }
+                """);
+            WriteFile(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/books/aggregates/entries/use-cases/post-entry/post-entry.yaml", """
+                {
+                  "type": "use-case",
+                  "id": "use-case/books.post-entry",
+                  "title": "Post entry",
+                  "exposure": "A signed-in bookkeeper reaches this command through the books app under the post-entry permission.",
+                  "kind": "command",
+                  "access": {"grant": "permission/post-entry", "tenant": "own"},
+                  "steps": [{"statement": "The bookkeeper posts the entry in the day's currency."}],
+                  "effects": [{"calls": "external-system/exchange-rate-source#read-reference-rate", "timing": "after-commit"}]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/books/aggregates/entries/use-cases/post-entry/post-entry.md", """
+                # Post entry
+
+                The bookkeeper posts the entry.
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/books/external-systems/exchange-rate-source/exchange-rate-source.yaml", """
+                {
+                  "type": "external-system",
+                  "id": "external-system/exchange-rate-source",
+                  "title": "Exchange rate source",
+                  "summary": "The reference rates the books convert foreign entries with.",
+                  "vendor": "RatesFeed",
+                  "represents": "actor/rates-feed"
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/books/external-systems/exchange-rate-source/exchange-rate-source.md", """
+                # Exchange rate source
+
+                The reference rates the books convert with.
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Books/Ports/ExchangeRateSource/IExchangeRateSource.cs", """
+                namespace Library.Books.Ports.ExchangeRateSource;
+
+                /// <implements>external-system/exchange-rate-source</implements>
+                public interface IExchangeRateSource
+                {
+                    Task<decimal> ReadReferenceRateAsync(string currency, CancellationToken cancellationToken);
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Books/Application/Entries/PostEntry/PostEntryCommandHandler.cs", """
+                namespace Library.Books.Application.Entries.PostEntry;
+
+                /// <implements>use-case/books.post-entry</implements>
+                public sealed class PostEntryCommandHandler(
+                    IEntryRepository entries,
+                    IExchangeRateSource exchangeRates) : ICommandHandler<PostEntryCommand>
+                {
+                    private readonly IExchangeRateSource _exchangeRates = exchangeRates;
+
+                    public async Task HandleAsync(PostEntryCommand command, CancellationToken cancellationToken)
+                    {
+                        var rate = await _exchangeRates.ReadReferenceRateAsync(command.Currency, cancellationToken);
+                    }
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    static void WriteFile(string root, string relative, string text)
+    {
+        var destination = Path.Combine(root, relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        File.WriteAllText(destination, text);
     }
 
     /// <summary>One port interface carrying one implements mark for its external system.</summary>

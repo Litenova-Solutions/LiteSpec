@@ -23,7 +23,7 @@ internal sealed class AttachReceiptEndpoint : IEndpoint
         ICommandMediator mediator,
         CancellationToken cancellationToken)
     {
-        await mediator.SendAsync(new AttachReceiptCommand(receiptId, ExpenseId.From(expenseId)), cancellationToken);
+        await mediator.SendAsync(new AttachReceiptCommand(receiptId, ExpenseId.From(expenseId), DateTimeOffset.UtcNow), cancellationToken);
 
         return TypedResults.NoContent();
     }

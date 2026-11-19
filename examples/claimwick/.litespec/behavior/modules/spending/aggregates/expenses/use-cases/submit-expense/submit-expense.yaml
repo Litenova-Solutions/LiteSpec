@@ -57,7 +57,7 @@ consistency:
 idempotency:
   mode: key
   key: "{requestId}"
-  scope: account
+  keyScope: account
   replay: returns-first-result
 steps:
 - statement: The employee sends the amount, currency and receipt.

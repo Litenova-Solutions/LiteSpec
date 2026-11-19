@@ -111,7 +111,7 @@ sealed class DotnetBackendReader : IBackendReader
                 .ThenBy(element => element.Line)
                 .ThenBy(element => element.Class, StringComparer.Ordinal)
                 .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
-                .ToList())));
+                .ToList(), config)));
         model.StrayMarks.AddRange(merged.StrayMarks
             .OrderBy(stray => stray.File, StringComparer.Ordinal)
             .ThenBy(stray => stray.Line)

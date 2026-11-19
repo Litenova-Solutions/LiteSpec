@@ -74,7 +74,7 @@ public sealed class SourcedStatementCheckTests
     /// <param name="obligation">The obligation as JSON.</param>
     /// <returns>The record fields as JSON.</returns>
     static string Constraint(string obligation) =>
-        "{\"summary\": \"Reader data is personal.\", \"authority\": \"Privacy law.\", \"sources\": [{\"name\": \"privacy-law\", \"url\": \"https://example.com/privacy-law\", \"readOn\": \"2026-01-02\"}], \"kind\": \"legal\", \"applies\": true, \"appliesBecause\": \"We hold reader data.\", \"scope\": \"Reader data.\", \"obligations\": [" + obligation + "], \"productEffect\": \"Reader data stays private.\"}";
+        "{\"summary\": \"Reader data is personal.\", \"authority\": \"Privacy law.\", \"sources\": [{\"name\": \"privacy-law\", \"url\": \"https://example.com/privacy-law\", \"readOn\": \"2026-01-02\"}], \"kind\": \"legal\", \"applies\": true, \"appliesBecause\": \"We hold reader data.\", \"coverage\": \"Reader data.\", \"obligations\": [" + obligation + "], \"productEffect\": \"Reader data stays private.\"}";
 
     /// <summary>The research fields carrying one finding.</summary>
     /// <param name="finding">The finding as JSON.</param>

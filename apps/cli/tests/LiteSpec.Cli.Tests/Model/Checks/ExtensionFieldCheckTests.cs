@@ -28,7 +28,7 @@ public sealed class ExtensionFieldCheckTests
         SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "audit": {"level": "required", "target": "expense"}}"""));
+            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "audit": {"level": "required", "targetKind": "expense"}}"""));
 
         Assert.DoesNotContain("audit-missing", TestModel.Codes(model));
         Assert.DoesNotContain("field-extension-unselected", TestModel.Codes(model));

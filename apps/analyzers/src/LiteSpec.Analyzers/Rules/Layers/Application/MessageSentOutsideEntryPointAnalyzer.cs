@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Rules.Layers.Application;
 /// <summary>
 ///     LS2021: a command or query handler holds the query mediator to send another module's public query, a
 ///     reaction or a job holds the command and query mediators, and no module type holds the event mediator.
-///     The platform composes the pipeline and is exempt, with the shared kernel of a one-modules-project solution.
+///     The platform composes the pipeline and is exempt, with the Kernel.
 /// </summary>
 /// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -165,7 +165,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
     }
 
     /// <summary>
-    ///     Returns true when the type is a reaction or a job: a type named *Job, a type deriving from
+    ///     Returns true when the type is a reaction or a job: a type named *Job or *Worker, a type deriving from
     ///     BackgroundService, or a type implementing IEventHandler; otherwise false. An endpoint dispatches its own
     ///     use case message through a method parameter, which this rule ignores, and holds no mediator.
     /// </summary>
@@ -173,7 +173,8 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
     /// <returns>True when the type is a reaction or a job; otherwise false.</returns>
     private static bool IsReactionOrJob(INamedTypeSymbol type)
     {
-        if (type.Name.EndsWith("Job", StringComparison.Ordinal))
+        if (type.Name.EndsWith("Job", StringComparison.Ordinal)
+            || type.Name.EndsWith("Worker", StringComparison.Ordinal))
         {
             return true;
         }
@@ -197,15 +198,15 @@ public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
         return false;
     }
 
-    /// <summary>Returns true when the assembly holds the pipeline: the platform, or the shared kernel of a one-modules-project solution; otherwise false.</summary>
+    /// <summary>Returns true when the assembly holds the pipeline: the platform, or the Kernel; otherwise false.</summary>
     /// <param name="assemblyName">The compilation assembly name, or null when it has none.</param>
-    /// <returns>True when the assembly name ends with the Platform or SharedKernel segment; otherwise false.</returns>
+    /// <returns>True when the assembly name ends with the Platform or Kernel segment; otherwise false.</returns>
     private static bool IsPipelineAssembly(string? assemblyName) =>
         assemblyName is not null
         && (assemblyName.Equals("Platform", StringComparison.Ordinal)
             || assemblyName.EndsWith(".Platform", StringComparison.Ordinal)
-            || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
-            || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal));
+            || assemblyName.Equals("Kernel", StringComparison.Ordinal)
+            || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal));
 
     /// <summary>Returns the location of the declared type of a parameter, field or property, or null when it has none.</summary>
     /// <param name="symbol">The symbol whose declared type the diagnostic sits on.</param>

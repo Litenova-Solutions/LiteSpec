@@ -286,7 +286,7 @@ public static class RecordTypes
             ["host"] = new HashSet<string> { "screen" },
             ["leadsTo"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
-            ["subject"] = new HashSet<string>(),
+            ["appliesTo"] = new HashSet<string>(),
             ["values"] = new HashSet<string>(),
         };
 

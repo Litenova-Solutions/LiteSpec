@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -245,13 +246,15 @@ static class ElementKindCorrection
     /// <summary>
     ///     Merges the partial parts of one aggregate root into one element: parts
     ///     count as one root and a mark on any part counts. The merged element
-    ///     keeps the earliest part's file and line and carries every part's marks.
-    ///     Parts group by class and folder, so two roots sharing a simple name in
+    ///     keeps the main file's position and carries every part's marks. Parts
+    ///     group by class and module project, so an act's part in its own folder
+    ///     merges with the main file while two roots sharing a simple name in
     ///     different modules never merge.
     /// </summary>
     /// <param name="elements">The marked elements.</param>
+    /// <param name="config">The consumer configuration naming the module projects.</param>
     /// <returns>The elements with the partial parts of one aggregate root merged.</returns>
-    public static List<MarkedElement> MergeAggregateRootPartials(List<MarkedElement> elements)
+    public static List<MarkedElement> MergeAggregateRootPartials(List<MarkedElement> elements, ConsumerConfig config)
     {
         if (elements.All(element => element.Kind != CodeKind.AggregateRoot))
         {
@@ -269,7 +272,7 @@ static class ElementKindCorrection
                 continue;
             }
 
-            var key = element.Class + "\0" + (Path.GetDirectoryName(element.File) ?? "");
+            var key = element.Class + "\0" + (SourceRoots.ModuleProjectOf(config, element.File) ?? Path.GetDirectoryName(element.File) ?? "");
 
             if (!parts.TryGetValue(key, out var group))
             {
@@ -283,7 +286,8 @@ static class ElementKindCorrection
         foreach (var group in parts.Values)
         {
             var first = group
-                .OrderBy(part => part.File, StringComparer.Ordinal)
+                .OrderBy(part => IsMainFile(part) ? 0 : 1)
+                .ThenBy(part => part.File, StringComparer.Ordinal)
                 .ThenBy(part => part.Line)
                 .First();
             var marks = group
@@ -302,6 +306,12 @@ static class ElementKindCorrection
             .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
             .ToList();
     }
+
+    /// <summary>Whether the element sits in its root's main file: the file named for the class.</summary>
+    /// <param name="element">The marked element.</param>
+    /// <returns>True when the element's file is the class's main file; otherwise false.</returns>
+    private static bool IsMainFile(MarkedElement element) =>
+        string.Equals(Path.GetFileName(element.File), element.Class + ".cs", StringComparison.Ordinal);
 
     /// <summary>
     ///     Merges the partial parts of one technical class into one element: parts

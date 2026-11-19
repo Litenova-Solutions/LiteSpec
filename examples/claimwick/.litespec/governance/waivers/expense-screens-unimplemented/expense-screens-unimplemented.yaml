@@ -3,9 +3,9 @@ id: waiver/expense-screens-unimplemented
 title: Expense Screens Unimplemented
 summary: The web app holds three screens, so four browser-reached use cases have no screen.
 kind: gap
-covers:
+waives:
 - use-case-unreached
-subject:
+appliesTo:
 - use-case/reporting.list-reimbursed-expenses
 - use-case/spending.change-receipt-threshold
 - use-case/spending.change-reminder-preference

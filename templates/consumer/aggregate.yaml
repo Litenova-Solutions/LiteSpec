@@ -41,7 +41,7 @@ dataClasses:
   exceptions:
   - field: <field name>
     onErasure: <erase|pseudonymize|anonymize|retain|exempt>
-  holds:
+  retentionHolds:
   - reason: <why deletion pauses>
     heldOn: <date the hold starts, such as 2026-03-02>
     liftedOn: <date the hold ends, or remove this line>

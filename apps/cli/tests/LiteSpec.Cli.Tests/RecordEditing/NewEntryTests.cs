@@ -128,7 +128,8 @@ public sealed class NewEntryTests
         var after = File.ReadAllText(page);
         var inserted = AssertSingleInsertion(before, after, "id: permission/approve-expense");
         Assert.Contains("meaning: This permission allows the action.", inserted);
-        Assert.Contains("scope: tenant", inserted);
+        Assert.Contains("- role/owner", inserted);
+        Assert.DoesNotContain("scope:", inserted);
     }
 
     /// <summary>New entry appends a setting under its module.</summary>

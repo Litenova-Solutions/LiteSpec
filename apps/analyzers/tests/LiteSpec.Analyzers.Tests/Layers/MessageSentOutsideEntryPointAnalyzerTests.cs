@@ -261,25 +261,25 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
             ],
             assemblyName: "Shop.Orders");
 
-    /// <summary>LS2021 accepts a mediator in the shared kernel, which composes the pipeline.</summary>
+    /// <summary>LS2021 accepts a mediator in the Kernel, which composes the pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
-    [Fact(DisplayName = "LS2021 accepts a mediator in the shared kernel")]
-    public Task AcceptsAMediatorInTheSharedKernel() =>
+    [Fact(DisplayName = "LS2021 accepts a mediator in the Kernel")]
+    public Task AcceptsAMediatorInTheKernel() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
             [
-                ("Shop.SharedKernel/Stubs.cs", Stubs),
-                ("Shop.SharedKernel/Application/Pipeline/PublishOutbox.cs", """
+                ("Shop.Kernel/Stubs.cs", Stubs),
+                ("Shop.Kernel/Application/Pipeline/PublishOutbox.cs", """
                     using LiteBus.Commands.Abstractions;
 
-                    namespace Shop.SharedKernel.Pipeline;
+                    namespace Shop.Kernel.Pipeline;
 
                     internal sealed class PublishOutbox(ICommandMediator mediator)
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.SharedKernel");
+            assemblyName: "Shop.Kernel");
 
     /// <summary>LS2021 stays quiet in test projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -424,6 +424,46 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
                     namespace Shop.Orders.Application.ExpireOrders;
 
                     internal sealed class ExpireOrdersJob(IQueryMediator queries)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    /// <summary>LS2021 accepts a worker host holding the command mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 accepts a worker host holding the command mediator")]
+    public Task AcceptsAWorkerHoldingTheCommandMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ExpireOrders/ExpireOrdersWorker.cs", """
+                    using LiteBus.Commands.Abstractions;
+
+                    namespace Shop.Orders.Application.ExpireOrders;
+
+                    internal sealed class ExpireOrdersWorker(ICommandMediator mediator)
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Shop.Orders");
+
+    /// <summary>LS2021 accepts a worker host holding the query mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    [Fact(DisplayName = "LS2021 accepts a worker host holding the query mediator")]
+    public Task AcceptsAWorkerHoldingTheQueryMediator() =>
+        Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
+            [
+                ("Shop.Orders.Contracts/Stubs.cs", Stubs),
+                ("Shop.Orders/Application/ExpireOrders/ExpireOrdersWorker.cs", """
+                    using LiteBus.Queries.Abstractions;
+
+                    namespace Shop.Orders.Application.ExpireOrders;
+
+                    internal sealed class ExpireOrdersWorker(IQueryMediator queries)
                     {
                     }
                     """),

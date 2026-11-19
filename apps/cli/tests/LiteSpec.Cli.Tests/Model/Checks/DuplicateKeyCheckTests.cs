@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the duplicate key checks: no two entries of one record share a source key, branch path, operation name or field name, at tier G.</summary>
+/// <summary>Proves the duplicate key checks: no two entries of one record share a source name, branch path, operation name or field name, at tier G.</summary>
 public sealed class DuplicateKeyCheckTests
 {
     /// <summary>Each key kind that repeats within one record reports once, naming the kind and the key.</summary>
@@ -88,7 +88,7 @@ public sealed class DuplicateKeyCheckTests
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
-    /// <summary>Distinct source keys in one record pass.</summary>
+    /// <summary>Distinct source names in one record pass.</summary>
     /// <proves>litespec/core/model#keep-shape-rules-in-the-schema</proves>
     [Fact]
     public void DistinctSourceKeysPass()

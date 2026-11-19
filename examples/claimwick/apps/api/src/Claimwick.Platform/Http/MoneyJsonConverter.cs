@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Claimwick.Kernel;
+using Claimwick.Kernel.Values;
 
 namespace Claimwick.Platform.Http;
 

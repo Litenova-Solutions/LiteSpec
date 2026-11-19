@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves finding-source-missing: each Findings paragraph of a research explanation cites a source key with a reference link.</summary>
+/// <summary>Proves finding-source-missing: each Findings paragraph of a research explanation cites a source name with a reference link.</summary>
 public sealed class FindingSourceCheckTests
 {
     /// <summary>The research fields the cases share, with one source.</summary>
@@ -35,7 +35,7 @@ public sealed class FindingSourceCheckTests
         Assert.Equal(7, finding.Line);
     }
 
-    /// <summary>Findings whose every paragraph cites a source key report nothing, and a key in Open Questions is not a finding.</summary>
+    /// <summary>Findings whose every paragraph cites a source name report nothing, and a name in Open Questions is not a finding.</summary>
     /// <proves>litespec/core/intent#state-each-research-finding-with-its-source</proves>
     [Fact]
     public void CitedFindingsReportNothing()

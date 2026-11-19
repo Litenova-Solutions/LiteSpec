@@ -972,4 +972,28 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `formats` field.</summary>
     public const string Formats = "formats";
+
+    /// <summary>Gets the name of the `appliesTo` field.</summary>
+    public const string AppliesTo = "appliesTo";
+
+    /// <summary>Gets the name of the `waives` field.</summary>
+    public const string Waives = "waives";
+
+    /// <summary>Gets the name of the `coverage` field.</summary>
+    public const string Coverage = "coverage";
+
+    /// <summary>Gets the name of the `keyScope` field.</summary>
+    public const string KeyScope = "keyScope";
+
+    /// <summary>Gets the name of the `displayStates` field.</summary>
+    public const string DisplayStates = "displayStates";
+
+    /// <summary>Gets the name of the `targetKind` field.</summary>
+    public const string TargetKind = "targetKind";
+
+    /// <summary>Gets the name of the `retentionHolds` field.</summary>
+    public const string RetentionHolds = "retentionHolds";
+
+    /// <summary>Gets the name of the `rowShape` field.</summary>
+    public const string RowShape = "rowShape";
 }

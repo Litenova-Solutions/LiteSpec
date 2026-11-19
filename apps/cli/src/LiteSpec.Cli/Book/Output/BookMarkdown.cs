@@ -18,7 +18,7 @@ static partial class BookMarkdown
     /// <summary>The pattern of one Markdown link with its label and destination.</summary>
     [GeneratedRegex(@"\[([^\]\n]+)\]\(([^)\s]+)\)")]
     private static partial Regex MdLink();
-    /// <summary>The pattern of one reference link with its label and source key, citing a research source.</summary>
+    /// <summary>The pattern of one reference link with its label and source name, citing a research source.</summary>
     [GeneratedRegex(@"\[([^\]\n]+)\]\[([^\]\n]+)\]")]
     private static partial Regex RefLink();
     /// <summary>The pattern of one bare HTTP or HTTPS address in running text.</summary>
@@ -46,10 +46,10 @@ static partial class BookMarkdown
     [GeneratedRegex(@"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$")]
     private static partial Regex TableDelimiter();
 
-    /// <summary>Renders Markdown to HTML fragments. Record ids link through <paramref name="linkRecord"/> and source keys through <paramref name="linkSource"/>.</summary>
+    /// <summary>Renders Markdown to HTML fragments. Record ids link through <paramref name="linkRecord"/> and source names through <paramref name="linkSource"/>.</summary>
     /// <param name="markdown">The Markdown text to render.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
-    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
+    /// <param name="linkSource">The resolver that maps a research source name to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered HTML fragment with trailing blank lines removed.</returns>
     public static string Render(string markdown, Func<string, (string Href, string Title)?>? linkRecord = null, Func<string, string?>? linkSource = null)
     {
@@ -169,7 +169,7 @@ static partial class BookMarkdown
     /// <param name="lines">The body lines that hold the table.</param>
     /// <param name="index">The current line index at the table header; on return, the index of the first line after the table.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
-    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
+    /// <param name="linkSource">The resolver that maps a research source name to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered table HTML.</returns>
     static string RenderTable(string[] lines, ref int index, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {
@@ -228,7 +228,7 @@ static partial class BookMarkdown
     /// <param name="lines">The body lines that hold the list.</param>
     /// <param name="index">The current line index at the first item; on return, the index of the first line after the list.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
-    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
+    /// <param name="linkSource">The resolver that maps a research source name to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered list HTML, ordered when the first item carries a number.</returns>
     static string RenderList(string[] lines, ref int index, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {
@@ -269,7 +269,7 @@ static partial class BookMarkdown
     /// <summary>Renders the inline spans of one text run to HTML, escaping the text and linking record identifiers.</summary>
     /// <param name="text">The raw text run to render.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
-    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
+    /// <param name="linkSource">The resolver that maps a research source name to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered HTML for the text run.</returns>
     public static string Inline(string text, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {

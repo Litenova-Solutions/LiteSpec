@@ -45,9 +45,10 @@ function readFrontend(request: FrontendRequest, cacheDir: string | null): Fronte
   const operations = collectOperations(at(request.apiClient), context);
   const aliases = { ...request.aliases };
   const routesAbs = at(request.routes);
+  const frameAbs = at(request.frame);
   const routes =
     request.platform === "svelte"
-      ? readSvelteRoutes(routesAbs, modulesAbs, { operations, aliases }, context)
+      ? readSvelteRoutes(routesAbs, modulesAbs, frameAbs, { operations, aliases }, context)
       : request.platform === "react"
         ? readReactRoutes(routesAbs, modulesAbs, { operations, aliases }, context)
         : [];

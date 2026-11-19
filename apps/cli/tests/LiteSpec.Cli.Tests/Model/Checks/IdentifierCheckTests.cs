@@ -56,6 +56,38 @@ public sealed class IdentifierCheckTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
+    /// <summary>Module Event In Its Module Passes.</summary>
+    /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
+    [Fact]
+    public void ModuleEventInItsModulePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "module-events", "loan-borrowed", "loan-borrowed.yaml"), """{"summary": "A loan was borrowed."}"""));
+
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Module Event In Another Module Reports.</summary>
+    /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
+    [Fact]
+    public void ModuleEventInAnotherModuleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "module-events", "loan-borrowed", "loan-borrowed.yaml"), """{"summary": "A loan was borrowed."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module event 'module-event/lending.loan-borrowed' sits in module 'archive' but its identifier names module 'lending'.", finding.Message);
+        Assert.Equal("module-event/lending.loan-borrowed", finding.Subject);
+    }
+
     /// <summary>Module Scoped Record In Another Module Reports.</summary>
     /// <param name="type">The module-homed record type.</param>
     /// <param name="id">The record identifier naming the lending module.</param>

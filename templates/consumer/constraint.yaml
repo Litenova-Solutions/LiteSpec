@@ -17,7 +17,7 @@ basedOn:
 kind: <technical|organizational|convention|legal>
 applies: <true|false>
 appliesBecause: <why the rule binds the product, or why it binds nothing>
-scope: <which subjects, transactions and periods the rule covers, in one to three sentences>
+coverage: <which subjects, transactions and periods the rule covers, in one to three sentences>
 obligations:
 - statement: <one outside rule, in one sentence>
   sources:

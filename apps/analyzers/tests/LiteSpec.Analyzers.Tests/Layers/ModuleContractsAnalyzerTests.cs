@@ -438,6 +438,64 @@ public sealed class ModuleContractsAnalyzerTests
             ],
             assemblyName: "Claimwick.Modules");
 
+    /// <summary>LS2029 accepts a worker host naming another module's public command.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 accepts a worker host naming another module's public command")]
+    public Task AcceptsAWorkerNamingAnotherModulesCommand() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/LendOverdueBooksWorker.cs", """
+                    using Claimwick.Books.Contracts.Books.LendBook;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class LendOverdueBooksWorker
+                    {
+                        internal void Handle(LendBookCommand command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/LendBook/LendBookCommand.cs", """
+                    namespace Claimwick.Books.Contracts.Books.LendBook;
+
+                    internal sealed class LendBookCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2029 accepts a worker host naming another module's public query.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact(DisplayName = "LS2029 accepts a worker host naming another module's public query")]
+    public Task AcceptsAWorkerNamingAnotherModulesQuery() =>
+        Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
+            [
+                ("Claimwick.Modules/Reading/Application/BorrowBook/ReadOverdueBooksWorker.cs", """
+                    using Claimwick.Books.Contracts.Books.ReadBook;
+
+                    namespace Claimwick.Reading.Application.BorrowBook;
+
+                    internal sealed class ReadOverdueBooksWorker
+                    {
+                        internal void Handle(ReadBookQuery query)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Books/Contracts/Books/ReadBook/ReadBookQuery.cs", """
+                    namespace Claimwick.Books.Contracts.Books.ReadBook;
+
+                    internal sealed class ReadBookQuery
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
     /// <summary>LS2029 accepts a reaction naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>

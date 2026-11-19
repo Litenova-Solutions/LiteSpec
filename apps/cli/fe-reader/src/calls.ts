@@ -3,7 +3,9 @@
 // reported as the client exports it. Calls are collected from the route entry files and
 // from every file reached through relative and alias imports within the
 // route's own folder and the use-case module folders the entry imports
-// directly. The frame and shared packages are never followed.
+// directly. The frame and shared packages are never followed from a route.
+// Layout files contribute separately: each layout counts its own calls and
+// the calls of the frame modules it imports for every route under it.
 
 import { absolute, baseName, canonical, isFile, isWithin, joinPath, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
 import { FileFacts, FileKind, readFacts } from "./parse";
@@ -117,6 +119,12 @@ export interface CallScope {
   aliases: Record<string, string>;
 }
 
+export interface LayoutScope {
+  frameAbs: string;
+  operations: Map<string, string>;
+  aliases: Record<string, string>;
+}
+
 interface VisitedFile {
   absPath: string;
   dirAbs: string;
@@ -153,6 +161,67 @@ function walkRouteFiles(entries: RouteEntry[], scope: CallScope, context: Reader
     }
   }
   return found;
+}
+
+// Every file reached from the layout entries: the layout files themselves and
+// the frame modules they import, following frame imports transitively. Route
+// folders and use-case modules are never followed from a layout: the layout's
+// own file and the frame modules it imports are the layout's contribution.
+function walkLayoutFiles(entries: RouteEntry[], scope: LayoutScope, context: ReaderContext): VisitedFile[] {
+  const found: VisitedFile[] = [];
+  const visited = new Set<string>();
+  const queue: VisitedFile[] = [];
+  for (const entry of entries) {
+    if (visited.has(canonical(entry.absPath))) continue;
+    visited.add(canonical(entry.absPath));
+    const facts = readFacts(entry.absPath, kindOf(entry.absPath), context);
+    if (facts !== null) queue.push({ absPath: entry.absPath, dirAbs: entry.dirAbs, facts });
+  }
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (current === undefined) break;
+    found.push(current);
+    for (const specifier of current.facts.imports) {
+      const target = resolveImport(specifier, current.dirAbs, scope.aliases);
+      if (target === null || visited.has(canonical(target)) || !isWithin(scope.frameAbs, target)) continue;
+      visited.add(canonical(target));
+      const facts = readFacts(target, kindOf(target), context);
+      if (facts !== null) queue.push({ absPath: target, dirAbs: parentDir(target), facts });
+    }
+  }
+  return found;
+}
+
+// Every operation call reached from the layout entries, in file and line
+// order. A call names its operation through the generated client map.
+export function collectLayoutCalls(entries: RouteEntry[], scope: LayoutScope, context: ReaderContext): CallFacts[] {
+  const calls: CallFacts[] = [];
+  for (const current of walkLayoutFiles(entries, scope, context)) {
+    const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
+    for (const site of current.facts.calls) {
+      const operation = scope.operations.get(operationKey(site.name));
+      if (operation !== undefined && operation !== "") {
+        calls.push({ operation, file: rel, line: site.line });
+      }
+    }
+  }
+  calls.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
+  return calls;
+}
+
+// Every full-page navigation reached from the layout entries, in file and
+// line order. The CLI matches each path against the discovered endpoint
+// routes and counts a match as a call of that endpoint's operation.
+export function collectLayoutNavigations(entries: RouteEntry[], scope: LayoutScope, context: ReaderContext): NavigationFacts[] {
+  const navigations: NavigationFacts[] = [];
+  for (const current of walkLayoutFiles(entries, scope, context)) {
+    const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
+    for (const site of current.facts.navigations) {
+      navigations.push({ path: site.path, file: rel, line: site.line });
+    }
+  }
+  navigations.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
+  return navigations;
 }
 
 // Every operation call reached from the route entries, in file and line

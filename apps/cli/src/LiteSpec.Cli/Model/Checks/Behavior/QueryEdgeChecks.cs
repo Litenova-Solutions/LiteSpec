@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The query-edge checks: every queries edge names a query use case that lists the calling module in reachedThrough, and every module a use case lists queries it from a record.</summary>
+/// <summary>The query-edge checks: every queries edge names another module's query use case that lists the calling module in reachedThrough, and every module a use case lists queries it from a record.</summary>
 /// <follows>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</follows>
 internal static class QueryEdgeChecks
 {
@@ -18,7 +18,7 @@ internal static class QueryEdgeChecks
         CheckPublicQueriesCalled(model, findings);
     }
 
-    /// <summary>Reports a queries edge naming a record that is no query use case, or a query whose reachedThrough does not name the calling module.</summary>
+    /// <summary>Reports a queries edge naming a record that is no query use case, a query of the calling module itself, or a query whose reachedThrough does not name the calling module.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckQueriesTargets(ProjectModel model, List<Finding> findings)
@@ -56,6 +56,16 @@ internal static class QueryEdgeChecks
 
                 if (resolved.Field(RecordFields.Kind) != "query")
                 {
+                    continue;
+                }
+
+                // A module never sends its own queries: it reads them through its
+                // repository or the read session, so a queries edge stays cross-module.
+                if (module is { Length: > 0 }
+                    && LocalityChecks.ModuleOf(model, resolved) is { } targetModule
+                    && targetModule.Equals(module, StringComparison.Ordinal))
+                {
+                    findings.Add(new Finding("query-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' queries '{target}', which is a query of its own module; a module never sends its own queries.", holder.File, holder.Line, SubjectOf(holder)));
                     continue;
                 }
 

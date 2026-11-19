@@ -10,7 +10,7 @@ sources:
 kind: organizational
 applies: true
 appliesBecause: Claimwick stores receipts for reimbursed expenses.
-scope: The rule covers business receipts. Claimwick holds only the receipts of expenses it reimburses, so those are the receipts the rule reaches in the product.
+coverage: The rule covers business receipts. Claimwick holds only the receipts of expenses it reimburses, so those are the receipts the rule reaches in the product.
 obligations:
 - statement: A company keeps its business receipts for seven years.
   sources:

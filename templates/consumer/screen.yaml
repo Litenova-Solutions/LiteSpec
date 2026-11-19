@@ -16,7 +16,7 @@ pageFrame:
   pattern: <page frame pattern, such as list-page>
   option: <chosen option>
 task: <the job the person does here, in one to three sentences>
-states:
+displayStates:
 - name: <State, such as Empty or Loading>
   shows: <what the screen shows in this state, in one sentence>
 leadsTo:

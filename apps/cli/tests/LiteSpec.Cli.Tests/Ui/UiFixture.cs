@@ -288,7 +288,7 @@ sealed class UiFixture : IDisposable
         ["id"] = id,
         ["title"] = title,
         ["kind"] = "gap",
-        ["covers"] = new JsonArray(provision),
+        ["waives"] = new JsonArray(provision),
         ["paths"] = new JsonArray("packages/ui/**"),
         ["reason"] = "The fixture needs this waiver.",
         ["consequences"] = "The fixture ships with this waiver until it expires.",

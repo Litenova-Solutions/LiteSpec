@@ -3,9 +3,9 @@ id: waiver/use-cases-unverified
 title: Use Cases Unverified
 summary: Claimwick ships no test run, so no scenario has a passing proof.
 kind: gap
-covers:
+waives:
 - use-case-unverified
-subject:
+appliesTo:
 - use-case/reporting.list-reimbursed-expenses
 - use-case/spending.approve-expense
 - use-case/spending.attach-receipt

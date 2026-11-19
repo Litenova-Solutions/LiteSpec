@@ -33,6 +33,8 @@
   const model = $derived(aggregateModel(f, r));
   const excludes = $derived(stringList(f, "excludes"));
   const evs = $derived(book.eventsOf(id));
+  const mevs = $derived(book.kidsByType(id, "module-event"));
+  const ievs = $derived(book.kidsByType(id, "integration-event"));
   const stateRows = $derived(
     model.states.map((s) => [
       thRow(
@@ -114,8 +116,14 @@
 {#if evs.length}
   <PageSection blockKey="events" heading="Domain events" count={evs.length}><RecordList ids={evs} /></PageSection>
 {/if}
+{#if mevs.length}
+  <PageSection blockKey="mevents" heading="Module events" count={mevs.length}><RecordList ids={mevs} /></PageSection>
+{/if}
+{#if ievs.length}
+  <PageSection blockKey="ievents" heading="Integration events" count={ievs.length}><RecordList ids={ievs} /></PageSection>
+{/if}
 {#if excludes.length}
-  <PageSection blockKey="limits" heading="excludes" count={excludes.length}>
+  <PageSection blockKey="excludes" heading="excludes" count={excludes.length}>
     <BulletList items={excludes} />
   </PageSection>
 {/if}

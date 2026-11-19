@@ -25,7 +25,7 @@ public sealed class SingleAggregateCheckTests
         Assert.Contains("aggregate/spending.receipt", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Command Writing Two Aggregates Under A Rule Based On A Decision Passes.</summary>
+    /// <summary>Command Writing Two Aggregates Under A Bound Rule Based On A Decision Passes.</summary>
     /// <proves>litespec/core/use-cases#change-one-aggregate-in-each-command</proves>
     [Fact]
     public void CommandWritingTwoAggregatesUnderRuleBasedOnDecisionPasses()
@@ -35,9 +35,41 @@ public sealed class SingleAggregateCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), "{}"),
             TestModel.Record("aggregate", "aggregate/spending.receipt", Path.Combine(temp.Path, "receipt.yaml"), "{}"),
-            TestModel.Record("use-case", "use-case/spending.attach-receipt", Path.Combine(temp.Path, "attach.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense", "aggregate/spending.receipt"]}"""),
+            TestModel.Record("use-case", "use-case/spending.attach-receipt", Path.Combine(temp.Path, "attach.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense", "aggregate/spending.receipt"], "consistency": {"mode": "atomic", "boundBy": ["rule/spending.receipt-attached-atomically"]}}"""),
             TestModel.Record("rule", "rule/spending.receipt-attached-atomically", Path.Combine(temp.Path, "rules.yaml"), """{"kind": "atomicity", "governs": ["use-case/spending.attach-receipt"], "basedOn": ["decision/0002-attach-receipt-writes-two-aggregates"]}"""),
             TestModel.Record("decision", "decision/0002-attach-receipt-writes-two-aggregates", Path.Combine(temp.Path, "decisions.yaml"), """{"consequences": "Attaching a receipt writes both aggregates in one transaction."}"""));
+
+        Assert.DoesNotContain("use-case-writes-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Command Writing Two Aggregates With A Decision Outside Bound By Reports.</summary>
+    /// <proves>litespec/core/use-cases#change-one-aggregate-in-each-command</proves>
+    [Fact]
+    public void CommandWritingTwoAggregatesWithDecisionOutsideBoundByReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), "{}"),
+            TestModel.Record("aggregate", "aggregate/spending.receipt", Path.Combine(temp.Path, "receipt.yaml"), "{}"),
+            TestModel.Record("use-case", "use-case/spending.attach-receipt", Path.Combine(temp.Path, "attach.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense", "aggregate/spending.receipt"], "consistency": {"mode": "atomic", "boundBy": ["rule/spending.receipt-attached-atomically"]}}"""),
+            TestModel.Record("rule", "rule/spending.receipt-attached-atomically", Path.Combine(temp.Path, "atomic.yaml"), """{"kind": "atomicity", "governs": ["use-case/spending.attach-receipt"], "basedOn": []}"""),
+            TestModel.Record("rule", "rule/spending.receipt-filed-once", Path.Combine(temp.Path, "invariant.yaml"), """{"kind": "invariant", "governs": ["use-case/spending.attach-receipt"], "basedOn": ["decision/0002-attach-receipt-writes-two-aggregates"]}"""),
+            TestModel.Record("decision", "decision/0002-attach-receipt-writes-two-aggregates", Path.Combine(temp.Path, "decisions.yaml"), """{"consequences": "Attaching a receipt writes both aggregates in one transaction."}"""));
+
+        Assert.Contains("use-case-writes-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Command Writing No Aggregate Passes.</summary>
+    /// <proves>litespec/core/use-cases#change-one-aggregate-in-each-command</proves>
+    [Fact]
+    public void CommandWritingNoAggregatePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), "{}"),
+            TestModel.Record("use-case", "use-case/spending.verify-receipt", Path.Combine(temp.Path, "verify.yaml"), """{"kind": "command", "writes": []}"""));
 
         Assert.DoesNotContain("use-case-writes-invalid", TestModel.Codes(model));
     }

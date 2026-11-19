@@ -4,7 +4,7 @@ Say what outside rule this is, in plain words, and who it binds. A reader who ha
 
 ## Scope
 
-Explains `scope`. Say which subjects, transactions and periods the rule covers, and what it leaves out. Scope says whom the rule itself covers; the `applies` field and `appliesBecause` say whether it binds the product.
+Explains `coverage`. Say which subjects, transactions and periods the rule covers, and what it leaves out. Scope says whom the rule itself covers; the `applies` field and `appliesBecause` say whether it binds the product.
 
 ## Rules
 

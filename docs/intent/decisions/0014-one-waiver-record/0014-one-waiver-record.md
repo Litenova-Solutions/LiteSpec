@@ -23,17 +23,17 @@ The chosen option keeps one shape for every waiver. The other options keep 4 sha
 
 One `waiver` record replaces the deviation, the known gap, `deferredProvisions`, and `check.phase: frozen`. A waiver states its kind: `gap` for work the team means to close, `lasting` for a choice the project keeps. Whether a waiver ends is a fact the reader needs on the record, so the kind is explicit rather than read from the presence of an expiry date.
 
-A waiver names what it covers in `covers`, which is a list of provision IDs, page IDs, or finding codes. It also names its `subject` or `paths`, and its `reason`. A gap also names `expiresOn`, `exit`, and `closedBy`, the records whose change closes the gap. A lasting waiver names `consequences` and carries no end date.
+A waiver names what it covers in `waives`, which is a list of provision IDs, page IDs, or finding codes. It also names its `appliesTo` or `paths`, and its `reason`. A gap also names `expiresOn`, `exit`, and `closedBy`, the records whose change closes the gap. A lasting waiver names `consequences` and carries no end date.
 
 A lasting waiver never expires. The record lives in `.litespec/governance/waivers/`. A replaced default is not a waiver, because the default's `Replacement` names it.
 
-A waiver covers only what it names. It reports `waiver-expired` after its date. It covers a finding in three cases: it names the finding's code, it names the provision whose Checked by line names that code, or it names that provision's page. In each case, the finding sits on the waiver's `subject` or `paths`.
+A waiver covers only what it names. It reports `waiver-expired` after its date. It covers a finding in three cases: it names the finding's code, it names the provision whose Checked by line names that code, or it names that provision's page. In each case, the finding sits on the waiver's `appliesTo` or `paths`.
 
 ## Consequences
 
-The waiver record is the one shape for every waiver. The field `kind` states whether the waiver is a gap or a lasting choice. The field `covers` names a provision, a page, or finding codes. A gap carries `expiresOn`, `exit`, and the typed `closedBy` records. A lasting waiver carries `consequences` and no end date.
+The waiver record is the one shape for every waiver. The field `kind` states whether the waiver is a gap or a lasting choice. The field `waives` names a provision, a page, or finding codes. A gap carries `expiresOn`, `exit`, and the typed `closedBy` records. A lasting waiver carries `consequences` and no end date.
 
-Three provisions in the waivers and release pages state the uses that this decision unifies. The decision also fixes the analyzer rule: an analyzer matches a waiver by comparing its `covers` with its own `LS` rule ID.
+Three provisions in the waivers and release pages state the uses that this decision unifies. The decision also fixes the analyzer rule: an analyzer matches a waiver by comparing its `waives` with its own `LS` rule ID.
 
 ## Evidence
 

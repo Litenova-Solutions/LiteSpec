@@ -111,7 +111,7 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-When a project sets a Standard aside, it records a waiver whose `covers` names the provision, in `.litespec/governance/waivers/`, and `rules <path>` shows the waiver in place of the provision. When a project replaces a Convention, it names its own convention in its documentation.
+When a project sets a Standard aside, it records a waiver whose `waives` names the provision, in `.litespec/governance/waivers/`, and `rules <path>` shows the waiver in place of the provision. When a project replaces a Convention, it names its own convention in its documentation.
 
 A Replacement names the local convention or its recording place, not a waiver. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [waivers page](waivers.md) states the waiver record.
 

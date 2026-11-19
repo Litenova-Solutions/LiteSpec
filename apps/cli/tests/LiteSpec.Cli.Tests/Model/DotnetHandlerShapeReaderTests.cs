@@ -474,6 +474,63 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(Read(temp.Path).Handlers.Single().Dispatches!);
     }
 
+    /// <summary>Reaction Sends Through Both Mediators Are Collected As Dispatches.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void ReactionSendsThroughBothMediatorsAreCollected()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
+
+            /// <implements>reaction/lending.notify-reader</implements>
+            public sealed class NotifyReaderOnCopyBorrowedHandler(IQueryMediator queries, ICommandMediator commands)
+                : IEventHandler<CopyBorrowedEvent>
+            {
+                public async Task HandleAsync(CopyBorrowedEvent notification, CancellationToken cancellationToken)
+                {
+                    var loan = await queries.QueryAsync(new ReadLoanQuery(), cancellationToken);
+                    await commands.SendAsync(new NotifyReaderCommand(), cancellationToken);
+                }
+            }
+            """);
+
+        var dispatches = Read(temp.Path).Reactions.Single().Dispatches!;
+
+        Assert.Equal(2, dispatches.Count);
+        Assert.Equal("queries", dispatches[0].Verb);
+        Assert.Equal("ReadLoanQuery", dispatches[0].Target);
+        Assert.Equal("runs", dispatches[1].Verb);
+        Assert.Equal("NotifyReaderCommand", dispatches[1].Target);
+    }
+
+    /// <summary>Job Command Send Is Collected As A Runs Dispatch.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void JobCommandSendIsCollected()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Application", "EraseExpiredLoans"), "EraseExpiredLoansJob.cs", """
+            namespace Library.App.Application.EraseExpiredLoans;
+
+            /// <implements>job/lending.erase-expired-loans</implements>
+            public sealed class EraseExpiredLoansJob(ICommandMediator commands)
+            {
+                public async Task RunAsync(CancellationToken cancellationToken)
+                {
+                    await commands.SendAsync(new EraseLoanCommand(), cancellationToken);
+                }
+            }
+            """);
+
+        var dispatch = Assert.Single(Read(temp.Path).Jobs.Single().Dispatches!);
+
+        Assert.Equal("runs", dispatch.Verb);
+        Assert.Equal("EraseLoanCommand", dispatch.Target);
+    }
+
     static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteDomainFolder(string root) =>

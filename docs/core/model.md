@@ -455,8 +455,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `keyedBy` | read model | aggregate | is keyed by | keys |
 | `removedBy` | read model | published event | is removed by | removes rows of |
 | `freshness.decidedBy` | read model | use case, aggregate | is decided by | decides |
-| `covers` | waiver | standards provision, standards page | covers | is covered by |
-| `subject` | waiver | generic record, flow step | applies to | is applied to |
+| `waives` | waiver | standards provision, standards page | waives | is waived by |
+| `appliesTo` | waiver | generic record, flow step | applies to | is applied to |
 | `closedBy` | waiver | generic record, flow step | is closed by | closes |
 | `host` | screen | screen | opens on | hosts |
 | `offers` | screen | use case | offers | is offered by |
@@ -577,11 +577,11 @@ A decision explains a choice. Goals, problems, features, flows, actors, research
 
 Only an explicit product `excludes` overrides a requirement: the product page states exclusions in `excludes`, and its summary is never read as one.
 
-A waiver outranks the LiteSpec provision its `covers` names for the project that records it: a gap waiver until its `expiresOn` date, and a lasting waiver for as long as its reason holds. [Waivers](waivers.md) states the record.
+A waiver outranks the LiteSpec provision its `waives` names for the project that records it: a gap waiver until its `expiresOn` date, and a lasting waiver for as long as its reason holds. [Waivers](waivers.md) states the record.
 
 When code and the specification disagree, the specification wins where Intent has spoken. Where the specification is silent, an agent builds nothing: something that seems missing becomes a question to the owner or a backlog item, never code.
 
-An accepted gap becomes a gap waiver with an `expiresOn` date, an `exitWhen` and `closedBy`: the findings its `covers` names are covered, and do not fail the run, until that date.
+An accepted gap becomes a gap waiver with an `expiresOn` date, an `exitWhen` and `closedBy`: the findings its `waives` names are covered, and do not fail the run, until that date.
 
 Module order states dependencies and grants no authority.
 
@@ -610,7 +610,7 @@ A record that reaches no Behavior gets an `intent-unreached` finding: it is eith
 
 Intent that is written but not yet served is planned, and planned Intent is a gap the project records. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`.
 
-Each one blocks in every run, local or in the pull-request check, whenever the project claims Behavior, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its subject or paths until it expires. A project that claims Intent alone sees Intent coverage in the book and no planned-Intent finding.
+Each one blocks in every run, local or in the pull-request check, whenever the project claims Behavior, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its appliesTo or paths until it expires. A project that claims Intent alone sees Intent coverage in the book and no planned-Intent finding.
 
 Intent coverage states, for each Intent requirement and each flow step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction, or job serves it.
 
@@ -867,7 +867,7 @@ A generated region that `model render` writes from the record file is not a seco
 
 **Rationale:** An editor validates a record against the schema alone, so a shape rule the schema lacks lets a record pass in the editor and fail in the check. Graph rules, such as reference resolution, ownership, and consistency across records, need every record at once, which a schema cannot read. The schema holds required properties, minimum counts, conditional requirements, and allowed values. A list of objects does not use `uniqueItems`, since that compares whole objects, so the model check reports each key that two entries of one record share. Proposed by [decision/0058-keep-shape-rules-in-the-schema](../intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema.md) on the disagreements between the schema and the check.
 
-**Example:** A Claimwick research record with an empty `sources` list fails the schema in an editor and the model check alike, and a research record that names source key `benchmark-report` twice is reported as `record-key-duplicate`.
+**Example:** A Claimwick research record with an empty `sources` list fails the schema in an editor and the model check alike, and a research record that names source name `benchmark-report` twice is reported as `record-key-duplicate`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a record that breaks a shape rule and `record-key-duplicate` for two entries of one record that share a key, and the parity test `RecordSchemaParityTests` fails when the schema and the model check disagree on a rule both carry.
 

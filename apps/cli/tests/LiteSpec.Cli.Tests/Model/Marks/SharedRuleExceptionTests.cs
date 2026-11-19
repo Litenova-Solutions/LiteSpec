@@ -23,7 +23,7 @@ public sealed class SharedRuleExceptionTests
     public void KernelExceptionWithOnlyAFollowsMarkStillReportsMissing()
     {
         using var fixture = MarksFixture.Prepare("shared-exception");
-        var file = Path.Combine(fixture.Path, "apps", "api", "src", "Library.Kernel", "UnknownRecordException.cs");
+        var file = Path.Combine(fixture.Path, "apps", "api", "src", "Library.Kernel", "Domain", "UnknownRecordException.cs");
         File.WriteAllText(file, File.ReadAllText(file).Replace(
             "/// <implements>rule/library.unknown-record</implements>",
             "/// <follows>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</follows>",

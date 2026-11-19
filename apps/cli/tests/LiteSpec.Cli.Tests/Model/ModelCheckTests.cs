@@ -176,7 +176,7 @@ public sealed class ModelCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     /// <param name="id">The waiver record id.</param>
     /// <param name="title">The waiver page title.</param>
-    /// <param name="covers">The finding codes the waiver covers.</param>
+    /// <param name="covers">The finding codes the waiver waives.</param>
     /// <param name="subject">The record ids the waiver applies to.</param>
     /// <param name="expiresOn">The date the waiver expires, in ISO form.</param>
     static void WriteWaiver(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
@@ -194,10 +194,10 @@ public sealed class ModelCheckTests
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
             + "  \"kind\": \"gap\",\n"
-            + "  \"covers\": [\n"
+            + "  \"waives\": [\n"
             + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
             + "\n  ],\n"
-            + "  \"subject\": [\n"
+            + "  \"appliesTo\": [\n"
             + string.Join(",\n", subject.Select(entry => $"    \"{entry}\""))
             + "\n  ],\n"
             + "  \"closedBy\": [\n"

@@ -15,7 +15,7 @@ internal static class AnalyzerSuppressionChecks
     ///     suppressed in an .editorconfig, a .globalconfig, a NoWarn element, a
     ///     #pragma warning disable or a SuppressMessage, while no live waiver
     ///     covers the provision the rule enforces. A waiver covers the provision
-    ///     when it is live and its covers names the provision, its page, or this finding
+    ///     when it is live and its waives names the provision, its page, or this finding
     ///     code. A rule the carried release names no provision for reports only when
     ///     no release map could be read at all.
     /// </summary>
@@ -66,8 +66,8 @@ internal static class AnalyzerSuppressionChecks
     ///     expiresOn date is today or later, as the suppression partition reads it.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="codeCovered">Whether a live waiver names analyzer-lowering-unrecorded in its covers.</param>
-    /// <returns>The provision and page identifiers the live waivers name in their covers.</returns>
+    /// <param name="codeCovered">Whether a live waiver names analyzer-lowering-unrecorded in its waives.</param>
+    /// <returns>The provision and page identifiers the live waivers name in their waives.</returns>
     private static HashSet<string> CoveredProvisions(ProjectModel model, out bool codeCovered)
     {
         var covered = new HashSet<string>(StringComparer.Ordinal);
@@ -82,7 +82,7 @@ internal static class AnalyzerSuppressionChecks
                 continue;
             }
 
-            foreach (var cover in record.Ids(RecordFields.Covers))
+            foreach (var cover in record.Ids(RecordFields.Waives))
             {
                 if (cover.Equals("analyzer-lowering-unrecorded", StringComparison.Ordinal))
                 {

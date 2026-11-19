@@ -314,7 +314,7 @@ public sealed class AggregateStateAnalyzerTests
         Verify.AnalyzerAsync<AggregateStateAnalyzer>("""
             using System;
 
-            namespace Shop.SharedKernel
+            namespace Shop.Kernel
             {
                 public abstract class AggregateRoot<TId>
                 {
@@ -327,7 +327,7 @@ public sealed class AggregateStateAnalyzerTests
             {
                 public readonly record struct OrderId(Guid Value);
 
-                public sealed class {|LS1003:Order|} : SharedKernel.AggregateRoot<OrderId>
+                public sealed class {|LS1003:Order|} : Kernel.AggregateRoot<OrderId>
                 {
                     public Order(OrderId id) : base(id) { }
                 }

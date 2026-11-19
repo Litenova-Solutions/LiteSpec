@@ -715,12 +715,12 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
                 "\"waiverPage\":{\"type\":\"object\",\"additionalProperties\":false," +
-                "\"required\":[\"type\",\"id\",\"title\",\"covers\",\"reason\"]," +
+                "\"required\":[\"type\",\"id\",\"title\",\"waives\",\"reason\"]," +
                 "\"properties\":{\"type\":{\"const\":\"waiver\"}," +
                 "\"id\":{\"$ref\":\"#/$defs/waiverId\"}," +
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "" +
-                "\"covers\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
+                "\"waives\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
                 "\"reason\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"expiresOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
                 "\"waiverId\":{\"type\":\"string\",\"pattern\":\"^waiver/[a-z0-9][a-z0-9-]*$\"}," +
@@ -730,7 +730,7 @@ public sealed partial class StandardsValidatorTests
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
             StandardsFixture.Write(root, "templates/consumer/waiver.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"waiver\",\"id\":\"waiver/<name>\",\"title\":\"<Waiver display title>\"," +
-                "\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
+                "\"waives\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
         []);
 

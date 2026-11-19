@@ -638,11 +638,11 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Applies to:** artifact: record:constraint
 
-**Statement:** A constraint MUST state its `authority`, `summary`, `sources`, `kind`, `applies`, `appliesBecause`, `scope`, `obligations`, and `productEffect` in fields, and What It Requires is generated from the requirements that cite it.
+**Statement:** A constraint MUST state its `authority`, `summary`, `sources`, `kind`, `applies`, `appliesBecause`, `coverage`, `obligations`, and `productEffect` in fields, and What It Requires is generated from the requirements that cite it.
 
 **Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked.
 
-The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `name`, `url`, and `readOn`, the shape research uses, so each rule cites its source by name. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. The `scope` states which subjects, transactions, and periods the rule covers. The `obligations` state each outside rule as one sourced statement with the names of the sources that support it. The `productEffect` states what the rule changes in the product, naming each requirement that holds it. The `openPoints` hold optional questions about application. The explanation file restates each of these fields in its fixed sections.
+The `kind` is technical, organizational, convention, or legal. The `authority` names the body issuing the rule in a few words, and the `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". Each source in `sources` carries its `name`, `url`, and `readOn`, the shape research uses, so each rule cites its source by name. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`; no end date is written. What It Requires lists the requirements citing the constraint, generated at build time. The `coverage` states which subjects, transactions, and periods the rule covers. The `obligations` state each outside rule as one sourced statement with the names of the sources that support it. The `productEffect` states what the rule changes in the product, naming each requirement that holds it. The `openPoints` hold optional questions about application. The explanation file restates each of these fields in its fixed sections.
 
 A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on: a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint naming it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
@@ -918,9 +918,9 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Checked by:** `litespec model check` reports `record-invalid` for a flow record file missing `summary`.
 
-### Perform Each Flow Step with an Actor or an External System
+### Perform Each Flow Step with an Actor
 
-**ID:** `litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system`
+**ID:** `litespec/core/intent#perform-each-flow-step-with-an-actor`
 
 **Strength:** required
 
@@ -932,7 +932,7 @@ The `check` names the probe or test confirming the measure, and it is required w
 
 **Example:** In the library flow, the step sending the overdue notice names the text gateway actor in `actor`; the steps the reader takes name no performer.
 
-**Checked by:** `litespec model check` reports `reference-unknown` for a flow step whose `actor` names no written actor.
+**Checked by:** `litespec model check` reports `reference-unknown` for a flow step whose `actor` names no written actor, and `record-invalid` for a step naming a system actor no external system represents.
 
 ### Keep Behavior Out of Intent
 

@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Consumer;
 using LiteSpec.Cli.Model.Diff;
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.CommandLine;
@@ -571,7 +572,7 @@ static class ModelCommand
         finding.Message.Contains("could not be read", StringComparison.Ordinal)
         || finding.Message.StartsWith("The glossary is not YAML", StringComparison.Ordinal);
 
-    /// <summary>Whether the finding belongs to the module: its subject record's module, else its file's module folder.</summary>
+    /// <summary>Whether the finding belongs to the module: its subject record's module, else its record file's module folder, else its code file's module folder.</summary>
     /// <param name="model">The built project model resolving the finding subject.</param>
     /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="finding">The finding to test.</param>
@@ -586,7 +587,30 @@ static class ModelCommand
             return module.Equals(record.Module, StringComparison.Ordinal);
         }
 
-        return module.Equals(RecordPlacement.ModuleOf(finding.Path, config), StringComparison.Ordinal);
+        if (RecordPlacement.ModuleOf(finding.Path, config) is { } recordModule)
+        {
+            return module.Equals(recordModule, StringComparison.Ordinal);
+        }
+
+        // A code finding carries no record subject: the module layout names its module folder.
+        if (SourceRoots.ModulePath(config, finding.Path) is { } segments && segments.Length > 0)
+        {
+            return SameModuleName(segments[0], module);
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether a code module folder and a record module name spell one module: case, hyphens and underscores ignored.</summary>
+    /// <param name="folder">The module folder name as written on disk.</param>
+    /// <param name="name">The module name the check keeps.</param>
+    /// <returns>True when both names agree with case, hyphens and underscores ignored; otherwise false.</returns>
+    static bool SameModuleName(string folder, string name)
+    {
+        var left = folder.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+        var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+
+        return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

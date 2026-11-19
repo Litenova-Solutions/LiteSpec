@@ -82,5 +82,5 @@ Rules `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013` run across layers
 - [LS5006: Marked Event or Exception Is Not Partial](ls5006.md): reports a marked event or exception not declared `partial`.
 - [LS5009: Two Permissions Generate One Constant Name](ls5009.md): reports two permissions generating one constant name.
 - [LS5011: One Message Maps to Two Use Cases](ls5011.md): reports one message mapped to two use cases.
-- [LS5012: Role Allows an Undeclared Permission](ls5012.md): reports a role allowing a permission no record declares.
+- [LS5012: Permission Grants an Undeclared Role](ls5012.md): reports a permission granting a role no record declares.
 - [LS5013: Base Declares a Non-Virtual Code](ls5013.md): reports a marked exception inheriting a non-virtual `Code`.

@@ -11,13 +11,13 @@
   import { codeOf, mutedInline, refLink, td, thRow } from "../shared/record-cells";
   import { objectField, objectList, routeFileOf, screenFields, stringField, stringList } from "../page-values";
 
-  // A screen: the task the person completes, where it lives, its states, its wireframe, the use cases it offers, and what comes next.
+  // A screen: the task the person completes, where it lives, its display states, its wireframe, the use cases it offers, and what comes next.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
   const task = $derived(stringField(f, "task") ?? "");
   const taskHtml = $derived(task ? inline(book, task, r.src ?? null) : "");
-  const states = $derived(objectList(f, "states"));
+  const states = $derived(objectList(f, "displayStates"));
   const sf = $derived(screenFields(f));
   const off = $derived(sf.offers.map((x) => stripStep(x)));
   const calls = $derived(r.calls ?? []);
@@ -76,10 +76,10 @@
   </DefinitionList>
 </PageSection>
 {#if states.length}
-  <PageSection blockKey="states" heading="screen.states" count={states.length}>
+  <PageSection blockKey="displayStates" heading="screen.displayStates" count={states.length}>
     <DataTable
       head={["State", "Shows"]}
-      caption={`States of ${r.title}`}
+      caption={`Display states of ${r.title}`}
       rows={states.map((s) => [thRow(esc(String(s.name ?? ""))), td(esc(String(s.shows ?? "")))])}
     />
   </PageSection>

@@ -409,7 +409,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("waiver", "waiver/ghost-pain-parked", Path.Combine(temp.Path, "ghost-pain-parked.yaml"), """{"kind": "gap", "covers": ["intent-unreached"], "subject": ["problem/ghost-pain"], "reason": "Ghost work waits.", "closedBy": ["problem/ghost-pain"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/ghost-pain-parked", Path.Combine(temp.Path, "ghost-pain-parked.yaml"), """{"kind": "gap", "waives": ["intent-unreached"], "appliesTo": ["problem/ghost-pain"], "reason": "Ghost work waits.", "closedBy": ["problem/ghost-pain"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 

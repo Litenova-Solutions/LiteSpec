@@ -108,7 +108,7 @@ The weak version states no rule and no subject. The strong version opens with th
 
 ### Write Scope
 
-Under Scope, say which subjects, transactions, and periods the rule covers, and what it leaves out. State it in `scope`; Scope restates that field. Scope says whom the rule itself covers. Whether the rule binds the product stays in the `applies` field and `appliesBecause`, so Scope does not repeat them.
+Under Scope, say which subjects, transactions, and periods the rule covers, and what it leaves out. State it in `coverage`; Scope restates that field. Scope says whom the rule itself covers. Whether the rule binds the product stays in the `applies` field and `appliesBecause`, so Scope does not repeat them.
 
 ```yaml
 type: constraint
@@ -119,7 +119,7 @@ summary: National tax law requires a company to keep its business receipts for s
 kind: legal
 applies: true
 appliesBecause: Claimwick stores receipts for reimbursed expenses.
-scope: The rule covers business receipts. Claimwick holds only the receipts of expenses it reimburses.
+coverage: The rule covers business receipts. Claimwick holds only the receipts of expenses it reimburses.
 obligations:
   - statement: A company keeps its business receipts for seven years.
     sources:
@@ -129,7 +129,7 @@ openPoints:
   - Whether the seven-year period counts from the expense date or the payout date is open.
 ```
 
-The explanation file restates `scope`, `obligations`, `productEffect`, and `openPoints` in its Scope, Rules, Effect on the Product, and Open Points sections; it adds no fact the record lacks.
+The explanation file restates `coverage`, `obligations`, `productEffect`, and `openPoints` in its Scope, Rules, Effect on the Product, and Open Points sections; it adds no fact the record lacks.
 
 | Instead of | Write |
 |:---|:---|

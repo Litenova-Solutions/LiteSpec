@@ -382,7 +382,7 @@ export function idemTileOf(f: RecordFields): { value: string; hint: string } | n
     value: esc(mode && isIdempotencyMode(mode) ? IDEM_MODES[mode] : capitalize(i.mode)),
     hint: [
       i.key ? `<span class="${codeCls}">${esc(i.key)}</span>` : "",
-      i.scope ? "scoped to " + esc(i.scope) : "",
+      i.keyScope ? "scoped to " + esc(i.keyScope) : "",
       i.reason ? esc(i.reason) : "",
     ]
       .filter(Boolean)

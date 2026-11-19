@@ -18,7 +18,7 @@ output:
       - name: loans
         type: list
         meaning: "One row per loan: its identity, copy, reader, and due date."
-        identifies:
+        rowShape:
           fields:
           - name: loan
             type: id

@@ -1,6 +1,6 @@
 # Retention Holds and Rounded Starts
 
-Deletion pauses while a hold stands, and a retention period counts from an event rounded up to a calendar end. This decision adds `holds` to the data class and an event-with-rounding form to `periodStartsAt`.
+Deletion pauses while a hold stands, and a retention period counts from an event rounded up to a calendar end. This decision adds `retentionHolds` to the data class and an event-with-rounding form to `periodStartsAt`.
 
 ## Context
 
@@ -19,7 +19,7 @@ LiteSpec compared 2 options for retention holds and starts. The table sets each 
 
 ## Decision
 
-A data class carries `holds` beside its period. Each hold states its reason with the date it starts in `heldOn`, and deletion pauses until the hold lifts with its date in `liftedOn`.
+A data class carries `retentionHolds` beside its period. Each hold states its reason with the date it starts in `heldOn`, and deletion pauses until the hold lifts with its date in `liftedOn`.
 
 `periodStartsAt` takes any declared event or aggregate date field, or an event or field with `rounding` to a calendar end. The event starts the count and the rounding shares one expiry across the year.
 

@@ -116,7 +116,7 @@ public sealed class IntentChecksTests
     }
 
     /// <summary>A flow step naming a system actor no external system represents blocks with record-invalid.</summary>
-    /// <proves>litespec/core/intent#perform-each-flow-step-with-an-actor-or-an-external-system</proves>
+    /// <proves>litespec/core/intent#perform-each-flow-step-with-an-actor</proves>
     [Fact]
     public void FlowStepWithUnrepresentedSystemActorBlocks()
     {

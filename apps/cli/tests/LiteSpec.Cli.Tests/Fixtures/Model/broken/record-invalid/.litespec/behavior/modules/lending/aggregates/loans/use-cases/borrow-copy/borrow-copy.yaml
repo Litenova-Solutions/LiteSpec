@@ -24,7 +24,7 @@ input:
 idempotency:
   mode: key
   key: loan:{copy}
-  scope: tenant
+  keyScope: tenant
 records:
   - type: result
     id: result/borrow-copy.borrowed

@@ -33,7 +33,7 @@ public static class ExplanationSections
             [RecordTypes.Goal] = Of(("Target", false, new[] { "target" }), ("Measurement", false, new[] { "measure", "observations" })),
             [RecordTypes.Direction] = Of(),
             [RecordTypes.Problem] = Of(("Affected Users", false, new[] { "affects" }), ("Failure Cases", false, new[] { "failureCases" }), ("Example", true, []), ("Current Workaround", false, new[] { "workaround" }), ("Cost", false, new[] { "cost" }), ("Evidence", false, new[] { "evidence" }), ("Resolution Criteria", false, new[] { "resolutionCriteria" })),
-            [RecordTypes.Constraint] = Of(("Scope", false, new[] { "scope" }), ("Rules", false, new[] { "obligations" }), ("Effect on the Product", false, new[] { "productEffect" }), ("Open Points", true, new[] { "openPoints" })),
+            [RecordTypes.Constraint] = Of(("Scope", false, new[] { "coverage" }), ("Rules", false, new[] { "obligations" }), ("Effect on the Product", false, new[] { "productEffect" }), ("Open Points", true, new[] { "openPoints" })),
             [RecordTypes.Research] = Of(("Findings", false, new[] { "findings" }), ("Open Questions", true, new[] { "openQuestions" }), ("Source Notes", true, new[] { "sources" })),
             [RecordTypes.Decision] = Of(("Context", false, new[] { "context" }), ("Options", false, new[] { "options" }), ("Decision", false, new[] { "choice" }), ("Consequences", false, new[] { "consequences" }), ("Evidence", true, new[] { "basedOn" }), ("Revisit Conditions", false, new[] { "reopenedWhen" })),
             [RecordTypes.Feature] = Of(("Capabilities", false, []), ("Success Criteria", false, new[] { "successCriteria" }), ("Boundaries", false, new[] { "excludes" }), ("Example", true, [])),
@@ -54,13 +54,13 @@ public static class ExplanationSections
             [RecordTypes.ReferenceData] = Of(("Values", false, new[] { "unit", "rows" }), ("Example", true, [])),
             [RecordTypes.ExternalSystem] = Of(("Use", false, new[] { "summary" }), ("Data Shared", false, new[] { "processes", "erasure" }), ("Failure Handling", false, new[] { "operations" })),
             [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticationTriggers" }), ("Excludes", true, new[] { "excludes" })),
-            [RecordTypes.Screen] = Of(("Task", false, new[] { "task" }), ("States", false, new[] { "states" }), ("Example", false, [])),
+            [RecordTypes.Screen] = Of(("Task", false, new[] { "task" }), ("States", false, new[] { "displayStates" }), ("Example", false, [])),
             [RecordTypes.PermissionSet] = Of(("Risk", false, new[] { "risk" }), ("Boundaries", true, new[] { "excludes" })),
             [RecordTypes.SettingSet] = Of(("Defaults", false, new[] { "default", "range", "unit" }), ("Changes", true, new[] { "setBy" })),
 
             // Implementation and Governance
             [RecordTypes.Runbook] = Of(("Prerequisites", false, new[] { "prerequisites" }), ("Steps", false, new[] { "procedure" }), ("Verification", false, new[] { "verification" }), ("Recovery", false, new[] { "recovery" })),
-            [RecordTypes.Waiver] = Of(("Provision", false, new[] { "covers" }), ("Reason", false, new[] { "reason" }), ("Risk", false, new[] { "consequences" }), ("Expiry", false, new[] { "expiresOn", "exitWhen" })),
+            [RecordTypes.Waiver] = Of(("Provision", false, new[] { "waives" }), ("Reason", false, new[] { "reason" }), ("Risk", false, new[] { "consequences" }), ("Expiry", false, new[] { "expiresOn", "exitWhen" })),
         };
 
     /// <summary>Gets the H2 names a record type's explanation must hold, in order, with the optional sections left out.</summary>

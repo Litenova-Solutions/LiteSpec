@@ -18,7 +18,7 @@
   const sources = $derived(objectList(f, "sources"));
 
   function sourceOf(key: string): RecordFields | undefined {
-    return sources.find((x) => String(x.key ?? "") === key);
+    return sources.find((x) => String(x.name ?? "") === key);
   }
 
   function sourceHref(key: string): string | null {

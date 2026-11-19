@@ -269,8 +269,8 @@ public sealed class DuplicateModelAnalyzer : LayerAnalyzer
     private static bool IsKernelAssembly(string assemblyName) =>
         assemblyName.Equals("Kernel", StringComparison.Ordinal)
         || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal)
-        || assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
-        || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal);
+        || assemblyName.Equals("Kernel", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".Kernel", StringComparison.Ordinal);
 
     /// <summary>Returns the first source file declaring the type, or null for metadata.</summary>
     /// <param name="type">The type under inspection.</param>

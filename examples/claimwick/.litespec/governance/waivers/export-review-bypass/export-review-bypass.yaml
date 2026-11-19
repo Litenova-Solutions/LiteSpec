@@ -3,9 +3,9 @@ id: waiver/export-review-bypass
 title: Export Review Bypass
 summary: The weekend export runs with no reviewer on shift.
 kind: gap
-covers:
+waives:
 - litespec/backend/application#enforce-target-authorization-in-the-pipeline
-subject:
+appliesTo:
 - use-case/spending.export-expenses
 reason: The weekend export runs with no reviewer on shift.
 exitWhen: A reviewer covers the weekend export shift, and the bypass is removed.

@@ -10,7 +10,7 @@ sources:
 kind: organizational
 applies: true
 appliesBecause: The library keeps reader records.
-scope: The rule covers the reader records the library keeps.
+coverage: The rule covers the reader records the library keeps.
 obligations:
 - statement: The library keeps reader records private.
   sources:

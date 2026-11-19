@@ -17,7 +17,7 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
 | 1. Identity | fixed words | none | `type`, `id`, `title`, `terms`, `records` |
-| 2. Link to many records | active present-tense verb | "flow serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `writes`, `covers`, `requires` |
+| 2. Link to many records | active present-tense verb | "flow serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `writes`, `waives`, `requires` |
 | 3. Link to one record in a role | singular noun naming the role | "the flow's actor is traveller" | `actor`, `audience`, `fallback`, `runbook`, `result`, `host`, `refusal` |
 | 4. Link where the target acts on this record | `<participle>By`, `<participle>Through`, `<participle>In` or `<participle>From`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `movedBy`, `boundBy`, `widenedBy`, `triggeredBy`, `reachedThrough`, `surfacesIn` |
 | 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `action`, `trust`, `reach`, `lifecycle`, `level` |
@@ -213,7 +213,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Example:** A module states what its area covers in `covers` and what it does not cover in `excludes`. An actor states the acts the product holds it to in `responsibilities`, the one record type that carries that name. A setting names its configuration path in `configurationPath`, and a research source carries its label in `name`.
 
-**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date, and reports a field name defined with two meanings or shapes and a field outside the field table.
+**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date, and reports a field name defined with two shapes and a field outside the field table. One meaning per name is held by the table itself, which carries exactly one row per field name.
 
 ### Name a Boolean as a Predicate
 

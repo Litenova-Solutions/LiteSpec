@@ -17,7 +17,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}, "idempotency": {"mode": "key", "key": "expense-id", "scope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}, "idempotency": {"mode": "key", "key": "expense-id", "keyScope": "tenant"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "(AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\" }).WithTargetFrom<BorrowCopyCommand>(command => command.CopyId)");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.Idempotent(Key.From(\"expense-id\"))");
@@ -48,7 +48,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
 
         var finding = Assert.Single(Run(model));
@@ -234,7 +234,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"Reads leave their trail in the loan states and events.\")");
 
@@ -252,7 +252,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Audited(\"use-case/lending.borrow-copy\")");
 
@@ -270,7 +270,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\", TargetKind = \"copy\" }");
         File.WriteAllText(Path.Combine(folder, "BorrowCopyCommandHandler.cs"), "internal sealed class BorrowCopyCommandHandler\n{\n    private void Handle() => _audit.WithTarget(copy.Id);\n}\n");
@@ -285,7 +285,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"The hold only prepares use-case/lending.borrow-copy; the borrowing records the change once it completes.\")");
         WriteDefinition(folder, "ReserveCopyCommandAuditDefinition.cs", "(AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\" }).WithTargetFrom<ReserveCopyCommand>(command => command.CopyId)");
@@ -300,7 +300,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "target": "expense"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"The hold only prepares use-case/lending.borrow-copy; the borrowing records the change once it completes.\")");
 
@@ -325,7 +325,7 @@ public sealed class DefinitionCheckTests
         var finding = Assert.Single(Run(model));
 
         Assert.Equal("definition-drift", finding.Code);
-        Assert.Equal("Idempotency definition 'BorrowCopyCommandIdempotencyDefinition' declares no NotIdempotent exemption for 'use-case/lending.borrow-copy'.", finding.Message);
+        Assert.Equal("Idempotency definition 'BorrowCopyCommandIdempotencyDefinition' declares no idempotency exemption for 'use-case/lending.borrow-copy'.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
@@ -336,7 +336,7 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         File.WriteAllText(
             Path.Combine(folder, "BorrowCopyCommandIdempotencyDefinition.cs"),
@@ -352,14 +352,46 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.NotIdempotent()");
 
         var finding = Assert.Single(Run(model));
 
         Assert.Equal("definition-drift", finding.Code);
-        Assert.Equal("Idempotency definition 'BorrowCopyCommandIdempotencyDefinition' declares NotIdempotent, but 'use-case/lending.borrow-copy' requires idempotency.", finding.Message);
+        Assert.Equal("Idempotency definition 'BorrowCopyCommandIdempotencyDefinition' declares an idempotency exemption, but 'use-case/lending.borrow-copy' requires idempotency.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>An idempotency definition declaring the exemption with its reason for a non-idempotent record reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void IdempotencyNoneWithExemptReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "none", "reason": "reading only"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "new Exempt<IdempotencyDeclaration>(\"Each call lends its own copy, and lending an unavailable copy is refused.\")");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An idempotency definition declaring the exemption for a command the record makes idempotent reports definition-drift.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void ExemptWhenKeyReportsDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
+        WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "new Exempt<IdempotencyDeclaration>(\"Each call lends its own copy, and lending an unavailable copy is refused.\")");
+
+        var finding = Assert.Single(Run(model));
+
+        Assert.Equal("definition-drift", finding.Code);
+        Assert.Equal("Idempotency definition 'BorrowCopyCommandIdempotencyDefinition' declares an idempotency exemption, but 'use-case/lending.borrow-copy' requires idempotency.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 

@@ -469,7 +469,7 @@ It only reads: a change the caller needs in the owning module is a public comman
 
 **Example:** In the Claimwick product, a reimbursement command asks spending for the current expense through spending's public read-expense query, instead of reading a whole event profile through a general reader.
 
-**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for another module's public query sent with no declared `queries` edge, and `effect-unimplemented` (level S) for a declared `queries` edge no send takes.
+**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for another module's public query sent with no declared `queries` edge, `effect-unimplemented` (level S) for a declared `queries` edge no send takes, and `query-target-invalid` (level G) for a `queries` edge naming the calling module's own query.
 
 ### Send Cross-Module Queries and Commands Through the Mediator
 
@@ -501,7 +501,7 @@ It only reads: a change the caller needs in the owning module is a public comman
 
 **Example:** In the Claimwick product, reporting's close-period job declares `effects.commands` naming `use-case/spending.close-expenses`, and spending's close-expenses command lists `module/reporting` in `reachedThrough`.
 
-**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for another module's public command sent with no declared `commands` edge, and `effect-unimplemented` (level S) for a declared `commands` edge no send takes.
+**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for another module's public command sent with no declared `commands` edge, `effect-unimplemented` (level S) for a declared `commands` edge no send takes, and `command-edge-invalid` (level G) for a `commands` edge a use case declares.
 
 ### Send Public Commands in Process
 

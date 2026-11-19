@@ -253,6 +253,36 @@ public sealed class ParentCheckTests
         Assert.Equal("use-case/nope.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Module Event With Module Passes.</summary>
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void ModuleEventWithModulePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"), """{"summary": "A loan was borrowed."}"""));
+
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Module Event With Missing Module Reports.</summary>
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void ModuleEventWithMissingModuleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module-event", "module-event/nope.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"), """{"summary": "A loan was borrowed."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module event 'module-event/nope.loan-borrowed' has no parent and its home 'nope' names no module.", finding.Message);
+        Assert.Equal("module-event/nope.loan-borrowed", finding.Subject);
+    }
+
     /// <summary>Aggregate With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]

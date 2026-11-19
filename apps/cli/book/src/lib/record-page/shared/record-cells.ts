@@ -96,11 +96,11 @@ export function fieldType(book: Book, x: RecordFields): string {
   return type + (of ? muted(of) : "");
 }
 
-/** An idempotency key, scope and reason as one helper line. */
+/** An idempotency key, key scope and reason as one helper line. */
 export function idemHint(i: RecordFields): string {
   return [
     i.key ? codeOf(i.key) : "",
-    i.scope ? "scoped to " + esc(i.scope) : "",
+    i.keyScope ? "scoped to " + esc(i.keyScope) : "",
     i.reason ? esc(i.reason) : "",
   ]
     .filter(Boolean)

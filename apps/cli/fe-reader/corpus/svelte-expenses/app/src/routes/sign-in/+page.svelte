@@ -12,6 +12,7 @@
   function startLogin(next: string) {
     window.location.href = "/auth/login?next=/home";
     goto("/auth/login");
+    window.location = "/auth/logout";
     goto(`/auth/callback?code=${next}`);
     goto(dynamicTarget);
   }

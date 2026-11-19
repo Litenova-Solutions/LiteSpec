@@ -5,8 +5,8 @@
   import Note from "./blocks/Note.svelte";
   import { bodyIntroOf, bodySectionsOf } from "./page-prose";
 
-  // The explanation body: the intro, then each section, with Limits as a
-  // warning note and open questions as an info note.
+  // The explanation body: the intro, then each section, with Excludes and
+  // Boundaries as a warning note and open questions as an info note.
   type Props = { r: BookRecord };
   let { r }: Props = $props();
   const intro = $derived(bodyIntroOf(r));

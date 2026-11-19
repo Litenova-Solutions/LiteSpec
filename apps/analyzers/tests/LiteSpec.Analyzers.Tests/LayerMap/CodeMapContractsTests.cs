@@ -79,6 +79,32 @@ public sealed class CodeMapContractsTests
         Assert.Null(MapFor("Claimwick.Spending", nested).UseCaseOf(nested));
     }
 
+    /// <summary>A file in Messaging is no adapter and sits in no use case.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact]
+    public void MessagingFileIsNoAdapter()
+    {
+        const string path = "Modules/Claimwick.Spending/Infrastructure/Messaging/DomainToModuleEventMapping.cs";
+        var map = MapFor("Claimwick.Spending", path);
+
+        Assert.Equal(ArchitectureLayer.Infrastructure, map.LayerOf(path));
+        Assert.False(CodeMap.IsAdapter(path));
+        Assert.Null(map.UseCaseOf(path));
+    }
+
+    /// <summary>A file in the WebApi Pipeline sits in no use case, at the root or in a protocol folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    [Fact]
+    public void PipelineFileSitsInNoUseCase()
+    {
+        const string path = "Modules/Claimwick.Spending/WebApi/Pipeline/RequestLoggingMiddleware.cs";
+        const string nested = "Modules/Claimwick.Spending/WebApi/Pipeline/OAuth/OAuthHandler.cs";
+
+        Assert.Equal(ArchitectureLayer.WebApi, MapFor("Claimwick.Spending", path).LayerOf(path));
+        Assert.Null(MapFor("Claimwick.Spending", path).UseCaseOf(path));
+        Assert.Null(MapFor("Claimwick.Spending", nested).UseCaseOf(nested));
+    }
+
     /// <summary>A type in a use case folder below an aggregate folder is a public query, public command or result.</summary>
     /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]

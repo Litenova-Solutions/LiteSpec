@@ -25,7 +25,7 @@ Every integration event names the external system it travels through in `through
 |:---|:---|
 | `action` | `send` or `receive`. |
 | `eventType`, `source`, `subject` | The CloudEvents type, source, and what the subject identifies. |
-| `payload` | `{ name, meaning, type, identifies, many, required, classification }` entries, with the field types and the list flag use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
+| `payload` | `{ name, meaning, type, identifies, rowShape, many, required, classification }` entries, with the field types and the list flag use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
 | `dataschema` | The URL the payload follows, optional. |
 | `trust` | `trigger-only` or `payload`. |
 | `correlation` | How an inbound event is matched, inbound only. |
@@ -109,9 +109,9 @@ A screen states what a person can do there, and what the person sees follows fro
 
 The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`.
 
-The builder computes `calls` from the route entry. It follows imports within the route's own folder and the modules folder, so a module the route imports and every module that module composes count. It collects generated-client operation calls: a query helper the client generator emits for an operation, such as its options, query key, or mutation, counts as a call to that operation. It maps each operation through the endpoint's mark to its use case.
+The builder computes `calls` from the route entry. It follows imports within the route's own folder and the modules folder, so a module the route imports and every module that module composes count. It collects generated-client operation calls: a query helper the client generator emits for an operation, such as its options, query key, or mutation, counts as a call to that operation. It maps each operation through the endpoint's mark to its use case. A full-page navigation to a marked endpoint's route counts as a call too: an `href`, a form `action`, a `goto`, or a `window.location` write whose string or template head starts with the route's fixed prefix. So does a call from the route's layouts: each `+layout.ts` and `+layout.server.ts` above the route, with the frame modules they import, counts for every screen under that layout.
 
-It follows neither the frame nor shared packages. A call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is reported as a reader diagnostic instead of being silently assigned to one. The builder compares the computed `calls` with `offers`.
+It follows neither the frame nor shared packages from the route itself. A call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is reported as a reader diagnostic instead of being silently assigned to one. The builder compares the computed `calls` with `offers`.
 
 A flow step is exercised when a passing test proved a scenario of a use case that serves the step.
 
@@ -347,7 +347,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:screen
 
-**Statement:** A screen's `offers` MUST equal the use cases its route reaches through the generated client.
+**Statement:** A screen's `offers` MUST equal the use cases its route reaches: by client call, by navigation to a marked endpoint route, or through a layout.
 
 **Rationale:** `offers` is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either gained a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
 
@@ -431,7 +431,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** `external-system/identity-provider` names the role, with the vendor in `vendor`; `external-system/kinde` names the vendor and is reported.
 
-**Reviewed for:** Does every external-system record name the role the system plays, with no record named for its vendor? Check each record name beside its `vendor`.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system whose name equals its vendor, ignoring case and separators.
 
 ### State the Vendor of Each External System
 

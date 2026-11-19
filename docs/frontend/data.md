@@ -313,7 +313,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A monetary amount carried as a JSON number loses cents to binary floating point before any code runs, and a second Money shape per use case drifts from the wire shape, which carries the amount as a decimal string beside its three-letter code. One Money type in the frame holds that wire shape for every screen, and arithmetic on scaled integers keeps every total exact. A screen converts the value to display text only at the presentation boundary, as `litespec/frontend/components#keep-domain-values-typed-until-display` states.
 
-**Example:** The Claimwick frame holds Money in `src/lib/app/money.ts`: the expense list renders EUR 125.00 from `{ amount: "125.00", currency: "EUR" }`, and totals add scaled integers.
+**Example:** The Claimwick frame holds Money in `src/lib/app/ui/money.ts`: the expense list renders EUR 125.00 from `{ amount: "125.00", currency: "EUR" }`, and totals add scaled integers.
 
 **Reviewed for:** Does every monetary amount travel in the frame Money type with a string amount, with arithmetic on scaled integers and no Number? Look in the frame money type and the amount call sites.
 

@@ -96,11 +96,11 @@ public static class Suppression
         /// <param name="codesOfProvision">The finding codes a provision or page governs, by identifier.</param>
         public LiveWaiver(IRecordFields waiver, Func<string, IReadOnlyList<string>>? codesOfProvision)
         {
-            Subjects = new HashSet<string>(waiver.Ids("subject"), StringComparer.Ordinal);
+            Subjects = new HashSet<string>(waiver.Ids("appliesTo"), StringComparer.Ordinal);
             Paths = waiver.Ids("paths");
             Codes = new HashSet<string>(StringComparer.Ordinal);
 
-            foreach (var covered in waiver.Ids("covers"))
+            foreach (var covered in waiver.Ids("waives"))
             {
                 if (FindingCodes.IsKnown(covered))
                 {

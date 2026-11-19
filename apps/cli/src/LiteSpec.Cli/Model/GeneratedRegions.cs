@@ -343,7 +343,7 @@ static partial class GeneratedRegions
     /// <param name="waiver">The waiver whose covers are rendered.</param>
     /// <returns>The covers joined with commas, or empty when the waiver covers nothing.</returns>
     private static string CoversCell(Record waiver) =>
-        string.Join(", ", waiver.Strings(RecordFields.Covers).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
+        string.Join(", ", waiver.Strings(RecordFields.Waives).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
 
     /// <summary>One waiver closed-by cell: every closing record as a code span.</summary>
     /// <param name="waiver">The waiver whose closing records are rendered.</param>
