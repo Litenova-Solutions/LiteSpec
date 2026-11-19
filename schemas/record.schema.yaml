@@ -163,9 +163,9 @@ $defs:
   termId:
     type: string
     pattern: '^term/[a-z0-9][a-z0-9-]*$'
-  refusalCode:
+  refusalId:
     type: string
-    pattern: '^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+    pattern: '^refusal/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   findingCode:
     type: string
     pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
@@ -199,7 +199,7 @@ $defs:
     items:
       $ref: '#/$defs/nonEmptyString'
   sourcedStatement:
-    description: One statement with the keys of the sources in this record that support it.
+    description: One statement with the names of the sources in this record that support it.
     type: object
     additionalProperties: false
     required:
@@ -279,6 +279,11 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/permissionId'
+  roleIdArray:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/roleId'
   moduleIdArray:
     type: array
     uniqueItems: true
@@ -393,11 +398,14 @@ $defs:
       - $ref: '#/$defs/constraintId'
       - $ref: '#/$defs/researchId'
       - $ref: '#/$defs/decisionId'
-  decidesArray:
+  settledBasedOnArray:
     type: array
     uniqueItems: true
     items:
-      $ref: '#/$defs/genericRecordId'
+      anyOf:
+      - $ref: '#/$defs/constraintId'
+      - $ref: '#/$defs/researchId'
+      - $ref: '#/$defs/decisionId'
   governsArray:
     type: array
     uniqueItems: true
@@ -883,7 +891,7 @@ $defs:
         - last-write
         - merge
       refusal:
-        $ref: '#/$defs/refusalCode'
+        $ref: '#/$defs/refusalId'
         x-reads-as: is refused as
         x-read-back-as: is the refusal for
   onFailureValue:
@@ -1665,10 +1673,6 @@ $defs:
         $ref: '#/$defs/actorId'
         x-reads-as: is performed by
         x-read-back-as: performs
-      system:
-        $ref: '#/$defs/externalSystemId'
-        x-reads-as: is performed by
-        x-read-back-as: performs
       carries:
         $ref: '#/$defs/requirementIdArray'
         x-reads-as: carries
@@ -1680,10 +1684,6 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/flowBranch'
-    not:
-      required:
-      - actor
-      - system
   flowBranch:
     type: object
     additionalProperties: false
@@ -1709,10 +1709,6 @@ $defs:
         $ref: '#/$defs/requirementIdArray'
         x-reads-as: carries
         x-read-back-as: is carried by
-      system:
-        $ref: '#/$defs/externalSystemId'
-        x-reads-as: is performed by
-        x-read-back-as: performs
   problemEvidence:
     type: object
     additionalProperties: false
@@ -1757,7 +1753,7 @@ $defs:
     type: object
     additionalProperties: false
     required:
-    - key
+    - name
     - readOn
     oneOf:
     - required:
@@ -1765,7 +1761,7 @@ $defs:
     - required:
       - path
     properties:
-      key:
+      name:
         type: string
         pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
       url:
@@ -1990,11 +1986,18 @@ $defs:
     type: object
     additionalProperties: false
     required:
-    - code
+    - id
+    - title
     - meaning
     properties:
-      code:
-        $ref: '#/$defs/refusalCode'
+      id:
+        $ref: '#/$defs/refusalId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      terms:
+        $ref: '#/$defs/termIdArray'
+        x-reads-as: uses
+        x-read-back-as: is used by
       meaning:
         $ref: '#/$defs/nonEmptyString'
   recordsArray:
@@ -2073,6 +2076,10 @@ $defs:
         $ref: '#/$defs/citesArray'
         x-reads-as: cites
         x-read-back-as: is cited by
+      basedOn:
+        $ref: '#/$defs/settledBasedOnArray'
+        x-reads-as: is based on
+        x-read-back-as: is a basis for
       except:
         type: array
         minItems: 1
@@ -2127,12 +2134,13 @@ $defs:
     type: object
     additionalProperties: false
     x-rejected-fields:
-      heldBy: Add the permission to the role's `allows` list in `intent/roles/`.
+      heldBy: Name the roles in the permission's `grantedTo` list.
     required:
     - type
     - id
     - title
     - meaning
+    - grantedTo
     properties:
       type:
         const: permission
@@ -2151,6 +2159,11 @@ $defs:
         pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
       risk:
         $ref: '#/$defs/riskArray'
+      grantedTo:
+        $ref: '#/$defs/roleIdArray'
+        minItems: 1
+        x-reads-as: is granted to
+        x-read-back-as: grants
   ruleEntry:
     type: object
     additionalProperties: false
@@ -2190,11 +2203,11 @@ $defs:
         x-reads-as: binds
         x-read-back-as: is bound by
       refusal:
-        $ref: '#/$defs/refusalCode'
+        $ref: '#/$defs/refusalId'
         x-reads-as: is refused as
         x-read-back-as: is the refusal for
       basedOn:
-        $ref: '#/$defs/basedOnArray'
+        $ref: '#/$defs/settledBasedOnArray'
         x-reads-as: is based on
         x-read-back-as: is a basis for
       source:
@@ -2281,8 +2294,8 @@ $defs:
         enum:
         - success
         - refusal
-      code:
-        $ref: '#/$defs/refusalCode'
+      refusal:
+        $ref: '#/$defs/refusalId'
         x-reads-as: is refused as
         x-read-back-as: is the refusal for
       meaning:
@@ -2310,7 +2323,7 @@ $defs:
             const: refusal
       then:
         required:
-        - code
+        - refusal
         not:
           required:
           - meaning
@@ -2434,7 +2447,7 @@ $defs:
         $ref: '#/$defs/sessionPolicy'
       reauthenticationTriggers:
         $ref: '#/$defs/sentenceArray'
-      limits:
+      excludes:
         $ref: '#/$defs/sentenceArray'
       density:
         description: How much the entry point's screens show at once.
@@ -2562,7 +2575,7 @@ $defs:
         - product
         - operator
         - tenant
-      key:
+      configurationPath:
         $ref: '#/$defs/configurationKey'
       meaning:
         $ref: '#/$defs/nonEmptyString'
@@ -2833,10 +2846,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       reopenedWhen:
         $ref: '#/$defs/nonEmptyString'
-      decides:
-        $ref: '#/$defs/decidesArray'
-        x-reads-as: decides
-        x-read-back-as: is decided by
       admits:
         type: array
         minItems: 1
@@ -2967,6 +2976,7 @@ $defs:
         enum:
         - person
         - organization
+        - system
       belongsToTeam:
         type: boolean
       holds:
@@ -2988,8 +2998,7 @@ $defs:
     - title
     - summary
     - scope
-    - allows
-    - limits
+    - excludes
     properties:
       type:
         const: role
@@ -3008,12 +3017,7 @@ $defs:
       scope:
         type: string
         pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
-      allows:
-        $ref: '#/$defs/permissionIdArray'
-        minItems: 1
-        x-reads-as: allows
-        x-read-back-as: is allowed by
-      limits:
+      excludes:
         $ref: '#/$defs/sentenceArray'
   flowServesArray:
     description: The goal a flow moves, as a list of exactly one goal identifier. Every link field holds a list, so one name keeps one shape.
@@ -3092,7 +3096,7 @@ $defs:
     - id
     - title
     - dependsOn
-    - responsibilities
+    - covers
     - excludes
     properties:
       type:
@@ -3113,7 +3117,7 @@ $defs:
         $ref: '#/$defs/moduleIdArray'
         x-reads-as: depends on
         x-read-back-as: is depended on by
-      responsibilities:
+      covers:
         $ref: '#/$defs/sentenceArray'
       excludes:
         $ref: '#/$defs/sentenceArray'
@@ -3165,7 +3169,7 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/dataClassEntry'
-      limits:
+      excludes:
         $ref: '#/$defs/sentenceArray'
     allOf:
     - if:
@@ -3562,6 +3566,8 @@ $defs:
     - id
     - title
     - summary
+    - vendor
+    - represents
     properties:
       type:
         const: external-system
@@ -3577,6 +3583,12 @@ $defs:
         x-read-back-as: is used by
       records:
         $ref: '#/$defs/recordsArray'
+      vendor:
+        $ref: '#/$defs/nonEmptyString'
+      represents:
+        $ref: '#/$defs/actorId'
+        x-reads-as: represents
+        x-read-back-as: is represented by
       processes:
         type: array
         minItems: 1
@@ -4055,7 +4067,7 @@ $defs:
         $ref: '#/$defs/sessionPolicy'
       reauthenticationTriggers:
         $ref: '#/$defs/sentenceArray'
-      limits:
+      excludes:
         $ref: '#/$defs/sentenceArray'
       density:
         description: How much the entry point's screens show at once.
@@ -4252,7 +4264,7 @@ $defs:
         - product
         - operator
         - tenant
-      key:
+      configurationPath:
         $ref: '#/$defs/configurationKey'
       meaning:
         $ref: '#/$defs/nonEmptyString'

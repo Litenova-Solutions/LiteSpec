@@ -229,7 +229,6 @@ public static class RecordTypes
     public static readonly Dictionary<string, HashSet<string>> LinkTargets =
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
-            ["decides"] = new HashSet<string>(),
             ["cites"] = new HashSet<string> { "goal", "direction", "problem", "feature", "constraint", "research", "decision", "requirement" },
             ["basedOn"] = new HashSet<string> { "constraint", "research", "direction", "decision", "requirement" },
             ["affects"] = new HashSet<string> { "actor" },
@@ -276,7 +275,8 @@ public static class RecordTypes
             ["dataClasses"] = new HashSet<string> { "job", "use-case", "decision", "requirement" },
             ["freshness"] = new HashSet<string>(),
             ["erasure"] = new HashSet<string> { "external-system", "module-event", "integration-event" },
-            ["allows"] = new HashSet<string> { "permission" },
+            ["grantedTo"] = new HashSet<string> { "role" },
+            ["represents"] = new HashSet<string> { "actor" },
             ["reachedThrough"] = new HashSet<string> { "entry-point", "module" },
             ["dependsOn"] = new HashSet<string> { "module" },
             ["terms"] = new HashSet<string> { "term" },

@@ -83,6 +83,7 @@ public static class RecordFolders
         Scaffold("read-model", "behavior/modules/{module}/read-models/{name}", "{name}.yaml"),
         Scaffold("reference-data", "behavior/modules/{module}/reference-data/{name}", "{name}.yaml"),
         At("permission", "behavior/modules/{module}", "permissions.yaml"),
+        At("refusal-set", "behavior/modules/{module}/aggregates/{aggregate}", "refusals.yaml"),
         At("refusal-set", "behavior/modules/{module}", "refusals.yaml"),
         At("entry-point", "behavior/entry-points/{entry-point}", "entry-point.yaml"),
         Scaffold("screen", "behavior/entry-points/{entry-point}/screens/{home}.{name}", "{home}.{name}.yaml"),

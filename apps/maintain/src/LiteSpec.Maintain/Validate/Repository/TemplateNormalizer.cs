@@ -74,7 +74,7 @@ internal static class TemplateNormalizer
         ["runbookId"] = "runbook/sample",
         ["waiverId"] = "waiver/sample",
         ["termId"] = "term/sample",
-        ["refusalCode"] = "sample.entry",
+        ["refusalId"] = "refusal/sample.entry",
         ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",
         ["genericRecordId"] = "sample/entry",
         ["grantValue"] = "permission/sample",

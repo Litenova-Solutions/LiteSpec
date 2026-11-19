@@ -29,7 +29,7 @@ public static class ExplanationSections
             // Intent
             [RecordTypes.Product] = Of(("Scope", false, new[] { "boundary" }), ("Users", false, new[] { "users" }), ("Out of Scope", false, new[] { "excludes" })),
             [RecordTypes.Actor] = Of(("Responsibilities", false, new[] { "responsibilities" }), ("Knowledge", false, new[] { "knowledge" }), ("Example", true, [])),
-            [RecordTypes.Role] = Of(("Access", false, new[] { "allows", "scope" }), ("Limits", false, new[] { "limits" })),
+            [RecordTypes.Role] = Of(("Access", false, new[] { "scope" }), ("Excludes", false, new[] { "excludes" })),
             [RecordTypes.Goal] = Of(("Target", false, new[] { "target" }), ("Measurement", false, new[] { "measure", "observations" })),
             [RecordTypes.Direction] = Of(),
             [RecordTypes.Problem] = Of(("Affected Users", false, new[] { "affects" }), ("Failure Cases", false, new[] { "failureCases" }), ("Example", true, []), ("Current Workaround", false, new[] { "workaround" }), ("Cost", false, new[] { "cost" }), ("Evidence", false, new[] { "evidence" }), ("Resolution Criteria", false, new[] { "resolutionCriteria" })),
@@ -41,8 +41,8 @@ public static class ExplanationSections
             [RecordTypes.Flow] = Of(("Example", false, []), ("Branches", true, new[] { "branches" })),
 
             // Behavior
-            [RecordTypes.Module] = Of(("Responsibilities", false, new[] { "responsibilities" }), ("Boundaries", false, new[] { "excludes" }), ("Example", true, [])),
-            [RecordTypes.Aggregate] = Of(("Lifecycle", false, new[] { "states", "transitions" }), ("Data and Retention", false, new[] { "data", "dataClasses" }), ("Example", true, []), ("Limits", true, new[] { "limits" })),
+            [RecordTypes.Module] = Of(("Covers", false, new[] { "covers" }), ("Boundaries", false, new[] { "excludes" }), ("Example", true, [])),
+            [RecordTypes.Aggregate] = Of(("Lifecycle", false, new[] { "states", "transitions" }), ("Data and Retention", false, new[] { "data", "dataClasses" }), ("Example", true, []), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.UseCase] = Of(("Flow", false, new[] { "steps" }), ("Example", true, []), ("Edge Cases", true, new[] { "edgeCases" })),
             [RecordTypes.RuleSet] = Of(("Rationale", false, new[] { "rationale" }), ("Example", true, [])),
             [RecordTypes.Reaction] = Of(("Trigger and Effect", false, new[] { "triggeredBy", "effects", "outcomes" }), ("Failure Handling", false, new[] { "onFailure" }), ("Example", true, [])),
@@ -53,7 +53,7 @@ public static class ExplanationSections
             [RecordTypes.ReadModel] = Of(("Sources", false, new[] { "fields", "keyedBy" }), ("Freshness", false, new[] { "freshness" }), ("Example", true, [])),
             [RecordTypes.ReferenceData] = Of(("Values", false, new[] { "unit", "rows" }), ("Example", true, [])),
             [RecordTypes.ExternalSystem] = Of(("Use", false, new[] { "summary" }), ("Data Shared", false, new[] { "processes", "erasure" }), ("Failure Handling", false, new[] { "operations" })),
-            [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticationTriggers" }), ("Limits", true, new[] { "limits" })),
+            [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticationTriggers" }), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.Screen] = Of(("Task", false, new[] { "task" }), ("States", false, new[] { "states" }), ("Example", false, [])),
             [RecordTypes.PermissionSet] = Of(("Risk", false, new[] { "risk" }), ("Boundaries", true, new[] { "excludes" })),
             [RecordTypes.SettingSet] = Of(("Defaults", false, new[] { "default", "range", "unit" }), ("Changes", true, new[] { "setBy" })),

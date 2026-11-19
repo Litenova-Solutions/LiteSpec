@@ -374,7 +374,7 @@ internal sealed partial class RecordsValidator
                 continue;
             }
 
-            foreach (var field in new[] { "basedOn", "decides" })
+            foreach (var field in new[] { "basedOn" })
             {
                 if (obj[field] is not JsonArray list)
                 {

@@ -97,6 +97,7 @@ public sealed class FindingCodesTests
     [Theory]
     [InlineData("explanation-orphaned")]
     [InlineData("source-unused")]
+    [InlineData("link-direction-invalid")]
     public void YamlLinkCodesAreGeneral(string code)
     {
         Assert.Equal("G", FindingCodes.Of(code).Level);
@@ -119,6 +120,7 @@ public sealed class FindingCodesTests
     [InlineData("command-target-invalid", "G")]
     [InlineData("command-consumer-missing", "G")]
     [InlineData("command-edge-invalid", "G")]
+    [InlineData("use-case-writes-invalid", "G")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -163,6 +165,9 @@ public sealed class FindingCodesTests
     [InlineData("command-target-invalid", RecordLayer.Behavior, false, null)]
     [InlineData("command-consumer-missing", RecordLayer.Behavior, false, null)]
     [InlineData("command-edge-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("use-case-writes-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("link-direction-invalid", RecordLayer.Any, false, null)]
+    [InlineData("folder-ungrouped", RecordLayer.Implementation, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);
@@ -240,7 +245,7 @@ public sealed class FindingCodesTests
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
         "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
-        "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked",
+        "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked", "ungrouped",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

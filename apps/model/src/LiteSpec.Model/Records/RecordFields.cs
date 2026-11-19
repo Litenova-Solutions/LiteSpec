@@ -38,9 +38,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `after` field.</summary>
     public const string After = "after";
 
-    /// <summary>Gets the name of the `allows` field.</summary>
-    public const string Allows = "allows";
-
     /// <summary>Gets the name of the `amount` field.</summary>
     public const string Amount = "amount";
 
@@ -144,6 +141,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `computedBy` field.</summary>
     public const string ComputedBy = "computedBy";
 
+    /// <summary>Gets the name of the `configurationPath` field.</summary>
+    public const string ConfigurationPath = "configurationPath";
+
     /// <summary>Gets the name of the `conclusion` field.</summary>
     public const string Conclusion = "conclusion";
 
@@ -206,9 +206,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `deadLetter` field.</summary>
     public const string DeadLetter = "deadLetter";
-
-    /// <summary>Gets the name of the `decides` field.</summary>
-    public const string Decides = "decides";
 
     /// <summary>Gets the name of the `deduplicationKey` field.</summary>
     public const string DeduplicationKey = "deduplicationKey";
@@ -347,6 +344,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `grant` field.</summary>
     public const string Grant = "grant";
 
+    /// <summary>Gets the name of the `grantedTo` field.</summary>
+    public const string GrantedTo = "grantedTo";
+
     /// <summary>Gets the name of the `group` field.</summary>
     public const string Group = "group";
 
@@ -406,9 +406,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `license` field.</summary>
     public const string License = "license";
-
-    /// <summary>Gets the name of the `limits` field.</summary>
-    public const string Limits = "limits";
 
     /// <summary>Gets the name of the `locale` field.</summary>
     public const string Locale = "locale";
@@ -732,9 +729,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `surfacesIn` field.</summary>
     public const string SurfacesIn = "surfacesIn";
 
-    /// <summary>Gets the name of the `system` field.</summary>
-    public const string System = "system";
-
     /// <summary>Gets the name of the `target` field.</summary>
     public const string Target = "target";
 
@@ -810,6 +804,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `valueType` field.</summary>
     public const string ValueType = "valueType";
 
+    /// <summary>Gets the name of the `vendor` field.</summary>
+    public const string Vendor = "vendor";
+
     /// <summary>Gets the name of the `verification` field.</summary>
     public const string Verification = "verification";
 
@@ -827,6 +824,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `workaround` field.</summary>
     public const string Workaround = "workaround";
+
+    /// <summary>Gets the name of the `represents` field.</summary>
+    public const string Represents = "represents";
 
     /// <summary>Gets the name of the `requires` field.</summary>
     public const string Requires = "requires";

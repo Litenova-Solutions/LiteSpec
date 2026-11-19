@@ -38,8 +38,8 @@ internal sealed class FieldValidator
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
         ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "writes", "covers",
-            "allows", "affects", "holds", "offers", "sends", "translates", "admits", "decides", "carries",
-            "binds", "exercises"],
+            "affects", "holds", "offers", "sends", "translates", "admits", "carries",
+            "binds", "exercises", "represents"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name a closed set.</summary>
@@ -105,6 +105,77 @@ internal sealed class FieldValidator
             if ((schema as JsonObject)?["$defs"] is JsonObject defs)
             {
                 CheckFieldNamingFile(relative, defs);
+            }
+        }
+    }
+
+    /// <summary>Checks every record schema field against the field table: one meaning and one shape per name.</summary>
+    internal void CheckFieldTable()
+    {
+        const string relative = "schemas/record.schema.yaml";
+        var file = JoinRoot(Context.Root, relative);
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        JsonNode? schema;
+        try
+        {
+            schema = RecordText.Read(file);
+        }
+        catch (LiteSpec.Model.JsonTextException)
+        {
+            return;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return;
+        }
+        catch (IOException)
+        {
+            return;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if ((schema as JsonObject)?["$defs"] is not JsonObject defs)
+        {
+            return;
+        }
+
+        var add = Context.Add;
+        foreach (var entry in defs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if ((entry.Value as JsonObject)?["properties"] is not JsonObject properties)
+            {
+                continue;
+            }
+
+            foreach (var (field, node) in properties.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                if (!FieldTable.ByName.TryGetValue(field, out var row))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} is outside the field table; add it with its meaning and shape");
+                    continue;
+                }
+
+                if (row.Shape == "any")
+                {
+                    continue;
+                }
+
+                var shape = FieldShape(node, defs, []);
+                if (shape is not null && shape != row.Shape)
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} holds {shape} but the field table declares {row.Shape}; one name holds one shape");
+                }
+                else if (shape is null)
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} mixes shapes but the field table declares {row.Shape}; one name holds one shape");
+                }
             }
         }
     }

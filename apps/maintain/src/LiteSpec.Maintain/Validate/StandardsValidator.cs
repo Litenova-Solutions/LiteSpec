@@ -180,6 +180,7 @@ internal static class StandardsValidator
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.yaml", "litespec.manifest.yaml");
         context.Manifest.CheckSchemaIds();
         context.Fields.CheckFieldNaming();
+        context.Fields.CheckFieldTable();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.yaml", "templates/consumer/project.yaml");
