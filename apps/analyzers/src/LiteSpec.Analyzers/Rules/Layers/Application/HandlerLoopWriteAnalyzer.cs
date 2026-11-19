@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.LayerMap;
+using LiteSpec.Analyzers.Records;
 using LiteSpec.Model;
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -10,7 +12,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
-/// <summary>LS2015: a command handler never changes records in a loop.</summary>
+/// <summary>LS2015: a command handler never changes records in a loop, unless its use case states per-record consistency.</summary>
 /// <follows>litespec/backend/application#issue-per-record-work-from-a-job</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
@@ -33,13 +35,15 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
-        context.RegisterOperationAction(c => AnalyzeLoop(c, scope), OperationKind.Loop);
+        var records = CompilationRecords.Load(context.Options, context.CancellationToken);
+        context.RegisterOperationAction(c => AnalyzeLoop(c, scope, records), OperationKind.Loop);
     }
 
     /// <summary>Analyzes the loop.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="scope">Whether the rule applies to each file.</param>
-    private static void AnalyzeLoop(OperationAnalysisContext context, FileScope scope)
+    /// <param name="records">The consumer's records, or null when no project file is in reach.</param>
+    private static void AnalyzeLoop(OperationAnalysisContext context, FileScope scope, CompilationRecords? records)
     {
         if (!scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
         {
@@ -54,6 +58,11 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
 
         var handler = InnermostType(context.ContainingSymbol);
         if (handler == null || !IsCommandHandler(handler))
+        {
+            return;
+        }
+
+        if (IsPerRecordCommand(handler, records))
         {
             return;
         }
@@ -150,6 +159,47 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
 
         var receiver = invocation.Instance?.Type;
         return receiver != null && receiver.Name.EndsWith("Repository", StringComparison.Ordinal);
+    }
+
+    /// <summary>Whether the handler's use case states per-record consistency, which stages several independent instances in one commit.</summary>
+    /// <param name="handler">The command handler type whose marks name its use case.</param>
+    /// <param name="records">The consumer's records, or null when no project file is in reach.</param>
+    /// <returns>True when an implements mark names a use case whose consistency mode is per-record.</returns>
+    private static bool IsPerRecordCommand(INamedTypeSymbol handler, CompilationRecords? records)
+    {
+        if (records is null)
+        {
+            return false;
+        }
+
+        foreach (var reference in handler.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is not MemberDeclarationSyntax member)
+            {
+                continue;
+            }
+
+            foreach (var mark in MarkReader.Read(member))
+            {
+                if (mark.Verb != MarkVerb.Implements
+                    || !mark.RecordId.StartsWith(RecordTypes.UseCase + "/", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (records.Index.ById(mark.RecordId) is IndexRecord page
+                    && page.Type == RecordTypes.UseCase
+                    && page.Tree.TryGetProperty(RecordFields.Consistency, out var consistency)
+                    && consistency.Kind == JsonKind.Object
+                    && consistency.TryGetProperty(RecordFields.Mode, out var mode)
+                    && mode.GetString() == "per-record")
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Returns true when the type is command handler; otherwise false.</summary>

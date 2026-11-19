@@ -45,6 +45,26 @@ internal static class TraceabilityFixtures
             }
             """);
 
+    /// <summary>A use-case page stating its consistency mode.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="mode">The consistency mode the page states: atomic or per-record.</param>
+    /// <returns>The path and source text of the additional file.</returns>
+    public static (string Path, string Source) ConsistentUseCase(
+        string id,
+        string title,
+        string mode) =>
+        Page(FileOf(id), $$"""
+            {
+              "type": "use-case",
+              "id": "{{id}}",
+              "title": "{{title}}",
+              "consistency": {
+                "mode": "{{mode}}"
+              }
+            }
+            """);
+
     /// <summary>A domain-event page.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>

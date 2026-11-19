@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the single-aggregate checks: a command writing more than one aggregate without a decision naming it, and a command use case at module level.</summary>
+/// <summary>Proves the single-aggregate checks: a command writing more than one aggregate without a boundBy rule governing it and naming a decision, and a command use case at module level.</summary>
 public sealed class SingleAggregateCheckTests
 {
     /// <summary>Command Writing Two Aggregates Without A Decision Reports Writes Invalid.</summary>

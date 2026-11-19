@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The command-edge checks: every commands edge names a command use case that lists the sending module in reachedThrough, and every module a use case lists commands it from a record.</summary>
+/// <summary>The command-edge checks: every commands edge names another module's command use case that lists the sending module in reachedThrough, and every module a use case lists commands it from a record.</summary>
 /// <follows>litespec/core/model#connect-across-modules-only-through-declared-dependencies</follows>
 internal static class CommandEdgeChecks
 {
@@ -18,7 +18,7 @@ internal static class CommandEdgeChecks
         CheckPublicCommandsCalled(model, findings);
     }
 
-    /// <summary>Reports a commands edge on a use case, which only a reaction or a job declares, and a commands edge naming a record that is no command use case, or a command whose reachedThrough does not name the sending module.</summary>
+    /// <summary>Reports a commands edge on a use case, which only a reaction or a job declares, and a commands edge naming a record that is no command use case, a command of the sending module itself, or a command whose reachedThrough does not name the sending module.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckCommandsTargets(ProjectModel model, List<Finding> findings)
@@ -64,6 +64,16 @@ internal static class CommandEdgeChecks
 
                 if (resolved.Field(RecordFields.Kind) != "command")
                 {
+                    continue;
+                }
+
+                // A reaction or job runs its own module's commands through a runs
+                // edge, so a commands edge stays cross-module.
+                if (module is { Length: > 0 }
+                    && LocalityChecks.ModuleOf(model, resolved) is { } targetModule
+                    && targetModule.Equals(module, StringComparison.Ordinal))
+                {
+                    findings.Add(new Finding("command-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' commands '{target}', which is a command of its own module; a reaction or job runs its own module's commands through a `runs` edge.", holder.File, holder.Line, SubjectOf(holder)));
                     continue;
                 }
 

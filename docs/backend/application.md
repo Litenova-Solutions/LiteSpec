@@ -501,7 +501,7 @@ It only reads: a change the caller needs in the owning module is a public comman
 
 **Example:** In the Claimwick product, reporting's close-period job declares `effects.commands` naming `use-case/spending.close-expenses`, and spending's close-expenses command lists `module/reporting` in `reachedThrough`.
 
-**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for another module's public command sent with no declared `commands` edge, `effect-unimplemented` (level S) for a declared `commands` edge no send takes, and `command-edge-invalid` (level G) for a `commands` edge a use case declares.
+**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for another module's public command sent with no declared `commands` edge, `effect-unimplemented` (level S) for a declared `commands` edge no send takes, `command-edge-invalid` (level G) for a `commands` edge a use case declares, and `command-target-invalid` (level G) for a `commands` edge naming the sending module's own command.
 
 ### Send Public Commands in Process
 
@@ -679,7 +679,7 @@ One execution host runs the job under `litespec/backend/architecture#name-the-ho
 
 **Example:** The erase-expired-data job selects the expired expenses and sends one erase command per expense, each in its own unit of work, instead of a batch command looping over expenses. A condition the batch checked, such as the expense being past retention, moves into the erase act, so an expense changed in the meantime refuses the erase itself.
 
-**Reviewed for:** Does any command handler change records inside a loop body? Look at each loop in the command handlers.
+**Checked by:** `dotnet build` reports `LS2015` for a command handler that changes records inside a loop, except when its use case record states `consistency: per-record`.
 
 ### Dispatch Only Declared Effect Edges
 

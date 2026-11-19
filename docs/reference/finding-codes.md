@@ -64,7 +64,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `link-direction-invalid` | G | any | no | - | A link points from a record to a record on a lower layer. | Write the link on the lower record so it points up to the higher one. |
 | `event-publisher-invalid` | G | any | no | - | A module event or integration event has more than one publishing module. | Keep one publishing module and read the event from the other modules. |
 | `consistency-cites-missing` | G | any | no | - | An atomic use case that changes more than one aggregate names no rule in `cites`. | Cite the atomicity rule in `cites`. |
-| `use-case-writes-invalid` | G | behavior | no | - | A command writes more than one aggregate without a decision naming it. | Change one aggregate from the command, or record a decision naming the use case and the invariant that needs both in one transaction. |
+| `use-case-writes-invalid` | G | behavior | no | - | A command writes more than one aggregate without a `boundBy` rule that governs the use case and names a decision in `basedOn`. | Change one aggregate from the command, or name in `boundBy` a rule that governs the use case and names the decision in `basedOn`. |
 | `query-output-missing` | G | any | no | - | A query declares no `output`. | Declare the `output` of the query. |
 | `paging-undeclared` | G | any | no | - | A collection query declares no `paging`. | Declare the `paging` of the query. |
 | `widening-cites-missing` | G | any | no | - | A query group that is visible beyond its `reads` names no requirement in `cites`. | Cite the requirement that widens the visibility in `cites`. |

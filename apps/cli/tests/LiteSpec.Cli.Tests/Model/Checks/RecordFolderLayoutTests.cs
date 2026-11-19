@@ -307,6 +307,65 @@ public sealed class RecordFolderLayoutTests
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
     }
 
+    /// <summary>An inbound integration event under another aggregate than the use case it runs is misplaced.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "an inbound integration event under another aggregate than the use case it runs is misplaced")]
+    public void InboundIntegrationEventUnderAnotherAggregatesUseCaseReports()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var entries = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(entries, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var fines = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "aggregate.yaml");
+        File.WriteAllText(fines, "type: aggregate\nid: aggregate/books.fine\ntitle: Fine\n");
+        var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "use-cases", "record-payout", "record-payout.yaml");
+        File.WriteAllText(useCase, "type: use-case\nid: use-case/books.record-payout\ntitle: Record payout\n");
+        var reaction = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "reactions", "settle-payout", "settle-payout.yaml");
+        File.WriteAllText(reaction, "type: reaction\nid: reaction/books.settle-payout\ntitle: Settle payout\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "integration-events", "payout-settled", "payout-settled.yaml");
+        File.WriteAllText(file, "type: integration-event\nid: integration-event/payout-settled\ntitle: Payout settled\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
+            TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
+            TestModel.Record("use-case", "use-case/books.record-payout", useCase, """{"kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/books.settle-payout", reaction, """{"triggeredBy": ["integration-event/payout-settled"], "effects": [{"runs": "use-case/books.record-payout"}]}"""),
+            TestModel.Record("integration-event", "integration-event/payout-settled", file, """{"action": "receive"}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("integration-event/payout-settled", finding.Subject);
+        Assert.Equal("Integration event 'integration-event/payout-settled' sits in aggregate folder 'entries', but the use case it runs lives in 'fines'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>An inbound integration event under the aggregate of the use case it runs passes the placement checks.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "an inbound integration event under the aggregate of the use case it runs passes the placement checks")]
+    public void InboundIntegrationEventUnderItsUseCaseAggregatePasses()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var fines = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "aggregate.yaml");
+        File.WriteAllText(fines, "type: aggregate\nid: aggregate/books.fine\ntitle: Fine\n");
+        var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "use-cases", "record-payout", "record-payout.yaml");
+        File.WriteAllText(useCase, "type: use-case\nid: use-case/books.record-payout\ntitle: Record payout\n");
+        var reaction = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "reactions", "settle-payout", "settle-payout.yaml");
+        File.WriteAllText(reaction, "type: reaction\nid: reaction/books.settle-payout\ntitle: Settle payout\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "fines", "integration-events", "payout-settled", "payout-settled.yaml");
+        File.WriteAllText(file, "type: integration-event\nid: integration-event/payout-settled\ntitle: Payout settled\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
+            TestModel.Record("use-case", "use-case/books.record-payout", useCase, """{"kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/books.settle-payout", reaction, """{"triggeredBy": ["integration-event/payout-settled"], "effects": [{"runs": "use-case/books.record-payout"}]}"""),
+            TestModel.Record("integration-event", "integration-event/payout-settled", file, """{"action": "receive"}"""));
+
+        Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
+    }
+
     /// <summary>A screen folder named for its home and name holds the screen beside it.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact(DisplayName = "a screen folder named for its home and name holds the screen beside it")]

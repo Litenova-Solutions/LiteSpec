@@ -231,7 +231,7 @@ A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-ca
 | Module `Ports/{Port}/Models/` | every type the interface's signatures name |
 | Module `Infrastructure/` | `Persistence/`, `Messaging/`, `Pipeline/`, one folder per port the module implements |
 | Module `Infrastructure/Messaging/` | the module's message pipeline pieces: the domain-to-module event mapping, audit writers, and the resolvers and mappers the module registers into the message pipeline; files only |
-| Module `Infrastructure/Pipeline/` | the module's HTTP pipeline pieces serving no single use case: middleware, authorization conditions, authentication handlers; files only, past 20 files one folder per protocol holding that protocol's wire types beside its pieces |
+| Module `Infrastructure/Pipeline/` | the module's HTTP pipeline pieces serving no single use case: middleware, authorization conditions, authentication handlers; files only, past 20 files one folder per protocol holding that protocol's wire types beside its pieces. A protocol endpoint that serves one use case sits in that use case's `WebApi/{Aggregates}/{UseCase}/` folder |
 | Module `Infrastructure/{Port}/` | the adapter class, its options class `{Adapter}Options.cs`, `Models/`, and `Parts/` when the adapter needs collaborators; several adapters of one port sit side by side |
 | Module `Infrastructure/{Port}/Models/` | the external system's wire types: requests, responses, file records |
 | Module `Infrastructure/{Port}/Parts/` | the collaborators the adapter calls |

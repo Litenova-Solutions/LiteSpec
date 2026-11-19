@@ -567,7 +567,7 @@ internal static class FolderChecks
             record.File, record.Line, SubjectOf(record)));
     }
 
-    /// <summary>Reports a module or integration event filed under another module or aggregate than the domain event it translates.</summary>
+    /// <summary>Reports a module or integration event filed under another module or aggregate than the domain event it translates, and an inbound integration event filed under another aggregate than the use case it runs.</summary>
     /// <param name="model">The loaded project model that holds the translated domain event.</param>
     /// <param name="record">The event record whose folder is inspected.</param>
     /// <param name="folders">The record file path as folders anchored at its record layer.</param>
@@ -581,6 +581,14 @@ internal static class FolderChecks
 
         if (folders is not ["behavior", "modules", var module, "aggregates", var written, ..])
         {
+            return;
+        }
+
+        // An inbound event carries no translates: it sits under the aggregate of
+        // its receiving module whose use case it runs.
+        if (record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Action) == "receive")
+        {
+            CheckInboundEventAggregate(model, record, module, written, findings);
             return;
         }
 
@@ -616,6 +624,58 @@ internal static class FolderChecks
                 $"{Label(record.Type)} '{record.Id}' sits in aggregate folder '{written}', but the domain event it translates lives in '{eventAggregate}'.",
                 record.File, record.Line, SubjectOf(record)));
         }
+    }
+
+    /// <summary>Reports an inbound integration event filed under another aggregate than the use case it runs in its receiving module.</summary>
+    /// <param name="model">The loaded project model that holds the reactions answering the event and the use cases they run.</param>
+    /// <param name="record">The inbound event record whose folder is inspected.</param>
+    /// <param name="module">The receiving module the event file sits under.</param>
+    /// <param name="written">The aggregate folder the event file sits under.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckInboundEventAggregate(ProjectModel model, Record record, string module, string written, List<Finding> findings)
+    {
+        // Each reaction answering the event runs one use case; the event sits
+        // under the aggregate of the receiving module whose use case it runs.
+        var expected = new SortedSet<string>(StringComparer.Ordinal);
+
+        foreach (var reaction in model.Records.Where(candidate =>
+            !candidate.Derived && candidate.Type == RecordTypes.Reaction))
+        {
+            if (!reaction.Ids(RecordFields.TriggeredBy).Select(Identifiers.BaseId).Contains(record.Id, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var run in reaction.EdgeIds(RecordFields.Runs))
+            {
+                if (!model.ById.TryGetValue(Identifiers.BaseId(run), out var useCase)
+                    || useCase.Type != RecordTypes.UseCase)
+                {
+                    continue;
+                }
+
+                if (UnderRoot(model.Config, useCase.File, out var segments)
+                    && segments is ["behavior", "modules", var useModule, "aggregates", var useAggregate, ..]
+                    && string.Equals(useModule, module, StringComparison.Ordinal))
+                {
+                    expected.Add(useAggregate);
+                }
+            }
+        }
+
+        // No runnable use case of the receiving module resolved: the link and
+        // trigger checks own the gap, so one defect draws one finding.
+        if (expected.Count == 0 || expected.Contains(written))
+        {
+            return;
+        }
+
+        var homes = string.Join("', '", expected);
+
+        findings.Add(new Finding(
+            "record-placement-invalid",
+            $"Integration event '{record.Id}' sits in aggregate folder '{written}', but the use case it runs lives in '{homes}'.",
+            record.File, record.Line, SubjectOf(record)));
     }
 
     /// <summary>Whether the file is the glossary.</summary>

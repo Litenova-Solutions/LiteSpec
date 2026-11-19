@@ -110,6 +110,7 @@ public sealed class RecordSchemaParityTests
         ("read-model", "summary"), ("read-model", "keyedBy"), ("read-model", "fields"), ("read-model", "freshness"),
         ("module-event", "compatibility"),
         ("integration-event", "compatibility"),
+        ("external-system", "vendor"),
         ("runbook", "trigger"),
         ("waiver", "reason"), ("waiver", "waives"), ("waiver", "kind"), ("waiver", "expiresOn"), ("waiver", "exitWhen"), ("waiver", "closedBy"),
         ("screen", "route"), ("screen", "task"), ("screen", "displayStates"),

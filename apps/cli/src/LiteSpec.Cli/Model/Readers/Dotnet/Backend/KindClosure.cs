@@ -83,10 +83,13 @@ static class KindClosure
                 }
             }
 
+            // A port is an interface that implements the external system: a
+            // follows-only mark names no port, as DeclaredPortMarks reads it.
             if (portRoot
                 && declared is InterfaceDeclarationSyntax faceType
                 && MarkReader.Read(faceType).Any(mark =>
-                    mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
+                    mark.Verb != MarkVerb.Follows
+                    && mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
             {
                 qualifiedKinds.MarkedPorts.Add(qualified);
             }

@@ -71,6 +71,38 @@ public sealed class CommandEdgeCheckTests
         Assert.Equal("reaction/reporting.confirm-payout", finding.Subject);
     }
 
+    /// <summary>Reaction Commanding Its Own Module Command Reports.</summary>
+    /// <proves>litespec/backend/application#declare-every-commands-edge-on-the-sender</proves>
+    [Fact]
+    public void ReactionCommandingItsOwnModuleCommandReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            SenderReaction(temp.Path, "reaction/reporting.confirm-payout", "use-case/reporting.reimburse-expense"),
+            TestModel.Record("use-case", "use-case/reporting.reimburse-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "reimburse-expense.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "command-target-invalid");
+        Assert.Equal("reaction/reporting.confirm-payout", finding.Subject);
+        Assert.Contains("its own module", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Job Commanding Its Own Module Command Reports.</summary>
+    /// <proves>litespec/backend/application#declare-every-commands-edge-on-the-sender</proves>
+    [Fact]
+    public void JobCommandingItsOwnModuleCommandReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("job", "job/reporting.confirm-payout", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "jobs", "confirm-payout", "confirm-payout.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"commands": "use-case/reporting.reimburse-expense", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "The payout is confirmed."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "A second run repeats the same selection."}}"""),
+            TestModel.Record("use-case", "use-case/reporting.reimburse-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "reimburse-expense.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "command-target-invalid");
+        Assert.Equal("job/reporting.confirm-payout", finding.Subject);
+        Assert.Contains("its own module", finding.Message, StringComparison.Ordinal);
+    }
+
     /// <summary>Reaction Commanding Listed Public Command Passes.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]

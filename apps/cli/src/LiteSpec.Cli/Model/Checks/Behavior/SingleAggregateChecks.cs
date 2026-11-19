@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/use-cases#change-one-aggregate-in-each-command</follows>
 internal static class SingleAggregateChecks
 {
-    /// <summary>Reports a command writing more than one aggregate without a decision naming it, and a command use case at module level.</summary>
+    /// <summary>Reports a command writing more than one aggregate without a boundBy rule governing it and naming a decision, and a command use case at module level.</summary>
     /// <param name="model">The loaded project model that holds every use case and decision.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -23,7 +23,7 @@ internal static class SingleAggregateChecks
         }
     }
 
-    /// <summary>Reports a command whose writes name more than one aggregate, unless its consistency boundBy rule names a decision.</summary>
+    /// <summary>Reports a command whose writes name more than one aggregate, unless a rule governing the use case is named in its consistency boundBy and names a decision in basedOn.</summary>
     /// <param name="model">The loaded project model that resolves each written aggregate and holds every decision.</param>
     /// <param name="useCase">The command whose writes are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -52,7 +52,7 @@ internal static class SingleAggregateChecks
 
         findings.Add(new Finding(
             "use-case-writes-invalid",
-            $"Command '{useCase.Id}' writes {written.Count} aggregates ('{string.Join("', '", written)}'); a command changes one aggregate, or its consistency boundBy rule states the invariant needing both in one transaction and names its decision in basedOn.",
+            $"Command '{useCase.Id}' writes {written.Count} aggregates ('{string.Join("', '", written)}'); a command changes one aggregate, or a rule that governs the use case is named in its consistency boundBy and names its decision in basedOn.",
             useCase.File,
             useCase.Line,
             SubjectOf(useCase)));
