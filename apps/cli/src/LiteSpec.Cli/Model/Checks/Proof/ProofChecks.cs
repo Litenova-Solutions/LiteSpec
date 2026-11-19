@@ -1,4 +1,6 @@
+using LiteSpec.Cli.Model.Checks.Implementation.Placement;
 using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -53,6 +55,10 @@ internal static class ProofChecks
             if (model.Completion.TryGetValue(useCase.Id, out var completion) && completion.Stage is "unfulfilled" or "specified")
             {
                 findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has no handler, reaction or job.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            }
+            else
+            {
+                CheckUseCaseFolderPresent(model, useCase, findings);
             }
         }
 
@@ -110,6 +116,91 @@ internal static class ProofChecks
                 }
             }
         }
+    }
+
+    /// <summary>Reports a use case holding scenarios whose Application folder is missing: its record promises behavior its module folder does not hold. Only a project following LiteSpec's code layout states the folder; a project with its own layout keeps no such folder by design. A use case the completion already reports stays with that finding, so one gap draws one finding.</summary>
+    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="useCase">The use case record whose Application folder is wanted.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCaseFolderPresent(ProjectModel model, Record useCase, List<Finding> findings)
+    {
+        if (model.Config.Layers.Implementation != LayerPractice.LiteSpec)
+        {
+            return;
+        }
+
+        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name)
+            || name is null
+            || !model.RecordsByHome[name].Any(record => record.Type == RecordTypes.Scenario))
+        {
+            return;
+        }
+
+        var path = PlacementPath.PathOf(useCase);
+
+        if (path.Module is null || path.Name is null)
+        {
+            return;
+        }
+
+        var folder = path.Aggregate is null
+            ? Path.Combine("Application", Naming.Pascal(path.Name))
+            : Path.Combine("Application", PlacementPath.ExpectedAggregateFolder(model, path.Module, path.Aggregate), Naming.Pascal(path.Name));
+
+        foreach (var directory in ModuleDirectories(model, path.Module))
+        {
+            try
+            {
+                if (Directory.Exists(Path.Combine(directory, folder)))
+                {
+                    return;
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                return;
+            }
+        }
+
+        findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has scenarios but no '{folder.Replace(Path.DirectorySeparatorChar, '/')}/' folder.", useCase.File, useCase.Line, SubjectOf(useCase)));
+    }
+
+    /// <summary>The module folders spelling the module: one folder per matching module project, or the matching folder under the single modules project.</summary>
+    /// <param name="model">The loaded project model that holds the module roots.</param>
+    /// <param name="module">The module name the record states.</param>
+    /// <returns>The module folders as written on disk.</returns>
+    private static List<string> ModuleDirectories(ProjectModel model, string module)
+    {
+        var directories = new List<string>();
+
+        foreach (var modules in model.Config.ModulesRoots)
+        {
+            if (modules.Length == 0 || !Directory.Exists(modules))
+            {
+                continue;
+            }
+
+            if (SourceRoots.IsSingleModulesProject(modules))
+            {
+                try
+                {
+                    directories.AddRange(Directory.EnumerateDirectories(modules)
+                        .Where(child => PlacementPath.SameName(Path.GetFileName(child), module)));
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    continue;
+                }
+            }
+            else if (!SourceRoots.IsContractsProject(modules)
+                && SourceRoots.ModuleNameOf(modules) is { } own
+                && PlacementPath.SameName(own, module))
+            {
+                directories.Add(modules);
+            }
+        }
+
+        return directories;
     }
 
     /// <summary>

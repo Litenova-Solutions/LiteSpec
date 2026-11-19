@@ -20,13 +20,13 @@ public static class RecordFolders
     public static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
     {
         "aggregates", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
-        "module-events", "integration-events", "external-systems", "read-models", "reference-data",
+        "external-systems", "read-models", "reference-data",
     };
 
-    /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events and its rules.</summary>
+    /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events, its published facts and its rules.</summary>
     public static readonly HashSet<string> AggregateFolders = new(StringComparer.Ordinal)
     {
-        "use-cases", "domain-events", "rules",
+        "use-cases", "domain-events", "module-events", "integration-events", "rules",
     };
 
     /// <summary>Record types whose English plural is the type itself, or that take a singular verb.</summary>
@@ -78,8 +78,8 @@ public static class RecordFolders
         Scaffold("job", "behavior/modules/{module}/jobs/{name}", "{name}.yaml"),
         Scaffold("notification", "behavior/modules/{module}/notifications/{name}", "{name}.yaml"),
         At("setting", "behavior/modules/{module}/settings", "*"),
-        Scaffold("module-event", "behavior/modules/{module}/module-events/{name}", "{name}.yaml"),
-        Scaffold("integration-event", "behavior/modules/{module}/integration-events/{name}", "{name}.yaml"),
+        Scaffold("module-event", "behavior/modules/{module}/aggregates/{aggregate}/module-events/{name}", "{name}.yaml"),
+        Scaffold("integration-event", "behavior/modules/{module}/aggregates/{aggregate}/integration-events/{name}", "{name}.yaml"),
         Scaffold("read-model", "behavior/modules/{module}/read-models/{name}", "{name}.yaml"),
         Scaffold("reference-data", "behavior/modules/{module}/reference-data/{name}", "{name}.yaml"),
         At("permission", "behavior/modules/{module}", "permissions.yaml"),

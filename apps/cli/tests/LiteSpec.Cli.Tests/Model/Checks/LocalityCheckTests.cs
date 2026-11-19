@@ -121,7 +121,7 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "reachedThrough": ["module/finance"]}"""),
-            TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+            TestModel.Record("reaction", "reaction/finance.record-on-borrow", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-on-borrow.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"commands": "use-case/lending.borrow-copy"}]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
         Assert.DoesNotContain("command-target-invalid", TestModel.Codes(model));
@@ -139,10 +139,10 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/reporting", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""),
-            TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+            TestModel.Record("reaction", "reaction/finance.record-on-borrow", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-on-borrow.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"commands": "use-case/lending.borrow-copy"}]}"""));
 
         var findings = Checker.Check(model).Findings
-            .Where(found => found.Subject == "use-case/finance.record-repayment"
+            .Where(found => found.Subject == "reaction/finance.record-on-borrow"
                 && found.Code is "link-locality-invalid" or "command-target-invalid");
         var finding = Assert.Single(findings);
         Assert.Equal("command-target-invalid", finding.Code);

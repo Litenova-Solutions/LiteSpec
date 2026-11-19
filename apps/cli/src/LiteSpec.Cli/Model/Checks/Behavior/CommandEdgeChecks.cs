@@ -18,7 +18,7 @@ internal static class CommandEdgeChecks
         CheckPublicCommandsCalled(model, findings);
     }
 
-    /// <summary>Reports a commands edge naming a record that is no command use case, or a command whose reachedThrough does not name the sending module.</summary>
+    /// <summary>Reports a commands edge on a use case, which only a reaction or a job declares, and a commands edge naming a record that is no command use case, or a command whose reachedThrough does not name the sending module.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckCommandsTargets(ProjectModel model, List<Finding> findings)
@@ -30,6 +30,14 @@ internal static class CommandEdgeChecks
 
             foreach (var target in holder.EdgeIds(RecordFields.Commands).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
             {
+                // A command handler never sends a command, so a use case declares no
+                // commands edge: the edge belongs to the reaction or job that sends it.
+                if (holder.Type == RecordTypes.UseCase)
+                {
+                    findings.Add(new Finding("command-edge-invalid", $"Use case '{holder.Id}' commands '{target}'; only a reaction or a job commands a use case.", holder.File, holder.Line, SubjectOf(holder)));
+                    continue;
+                }
+
                 if (!model.ById.TryGetValue(Identifiers.BaseId(target), out var resolved))
                 {
                     continue;
@@ -68,7 +76,7 @@ internal static class CommandEdgeChecks
         }
     }
 
-    /// <summary>Reports a use case naming a module in reachedThrough that commands it from no record of that module.</summary>
+    /// <summary>Reports a use case naming a module in reachedThrough that commands it from no reaction or job of that module. A commands edge on a use case is itself invalid, so it never counts as the call.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPublicCommandsCalled(ProjectModel model, List<Finding> findings)
@@ -76,7 +84,7 @@ internal static class CommandEdgeChecks
         var commanded = new HashSet<(string Module, string Target)>();
 
         foreach (var holder in model.Records.Where(record =>
-            !record.Derived && record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job))
+            !record.Derived && record.Type is RecordTypes.Reaction or RecordTypes.Job))
         {
             if (LocalityChecks.ModuleOf(model, holder) is not { Length: > 0 } module)
             {

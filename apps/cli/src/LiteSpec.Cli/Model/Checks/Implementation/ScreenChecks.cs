@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Model;
@@ -16,13 +17,14 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <follows>litespec/core/edges#give-every-page-its-screen-record</follows>
 internal static class ScreenChecks
 {
-    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, reader-missing and proves-duplicate.</summary>
+    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, reader-missing, proves-duplicate and a route outside its stack's routes root.</summary>
     /// <param name="model">The loaded project model that holds every record, each screen and each browser test.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckScreenImplemented(model, findings);
         CheckRouteRecorded(model, findings);
+        CheckRoutePlaced(model, findings);
         CheckScreenCalls(model, findings);
         CheckScreenServes(model, findings);
         CheckStepUnscreened(model, findings);
@@ -234,6 +236,56 @@ internal static class ScreenChecks
             }
         }
     }
+
+    /// <summary>Reports each route entry outside its stack's routes root: the web routes root, the Blazor Routes folder, or the Android Screens folder. A route in no declared frontend states no root, so it is left out.</summary>
+    /// <param name="model">The loaded project model that holds each frontend and route element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRoutePlaced(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var element in model.Code.Elements.Where(element => element.Kind == CodeKind.FrontendRoute))
+        {
+            var frontend = model.Config.Frontends.FirstOrDefault(candidate =>
+                element.File.StartsWith(candidate.Path + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase));
+
+            if (frontend is null || RoutesRootOf(frontend) is not { } root)
+            {
+                continue;
+            }
+
+            if (UnderPath(element.File, root))
+            {
+                continue;
+            }
+
+            var reader = ReaderForElement(model, element);
+            var mark = element.Marks.Count > 0 ? element.Marks[0] : null;
+            var subject = mark is not null && mark.RecordId.Length > 0 ? mark.RecordId : null;
+            var file = mark?.File ?? element.File;
+            var line = mark?.Line ?? element.Line;
+            var shown = Path.GetFileName(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+            findings.Add(new Finding(
+                "code-placement-drift",
+                $"Route '{element.Class}' sits outside the '{shown}/' root.",
+                file, line, subject)
+            {
+                Reader = reader,
+                ReaderIsQualified = reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
+            });
+        }
+    }
+
+    /// <summary>The routes root of one frontend: the web routes root, the Blazor Routes folder, or the Android Screens folder.</summary>
+    /// <param name="frontend">The frontend whose routes root is wanted.</param>
+    /// <returns>The absolute routes root, or null when the platform states none.</returns>
+    private static string? RoutesRootOf(FrontendConfig frontend) =>
+        frontend.Platform.ToLowerInvariant() switch
+        {
+            "svelte" or "react" => frontend.RoutesRoot,
+            "blazor" => Path.Combine(frontend.Path, "Routes"),
+            "android" => Path.Combine(frontend.Path, "Screens"),
+            _ => null,
+        };
 
     /// <summary>Reports each screen whose offered use cases differ from the use cases its routes call.</summary>
     /// <param name="model">The loaded project model that holds each screen record and computed screen.</param>

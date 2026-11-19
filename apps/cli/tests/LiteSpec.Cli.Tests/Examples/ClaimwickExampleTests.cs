@@ -22,7 +22,7 @@ public sealed class ClaimwickExampleTests
         // advisory. The six UI quality requirements are proved by token and route runs, so no
         // Behavior record fulfills them and they report nothing. The reminder-preference step
         // has no screen yet, so its step finding sits under the unscreened-steps waiver.
-        Assert.Contains("0 findings, 0 blocking, 24 covered.", result.Output);
+        Assert.Contains("0 findings, 0 blocking, 21 covered.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

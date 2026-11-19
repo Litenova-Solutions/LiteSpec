@@ -468,6 +468,37 @@ public sealed class ScreenCheckTests
                 + ",\"serves\":" + JsonSerializer.Serialize(serves) + "}").RootElement.Clone(),
         };
 
+    /// <summary>Route Outside The Routes Root Reports Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    [Fact]
+    public void RouteOutsideTheRoutesRootReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "list-loans", "+page.svelte");
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.FrontendRoute, "/loans", null, file, 3,
+            [new CodeMark("screen/app.loans", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
+
+        var finding = Assert.Single(WithCode(model, "code-placement-drift"));
+        Assert.Contains("sits outside the 'routes/' root", finding.Message);
+        Assert.Equal("screen/app.loans", finding.Subject);
+    }
+
+    /// <summary>Route Inside The Routes Root Reports No Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    [Fact]
+    public void RouteInsideTheRoutesRootReportsNoPlacementDrift()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+        AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
+
+        Assert.Empty(WithCode(model, "code-placement-drift"));
+    }
+
     static Record Rec(string type, string id, string fields, string root)
     {
         using var document = JsonDocument.Parse(fields);

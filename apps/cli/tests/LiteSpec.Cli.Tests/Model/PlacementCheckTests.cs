@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model;
 /// <summary>Proves the code placement check against the broken overlay and module-layout models.</summary>
 public sealed class PlacementCheckTests
 {
-    /// <summary>The overlay reports one placement finding per drift: the handler folder, the namespace, the test folder, the stray module folder and the stray use case folder.</summary>
+    /// <summary>The overlay reports one placement finding per drift: the handler folder, the namespace, the test, the stray module folder, the stray use case folder and the stray test folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void BrokenOverlayReportsEachPlacementDriftOnce()
@@ -26,12 +26,13 @@ public sealed class PlacementCheckTests
         ClosedFolderChecks.Run(model, findings);
         var placed = findings.Where(finding => finding.Code == "code-placement-drift").ToList();
 
-        Assert.Equal(5, placed.Count);
+        Assert.Equal(6, placed.Count);
         Assert.Single(placed, finding => finding.Message == "Handler 'BorrowCopyCommandHandler' sits in folder 'Holds', but marks 'use-case/lending.borrow-copy', so it belongs in 'Lending/Application/Loans/BorrowCopy/'.");
         Assert.Single(placed, finding => finding.Message == "Handler 'BorrowCopyRetryHandler' declares namespace 'Library.Billing.BorrowCopy', but 'use-case/lending.borrow-copy' places it under 'Library.Lending.Loans.BorrowCopy'.");
         Assert.Single(placed, finding => finding.Message == "Test 'BorrowCopyScenarios.Borrowing_an_available_copy_succeeds' sits in folder 'Holds', but marks 'scenario/borrow-copy.borrowing-an-available-copy-succeeds', so it belongs in 'Lending/Loans/BorrowCopy/'.");
         Assert.Single(placed, finding => finding.Message == "Folder 'apps/api/src/Modules/Library.Lending/Archive' names no module folder.");
         Assert.Single(placed, finding => finding.Message == "Folder 'apps/api/src/Modules/Library.Lending/Application/Holds/BorrowCopy' names no use case of aggregate 'Holds'.");
+        Assert.Single(placed, finding => finding.Message == "Folder 'apps/api/tests/Library.Acceptance.Tests/Lending/Holds/BorrowCopy' names no use case of aggregate 'Holds'.");
         Assert.All(placed, finding => Assert.EndsWith(".", finding.Message));
     }
 
@@ -964,6 +965,260 @@ public sealed class PlacementCheckTests
         Assert.Equal("code-placement-drift", finding.Code);
         Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", finding.Subject);
         Assert.Contains("Lending/Loans/BorrowCopy/", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A port folder naming a provider module reports that the module is reached through its Contracts.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PortFolderNamingProviderModuleReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.Module, "module/spending", "spending", temp.Path));
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Ports", "Spending", "ISpending.cs"),
+            "namespace Library.Lending.Ports.Spending;\n\npublic interface ISpending\n{\n    Task<int> Ping();\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "Spending", "SpendingAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.Spending;\n\npublic sealed class SpendingAdapter\n{\n}\n");
+
+        var placed = Run(model);
+
+        Assert.Equal(2, placed.Count);
+        Assert.Contains(placed, finding => finding.Message == "Port folder 'apps/api/src/Library.Modules/Lending/Ports/Spending' names the module 'spending'; a module reaches another module through its Contracts, not a port.");
+        Assert.Contains(placed, finding => finding.Message == "Adapter folder 'apps/api/src/Library.Modules/Lending/Infrastructure/Spending' names the module 'spending'; a module reaches another module through its Contracts, not an adapter.");
+    }
+
+    /// <summary>A port folder spelling another name than its external-system record reports the record name.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortFolderSpellingAnotherNameThanItsRecordReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/mail-relay", "mail-relay", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Ports", "EmailMessenger", "IEmailMessenger.cs");
+        WriteSource(file, "namespace Library.Lending.Ports.EmailMessenger;\n\npublic interface IEmailMessenger\n{\n    Task SendAsync(string key);\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "EmailMessenger", "EmailMessengerAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.EmailMessenger;\n\npublic sealed class EmailMessengerAdapter\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "IEmailMessenger", file, "external-system/mail-relay"));
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("Port folder 'apps/api/src/Library.Modules/Lending/Ports/EmailMessenger' carries the port for 'external-system/mail-relay', so it belongs in 'Ports/MailRelay/'.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A port folder spelling its external-system record reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    [Fact]
+    public void PortFolderSpellingItsRecordReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.ExternalSystem, "external-system/mail-relay", "mail-relay", temp.Path));
+        var file = ProductFile(temp.Path, "Lending", "Ports", "MailRelay", "IMailRelay.cs");
+        WriteSource(file, "namespace Library.Lending.Ports.MailRelay;\n\npublic interface IMailRelay\n{\n    Task SendAsync(string key);\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "MailRelay", "MailRelayAdapter.cs"),
+            "namespace Library.Lending.Infrastructure.MailRelay;\n\npublic sealed class MailRelayAdapter\n{\n}\n");
+        model.Code.Elements.Add(Element(CodeKind.Port, "IMailRelay", file, "external-system/mail-relay"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A Persistence folder nesting its repositories by aggregate, beside module-wide store setup, reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PersistenceAggregateFolderWithStoreSetupReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "Persistence", "Loans", "LoanRepository.cs"),
+            "namespace Library.Lending.Infrastructure.Persistence.Loans;\n\npublic sealed class LoanRepository\n{\n}\n");
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "Persistence", "LendingStoreContribution.cs"),
+            "namespace Library.Lending.Infrastructure.Persistence;\n\npublic sealed class LendingStoreContribution\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A Persistence folder naming no declared aggregate reports the folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PersistenceStrayFolderReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Infrastructure", "Persistence", "Archive", "ArchiveStore.cs"),
+            "namespace Library.Lending.Infrastructure.Persistence.Archive;\n\npublic sealed class ArchiveStore\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("Folder 'apps/api/src/Library.Modules/Lending/Infrastructure/Persistence/Archive' names no declared aggregate of module 'Lending'.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A use case model in Persistence reports that it belongs in its use case folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PersistenceUseCaseModelFileReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Infrastructure", "Persistence", "BorrowCopyQuery.cs");
+        WriteSource(file, "namespace Library.Lending.Infrastructure.Persistence;\n\npublic sealed record BorrowCopyQuery();\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal($"File 'apps/api/src/Library.Modules/Lending/Infrastructure/Persistence/BorrowCopyQuery.cs' holds a message, result or transport model, which sits in its use case folder, not in Persistence/.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>A Settings folder holding the module options class reports nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void SettingsWithModuleOptionsReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteSource(
+            ProductFile(temp.Path, "Lending", "Application", "Settings", "LendingOptions.cs"),
+            "namespace Library.Lending.Application.Settings;\n\npublic sealed class LendingOptions\n{\n}\n");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A file beside the module options class reports that Settings holds only the options class.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void SettingsStrayFileReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Application", "Settings", "ReminderPolicy.cs");
+        WriteSource(file, "namespace Library.Lending.Application.Settings;\n\npublic sealed class ReminderPolicy\n{\n}\n");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Application/Settings/ReminderPolicy.cs' sits in 'Settings/', which holds only 'LendingOptions.cs'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>A folder under Settings reports that Settings holds files only.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void SettingsSubfolderReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var folder = ProductFile(temp.Path, "Lending", "Application", "Settings", "Archive");
+        Directory.CreateDirectory(folder);
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("Folder 'apps/api/src/Library.Modules/Lending/Application/Settings/Archive' sits in 'Settings/', which holds files only.", finding.Message);
+        Assert.Equal(folder, finding.Path);
+    }
+
+    /// <summary>An exception beside its aggregate root reports its Exceptions folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void ExceptionBesideAggregateRootReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "LoanStuckException.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans", "LoanStuckException");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds an exception beside its aggregate root; it belongs in 'Exceptions/'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>An event outside its Events folder reports its Events folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void EventOutsideEventsFolderReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Loans", "LoanBorrowedEvent.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans", "LoanBorrowedEvent");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Contains("holds an event outside its Events/ folder; it belongs in 'Events/'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+    }
+
+    /// <summary>An event and an exception in their folders report nothing.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void EventAndExceptionInTheirFoldersReportNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteCode(ProductFile(temp.Path, "Lending", "Domain", "Loans", "Events", "LoanBorrowedEvent.cs"), "Library.Lending.Domain.Loans.Events", "LoanBorrowedEvent");
+        WriteCode(ProductFile(temp.Path, "Lending", "Domain", "Loans", "Exceptions", "CopyNotAvailableException.cs"), "Library.Lending.Domain.Loans.Exceptions", "CopyNotAvailableException");
+        WriteCode(ProductFile(temp.Path, "Lending", "Domain", "Loans", "Loan.cs"), "Library.Lending.Domain.Loans", "Loan");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A test folder naming no use case of its aggregate reports the aggregate.</summary>
+    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    [Fact]
+    public void TestFolderNamingNoUseCaseReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = TestFile(temp.Path, "Lending", "Loans", "StrayCase", "StrayCaseScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Lending.Loans.StrayCase", "StrayCaseScenarios");
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("Folder 'apps/api/tests/Library.Acceptance.Tests/Lending/Loans/StrayCase' names no use case of aggregate 'Loans'.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>Support and Infrastructure test folders report nothing.</summary>
+    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    [Fact]
+    public void TestSupportAndInfrastructureFoldersReportNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteCode(TestFile(temp.Path, "Support", "ScenarioSupport.cs"), "Library.Acceptance.Tests.Support", "ScenarioSupport");
+        WriteCode(TestFile(temp.Path, "Lending", "Infrastructure", "GatewayTests.cs"), "Library.Acceptance.Tests.Lending.Infrastructure", "GatewayTests");
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A handler with a stale layer namespace reports the layer its folder states.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void HandlerWithStaleLayerNamespaceReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Application", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.Domain.Loans.BorrowCopy", "BorrowCopyCommandHandler");
+        model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("Handler 'BorrowCopyCommandHandler' declares namespace 'Library.Lending.Domain.Loans.BorrowCopy', but its file sits in 'Application/', which the namespace does not name.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>A handler with the layer namespace its folder states reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void HandlerWithMatchingLayerNamespaceReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Application", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.Application.Loans.BorrowCopy", "BorrowCopyCommandHandler");
+        model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
+
+        Assert.Empty(Run(model));
     }
 
     /// <summary>Adds the effects a reaction or job record declares, as the record file's effects list.</summary>

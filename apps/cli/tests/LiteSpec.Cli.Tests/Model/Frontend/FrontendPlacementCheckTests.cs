@@ -90,6 +90,79 @@ public sealed class FrontendPlacementCheckTests
         Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "code-placement-drift");
     }
 
+    /// <summary>Module Naming Another Use Case Than Its Mark Reports Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    [Fact]
+    public void ModuleNamingAnotherUseCaseThanItsMarkReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("frontend-placement");
+        var model = BaseModel(temp.Path, underAggregate: true);
+        AddModule(model, temp.Path, ["lending", "loans", "extend-loan"], "use-case/lending.borrow-copy");
+
+        var finding = Assert.Single(WithCode(model, "code-placement-drift"));
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+        Assert.Contains("lending/loans/borrow-copy", finding.Message);
+    }
+
+    /// <summary>Flat Module Naming Another Use Case Than Its Mark Reports Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    [Fact]
+    public void FlatModuleNamingAnotherUseCaseThanItsMarkReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("frontend-placement");
+        var model = BaseModel(temp.Path, underAggregate: false);
+        AddModule(model, temp.Path, ["lending", "extend-loan"], "use-case/lending.borrow-copy");
+
+        var finding = Assert.Single(WithCode(model, "code-placement-drift"));
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+        Assert.Contains("lending/borrow-copy", finding.Message);
+    }
+
+    /// <summary>Module Mirroring Its Marked Use Case Reports No Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    [Fact]
+    public void ModuleMirroringItsMarkedUseCaseReportsNoPlacementDrift()
+    {
+        using var temp = TestCli.Temp("frontend-placement");
+        var model = BaseModel(temp.Path, underAggregate: true);
+        var segments = new[] { "lending", "loans", "borrow-copy" };
+        var parts = new List<string> { temp.Path, "apps", "web", "src", "lib", "modules" };
+        parts.AddRange(segments);
+        Directory.CreateDirectory(Path.Combine([.. parts]));
+        AddModule(model, temp.Path, segments, "use-case/lending.borrow-copy");
+
+        Assert.Empty(WithCode(model, "code-placement-drift"));
+    }
+
+    /// <summary>Folder Carrying A Refused Name Reports Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#reject-a-folder-name-that-owns-nothing</proves>
+    [Fact]
+    public void FolderCarryingARefusedNameReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("frontend-placement");
+        var model = BaseModel(temp.Path, underAggregate: true);
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "shared"));
+
+        var finding = Assert.Single(WithCode(model, "code-placement-drift"));
+        Assert.Contains("carries the refused name 'shared'", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>Folder Outside Kebab Case Reports Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    [Fact]
+    public void FolderOutsideKebabCaseReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("frontend-placement");
+        var model = BaseModel(temp.Path, underAggregate: true);
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "Loans"));
+
+        var finding = Assert.Single(WithCode(model, "code-placement-drift"));
+        Assert.Contains("outside kebab case", finding.Message);
+        Assert.Contains("loans", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
     static List<Finding> WithCode(ProjectModel model, string code) =>
         Checker.Check(model).Findings.Where(finding => finding.Code == code).ToList();
 

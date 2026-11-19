@@ -14,10 +14,9 @@ internal static class FrontendPlacementChecks
 {
     /// <summary>
     ///     Reports every frontend module folder that names no declared module, and every web module of
-    ///     a use case outside its record home's folder. The use case the folder mirrors stays with the
-    ///     mirror check, so only the module segment against the declared modules and the aggregate
-    ///     segment against the marked use case are reported here. A project with no declared modules
-    ///     states no mirror, so it is left out.
+    ///     a use case outside its record home's folder: the module segment against the declared modules,
+    ///     and the aggregate and use-case segments against the marked use case. A project with no declared
+    ///     modules states no mirror, so it is left out.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and each frontend module.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -57,6 +56,7 @@ internal static class FrontendPlacementChecks
                 }
 
                 CheckAggregateSegment(model, element, segments, findings);
+                CheckUseCaseSegment(model, element, segments, findings);
 
                 break;
             }
@@ -122,6 +122,60 @@ internal static class FrontendPlacementChecks
             && SameName(segments[0], path.Module)
             && SameName(segments[2], path.Name)
             && !SameName(segments[1], expected))
+        {
+            Drift(element, mark, $"{path.Module}/{expected}/{path.Name}", findings);
+        }
+    }
+
+    /// <summary>
+    ///     Reports a web module whose use-case segment names another use case than its mark:
+    ///     the module mirrors its use case record's home, <c>lib/modules/{module}/{aggregates}/{use-case}/</c>
+    ///     under an aggregate, else <c>lib/modules/{module}/{use-case}/</c>. A module or aggregate
+    ///     segment naming another record stays with its own check, so only the use-case segment
+    ///     is reported here, when the segments above it already match.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="element">The marked frontend module whose folder is checked.</param>
+    /// <param name="segments">The module folder segments under the frontend modules root.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCaseSegment(ProjectModel model, MarkedElement element, string[] segments, List<Finding> findings)
+    {
+        var mark = element.Marks.FirstOrDefault(mark => mark.Verb != MarkVerb.Follows);
+
+        if (mark is null
+            || !model.ById.TryGetValue(mark.RecordId, out var record)
+            || record.Type != RecordTypes.UseCase)
+        {
+            return;
+        }
+
+        var path = PathOf(record);
+
+        if (path.Module is null || path.Name is null || !SameName(segments[0], path.Module))
+        {
+            return;
+        }
+
+        if (path.Aggregate is null)
+        {
+            if (segments.Length == 2 && !SameName(segments[1], path.Name))
+            {
+                Drift(element, mark, $"{path.Module}/{path.Name}", findings);
+            }
+
+            return;
+        }
+
+        if (AggregateFolderNames.OwnerDirectory(record.File) is not { } owner)
+        {
+            return;
+        }
+
+        var expected = AggregateFolderNames.Resolve(model, path.Aggregate, owner).Expected;
+
+        if (segments.Length == 3
+            && SameName(segments[1], expected)
+            && !SameName(segments[2], path.Name))
         {
             Drift(element, mark, $"{path.Module}/{expected}/{path.Name}", findings);
         }

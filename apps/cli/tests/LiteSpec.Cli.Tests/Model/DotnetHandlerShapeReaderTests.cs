@@ -425,6 +425,55 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(element.Marks);
     }
 
+    /// <summary>Handler Query Through The Query Mediator Is Collected As A Queries Dispatch.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void HandlerQueryThroughTheQueryMediatorIsCollected()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, HandlerFolder("RecordRepayment"), "RecordRepaymentCommandHandler.cs", """
+            namespace Library.App.Application.RecordRepayment;
+
+            /// <implements>use-case/reporting.record-repayment</implements>
+            public sealed class RecordRepaymentCommandHandler(IQueryMediator queries) : ICommandHandler<RecordRepaymentCommand>
+            {
+                public async Task HandleAsync(RecordRepaymentCommand command, CancellationToken cancellationToken)
+                {
+                    var expense = await queries.QueryAsync(new ReadExpenseQuery(command.ExpenseId), cancellationToken);
+                }
+            }
+            """);
+
+        var dispatch = Assert.Single(Read(temp.Path).Handlers.Single().Dispatches!);
+
+        Assert.Equal("queries", dispatch.Verb);
+        Assert.Equal("ReadExpenseQuery", dispatch.Target);
+    }
+
+    /// <summary>Other Method On The Query Mediator Is Not A Dispatch.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void OtherMethodOnTheQueryMediatorIsNotADispatch()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, HandlerFolder("RecordRepayment"), "RecordRepaymentCommandHandler.cs", """
+            namespace Library.App.Application.RecordRepayment;
+
+            /// <implements>use-case/reporting.record-repayment</implements>
+            public sealed class RecordRepaymentCommandHandler(IQueryMediator queries) : ICommandHandler<RecordRepaymentCommand>
+            {
+                public async Task HandleAsync(RecordRepaymentCommand command, CancellationToken cancellationToken)
+                {
+                    await queries.SendAsync(new ReadExpenseQuery(command.ExpenseId), cancellationToken);
+                }
+            }
+            """);
+
+        Assert.Empty(Read(temp.Path).Handlers.Single().Dispatches!);
+    }
+
     static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteDomainFolder(string root) =>

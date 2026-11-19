@@ -5,9 +5,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 
 /// <summary>
-///     The dispatch calls a class makes: commands through <c>ICommandMediator</c>, events
-///     through a publisher or the outbox, notifications through a messenger, notifier or
-///     sender, and a call on an interface anchored to an external-system record as a calls edge.
+///     The dispatch calls a class makes: commands through <c>ICommandMediator</c>, queries
+///     through <c>IQueryMediator</c>, events through a publisher or the outbox, notifications
+///     through a messenger, notifier or sender, and a call on an interface anchored to an
+///     external-system record as a calls edge.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static class DispatchReader
@@ -120,6 +121,13 @@ static class DispatchReader
                     found.Add((receiver, new CodeDispatch("runs", runs.Target, "", file, line)));
                 }
             }
+            else if (kind == "IQueryMediator" && method == "QueryAsync")
+            {
+                if (MessageTarget(invocation, templateCounts: false) is { } queries)
+                {
+                    found.Add((receiver, new CodeDispatch("queries", queries.Target, "", file, line)));
+                }
+            }
             else if (PublishesThrough(kind))
             {
                 if (MessageTarget(invocation, templateCounts: false) is { } published)
@@ -174,7 +182,7 @@ static class DispatchReader
     {
         var kind = DotnetNames.KindOf(type);
 
-        return kind == "ICommandMediator"
+        return kind is "ICommandMediator" or "IQueryMediator"
             || PublishesThrough(kind)
             || SendsThrough(kind)
             || (!ExcludedReceiver(kind) && qualified.IsExternalPort(scope, kind));

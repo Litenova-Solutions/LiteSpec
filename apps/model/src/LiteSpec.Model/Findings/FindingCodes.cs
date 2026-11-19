@@ -699,6 +699,9 @@ public static class FindingCodes
         new("command-consumer-missing", "G", RecordLayer.Behavior, trace: false,
             "A use case names a module in `reachedThrough` that commands it from no record.",
             "Command the use case from the module, or remove the module from `reachedThrough`."),
+        new("command-edge-invalid", "G", RecordLayer.Behavior, trace: false,
+            "A use case declares a `commands` edge, which only a reaction or a job declares.",
+            "Move the `commands` edge to the reaction or job that sends the command."),
     ];
 
 

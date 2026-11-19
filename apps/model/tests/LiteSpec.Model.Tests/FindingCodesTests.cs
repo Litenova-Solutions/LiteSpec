@@ -118,6 +118,7 @@ public sealed class FindingCodesTests
     [InlineData("guard-module-foreign", "G")]
     [InlineData("command-target-invalid", "G")]
     [InlineData("command-consumer-missing", "G")]
+    [InlineData("command-edge-invalid", "G")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -161,6 +162,7 @@ public sealed class FindingCodesTests
     [InlineData("guard-module-foreign", RecordLayer.Behavior, false, null)]
     [InlineData("command-target-invalid", RecordLayer.Behavior, false, null)]
     [InlineData("command-consumer-missing", RecordLayer.Behavior, false, null)]
+    [InlineData("command-edge-invalid", RecordLayer.Behavior, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);

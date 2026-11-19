@@ -685,7 +685,13 @@ internal static class BackendPlacementChecks
         accepted.Add(path.Aggregate);
     }
 
-    /// <summary>Reports the backend namespace that names another path than the marked record's folder path.</summary>
+    /// <summary>The layer folders a namespace states after its module: the top folder of the file in its module.</summary>
+    static readonly HashSet<string> NamespaceLayers = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Domain", "Application", "Ports", "Infrastructure", "WebApi",
+    };
+
+    /// <summary>Reports the backend namespace that names another path than the marked record's folder path, or that names another layer than the file's top folder.</summary>
     /// <param name="model">The loaded project model that resolves the plural aggregate folder.</param>
     /// <param name="element">The marked code element whose namespace is checked.</param>
     /// <param name="mark">The mark naming the record the namespace should place.</param>
@@ -741,7 +747,39 @@ internal static class BackendPlacementChecks
         if (!NamespaceMatches(placed, expected))
         {
             findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but '{mark.RecordId}' places it under '{product}.{string.Join(".", expected)}'.", mark.File, mark.Line, mark.RecordId));
+            return;
         }
+
+        CheckNamespaceLayer(model, element, mark, placed, actual, findings);
+    }
+
+    /// <summary>Reports the backend namespace that names another layer than the file's top folder in its module: a file moved to another layer keeps its stale namespace. A file under module contracts, or directly in its module with no layer folder, states no layer, so it is left out.</summary>
+    /// <param name="model">The loaded project model whose configuration names the module roots.</param>
+    /// <param name="element">The marked code element whose namespace is checked.</param>
+    /// <param name="mark">The mark naming the record the namespace should place.</param>
+    /// <param name="placed">The declared namespace segments after the product.</param>
+    /// <param name="actual">The declared namespace as written in the file.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNamespaceLayer(ProjectModel model, MarkedElement element, CodeMark mark, List<string> placed, string actual, List<Finding> findings)
+    {
+        if (RawModulePath(model.Config, element.File) is not { } raw || raw.Length < 3)
+        {
+            return;
+        }
+
+        var folder = raw[1];
+
+        if (!NamespaceLayers.Contains(folder) || IsInModuleContracts(model.Config, element.File, raw[0]))
+        {
+            return;
+        }
+
+        if (placed.Count >= 2 && SameName(placed[1], folder))
+        {
+            return;
+        }
+
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but its file sits in '{folder}/', which the namespace does not name.", mark.File, mark.Line, mark.RecordId));
     }
 
     /// <summary>Whether the endpoint sits in a host, where host endpoints carry their mark without a use case folder.</summary>

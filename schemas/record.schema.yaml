@@ -940,10 +940,6 @@ $defs:
         $ref: '#/$defs/useCaseId'
         x-reads-as: queries
         x-read-back-as: is queried by
-      commands:
-        $ref: '#/$defs/useCaseId'
-        x-reads-as: commands
-        x-read-back-as: is commanded by
       timing:
         enum:
         - inline
@@ -964,8 +960,6 @@ $defs:
       - calls
     - required:
       - queries
-    - required:
-      - commands
   triggeredEffectEntry:
     type: object
     additionalProperties: false

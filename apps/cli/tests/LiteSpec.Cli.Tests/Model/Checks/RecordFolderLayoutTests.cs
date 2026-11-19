@@ -99,6 +99,90 @@ public sealed class RecordFolderLayoutTests
         Assert.Equal("Folder '.litespec/behavior/modules/books/post-entry' is no typed folder of its module; aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/', and the other module children in their named folders.", finding.Message);
     }
 
+    /// <summary>A module event under its aggregate folder passes the placement and folder checks.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "a module event under its aggregate folder passes the placement and folder checks")]
+    public void ModuleEventUnderItsAggregatePasses()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "module-events", "entry-posted", "entry-posted.yaml");
+        File.WriteAllText(file, "type: module-event\nid: module-event/books.entry-posted\ntitle: Entry posted\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", aggregate, "{}"),
+            TestModel.Record("module-event", "module-event/books.entry-posted", file, "{}"));
+
+        var findings = Run(model);
+
+        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-placement-invalid" or "record-placement-invalid");
+    }
+
+    /// <summary>A module event at module level is misplaced: each fact sits under the aggregate whose domain event it translates.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "a module event at module level is misplaced")]
+    public void ModuleEventAtModuleLevelIsMisplaced()
+    {
+        using var temp = TestCli.Temp("checks");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module-events", "entry-posted", "entry-posted.yaml");
+        File.WriteAllText(file, "type: module-event\nid: module-event/books.entry-posted\ntitle: Entry posted\n");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/books.entry-posted", file, "{}"));
+
+        var findings = Run(model).Where(found => found.Code == "record-placement-invalid").ToList();
+
+        Assert.NotEmpty(findings);
+        Assert.Contains(findings, found => found.Subject == "module-event/books.entry-posted");
+    }
+
+    /// <summary>An integration event under its aggregate folder passes the placement and folder checks.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "an integration event under its aggregate folder passes the placement and folder checks")]
+    public void IntegrationEventUnderItsAggregatePasses()
+    {
+        using var temp = TestCli.Temp("layout");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "aggregate.yaml");
+        File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entries", "integration-events", "entry-posted", "entry-posted.yaml");
+        File.WriteAllText(file, "type: integration-event\nid: integration-event/entry-posted\ntitle: Entry posted\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/books.entry", aggregate, "{}"),
+            TestModel.Record("integration-event", "integration-event/entry-posted", file, "{}"));
+
+        var findings = Run(model);
+
+        Assert.DoesNotContain(findings, found => found.Code is "record-placement-invalid" or "record-placement-invalid" or "record-placement-invalid");
+    }
+
+    /// <summary>An integration event at module level is misplaced.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact(DisplayName = "an integration event at module level is misplaced")]
+    public void IntegrationEventAtModuleLevelIsMisplaced()
+    {
+        using var temp = TestCli.Temp("checks");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "integration-events", "entry-posted", "entry-posted.yaml");
+        File.WriteAllText(file, "type: integration-event\nid: integration-event/entry-posted\ntitle: Entry posted\n");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("integration-event", "integration-event/entry-posted", file, "{}"));
+
+        var findings = Run(model).Where(found => found.Code == "record-placement-invalid").ToList();
+
+        Assert.NotEmpty(findings);
+        Assert.Contains(findings, found => found.Subject == "integration-event/entry-posted");
+    }
+
     /// <summary>A screen folder named for its home and name holds the screen beside it.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact(DisplayName = "a screen folder named for its home and name holds the screen beside it")]

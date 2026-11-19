@@ -39,7 +39,7 @@ static class RecordPages
         ["step"] = "its flow file",
         ["domain-event"] = "its aggregate file",
         ["refusal-set"] = ".litespec/behavior/modules/<m>/refusals.yaml",
-        ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/integration-events/",
+        ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/aggregates/<aggregate>/integration-events/",
         ["setting"] = "a setting-set file under .litespec/behavior/modules/<m>/settings/",
         ["permission"] = ".litespec/behavior/modules/<m>/permissions.yaml",
         ["entry-point"] = ".litespec/behavior/entry-points/<entry-point>/entry-point.yaml",
@@ -151,6 +151,13 @@ static class RecordPages
 
         // A type whose identifier carries no home, such as an integration event, keeps the folder it sits in.
         if (newHome is null && RecordFolders.NeedsHome(type))
+        {
+            return ContainerOf(oldFile);
+        }
+
+        // A module event or integration event keeps the aggregate folder it sits in: the
+        // identifier names no aggregate, so a rename cannot place it under another one.
+        if (type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
         {
             return ContainerOf(oldFile);
         }

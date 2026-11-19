@@ -13,7 +13,7 @@ internal static class NamespacePlacement
     {
         "Domain", "Application", "Abstractions", "Infrastructure", "WebApi", "Worker",
         "Persistence", "Endpoints", "Contracts", "Events", "Exceptions", "Ports",
-        "Notifications", "ExternalSystems", "ReadModels", "Composition", "Tests", "Test", "Acceptance", "Integration", "Unit",
+        "Notifications", "ExternalSystems", "ReadModels", "Settings", "Composition", "Tests", "Test", "Acceptance", "Integration", "Unit",
     };
 
     /// <summary>
