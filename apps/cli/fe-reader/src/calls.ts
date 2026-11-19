@@ -201,7 +201,8 @@ function walkLayoutFiles(entries: RouteEntry[], scope: LayoutScope, context: Rea
 }
 
 // Every operation call reached from the layout entries, in file and line
-// order. A call names its operation through the generated client map.
+// order. A call names its operation through the generated client map and is
+// marked as reached through a layout.
 export function collectLayoutCalls(entries: RouteEntry[], scope: LayoutScope, context: ReaderContext): CallFacts[] {
   const calls: CallFacts[] = [];
   for (const current of walkLayoutFiles(entries, scope, context)) {
@@ -209,7 +210,7 @@ export function collectLayoutCalls(entries: RouteEntry[], scope: LayoutScope, co
     for (const site of current.facts.calls) {
       const operation = scope.operations.get(operationKey(site.name));
       if (operation !== undefined && operation !== "") {
-        calls.push({ operation, file: rel, line: site.line });
+        calls.push({ operation, file: rel, line: site.line, fromLayout: true });
       }
     }
   }
@@ -219,13 +220,14 @@ export function collectLayoutCalls(entries: RouteEntry[], scope: LayoutScope, co
 
 // Every full-page navigation reached from the layout entries, in file and
 // line order. The CLI matches each path against the discovered endpoint
-// routes and counts a match as a call of that endpoint's operation.
+// routes and counts a match as a call of that endpoint's operation. Each
+// navigation is marked as reached through a layout.
 export function collectLayoutNavigations(entries: RouteEntry[], scope: LayoutScope, context: ReaderContext): NavigationFacts[] {
   const navigations: NavigationFacts[] = [];
   for (const current of walkLayoutFiles(entries, scope, context)) {
     const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
     for (const site of current.facts.navigations) {
-      navigations.push({ path: site.path, file: rel, line: site.line });
+      navigations.push({ path: site.path, file: rel, line: site.line, fromLayout: true });
     }
   }
   navigations.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
@@ -233,7 +235,8 @@ export function collectLayoutNavigations(entries: RouteEntry[], scope: LayoutSco
 }
 
 // Every operation call reached from the route entries, in file and line
-// order. A call names its operation through the generated client map.
+// order. A call names its operation through the generated client map and is
+// marked as reached through the route's own files.
 export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, context: ReaderContext): CallFacts[] {
   const calls: CallFacts[] = [];
   for (const current of walkRouteFiles(entries, scope, context)) {
@@ -241,7 +244,7 @@ export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, conte
     for (const site of current.facts.calls) {
       const operation = scope.operations.get(operationKey(site.name));
       if (operation !== undefined && operation !== "") {
-        calls.push({ operation, file: rel, line: site.line });
+        calls.push({ operation, file: rel, line: site.line, fromLayout: false });
       }
     }
   }
@@ -251,13 +254,14 @@ export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, conte
 
 // Every full-page navigation reached from the route entries, in file and
 // line order. The CLI matches each path against the discovered endpoint
-// routes and counts a match as a call of that endpoint's operation.
+// routes and counts a match as a call of that endpoint's operation. Each
+// navigation is marked as reached through the route's own files.
 export function collectRouteNavigations(entries: RouteEntry[], scope: CallScope, context: ReaderContext): NavigationFacts[] {
   const navigations: NavigationFacts[] = [];
   for (const current of walkRouteFiles(entries, scope, context)) {
     const rel = relativeTo(context.root, current.absPath) ?? toPosix(current.absPath);
     for (const site of current.facts.navigations) {
-      navigations.push({ path: site.path, file: rel, line: site.line });
+      navigations.push({ path: site.path, file: rel, line: site.line, fromLayout: false });
     }
   }
   navigations.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));

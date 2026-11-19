@@ -287,7 +287,7 @@ internal static class ScreenChecks
             _ => null,
         };
 
-    /// <summary>Reports each screen whose offered use cases differ from the use cases its routes call.</summary>
+    /// <summary>Reports each screen whose offers miss a reached use case or lack an offer for a use case its routes' own files reach: a layout call satisfies an offer but never requires one.</summary>
     /// <param name="model">The loaded project model that holds each screen record and computed screen.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenCalls(ProjectModel model, List<Finding> findings)
@@ -302,21 +302,25 @@ internal static class ScreenChecks
             }
 
             var offers = new HashSet<string>(screen.Ids(RecordFields.Offers), StringComparer.Ordinal);
-            var calls = new HashSet<string>(routes.SelectMany(route => route.UseCases), StringComparer.Ordinal);
+            var reached = new HashSet<string>(routes.SelectMany(route => route.UseCases), StringComparer.Ordinal);
+            var own = new HashSet<string>(routes.SelectMany(route => route.OwnUseCases()), StringComparer.Ordinal);
 
-            if (offers.SetEquals(calls))
+            var missing = offers.Except(reached).Order(StringComparer.Ordinal).ToList();
+            var extra = own.Except(offers).Order(StringComparer.Ordinal).ToList();
+
+            if (missing.Count == 0 && extra.Count == 0)
             {
                 continue;
             }
 
             var parts = new List<string>();
 
-            foreach (var id in offers.Except(calls).Order(StringComparer.Ordinal))
+            foreach (var id in missing)
             {
                 parts.Add($"offers '{id}' but its route does not call it");
             }
 
-            foreach (var id in calls.Except(offers).Order(StringComparer.Ordinal))
+            foreach (var id in extra)
             {
                 parts.Add($"calls '{id}' but does not offer it");
             }

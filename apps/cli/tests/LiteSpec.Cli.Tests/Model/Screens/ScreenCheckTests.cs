@@ -93,6 +93,39 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "screen-offers-drift"));
     }
 
+    /// <summary>A use case only a layout calls needs no offer and still counts as reached.</summary>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
+    [Fact]
+    public void UseCaseOnlyALayoutCallsNeedsNoOfferAndStillCountsAsReached()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+        AddRoute(
+            model, "screen/app.loans", "/loans",
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy"],
+            ["use-case/lending.borrow-copy"]);
+
+        Assert.Empty(WithCode(model, "screen-offers-drift"));
+        Assert.Empty(WithCode(model, "use-case-unreached"));
+    }
+
+    /// <summary>A screen offering a use case only a layout calls reports no offers drift.</summary>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
+    [Fact]
+    public void ScreenOfferingAUseCaseOnlyALayoutCallsReportsNoOffersDrift()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans", "use-case/lending.borrow-copy"], []));
+        AddRoute(
+            model, "screen/app.loans", "/loans",
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy"],
+            ["use-case/lending.borrow-copy"]);
+
+        Assert.Empty(WithCode(model, "screen-offers-drift"));
+    }
+
     /// <summary>Screen Serving A Step Its Offers Do Not Serve Reports Mismatch.</summary>
     /// <proves>litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve</proves>
     [Fact]
@@ -396,7 +429,7 @@ public sealed class ScreenCheckTests
             "web", title, Path.Combine(root, "tests", $"{title}.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [target], [], ["The loans are listed."]);
 
-    static void AddRoute(ProjectModel model, string screenId, string address, IReadOnlyList<string> useCases)
+    static void AddRoute(ProjectModel model, string screenId, string address, IReadOnlyList<string> useCases, IReadOnlyList<string>? layoutOnly = null)
     {
         var file = Path.Combine(model.Config.Root, "apps", "web", "src", "routes", "loans", "+page.svelte");
 
@@ -408,7 +441,10 @@ public sealed class ScreenCheckTests
             Path.Combine(model.Config.Root, "ListLoansEndpoint.cs"), 3));
         model.Screens.Add(new CodeScreen(
             "web", address, PathText.Relative(model.Config.Root, file),
-            [new GeneratedOperation("listLoans", "", "")], useCases, screenId));
+            [new GeneratedOperation("listLoans", "", "")], useCases, screenId)
+        {
+            LayoutOnlyUseCases = layoutOnly ?? [],
+        });
     }
 
     static MarkedElement RouteElement(string? screenId, string address, string root)

@@ -92,7 +92,9 @@ function byFileLine(a: { file: string; line: number }, b: { file: string; line: 
 // Every Svelte route entry: each folder below the routes root holding a
 // +page.svelte. Entries come out sorted by file. Each route counts its own
 // calls and navigations plus every ancestor layout's, with every file the
-// layouts reach through the frame and the use-case modules.
+// layouts reach through the frame and the use-case modules. Layout entries
+// carry the layout flag, so the CLI counts them for reach without requiring
+// the screen to offer them.
 export function readSvelteRoutes(
   routesAbs: string,
   modulesAbs: string,

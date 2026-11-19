@@ -36,12 +36,14 @@ export interface CallFacts {
   operation: string;
   file: string;
   line: number;
+  fromLayout: boolean;
 }
 
 export interface NavigationFacts {
   path: string;
   file: string;
   line: number;
+  fromLayout: boolean;
 }
 
 export interface RouteFacts {

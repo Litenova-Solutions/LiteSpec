@@ -109,9 +109,9 @@ A screen states what a person can do there, and what the person sees follows fro
 
 The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`.
 
-The builder computes `calls` from the route entry. It follows imports within the route's own folder and the modules folder, so a module the route imports and every module that module composes count. It collects generated-client operation calls: a query helper the client generator emits for an operation, such as its options, query key, or mutation, counts as a call to that operation. It maps each operation through the endpoint's mark to its use case. A full-page navigation to a marked endpoint's route counts as a call too: an `href`, a form `action`, a `goto`, or a `window.location` write whose string or template head starts with the route's fixed prefix. So does a call from the route's layouts: each `+layout.ts` and `+layout.server.ts` above the route, with the frame modules they import, counts for every screen under that layout.
+The builder computes `calls` from the route entry. It follows imports within the route's own folder, the frame, and the modules folder, so a frame helper the route reads and a module the route imports, with every module that module composes, count. It collects generated-client operation calls: a query helper the client generator emits for an operation, such as its options, query key, or mutation, counts as a call to that operation. It maps each operation through the endpoint's mark to its use case. A full-page navigation to a marked endpoint route counts as a call too: an `href`, a form `action`, a `goto`, or a `window.location` write whose string or template head starts with the route's fixed prefix. So does a call from the route's layouts: each `+layout.ts` and `+layout.server.ts` above the route counts for every screen under that layout, with every frame and module file those layouts reach.
 
-It follows neither the frame nor shared packages from the route itself. A call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is reported as a reader diagnostic instead of being silently assigned to one. The builder compares the computed `calls` with `offers`.
+It follows neither route folders from a layout nor shared packages from either. A call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is reported as a reader diagnostic instead of being silently assigned to one. The builder compares the computed `calls` with `offers`: a layout call counts the use case reached and satisfies an offer, but only the route's own calls require the screen to offer them.
 
 A flow step is exercised when a passing test proved a scenario of a use case that serves the step.
 
@@ -347,13 +347,13 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Applies to:** artifact: record:screen
 
-**Statement:** A screen's `offers` MUST equal the use cases its route reaches: by client call, by navigation to a marked endpoint route, or through a layout.
+**Statement:** A screen's `offers` MUST name every use case the route's own calls reach, by client call or by navigation to a marked endpoint route, and no use case neither the route nor its layouts reach.
 
-**Rationale:** `offers` is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either gained a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
+**Rationale:** `offers` is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either gained a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page. A layout read serves every screen under it: the session, the permissions, and the workspace the frame loads for all pages. Holding every screen to those reads would repeat one frame read on each screen record. The layout call still counts as reached, so the entry point's use cases stay covered and a screen that offers one reports no drift.
 
-**Example:** Claimwick's expense list offers `use-case/spending.list-expenses`, and its route calls `ListExpenses` through the generated client.
+**Example:** Claimwick's expense list offers `use-case/spending.list-expenses`, and its route calls `ListExpenses` through the generated client. The root layout's session read counts as reached for every screen under it, but no screen offers it.
 
-**Checked by:** `litespec model check` reports `screen-offers-drift` (level S) for a screen whose `offers` and computed calls differ, naming each use case on one side only.
+**Checked by:** `litespec model check` reports `screen-offers-drift` (level S) for a screen whose `offers` miss a use case its route's own calls reach, or name a use case neither its route nor its layouts reach, naming each use case on one side only.
 
 ### Limit Each Screen to Steps Its Use Cases Serve
 

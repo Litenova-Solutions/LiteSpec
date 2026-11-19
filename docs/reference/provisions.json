@@ -8129,16 +8129,16 @@
       "anchor": "match-a-screens-offers-to-its-calls",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060screen-offers-drift\u0060 (level S) for a screen whose \u0060offers\u0060 and computed calls differ, naming each use case on one side only.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060screen-offers-drift\u0060 (level S) for a screen whose \u0060offers\u0060 miss a use case its route\u0027s own calls reach, or name a use case neither its route nor its layouts reach, naming each use case on one side only.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:screen",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A screen\u0027s \u0060offers\u0060 MUST equal the use cases its route reaches: by client call, by navigation to a marked endpoint route, or through a layout.",
-      "rationale": "\u0060offers\u0060 is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either gained a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.",
-      "example": "Claimwick\u0027s expense list offers \u0060use-case/spending.list-expenses\u0060, and its route calls \u0060ListExpenses\u0060 through the generated client."
+      "statement": "A screen\u0027s \u0060offers\u0060 MUST name every use case the route\u0027s own calls reach, by client call or by navigation to a marked endpoint route, and no use case neither the route nor its layouts reach.",
+      "rationale": "\u0060offers\u0060 is the recorded promise of what a person can start on the page, and the calls are what the page actually does. When the two differ, the page either gained a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page. A layout read serves every screen under it: the session, the permissions, and the workspace the frame loads for all pages. Holding every screen to those reads would repeat one frame read on each screen record. The layout call still counts as reached, so the entry point\u0027s use cases stay covered and a screen that offers one reports no drift.",
+      "example": "Claimwick\u0027s expense list offers \u0060use-case/spending.list-expenses\u0060, and its route calls \u0060ListExpenses\u0060 through the generated client. The root layout\u0027s session read counts as reached for every screen under it, but no screen offers it."
     },
     {
       "id": "litespec/core/edges#match-notification-templates-to-the-template-store",
@@ -27520,7 +27520,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A route entry MUST carry one mark naming the screen it renders, in the form its stack page states.",
-      "rationale": "The route is where a screen record is implemented in code, and its folder or file name only resembles the screen. One mark writes that link down so tools can check it. A web route exports the same typed \u0060litespec\u0060 constant a use-case module exports, so a wrong identifier fails the consumer\u0027s type check against the generated union, and \u0060litespec model check\u0060 reports it as \u0060mark-unknown\u0060 where no type check ran. A Blazor component or an Android destination carries the .NET mark the .NET reader reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.",
+      "rationale": "The route is where a screen record is implemented in code, and its folder or file name only resembles the screen. One mark writes that link down so tools can check it. A web route exports the same typed \u0060litespec\u0060 constant a use-case module exports, so a wrong identifier fails the consumer\u0027s type check against the generated union, and \u0060litespec model check\u0060 reports it as \u0060mark-unknown\u0060 where no type check ran. A Blazor component or an Android destination carries the .NET mark the .NET reader reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls. A call the route\u0027s layouts make counts as reached and satisfies an offer, but a call only the layouts make never requires the screen to offer it.",
       "example": "The \u0060\u003Cscript module\u003E\u0060 of the Claimwick expense list page exports \u0060export const litespec = { implements: \u0022screen/claimwick-app.expense-list\u0022 } as const satisfies LiteSpecMark;\u0060, naming the screen it renders."
     },
     {

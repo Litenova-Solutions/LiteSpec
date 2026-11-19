@@ -343,7 +343,7 @@ public static class FindingCodes
             "No route carries the screen's mark.",
             "Mark the route with the screen."),
         new("screen-offers-drift", "S", RecordLayer.Implementation, trace: true,
-            "A screen's `offers` list differs from the use cases its route reaches by client call, by navigation to a marked endpoint route, or through a layout.",
+            "A screen's `offers` names a use case its route reaches by no call, navigation or layout, or omits a use case its route's own files call; a layout read obliges no screen to offer it.",
             "Match `offers` to the use cases the route reaches."),
         new("screen-serves-drift", "G", RecordLayer.Implementation, trace: true,
             "A screen serves a flow step that no use case it offers serves.",

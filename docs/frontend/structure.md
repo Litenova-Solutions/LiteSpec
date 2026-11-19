@@ -162,7 +162,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 A web route exports the same typed `litespec` constant a use-case module exports, so a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran. A Blazor component or an Android destination carries the .NET mark the .NET reader reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs.
 
-The use cases a screen offers are not marked on the route; the builder computes them from its calls.
+The use cases a screen offers are not marked on the route; the builder computes them from its calls. A call the route's layouts make counts as reached and satisfies an offer, but a call only the layouts make never requires the screen to offer it.
 
 **Example:** The `<script module>` of the Claimwick expense list page exports `export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;`, naming the screen it renders.
 

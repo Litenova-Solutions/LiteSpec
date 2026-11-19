@@ -15,6 +15,8 @@ namespace LiteSpec.Cli.Model.Readers.Frontend;
 ///     with the use case it reaches, an operation or a path two endpoints map to
 ///     different use cases is a <c>behavior-unrecorded</c> diagnostic, and an
 ///     operation no endpoint names stays on the screen as the unmatched-call fact.
+///     A call or navigation a layout reaches counts for the same use cases, and
+///     is recorded as layout-only when the route's own files reach no call to it.
 /// </summary>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 static class FrontendReadBuilder
@@ -89,6 +91,7 @@ static class FrontendReadBuilder
         {
             var file = Absolute(frontend, route.File);
             var useCases = new SortedSet<string>(StringComparer.Ordinal);
+            var ownUseCases = new SortedSet<string>(StringComparer.Ordinal);
             var operations = new SortedSet<string>(StringComparer.Ordinal);
             var navigated = new HashSet<GeneratedOperation>();
             var paired = new List<ScreenCall>();
@@ -117,6 +120,11 @@ static class FrontendReadBuilder
                 }
 
                 useCases.Add(mapped.Min!);
+
+                if (!call.FromLayout)
+                {
+                    ownUseCases.Add(mapped.Min!);
+                }
 
                 if (pairedSet.Add((call.Operation, mapped.Min!)))
                 {
@@ -151,6 +159,11 @@ static class FrontendReadBuilder
                 var reached = mapped.Min!;
                 useCases.Add(reached);
 
+                if (!navigation.FromLayout)
+                {
+                    ownUseCases.Add(reached);
+                }
+
                 var operation = OperationFor(code, reached, rows);
                 navigated.Add(new GeneratedOperation(operation, rows[0].Method, rows[0].Route));
 
@@ -180,6 +193,7 @@ static class FrontendReadBuilder
                         .OrderBy(call => call.Operation, StringComparer.Ordinal)
                         .ThenBy(call => call.UseCase, StringComparer.Ordinal),
                 ],
+                LayoutOnlyUseCases = [.. useCases.Except(ownUseCases, StringComparer.Ordinal)],
             });
         }
 
