@@ -19,7 +19,7 @@ public sealed class StackReaderTests
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small", 80, 7, 0, 0)]
-    [InlineData("large", 117, 7, 1, 9)]
+    [InlineData("large", 118, 7, 1, 9)]
     public void BuildReadsFixtureCounts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);

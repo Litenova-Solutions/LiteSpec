@@ -1,0 +1,13 @@
+type: waiver
+id: waiver/borrower-identity-unenforced
+title: Borrower identity unenforced
+kind: gap
+waives:
+- enforcement-job-unreached
+appliesTo:
+- aggregate/lending.loan
+reason: The nightly due scan sends notices and erases nothing, so the Borrower identity class has no erasure yet.
+exitWhen: The nightly due scan runs a use case that writes the loan aggregate and erases the borrower identity of returned loans. The gap closes then.
+expiresOn: 2035-06-01
+closedBy:
+- job/lending.nightly-due-scan
