@@ -423,6 +423,7 @@ The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-fram
 - `module-event-unused` (level G) reports a module event named by no reaction, read model projection or other consumer, under `litespec/core/automation#subscribe-to-every-module-event`.
 - `enforcement-job-unreached` (level G) reports a data class naming an enforcement job that runs or sends no use case writing the aggregate holding the class, under `litespec/core/privacy#enforce-a-data-class-through-its-aggregate`.
 - `scenario-result-unknown` (level G) reports a scenario ending in a result id its use case declares neither as a written result nor as a derived refusal, under `litespec/core/use-cases#declare-the-result-a-scenario-ends-in`.
+- The frontend reader skips the client generator's bundled runtime under `client/` and `core/` when discovering operations, so a screen that builds its client with `createClient` or calls `buildUrl` is no longer reported as an unrecorded operation.
 
 ### Part U: Provision Changes Since v6.0.0
 

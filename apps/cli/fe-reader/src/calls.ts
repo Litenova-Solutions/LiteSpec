@@ -1,7 +1,8 @@
 // Generated-client operation discovery and per-route call collection. An
 // operation is a named function export of the generated client folder,
-// reported as the client exports it. Calls are collected from the route entry files and
-// from every file reached through relative and alias imports within the
+// reported as the client exports it, except for the generator's bundled
+// runtime under client/ and core/. Calls are collected from the route entry
+// files and from every file reached through relative and alias imports within the
 // route's own folder, the frame and the use-case modules, following imports
 // transitively with cycle protection. Shared packages are never followed:
 // only relative and alias imports resolve to project files. Layout files
@@ -38,15 +39,33 @@ function kindOf(absPath: string): FileKind {
 // Longest first, so InfiniteQueryKey is tried before QueryKey.
 const QUERY_HELPER_SUFFIXES = ["InfiniteQueryKey", "InfiniteOptions", "QueryKey", "Options", "Mutation"];
 
+// The generated client folder also holds the generator's fetch runtime: hey-api
+// writes createConfig, buildUrl and createClient into *.gen.ts files under
+// client/ and core/ folders. Those are helpers, not API operations, so a screen
+// that builds its client with them must never be reported as calling an
+// unrecorded operation. Skip every generated file below a client/ or core/
+// folder; operations come from the SDK and the query plugin output only.
+const GENERATOR_RUNTIME_FOLDERS = new Set(["client", "core"]);
+
+function isGeneratorRuntimeFile(apiClientAbs: string, file: string): boolean {
+  const rel = relativeTo(apiClientAbs, file);
+  if (rel === null) return false;
+  const folders = rel.split("/");
+  folders.pop(); // the last segment is the file name, not a folder
+  return folders.some(folder => GENERATOR_RUNTIME_FOLDERS.has(folder));
+}
+
 // Every operation the generated client folder exports, keyed by its
 // PascalCase form and reported as the client exports it. Only the files the
-// client generator writes (named *.gen.ts) hold operations, so a hand-written
-// helper beside them is never mistaken for one. A client file that fails to
-// parse is diagnosed and contributes no operations.
+// client generator writes (named *.gen.ts) hold operations, and the runtime
+// folders above are skipped, so a hand-written helper beside them is never
+// mistaken for one. A client file that fails to parse is diagnosed and
+// contributes no operations.
 export function collectOperations(apiClientAbs: string, context: ReaderContext): Map<string, string> {
   const operations = new Map<string, string>();
   for (const file of listFilesRecursive(apiClientAbs, [".ts", ".tsx"])) {
     if (!/\.gen\.tsx?$/.test(file)) continue;
+    if (isGeneratorRuntimeFile(apiClientAbs, file)) continue;
     const facts = readFacts(file, "ts", context);
     if (facts === null) continue;
     for (const name of facts.functions) {
