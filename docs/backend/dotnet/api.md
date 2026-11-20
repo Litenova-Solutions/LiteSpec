@@ -114,6 +114,15 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 The handler maps each known exception type to its status and code, and answers 500 with code `internal_error` for the rest.
 
+A project that runs LiteBus maps its mediation refusals in LiteBus instead of writing that mapping itself. `AddLiteBusExceptionHandler()` registers `LiteBusExceptionHandler`, the one `IExceptionHandler` that answers each refusal from an `IRefusalProblemCatalog`. The project fills the catalog with `Map` for each refusal code, `Replace` for a deliberate override, and `MapInvalid` for the status of an invalid result with no code mapping. A domain exception becomes a refusal through the translator registered with `UseRefusalExceptionTranslator<TTranslator>()` on the message module, and `IProblemDetailsEnricher` adds members to each problem. The default catalog answers a single `validation.*` code with 422, so a project that keeps validation failures at 400 replaces that mapping:
+
+```csharp
+var catalog = RefusalProblemCatalog.CreateDefault();
+catalog.Replace("validation.*", StatusCodes.Status400BadRequest, "Request validation failed");
+services.AddSingleton<IRefusalProblemCatalog>(catalog);
+services.AddLiteBusExceptionHandler();
+```
+
 **Reviewed for:** Does every refusal code map to its outcome-table status in the one `IExceptionHandler`? Look at the WebApi global handler.
 
 ### Convert Money with the Platform Converter

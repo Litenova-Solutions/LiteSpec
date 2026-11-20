@@ -16,7 +16,7 @@ The LiteSpec analyzers report a breach of a .NET provision where it happens, wit
 
 ### Outbox and Test Modules
 
-The outbox provisions need LiteBus 7.2 at the `7.2.0` pin. Module events and domain-event reactions travel through the LiteBus outbox in process: a Marten project stores outbox rows in its own session through `LiteBus.Outbox.Storage.Marten`, and a project that persists through Entity Framework Core uses `LiteBus.Outbox.Storage.EntityFrameworkCore`, with outbound integration events leaving through `LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`. Acceptance tests drain the outbox through `LiteBus.Testing.DurableMessaging`, as `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests` states, and outbox telemetry arrives through `LiteBus.Outbox.Extensions.OpenTelemetry`. Each resolves at its manifest pin.
+The outbox, auditing, and problem details provisions need LiteBus at the `8.0.0-preview.3` pin. Module events and domain-event reactions travel through the LiteBus outbox in process: a Marten project stores outbox rows in its own session through `LiteBus.Outbox.Storage.Marten`, and a project that persists through Entity Framework Core uses `LiteBus.Outbox.Storage.EntityFrameworkCore`, with outbound integration events leaving through `LiteBus.Outbox.Dispatch.Amqp` or `LiteBus.Outbox.Dispatch.Kafka`. The audit chain runs through `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions` and, for a Marten store, `LiteBus.Auditing.Storage.Marten`. An ASP.NET Core host maps refusals to problem responses through `LiteBus.Extensions.AspNetCore`. Acceptance tests drain the outbox through `LiteBus.Testing.DurableMessaging`, as `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests` states, and outbox telemetry arrives through `LiteBus.Outbox.Extensions.OpenTelemetry`. Each resolves at its manifest pin.
 
 ## Standards
 
@@ -87,19 +87,20 @@ A project reference to the analyzer project does not carry its dependency assemb
 
 **Strength:** default
 
-**Default:** A project using LiteBus sets `LB1023` and `LB1024` to `error` in `.editorconfig` and lists its outside-world client types in `litebus.LB1024.forbidden_types`.
+**Default:** A project using LiteBus sets `litebus_forbid_nested_commands = true` in `.editorconfig`, sets `LB1023` and `LB1024` to `error`, and lists its outside-world client types in `litebus.LB1024.forbidden_types`.
 
 **Replacement:** A project whose command handlers run on another mediator names the analyzers that report nested mediation and outside-world clients in its handlers.
 
-**Rationale:** Both LiteBus rules are off by default, so a command handler can send a second message or call an outside system with no report. `LB1023` reports nested mediation in a command handler, and `LB1024` reports an outside-world client in a command handler. Consequences then leave through event handlers after the commit, under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
+**Rationale:** Both LiteBus rules are off by default, so a command handler can send a second message or call an outside system with no report. `LB1023` reports nested mediation in a command handler and reports nothing until `litebus_forbid_nested_commands` is `true`. The runtime counterpart is `ForbidNestedCommands()` on the command module builder, which throws `NestedMediationException` before the inner pipeline starts, so the option pairs the build check with that guarantee. `LB1024` reports an outside-world client in a command handler. Consequences then leave through event handlers after the commit, under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
 
 **Example:**
 
 ```text
+litebus_forbid_nested_commands = true
 dotnet_diagnostic.LB1023.severity = error
 dotnet_diagnostic.LB1024.severity = error
 litebus.LB1024.forbidden_types = Claimwick.Payouts.PayoutBankClient
 litespec.LS2016.pipeline_owned_types = Claimwick.Spending.ExpenseKeyClaims
 ```
 
-**Reviewed for:** Does `.editorconfig` set `LB1023` and `LB1024` to error and list `litebus.LB1024.forbidden_types`? Look at `.editorconfig`.
+**Reviewed for:** Does `.editorconfig` set `litebus_forbid_nested_commands` to `true`, `LB1023` and `LB1024` to error, and list `litebus.LB1024.forbidden_types`? Look at `.editorconfig`.

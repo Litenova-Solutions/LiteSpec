@@ -12,7 +12,7 @@ Start with:
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
 - The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.yaml`.
-- The pipeline reference in the `docs/` folder of the [LiteBus v7 branch](https://github.com/litenova/LiteBus/tree/v7/docs). It defines the handler interfaces this guide implements.
+- The pipeline reference in the `site/content/docs` folder of the [LiteBus 8.0.0-preview.3 tag](https://github.com/litenova/LiteBus/tree/v8.0.0-preview.3/site/content/docs). It defines the handler interfaces this guide implements.
 
 Read the [audit extension](../ext/audit.md) before this guide. It states the obligations, and this guide shows one compliant way to meet them.
 
@@ -52,19 +52,27 @@ The shape leaves out person names, addresses, message bodies, and state snapshot
 
 ### Declare Which Commands Are Audited
 
-Each command type declares beside itself whether it is audited. Mark the values fixed per use case (the action identity, the target kind, and the category) with an attribute, as `litespec/ext/audit#declare-audit-details-on-the-command-type` requires. The attribute also names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial.
+Each command type declares beside itself whether it is audited. An audit definition implements `IAuditDefinition<TCommand>` in the message's `Application/` folder, as `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis` requires. It fixes the values per use case (the action identity, the target kind, and the category). Its `WithTargetFrom` and `WithReasonFrom` selectors name the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial.
 
 Which use cases are audited, and why, is decided by the command record's `audit` field. Work that runs asynchronously is audited at request time.
 
 ```csharp
-[Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration, Target = nameof(AddProductCommand.ProductId), Reason = nameof(AddProductCommand.Reason))]
-public sealed record AddProductCommand(...) : ICommand<AddProductCommandResult>;
+internal sealed class AddProductCommandAuditDefinition : IAuditDefinition<AddProductCommand>
+{
+    public AuditDeclaration Audit =>
+        AuditDeclaration.Audited("catalog.add-product", category: "configuration", targetKind: "product")
+            .WithTargetFrom<AddProductCommand>(command => command.ProductId.ToString())
+            .WithReasonFrom<AddProductCommand>(command => command.Reason);
+}
 
-[NotAudited("A public catalog read discloses no tenant-owned data.")]
-public sealed record BrowseStorefrontQuery(...) : IQuery<BrowseStorefrontQueryResult>;
+internal sealed class BrowseStorefrontQueryAuditDefinition : IAuditDefinition<BrowseStorefrontQuery>
+{
+    public AuditDeclaration Audit =>
+        AuditDeclaration.Exempt("A public catalog read discloses no tenant-owned data.");
+}
 ```
 
-No command goes unmarked. Add an architecture test that scans every `ICommand` implementation and fails the build when a type carries neither attribute. That test implements `litespec/ext/audit#fail-the-build-for-commands-without-an-audit-declaration`.
+No command goes unmarked. Add an architecture test that scans every `ICommand` implementation and fails the build when a type has no audit definition. That test implements `litespec/ext/audit#fail-the-build-for-commands-without-an-audit-declaration`.
 
 ### Carry Request Context to the Pipeline
 
@@ -147,7 +155,7 @@ internal sealed class WriteFailedAuditRecordErrorHandler : ICommandErrorHandler
         _writer = writer;
     }
 
-    public async Task HandleErrorAsync(ICommand message, Exception exception, CancellationToken cancellationToken = default)
+    public async Task HandleErrorAsync(MessageErrorContext<ICommand, object> context, CancellationToken cancellationToken = default)
     {
         var scope = AmbientExecutionContext.Current.Items[AuditScope.Key] as AuditScope;
         if (scope is null)
@@ -156,8 +164,8 @@ internal sealed class WriteFailedAuditRecordErrorHandler : ICommandErrorHandler
             return;
         }
 
-        var outcome = exception is UseCaseForbiddenException ? AuditOutcome.Denied : AuditOutcome.Failed;
-        await _writer.WriteOutOfBandAsync(scope.Complete(outcome, exception), cancellationToken);
+        var outcome = context.Exception is UseCaseForbiddenException ? AuditOutcome.Denied : AuditOutcome.Failed;
+        await _writer.WriteOutOfBandAsync(scope.Complete(outcome, context.Exception), cancellationToken);
     }
 }
 ```

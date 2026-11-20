@@ -150,7 +150,7 @@ Intent records say what the product promises; Behavior records say how the produ
 
     Work that needs another module's state reads a read model: reporting keeps `read-model/reporting.reimbursed-expense` with one row per reimbursed expense, each field naming its published field in `from`, and its use cases name the read model in `reads`. A read model whose figure a command re-decides names the deciding command in `freshness.decidedBy`: the reimbursed-expense read model names `use-case/spending.reimburse-expense`. This satisfies `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, `litespec/core/automation#declare-every-reaction-and-job-edge-in-effects`, `litespec/core/automation#write-no-aggregate-directly-from-a-reaction-or-job`, `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`, and `litespec/core/automation#declare-each-read-model-field-from-a-published-field`.
 
-    File each reaction and job with the module whose records it changes, and run each reaction in a dedicated handler. This satisfies `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes` and `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`.
+    File each reaction and job with the module whose own records it changes, or with the sending module when it changes another module only by sending that module's public command, and run each reaction in a dedicated handler. This satisfies `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes` and `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`.
 
     | Record | Shape |
     |:---|:---|

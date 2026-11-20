@@ -131,29 +131,33 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `EFCore.NamingConventions` | `10.x` |
 | nuget | `FsCheck` | `3.x` |
 | nuget | `LightBDD.XUnit3` | `3.x` |
-| nuget | `LiteBus.Analyzers` | `7.2.0` |
-| nuget | `LiteBus.Commands` | `7.2.0` |
-| nuget | `LiteBus.Commands.Abstractions` | `7.2.0` |
-| nuget | `LiteBus.Commands.Recurring` | `7.2.0` |
-| nuget | `LiteBus.Events` | `7.2.0` |
-| nuget | `LiteBus.Events.Abstractions` | `7.2.0` |
-| nuget | `LiteBus.Extensions.Microsoft.DependencyInjection` | `7.2.0` |
-| nuget | `LiteBus.Messaging` | `7.2.0` |
-| nuget | `LiteBus.Messaging.Abstractions` | `7.2.0` |
-| nuget | `LiteBus.Outbox` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Abstractions` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Dispatch.Amqp` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Dispatch.InProcess` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Dispatch.Kafka` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Extensions.OpenTelemetry` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Storage.EntityFrameworkCore` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Storage.Marten` | `7.2.0` |
-| nuget | `LiteBus.Outbox.Storage.PostgreSql` | `7.2.0` |
-| nuget | `LiteBus.Queries` | `7.2.0` |
-| nuget | `LiteBus.Queries.Abstractions` | `7.2.0` |
-| nuget | `LiteBus.Storage.PostgreSql` | `7.2.0` |
-| nuget | `LiteBus.Testing.DurableMessaging` | `7.2.0` |
-| nuget | `LiteBus.Testing.Mediation` | `7.2.0` |
+| nuget | `LiteBus.Analyzers` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Auditing` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Auditing.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Auditing.Storage.Marten` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Commands` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Commands.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Commands.Recurring` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Events` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Events.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Extensions.AspNetCore` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Extensions.Microsoft.DependencyInjection` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Messaging` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Messaging.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Dispatch.Amqp` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Dispatch.InProcess` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Dispatch.Kafka` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Extensions.OpenTelemetry` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Storage.EntityFrameworkCore` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Storage.Marten` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Storage.PostgreSql` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Queries` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Queries.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Storage.PostgreSql` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Testing.DurableMessaging` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Testing.Mediation` | `8.0.0-preview.3` |
 | nuget | `LiteSpec.Analyzers` | `7.0.0` |
 | nuget | `Marten` | `9.x` |
 | nuget | `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.x` |
@@ -271,7 +275,7 @@ What the pins drive:
 
 - Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/principles#locate-package-versions-in-the-manifest` requires the pins over prose, examples, and agent memory.
 - UI validation: `litespec model check` reads the pinned npm packages and the baselines below when it checks the shared package and the stylesheets.
-- Floor: the outbox provisions need LiteBus 7.2.0 or later within the `7.x` pins.
+- Floor: the outbox, auditing and problem details provisions need the LiteBus packages pinned at `8.0.0-preview.3`.
 
 ### UI Baselines
 

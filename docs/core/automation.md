@@ -11,7 +11,7 @@ Agents write these records from Intent, and code carries them. The [Behavior ove
 
 ### Reactions
 
-A reaction answers an event. When a domain event, a module event, or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`. It is filed with the module whose records the reaction changes, or with the module that owns the notification when the reaction only sends one.
+A reaction answers an event. When a domain event, a module event, or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`. It is filed with the module whose own records the reaction changes, with the sending module when it changes another module only by sending that module's public command, or with the module that owns the notification when the reaction only sends one.
 
 A reaction changes nothing directly. When a change is needed, the reaction runs a small command that makes it.
 
@@ -51,7 +51,7 @@ In Claimwick, the spending module publishes `module-event/spending.expense-appro
 
 ### Jobs
 
-A job runs on a schedule or once, with no event to answer. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml`. It is filed with the module whose records it changes, or with the module that owns the notification when it only sends one.
+A job runs on a schedule or once, with no event to answer. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml`. It is filed with the module whose own records it changes, with the sending module when it changes another module only by sending that module's public command, or with the module that owns the notification when it only sends one.
 
 Work that a person starts by hand is not a job: it is a command, and its entry point and access state who starts it.
 
@@ -235,11 +235,11 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Applies to:** artifact: record:reaction, record:job
 
-**Statement:** Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
+**Statement:** Each reaction and each job MUST live with the module whose own records it changes, with the sending module when it changes another module only by sending that module's public command, or with the module owning the notification when it only sends one.
 
-**Rationale:** Filing by trigger spreads one module's work across many trigger pages, so no page shows the module whole. Filing each reaction and job with the module it changes keeps each module's behavior in one place. Its event handler or job class lives in that module's code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The trigger page lists the reactions answering its event, derived from records.
+**Rationale:** Filing by trigger spreads one module's work across many trigger pages, so no page shows the module whole. Filing each reaction and job with the module whose records it changes keeps each module's behavior in one place. A module changes another module only through that module's public command, sent from a reaction or job, usually a reaction to the sender's own fact. The sending module holds that fact and its reaction, so the reaction sits with the sender. Its event handler or job class lives in that module's code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The trigger page lists the reactions answering its event, derived from records.
 
-**Reviewed for:** Does every reaction and job sit with the module it changes? Check the reactions and jobs beside the modules whose records they change.
+**Reviewed for:** Does every reaction and job sit with the module whose own records it changes, or with the sending module when it changes another module only through that module's public command? Check the reactions and jobs beside the modules whose records they change and the public commands they send.
 
 ### Run at Most One Use Case from a Reaction or Job
 

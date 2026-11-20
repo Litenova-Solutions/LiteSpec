@@ -62,11 +62,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Applies to:** artifact: reaction, job
 
-**Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
+**Statement:** A provider call SHOULD run from an event handler or a job, although a query may call a provider inline within its own handling, and a command never calls a provider before its commit.
 
-**Deviation:** A project that keeps an inline provider call records a waiver naming the compensation that undoes it.
+**Deviation:** A project that calls a provider from a command before its commit records a waiver naming the compensation that undoes it.
 
-**Rationale:** A command handler changes its aggregate and nothing else, and each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#give-each-handler-its-own-delivery`. A provider failure then retries without rolling back the accepted change. When the command needs the provider result before it can answer, it records the intent first and an event handler calls the provider.
+**Rationale:** A command handler changes its aggregate and nothing else, and each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#give-each-handler-its-own-delivery`. A provider failure then retries without rolling back the accepted change. When the command needs the provider result before it can answer, it records the intent first and an event handler calls the provider. A query changes nothing, so an inline call that fails fails only that read.
 
 **Example:** The Claimwick reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
 

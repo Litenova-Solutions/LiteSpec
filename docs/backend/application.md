@@ -549,7 +549,7 @@ It only reads: a change the caller needs in the owning module is a public comman
 
 The stack reader counts a call as a `calls` edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no `calls` entry declares fails `effect-undeclared`.
 
-A provider call whose result the command needs before it can answer is a waiver: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a waiver naming the compensation that undoes it.
+A provider call whose result the command needs before it can answer is a waiver: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps a command's provider call before its commit records a waiver naming the compensation that undoes it.
 
 **Example:** An event handler that calls an expense payout operation names it through the record's `calls` entry and the port method; a direct provider call fails the check. The reimburse-expense command records a pending payment and answers at once, an event handler calls the payout provider after the commit, and the expense screen shows the pending state first and the later posted fact through the query.
 
