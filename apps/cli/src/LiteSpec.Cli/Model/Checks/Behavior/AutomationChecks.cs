@@ -9,6 +9,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <summary>The automation checks: each reaction is triggered by its own module's domain events, by module events of modules it depends on, or by inbound integration events, each reaction and job declares the outcomes it can reach, and each job carries a schedule a tool can read.</summary>
 /// <follows>litespec/core/automation#trigger-every-reaction-from-its-declared-events</follows>
 /// <follows>litespec/core/automation#declare-the-outcomes-of-each-reaction-and-job</follows>
+/// <follows>litespec/core/automation#keep-failure-handling-on-the-reaction-or-job</follows>
 /// <follows>litespec/core/automation#run-every-job-from-its-declared-kind</follows>
 internal static class AutomationChecks
 {
@@ -47,6 +48,27 @@ internal static class AutomationChecks
                 else if (!seen.Add(name))
                 {
                     findings.Add(new Finding("record-key-duplicate", $"{Label(record.Type)} '{record.Id}' declares outcome '{name}' twice.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
+        }
+    }
+
+    /// <summary>Reports a reaction or job that states its failure handling on an effect entry instead of on the record.</summary>
+    /// <param name="model">The loaded project model that holds every reaction and job record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunOnFailurePlacement(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var record in model.Records.Where(record => !record.Derived && record.Type is RecordTypes.Reaction or RecordTypes.Job))
+        {
+            foreach (var entry in EffectEntries(record))
+            {
+                if (entry.TryGetProperty(RecordFields.OnFailure, out _))
+                {
+                    findings.Add(new Finding(
+                        "on-failure-placement-invalid",
+                        $"{Label(record.Type)} '{record.Id}' states onFailure in an effect entry; state it on the record instead.",
+                        record.File, record.Line, SubjectOf(record)));
+                    break;
                 }
             }
         }

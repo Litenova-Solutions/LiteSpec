@@ -7,6 +7,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The setting-key and template-store checks: every operator setting names its configuration path, every pathed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
 /// <follows>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</follows>
+/// <follows>litespec/core/use-cases#give-every-tenant-setting-a-change-use-case</follows>
 /// <follows>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</follows>
 /// <follows>litespec/core/edges#match-notification-templates-to-the-template-store</follows>
 /// <follows>litespec/core/edges#use-every-declared-template-parameter</follows>
@@ -18,8 +19,37 @@ internal static class SettingChecks
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckSettingKeyMissing(model, findings);
+        CheckTenantSettingChange(model, findings);
         CheckSettingBound(model, findings);
         CheckTemplates(model, findings);
+    }
+
+    /// <summary>Reports a tenant setting that no change use case changes.</summary>
+    /// <param name="model">The loaded project model that holds every setting and use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckTenantSettingChange(ProjectModel model, List<Finding> findings)
+    {
+        var changed = model.Records
+            .Where(record => !record.Derived
+                && record.Type == RecordTypes.UseCase
+                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
+                && name.StartsWith("change-", StringComparison.Ordinal))
+            .SelectMany(record => record.Ids(RecordFields.Reads))
+            .Select(Identifiers.BaseId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var setting in model.Records.Where(record => !record.Derived && record.Type == RecordTypes.Setting && record.Field(RecordFields.SetBy) == "tenant"))
+        {
+            if (!changed.Contains(setting.Id))
+            {
+                findings.Add(new Finding(
+                    "tenant-setting-change-missing",
+                    $"Setting '{setting.Id}' is set by the tenant and changed by no change use case.",
+                    setting.File,
+                    setting.Line,
+                    SubjectOf(setting)));
+            }
+        }
     }
 
     /// <summary>Reports an operator setting naming no configuration path.</summary>

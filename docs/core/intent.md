@@ -628,7 +628,7 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Example:** A library phrase naming its first lending partners, used across goals and problems, takes a glossary term stating who those partners are, or the records stop using the phrase.
 
-**Checked by:** `litespec model check` reports `term-missing` for a capitalized phrase of two to four words named in three or more product records that no glossary term defines; research, constraints and decisions quote outside sources by their own names and are not read, and a phrase holding an acronym, a month, a currency code, a cast name or a sentence opener is no term.
+**Checked by:** `litespec model check` reports `term-missing` for a capitalized phrase of two to four words named in three or more product records that no glossary term defines; research, constraints and decisions quote outside sources by their own names and are not read, and a phrase holding an acronym, a month, a currency code, a cast name or a sentence opener is no term. A phrase built from the words of a reaction title is not read, because a reaction title is assembled from its trigger and use case names.
 
 ### Answer Every Constraint
 

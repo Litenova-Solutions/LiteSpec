@@ -426,8 +426,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.sends` | use case, reaction, job | notification | sends | is sent by |
 | `effects.calls` | use case, reaction, job | external operation | calls | is called by |
 | `effects.queries` | use case, reaction, job | use case | queries | is queried by |
-| `effects.onFailure.surfacesIn` | use case, reaction, job | entry point | surfaces in | surfaces |
-| `effects.onFailure.runbook` | use case, reaction, job | runbook | is answered by | answers |
+| `effects.onFailure.surfacesIn` | use case | entry point | surfaces in | surfaces |
+| `effects.onFailure.runbook` | use case | runbook | is answered by | answers |
 | `consentRule` | use case, notification | rule | needs consent under | sets consent for |
 | `steps.cites` | use case | rule, result, setting, domain event, read model, external system, aggregate, reference data | applies | is applied in |
 | `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
@@ -1076,6 +1076,22 @@ Three findings cover the three gaps: `step-use-case-missing` names a step no use
 **Example:** A spending rule cited from the finance module with no `dependsOn` tie and no module or integration event between them is reported; the rule moves to product level or the modules declare the tie. Reporting's reimbursement command declares a `queries` edge to spending's read-expense query, which lists `module/reporting` in `reachedThrough`, so the edge passes with no `dependsOn` tie. Reporting's close-period command declares a `commands` edge to spending's close-expenses command, which lists `module/reporting` in `reachedThrough`, so that edge passes the same way.
 
 **Checked by:** `litespec model check` reports `link-locality-invalid` for a record under a module that is linked from another module with no declared dependency, module event, or integration event. A queries edge to a public query that lists the consuming module passes, and so does a commands edge to a public command that lists the sending module; a queries edge to a query use case whose `reachedThrough` does not name the consuming module is reported as `query-target-invalid`, and a commands edge to a command use case whose `reachedThrough` does not name the sending module is reported as `command-target-invalid`.
+
+### Declare Cross-Module References in DependsOn
+
+**ID:** `litespec/core/model#declare-cross-module-references-in-depends-on`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** An `input`, `output`, or `steps` entry of a use case MUST name a record of another module only when the use case's module lists that module in `dependsOn`.
+
+**Rationale:** The link checks read a use case's top-level links, but an entry inside `input`, `output`, or `steps` can name another module's record without appearing in any of them. Such a reference is a dependency the record graph does not declare, so the module seam stays invisible to a reader and to a check. Naming the dependency in `dependsOn` states the tie where module ties belong; a module event, an integration event, or a public edge states the crossing when the two modules should not depend on each other.
+
+**Example:** In Claimwick, an input of `use-case/spending.reimburse-expense` names `aggregate/reporting.reimbursed-expense` in `identifies`. Module `spending` does not list `module/reporting` in `dependsOn`, so the entry is reported; the modules either declare the tie or the use case reads the value through a public query.
+
+**Checked by:** `litespec model check` reports `module-reference-undeclared` (level G) for an `input`, `output`, or `steps` entry that names another module's record with no declared dependency.
 
 ### Keep Module Dependencies Free of Cycles
 

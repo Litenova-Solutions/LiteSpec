@@ -53,6 +53,22 @@ Erasure that answers a subject request uses the `requested` reach and touches on
 
 **Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position, `retention-enforcement-missing` for a class nothing enforces, and `data-class-fields-drift` for a data class `fields` list differing from the fields naming the class.
 
+### Enforce a Data Class Through Its Aggregate
+
+**ID:** `litespec/core/privacy#enforce-a-data-class-through-its-aggregate`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** When a data class names a job in `enforcedBy`, that job MUST run or send a use case writing the aggregate holding the data class.
+
+**Rationale:** An enforcement job that never reaches the aggregate leaves the retention promise unkept: the class states a period and an erasure position, but no command in the job's run path touches the rows the period covers. Following the job's `runs` and `commands` effects to the use cases they send and those use cases' `writes` shows whether the job can erase the class it claims to enforce. A job writing a different aggregate enforces that aggregate's data, not this one. An enforcement use case needs no job, because its `writes` states the aggregate directly.
+
+**Example:** Claimwick's expense-ledger data class names the finance expiry job. That job runs the erase-expired-expenses command, whose `writes` names `aggregate/spending.expense`, so the job reaches the class it enforces. A job running only the session cleanup command would be reported.
+
+**Checked by:** `litespec model check` reports `enforcement-job-unreached` (level G) for a data class whose `enforcedBy` names a job that runs or sends no use case writing the aggregate holding the class.
+
 ### Pause Deletion While a Hold Stands
 
 **ID:** `litespec/core/privacy#pause-deletion-while-a-hold-stands`

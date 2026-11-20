@@ -90,9 +90,12 @@ Reference data is a table of dated business values the running system looks up: 
 
 Rules cite the table instead of stating its values: a use case names it in `reads` and a step cites it in `cites`, and a rule statement names it by its identifier. The model checks that every cited table exists and that no two rows overlap in time.
 
+A table can take its values from an external pack file, such as a country pack, instead of writing each row by hand. The `pack` field names a file relative to the consumer root, such as `data/country-pack.csv`; the file must exist, and its rows still carry their effective dates and their sources.
+
 | Field | Meaning |
 |:---|:---|
 | `summary`, `unit` | What values the table holds and who reads them, and the unit of each value, such as EUR. |
+| `pack` | The path of an external file whose values this table copies, relative to the consumer root. Optional; the named file must exist. |
 | `rows` | One entry per dated value, each with its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. |
 
 ### Domain Events
@@ -210,11 +213,11 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each rule MUST name what it constrains in `governs`.
 
-**Rationale:** A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, calculation links, scenario `exercises`, and result refusals. A module rule governs records of its own module; a product-level rule governs records in any module and names each aggregate it governs.
+**Rationale:** A rule that names no governed record constrains nothing a reader can find. Naming the constrained aggregates and use cases in `governs` pins each rule to its records. The governed records match the links that name the rule: input `rules`, consistency bindings, a use case's `computedBy` as its calculation link, scenario `exercises`, and result refusals. A calculation rule cited only through `computedBy` reaches the use case whose value it computes. A module rule governs records of its own module; a product-level rule governs records in any module and names each aggregate it governs.
 
 **Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its refusal.
 
-**Checked by:** `litespec model check` reports `rule-governs-drift` for `governs` disagreeing with the links that name the rule.
+**Checked by:** `litespec model check` reports `rule-governs-drift` for `governs` disagreeing with the links that name the rule, counting a use case's `computedBy` as a calculation link that reaches the rule.
 
 ### Bind Every Atomic Write Group in Its Rule
 
@@ -441,6 +444,22 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Example:** Claimwick's decision-target row states five business days from 2026-02-10 with `research/approval-time-benchmarks` as its source.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a reference-data row without `effectiveFrom` or `source`.
+
+### Bind a Reference-Data Table to an External Pack
+
+**ID:** `litespec/core/domain-model#bind-a-reference-data-table-to-an-external-pack`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** A reference-data table that names a `pack` MUST point at a file that exists.
+
+**Rationale:** A pack such as a country list can carry thousands of values, so copying the whole list into a record would bury the dates and sources a reader needs. Naming the file beside the table keeps one source of truth and lets the table state only the values the product uses. A path that names no file leaves the table pointing at values nobody can read, so the check reports it.
+
+**Example:** Claimwick's `reference-data/spending.country` names `pack: data/country-pack.csv` and holds only the rows whose effective dates and sources the product states. A table naming `data/countries.csv` when no such file exists is reported.
+
+**Checked by:** `litespec model check` reports `reference-data-pack-missing` (level G) for a reference-data table whose `pack` names no file that exists.
 
 ### Keep Reference-Data Rows from Overlapping
 

@@ -11,17 +11,6 @@ compensates: use-case/<module>.<name, or remove this line>
 effects:
 - sends: notification/<module>.<name>
   timing: <inline|after-commit|async, or remove this line>
-  onFailure:
-    mode: <retry|skip-and-log|discard>
-    retry:
-      maxAttempts: <how many tries>
-      initialDelay: <first wait, such as PT1M>
-      maxDelay: <longest wait, such as PT1H>
-      backoff: <exponential|fixed>
-    ifExhausted: dead-letter
-    deadLetter:
-      after: <how long the failure is kept, such as P1D>
-      action: <what happens to the exhausted effect>
   onExhausted: <what happens after every retry, or remove this line>
   before: <what runs before the effect, or remove this line>
   forEach: <what the effect repeats over, or remove this line>

@@ -506,6 +506,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `package` field.</summary>
     public const string Package = "package";
 
+    /// <summary>Gets the name of the `pack` field.</summary>
+    public const string Pack = "pack";
+
     /// <summary>Gets the name of the `paging` field.</summary>
     public const string Paging = "paging";
 

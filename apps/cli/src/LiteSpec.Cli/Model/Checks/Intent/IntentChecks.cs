@@ -227,13 +227,14 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports each capitalized phrase of two to four words named in three or more records that no glossary term defines, skipping sentence openers, months, currency codes, acronym pairs, cast names and wireframes.</summary>
+    /// <summary>Reports each capitalized phrase of two to four words named in three or more records that no glossary term defines, skipping sentence openers, months, currency codes, acronym pairs, cast names, wireframes and phrases built from reaction titles.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUndefinedPhrases(ProjectModel model, List<Finding> findings)
     {
         var defined = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var titles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var reactionTitlePhrases = ReactionTitlePhrasesOf(model);
 
         foreach (var record in model.Records)
         {
@@ -302,7 +303,8 @@ internal static class IntentChecks
 
         foreach (var entry in recordsOfPhrase.OrderBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase))
         {
-            if (entry.Value.Count < 3 || defined.Contains(entry.Key) || titles.Contains(entry.Key) || ContainsCastName(entry.Key, castNames))
+            if (entry.Value.Count < 3 || defined.Contains(entry.Key) || titles.Contains(entry.Key)
+                || reactionTitlePhrases.Contains(entry.Key) || ContainsCastName(entry.Key, castNames))
             {
                 continue;
             }
@@ -314,6 +316,29 @@ internal static class IntentChecks
                 $"Record '{record.Id}' names '{entry.Key}' in {entry.Value.Count} records, and no glossary term defines it.",
                 record.File, record.Line, SubjectOf(record)));
         }
+    }
+
+    /// <summary>Every two-to-four-word phrase built from the words of a reaction title.</summary>
+    /// <param name="model">The loaded project model that holds every reaction record.</param>
+    /// <returns>The phrases that a reaction title states, so a term check cannot mistake them for undefined vocabulary.</returns>
+    private static HashSet<string> ReactionTitlePhrasesOf(ProjectModel model)
+    {
+        var phrases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var reaction in model.Records.Where(record => record.Type == RecordTypes.Reaction))
+        {
+            var words = WordToken.Matches(reaction.Title).Select(match => match.Value).ToList();
+
+            for (var at = 0; at < words.Count; at++)
+            {
+                for (var length = 2; length <= 4 && at + length <= words.Count; length++)
+                {
+                    phrases.Add(string.Join(" ", words.Skip(at).Take(length)));
+                }
+            }
+        }
+
+        return phrases;
     }
 
     /// <summary>Every prose text of a record: its written string values and its explanation without headings, table rows and wireframe blocks.</summary>

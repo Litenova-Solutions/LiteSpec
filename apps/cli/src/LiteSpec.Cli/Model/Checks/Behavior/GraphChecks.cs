@@ -15,6 +15,8 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/use-cases#exercise-rules-from-scenarios</follows>
 /// <follows>litespec/core/use-cases#cite-the-invariants-most-writers-cite</follows>
 /// <follows>litespec/core/domain-model#keep-reference-data-rows-from-overlapping</follows>
+/// <follows>litespec/core/domain-model#bind-a-reference-data-table-to-an-external-pack</follows>
+/// <follows>litespec/core/domain-model#state-what-each-rule-governs</follows>
 internal static class GraphChecks
 {
     /// <summary>Reports a use case, reaction, job, notification or setting naming neither serves nor fulfills.</summary>
@@ -208,6 +210,37 @@ internal static class GraphChecks
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>Reports a reference-data table whose external pack file is missing.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record and the project root.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunReferenceDataPack(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => !record.Derived && record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (table.Field(RecordFields.Pack) is not { Length: > 0 } pack)
+            {
+                continue;
+            }
+
+            var fromRoot = Path.IsPathRooted(pack) ? pack : Path.Combine(model.Config.Root, pack);
+            var fromRecord = Path.IsPathRooted(pack) ? pack : Path.Combine(Path.GetDirectoryName(table.File) ?? model.Config.Root, pack);
+
+            if (File.Exists(fromRoot) || File.Exists(fromRecord) || Directory.Exists(fromRoot) || Directory.Exists(fromRecord))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding(
+                "reference-data-pack-missing",
+                $"Reference data '{table.Id}' names pack '{pack}', which names no file that exists.",
+                table.File,
+                table.Line,
+                SubjectOf(table)));
         }
     }
 
@@ -509,8 +542,8 @@ internal static class GraphChecks
 
     /// <summary>
     ///     Reports a rule whose governs names a use case its links do not reach, or a use case its links reach that governs
-    ///     does not name. The links are an input rule, a consistency boundBy, a scenario exercises, and a result whose code
-    ///     the rule refuses with.
+    ///     does not name. The links are an input rule, a consistency boundBy, a use case computedBy, a scenario exercises,
+    ///     and a result whose code the rule refuses with.
     /// </summary>
     /// <param name="model">The loaded project model that holds every rule, use case, scenario and result.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -544,6 +577,13 @@ internal static class GraphChecks
                 {
                     Reach(Identifiers.BaseId(rule), useCase.Id);
                 }
+            }
+
+            // computedBy is the calculation link: a calculation rule cited only this way
+            // still reaches the use case whose value it computes.
+            foreach (var rule in useCase.Ids(RecordFields.ComputedBy))
+            {
+                Reach(Identifiers.BaseId(rule), useCase.Id);
             }
         }
 

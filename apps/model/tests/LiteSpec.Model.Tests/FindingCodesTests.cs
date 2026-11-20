@@ -67,6 +67,24 @@ public sealed class FindingCodesTests
         Assert.Equal(FindingCodes.All.Count, FindingCodes.All.Select(row => row.Code).Distinct(StringComparer.Ordinal).Count());
     }
 
+    /// <summary>Each scope and term finding code added for rc.10 carries its contracted tier, layer and trace.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="tier">The tier the code must carry.</param>
+    /// <param name="layer">The record layer the code must govern.</param>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("module-reference-undeclared", "G", RecordLayer.Any)]
+    [InlineData("tenant-setting-change-missing", "G", RecordLayer.Behavior)]
+    [InlineData("on-failure-placement-invalid", "G", RecordLayer.Behavior)]
+    [InlineData("reference-data-pack-missing", "G", RecordLayer.Behavior)]
+    public void Rc10ScopeFindingCodesHaveTiers(string code, string tier, RecordLayer layer)
+    {
+        var row = FindingCodes.Of(code);
+        Assert.Equal(tier, row.Level);
+        Assert.Equal(layer, row.Layer);
+        Assert.False(row.Trace);
+    }
+
     /// <summary>Each new Intent finding code carries its contracted tier.</summary>
     /// <param name="code">The finding code under test.</param>
     /// <param name="tier">The tier the code must carry.</param>
@@ -121,6 +139,10 @@ public sealed class FindingCodesTests
     [InlineData("command-consumer-missing", "G")]
     [InlineData("command-edge-invalid", "G")]
     [InlineData("use-case-writes-invalid", "G")]
+    [InlineData("idempotency-key-uncarried", "G")]
+    [InlineData("module-event-unused", "G")]
+    [InlineData("enforcement-job-unreached", "G")]
+    [InlineData("scenario-result-unknown", "G")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -166,6 +188,10 @@ public sealed class FindingCodesTests
     [InlineData("command-consumer-missing", RecordLayer.Behavior, false, null)]
     [InlineData("command-edge-invalid", RecordLayer.Behavior, false, null)]
     [InlineData("use-case-writes-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("idempotency-key-uncarried", RecordLayer.Behavior, false, null)]
+    [InlineData("module-event-unused", RecordLayer.Behavior, false, null)]
+    [InlineData("enforcement-job-unreached", RecordLayer.Behavior, false, null)]
+    [InlineData("scenario-result-unknown", RecordLayer.Behavior, false, null)]
     [InlineData("link-direction-invalid", RecordLayer.Any, false, null)]
     [InlineData("folder-ungrouped", RecordLayer.Implementation, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)

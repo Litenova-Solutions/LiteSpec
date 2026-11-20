@@ -1003,8 +1003,6 @@ $defs:
         - inline
         - after-commit
         - async
-      onFailure:
-        $ref: '#/$defs/onFailureValue'
       onExhausted:
         $ref: '#/$defs/nonEmptyString'
       before:
@@ -4382,6 +4380,9 @@ $defs:
       summary:
         $ref: '#/$defs/nonEmptyString'
       unit:
+        $ref: '#/$defs/nonEmptyString'
+      pack:
+        description: 'The path of an external pack file, relative to the consumer root, whose values this table copies. The file must exist.'
         $ref: '#/$defs/nonEmptyString'
       rows:
         type: array

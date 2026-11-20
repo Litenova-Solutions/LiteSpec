@@ -154,7 +154,7 @@ A proof goes stale when either of its proof hashes changes. The book groups a us
 
 A setting is one operator configuration value with its type, range, unit, setter, and bound behavior: a provider timeout, a batch size, or a delay the operator tunes, read by the running system.
 
-A business value the business changes while the system runs is aggregate data, not a setting: a threshold a manager sets, a fee, or a reminder delay a tenant chooses. Its range is a rule with a refusal, and its change is a use case with access and audit. A model invariant is a rule instead. A setting several modules read is owned by one module, and the other modules read it across their declared dependency.
+A business value a person changes through their work is aggregate data, not a setting: a threshold a manager sets on an expense, or a fee. Its range is a rule with a refusal, and its change is a use case with access and audit. A value a tenant administrator changes for the whole tenant is a setting with `setBy: tenant`, changed by a `change-*` use case, as [Give Every Tenant Setting a Change Use Case](#give-every-tenant-setting-a-change-use-case) states; it carries no configuration path. A value the product fixes or the operator tunes is a setting with `setBy: product` or `setBy: operator`. A model invariant is a rule instead. A setting several modules read is owned by one module, and the other modules read it across their declared dependency.
 
 The `setting-set` page style holds many settings. A setting set carries `summary`, and its explanation file holds Notes.
 
@@ -531,7 +531,23 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode states how repeats collapse. The mode is `key`, `state`, or `none`, with its key template and key scope. Mode `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `keyScope` is `tenant`, `account`, `login`, or `global`. A query carries no `idempotency`, since a read is idempotent by kind. A reaction or job carries its own `idempotency`, as [Automation](automation.md) states. The self-checkout scan keys on `{nonce}` scoped to the login.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a command without an idempotency mode or without the key, key scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a key scope outside `tenant`, `account`, `login`, and `global`; `litespec model check` reports `record-invalid` for a query carrying `idempotency`.
+**Checked by:** `litespec model check` reports `record-invalid` for a command without an idempotency mode or without the key, key scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder or a key scope outside `tenant`, `account`, `login`, and `global`; `litespec model check` reports `record-invalid` for a query carrying `idempotency`. `litespec model check` reports `idempotency-key-uncarried` for a key placeholder naming no carried field.
+
+### Carry Every Key Placeholder
+
+**ID:** `litespec/core/use-cases#carry-every-key-placeholder`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case, record:reaction, record:job
+
+**Statement:** Each idempotency or deduplication key MUST name only placeholders that the record carries: an input of a use case, a field of an event a reaction answers, or an input of a use case a job runs.
+
+**Rationale:** A key template is evaluated when a repeat arrives. A placeholder naming no value the record carries is never filled, so every call computes the same key or no key at all: distinct expenses collapse onto one replay, and a reaction never deduplicates the fact it answers. A use case carries its input field names. A reaction carries the fields of the domain event, module event or integration event in `triggeredBy`. A job carries the input field names of the use cases it runs or sends. Naming only carried fields keeps each key unique to the work it guards.
+
+**Example:** In Claimwick, `use-case/spending.submit-expense` keys repeats on `{expenseId}`, an input it carries. A key on `{attemptId}` would be reported, because no input or triggering event supplies an attempt identifier.
+
+**Checked by:** `litespec model check` reports `idempotency-key-uncarried` (level G) for each key placeholder that no input of a use case, no field of a reaction's triggering event, and no input of a job's run use case carries.
 
 ### State What a Replay Does
 
@@ -809,7 +825,23 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Rationale:** A scenario that names no result reads well and proves nothing: it illustrates behavior without asserting an ending. Naming the result ties each example to the ending it walks toward, so every test knows what to assert. A reaction or job scenario names a result or an outcome instead, as [Automation](automation.md) states. The `reference-unknown` check reports a scenario ending in an unknown result.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `result`, and `reference-unknown` for a scenario ending in an unknown result.
+**Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `result`, and `reference-unknown` for a scenario ending in another use case's result. `litespec model check` reports `scenario-result-unknown` for a result id no record declares.
+
+### Declare the Result a Scenario Ends In
+
+**ID:** `litespec/core/use-cases#declare-the-result-a-scenario-ends-in`
+
+**Strength:** required
+
+**Applies to:** artifact: record:scenario
+
+**Statement:** The result a scenario names MUST be declared by the use case: a written result, or one of the generic refusals the model derives.
+
+**Rationale:** A scenario whose ending no result declares asserts an outcome the use case never promises, so its test proves a story nobody wrote down. A written result is a child record of the use case, and a derived generic refusal follows from the access and inputs. Pointing the scenario at `result/<use-case>.<name>` with no such result leaves the proof attached to nothing. Naming a declared ending ties each scenario to an outcome the use case owns.
+
+**Example:** A Claimwick scenario for `use-case/spending.reimburse-expense` that ends in `result/reimburse-expense.already-reimbursed` needs a written result with that id. Ending in `result/reimburse-expense.not-found` needs none, because the model derives that refusal.
+
+**Checked by:** `litespec model check` reports `scenario-result-unknown` (level G) for a scenario ending in a result id that no result record declares and is not a derived generic refusal.
 
 ### Prove Every Written Result with a Scenario
 
@@ -947,7 +979,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Rationale:** A default no requirement holds is a figure nobody stated: a delay, a timeout, or a batch size nobody decided. Declaring the value type, the range, the unit, the setter, and the bound behavior states the tunable beside its promise.
 
-A setting holds operator configuration read by the running system. A business value the business changes while the system runs is aggregate data instead: its range is a rule with a refusal, and its change is a use case with access and audit. The setter is product, operator, or tenant. The bound behavior is `refuse`, `truncate`, or `degrade`. The default takes the setting's `valueType`: a duration default holds an ISO 8601 duration, a money default holds an amount with its currency, and a choice default names one of its `choices`. A setting whose values apply from a date carries `dated: true`, and no value change touches a posted record. The `setting-requirement-missing` check reports a default with no cited requirement.
+A setting holds configuration read by the running system. A business value a person changes through their work is aggregate data instead: its range is a rule with a refusal, and its change is a use case with access and audit. The setter is product, operator, or tenant; a tenant setting is changed by a `change-*` use case. The bound behavior is `refuse`, `truncate`, or `degrade`. The default takes the setting's `valueType`: a duration default holds an ISO 8601 duration, a money default holds an amount with its currency, and a choice default names one of its `choices`. A setting whose values apply from a date carries `dated: true`, and no value change touches a posted record. The `setting-requirement-missing` check reports a default with no cited requirement.
 
 **Example:** The approval reminder delay declares a duration with an operator-set default of `PT72H`, citing the requirement that each expense is decided within five days.
 
@@ -979,11 +1011,27 @@ A setting holds operator configuration read by the running system. A business va
 
 **Statement:** A setting the operator sets MUST name its configuration path in `configurationPath`.
 
-**Rationale:** An operator setting reaches the product through configuration. The record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the path, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the product sets is held as data by an aggregate instead, and names no path.
+**Rationale:** An operator setting reaches the product through configuration. The record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the path, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the product sets names no configuration path; a tenant setting is changed by a `change-*` use case, as [Give Every Tenant Setting a Change Use Case](#give-every-tenant-setting-a-change-use-case) states.
 
 **Example:** Claimwick's `setting/spending.approval-reminder-delay` is set by the operator. It carries `configurationPath` `Spending:ApprovalReminderDelay`.
 
 **Checked by:** `litespec model check` reports `setting-key-missing` (level G) for a setting with `setBy: operator` and no `configurationPath`.
+
+### Give Every Tenant Setting a Change Use Case
+
+**ID:** `litespec/core/use-cases#give-every-tenant-setting-a-change-use-case`
+
+**Strength:** required
+
+**Applies to:** artifact: record:setting
+
+**Statement:** A setting with `setBy: tenant` MUST be changed by a `change-*` use case that names it in `reads`.
+
+**Rationale:** A tenant setting holds configuration the tenant's administrator changes while the system runs. The schema admits `setBy: tenant` beside `product` and `operator`, so a tenant setting is a record, not aggregate data; without a use case that changes it, the value can never move and the default becomes a permanent figure. Naming the setting in `reads` of the `change-*` use case states who changes it and under which access, so the change has the audit and refusal handling every command carries. A product or operator setting names a configuration path instead, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states for the operator.
+
+**Example:** Claimwick's `setting/spending.claim-approval-limit` is set by the tenant, and `use-case/spending.change-claim-approval-limit` names it in `reads`. A tenant setting with no such use case is reported.
+
+**Checked by:** `litespec model check` reports `tenant-setting-change-missing` (level G) for a setting with `setBy: tenant` that no `change-*` use case names in `reads`.
 
 ### Bind Every Keyed Setting in One Marked Element
 

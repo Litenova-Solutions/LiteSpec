@@ -223,6 +223,7 @@ internal static class FieldTable
         new("outcomes", "The outcomes a reaction or job ends in", "array", "reactionPage, jobPage"),
         new("outOfRange", "What a setting does out of range", "string", "settingEntry, settingPage"),
         new("output", "What the use case returns", "any", "useCasePage"),
+        new("pack", "The external pack file a reference-data table copies its values from", "string", "referenceDataPage"),
         new("package", "The admitted package by ecosystem and name", "string", "admission"),
         new("pageFrame", "The page frame pattern a screen follows", "object", "screenPage"),
         new("paging", "How a query pages its answer", "object", "useCasePage"),

@@ -131,7 +131,7 @@ A runbook lists the steps that run or recover the product: what breaks, what to 
 
 The name starts with a verb for what the reader does, as the [record language](language.md) defines. The `trigger` field names when to open it.
 
-A job names its runbook in `runbook`, and any record or effect names its recovery in `onFailure.runbook`. The runbook keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
+A job names its runbook in `runbook`, and a reaction or job names its recovery in `onFailure.runbook` on the record, while a use-case effect names its recovery on the effect entry. The runbook keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
 ## Standards
 
@@ -166,6 +166,22 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 **Example:** Claimwick's `module-event/spending.expense-approved` translates `domain-event/expense.approved`, so `use-case/spending.approve-expense`, which raises that event, publishes it, and its handler publishes nothing. The payouts module answers the module event from a reaction.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a module event without `translates` or `fields`, `event-field-uncarried` (level G) for a field name its translated domain event does not carry, `event-publisher-invalid` for a module event with a second publishing module, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
+
+### Subscribe to Every Module Event
+
+**ID:** `litespec/core/automation#subscribe-to-every-module-event`
+
+**Strength:** required
+
+**Applies to:** artifact: record:module-event
+
+**Statement:** Each module event MUST be named by a reaction, a read model projection or another consumer that answers or copies it.
+
+**Rationale:** A module event is a contract between modules. Publishing one nobody consumes stages an event on every commit that no work reads, and a reader cannot tell whether the fact matters or the consumer was forgotten. Naming the consumer makes the crossing complete: the reaction answers the fact, or the projection copies it into the reading module's own store. A direction may describe a planned event, but it justifies no published record; only a waiver sets this rule aside for an event waiting on a consumer.
+
+**Example:** Claimwick's `module-event/spending.expense-approved` is named by the payouts reaction that pays the reimbursement. A second event with no reaction or read model is reported until its consumer is written or the event is removed.
+
+**Checked by:** `litespec model check` reports `module-event-unused` (level G) for a module event that no reaction in `triggeredBy`, no read model field in `from`, `erasedBy` or `removedBy`, and no other consumer names.
 
 ### Run Every Job from Its Declared Kind
 
@@ -427,9 +443,25 @@ A job names its runbook in `runbook`, and any record or effect names its recover
 
 **Statement:** Each reaction and each job MUST declare its `onFailure` in the one failure shape and its idempotency.
 
-**Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, and holds never clear. Declaring `onFailure` states the failure shape beside the trigger or schedule: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `ifExhausted` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure, and `runbook` the recovery procedure. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeated runs collapse.
+**Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, and holds never clear. Declaring `onFailure` states the failure shape beside the trigger or schedule: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `ifExhausted` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure, and `runbook` the recovery procedure. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The one shape also serves the effect entries of a use case; a reaction or job states failure handling once on the record, as [Keep Failure Handling on the Reaction or Job](#keep-failure-handling-on-the-reaction-or-job) states. The idempotency mode, usually `state`, states how repeated runs collapse.
 
-**Checked by:** `litespec model check` fails a reaction or job with `onFailure` outside the one failure shape, and reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
+**Checked by:** `litespec model check` fails a reaction or job with `onFailure` outside the one failure shape, and reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration. A reaction or job that states `onFailure` in an effect entry is reported as `on-failure-placement-invalid`.
+
+### Keep Failure Handling on the Reaction or Job
+
+**ID:** `litespec/core/automation#keep-failure-handling-on-the-reaction-or-job`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reaction, record:job
+
+**Statement:** A reaction or job MUST state its failure handling once, in `onFailure` on the record and never in an effect entry.
+
+**Rationale:** A reaction or job runs one use case and owns the failure of the whole run. The record's `onFailure` states the mode, the retry and the dead-letter beside the trigger or schedule, where a reader looks for it. Repeating the shape on an effect entry leaves two places to change and two answers to the same failure, so the entry is not a second home for it. A use case has no record-level `onFailure`; its effect entries each carry their own, as [Use Cases](use-cases.md) states.
+
+**Example:** Claimwick's reaction `reaction/spending.release-hold-on-rejection` states its retry and dead-letter in `onFailure` on the reaction record. Copying that object into its `runs` effect entry is reported.
+
+**Checked by:** `litespec model check` reports `on-failure-placement-invalid` (level G) for a reaction or job whose effect entry carries `onFailure`.
 
 ### End Reaction and Job Scenarios in the Run Result
 

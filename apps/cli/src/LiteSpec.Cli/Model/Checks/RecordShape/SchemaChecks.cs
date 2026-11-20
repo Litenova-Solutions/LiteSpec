@@ -1576,20 +1576,9 @@ internal static class SchemaChecks
             return;
         }
 
-        // A reaction or a job takes no input: its key names fields of the triggering
-        // event or the run window, which the record does not list.
-        if (record.Type is RecordTypes.Reaction or RecordTypes.Job)
-        {
-            return;
-        }
-
-        foreach (var name in placeholders)
-        {
-            if (!fields.Contains(name, StringComparer.Ordinal))
-            {
-                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds idempotency key '{template}' where placeholder '{name}' names no input field with input fields in scope: {inScope}.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
+        // A placeholder naming no carried field is reported by IdempotencyKeyChecks, which
+        // reads the triggering event fields of a reaction and the run window of a job as
+        // well as the input fields of a use case.
     }
 
     /// <summary>The record's input field names, in written order.</summary>

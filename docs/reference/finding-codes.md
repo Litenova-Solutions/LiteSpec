@@ -42,6 +42,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `read-model-unused` | G | behavior | no | - | No use case names the read model in `reads`. | Name the read model in `reads` of the use case that reads it, or remove the read model. |
 | `read-model-key-invalid` | G | behavior | no | - | A read model's `keyedBy` names an aggregate of the read model's own module. | Read the module's own aggregate directly, and key the read model by an aggregate of another module. |
 | `reference-data-period-invalid` | G | behavior | no | - | Two rows of one reference-data table overlap in time, or a row ends no later than it starts. | Give the rows disjoint effective periods, ending the earlier row where the later one takes effect, and end each row after it starts. |
+| `reference-data-pack-missing` | G | behavior | no | - | A reference-data table names an external pack file that does not exist. | Point the pack at a file that exists, or remove the pack from the table. |
 | `erasure-undeclared` | G | any | no | - | A personal or sensitive field has no declared erasure position. | Declare the erasure position of the field. |
 | `record-link-missing` | G | any | no | - | A use case, reaction, job, notification, or setting names neither `serves` nor `fulfills`. | Link the record to its reason with `serves` or `fulfills`. |
 | `record-placement-invalid` | G | any | no | - | A record, folder, module, or identifier is placed where its type, home, or folder does not allow, or a record names no parent its type requires. | Move the record, folder, or identifier to its home, declare the module, or name the missing parent link. |
@@ -61,6 +62,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `effect-loop-invalid` | G | any | no | - | The effect graph contains a cycle that does not pass through a domain event with a stated end condition. | Break the cycle, or route it through a domain event with a stated end condition. |
 | `module-dependency-invalid` | G | any | no | - | Module dependencies form a cycle, through `dependsOn` links, Contracts project references, `queries` or `commands` edges, or reaction triggers. | Break the cycle so one module stops depending on the other. |
 | `link-locality-invalid` | G | any | no | - | Within one layer, a record in one module is linked from another module without a declared `dependsOn` link, a module event or an integration event. | Move the record to product level, or declare the tie between the modules. |
+| `module-reference-undeclared` | G | any | no | - | An input, output, or steps entry of a use case names a record of another module that the use case's module does not list in `dependsOn`. | Declare the module dependency, or name the record through a module event, an integration event, or a public edge. |
 | `link-direction-invalid` | G | any | no | - | A link points from a record to a record on a lower layer. | Write the link on the lower record so it points up to the higher one. |
 | `event-publisher-invalid` | G | any | no | - | A module event or integration event has more than one publishing module. | Keep one publishing module and read the event from the other modules. |
 | `consistency-cites-missing` | G | any | no | - | An atomic use case that changes more than one aggregate names no rule in `cites`. | Cite the atomicity rule in `cites`. |
@@ -161,6 +163,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `quality-alert-missing` | G | any | no | delivery | A quality requirement is named by no alert, its `check` matches no measured-check or check result, and no open waiver covers it. | Name the requirement from an alert, or record a waiver. |
 | `runbook-unused` | A | any | no | delivery | A runbook is named by no alert, job, or use case. | Name the runbook from an alert, a job, or a use case, or remove the runbook. |
 | `setting-key-missing` | G | any | no | - | A setting with `setBy: operator` names no `configurationPath`. | Name the `configurationPath` of the setting. |
+| `tenant-setting-change-missing` | G | behavior | no | - | A setting with `setBy: tenant` is changed by no `change-*` use case. | Write a `change-*` use case that reads the setting, or change the setting's setter. |
 | `setting-unimplemented` | S | implementation | yes | - | A setting with a `configurationPath` is marked by no options class in code. | Mark an options class with the setting. |
 | `setting-key-drift` | S | implementation | yes | - | A marked options class's `SectionName` and property do not spell the setting's `configurationPath`. | Spell the setting's `configurationPath` in the `SectionName` and property. |
 | `template-unimplemented` | S | implementation | yes | - | A notification declares a `template` key that the template store does not hold. | Add the key to the template store, or remove it from the notification. |
@@ -175,6 +178,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `repository-read-invalid` | A | implementation | no | - | A repository read sits inside a `for`, `foreach`, or `while` body. | Move the repository read out of the loop body. |
 | `query-filter-invalid` | A | implementation | no | - | A query handler filters a repository list with LINQ in memory. | Filter in the repository instead of in memory. |
 | `effect-timing-invalid` | S | any | no | - | A command use case declares a `sends` or `calls` effect with `inline` timing. | Send or call after the commit, from an event handler or a job. |
+| `on-failure-placement-invalid` | G | behavior | no | - | A reaction or job states `onFailure` in an effect entry instead of on the record. | Move the failure handling to `onFailure` on the reaction or job. |
 | `partial-missing` | S | implementation | no | - | A marked domain event or rule exception is not declared `partial`, so the generator cannot add its runtime value. | Declare the domain event or rule exception `partial`. |
 | `project-invalid` | G | any | no | - | The project file breaks the project schema, holds an unfilled template placeholder, or names a release other than the release of the installed tool. | Write the project file in its declared shape and adopt the installed release. |
 | `release-drift` | G | any | no | - | The project file names no reviewed LiteSpec release, or names a release other than the release of the installed tool. | Install the reviewed release, or review the installed release and record it in `reviewedLiteSpecVersion`. |
@@ -238,6 +242,10 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `command-target-invalid` | G | behavior | no | - | A `commands` edge names a use case that is not a command, or a command whose `reachedThrough` does not name the sending module. | Command a command use case that lists the sending module in `reachedThrough`. |
 | `command-consumer-missing` | G | behavior | no | - | A use case names a module in `reachedThrough` that commands it from no record. | Command the use case from the module, or remove the module from `reachedThrough`. |
 | `command-edge-invalid` | G | behavior | no | - | A use case declares a `commands` edge, which only a reaction or a job declares. | Move the `commands` edge to the reaction or job that sends the command. |
+| `idempotency-key-uncarried` | G | behavior | no | - | An idempotency or deduplication key template names a placeholder that no input of the record or field of its triggering event carries. | Name a placeholder the record carries, or add the field to the input or the triggering event. |
+| `module-event-unused` | G | behavior | no | - | A module event is named by no reaction, read model projection or other consumer that answers or copies it. | Name the module event from a reaction, a read model or another consumer, or remove it. |
+| `enforcement-job-unreached` | G | behavior | no | - | A data class names in `enforcedBy` a job that runs or sends no use case writing the aggregate holding the data class. | Name a job that runs or sends a use case writing the aggregate, or remove the job from `enforcedBy`. |
+| `scenario-result-unknown` | G | behavior | no | - | A scenario ends in a result id that its use case declares neither as a written result nor as a derived refusal. | Declare the result on the use case, or point the scenario at a declared result. |
 
 ## Notes
 

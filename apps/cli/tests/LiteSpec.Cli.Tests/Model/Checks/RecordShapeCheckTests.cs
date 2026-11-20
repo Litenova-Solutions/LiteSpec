@@ -117,7 +117,7 @@ public sealed class RecordShapeCheckTests
     }
 
     /// <summary>Key Placeholder Naming No Input Field Reports.</summary>
-    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-command</proves>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
     [Fact]
     public void KeyPlaceholderNamingNoInputFieldReports()
     {
@@ -126,8 +126,8 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "steps": [{"statement": "The reader borrows the copy."}], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "keyScope": "tenant"}}"""));
 
-        Assert.True(Reports(model, "record-invalid", "placeholder 'copy' names no input field"));
-        Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
+        Assert.True(Reports(model, "idempotency-key-uncarried", "placeholder 'copy' is carried by no input"));
+        Assert.True(Reports(model, "idempotency-key-uncarried", "carried: copyId"));
     }
 
     /// <summary>Key Without Placeholder Reports.</summary>

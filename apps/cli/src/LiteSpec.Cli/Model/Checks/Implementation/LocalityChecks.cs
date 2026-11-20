@@ -11,6 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     The locality checks, kept in one class so the partial checker holds only the entry point.
 /// </summary>
 /// <follows>litespec/core/model#connect-across-modules-only-through-declared-dependencies</follows>
+/// <follows>litespec/core/model#declare-cross-module-references-in-depends-on</follows>
 /// <follows>litespec/core/model#keep-module-dependencies-free-of-cycles</follows>
 /// <follows>litespec/core/model#publish-each-integration-event-from-one-module</follows>
 internal static class LocalityChecks
@@ -23,9 +24,104 @@ internal static class LocalityChecks
     public static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckLinks(model, findings);
+        CheckUseCaseReferences(model, findings);
         CheckCycles(model, findings);
         CheckPublishers(model, findings);
         CheckExternalSystemPlacement(model, findings);
+    }
+
+    /// <summary>Reports a use case input, output or steps entry that names another module's record with no declared dependency.</summary>
+    /// <param name="model">The loaded project model that holds every module, use case and record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCaseReferences(ProjectModel model, List<Finding> findings)
+    {
+        var depends = DependsByModule(model);
+
+        foreach (var useCase in model.Records.Where(record => !record.Derived && record.Type == RecordTypes.UseCase).OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (ModuleOf(model, useCase) is not { Length: > 0 } from)
+            {
+                continue;
+            }
+
+            if (!depends.TryGetValue(from, out var edges))
+            {
+                edges = new HashSet<string>(StringComparer.Ordinal);
+            }
+
+            foreach (var field in new[] { RecordFields.Input, RecordFields.Output, RecordFields.Steps })
+            {
+                if (!useCase.Raw.TryGetProperty(field, out var entries) || entries.ValueKind != JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (var id in NestedRecordIds(entries, collect: false).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+                {
+                    if (!model.ById.TryGetValue(Identifiers.BaseId(id), out var target)
+                        || target.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
+                    {
+                        continue;
+                    }
+
+                    if (ModuleOf(model, target) is not { Length: > 0 } to
+                        || to.Equals(from, StringComparison.Ordinal)
+                        || edges.Contains(to))
+                    {
+                        continue;
+                    }
+
+                    findings.Add(new Finding(
+                        "module-reference-undeclared",
+                        $"Use case '{useCase.Id}' names '{id}' of module '{to}' in '{field}' with no declared dependency from '{from}'.",
+                        useCase.File, useCase.Line, SubjectOf(useCase)));
+                }
+            }
+        }
+    }
+
+    /// <summary>The record identifiers nested in an input, output or steps entry, read only from the fields that name records.</summary>
+    /// <param name="value">The JSON value walked for nested record identifiers.</param>
+    /// <param name="collect">Whether every string in this value names a record.</param>
+    /// <returns>Each nested record identifier once per occurrence, in document order.</returns>
+    private static IEnumerable<string> NestedRecordIds(JsonElement value, bool collect)
+    {
+        switch (value.ValueKind)
+        {
+            case JsonValueKind.String:
+                if (collect
+                    && value.GetString() is { Length: > 0 } text
+                    && Identifiers.TrySplit(text, out _, out _, out _))
+                {
+                    yield return text;
+                }
+
+                break;
+
+            case JsonValueKind.Array:
+                foreach (var entry in value.EnumerateArray())
+                {
+                    foreach (var id in NestedRecordIds(entry, collect))
+                    {
+                        yield return id;
+                    }
+                }
+
+                break;
+
+            case JsonValueKind.Object:
+                foreach (var property in value.EnumerateObject())
+                {
+                    var namesRecord = property.Name is "identifies" or "rules" or "cites" or "reads" or "writes" or "source" or "enforcedBy";
+
+                    foreach (var id in NestedRecordIds(property.Value, collect || namesRecord))
+                    {
+                        yield return id;
+                    }
+                }
+
+                break;
+        }
     }
 
     /// <summary>
