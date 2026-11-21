@@ -261,7 +261,7 @@ static partial class AppendEntry
     /// <param name="id">The full identifier of the result entry.</param>
     /// <param name="title">The display title of the result entry.</param>
     /// <param name="outcome">The outcome kind, either success or refusal.</param>
-    /// <param name="code">The refusal code for a refusal, or null for a success without a code.</param>
+    /// <param name="code">The refusal code as module.reason for a refusal, or null for a success without a code.</param>
     /// <returns>The result entry object.</returns>
     static JsonObject ResultEntry(string id, string title, string outcome, string? code)
     {
@@ -275,7 +275,7 @@ static partial class AppendEntry
 
         if (outcome == "refusal")
         {
-            entry["code"] = code!;
+            entry["refusal"] = "refusal/" + code!;
         }
         else if (code is not null)
         {

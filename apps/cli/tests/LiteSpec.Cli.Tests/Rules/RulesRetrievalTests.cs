@@ -90,7 +90,7 @@ public sealed class RulesRetrievalTests
             }
 
             var type = record[..slash].ToLowerInvariant();
-            string[] candidates = type == "event" ? [type, "domain-event"] : [type];
+            string[] candidates = [type];
 
             if (candidates.Any(candidate => artifacts.Contains(candidate)))
             {
@@ -215,7 +215,6 @@ public sealed class RulesRetrievalTests
             {
                 "claimwick" => Path.Combine(TestCli.Repository, "examples", "claimwick"),
                 "rules-basic" => TestCli.Fixture("rules-basic"),
-                "rules-layered" => TestCli.Fixture("rules-layered"),
                 var other => throw new InvalidOperationException($"Unknown evaluation root '{other}'."),
             };
         }

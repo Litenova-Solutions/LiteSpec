@@ -1,0 +1,23 @@
+type: decision
+id: decision/0068-call-ordered-steps-a-flow
+title: Call Ordered Steps a Flow
+context: "The record held a trigger, ordered steps, alternative paths, step failures, and an end state, yet carried the customer journey name. Every other type used a standard engineering name, while prose used flow only loosely."
+options:
+  - name: "flow"
+    pros: "The standard user-flow term fits any actor. Steps are the main flow and branches are the alternative flows. No record type uses the word."
+    cons: "Every flow record, identifier, folder, provision, check, template, and citation moves in one release."
+  - name: "workflow"
+    pros: "Readers outside software know the word."
+    cons: "The word suggests automation engines, while the record holds the ordered steps of one actor."
+  - name: "process"
+    pros: "The word is standard in operations."
+    cons: "The word is too formal for one actor's ordered steps. It suggests a managed process the record never holds."
+  - name: "Keep journey"
+    pros: "No record, identifier, or provision moves."
+    cons: "Journey maps hold touchpoints, emotions, and channels the record never holds. Every other type uses a standard engineering name."
+choice: "flow"
+consequences: "The record type is `flow`. Identifiers read `flow/<name>` and `flow/<name>#s1`. Flows live in `intent/flows/`. The schema carries `flowPage`, `flowId`, `flowStep`, `flowStepId`, and `flowBranch`. Code and tests carry `Flow`. A journey test is a flow test. The sixteen provisions naming the old type take the slugs their new headings derive, with every citation replaced. `litespec new flow` and `litespec rename` write the new shape, and the consumer template is `flow.yaml`. `litespec/core/intent#summarize-every-flow-before-its-steps`, `litespec/core/model#serve-every-flow-step`, and `litespec/core/release#verify-connected-flows` state the renamed record, its servers, and its checks."
+reopenedWhen: "A consumer shows that flow misleads its readers about what the record holds."
+basedOn:
+  - research/naming-grammar-evidence
+  - research/field-naming-evidence

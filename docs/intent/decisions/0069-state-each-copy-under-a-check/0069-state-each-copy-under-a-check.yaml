@@ -1,0 +1,20 @@
+type: decision
+id: decision/0069-state-each-copy-under-a-check
+title: State Each Copy Under a Check
+context: "Two readings of Clean disagreed: one forced a reader to open every linked file, while the other stated copies that drifted with no finding. The review found both failures at once, with facts in two to four places and a check reporting no blocking finding over disagreeing records."
+options:
+  - name: "A record states what its reader needs, and a check holds each derived copy to its source"
+    pros: "An isolated file reads whole for a reader and a tool. Stated copies cannot drift from their sources. Judgements stay computed."
+    cons: "Every derived copy needs its agreement check. Authors write facts the model could derive."
+  - name: "Write each fact once and derive the rest"
+    pros: "No copy exists that could drift."
+    cons: "A reader opens every linked file to read one record. Tools read what people cannot see."
+  - name: "State copies freely with no checks"
+    pros: "Records read whole with no check work."
+    cons: "Copies drift from their sources. No finding reports the difference."
+choice: "A record states what its reader needs, and a check holds each derived copy to its source"
+consequences: "Each record states the links and facts its reader needs to read it alone, including the inverse of a link where the reader needs it. Every stated fact the model also derives carries a check that reports a difference. Counts, censuses, completion, coverage, and proof status stay computed and are never typed. `governs`, `exposure`, per-field classification with data-class membership, and screen `serves` stay explicit under agreement checks. `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy` states the rule. `litespec/core/model#write-links-on-the-record-that-points` places the link on the record it starts from with the inverse allowed under a check. `litespec/core/model#derive-a-computed-fact-instead-of-restating-it` covers judgements. `litespec/core/principles#keep-one-authored-source` authors each fact once at its source."
+reopenedWhen: "An agreement check costs more than the drift it catches. Or a stated copy misleads where a derived value would not."
+basedOn:
+  - research/comparable-rationale-practice
+  - research/check-coverage-evidence

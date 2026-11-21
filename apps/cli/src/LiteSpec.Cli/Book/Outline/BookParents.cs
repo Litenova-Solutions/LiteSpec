@@ -28,7 +28,7 @@ static class BookParents
         {
             ["product"] = new("product", [], "none"),
             ["goal"] = new("goal", ["product"], "product"),
-            ["vision"] = new("vision", ["product"], "product"),
+            ["direction"] = new("direction", ["product"], "product"),
             ["problem"] = new("problem", ["product"], "product"),
             ["constraint"] = new("constraint", ["product"], "product"),
             ["research"] = new("research", ["product"], "product"),
@@ -37,23 +37,27 @@ static class BookParents
             ["term"] = new("term", ["product"], "product"),
             ["module"] = new("module", ["product"], "product"),
             ["role"] = new("role", ["product"], "product"),
-            ["journey"] = new("journey", ["product"], "product"),
+            ["flow"] = new("flow", ["product"], "product"),
+            ["step"] = new("step", ["flow"], "flow"),
             ["entry-point"] = new("entry-point", ["product"], "product"),
             ["feature"] = new("feature", ["problem"], "problem"),
             ["permission"] = new("permission", ["module"], "module"),
-            ["integration-event"] = new("integration-event", ["module"], "module"),
-            ["external-system"] = new("external-system", ["product", "module"], "its folder node"),
+            ["module-event"] = new("module-event", ["aggregate"], "aggregate"),
+            ["integration-event"] = new("integration-event", ["aggregate"], "aggregate"),
+            ["external-system"] = new("external-system", ["product", "module"], "product or module"),
             ["runbook"] = new("runbook", ["product", "module"], "product or module"),
-            ["departure"] = new("departure", ["product", "module"], "product or module"),
-            ["requirement"] = new("requirement", ["feature"], "feature"),
+            ["waiver"] = new("waiver", ["product", "module"], "product or module"),
+            ["requirement"] = new("requirement", ["feature", "product"], "feature or product"),
             ["aggregate"] = new("aggregate", ["module"], "module"),
             ["use-case"] = new("use-case", ["aggregate", "module"], "aggregate or module"),
             ["result"] = new("result", ["use-case"], "use case"),
-            ["scenario"] = new("scenario", ["result"], "result"),
-            ["rule"] = new("rule", ["aggregate", "module", "product"], "its folder node"),
-            ["event"] = new("event", ["aggregate"], "aggregate"),
+            ["scenario"] = new("scenario", ["use-case", "reaction", "job"], "that record"),
+            ["rule"] = new("rule", ["aggregate", "module", "product"], "its scope node"),
+            ["domain-event"] = new("domain-event", ["aggregate"], "aggregate"),
             ["reaction"] = new("reaction", ["module"], "module"),
             ["job"] = new("job", ["module"], "module"),
+            ["read-model"] = new("read-model", ["module"], "module"),
+            ["reference-data"] = new("reference-data", ["module"], "module"),
             ["notification"] = new("notification", ["module"], "module"),
             ["setting"] = new("setting", ["module"], "module"),
             ["screen"] = new("screen", ["entry-point"], "entry point"),
@@ -93,6 +97,10 @@ static class BookParents
         public string? ProductId { get; set; }
         /// <summary>Gets the use-case identifier for each use-case name segment, first record winning.</summary>
         public Dictionary<string, string> UseCasesByName { get; } = new(StringComparer.Ordinal);
+        /// <summary>Gets the reaction identifier for each reaction name segment, first record winning.</summary>
+        public Dictionary<string, string> ReactionsByName { get; } = new(StringComparer.Ordinal);
+        /// <summary>Gets the job identifier for each job name segment, first record winning.</summary>
+        public Dictionary<string, string> JobsByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the aggregate identifier for each aggregate name segment, first record winning.</summary>
         public Dictionary<string, string> AggregatesByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the module identifier for each module name segment, first record winning.</summary>
@@ -163,6 +171,14 @@ static class BookParents
             {
                 index.UseCasesByName.TryAdd(name, pair.Key);
             }
+            else if (string.Equals(type, "reaction", StringComparison.Ordinal))
+            {
+                index.ReactionsByName.TryAdd(name, pair.Key);
+            }
+            else if (string.Equals(type, "job", StringComparison.Ordinal))
+            {
+                index.JobsByName.TryAdd(name, pair.Key);
+            }
             else if (string.Equals(type, "aggregate", StringComparison.Ordinal))
             {
                 index.AggregatesByName.TryAdd(name, pair.Key);
@@ -201,18 +217,20 @@ static class BookParents
         {
             "product" => null,
             "goal" or "problem" or "constraint" or "research" => index.ProductId,
-            "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
-            "vision" or "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
+            "decision" or "runbook" or "waiver" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
+            "direction" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" => index.ProductId,
             "feature" => ProblemFromFile(record),
-            "permission" or "integration-event" => ModuleFromFile(index, record),
-            "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id),
+            "permission" => ModuleFromFile(index, record),
+            "module-event" or "integration-event" => AggregateFromFile(index, record),
+            "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id) ?? ProductParentForUndottedRequirement(index, id),
             "aggregate" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
             "result" => UseCaseNameParent(index, id),
-            "scenario" => ScenarioParent(index, record),
+            "step" => FlowNameParent(index, id),
+            "scenario" => ScenarioParent(index, record, id),
             "rule" => RuleParent(index, record, id),
-            "event" => AggregateFromFile(index, record) ?? AggregateNameParent(index, id),
-            "reaction" or "job" or "notification" or "setting" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
+            "domain-event" => AggregateFromFile(index, record) ?? AggregateNameParent(index, id),
+            "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "screen" => EntryPointFromFile(index, record) ?? ScreenParent(index, id),
             _ => null,
         };
@@ -442,6 +460,22 @@ static class BookParents
             ?? ModuleParent(index, id);
     }
 
+    /// <summary>Finds the flow parent of a step from its identifier home.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="id">The step identifier whose home names the flow.</param>
+    /// <returns>The flow identifier for the home, or null when the identifier has no home or the model holds no such flow.</returns>
+    static string? FlowNameParent(ParentIndex index, string id)
+    {
+        if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        var flow = $"flow/{home}";
+
+        return index.ById.ContainsKey(flow) ? flow : null;
+    }
+
     /// <summary>Finds the use-case parent of a record from its identifier home.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
     /// <param name="id">The record identifier whose home names the use case.</param>
@@ -456,19 +490,59 @@ static class BookParents
         return index.UseCasesByName.TryGetValue(home, out var useCase) ? useCase : null;
     }
 
-    /// <summary>Finds the parent of a scenario from its result link.</summary>
+    /// <summary>
+    ///     Finds the parent of a scenario: the use case, reaction or job whose file holds it, the owner its
+    ///     identifier home names when the file names none.
+    /// </summary>
     /// <param name="index">The parent lookup tables for the model.</param>
-    /// <param name="record">The scenario record object that holds the result link.</param>
-    /// <returns>The result identifier when the link names a known record, otherwise null.</returns>
-    static string? ScenarioParent(ParentIndex index, JsonObject record)
+    /// <param name="record">The scenario record object that holds the file path.</param>
+    /// <param name="id">The scenario identifier whose home names the owner.</param>
+    /// <returns>The owner identifier when one is found, otherwise null.</returns>
+    static string? ScenarioParent(ParentIndex index, JsonObject record, string id)
     {
-        // The shown result is the only parent; a missing one is reported, never defaulted.
-        if (FirstLink(record, "result") is { } result && index.ById.ContainsKey(result))
+        // The container wins: the use case, reaction or job whose file holds the scenario.
+        var file = StrProp(record, "file");
+        if (file is { Length: > 0 }
+            && index.ById.Values.FirstOrDefault(owner => StrProp(owner, "file") == file && StrProp(owner, "type") is "use-case" or "reaction" or "job") is { } filed)
         {
-            return result;
+            return StrProp(filed, "id");
+        }
+
+        // The identifier home names the owning use case, reaction or job; the three share one namespace.
+        if (Identifiers.TrySplit(id, out _, out var home, out _) && home is { Length: > 0 })
+        {
+            if (index.UseCasesByName.TryGetValue(home, out var useCase))
+            {
+                return useCase;
+            }
+
+            if (index.ReactionsByName.TryGetValue(home, out var reaction))
+            {
+                return reaction;
+            }
+
+            if (index.JobsByName.TryGetValue(home, out var job))
+            {
+                return job;
+            }
         }
 
         return null;
+    }
+
+    /// <summary>Finds the product parent of an undotted requirement; a dotted requirement names a feature and never falls back to the product.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="id">The requirement identifier whose home is read.</param>
+    /// <returns>The product identifier for a product-level requirement, otherwise null.</returns>
+    static string? ProductParentForUndottedRequirement(ParentIndex index, string id)
+    {
+        // A product-level requirement carries no feature segment; a feature requirement whose feature is missing stays unplaced.
+        if (Identifiers.TrySplit(id, out _, out var home, out _) && home is { Length: > 0 })
+        {
+            return null;
+        }
+
+        return index.ProductId;
     }
 
     /// <summary>Finds the parent of a rule from its folder node, else from its identifier home: an aggregate before a module, a product-level invariant under the product.</summary>
@@ -544,7 +618,7 @@ static class BookParents
     /// <param name="record">The record object that holds the links and fields.</param>
     /// <param name="names">The field names to try, in order.</param>
     /// <returns>The first non-empty link string among the named fields, or null when none holds one.</returns>
-    static string? FirstLink(JsonObject record, params string[] names)
+    internal static string? FirstLink(JsonObject record, params string[] names)
     {
         var links = record["links"] as JsonObject;
         var fields = record["fields"] as JsonObject;

@@ -1,21 +1,22 @@
 type: decision
 id: decision/0002-parent-for-every-record
 title: Parent for Every Record
+context: "Above the requirements, the hierarchy is written as rationale prose, not as required links. No check reads a feature goal or a flow goal. The book teaches a second hierarchy beside the model's own, and that second hierarchy invents groupings where the model has no parent."
 options:
   - name: One parent for every record
-    pros: Every serious tool stores the link on one side, computes the inverse, and enforces at most one parent, while identifier containment in the largest consumer already resolves everywhere it is used.
+    pros: Every reviewed tool stores the link on one side, computes the inverse, and enforces at most one parent. Identifier containment in the largest consumer already resolves everywhere it is used.
     cons: Authors must write the missing origins, and the book must stop inventing groupings where no parent exists yet.
   - name: Parents only below the requirements
     pros: The checker is already dense there and every enforced check passes.
-    cons: "It leaves the measured top gaps in place: most requirements name no origin, no check reads a feature goal or a journey goal, and the book invents Intent groupings."
+    cons: "It leaves the measured top gaps in place: most requirements name no origin, no check reads a feature goal or a flow goal, and the book invents Intent groupings."
   - name: Advisory parents at tier A
-    pros: Existing projects are not blocked on day one, and staged promotion matches the skeptic evidence on training and theatre.
-    cons: Regulated practice gates the chain rather than advising it, and a link rule the builder cannot check rots exactly as the skeptic sources describe.
+    pros: Existing projects are not blocked at adoption, and staged promotion matches the skeptic evidence on training and compliance theatre.
+    cons: Regulated practice gates the chain rather than advising it, and a link rule the builder cannot check decays, as the skeptic sources describe.
   - name: Down-pointing parent lists
     pros: A goal or feature page reads top down without following reverse links.
     cons: It breaks the one-written-parent rule every reviewed tool keeps, invites circular definitions, and contradicts the provision that a link lives on the record that points.
 choice: One parent for every record
-consequences: "`litespec/core/model#give-every-record-one-parent` states the algebra, and `litespec/core/model#organize-the-book-by-the-record-layers` with `litespec/core/model#write-links-on-the-record-that-points` carry the outline and link-direction duties. The product is the parent of every record whose type has no record parent."
+consequences: "`litespec/core/model#give-every-record-one-parent` states the rule, and `litespec/core/model#organize-the-book-by-the-record-layers` with `litespec/core/model#write-links-on-the-record-that-points` carry the outline and link-direction duties. The product is the parent of every record whose type has no record parent."
 reopenedWhen: A record type appears whose placement no identifier, link, or layer list can state.
 basedOn:
   - research/behavior-containment-evidence

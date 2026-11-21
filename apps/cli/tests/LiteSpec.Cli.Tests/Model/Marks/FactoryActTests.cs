@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class FactoryActTests
 {
     /// <summary>Static Factory Marked With The Use Case Satisfies The Act Check.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void StaticFactoryMarkedWithTheUseCaseSatisfiesTheActCheck()
     {
@@ -20,7 +20,7 @@ public sealed class FactoryActTests
     }
 
     /// <summary>Static Factory Without The Mark Reports Use Case Act Uncalled.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void StaticFactoryWithoutTheMarkReportsUseCaseActUncalled()
     {
@@ -51,7 +51,7 @@ public sealed class FactoryActTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "7.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -66,10 +66,8 @@ public sealed class FactoryActTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -100,8 +98,8 @@ public sealed class FactoryActTests
                   ],
                   "records": [
                     {
-                      "type": "event",
-                      "id": "event/order.order-submitted",
+                      "type": "domain-event",
+                      "id": "domain-event/order.order-submitted",
                       "title": "Order submitted",
                       "owner": "lending-team",
                       "status": "reviewed",
@@ -127,9 +125,9 @@ public sealed class FactoryActTests
                   "status": "reviewed",
                   "kind": "command",
                   "raises": [
-                    "event/order.order-submitted"
+                    "domain-event/order.order-submitted"
                   ],
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.order"
                   ],
                   "records": [
@@ -157,7 +155,7 @@ public sealed class FactoryActTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.order"
                   ],
                   "records": [
@@ -177,8 +175,8 @@ public sealed class FactoryActTests
 
                 A reader renews an order.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Orders/Order.cs", """
-                namespace Library.Domain.Lending.Orders;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Orders/Order.cs", """
+                namespace Library.Lending.Domain.Orders;
 
                 /// <implements>aggregate/lending.order</implements>
                 public sealed class Order : AggregateRoot<OrderId>
@@ -199,21 +197,21 @@ public sealed class FactoryActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Orders/OrderSubmittedEvent.cs", """
-                namespace Library.Domain.Lending.Orders;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Orders/OrderSubmittedEvent.cs", """
+                namespace Library.Lending.Domain.Orders;
 
-                /// <implements>event/order.order-submitted</implements>
+                /// <implements>domain-event/order.order-submitted</implements>
                 public sealed record OrderSubmittedEvent(Guid OrderId) : IDomainEvent;
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/SubmitOrder/SubmitOrderCommand.cs", """
-                namespace Library.Application.Lending.Orders.SubmitOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/SubmitOrder/SubmitOrderCommand.cs", """
+                namespace Library.Lending.Application.SubmitOrder;
 
                 public sealed record SubmitOrderCommand(Guid OrderId);
 
                 public sealed record SubmitOrderCommandResult(Guid OrderId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/SubmitOrder/SubmitOrderCommandHandler.cs", """
-                namespace Library.Application.Lending.Orders.SubmitOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/SubmitOrder/SubmitOrderCommandHandler.cs", """
+                namespace Library.Lending.Application.SubmitOrder;
 
                 /// <implements>use-case/lending.submit-order</implements>
                 public sealed class SubmitOrderCommandHandler(IOrderRepository orders)
@@ -222,20 +220,20 @@ public sealed class FactoryActTests
                     public async Task<SubmitOrderCommandResult> HandleAsync(SubmitOrderCommand command, CancellationToken cancellationToken)
                     {
                         var order = Order.Submit(command.OrderId);
-                        orders.Store(order);
+                        orders.Save(order);
                         return new SubmitOrderCommandResult(order.Id);
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/RenewOrder/RenewOrderCommand.cs", """
-                namespace Library.Application.Lending.Orders.RenewOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewOrder/RenewOrderCommand.cs", """
+                namespace Library.Lending.Application.RenewOrder;
 
                 public sealed record RenewOrderCommand(Guid OrderId);
 
                 public sealed record RenewOrderCommandResult(Guid OrderId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Orders/RenewOrder/RenewOrderCommandHandler.cs", """
-                namespace Library.Application.Lending.Orders.RenewOrder;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewOrder/RenewOrderCommandHandler.cs", """
+                namespace Library.Lending.Application.RenewOrder;
 
                 /// <implements>use-case/lending.renew-order</implements>
                 public sealed class RenewOrderCommandHandler(IOrderRepository orders)
@@ -244,7 +242,7 @@ public sealed class FactoryActTests
                     public async Task<RenewOrderCommandResult> HandleAsync(RenewOrderCommand command, CancellationToken cancellationToken)
                     {
                         var order = Order.Renew(command.OrderId);
-                        orders.Store(order);
+                        orders.Save(order);
                         return new RenewOrderCommandResult(order.Id);
                     }
                 }

@@ -55,15 +55,15 @@
       "links": {}
     },
     {
-      "type": "vision",
-      "id": "vision/any-branch-lending",
+      "type": "direction",
+      "id": "direction/any-branch-lending",
       "title": "Any Branch Lending",
-      "file": ".litespec/intent/visions/any-branch-lending.yaml",
+      "file": ".litespec/intent/directions/any-branch-lending.yaml",
       "line": 1,
-      "explanation": "# Any Branch Lending\n\n## Direction\n\nMembers move between branches.",
+      "explanation": "# Any Branch Lending\n\nMembers move between branches.",
       "fields": {
-        "type": "vision",
-        "id": "vision/any-branch-lending",
+        "type": "direction",
+        "id": "direction/any-branch-lending",
         "title": "Any Branch Lending",
         "summary": "Members visit several branches and want to borrow and return anywhere.",
         "statement": "Members borrow at one branch and return at any other."
@@ -151,9 +151,6 @@
         ]
       },
       "links": {
-        "solves": [
-          "problem/slow-desk-queues"
-        ],
         "advances": [
           "goal/faster-borrowing"
         ]
@@ -241,17 +238,11 @@
         ],
         "choice": "Kiosk",
         "reopenedWhen": "Queues persist.",
-        "decides": [
-          "feature/self-checkout"
-        ],
         "basedOn": [
           "research/member-survey"
         ]
       },
       "links": {
-        "decides": [
-          "feature/self-checkout"
-        ],
         "basedOn": [
           "research/member-survey"
         ]
@@ -368,31 +359,31 @@
       }
     },
     {
-      "type": "journey",
-      "id": "journey/borrowing",
+      "type": "flow",
+      "id": "flow/borrowing",
       "title": "Borrowing",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/product/journeys/borrowing.yaml",
+      "file": ".litespec/product/flows/borrowing.yaml",
       "line": 3,
       "fields": {
-        "type": "journey",
-        "id": "journey/borrowing",
+        "type": "flow",
+        "id": "flow/borrowing",
         "title": "Borrowing",
         "owner": "lending-team",
         "status": "approved",
         "actor": "actor/member",
         "steps": [
           {
-            "id": "s1",
+            "id": "step/borrowing.borrow-copy",
             "statement": "The member borrows a copy before closing.",
             "actor": "actor/member"
           },
           {
-            "id": "s2",
+            "id": "step/borrowing.return-copy",
             "statement": "The member returns the copy.",
             "actor": "actor/member",
             "failure": "The desk renews the loan."
@@ -409,6 +400,51 @@
         ],
         "cites": [
           "requirement/self-checkout.max-wait"
+        ]
+      }
+    },
+    {
+      "type": "step",
+      "id": "step/borrowing.borrow-copy",
+      "title": "The member borrows a copy before closing.",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/product/flows/borrowing.yaml",
+      "line": 8,
+      "fields": {
+        "id": "step/borrowing.borrow-copy",
+        "statement": "The member borrows a copy before closing.",
+        "actor": "actor/member"
+      },
+      "links": {
+        "actor": [
+          "actor/member"
+        ]
+      }
+    },
+    {
+      "type": "step",
+      "id": "step/borrowing.return-copy",
+      "title": "The member returns the copy.",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/product/flows/borrowing.yaml",
+      "line": 13,
+      "fields": {
+        "id": "step/borrowing.return-copy",
+        "statement": "The member returns the copy.",
+        "actor": "actor/member",
+        "failure": "The desk renews the loan."
+      },
+      "links": {
+        "actor": [
+          "actor/member"
         ]
       }
     },
@@ -471,12 +507,12 @@
           {
             "from": "OnShelf",
             "to": "OnLoan",
-            "by": "use-case/lending.borrow-copy"
+            "movedBy": "use-case/lending.borrow-copy"
           },
           {
             "from": "OnLoan",
             "to": "OnShelf",
-            "by": "use-case/lending.return-copy"
+            "movedBy": "use-case/lending.return-copy"
           }
         ],
         "data": [
@@ -599,7 +635,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "fulfills": [
           "requirement/self-checkout.max-wait"
@@ -626,7 +662,7 @@
           "tenant": "own"
         },
         "serves": [
-          "journey/borrowing#s1"
+          "step/borrowing.borrow-copy"
         ]
       },
       "links": {
@@ -634,13 +670,13 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "fulfills": [
           "requirement/self-checkout.max-wait"
         ],
         "serves": [
-          "journey/borrowing#s1"
+          "step/borrowing.borrow-copy"
         ]
       }
     },
@@ -669,11 +705,17 @@
         "access": {
           "grant": "permission/borrow-copy",
           "tenant": "own"
-        }
+        },
+        "reads": [
+          "read-model/reporting.loan-borrowing"
+        ]
       },
       "links": {
         "fulfills": [
           "requirement/self-checkout.copy-shelf-home"
+        ],
+        "reads": [
+          "read-model/reporting.loan-borrowing"
         ]
       }
     },
@@ -696,7 +738,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "triggeredBy": [
-          "event/loan.loan-due"
+          "domain-event/loan.loan-due"
         ],
         "effects": [
           {
@@ -709,7 +751,7 @@
       },
       "links": {
         "triggeredBy": [
-          "event/loan.loan-due"
+          "domain-event/loan.loan-due"
         ],
         "effects": [
           "notification/lending.due-reminder"
@@ -736,7 +778,7 @@
         "title": "Due Reminder",
         "owner": "lending-team",
         "status": "reviewed",
-        "addresses": [
+        "audience": [
           "actor/member"
         ],
         "channel": "email",
@@ -746,7 +788,7 @@
         ]
       },
       "links": {
-        "addresses": [
+        "audience": [
           "actor/member"
         ],
         "fulfills": [
@@ -793,7 +835,7 @@
         "owner": "lending-team",
         "outcome": "refusal",
         "code": "lending.copy-not-available",
-        "meaning": "The copy stays unavailable and the member is told it is on loan."
+        "sentence": "This copy is on loan to another member."
       },
       "links": {}
     },
@@ -866,50 +908,62 @@
       }
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-borrowed",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-borrowed",
       "title": "Loan Borrowed",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 52,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-borrowed",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-borrowed",
         "title": "Loan Borrowed",
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A copy was lent.",
         "carries": [
-          "copyId",
-          "memberId"
+          {
+            "name": "copyId",
+            "type": "id",
+            "of": "aggregate/lending.loan"
+          },
+          {
+            "name": "memberId",
+            "type": "id",
+            "of": "actor/member"
+          }
         ]
       },
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-due",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-due",
       "title": "Loan Due",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 60,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-due",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-due",
         "title": "Loan Due",
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A loan approaches its due date.",
         "carries": [
-          "loanId"
+          {
+            "name": "loanId",
+            "type": "id",
+            "of": "aggregate/lending.loan"
+          }
         ]
       },
       "links": {}
@@ -962,16 +1016,9 @@
         "title": "Member",
         "owner": "lending-team",
         "status": "reviewed",
-        "scope": "platform",
-        "allows": [
-          "permission/borrow-copy"
-        ]
+        "scope": "platform"
       },
-      "links": {
-        "allows": [
-          "permission/borrow-copy"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "permission",
@@ -990,9 +1037,16 @@
         "title": "Borrow Copy",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Borrow a copy."
+        "meaning": "Borrow a copy.",
+        "grantedTo": [
+          "role/member"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/member"
+        ]
+      }
     },
     {
       "type": "entry-point",
@@ -1015,7 +1069,17 @@
         "auth": [
           "session"
         ],
-        "path": "/borrow"
+        "servedContent": [
+          {
+            "path": "/terms",
+            "contentType": "text/html",
+            "cacheControl": "public, max-age=3600",
+            "versioning": "content-hash",
+            "fulfills": [
+              "requirement/self-checkout.late-fee"
+            ]
+          }
+        ]
       },
       "links": {}
     },
@@ -1098,68 +1162,68 @@
       "links": {}
     },
     {
-      "type": "departure",
-      "id": "departure/kiosk-cache",
+      "type": "waiver",
+      "id": "waiver/kiosk-cache",
       "title": "Kiosk Cache",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/governance/departures/kiosk-cache.yaml",
+      "file": ".litespec/governance/waivers/kiosk-cache.yaml",
       "line": 3,
       "fields": {
-        "type": "departure",
-        "id": "departure/kiosk-cache",
+        "type": "waiver",
+        "id": "waiver/kiosk-cache",
         "title": "Kiosk Cache",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "litespec/ext/cache#define-cache-invalidation"
         ],
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ],
         "reason": "The kiosk caches the catalog for a day.",
         "expiresOn": "2027-01-01"
       },
       "links": {
-        "covers": [
+        "waives": [
           "litespec/ext/cache#define-cache-invalidation"
         ],
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ]
       }
     },
     {
-      "type": "departure",
-      "id": "departure/offline-kiosk",
+      "type": "waiver",
+      "id": "waiver/offline-kiosk",
       "title": "Offline Kiosk",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/governance/departures/offline-kiosk.yaml",
+      "file": ".litespec/governance/waivers/offline-kiosk.yaml",
       "line": 3,
       "fields": {
-        "type": "departure",
-        "id": "departure/offline-kiosk",
+        "type": "waiver",
+        "id": "waiver/offline-kiosk",
         "title": "Offline Kiosk",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "kiosk-offline"
         ],
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ],
         "reason": "The kiosk cannot lend offline yet.",
         "expiresOn": "2026-01-01"
       },
       "links": {
-        "subject": [
+        "appliesTo": [
           "feature/self-checkout"
         ]
       }
@@ -1262,6 +1326,9 @@
         "address": "/search",
         "offers": [
           "use-case/lending.borrow-copy"
+        ],
+        "fulfills": [
+          "requirement/self-checkout.late-fee"
         ]
       },
       "links": {
@@ -1270,6 +1337,9 @@
         ],
         "offers": [
           "use-case/lending.borrow-copy"
+        ],
+        "fulfills": [
+          "requirement/self-checkout.late-fee"
         ]
       }
     },
@@ -1282,7 +1352,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/integration-events/loan-borrowed.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/integration-events/loan-borrowed/loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "integration-event",
@@ -1291,14 +1361,131 @@
         "owner": "lending-team",
         "status": "reviewed",
         "translates": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ]
       },
       "links": {
         "translates": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ]
       }
+    },
+    {
+      "type": "module",
+      "id": "module/reporting",
+      "title": "Reporting",
+      "owner": "reporting-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/modules/reporting/module.yaml",
+      "line": 3,
+      "explanation": "# Reporting\n\n## Boundaries\n\nThe branch reports on loans it does not keep.",
+      "fields": {
+        "type": "module",
+        "id": "module/reporting",
+        "title": "Reporting",
+        "owner": "reporting-team",
+        "status": "reviewed",
+        "summary": "What the branch reports on loans."
+      },
+      "links": {}
+    },
+    {
+      "type": "read-model",
+      "id": "read-model/reporting.loan-borrowing",
+      "title": "Loan Borrowing",
+      "owner": "reporting-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/modules/reporting/read-models/loan-borrowing/loan-borrowing.yaml",
+      "line": 3,
+      "fields": {
+        "type": "read-model",
+        "id": "read-model/reporting.loan-borrowing",
+        "title": "Loan Borrowing",
+        "owner": "reporting-team",
+        "status": "reviewed",
+        "summary": "What Reporting keeps about each loan the branch lends.",
+        "keyedBy": "aggregate/lending.loan",
+        "freshness": "PT5S",
+        "fields": [
+          {
+            "name": "loanId",
+            "meaning": "The loan that was borrowed.",
+            "type": "id",
+            "of": "aggregate/lending.loan",
+            "from": "integration-event/loan-borrowed#loanId",
+            "accumulate": "latest",
+            "classification": "internal"
+          }
+        ]
+      },
+      "links": {
+        "keyedBy": [
+          "aggregate/lending.loan"
+        ]
+      }
+    },
+    {
+      "type": "module-event",
+      "id": "module-event/lending.loan-borrowed",
+      "title": "Loan Borrowed",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "line": 3,
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/module-events/loan-borrowed/loan-borrowed.yaml",
+      "fields": {
+        "type": "module-event",
+        "id": "module-event/lending.loan-borrowed",
+        "title": "Loan Borrowed",
+        "translates": [
+          "domain-event/loan.loan-borrowed"
+        ],
+        "fields": [
+          "copyId",
+          "memberId"
+        ]
+      },
+      "links": {
+        "translates": [
+          "domain-event/loan.loan-borrowed"
+        ]
+      }
+    },
+    {
+      "type": "reference-data",
+      "id": "reference-data/lending.max-renewals",
+      "title": "Max Renewals",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/modules/lending/reference-data/max-renewals/max-renewals.yaml",
+      "line": 3,
+      "fields": {
+        "type": "reference-data",
+        "id": "reference-data/lending.max-renewals",
+        "title": "Max Renewals",
+        "owner": "lending-team",
+        "status": "reviewed",
+        "summary": "How many times a member renews one loan.",
+        "rows": [
+          {
+            "value": 2,
+            "effectiveFrom": "2026-01-01",
+            "source": "research/member-survey"
+          }
+        ]
+      },
+      "links": {}
     }
   ],
   "code": {
@@ -1380,5 +1567,82 @@
       "OnShelf",
       "OnLoan"
     ]
-  }
+  },
+  "intentCoverage": {
+    "reached": 4,
+    "total": 7,
+    "share": 0.5714285714285714,
+    "requirements": {
+      "reached": 3,
+      "total": 3
+    },
+    "steps": {
+      "reached": 1,
+      "total": 2
+    },
+    "entries": [
+      {
+        "id": "requirement/self-checkout.copy-shelf-home",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/loan.one-loan-per-copy",
+          "use-case/lending.return-copy"
+        ]
+      },
+      {
+        "id": "requirement/self-checkout.late-fee",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "entry-point/library-app",
+          "rule/loan.late-fee",
+          "screen/library-app.search"
+        ]
+      },
+      {
+        "id": "requirement/self-checkout.max-wait",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "notification/lending.due-reminder",
+          "reaction/lending.send-due-reminder-on-loan-due",
+          "use-case/lending.borrow-copy"
+        ]
+      },
+      {
+        "id": "problem/slow-desk-queues",
+        "kind": "problem",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "constraint/opening-hours",
+        "kind": "constraint",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrowing.borrow-copy",
+        "kind": "step",
+        "reached": true,
+        "reachedBy": [
+          "use-case/lending.borrow-copy"
+        ]
+      },
+      {
+        "id": "step/borrowing.return-copy",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      }
+    ]
+  },
+  "refusals": [
+    {
+      "code": "lending.copy-not-available",
+      "meaning": "The copy stays unavailable and the member is told it is on loan."
+    }
+  ],
+  "problemTypeBase": "https://library.example/problems/"
 }

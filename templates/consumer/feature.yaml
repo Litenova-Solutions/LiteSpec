@@ -1,5 +1,13 @@
 type: feature
-id: feature/approval
-title: Approval
-summary: Employees submit work expenses and wait for the money, managers decide each one, and finance reimburses the approved ones. Expenses arrive daily, and each one needs a timely decision with proof where the policy asks for it.
-offering: Employees submit expenses with receipts, managers decide each one within five business days, and finance reimburses and exports the approved ones.
+id: feature/<name>
+title: <Title in Title Case>
+summary: <what the feature offers and to whom, or remove this line>
+terms:
+- <term id, or remove this line>
+offering: <what the product offers, in one sentence>
+advances:
+- goal/<name, or remove this line>
+successCriteria:
+- <one outcome the feature brings about on its own, in one sentence>
+excludes:
+- <one thing the feature leaves to another feature, in one sentence>

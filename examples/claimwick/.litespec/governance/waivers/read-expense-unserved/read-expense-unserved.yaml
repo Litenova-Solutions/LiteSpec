@@ -1,0 +1,11 @@
+type: waiver
+id: waiver/read-expense-unserved
+title: Read Expense Unserved
+summary: The read-expense query serves no flow step, because it answers the reporting module rather than a flow actor.
+kind: lasting
+waives:
+- use-case-flow-missing
+appliesTo:
+- use-case/spending.read-expense
+reason: The query answers the reporting module in process, so no flow step names it.
+consequences: No flow shows the query, so a reader finds its caller through the queries edge on the reporting list.

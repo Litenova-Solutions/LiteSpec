@@ -1,0 +1,20 @@
+type: decision
+id: decision/0087-keep-prose-checks-advisory-and-names-per-type
+title: Keep Prose Checks Advisory and Names per Type
+context: "Prose and naming findings blocked beside contract findings, so a sentence risked stopping a release. Names stayed unique across the product, so actor/owner and role/owner collided though the shared name confused nothing. The writing rules broke their own examples on meaning, titles, active voice, numbers and ASCII."
+options:
+  - name: "Prose and naming findings advise; blocking stays on contracts"
+    pros: "Identifiers, references, required fields, ownership, and access block, wording never blocks a build, and names share across types without false collisions."
+    cons: "Wording drifts until a person reads it, and a reader may confuse a name shared by two types."
+  - name: "Block on prose and naming too"
+    pros: "Wording stays exact in every build."
+    cons: "A sentence stops a release, and harmless names across types collide."
+  - name: "Drop prose checks"
+    pros: "No advisory noise reaches authors."
+    cons: "Metaphors, loose verbs, and stock phrases return with no finding at all."
+choice: "Prose and naming findings advise; blocking stays on contracts"
+consequences: "Blocking stays on identifiers, references, required fields, duplicate keys, ownership, schema validity, declared effects, and access. Prose and naming findings advise and never block. Names are unique per record type, so `actor/owner` and `role/owner` coexist. `litespec/core/model#keep-each-name-unique-in-its-record-type` states the per-type scope. The writing rules match their own examples. `meaning` may be a sentence for domain events and results. Use-case and flow titles are verb phrases. The active-voice example is rewritten under `litespec/core/writing#put-the-actor-first`. A number asks for a measure only on a quality requirement. ASCII is LiteSpec's preference for its own pages, and exact quotations and names keep their characters."
+reopenedWhen: "An advisory wording finding hides a contract break, or per-type names confuse more than they free."
+basedOn:
+  - research/naming-grammar-evidence
+  - research/check-coverage-evidence

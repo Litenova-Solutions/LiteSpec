@@ -21,7 +21,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class {|LS2007:SubscriberNotifier|} : IEventHandler<OrderPlacedEvent>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 accepts the On fact handler shape.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -38,7 +38,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class NotifySubscribersOnOrderPlacedHandler : IEventHandler<OrderPlacedEvent>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 reports a reaction without a reaction name on either contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -53,7 +53,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class {|LS2007:OrderPlacedNotifier|} : IDomainEventReaction
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 accepts the On fact handler shape on either contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -68,7 +68,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class NotifySubscribersOnOrderPlacedHandler : IDomainEventReaction
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 reports a job without a job name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -83,7 +83,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class {|LS2007:ReminderLoop|} : BackgroundService
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 reports a job without a job name in Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -113,7 +113,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class ReminderLoop : IHostedService
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 ignores a one-shot startup hook.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -138,7 +138,7 @@ public sealed class AutomationNamingAnalyzerTests
 
                 public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
             }
-            """, assemblyName: "Shop.Infrastructure");
+            """, path: "Shop.Spending/Infrastructure/Source.cs");
 
     /// <summary>LS2007 accepts Job, Worker, and Recurring names.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -161,7 +161,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class RecurringReminderSender : BackgroundService
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 ignores a class that is neither reaction nor job.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -174,7 +174,7 @@ public sealed class AutomationNamingAnalyzerTests
             internal sealed class ReminderLoop
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2007 ignores a reaction outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -191,22 +191,48 @@ public sealed class AutomationNamingAnalyzerTests
             public sealed class SubscriberNotifier : IEventHandler<OrderPlacedEvent>
             {
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS2007 follows the LiteSpecLayer property over the assembly name.</summary>
+
+    /// <summary>LS2007 accepts a read-model projection filed in a module ReadModels folder, whatever its name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
-            namespace Shop.Core;
+    [Fact(DisplayName = "LS2007 accepts a read-model projection filed in a module ReadModels folder")]
+    public Task AcceptsAReadModelProjectionInAReadModelsFolder() =>
+        Verify.AnalyzerAsync<AutomationNamingAnalyzer>(
+            [
+                ("Claimwick.Modules/Reporting/Application/ReadModels/ReimbursedExpenses/ReimbursedExpenseProjector.cs", """
+                    namespace Claimwick.Reporting.ReadModels.ReimbursedExpenses;
 
-            public interface IEventHandler<TEvent> { }
+                    public interface IEventHandler<TEvent> { }
 
-            public sealed record OrderPlacedEvent(int OrderId);
+                    public sealed record ExpenseReimbursedEvent(int ExpenseId);
 
-            internal sealed class {|LS2007:SubscriberNotifier|} : IEventHandler<OrderPlacedEvent>
-            {
-            }
-            """, assemblyName: "Shop.Core", layer: "Application");
+                    internal sealed class ReimbursedExpenseProjector : IEventHandler<ExpenseReimbursedEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2007 accepts a projection named {ReadModel}On{Fact}Projection outside a ReadModels folder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
+    [Fact(DisplayName = "LS2007 accepts a projection named for its read model and fact")]
+    public Task AcceptsAProjectionNamedForItsReadModelAndFact() =>
+        Verify.AnalyzerAsync<AutomationNamingAnalyzer>(
+            [
+                ("Claimwick.Modules/Reporting/Application/ReimbursedExpenseOnExpenseReimbursedProjection.cs", """
+                    namespace Claimwick.Reporting;
+
+                    public interface IEventHandler<TEvent> { }
+
+                    public sealed record ExpenseReimbursedEvent(int ExpenseId);
+
+                    internal sealed class ReimbursedExpenseOnExpenseReimbursedProjection : IEventHandler<ExpenseReimbursedEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
 }

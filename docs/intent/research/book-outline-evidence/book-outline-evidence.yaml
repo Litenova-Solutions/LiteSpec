@@ -4,9 +4,315 @@ title: Book Outline Evidence
 sources:
   - path: docs/core/model.md
     readOn: 2026-10-30
-    key: model
+    name: model
+    note: "Its provisions are the standard the record judges the builder against."
   - path: docs/tools/book.md
     readOn: 2026-10-30
-    key: book
-question: Where does the book outline place each record today, and where does that placement invent a parent LiteSpec never named?
+    name: book
+question: Where does the book outline place each record, and where does the builder invent a parent LiteSpec never named?
 conclusion: The outline places Behavior correctly but invents Intent groupings from file paths and build order, splits the glossary by layer, and deletes the Implementation and Proof layers it builds, so the book teaches a second hierarchy beside the model's own.
+findings:
+  - statement: "LiteSpec allows 3 ways for a record to receive a parent, and the book uses no fourth."
+    sources:
+      - model
+      - book
+  - statement: "The current outline places most Behavior records correctly."
+    sources:
+      - model
+      - book
+  - statement: "It invents Intent groupings from file paths and build order, and it splits the glossary by layer."
+    sources:
+      - model
+      - book
+  - statement: "It drops the Implementation and Proof records that the builder constructs."
+    sources:
+      - model
+      - book
+  - statement: "The 3 ways are identifier containment, a required single link, and no parent, which places the record as a top-level list under its own layer."
+    sources:
+      - model
+      - book
+  - statement: "A reader reads a parent from the child's own identifier or fields, never by inverting another record's link without saying so."
+    sources:
+      - model
+      - book
+  - statement: "A book label is a record type, a field name, a status, or a glossary term, so any other outline node is an invented grouping."
+    sources:
+      - model
+      - book
+  - statement: "Product, goal, problem, constraint, research, flow, and actor stand correctly as top-level lists."
+    sources:
+      - model
+      - book
+  - statement: "Nothing in their identifiers names a parent, and none carries a required parent link."
+    sources:
+      - model
+      - book
+  - statement: "It measures each verdict against the governing provision, the identifier table, the Links table, and the containment paragraph."
+    sources:
+      - model
+      - book
+  - statement: "Feature has 2 candidate parents, and LiteSpec names neither."
+    sources:
+      - model
+      - book
+  - statement: "The builder nests a feature under the first problem that claims it."
+    sources:
+      - model
+      - book
+  - statement: "Its placed-once guard drops any second parent without a finding, which leaves 71 features with no `solves` as unlabeled roots beside the live features."
+    sources:
+      - model
+      - book
+  - statement: "The builder invents a `requirement-page/<file path>` node from the source file."
+    sources:
+      - model
+      - book
+  - statement: "A requirement page is a page style, not a record type, so the grouping breaks both the outline provision and the label provision."
+    sources:
+      - model
+      - book
+  - statement: "The grouping also hides the 719 requirements that name neither a feature nor a `basedOn` entry."
+    sources:
+      - model
+      - book
+  - statement: "In the sample, 32 requirement pages and 32 files coincide, so grouping by page and grouping by file produce the same grouping."
+    sources:
+      - model
+      - book
+  - statement: "At any other size, only the feature entry decides the grouping."
+    sources:
+      - model
+      - book
+  - statement: "The builder places all 74 decisions in one Intent list."
+    sources:
+      - model
+      - book
+  - statement: "Of them, 71 are technical decisions that belong under Implementation."
+    sources:
+      - model
+      - book
+  - statement: "A reader therefore meets implementation choices inside a layer that holds no mechanism."
+    sources:
+      - model
+      - book
+  - statement: "The builder splits Term across Intent and Behavior by its `layer` field."
+    sources:
+      - model
+      - book
+  - statement: "That field states which clock the word follows, not where the entry stands."
+    sources:
+      - model
+      - book
+  - statement: "The glossary is one list, and the split places it in 2 homes."
+    sources:
+      - model
+      - book
+  - statement: "Flow stands correctly as a top-level list, because its `goal` is a sentence, not an identifier."
+    sources:
+      - model
+      - book
+  - statement: "Nesting flows under goals needs a model change before the builder chooses it."
+    sources:
+      - model
+      - book
+  - statement: "Most Behavior placements are correct."
+    sources:
+      - model
+      - book
+  - statement: "Aggregates stand under modules by identifier prefix."
+    sources:
+      - model
+      - book
+  - statement: "The builder groups scenarios under their result through the scenario's own `result` field."
+    sources:
+      - model
+      - book
+  - statement: "Screens nest under the entry point that both their field and their identifier name."
+    sources:
+      - model
+      - book
+  - statement: "The builder correctly ignores `host` for placement."
+    sources:
+      - model
+      - book
+  - statement: "The outline has 4 placements that are wrong or fragile."
+    sources:
+      - model
+      - book
+  - statement: "The builder files rules under the first aggregate they govern, not under their identifier home."
+    sources:
+      - model
+      - book
+  - statement: "A cross-aggregate rule therefore stands under an aggregate it only governs."
+    sources:
+      - model
+      - book
+  - statement: "`governs` is trace, not parentage."
+    sources:
+      - model
+      - book
+  - statement: "The builder collects domain events onto aggregates through use-case `raises` lists, not through the aggregate their identifier names."
+    sources:
+      - model
+      - book
+  - statement: "The builder therefore misplaces a domain event that no use case raises."
+    sources:
+      - model
+      - book
+  - statement: "The builder attaches results and scenarios through shared files."
+    sources:
+      - model
+      - book
+  - statement: "A scenario on a reaction page has no outlined parent, although the specification allows it there."
+    sources:
+      - model
+      - book
+  - statement: "Reactions, jobs, notifications, and settings name a module only when their source path has a module segment."
+    sources:
+      - model
+      - book
+  - statement: "The stray sweep makes any other record a Behavior root."
+    sources:
+      - model
+      - book
+  - statement: "The sweep appends every unplaced record, whatever its type, and it promotes records whose module lies outside the sample to roots beside the modules."
+    sources:
+      - model
+      - book
+  - statement: "The builder gives children only to the sampled modules."
+    sources:
+      - model
+      - book
+  - statement: "The record calls this sampling, not outline logic, but a reader sees no difference."
+    sources:
+      - model
+      - book
+  - statement: "Use cases need a precedence that the specification never gives: the aggregate where the model assigns one, the module otherwise, and never a file path."
+    sources:
+      - model
+      - book
+  - statement: "Roles, permissions, and entry points stand correctly as top-level lists."
+    sources:
+      - model
+      - book
+  - statement: "Nesting permissions under roles repeats every shared permission."
+    sources:
+      - model
+      - book
+  - statement: "Only 4 of 23 actors record any `holds`, so an outline that uses `holds` orphans most actors."
+    sources:
+      - model
+      - book
+  - statement: "Governance has the correct shape and an incorrect label."
+    sources:
+      - model
+      - book
+  - statement: "The builder lists waivers separately with the correct entries."
+    sources:
+      - model
+      - book
+  - statement: "The builder emits that list as a third layer beside Intent and Behavior."
+    sources:
+      - model
+      - book
+  - statement: "The provision places governance beside all 4 layers, and subject links attach it without nesting."
+    sources:
+      - model
+      - book
+  - statement: "Implementation and Proof have no place in the outline, which the record calls the largest single defect."
+    sources:
+      - model
+      - book
+  - statement: "The builder constructs both outlines and then deletes every code, route, test, and finding record before it writes the book."
+    sources:
+      - model
+      - book
+  - statement: "The totals still count entries that open for no reader."
+    sources:
+      - model
+      - book
+  - statement: "The deleted groupings use invented nodes such as `architecture-layer`, `folder`, `test-project`, and `finding-code`, and none is a permitted label."
+    sources:
+      - model
+      - book
+  - statement: "LiteSpec defines both parents in its code marks."
+    sources:
+      - model
+      - book
+  - statement: "Code stands under the record it implements, tests stand under the lowest record they prove, and findings stand under their subject."
+    sources:
+      - model
+      - book
+  - statement: "Source links on each entry cover file locations."
+    sources:
+      - model
+      - book
+  - statement: "The outline has 5 gaps that belong to LiteSpec, not to the builder."
+    sources:
+      - model
+      - book
+  - statement: "Feature needs a primary-parent rule."
+    sources:
+      - model
+      - book
+  - statement: "Requirement needs a stated tree home in the feature that contains it as an entry, and it keeps links as trace."
+    sources:
+      - model
+      - book
+  - statement: "Flow needs a goal identifier field."
+    sources:
+      - model
+      - book
+  - statement: "Rule needs its identifier home resolved as a typed reference."
+    sources:
+      - model
+      - book
+  - statement: "Governance needs one statement of its attach-by-link rule."
+    sources:
+      - model
+      - book
+  - statement: "A sixth and smaller gap is that a platform-wide setting still carries a module-shaped identifier."
+    sources:
+      - model
+      - book
+  - statement: "The gap closes when LiteSpec names the module value that setting carries or admits a platform group."
+    sources:
+      - model
+      - book
+  - statement: "The investigation proposes 11 outline rules."
+    sources:
+      - model
+      - book
+  - statement: "They define 4 layer roots with governance beside them, and they place each record once: by identifier, then by required link, then by type list."
+    sources:
+      - model
+      - book
+  - statement: "The rules order Intent with requirements under their feature, and they split decisions by home."
+    sources:
+      - model
+      - book
+  - statement: "Features nest by a stated precedence, and extra links count as trace."
+    sources:
+      - model
+      - book
+  - statement: "The other proposed rules order Behavior by module, access, published set, and operations."
+    sources:
+      - model
+      - book
+  - statement: "They place rules and domain events by identifier home and state the records outside the book in one note."
+    sources:
+      - model
+      - book
+  - statement: "They keep one undivided glossary and place Implementation and Proof under the records their marks name."
+    sources:
+      - model
+      - book
+  - statement: "They link governance without nesting it."
+    sources:
+      - model
+      - book
+  - statement: "A record that the builder leaves unplaced becomes a build finding, and no stray sweep remains."
+    sources:
+      - model
+      - book

@@ -93,26 +93,59 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "screen-offers-drift"));
     }
 
+    /// <summary>A use case only a layout calls needs no offer and still counts as reached.</summary>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
+    [Fact]
+    public void UseCaseOnlyALayoutCallsNeedsNoOfferAndStillCountsAsReached()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+        AddRoute(
+            model, "screen/app.loans", "/loans",
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy"],
+            ["use-case/lending.borrow-copy"]);
+
+        Assert.Empty(WithCode(model, "screen-offers-drift"));
+        Assert.Empty(WithCode(model, "use-case-unreached"));
+    }
+
+    /// <summary>A screen offering a use case only a layout calls reports no offers drift.</summary>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
+    [Fact]
+    public void ScreenOfferingAUseCaseOnlyALayoutCallsReportsNoOffersDrift()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans", "use-case/lending.borrow-copy"], []));
+        AddRoute(
+            model, "screen/app.loans", "/loans",
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy"],
+            ["use-case/lending.borrow-copy"]);
+
+        Assert.Empty(WithCode(model, "screen-offers-drift"));
+    }
+
     /// <summary>Screen Serving A Step Its Offers Do Not Serve Reports Mismatch.</summary>
-    /// <proves>litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve</proves>
+    /// <proves>litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve</proves>
     [Fact]
     public void ScreenServingAStepItsOffersDoNotServeReportsMismatch()
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
-        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["journey/walk#s2"]));
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["step/walk.finish-walk"]));
 
         Assert.Single(WithCode(model, "screen-serves-drift"));
     }
 
     /// <summary>Screen Serving A Step Its Offers Serve Reports No Mismatch.</summary>
-    /// <proves>litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve</proves>
+    /// <proves>litespec/core/edges#limit-each-screen-to-steps-its-use-cases-serve</proves>
     [Fact]
     public void ScreenServingAStepItsOffersServeReportsNoMismatch()
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
-        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["journey/walk#s1"]));
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["step/walk.start-walk"]));
 
         Assert.Empty(WithCode(model, "screen-serves-drift"));
     }
@@ -135,52 +168,74 @@ public sealed class ScreenCheckTests
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
-        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["journey/walk#s1"]));
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["step/walk.start-walk"]));
 
         Assert.Empty(WithCode(model, "step-screen-missing"));
     }
 
-    /// <summary>Reachable Refusal With No Sentence Or Assert Reports Result Unshown.</summary>
-    /// <proves>litespec/core/edges#show-every-refusal-a-screen-can-reach</proves>
+    /// <summary>A written refusal of an offered use case with no sentence reports a missing refusal sentence.</summary>
+    /// <proves>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</proves>
     [Fact]
-    public void ReachableRefusalWithNoSentenceOrAssertReportsResultUnshown()
+    public void WrittenRefusalWithNoSentenceReportsRefusalSentenceMissing()
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
-        AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
         Assert.Single(WithCode(model, "refusal-sentence-missing"));
     }
 
-    /// <summary>Reachable Refusal With A Dictionary Sentence Reports No Result Unshown.</summary>
-    /// <proves>litespec/core/edges#show-every-refusal-a-screen-can-reach</proves>
+    /// <summary>A written refusal that carries its sentence reports no refusal sentence finding.</summary>
+    /// <proves>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</proves>
     [Fact]
-    public void ReachableRefusalWithADictionarySentenceReportsNoResultUnshown()
+    public void WrittenRefusalWithASentenceReportsNoRefusalSentenceMissing()
     {
         using var temp = TestCli.Temp("screens");
-        WriteProject(temp.Path, "{ \"lending.refused\": \"That copy is not available.\" }");
         var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
+        model.Records.Add(Rec("result", "result/list-loans.refused",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"That list is not available."}""", temp.Path));
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
-        AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
         Assert.Empty(WithCode(model, "refusal-sentence-missing"));
     }
 
-    /// <summary>Reachable Refusal With An Asserting Browser Test Reports No Result Unshown.</summary>
-    /// <proves>litespec/core/edges#show-every-refusal-a-screen-can-reach</proves>
+    /// <summary>A derived refusal carries no sentence of its own and reports no refusal sentence finding.</summary>
+    /// <proves>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</proves>
     [Fact]
-    public void ReachableRefusalWithAnAssertingBrowserTestReportsNoResultUnshown()
+    public void DerivedRefusalWithNoSentenceReportsNoRefusalSentenceMissing()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
+        model.Records.Add(new Record
+        {
+            Type = "result",
+            Id = "result/list-loans.forbidden",
+            Title = "result/list-loans.forbidden",
+            File = Path.Combine(temp.Path, "result.md"),
+            Line = 1,
+            Derived = true,
+            Raw = JsonDocument.Parse("""{"outcome":"refusal","code":"forbidden"}""").RootElement.Clone(),
+        });
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+
+        Assert.Empty(WithCode(model, "refusal-sentence-missing"));
+    }
+
+    /// <summary>A browser test asserting a refusal's code does not stand in for its sentence on the record.</summary>
+    /// <proves>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</proves>
+    [Fact]
+    public void WrittenRefusalAssertedByABrowserTestStillReportsRefusalSentenceMissing()
     {
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
-        AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
         model.BrowserTests.Add(new CodeBrowserTest(
             "web", "shows the refusal", Path.Combine(temp.Path, "tests", "loans.spec.ts"), 3,
             [], null, [], ["lending.refused"], []));
 
-        Assert.Empty(WithCode(model, "refusal-sentence-missing"));
+        Assert.Single(WithCode(model, "refusal-sentence-missing"));
     }
 
     /// <summary>Scenario Proved By Two Browser Tests Reports Proves Duplicated.</summary>
@@ -259,7 +314,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
-            ["litespec/frontend/ui#check-every-route"], null, [], [], []));
+            ["litespec/frontend/ui#pass-every-route-suite-check"], null, [], [], []));
 
         Assert.Empty(WithCode(model, "mark-missing"));
         Assert.Empty(WithCode(model, "mark-unknown"));
@@ -309,9 +364,9 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "other", "litespec.ts");
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "other", "litespec.ts");
         model.Code.Elements.Add(new MarkedElement(
-            CodeKind.FrontendModule, "lending/loans/other", null, file, 3,
+            CodeKind.FrontendModule, "lending/other", null, file, 3,
             [new CodeMark("use-case/lending.other", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
 
         Assert.Single(WithCode(model, "mark-unknown"), found => found.Message.Contains("outside frontend 'web's entry points"));
@@ -327,9 +382,9 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "list-loans", "litespec.ts");
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "list-loans", "litespec.ts");
         model.Code.Elements.Add(new MarkedElement(
-            CodeKind.FrontendModule, "lending/loans/list-loans", null, file, 3,
+            CodeKind.FrontendModule, "lending/list-loans", null, file, 3,
             [new CodeMark("use-case/lending.list-loans", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
 
         Assert.Empty(WithCode(model, "mark-unknown"));
@@ -362,8 +417,8 @@ public sealed class ScreenCheckTests
             ReaderIsQualified = true,
         };
 
-        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, unqualified.ReaderIsQualified, continuousIntegration: false).Outcome);
-        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, qualified.ReaderIsQualified, continuousIntegration: false).Outcome);
+        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, unqualified.ReaderIsQualified).Outcome);
+        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, qualified.ReaderIsQualified).Outcome);
     }
 
     static List<Finding> WithCode(ProjectModel model, string code) =>
@@ -374,7 +429,7 @@ public sealed class ScreenCheckTests
             "web", title, Path.Combine(root, "tests", $"{title}.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [target], [], ["The loans are listed."]);
 
-    static void AddRoute(ProjectModel model, string screenId, string address, IReadOnlyList<string> useCases)
+    static void AddRoute(ProjectModel model, string screenId, string address, IReadOnlyList<string> useCases, IReadOnlyList<string>? layoutOnly = null)
     {
         var file = Path.Combine(model.Config.Root, "apps", "web", "src", "routes", "loans", "+page.svelte");
 
@@ -386,7 +441,10 @@ public sealed class ScreenCheckTests
             Path.Combine(model.Config.Root, "ListLoansEndpoint.cs"), 3));
         model.Screens.Add(new CodeScreen(
             "web", address, PathText.Relative(model.Config.Root, file),
-            [new GeneratedOperation("listLoans", "", "")], useCases, screenId));
+            [new GeneratedOperation("listLoans", "", "")], useCases, screenId)
+        {
+            LayoutOnlyUseCases = layoutOnly ?? [],
+        });
     }
 
     static MarkedElement RouteElement(string? screenId, string address, string root)
@@ -397,24 +455,6 @@ public sealed class ScreenCheckTests
             : [new CodeMark(screenId, MarkStyle.Xml, MarkVerb.Implements, file, 3)];
 
         return new MarkedElement(CodeKind.FrontendRoute, address, null, file, 3, marks, InTests: false);
-    }
-
-    static void WriteProject(string root, string dictionary)
-    {
-        Directory.CreateDirectory(Path.Combine(root, "apps", "web"));
-        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
-        File.WriteAllText(Path.Combine(root, ".litespec", "refusals.json"), dictionary);
-        File.WriteAllText(
-            Path.Combine(root, ".litespec/project.yaml"),
-            """
-            {
-              "owners": ["lending-team"],
-              "frontends": [
-                  { "name": "web", "path": "apps/web", "platform": "svelte", "refusalDictionary": ".litespec/refusals.json" }
-                ], "paths": {
-              }
-            }
-            """);
     }
 
     static ProjectModel BaseModel(string root)
@@ -438,17 +478,19 @@ public sealed class ScreenCheckTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"],"serves":["journey/walk#s1"]}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/app"],"serves":["journey/walk#s1"]}""", root));
-        model.Records.Add(Rec("journey", "journey/walk", """{"actor":["actor/employee"],"steps":[{"id":"s1","useCase":"use-case/lending.list-loans"},{"id":"s2","useCase":"use-case/lending.list-loans"}]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
+        model.Records.Add(Rec("flow", "flow/walk", """{"actor":["actor/employee"],"steps":[{"id":"step/walk.start-walk","title":"Start Walk","statement":"The employee starts the walk."},{"id":"step/walk.finish-walk","title":"Finish Walk","statement":"The employee finishes the walk."}]}""", root));
+        model.Records.Add(Rec("step", "step/walk.start-walk", """{"title":"Start Walk","statement":"The employee starts the walk."}""", root));
+        model.Records.Add(Rec("step", "step/walk.finish-walk", """{"title":"Finish Walk","statement":"The employee finishes the walk."}""", root));
         model.Records.Add(Rec("result", "result/list-loans.listed", """{"outcome":"success","meaning":"The loans are listed."}""", root));
-        model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""", root));
+        model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused"}""", root));
         model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", """{"given":"A loan.","when":"The employee lists loans.","then":"Both are listed.","result":"result/list-loans.listed"}""", root));
 
         return model;
     }
 
-    static Record Screen(string id, string address, IReadOnlyList<string> offers, IReadOnlyList<string> serves) =>
+    static Record Screen(string id, string route, IReadOnlyList<string> offers, IReadOnlyList<string> serves) =>
         new()
         {
             Type = "screen",
@@ -457,10 +499,41 @@ public sealed class ScreenCheckTests
             File = "screen.md",
             Line = 1,
             Raw = JsonDocument.Parse(
-                "{\"entryPoint\":\"entry-point/app\",\"address\":" + JsonSerializer.Serialize(address)
+                "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":" + JsonSerializer.Serialize(serves) + "}").RootElement.Clone(),
         };
+
+    /// <summary>Route Outside The Routes Root Reports Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    [Fact]
+    public void RouteOutsideTheRoutesRootReportsPlacementDrift()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+        var file = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "list-loans", "+page.svelte");
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.FrontendRoute, "/loans", null, file, 3,
+            [new CodeMark("screen/app.loans", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
+
+        var finding = Assert.Single(WithCode(model, "code-placement-drift"));
+        Assert.Contains("sits outside the 'routes/' root", finding.Message);
+        Assert.Equal("screen/app.loans", finding.Subject);
+    }
+
+    /// <summary>Route Inside The Routes Root Reports No Placement Drift.</summary>
+    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    [Fact]
+    public void RouteInsideTheRoutesRootReportsNoPlacementDrift()
+    {
+        using var temp = TestCli.Temp("screens");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
+        AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
+
+        Assert.Empty(WithCode(model, "code-placement-drift"));
+    }
 
     static Record Rec(string type, string id, string fields, string root)
     {

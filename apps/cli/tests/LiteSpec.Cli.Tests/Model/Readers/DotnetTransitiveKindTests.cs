@@ -16,15 +16,15 @@ public sealed class DotnetTransitiveKindTests
     {
         using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyHandlerBase.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyHandlerBase.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public abstract class BorrowCopyHandlerBase : ICommandHandler<BorrowCopyCommand, BorrowCopyCommandResult>
             {
             }
             """);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler : BorrowCopyHandlerBase
@@ -56,15 +56,15 @@ public sealed class DotnetTransitiveKindTests
     {
         using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "ListLoansHandlerBase.cs", """
-            namespace Library.Application.Lending.Loans.ListLoans;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "ListLoans"), "ListLoansHandlerBase.cs", """
+            namespace Library.App.Application.ListLoans;
 
             public abstract class ListLoansHandlerBase : IQueryHandler<ListLoansQuery, ListLoansQueryResult>
             {
             }
             """);
-        WriteSource(temp.Path, "App", "ListLoansQueryHandler.cs", """
-            namespace Library.Application.Lending.Loans.ListLoans;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "ListLoans"), "ListLoansQueryHandler.cs", """
+            namespace Library.App.Application.ListLoans;
 
             /// <implements>use-case/lending.list-loans</implements>
             public sealed class ListLoansQueryHandler : ListLoansHandlerBase
@@ -88,15 +88,15 @@ public sealed class DotnetTransitiveKindTests
     {
         using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "LoanBorrowedReactionBase.cs", """
-            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnLoanBorrowed"), "LoanBorrowedReactionBase.cs", """
+            namespace Library.App.Application.OnLoanBorrowed;
 
             public abstract class LoanBorrowedReactionBase : IEventHandler<LoanBorrowedEvent>
             {
             }
             """);
-        WriteSource(temp.Path, "App", "SendDueNoticeOnLoanBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnLoanBorrowed"), "SendDueNoticeOnLoanBorrowedHandler.cs", """
+            namespace Library.App.Application.OnLoanBorrowed;
 
             /// <implements>reaction/lending.notify-on-borrow</implements>
             public sealed class SendDueNoticeOnLoanBorrowedHandler : LoanBorrowedReactionBase
@@ -118,15 +118,15 @@ public sealed class DotnetTransitiveKindTests
     {
         using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "ScanServiceBase.cs", """
-            namespace Library.Application.Lending.Loans.NightlyScan;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "NightlyScan"), "ScanServiceBase.cs", """
+            namespace Library.App.Application.NightlyScan;
 
             public abstract class ScanServiceBase : BackgroundService
             {
             }
             """);
-        WriteSource(temp.Path, "App", "NightlyScanJob.cs", """
-            namespace Library.Application.Lending.Loans.NightlyScan;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "NightlyScan"), "NightlyScanJob.cs", """
+            namespace Library.App.Application.NightlyScan;
 
             /// <implements>job/lending.nightly-scan</implements>
             public sealed class NightlyScanJob : ScanServiceBase
@@ -148,15 +148,15 @@ public sealed class DotnetTransitiveKindTests
     {
         using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "ILoanEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
             public interface ILoanEvent : IDomainEvent;
             """);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/lending.loan-borrowed</implements>
+            /// <implements>domain-event/lending.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : ILoanEvent;
             """);
 
@@ -164,7 +164,7 @@ public sealed class DotnetTransitiveKindTests
         var domainEvent = Assert.Single(code.Events);
 
         Assert.Equal("LoanBorrowedEvent", domainEvent.Class);
-        Assert.Equal("event/lending.loan-borrowed", domainEvent.EventId);
+        Assert.Equal("domain-event/lending.loan-borrowed", domainEvent.EventId);
 
         var element = Assert.Single(code.Elements);
 
@@ -179,8 +179,8 @@ public sealed class DotnetTransitiveKindTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

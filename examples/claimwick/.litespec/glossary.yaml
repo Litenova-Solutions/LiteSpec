@@ -31,6 +31,15 @@ terms:
     nl: beleid
     de: Richtlinie
   rejected: []
+- id: term/reminder-preference
+  term: reminder preference
+  meaning: One manager's choice to skip approval reminders.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: herinneringsvoorkeur
+    de: Erinnerungspraeferenz
+  rejected: []
 - id: term/approver
   term: approver
   meaning: The manager who decides a submitted expense.
@@ -94,6 +103,51 @@ terms:
   layer: behavior
   verbKind: command
   aliases: []
+  rejected: []
+- id: term/submitted
+  term: submitted
+  meaning: The state of an expense awaiting a decision.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: ingediend
+    de: eingereicht
+  rejected: []
+- id: term/approved
+  term: approved
+  meaning: The state of an expense a manager accepted for reimbursement.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: goedgekeurd
+    de: genehmigt
+  rejected: []
+- id: term/refused
+  term: refused
+  meaning: The state of an expense a manager turned down.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: afgekeurd
+    de: abgelehnt
+  rejected: []
+- id: term/reimbursed
+  term: reimbursed
+  meaning: The state of an expense whose payout reached the submitter.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: vergoed
+    de: erstattet
+  rejected: []
+- id: term/erased
+  term: erased
+  meaning: The state of an expense whose personal data was erased after its retention.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: gewist
+    de: geloescht
   rejected: []
 mannered:
 - term: one-way-door

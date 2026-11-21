@@ -1,0 +1,14 @@
+type: decision
+id: decision/0098-reference-data-tables
+title: Reference Data Tables
+context: "Behavior rules stated dated business values in prose: amounts, deadlines, and time zones written into statements. No record held the tables behind those values, so each statement carried its own copy and no check saw which statements held a value."
+options:
+  - name: "Hold dated values in reference-data tables cited by key"
+    pros: "One table holds each value with its dates and source, and rules cite it by key, so the model checks every cited table exists and no two rows overlap."
+    cons: "Each table is one more record to write beside the rules citing it."
+  - name: "Flag literal values with a judgment provision only"
+    pros: "No new record type, and reviewers catch literals by eye."
+    cons: "Values stay in prose with no home, so each change still hunts through statements."
+choice: "Hold dated values in reference-data tables cited by key"
+consequences: "Dated business values live in reference-data tables under their module: reference-data/<module>.<name> with dated rows, each row carrying its value, its effective dates, and the constraint, research, or decision behind it. Rules cite the table instead of stating its values, and use cases name it in reads. The new provision is litespec/core/model#cite-reference-data-instead-of-literal-values, beside the Reference Data section of the domain model page."
+reopenedWhen: "A value needs semantics a dated table fails to carry, such as a value computed from live state."

@@ -1,0 +1,19 @@
+type: decision
+id: decision/0083-evaluate-access-in-one-order
+title: Evaluate Access in One Order
+context: "No page stated the evaluation order for access, and a role assignment bound a scope level but no instance. Permissions implied others by name, destructive use cases shared permissions with harmless ones, and system and device callers had no stated meaning."
+options:
+  - name: "One stated algorithm over explicit permissions"
+    pros: "Every access decision follows the same steps, no permission implies another by name, and destructive acts take their own permission with their risk."
+    cons: "Roles holding implied permissions split, and assignments bind their scope instance by hand."
+  - name: "Keep evaluation order unstated"
+    pros: "No record moves."
+    cons: "Two readers evaluate the same request differently, and manage-* implies whatever each reader assumes."
+  - name: "A central policy engine"
+    pros: "One evaluator answers every request."
+    cons: "The records stop stating what each use case needs, and the engine becomes the permission."
+choice: "One stated algorithm over explicit permissions"
+consequences: "Access evaluates in one order: the authenticated principal, then the role assignments whose bound scope instance matches the target, then the permission, then the use case's tenant reach, then the self-ownership restriction, then delegation validity. Several assignments combine as a union. `litespec/core/access#evaluate-access-in-one-order` states the algorithm. `litespec/core/access#record-every-role-an-actor-holds` records the assignments. `grant: signed-in` requires an authenticated person with no permission. `system` is an internal trigger with no outside caller and never authorizes an outside request. A device caller authenticates with `auth: device`. A permission allows exactly the use cases whose `access.grant` names it. `manage-*` is a naming convention only. A destructive use case takes its own permission when roles must differ, and carries its `risk`."
+reopenedWhen: "A request needs a check outside the six steps, or two assignments combine beyond a union."
+basedOn:
+  - research/lower-layers-practice

@@ -1,0 +1,14 @@
+type: waiver
+id: waiver/old-layout-waiver
+title: Old Layout Waiver
+kind: gap
+waives:
+  - litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case
+appliesTo:
+  - use-case/billing.send-invoice
+reason: The old layout predates the module tree.
+consequences: The old folders stay until the move completes.
+exitWhen: The move completes, and the old folders are removed.
+expiresOn: 2020-01-01
+closedBy:
+- use-case/billing.send-invoice

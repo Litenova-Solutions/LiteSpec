@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { book, stripStep } from "$lib/frame";
+  import { book, capitalize, esc, formatLabel, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RecordIcon, RecordLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
-  import Fact from "../blocks/Fact.svelte";
-  import SectionJump from "../blocks/SectionJump.svelte";
+  import Note from "../blocks/Note.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import { aggregateFields, refusalOf, stringField } from "../page-values";
+  import { clsTag, codeOf, muted, mutedInline, refLink, tag, td, thRow } from "../shared/record-cells";
+  import { aggregateFields, periodSuffixHtml, refusalOf, stringField, stringList } from "../page-values";
   import { aggregateModel } from "./aggregate-model";
 
   // An aggregate: its states, the transitions between them, its data,
@@ -30,90 +30,100 @@
       };
     }),
   );
-  const model = $derived(aggregateModel(book, f, r, ruleInputs));
+  const model = $derived(aggregateModel(f, r));
+  const excludes = $derived(stringList(f, "excludes"));
   const evs = $derived(book.eventsOf(id));
+  const mevs = $derived(book.kidsByType(id, "module-event"));
+  const ievs = $derived(book.kidsByType(id, "integration-event"));
+  const stateRows = $derived(
+    model.states.map((s) => [
+      thRow(
+        esc(s.name) +
+          (s.created ? ` ${tag("created as", "outline", "sm", "g:creation")}` : "") +
+          (s.unreached ? ` ${tag("not reachable", "outline", "sm")}` : ""),
+      ),
+      td(esc(s.meaning)),
+    ]),
+  );
+  const transitionRows = $derived(
+    model.transitions.flatMap((t) =>
+      t.targets.flatMap((x) =>
+        x.movedBy.map((b) => [
+          td(t.created ? "Created as" : esc(t.from)),
+          td(esc(x.to)),
+          td(b ? refLink(book, b) : mutedInline("no use case or job named")),
+        ]),
+      ),
+    ),
+  );
+  const classRows = $derived(
+    af.dataClasses.map((c) => [
+      thRow(`<b>${esc(capitalize(formatLabel(c.name)))}</b>${c.classification ? muted(clsTag(c.classification)) : ""}`),
+      td(stringList(c, "fields").map(codeOf).join(" ")),
+      td(esc(c.purpose ?? "")),
+      td(
+        `<b>${esc(capitalize(String(c.onErasure ?? "")))}</b>${periodSuffixHtml(c.period)}` +
+          (c.basis || c.reason ? muted(esc(String(c.basis ?? c.reason ?? ""))) : ""),
+      ),
+    ]),
+  );
+  const dataRows = $derived(
+    af.data.map((d) => [thRow(codeOf(String(d.name ?? ""))), td(esc(String(d.meaning ?? ""))), td(clsTag(d.classification))]),
+  );
+  const ruleRows = $derived(
+    ruleInputs.map((x) => [
+      thRow(refLink(book, x.id) + (x.statement ? muted(esc(x.statement)) : "")),
+      td(esc(capitalize(x.kind))),
+      td(
+        x.refusalCode
+          ? codeOf(x.refusalCode)
+          : x.refusalId
+            ? refLink(book, x.refusalId)
+            : muted("None"),
+      ),
+    ]),
+  );
 </script>
 
 {#if af.finishedWhen}
-  <div class="mb-6 grid grid-cols-[20px_1fr] gap-2.5 border-l-[3px] border-convention-foreground py-0.5 pl-3.5 text-[0.90625rem]">
-    <RecordIcon name="passing" class="mt-1 size-3.5 text-convention-foreground" />
-    <div><b>Finished when</b> {af.finishedWhen}</div>
-  </div>
+  <Note kind="good" icon="passing"><b>Finished when</b> {af.finishedWhen}</Note>
 {/if}
-<SectionJump
-  items={[
-    { key: "states", label: "states", count: model.states.length },
-    { key: "flow", label: "transitions", count: af.transitions.length },
-    { key: "classes", label: "dataClasses", count: af.dataClasses.length },
-    { key: "data", label: "data", count: af.data.length },
-    { key: "rules", label: "Rules", count: ruleInputs.length },
-    { key: "events", label: "Events", count: evs.length },
-  ]}
-/>
 {#if model.states.length}
-  <PageSection blockKey="states" heading="states" count={model.states.length}>
-    <div class="border-t border-border">
-      {#each model.states as s (s.name)}
-        <div class="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-1 sm:grid-cols-[180px_minmax(0,1fr)] border-b border-border py-2.5">
-          <div class="flex items-start gap-2 text-sm font-semibold">
-            {s.name}
-            {#if s.created}
-              <Fact text="created as" />
-            {:else if s.unreached}
-              <Fact text="not reachable" />
-            {/if}
-          </div>
-          <p class="m-0 text-[0.84375rem] leading-snug text-subtle-foreground">{s.meaning}</p>
-        </div>
-      {/each}
-    </div>
+  <PageSection blockKey="states" heading="aggregate.states" count={model.states.length}>
+    <DataTable head={["State", "Meaning"]} caption={`States of ${r.title}`} rows={stateRows} />
   </PageSection>
 {/if}
-{#if model.flows.length}
-  <PageSection blockKey="flow" heading="transitions" count={af.transitions.length} aside="what moves the record from state to state">
-    <div class="grid gap-1.5">
-      {#each model.flows as flow (flow.from)}
-        <div class="grid grid-cols-[minmax(0,1fr)] items-start gap-x-2.5 gap-y-1 sm:grid-cols-[150px_minmax(0,1fr)] border-b border-border py-2.5 last:border-b-0">
-          <div class="pt-1 text-sm {flow.created ? 'font-medium text-muted-foreground' : 'font-semibold'}">
-            {flow.created ? "Created as" : flow.from}
-          </div>
-          <div>
-            {#each flow.targets as t (t.to)}
-              <div class="grid grid-cols-[18px_minmax(0,1fr)] items-baseline gap-x-2 gap-y-0.5 py-1 text-[0.84375rem] sm:grid-cols-[18px_150px_minmax(0,1fr)]">
-                <span class="text-muted-foreground"><RecordIcon name="arrow" class="size-3.5" /></span>
-                <span class="font-medium">{t.to}</span>
-                <span class="col-start-2 flex flex-wrap gap-x-3.5 gap-y-1 sm:col-start-auto">
-                  {#each t.by as b, j (j)}
-                    {#if b}
-                      <RecordLink id={b} />
-                    {:else}
-                      <span class="font-mono text-[0.6875rem] text-muted-foreground">no use case named</span>
-                    {/if}
-                  {/each}
-                </span>
-              </div>
-            {/each}
-          </div>
-        </div>
-      {/each}
-    </div>
+{#if model.transitions.length}
+  <PageSection blockKey="transition" heading="transitions" count={af.transitions.length}>
+    <DataTable head={["From", "To", "By"]} caption={`Transitions of ${r.title}`} rows={transitionRows} />
   </PageSection>
 {/if}
 {#if af.dataClasses.length}
-  <PageSection blockKey="classes" heading="dataClasses" count={af.dataClasses.length} aside="what is kept, and what happens on erasure">
-    <DataTable head={["Data class", "Fields", "Purpose", "Erasure"]} rows={model.classRows} />
+  <PageSection blockKey="classes" heading="dataClasses" count={af.dataClasses.length}>
+    <DataTable head={["Data class", "Fields", "Purpose", "Erasure"]} caption={`Data classes of ${r.title}`} rows={classRows} />
   </PageSection>
 {/if}
 {#if af.data.length}
   <PageSection blockKey="data" heading="data" count={af.data.length}>
-    <DataTable head={["Name", "Meaning", "Classification"]} rows={model.dataRows} />
+    <DataTable head={["Name", "Meaning", "Classification"]} caption={`Data of ${r.title}`} rows={dataRows} />
   </PageSection>
 {/if}
 {#if ruleInputs.length}
   <PageSection blockKey="rules" heading="Rules" count={ruleInputs.length}>
-    <DataTable head={["Rule", "Kind", "Refusal"]} rows={model.ruleRows} />
+    <DataTable head={["Rule", "Kind", "Refusal code"]} caption={`Rules of ${r.title}`} rows={ruleRows} />
   </PageSection>
 {/if}
 {#if evs.length}
-  <PageSection blockKey="events" heading="Events" count={evs.length}><RecordList ids={evs} /></PageSection>
+  <PageSection blockKey="events" heading="Domain events" count={evs.length}><RecordList ids={evs} /></PageSection>
+{/if}
+{#if mevs.length}
+  <PageSection blockKey="mevents" heading="Module events" count={mevs.length}><RecordList ids={mevs} /></PageSection>
+{/if}
+{#if ievs.length}
+  <PageSection blockKey="ievents" heading="Integration events" count={ievs.length}><RecordList ids={ievs} /></PageSection>
+{/if}
+{#if excludes.length}
+  <PageSection blockKey="excludes" heading="excludes" count={excludes.length}>
+    <BulletList items={excludes} />
+  </PageSection>
 {/if}

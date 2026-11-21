@@ -4,6 +4,6 @@ title: Second library
 boundary: The second library lends copies to readers.
 exclusions:
   - The product never sells copies.
-addresses:
+users:
   - actor/reader
   - actor/librarian

@@ -1,0 +1,9 @@
+type: refusal-set
+summary: The refusals the loan aggregate raises.
+records:
+- id: refusal/lending.copy-not-available
+  title: Copy Not Available
+  meaning: The copy is unavailable.
+- id: refusal/lending.loan-not-active
+  title: Loan Not Active
+  meaning: The loan is inactive.

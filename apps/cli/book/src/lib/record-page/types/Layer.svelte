@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { reachStateWord } from "../page-values";
   import { book, coveragePercent, esc, inline, layerStats } from "$lib/frame";
   import type { BookRecord, LayerKey } from "$lib/frame";
-  import { glossaryLinks, RecordIcon, RecordLine } from "$lib/record";
+  import { glossaryLinks, RecordLine } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
+  import DataTable from "../blocks/DataTable.svelte";
+  import { tdHtml } from "../page-html";
   import { stringField } from "../page-values";
 
   // A layer page: what the layer answers, who writes it, and its
@@ -33,26 +36,37 @@
       return { type: t, first: first[0] ?? "", count: first.length };
     }),
   );
+  const typeTable = $derived(
+    typeRows.map((row) => [
+      tdHtml(
+        `<button type="button" class="cursor-pointer text-link hover:underline" data-go="${esc(row.first)}">${esc(book.pluralName(row.type))}</button>`,
+      ),
+      tdHtml(String(row.count), "num"),
+      tdHtml(esc(book.typeQuestion(row.type))),
+    ]),
+  );
   const question = $derived(stringField(f, "question"));
   const lead = $derived(question ? inline(book, question, null) : "");
   const writes = $derived(stringField(f, "writes"));
   const coverage = $derived(key === "intent" ? book.intentCoverage() : null);
+  const problems = $derived(coverage?.problems ?? { reached: 0, total: 0 });
+  const constraints = $derived(coverage?.constraints ?? { reached: 0, total: 0 });
   const unreached = $derived((coverage?.entries ?? []).filter((entry) => !entry.reached));
   const reached = $derived((coverage?.entries ?? []).filter((entry) => entry.reached));
   const percent = $derived(coverage && coverage.total > 0 ? coveragePercent(coverage) : 100);
 </script>
 
 {#if unclaimed}
-  <p class="mb-6 max-w-[72ch] text-sm leading-relaxed text-muted-foreground">
-    Not claimed. This project does not claim the {key} layer, so its records are not checked here.
-  </p>
+  <p class="mb-6 max-w-[72ch] text-sm leading-relaxed text-text-secondary">Not claimed.</p>
 {/if}
 {#if coverage && coverage.total > 0}
   <PageSection blockKey="intent-coverage" heading="Intent coverage" count={coverage.total}>
     <p class="mt-0 mb-3 text-sm leading-relaxed">
-      {coverage.reached} of {coverage.total} requirements and journey steps reached ({percent}%).
+      {coverage.reached} of {coverage.total} requirements, flow steps, problems and constraints reached ({percent}%).
       Requirements: {coverage.requirements.reached} of {coverage.requirements.total}.
-      Journey steps: {coverage.steps.reached} of {coverage.steps.total}.
+      Flow steps: {coverage.steps.reached} of {coverage.steps.total}.
+      Problems: {problems.reached} of {problems.total}.
+      Constraints: {constraints.reached} of {constraints.total}.
     </p>
     {#if unreached.length}
       <p class="mt-0 mb-1 text-sm font-semibold">Not reached yet</p>
@@ -68,7 +82,7 @@
         {#each reached as entry (entry.id)}
           <li class="py-1">
             <RecordLine id={entry.id} suffix={entry.kind === "step" ? entry.id.slice(entry.id.indexOf("#")) : entry.kind} />
-            <span class="text-xs text-muted-foreground">reached by {entry.reachedBy.join(", ")}</span>
+            <span class="text-xs text-text-secondary">reached by {#each entry.reachedBy as rid, j (rid)}{#if j > 0}{", "}{/if}{rid}{#if reachStateWord(entry.claims, rid)} ({reachStateWord(entry.claims, rid)}){/if}{/each}</span>
           </li>
         {/each}
       </ul>
@@ -76,7 +90,7 @@
   </PageSection>
 {/if}
 {#if lead}
-  <p class="mb-6 max-w-[72ch] text-lg leading-relaxed" use:glossaryLinks={lead}>{@html lead}</p>
+  <p class="mb-6 max-w-[72ch] text-base leading-relaxed" use:glossaryLinks={lead}>{@html lead}</p>
 {/if}
 {#if writes}
   <div class="mb-8">
@@ -87,41 +101,6 @@
 {/if}
 {#if typeRows.length}
   <PageSection blockKey="types" heading="Record types" count={typeRows.length}>
-    <div class="max-w-full overflow-x-auto rounded-lg border border-border">
-    <table class="w-full text-sm [overflow-wrap:normal]">
-      <thead>
-        <tr>
-          <th class="border-b border-border bg-muted px-3.5 py-2 text-left text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">
-            Type
-          </th>
-          <th class="border-b border-border bg-muted px-3.5 py-2 text-left text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">
-            Records
-          </th>
-          <th class="border-b border-border bg-muted px-3.5 py-2 text-left text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">
-            Question
-          </th>
-        </tr>
-      </thead>
-      <tbody class="[&_tr:last-child_td]:border-b-0">
-        {#each typeRows as row (row.type)}
-          <tr>
-            <td class="border-b border-border px-3.5 py-2.5 align-top text-sm">
-              <button
-                type="button"
-                class="underline decoration-strong underline-offset-2 hover:decoration-foreground"
-                data-go={row.first}
-              >
-                <span class="inline-flex items-center gap-1.5">
-                  <RecordIcon name={row.type} class="size-3.5" />{book.pluralName(row.type)}
-                </span>
-              </button>
-            </td>
-            <td class="border-b border-border px-3.5 py-2.5 align-top text-sm tabular-nums">{row.count}</td>
-            <td class="border-b border-border px-3.5 py-2.5 align-top text-sm">{book.typeQuestion(row.type)}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-    </div>
+    <DataTable head={["Type", "Records", "Question"]} rows={typeTable} />
   </PageSection>
 {/if}

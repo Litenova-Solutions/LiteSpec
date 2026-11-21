@@ -22,6 +22,7 @@ internal static class ExplanationChecks
         CheckOrphaned(model, findings);
         CheckMissing(model, findings);
         CheckSections(model, findings);
+        CheckBacking(model, findings);
         CheckOpening(model, findings);
         CheckUnclaimedLayers(model, findings);
     }
@@ -101,26 +102,26 @@ internal static class ExplanationChecks
         }
     }
 
-    /// <summary>
-    ///     Whether a record type needs an explanation file: an article type, or a type on a layer the project requires.
-    ///     A requirement's statement is its lead, so its explanation stays optional even on a required layer.
-    /// </summary>
+    /// <summary>Whether a record type needs an explanation file: a type on a layer the project requires.</summary>
     /// <param name="type">The record type.</param>
-    /// <param name="required">The record layers whose every record page carries an explanation file.</param>
+    /// <param name="required">The record layers whose every record file carries an explanation file.</param>
     /// <returns>True when the type needs an explanation file.</returns>
     private static bool NeedsExplanation(string type, HashSet<string> required) =>
-        type != RecordTypes.Requirement
-        && (RecordFile.ArticleTypes.Contains(type)
-            || (RecordTypes.LayerByType.TryGetValue(type, out var layer) && required.Contains(layer)));
+        RecordTypes.LayerByType.TryGetValue(type, out var layer) && required.Contains(layer);
 
     /// <summary>
     ///     Reports each explanation that lacks a required section of its type's table, or holds its sections out of
     ///     order. Covers the explanation of every record and of every container page whose type the table lists.
+    ///     A section explains its backing fields, so a required section is missing only when a backing field holds a
+    ///     value, or when the section has no backing fields at all.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and page body.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSections(ProjectModel model, List<Finding> findings)
     {
+        var byId = model.ById;
+        var containerFields = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+
         foreach (var explanation in Explanations(model))
         {
             if (!ExplanationSections.ByType.TryGetValue(explanation.Type, out var sections))
@@ -133,7 +134,8 @@ internal static class ExplanationChecks
 
             foreach (var section in sections.Where(section => !section.Optional))
             {
-                if (!headings.Any(heading => heading.Text == "## " + section.Name))
+                if (!headings.Any(heading => heading.Text == "## " + section.Name)
+                    && (section.Fields.Count == 0 || BackingPresent(model, byId, explanation, section.Fields, containerFields)))
                 {
                     findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds no {section.Name} section in its explanation.", explanation.File, 1, explanation.Subject));
                 }
@@ -158,6 +160,148 @@ internal static class ExplanationChecks
             }
         }
     }
+
+    /// <summary>
+    ///     Reports each fixed section an explanation holds whose backing fields are all absent or empty on its record.
+    ///     Sections with no backing fields (computed facts, illustrations) never report.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every record and page body.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckBacking(ProjectModel model, List<Finding> findings)
+    {
+        var byId = model.ById;
+        var containerFields = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+
+        foreach (var explanation in Explanations(model))
+        {
+            if (!ExplanationSections.ByType.TryGetValue(explanation.Type, out var sections))
+            {
+                continue;
+            }
+
+            var headings = HeadingsOf(explanation.Text);
+            var label = LabelOf(explanation.Type);
+
+            foreach (var section in sections.Where(section => section.Fields.Count > 0))
+            {
+                var heading = headings.FirstOrDefault(item => item.Text == "## " + section.Name);
+
+                if (heading is null)
+                {
+                    continue;
+                }
+
+                if (BackingPresent(model, byId, explanation, section.Fields, containerFields))
+                {
+                    continue;
+                }
+
+                findings.Add(new Finding("explanation-section-unbacked", $"{label} '{explanation.Name}' explains {section.Name}, but its record holds no {string.Join(", ", section.Fields)}.", explanation.File, heading.Line, explanation.Subject));
+            }
+        }
+    }
+
+    /// <summary>Whether any backing field is present and non-empty on the explanation's record.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="byId">The records by identifier.</param>
+    /// <param name="explanation">The explanation whose record is read.</param>
+    /// <param name="fields">The backing field names of the section.</param>
+    /// <param name="containerFields">The parsed container record fields, cached per record path.</param>
+    /// <returns>True when at least one backing field holds a value on the record.</returns>
+    private static bool BackingPresent(
+        ProjectModel model,
+        IReadOnlyDictionary<string, Record> byId,
+        Explained explanation,
+        IReadOnlyList<string> fields,
+        Dictionary<string, JsonElement> containerFields)
+    {
+        if (byId.TryGetValue(explanation.Name, out var record))
+        {
+            // A flow's branches live on its steps, so the Branches section is backed
+            // when any step holds a non-empty branches list.
+            if (record.Type == RecordTypes.Flow
+                && fields.Contains(RecordFields.Branches, StringComparer.Ordinal)
+                && StepsHoldBranches(record))
+            {
+                return true;
+            }
+
+            return fields.Any(field => record.Raw.ValueKind == JsonValueKind.Object
+                && record.Raw.TryGetProperty(field, out var value)
+                && !IsEmpty(value));
+        }
+
+        if (!containerFields.TryGetValue(explanation.RecordPath, out var root))
+        {
+            root = ContainerRoot(explanation.RecordPath);
+            containerFields[explanation.RecordPath] = root;
+        }
+
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return false;
+        }
+
+        if (fields.Any(field => root.TryGetProperty(field, out var value) && !IsEmpty(value)))
+        {
+            return true;
+        }
+
+        // A container page's backing lives on its entries: each rule's rationale, each
+        // permission's risk, each setting's default, range, unit, setBy and excludes.
+        return root.TryGetProperty(RecordFields.Records, out var records)
+            && records.ValueKind == JsonValueKind.Array
+            && records.EnumerateArray().Any(entry => entry.ValueKind == JsonValueKind.Object
+                && fields.Any(field => entry.TryGetProperty(field, out var value) && !IsEmpty(value)));
+    }
+
+    /// <summary>Whether any step of the flow holds a non-empty branches list.</summary>
+    /// <param name="record">The flow record whose steps are read.</param>
+    /// <returns>True when a step holds branches; otherwise false.</returns>
+    private static bool StepsHoldBranches(Record record)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        return steps.EnumerateArray().Any(step => step.ValueKind == JsonValueKind.Object
+            && step.TryGetProperty(RecordFields.Branches, out var branches)
+            && !IsEmpty(branches));
+    }
+
+    /// <summary>Reads the record a container page holds, as JSON.</summary>
+    /// <param name="recordPath">The container record file path.</param>
+    /// <returns>The parsed record, or an empty value when the file cannot be read.</returns>
+    private static JsonElement ContainerRoot(string recordPath)
+    {
+        try
+        {
+            if (RecordFile.TryParse(SourceTree.Read(recordPath), out var root, out _, out _))
+            {
+                return root;
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+        }
+
+        return default;
+    }
+
+    /// <summary>Whether a JSON value holds no value: an empty string, array or object.</summary>
+    /// <param name="value">The JSON value to test.</param>
+    /// <returns>True when the value holds nothing.</returns>
+    private static bool IsEmpty(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.String => string.IsNullOrWhiteSpace(value.GetString()),
+        JsonValueKind.Array => value.GetArrayLength() == 0,
+        JsonValueKind.Object => !value.EnumerateObject().Any(),
+        JsonValueKind.Null or JsonValueKind.Undefined => true,
+        _ => false,
+    };
 
     /// <summary>
     ///     The first pair of fixed sections that a file holds in the wrong order: a section the table puts first
@@ -303,6 +447,7 @@ internal static class ExplanationChecks
             {
                 "intent" => model.Config.Layers.Intent,
                 "behavior" => model.Config.Layers.Behavior,
+                // Governance records stand beside every claim, so a listed governance layer needs no layers entry.
                 _ => true,
             };
 

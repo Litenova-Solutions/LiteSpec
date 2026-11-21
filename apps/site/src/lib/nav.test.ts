@@ -54,7 +54,7 @@ describe("pageOrder", () => {
         "scopes.md",
         "principles.md",
         "model.md",
-        "departures.md",
+        "waivers.md",
         "layers.md",
         "intent.md",
         "behavior.md",

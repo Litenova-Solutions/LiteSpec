@@ -4,59 +4,67 @@
 
 **Concern:** frontend-ui
 
-## Intent
+This page holds the money, time, and density patterns: how amounts, statements, moments, periods, counts, charts, payouts, invoices, VAT, and identifiers read in tables, on statements and charts, in exports, and at phone width.
 
-This page holds the patterns for writing amounts, statements, moments, periods, counts, charts, payouts, invoices, VAT, and identifiers at every width, read across tables, statements, charts, and phone screens. A team building a finance or reporting screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared way of writing figures keeps exports, statements, and screens agreeing, so finance can cite a figure without checking where it was read.
+A team building a finance or reporting screen starts from these patterns. The owner chooses an option from the wireframe drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared form keeps screens, statements, and exports in agreement, so finance can cite a figure without checking where it was read. This page holds the Money and Time category and the Documents and Charts category. Money and Time patterns recur in every product; Documents and Charts patterns are product-domain examples from a finance product. Its patterns are tested layouts a team chooses from, not required rules; a team building another product reads the Documents and Charts patterns as worked examples.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about money, time, or density, such as how an amount reads in a table. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+Each pattern answers one recurring question about money, time, or density, such as how an amount reads in a table. It names the question and the situation, the default option a project builds unless its catalog records another, how the default behaves on a narrow screen, and why the default was chosen over the other options.
+
+Each option shows one wireframe drawing with its own rationale, its cost, and the outside product it learns from, where one exists. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-The drawings on this page use the Claimwick September 2026 statement: expense EXP-1042 for Ava at EUR 125.00, the payout run holding it, and the autumn travel season. Amounts use currency codes with the decimals each currency defines, moments use the Europe/Amsterdam zone, and counts name what they count. The Standards section states the three rules every option keeps: every amount shows its currency, a moment shared across zones states its zone, and figures in a column line up.
+Every drawing on this page comes from one month: the Claimwick September 2026 statement. It covers expense EXP-1042 for Ava at EUR 125.00, the payout run holding it, and the autumn travel season. Amounts use currency codes with the decimals each currency defines, moments use the Europe/Amsterdam zone, and counts name what they count.
 
-## Standards
+Three defaults hold for every option unless the project records another choice, whichever one a project picks, and the Conventions section states them: every amount shows its currency, a moment shared across zones states its zone, and figures in a column line up by place.
+
+## Conventions
 
 ### Show the Currency of Every Amount
 
 **ID:** `litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** Every amount MUST show its currency.
+**Default:** Write every amount with its currency code and the decimals its currency defines.
 
-**Rationale:** A currency on every amount keeps EUR 125.00 distinct from GBP 125.00 on every screen and export. Without it, a second currency turns each bare figure into a guess, and a pasted number carries no way to settle the guess.
+**Replacement:** A project that replaces the default records where its amounts show without a currency and why.
 
-**Reviewed for:** Which built figure hides its currency? Open the amounts on built tables, statements, and charts.
+**Rationale:** A bare 125.00 reads clearly until a second currency arrives. Then each bare figure is a guess, and a pasted number carries nothing to settle it. A currency on every amount keeps EUR 125.00 distinct from GBP 125.00 on every screen and export.
+
+**Reviewed for:** Does every built figure show its currency? Open the amounts on built tables, statements, and charts.
 
 ### State the Time Zone of a Shared Moment
 
 **ID:** `litespec/frontend/patterns/money-time-density#state-the-time-zone-of-a-shared-moment`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A moment shown to readers in different time zones MUST state its time zone.
+**Default:** State the time zone of a moment shown to readers in different time zones.
 
-**Rationale:** A stated zone keeps 09:32 in Amsterdam from reading as 09:32 in London. Without it, two readers plan the same payout window an hour apart, and finance meets only one of them.
+**Replacement:** A project that replaces the default records how its shared moments state their zone.
 
-**Reviewed for:** Which built shared moment omits its zone? Open the dates and times on built screens read across zones.
+**Rationale:** Without a stated zone, a reader in London reads 09:32 in Amsterdam as 09:32 local time. Two readers then plan the same payout window an hour apart, and finance meets only one of them. A stated zone keeps the moment the same for every reader.
+
+**Reviewed for:** Does every built shared moment state its zone? Open the dates and times on built screens read across zones.
 
 ### Align Figures in a Column
 
 **ID:** `litespec/frontend/patterns/money-time-density#align-figures-in-a-column`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** An amount, count, or quantity shown in a column MUST use tabular figures, so digits of equal place sit under each other.
+**Default:** Use tabular figures for an amount, count, or quantity shown in a column, so digits of equal place sit under each other.
 
-**Rationale:** Proportional figures give each digit its own width, so a column of them wanders and equal places stop lining up. A reversal column whose digits wander is misread at a glance, and the wrong row pays for it. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.
+**Replacement:** A project that replaces the default records how its figure columns align.
 
-**Reviewed for:** Which built figure column wanders instead of lining up by place? Open built amount, count, and quantity columns and read down each one.
+**Rationale:** Proportional figures give each digit its own width, so digits in equal places stop lining up down a column. A misaligned reversal column is misread at a glance, and the wrong row gets paid. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.
 
-## Conventions
+**Reviewed for:** Does every built figure column line up by place? Open built amount, count, and quantity columns and read down each one.
 
 ### Mark a Moment with Its Machine Value
 
@@ -66,11 +74,11 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **Default:** Render a date or moment in a time element that carries its ISO 8601 value.
 
-**Replacement:** A project that departs records where its dates render as plain text.
+**Replacement:** A project that replaces the default records where its dates render as plain text.
 
-**Rationale:** A reader's wording of a moment varies: 8 Oct, October 8, next Tuesday. Assistive technology and the browser read the exact value from the machine form, not the reader's wording of it. The ISO value keeps the cited moment exact even where the words stay short.
+**Rationale:** People write one moment many ways: 8 Oct, October 8, next Tuesday. Assistive technology and the browser read the exact value from the machine form, not from the words the reader sees. The ISO 8601 value in the time element keeps the cited moment exact even where the words stay short.
 
-**Reviewed for:** Which built date or moment lacks its machine value? Open built dates and read each time element for its ISO value.
+**Reviewed for:** Does every built date or moment carry its machine value? Open built dates and read each time element for its ISO value.
 
 ## Patterns
 
@@ -80,17 +88,17 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **Strength:** default
 
-**Question:** A reader meets amounts in tables, statements, and exports. One table writes EUR 45.00, and one statement writes the euro sign before 45.00. The question is which form the product keeps. It also asks how a negative reads and which separator the product uses.
+**Question:** A reader meets amounts in tables, statements, and exports. One table writes EUR 45.00 while a statement writes the euro sign before 45.00. The question is which form the product keeps, and it also asks how a negative reads and which separators the product uses.
 
-**Default:** `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`
+**Default:** `code-and-the-currency-s-own-decimals`
 
-**Compact:** The recommended option reflows: the amount column keeps the code with each figure and the true minus on reversals, while the table scrolls sideways.
+**Compact:** On a narrow screen the amount column keeps the code with each figure and the true minus on reversals, while the table scrolls sideways.
 
-**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers decimals, negatives and separators: each currency shows the decimals it defines. The runner-up is the plain code table. It shows the same choice without reversal rows.
+**Rationale:** Ship the code format in the reader's language with a true minus. One format settles decimals, negatives, and separators at once: each currency shows the decimals it defines. The runner-up is the plain code table, which shows the same choice without reversal rows. The entry point names the option its screens render in `formats.money`.
 
-Choose the symbol with code in the header only when the finance screens and the spender screens show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.
+Choose the symbol with the code in the header only when the finance screens and the spender screens show the same form. Never ship the no-currency option: it loses the currency in exports. Never ship mixed decimals: they break column alignment.
 
-**Reviewed for:** Which built money text differs from the wireframe its catalog entry chose? Open the built codes, symbols, and red negatives beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built money text match the wireframe its catalog entry chose? Open the built codes, symbols, and red negatives beside the catalog entry recording the chosen option and its reason.
 
 #### `code-and-decimals-with-the-column-totals-at-the-foot`: Code and Decimals, with the Column Totals at the Foot
 
@@ -110,11 +118,11 @@ page
     fact "Total of every match" "EUR 33,480.00"
 ```
 
-**Rationale:** This option keeps the code convention. It adds a page total and an all-match total. Both totals follow the filters. The reader checks the column without exporting it.
+**Rationale:** This option keeps the code convention and adds two totals: one for the page and one for every match. Both totals follow the filters, so the reader checks the column without exporting it.
 
-**Cost:** Two totals disagree by design. Labels need to survive a glance. The all-match total adds a second read on every filter change.
+**Cost:** The two totals disagree by design, so their labels must stay clear at a glance. The all-match total adds a second read on every filter change.
 
-#### `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`: Code and the Currency's Own Decimals, in the Reader's Language, with a True Minus
+#### `code-and-the-currency-s-own-decimals`: Code and the Currency's Own Decimals, in the Reader's Language, with a True Minus
 
 ```wireframe
 page
@@ -131,9 +139,9 @@ page
     text muted "A Dutch page writes EUR 125,00. A reversal uses a true minus."
 ```
 
-**Rationale:** Stripe dashboard and Shopify admin keep one amount format. The reader's language decides the separators. English shows EUR 1,203.65, and Dutch shows EUR 1.203,65. Each currency shows the decimals it defines: none for JPY, three for KWD. A reversal uses a true minus before the code. The minus lines up with digits in a tabular column.
+**Rationale:** Stripe dashboard and Shopify admin keep one amount format, and this option follows them. The reader's language decides the separators: English shows EUR 1,203.65 where Dutch shows EUR 1.203,65. Each currency shows the decimals it defines, none for JPY and three for KWD. A reversal uses a true minus before the code, which lines up with digits in a tabular column.
 
-**Cost:** Two colleagues on the same account see different separators, so a screenshot in a support case has to be read in its language. The minus is the only signal of money out, so the State column has to say Reversed as well.
+**Cost:** Two colleagues on the same account see different separators, so a screenshot in a support case has to be read in its own language. The minus is the only signal of money out, so the State column has to say Reversed as well.
 
 **Reference:** Stripe dashboard, Shopify admin
 
@@ -152,9 +160,9 @@ page
       item: text "EXP-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Reversed" neutral · status "−EUR 50.00" critical
 ```
 
-**Rationale:** Stripe dashboard writes a refund in red with its minus. Money out reads at a glance. The minus keeps the meaning for a reader who misses color.
+**Rationale:** Stripe dashboard writes a refund in red with its minus, and this option follows it. Money out is visible at a glance, and the minus keeps the meaning for a reader who cannot see the color.
 
-**Cost:** Red is also the error tone. A statement of reversals reads as a page of problems. The State column still says Reversed. Color alone never carries the meaning.
+**Cost:** Red is also the error tone, so a statement of reversals reads as a page of problems. The State column still says Reversed, because color alone never carries the meaning.
 
 **Reference:** Stripe dashboard
 
@@ -164,17 +172,17 @@ page
 
 **Strength:** default
 
-**Question:** A statement has one purpose. Money adds up top to bottom. Each kind forms a group with a subtotal. A grand total closes the statement at the foot. A count under each line helps a reader spot a missing line.
+**Question:** A statement has one purpose: money adds up from top to bottom. Each kind forms a group with a subtotal, a grand total closes the statement at the foot, and a count under each line helps a reader spot a missing line.
 
 **Default:** `groups-subtotals-and-a-grand-total`
 
-**Compact:** The recommended option reflows: the groups stack with each subtotal above the grand total, and every figure keeps its currency.
+**Compact:** On a narrow screen the default option stacks the groups, with each subtotal above the grand total, and every figure keeps its currency.
 
-**Rationale:** Keep groups, subtotals, and a grand total. Keep a count under each line. The count is the only completeness check. The runner-up ends in the payouts it became. It fits finance work against bank lines.
+**Rationale:** Keep groups, subtotals, and a grand total, with a count under each line. The count is the only completeness check. The runner-up ends in the payouts the statement became, which fits finance checking the statement against bank lines.
 
-Add links on every line later as a behavior of the pick. Never ship the one figure option as the statement. It hides how the figure was reached.
+Add links on every line later, to whichever option the project picks. Never ship the one-figure option as the statement: it hides how the figure was reached.
 
-**Reviewed for:** Which built totals page differs from the wireframe its catalog entry chose? Open the built groups, subtotals, and payout endings beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built totals page match the wireframe its catalog entry chose? Open the built groups, subtotals, and payout endings beside the catalog entry recording the chosen option and its reason.
 
 #### `groups-subtotals-and-a-grand-total`: Groups, Subtotals and a Grand Total
 
@@ -196,9 +204,9 @@ page
     fact "Net paid out" "EUR 61,346.68"
 ```
 
-**Rationale:** Each group holds its lines and a subtotal. A rule separates the grand total. The count under each line shows a missing line.
+**Rationale:** Each group holds its lines and a subtotal, and a rule separates the grand total at the foot. The count under each line shows a missing line.
 
-**Cost:** The count repeats 1,204 twice. A reader opens the expenses list to find which expenses a line holds.
+**Cost:** The count repeats 1,204 twice, and a reader still opens the expenses list to find which expenses a line holds.
 
 #### `a-statement-with-no-count-on-any-line`: A Statement with No Count on Any Line
 
@@ -220,9 +228,9 @@ page
     fact "Net paid out" "EUR 61,346.68"
 ```
 
-**Rationale:** This option drops the count under each line. Shopify finance summary reads this way. Each line is one row and the page is shorter.
+**Rationale:** This option drops the count under each line, the way the Shopify finance summary reads. Each line is one row and the page is shorter.
 
-**Cost:** A reader cannot check a missing payment. The count is the only completeness check.
+**Cost:** A reader cannot check for a missing payment, because the count is the only completeness check.
 
 **Reference:** Shopify
 
@@ -248,9 +256,9 @@ page
     fact "Difference" "EUR 0.00"
 ```
 
-**Rationale:** The net closes into payouts sent to the bank. Finance ticks each payout against a bank line. The difference reads zero for a closed month.
+**Rationale:** The net closes into the payouts sent to the bank. Finance checks each payout against a bank line, and the difference reads zero for a closed month.
 
-**Cost:** A payout can span two months. The difference is zero only for a closed month. The page explains that edge in one line.
+**Cost:** A payout can span two months, so the difference is zero only for a closed month. The page explains that edge in one line.
 
 **Reference:** Stripe
 
@@ -260,17 +268,17 @@ page
 
 **Strength:** default
 
-**Question:** Every date uses the zone the screen works in. Each table keeps one form. The expenses table writes 8 Oct 2026, 09:32. A messages table that mixes Sent 6 hours ago with For 2 Jan 2030, 10:00 in one column breaks that rule.
+**Question:** Every date uses the zone the screen works in, and each table keeps one form: the expenses table writes 8 Oct 2026, 09:32. A messages table that mixes Sent 6 hours ago with For 2 Jan 2030, 10:00 in one column breaks that rule.
 
 **Default:** `one-form-per-table-with-the-zone-stated-once`
 
-**Compact:** The recommended option reflows: the Submitted column keeps its single form with the zone still named once in the header.
+**Compact:** On a narrow screen the default option keeps the Submitted column in its single form, with the zone still named once in the header.
 
-**Rationale:** Keep one form per table. State the zone once in the header. A column then reads as a column.
+**Rationale:** Keep one form per table and state the zone once in the header, so a column reads as a column. The entry point names the option its screens render in `formats.moment`.
 
-The runner-up puts absolute over relative. It fits dispute and payout surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.
+The runner-up groups by day, which fits dispute and payout surfaces where recency leads. Never ship relative-only dates on a reconciled page: a relative date gives the reader nothing exact to cite.
 
-**Reviewed for:** Which built date text differs from the wireframe its catalog entry chose? Open the built absolute, relative, and weekday forms beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built date text match the wireframe its catalog entry chose? Open the built absolute, relative, and weekday forms beside the catalog entry recording the chosen option and its reason.
 
 #### `one-form-per-table-with-the-zone-stated-once`: One Form per Table, with the Zone Stated Once
 
@@ -287,9 +295,9 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
-**Rationale:** Every row keeps the same shape. The header names the zone once. A column reads as a column.
+**Rationale:** Every row keeps the same shape and the header names the zone once, so a column reads as a column.
 
-**Cost:** Minutes add noise a week later. A reader cannot tell which zone a message used.
+**Cost:** Minutes add noise once the week has passed. A reader cannot tell which zone an expense was filed in.
 
 #### `grouped-by-day-so-the-column-is-the-day`: Grouped by Day, so the Column Is the Day
 
@@ -307,9 +315,9 @@ page
       item: text "EXP-1031" · text "Ade Okafor filed an expense" · text "19:02" · text "EUR 45.00"
 ```
 
-**Rationale:** A list of events takes the day as its shape. The date becomes a heading, not a column. The row keeps what matters.
+**Rationale:** A list of events takes the day as its shape: the date becomes a heading instead of a column, and each row keeps what matters.
 
-**Cost:** It is no longer sortable as a column. It is no longer a table. Sorting moves to the toolbar. A group heading adds another row to read.
+**Cost:** It is no longer a table, so it is no longer sortable as a column, and sorting moves to the toolbar. Each group heading adds another row to read.
 
 #### `a-time-with-the-zone-on-every-value`: A Time with the Zone on Every Value
 
@@ -328,9 +336,9 @@ page
     text muted "Each trip uses its own zone. Your zone is Europe/Amsterdam."
 ```
 
-**Rationale:** Every moment carries its own zone. Expenses on one page come from offices in different zones. A trip in another zone is a real case.
+**Rationale:** Every moment carries its own zone. Expenses on one page come from offices in different zones, and a trip in another zone is a real case.
 
-**Cost:** A column of repeated offsets is hard to read. The alternative states the zone once. That alternative reads wrong for another zone.
+**Cost:** A column of repeated zones is hard to read. Stating the zone once instead reads wrong for rows from another zone.
 
 ### Choosing a Period
 
@@ -338,15 +346,15 @@ page
 
 **Strength:** default
 
-**Question:** A statements page can put the period in the heading. It offers two plain buttons beside it. Nothing says which is previous and which is next. The period cannot be typed.
+**Question:** A statements page can put the period in the heading. Two plain buttons beside it walk months, but nothing says which is previous and which is next, and the period cannot be typed. The question is how the reader walks, jumps, and types a period.
 
 **Default:** `chevrons-either-side-of-the-period-as-the-heading`
 
-**Compact:** The recommended option reflows: the period heading keeps its chevrons with the month control under it, and the spending facts stack below.
+**Compact:** On a narrow screen the default option keeps the chevrons on the period heading with the month control under it, and the spending facts stack below.
 
-**Rationale:** Ship chevrons beside the heading with a month dropdown. Walking is one click and jumping avoids twelve clicks. The runner-up uses presets with typeable bounds. It fits charts and exports where the period is not a month. Never ship the period as a filter chip. The period is the subject, not a refinement.
+**Rationale:** Ship chevrons beside the heading with a month dropdown: walking a month is one click, and jumping avoids twelve clicks. The runner-up uses presets with typeable bounds, which fits charts and exports where the period is not a month. Never ship the period as a filter chip: the period is the subject, not a refinement.
 
-**Reviewed for:** Which built period control differs from the wireframe its catalog entry chose? Open the built chevrons, tabs, and painted calendars beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built period control match the wireframe its catalog entry chose? Open the built chevrons, preset ranges, and filter chips beside the catalog entry recording the chosen option and its reason.
 
 #### `chevrons-either-side-of-the-period-as-the-heading`: Chevrons Either Side of the Period as the Heading
 
@@ -368,9 +376,9 @@ page
     fact "Net paid out" "EUR 62,896.68"
 ```
 
-**Rationale:** The period is the heading. A chevron on each side walks months. A chevron cannot read as a tab.
+**Rationale:** The period is the heading, with a chevron on each side to walk months. A chevron cannot read as a tab.
 
-**Cost:** Walking a quarter takes four clicks. A dropdown to jump stays beside it.
+**Cost:** Walking a quarter still takes four clicks, so a dropdown to jump stays beside the chevrons.
 
 #### `a-range-with-presets-and-typeable-bounds`: A Range with Presets and Typeable Bounds
 
@@ -393,9 +401,9 @@ page
     text muted "Peak 13 Oct, EUR 12,400.00."
 ```
 
-**Rationale:** Where the period is not a month a range control fits. It offers presets and two typeable dates. Carbon asks for a simple way to type. Nothing sits behind the calendar.
+**Rationale:** Where the period is not a month, a range control fits: it offers presets and two typeable dates. Carbon asks for a simple way to type. Nothing sits behind the calendar.
 
-**Cost:** Presets plus bounds are two mechanisms. The used preset needs display afterwards. A reader can lose track of the period.
+**Cost:** Presets plus bounds are two mechanisms for one period. The used preset needs displaying afterwards, or a reader loses track of which period is showing.
 
 **Reference:** Carbon
 
@@ -418,9 +426,9 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
-**Rationale:** The period sits as one filter among several. It sits with other narrowing choices. It removes like any of them.
+**Rationale:** The period sits as one filter among several, with the other narrowing choices, and removes like any of them.
 
-**Cost:** The period is the page subject, not a refinement. A filter row demotes the one thing the report covers.
+**Cost:** The period is the page subject, not a refinement, so a filter row demotes the one thing the report covers.
 
 ### How Much Fits Before It Breaks
 
@@ -428,17 +436,17 @@ page
 
 **Strength:** default
 
-**Question:** A table can run at 47 pixels a row. Three columns hold two lines each. At 390 pixels a five-column table has to drop a column. It truncates names to Rotterdam with an ellipsis unless the page changes shape.
+**Question:** A table can run at 47 pixels a row with three columns holding two lines each. At 390 pixels a five-column table cannot keep every column: it either drops one, truncates names to Rotterdam with an ellipsis, or changes shape. The question is what the page does at that width.
 
 **Default:** `the-full-width-with-nothing-truncated`
 
-**Compact:** Under 640 pixels the table becomes a record list. One block per expense holds spender, trip, and amount. Newest comes first. Sorting by column goes with the table. The compact option is `at-390-pixels-a-record-list-rather-than-a-table`.
+**Compact:** Under 640 pixels the table becomes a record list: one block per expense holds spender, trip, and amount, newest first, and sorting by column goes with the table. The compact option is `at-390-pixels-a-record-list-rather-than-a-table`.
 
-**Rationale:** Keep the table at desktop width. Use two-line cells with no truncation. Switch to the record list under 640 pixels. That pair answers honestly at both widths.
+**Rationale:** Keep the table at desktop width with two-line cells and no truncation, and switch to the record list under 640 pixels. That pair fits both widths.
 
-The runner-up wraps rather than truncates. It fits where one column holds names of any length. Never ship shortened figures near a statement. A rounded money figure is not a money figure.
+The runner-up keeps a two-column table with no truncation, which fits where the reader arrives with an expense number. Never ship shortened figures near a statement: a rounded money figure is not a money figure.
 
-**Reviewed for:** Which built dense table differs from the wireframe its catalog entry chose? Open the built 390-pixel lists and pinned first columns beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built dense table match the wireframe its catalog entry chose? Open the built 390-pixel lists and two-column tables beside the catalog entry recording the chosen option and its reason.
 
 #### `the-full-width-with-nothing-truncated`: The Full Width, with Nothing Truncated
 
@@ -468,9 +476,9 @@ page
       item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** At 1440 pixels the columns all have room. The trip is the second line of the expense cell. The spender email is the second line of the spender cell. Nothing needs an ellipsis.
+**Rationale:** At 1440 pixels every column has room: the trip is the second line of the expense cell, so nothing needs an ellipsis.
 
-**Cost:** Five columns reach the ceiling at this width. A seventh column forces a truncation. The second line is where it goes.
+**Cost:** Five columns reach the ceiling at this width: a sixth column forces a truncation, and the second line is where it goes.
 
 #### `at-390-pixels-a-record-list-rather-than-a-table`: At 390 Pixels, a Record List Rather Than a Table
 
@@ -487,9 +495,9 @@ page
       item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** A phone has no room for columns. One block per expense holds everything.
+**Rationale:** A phone has no room for columns, so one block per expense holds everything.
 
-**Cost:** No sorting by column and no comparison across a column. On a phone a reader seeks one known expense. The list serves that case.
+**Cost:** There is no sorting by column and no comparison across a column. On a phone a reader seeks one known expense, and the list serves that case.
 
 #### `at-390-pixels-a-table-with-two-columns-and-no-truncation`: At 390 Pixels, a Table with Two Columns and No Truncation
 
@@ -508,9 +516,9 @@ page
     text muted "The spender and trip are on the record. Open one to read it."
 ```
 
-**Rationale:** The table keeps two facts per row. It keeps the expense and what it cost. The trip and spender wait on the record.
+**Rationale:** The table keeps two facts per row: the expense and what it cost. The trip and the spender stay on the record.
 
-**Cost:** Rows of expense numbers and amounts cannot show spenders. It works only when the reader arrives with an expense number.
+**Cost:** Rows of expense numbers and amounts cannot show spenders, so this works only when the reader arrives with an expense number.
 
 ### Counting Things
 
@@ -518,17 +526,17 @@ page
 
 **Strength:** default
 
-**Question:** One rule governs this whole category: read a number the system can count; never type it. A hand-typed figure will not be updated and a reviewer will trust it anyway.
+**Question:** One rule governs every count: read a number the system can count, and never type it. A hand-typed figure is never updated, and a reviewer trusts it anyway.
 
 **Default:** `counts-in-the-sidebar-on-the-rows-that-hold-work`
 
-**Compact:** The recommended option reflows: the sidebar counts stack above the work list, each row keeping its count.
+**Compact:** On a narrow screen the default option stacks the sidebar counts above the work list, with each row keeping its count.
 
-**Rationale:** Keep counts where the reader would otherwise fetch them. The sidebar rows that hold work carry them, and the tabs above a list carry them. The runner-up is the stat tiles with their measure stated.
+**Rationale:** Keep counts where the reader would otherwise fetch them: on the sidebar rows that hold work, and on the tabs above a list. The runner-up is the stat tiles with their measure stated.
 
-It is the better choice for the home page where the question is how large the month is. Never ship counts with the report that produces them, since the report name is system language on a number page.
+Tiles are the better choice for the home page, where the question is how large the month is. Never ship counts with the report that produces them: the report name is system language on a number page.
 
-**Reviewed for:** Which built tally differs from the wireframe its catalog entry chose? Open the built sidebar counts, tiles, and dated claims beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built tally match the wireframe its catalog entry chose? Open the built sidebar counts, tiles, and report-backed counts beside the catalog entry recording the chosen option and its reason.
 
 #### `counts-in-the-sidebar-on-the-rows-that-hold-work`: Counts in the Sidebar, on the Rows That Hold Work
 
@@ -550,9 +558,9 @@ page
         item: text "EXP-1029" · text "Elin Lindqvist" · status "No budget" critical · text "EUR 45.00" · action "Deal with it"
 ```
 
-**Rationale:** Reversals 10 in the sidebar, 1 thing to do on the home page. A count appears where a reader would otherwise have to go and get it.
+**Rationale:** Reversals 10 in the sidebar, one thing to do on the home page. A count appears where a reader would otherwise have to go and get it.
 
-**Cost:** Every count is a read on every page load. A count of 0 beside an area is an area that looks finished rather than unused.
+**Cost:** Every count is a read on every page load. A count of 0 beside an area makes it look finished rather than unused.
 
 #### `counts-as-stat-tiles-with-the-measure-they-describe`: Counts as Stat Tiles, with the Measure They Describe
 
@@ -572,9 +580,9 @@ page
       item: text "10 reversals need a decision" · text muted "2 are outside the reversal window" · action "Deal with them"
 ```
 
-**Rationale:** The home page shape is label, figure, and one line saying what the figure counts. Carbon describes a KPI as a number with a single word description, and 3 to 5 tiles is a defensible row.
+**Rationale:** The home page shape is a label, a figure, and one line saying what the figure counts. Carbon describes a KPI as a number with a single-word description, and 3 to 5 tiles make a reasonable row.
 
-**Cost:** A tile figure is a moment, and the next read is a different moment. Two colleagues looking at the same page can see different numbers with no explanation.
+**Cost:** A tile figure is one moment, and the next read is a different moment, so two colleagues looking at the same page can see different numbers with no explanation.
 
 **Reference:** Carbon
 
@@ -591,9 +599,9 @@ page
       item: text "Paid expenses" · text "214" · link "Expenses report"
 ```
 
-**Rationale:** Each figure names the report that reads it, so a reader who wants a number elsewhere can get it. A figure typed into a page is wrong from the next commit. These figures are read on demand.
+**Rationale:** Each figure names the report that reads it, so a reader who wants the number elsewhere can get it. A figure typed into a page is wrong from the next commit; these figures are read on demand.
 
-**Cost:** A report name beside every figure is system language on a page where the reader only wants the number. It belongs in documentation, not in the product, unless the reader can open the report from it.
+**Cost:** A report name beside every figure is system language on a page where the reader only wants the number. It belongs in documentation rather than in the product, unless the reader can open the report from it.
 
 ### Spending over Time
 
@@ -601,17 +609,15 @@ page
 
 **Strength:** default
 
-**Question:** A dashboard can answer how the quarter is going with a number. A number says where the budget stands. Only a line says whether it is speeding up or slowing down.
+**Question:** How the product shows spending over time. A dashboard can answer how the quarter is going with a number, which says where the budget stands, but only a chart says whether spending is speeding up or slowing down.
 
 **Default:** `daily-columns-with-the-total-above`
 
-**Compact:** The recommended option reflows: the total stays above the daily columns, with the peak still labeled in words.
+**Compact:** On a narrow screen the total stays above the daily columns, with the peak still labeled in words.
 
-**Rationale:** Ship the daily columns with the total above and the peak labeled. They answer how much and when in one glance. The runner-up is the cumulative line against the previous quarter.
+**Rationale:** Ship the daily columns with the total above and the peak labeled: they answer how much and when in one glance. The runner-up is the cumulative line against the previous quarter, and it fits once a previous quarter exists to compare against. Never ship the chart without its table: a figure nobody can read exactly is a figure nobody can cite.
 
-It is the better choice once the budget has a quarter to beat. Never ship the chart without its table, since a figure nobody can read exactly is a figure nobody can cite.
-
-**Reviewed for:** Which built trend chart differs from the wireframe its catalog entry chose? Open the built columns, areas, and sparklines beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built trend chart match the wireframe its catalog entry chose? Open the built columns, areas, and sparklines beside the catalog entry recording the chosen option and its reason.
 
 #### `daily-columns-with-the-total-above`: Daily Columns with the Total Above
 
@@ -629,13 +635,13 @@ page
     text muted "Counts are lines claimed, before reversals."
 ```
 
-**Rationale:** Shopify sales reports open with the total and draw the days as columns, so the headline and the shape sit together. The peak day is labeled in words, which is what the company quotes in the review.
+**Rationale:** Shopify sales reports open with the total and draw the days as columns, so the headline and the shape sit together. The peak day is labeled in words, which is the figure the company quotes in the review.
 
-**Cost:** Thirty columns at phone width are a few pixels each, so the shape survives but the single day does not. The table behind the chart carries the exact day, not the chart.
+**Cost:** Thirty columns at phone width are a few pixels each: the shape survives but the single day does not, so the table behind the chart carries the exact day, not the chart.
 
 **Reference:** Shopify
 
-#### `cumulative-sales-against-the-previous-season`: Cumulative Spending Against the Previous Quarter
+#### `cumulative-spending-against-the-previous-quarter`: Cumulative Spending Against the Previous Quarter
 
 ```wireframe
 page
@@ -652,9 +658,9 @@ page
     text muted "Both lines count the same weeks after the quarter start."
 ```
 
-**Rationale:** Vercel analytics draw the previous period as a dashed line behind the current one, so the comparison needs no second chart. A claimed line above a dashed line is the whole story of a growing quarter.
+**Rationale:** Vercel analytics draw the previous period as a dashed line behind the current one, so the comparison needs no second chart. A claimed line above the dashed line shows a growing quarter.
 
-**Cost:** A first-year budget has no previous quarter, so the page says that rather than drawing one line and calling it a comparison. The dashed line also invites reading a gap that is a calendar shift.
+**Cost:** A first-year budget has no previous quarter, so the page says so instead of drawing one line and calling it a comparison. Readers may also mistake a calendar shift for a real gap.
 
 **Reference:** Vercel
 
@@ -674,9 +680,9 @@ page
     text muted "The last column holds two days, 7 and 8 October."
 ```
 
-**Rationale:** Plausible dashboards mark the average across the bars, so a glance says which weeks pulled their weight. Weekly columns suit a company that plans payout runs by week, not by day.
+**Rationale:** Plausible dashboards mark the average across the bars, so a glance shows which weeks ran above average. Weekly columns suit a company that plans payout runs by week rather than by day.
 
-**Cost:** Weeks split the story the quarter tells: kickoff, steady filing, and year-end close. A week that holds two of them averages them away, and the final two-day column is not a week at all.
+**Cost:** Weeks cut across the quarter's phases of kickoff, steady filing, and year-end close: a week holding two of them averages them together, and the final two-day column is not a week at all.
 
 **Reference:** Plausible
 
@@ -686,17 +692,15 @@ page
 
 **Strength:** default
 
-**Question:** The Rotterdam trip claims three expense kinds and a fee. The company asks which kind carries the quarter, and the answer is a share, not a total.
+**Question:** How the product shows spending by kind. The Rotterdam trip claims three expense kinds plus a fee, and the company asks which kind carries the quarter, which is a question of share rather than total.
 
 **Default:** `horizontal-bars-with-the-figure-on-each-row`
 
-**Compact:** The recommended option reflows: each kind keeps its bar with its figure and count on one stacked row.
+**Compact:** On a narrow screen each kind keeps its bar with its figure and count on one stacked row.
 
-**Rationale:** Ship the horizontal bars with the figure on each row. Every kind reads with its count and its money in one glance. The runner-up is the table with a bar in each row.
+**Rationale:** Ship the horizontal bars with the figure on each row: each kind shows its count and its amount in one glance. The runner-up is the table with a bar in each row, and it fits once kinds gain states such as disputed or reversed. Never ship the donut alone: an angle nobody can read exactly is decoration, not a figure.
 
-It is the better choice once kinds gain states such as disputed or reversed. Never ship the donut alone, since an angle nobody can read exactly is decoration and not a figure.
-
-**Reviewed for:** Which built mix chart differs from the wireframe its catalog entry chose? Open the built bars, tiles, and donuts beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built mix chart match the wireframe its catalog entry chose? Open the built bars, tiles, and donuts beside the catalog entry recording the chosen option and its reason.
 
 #### `horizontal-bars-with-the-figure-on-each-row`: Horizontal Bars with the Figure on Each Row
 
@@ -715,9 +719,9 @@ page
     text muted "EUR 25.00, 126 nights. Nights keep their own scale."
 ```
 
-**Rationale:** Shopify product performance lists each variant with its bar and its money, so the ranking and the figures share one row. Every kind carries its amount, its count, and its claimed total, which is the whole question in one glance.
+**Rationale:** Shopify product performance lists each variant with its bar and its money, so the ranking and the figures share one row. Every kind carries its amount, its count, and its claimed total: the whole question in one glance.
 
-**Cost:** Bars share one scale, so the lodging EUR 3,150.00 is a sliver beside the travel. A second trip that matters needs its own scale, which this option refuses to give it.
+**Cost:** Bars share one scale, so the lodging EUR 3,150.00 is a sliver beside travel. A second trip that matters needs its own scale, which this option does not give it.
 
 **Reference:** Shopify
 
@@ -736,9 +740,9 @@ page
     text muted "The taxi kind is paused. Its claimed lines stand."
 ```
 
-**Rationale:** Notion progress columns put a bar inside the table cell, so the figure and its share never separate. The table also has room for the state each kind is in, which bars alone cannot carry.
+**Rationale:** Notion progress columns put a bar inside the table cell, so the figure and its share never separate. The table also has room for the state each kind holds, which bars alone cannot carry.
 
-**Cost:** Five columns need a wide page, so the table scrolls sideways on a phone. The bar in a scrolling table is the first thing cut off, which is where the share lives.
+**Cost:** Five columns need a wide page, so the table scrolls sideways on a phone, and the bar in a scrolling table is the first thing cut off, which is where the share lives.
 
 **Reference:** Notion
 
@@ -758,9 +762,9 @@ page
         text "EUR 45.00, 6,204 lines, 65.9 percent"
 ```
 
-**Rationale:** A per-kind summary gives each kind its own tile with claimed and share. Three kinds read as three facts rather than one ranking. Tiles suit a home page where the by-variant question is asked in passing.
+**Rationale:** A per-kind summary gives each kind its own tile with claimed and share, so three kinds read as three facts rather than one ranking. Tiles suit a home page where the by-kind question is asked in passing.
 
-**Cost:** Tiles cannot be sorted or compared at a glance the way bars can, and a fourth kind wraps the row. The amount each tile needs makes every tile taller than the figure it carries.
+**Cost:** Tiles cannot be sorted or compared at a glance the way bars can, and a fourth kind wraps the row. The amount of text each tile needs makes every tile taller than the figure it carries.
 
 ### Spend Against the Budget
 
@@ -768,19 +772,17 @@ page
 
 **Strength:** default
 
-**Question:** The quarter budget holds EUR 10,000 and EUR 9,412 is claimed. The distance between the two is the decision to move money, hold claims, or call the budget spent.
+**Question:** How the product shows spend against the budget. The quarter budget holds EUR 10,000 with EUR 9,412 claimed, and the distance between the two is the decision: move money, hold claims, or call the budget spent.
 
-**Default:** `a-bar-with-sold-held-and-left-in-words`
+**Default:** `a-bar-with-claimed-held-and-left-in-words`
 
-**Compact:** The recommended option reflows: the spend bar keeps the claimed, held, and left figures in words beneath it.
+**Compact:** On a narrow screen the spend bar keeps the claimed, held, and left figures in words beneath it.
 
-**Rationale:** Ship the progress bar with claimed, held, and left in words. One glance says how far the budget has burned and what is still movable. The runner-up is the per-kind spend table.
+**Rationale:** Ship the progress bar with claimed, held, and left in words: one glance shows how much of the budget is spent and what can still move. The runner-up is the per-kind spend table, and it fits when one kind is spent and the others are not. Never ship the countdown alone: EUR 468 left without the budget size hides whether the budget is nearly gone or barely touched.
 
-It is the better choice when one kind is gone and the others are not. Never ship the countdown alone, since EUR 468 left without the budget size hides whether the budget is nearly gone or barely touched.
+**Reviewed for:** Does every built fill-rate view match the wireframe its catalog entry chose? Open the built bars, countdowns, and capacity tables beside the catalog entry recording the chosen option and its reason.
 
-**Reviewed for:** Which built fill-rate view differs from the wireframe its catalog entry chose? Open the built bars, countdowns, and capacity tables beside the catalog entry recording the chosen option and its reason.
-
-#### `a-bar-with-sold-held-and-left-in-words`: A Bar with Claimed, Held and Left in Words
+#### `a-bar-with-claimed-held-and-left-in-words`: A Bar with Claimed, Held and Left in Words
 
 ```wireframe
 page
@@ -799,11 +801,11 @@ page
     text muted "Held money is reserved for open disputes and advances."
 ```
 
-**Rationale:** A budget app draws spending as a bar against the budget with the counts in words, so the glance and the figures agree. Claimed, held, and left are three different decisions, which is why all three are named.
+**Rationale:** A budget app draws spending as a bar against the budget with the figures in words, so the glance and the figures agree. Claimed, held, and left are three different decisions, which is why the bar names all three.
 
-**Cost:** One bar hides which kind is gone, so a spent taxi kind behind a half-empty budget reads as room to spare. The per-kind rows answer that, not this bar.
+**Cost:** One bar hides which kind is spent, so a spent taxi kind behind a half-empty budget reads as room to spare. The per-kind rows answer that question, not this bar.
 
-#### `sell-through-per-variant`: Spend per Kind
+#### `spend-per-kind`: Spend per Kind
 
 ```wireframe
 page
@@ -818,13 +820,13 @@ page
     text muted "The taxi kind is paused. Its EUR 200 unclaimed cannot be spent."
 ```
 
-**Rationale:** Shopify inventory by variant draws each variant against its own stock. One empty kind and two full ones are not the same as a third gone everywhere. Each row states what refilling that kind would take.
+**Rationale:** Shopify inventory by variant draws each variant against its own stock, because one empty kind and two full ones are not the same as a third gone everywhere. Each row states what refilling that kind would take.
 
-**Cost:** Three bars share no scale unless the budgets are close, and here they are not. The budget total has to sit above the rows or the budget reads as three budgets.
+**Cost:** Three bars share no scale unless the budgets are close, and here they are not, so the budget total has to sit above the rows or the budget reads as three budgets.
 
 **Reference:** Shopify
 
-#### `capacity-sold-held-and-left-as-a-table`: Capacity, Claimed, Held and Left as a Table
+#### `capacity-claimed-held-and-left-as-a-table`: Capacity, Claimed, Held and Left as a Table
 
 ```wireframe
 page
@@ -839,9 +841,9 @@ page
     text muted "Held money is reserved for open disputes and advances."
 ```
 
-**Rationale:** Shopify inventory by location is a table because four figures per row need columns, not bars. Every row adds up across, and every column adds down, so finance can check the arithmetic both ways.
+**Rationale:** Shopify inventory by location is a table because four figures per row need columns rather than bars. Every row adds up across and every column adds down, so finance can check the arithmetic both ways.
 
-**Cost:** A table of four money-less counts reads as a ledger, which is what it is. It answers the audit and bores the glance, so the bar belongs above it on the page that holds both.
+**Cost:** A table of four money figures reads as a ledger, which is what it is: it answers the audit and bores the glance, so the bar belongs above it on the page that holds both.
 
 **Reference:** Shopify
 
@@ -851,17 +853,15 @@ page
 
 **Strength:** default
 
-**Question:** A tile that says EUR 63,350.00 answers how much. Only the tile that adds August EUR 48,340.00 beside it answers whether the month was good.
+**Question:** How the product compares a figure against an earlier period. A tile saying EUR 63,350.00 answers how much; only the tile adding August EUR 48,340.00 beside it answers whether the month was good.
 
 **Default:** `tiles-with-a-delta-pill-and-the-previous-figure`
 
-**Compact:** The recommended option reflows: the comparison tiles stack, each keeping its delta pill with the previous figure in words.
+**Compact:** On a narrow screen the comparison tiles stack, each keeping its delta pill with the previous figure in words.
 
-**Rationale:** Ship the tiles with a delta pill and the previous figure in words. The comparison is visible and the basis is stated. The runner-up is the tiles with sparklines.
+**Rationale:** Ship the tiles with a delta pill and the previous figure in words: the comparison is visible and the basis is stated. The runner-up is the tiles with sparklines, and it fits the home page where the shape of the month matters more than one earlier figure. Never ship a bare percentage with no basis: up 12 percent without the basis is a claim, not a comparison.
 
-It is the better choice on the home page where the shape of the month matters more than one earlier figure. Never ship a bare percentage with no basis, since up 12 percent without the basis is a claim and not a comparison.
-
-**Reviewed for:** Which built comparison tile differs from the wireframe its catalog entry chose? Open the built deltas, sparklines, and KPI tables beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built comparison tile match the wireframe its catalog entry chose? Open the built deltas, sparklines, and KPI tables beside the catalog entry recording the chosen option and its reason.
 
 #### `tiles-with-a-delta-pill-and-the-previous-figure`: Tiles with a Delta Pill and the Previous Figure
 
@@ -881,9 +881,9 @@ page
         text "1,148 expenses"
 ```
 
-**Rationale:** Stripe home tiles compare each figure against the previous period with the basis stated under the delta. No reader asks compared to what. The pill carries direction and size. The words carry the basis.
+**Rationale:** Stripe home tiles compare each figure against the previous period with the basis stated under the delta, so no reader asks compared to what. The pill carries direction and size, and the words carry the basis.
 
-**Cost:** Three tiles each with a pill, a basis, and a note are three small paragraphs, which is heavy for a home page. A fourth KPI wraps the row and the comparison wraps with it.
+**Cost:** Three tiles with a pill, a basis, and a note each are three small paragraphs, which is heavy for a home page. A fourth KPI wraps the row and takes its comparison to the next row.
 
 **Reference:** Stripe
 
@@ -905,9 +905,9 @@ page
         text muted "August EUR 48,340.00"
 ```
 
-**Rationale:** Vercel usage tiles pair each meter with its sparkline, so the month reads as a shape rather than as two endpoints. A steady climb and a last-week spike end at the same figure and mean different things.
+**Rationale:** Vercel usage tiles pair each meter with its sparkline, so the month reads as a shape rather than two endpoints. A steady climb and a last-week spike end at the same figure and mean different things.
 
-**Cost:** A sparkline shares no axis with its neighbors, so the reversal line can look calmer than the spending line while rising faster. The delta pill beside each one is still required.
+**Cost:** A sparkline shares no axis with its neighbors, so the reversal line can look calmer than the spending line while rising faster. The delta pill beside each one stays required.
 
 **Reference:** Vercel
 
@@ -927,9 +927,9 @@ page
         text muted "As at 30 September 2026, 1,148 expenses"
 ```
 
-**Rationale:** GOV.UK statistics releases state the period with no comparison until the next release exists, because a comparison without a fair basis misleads. A new company in its first month has no August, so the tile says when instead of versus.
+**Rationale:** GOV.UK statistics releases state the period with no comparison until the next release exists, because a comparison without a fair basis misleads. A company in its first month has no August to compare against, so the tile says when instead of versus.
 
-**Cost:** A figure with no comparison answers how much and never whether it was good. The month this option suits is the first one. Every month after it wants the delta back.
+**Cost:** A figure with no comparison answers how much and never whether it was good. This option suits the first month; every month after it needs the delta back.
 
 **Reference:** GOV.UK
 
@@ -939,19 +939,17 @@ page
 
 **Strength:** default
 
-**Question:** Finance holds the approved expenses and pays them out on payout days. Spenders plan around those days, so the schedule is a planning surface, not a history.
+**Question:** How the product shows when the money arrives. Finance holds approved expenses and pays them out on payout days, and spenders plan around those days, so the schedule is a planning surface rather than a history.
 
-**Default:** `upcoming-payouts-with-the-sales-each-one-holds`
+**Default:** `upcoming-payouts-with-the-expenses-each-one-holds`
 
-**Compact:** The recommended option reflows: each payout keeps its arrival date, expenses, and amount in one stacked row.
+**Compact:** On a narrow screen each payout keeps its arrival date, expenses, and amount in one stacked row.
 
-**Rationale:** Ship the list of upcoming payouts with the expenses each one holds: the company sees what goes out and when in one place. The runner-up is the past payouts table with bank references, which is the better choice for finance reconciling against the bank.
+**Rationale:** Ship the list of upcoming payouts with the expenses each one holds: the company sees what goes out and when in one place. The runner-up is the past payouts table with bank references, and it fits finance reconciling against the bank. Never ship the single next-payout tile as the page: one arrival without the ones after it cannot plan a month.
 
-Never ship the single next-payout tile as the page: one arrival without the ones after it cannot plan a month.
+**Reviewed for:** Does every built payout view match the wireframe its catalog entry chose? Open the built upcoming, weekly, and past views beside the catalog entry recording the chosen option and its reason.
 
-**Reviewed for:** Which built payout view differs from the wireframe its catalog entry chose? Open the built upcoming, weekly, and journey views beside the catalog entry recording the chosen option and its reason.
-
-#### `upcoming-payouts-with-the-sales-each-one-holds`: Upcoming Payouts with the Expenses Each One Holds
+#### `upcoming-payouts-with-the-expenses-each-one-holds`: Upcoming Payouts with the Expenses Each One Holds
 
 ```wireframe
 page
@@ -965,7 +963,7 @@ page
       item: text "Mon 12 Oct 2026" · text "Expenses of 5 to 11 October, 418 expenses" · text "EUR 8,412.55" · status "On its way" info
 ```
 
-**Rationale:** The Stripe payouts list pairs each payout with its arrival date and the expenses it holds. The company plans around arrivals rather than around filings. Each row states its state, because a payout building up is not a payout sent.
+**Rationale:** The Stripe payouts list pairs each payout with its arrival date and the expenses it holds, because the company plans around arrivals rather than filings. Each row states its state, since a payout building up is not a payout sent.
 
 **Cost:** A building payout moves with every expense, so its amount is stale the moment the page sits open. The page must date each figure, which the list does and a tile cannot.
 
@@ -991,9 +989,9 @@ page
       item: text "Mon 28 Sep" · text "Expenses of 21 to 27 September, 302 expenses" · text "EUR 12,618.04" · status "Paid out" positive
 ```
 
-**Rationale:** QuickBooks groups deposits by week with a total per group, because payouts are planned by week. The group total is the figure the company carries into planning for the week.
+**Rationale:** QuickBooks groups deposits by week with a total per group, because payouts are planned by week. That group total is the figure the company carries into planning for the week.
 
-**Cost:** A week that holds two payouts, which happens around holidays, gets a total that covers two arrivals. The group then needs its dates restated, which the flat list never needs.
+**Cost:** A week holding two payouts, as happens around holidays, gets a total covering two arrivals, and the group then needs its dates restated, which the flat list never needs.
 
 **Reference:** QuickBooks
 
@@ -1013,9 +1011,9 @@ page
     fact "September total" "Five payouts, EUR 61,346.68 net"
 ```
 
-**Rationale:** The Revolut Business payout history carries the bank reference on each row, because finance ticks each payout against a bank line. The reference is copyable, which is the whole job of this table.
+**Rationale:** The Revolut Business payout history puts the bank reference on each row, because finance checks each payout against a bank line. The reference is copyable, which is the whole job of this table.
 
-**Cost:** A history answers reconciliation and nothing else: it says what went out, never what is coming. The upcoming list has to sit above it or the page plans nothing.
+**Cost:** A history answers reconciliation and nothing else: it says what went out, never what is coming, so the upcoming list has to sit above it or the page plans nothing.
 
 **Reference:** Revolut Business
 
@@ -1025,17 +1023,15 @@ page
 
 **Strength:** default
 
-**Question:** Billing holds what the company owes its software vendor: the Business subscription and anything metered. The invoice is the one document where the vendor is the seller. It reads as the sale of the vendor, not as the sale of the company.
+**Question:** How the product shows the vendor's invoice to the company. Billing holds what the company owes its software vendor, the Business subscription plus anything metered, and the invoice is the one document where the vendor is the seller: it reads as the sale of the vendor rather than the sale of the company.
 
 **Default:** `the-invoice-as-a-document-with-the-usage-behind-each-line`
 
-**Compact:** The recommended option reflows: the seller facts stack above the lines, and the totals keep their order to the amount due.
+**Compact:** On a narrow screen the seller facts stack above the lines, and the totals keep their order down to the amount due.
 
-**Rationale:** Ship the document-style invoice with the usage behind each line: finance sees what the fee paid for without opening another page. The runner-up is the paid invoice with its mandate reference, which is the better state of the same document once the money has moved.
+**Rationale:** Ship the document-style invoice with the usage behind each line: finance sees what the fee paid for without opening another page. The runner-up is the paid invoice with its mandate reference, which is the better state of the same document once the money has moved. Never ship the invoice without its VAT lines: a business invoice without VAT is not an invoice.
 
-Never ship the invoice without its VAT lines: a business invoice without VAT is not an invoice.
-
-**Reviewed for:** Which built supplier bill differs from the wireframe its catalog entry chose? Open the built documents, states, and usage lines beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built supplier bill match the wireframe its catalog entry chose? Open the built documents, states, and usage lines beside the catalog entry recording the chosen option and its reason.
 
 #### `the-invoice-as-a-document-with-the-usage-behind-each-line`: The Invoice as a Document, with the Usage Behind Each Line
 
@@ -1061,9 +1057,9 @@ page
     text muted "Collected by mandate ACM-2024-0117 on 15 October 2026."
 ```
 
-**Rationale:** The Xero invoice preview is the document the customer receives, with each line carrying the quantity behind it. The company reads what the vendor charged and why in one place, which is the whole point of an invoice.
+**Rationale:** The Xero invoice preview shows the document the customer receives, with each line carrying the quantity behind it. The company reads what the vendor charged and why in one place, which is the whole point of an invoice.
 
-**Cost:** A document is a page of its own, so the invoice list needs the state of each invoice without opening it. The list carries the states. This page carries the lines.
+**Cost:** A document is a page of its own, so the invoice list needs the state of each invoice without opening it. The list carries the states; this page carries the lines.
 
 **Reference:** Xero
 
@@ -1089,9 +1085,9 @@ page
     fact "Paid 15 August 2026" "EUR 190.45"
 ```
 
-**Rationale:** The Wise paid receipts carry the reference and the date above the lines. A filed invoice answers "when and how" without being read. The stamp states the state in the words of the document, not in the words of the dashboard.
+**Rationale:** The Wise paid receipts carry the reference and the date above the lines, so a filed invoice answers when and how without being read. The stamp states the state in the words of the document rather than the words of the dashboard.
 
-**Cost:** A stamp is final in a way a badge is not, so a payment that later fails leaves a stamped invoice that lies. The state must follow the mandate, not the page the reader printed.
+**Cost:** A stamp is final in a way a badge is not, so a payment that later fails leaves a stamped invoice that lies. The state must follow the mandate rather than the page the reader printed.
 
 **Reference:** Wise
 
@@ -1109,7 +1105,7 @@ page
     text muted "Subscription and usage fee, including VAT. Open an invoice for its lines."
 ```
 
-**Rationale:** The Stripe invoices table lists each invoice with its period, its amount, and its state. The list answers "do I owe anything" before any invoice is opened.
+**Rationale:** The Stripe invoices table lists each invoice with its period, its amount, and its state, so the list answers whether anything is owed before any invoice is opened.
 
 **Cost:** A list of invoices says nothing about what any invoice holds, so a surprising total needs the document. Each row opens the invoice, which must then carry the usage this list omits.
 
@@ -1121,19 +1117,17 @@ page
 
 **Strength:** default
 
-**Question:** Books carry 9% and a hotel night carries 21%. The spender sees one total. The accounts show two rates on the page the tax return is built from.
+**Question:** How the product shows two VAT rates on one page. Books carry 9% and a hotel night carries 21%, the spender sees one total, and the accounts show both rates on the page the tax return is built from.
 
-**Default:** `the-vat-split-under-the-order-total`
+**Default:** `the-vat-split-under-the-expense-total`
 
-**Compact:** The recommended option reflows: the claimed facts stack above the VAT split, with each rate keeping its base and tax.
+**Compact:** On a narrow screen the claimed facts stack above the VAT split, with each rate keeping its base and tax.
 
-**Rationale:** Ship the VAT split under the expense total. The spender total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, which is the better choice at quarter end when finance files the return.
+**Rationale:** Ship the VAT split under the expense total: the spender total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, and it fits quarter end when finance files the return. Never ship amounts with no VAT note at all: a lawful amount states what the tax is.
 
-Never ship amounts with no VAT note at all: a lawful amount states what the tax is.
+**Reviewed for:** Does every built mixed-rate view match the wireframe its catalog entry chose? Open the built splits, badges, and per-rate summaries beside the catalog entry recording the chosen option and its reason.
 
-**Reviewed for:** Which built mixed-rate view differs from the wireframe its catalog entry chose? Open the built splits, badges, and per-rate summaries beside the catalog entry recording the chosen option and its reason.
-
-#### `the-vat-split-under-the-order-total`: The VAT Split Under the Expense Total
+#### `the-vat-split-under-the-expense-total`: The VAT Split Under the Expense Total
 
 ```wireframe
 page
@@ -1154,9 +1148,9 @@ page
     text muted "Books are taxed at 9%. Nights and fees at 21%."
 ```
 
-**Rationale:** The Coolblue receipts split VAT per rate under the total. One spender-facing figure opens into both rates. Each line states its base and its tax, which is what the return needs per rate.
+**Rationale:** The Coolblue receipts split VAT per rate under the total: one spender-facing figure breaks down into both rates, and each line states its base and its tax, which is what the return needs per rate.
 
-**Cost:** Three more rows under every total, which is heavy on a receipt for two nights. The split belongs on the record and the export, not on every row of the expenses list.
+**Cost:** Three more rows under every total is heavy on a receipt for two nights, so the split belongs on the record and the export rather than on every row of the expenses list.
 
 **Reference:** Coolblue
 
@@ -1179,9 +1173,9 @@ page
     fact "Due" "EUR 204.97"
 ```
 
-**Rationale:** The Moneybird invoice lines carry their own rate. A mixed invoice is right on every line rather than in a summary that must be trusted. The rate badge sits where the eye checks the amount.
+**Rationale:** The Moneybird invoice lines carry their own rate, so a mixed invoice is right on every line instead of in a summary the reader takes on trust. The rate badge sits where the eye checks the amount.
 
-**Cost:** A rate column narrows every other column on a document that already has four of them. An invoice with one rate repeats the same badge on every line, which says nothing after the first.
+**Cost:** A rate column narrows every other column on a document that already holds four of them. On a single-rate invoice the same badge repeats on every line, which says nothing after the first.
 
 **Reference:** Moneybird
 
@@ -1200,9 +1194,9 @@ page
     text muted "Gross is what spenders claimed, including VAT."
 ```
 
-**Rationale:** The Exact VAT return overview lists each rate with its base and its tax, because the return is filed per rate. The two quarter lines are the two lines finance copies into the filing.
+**Rationale:** The Exact VAT return overview lists each rate with its base and its tax, because the return is filed per rate. Its two quarter lines are the two lines finance copies into the filing.
 
-**Cost:** A report per rate says nothing about which kinds produced it, so a surprising base needs the kind spending behind it. The report opens that spending instead of only stating the base.
+**Cost:** A report per rate says nothing about which kinds produced it, so a surprising base sends finance to the kind spending behind it. The report opens that spending instead of only stating the base.
 
 **Reference:** Exact
 
@@ -1212,19 +1206,17 @@ page
 
 **Strength:** default
 
-**Question:** Alex Morgan checks the payout of the day from the office floor on a phone. At 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
+**Question:** How numbers read at phone width. Alex Morgan checks the payout of the day from the office floor on a phone, where at 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
 
-**Default:** `kpis-in-pairs-with-the-orders-under-them`
+**Default:** `kpis-in-pairs-with-the-expenses-under-them`
 
-**Compact:** At 390 pixels the figures pair two across with the latest records under them. Tables become record lists with one right-aligned amount per row. Statements keep their alignment with short labels, and charts halve their axis labels. The compact option is `kpis-in-pairs-with-the-orders-under-them`.
+**Compact:** At 390 pixels the figures pair two across with the latest records under them, tables become record lists with one right-aligned amount per row, statements keep their alignment with short labels, and charts halve their axis labels. The compact option is `kpis-in-pairs-with-the-expenses-under-them`.
 
-**Rationale:** Ship the two-column KPI pair with the record list under it. The figures of the day stay visible and every expense keeps its amount right-aligned. The runner-up is the aligned statement. It is the better choice for finance pages where the adding up is the point.
+**Rationale:** Ship the two-column KPI pair with the record list under it: the figures of the day stay visible and every expense keeps its amount right-aligned. The runner-up is the aligned statement, and it fits finance pages where the adding up is the point. Never ship the desktop table unchanged at 390 pixels: a table that scrolls sideways for its money column hides the answer.
 
-Never ship the desktop table unchanged at 390: a table that scrolls sideways for its money column hides the answer.
+**Reviewed for:** Does every built narrow figure match the wireframe its catalog entry chose? Open the built pairs, per-row figures, and halved charts at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
-**Reviewed for:** Which built narrow figure differs from the wireframe its catalog entry chose? Open the built pairs, per-row figures, and halved charts at 390 pixels beside the catalog entry recording the chosen option and its reason.
-
-#### `kpis-in-pairs-with-the-orders-under-them`: KPIs in Pairs with the Expenses Under Them
+#### `kpis-in-pairs-with-the-expenses-under-them`: KPIs in Pairs with the Expenses Under Them
 
 ```wireframe
 page
@@ -1240,13 +1232,13 @@ page
       item: text "EXP-1042" · text muted "Ava, 09:32" · text "EUR 125.00"
 ```
 
-**Rationale:** The Shopify mobile dashboard pairs its KPIs two across. Four figures fit above the fold of a phone without shrinking to decoration. The expenses under them keep one amount each, right-aligned, which is the column the list is about.
+**Rationale:** The Shopify mobile dashboard pairs its KPIs two across, so four figures fit above the fold of a phone without shrinking past reading. The expenses under them keep one amount each, right-aligned, which is the column the list is about.
 
-**Cost:** Two across at 390 pixels is 169 pixels a tile, so a long figure wraps or clips. Figures over ten characters need the single-column list, not the pair.
+**Cost:** Two across at 390 pixels is 169 pixels a tile, so a long figure wraps or clips. Figures over ten characters need the single-column list rather than the pair.
 
 **Reference:** Shopify
 
-#### `orders-as-records-with-amounts-right-aligned`: Expenses as Records with Amounts Right-Aligned
+#### `expenses-as-records-with-amounts-right-aligned`: Expenses as Records with Amounts Right-Aligned
 
 ```wireframe
 page
@@ -1261,9 +1253,9 @@ page
       item: text "EXP-1042, Ava" · text muted "Rotterdam client visit, 8 Oct 09:32, Paid" · text "EUR 125.00"
 ```
 
-**Rationale:** The ING mobile activity list keeps one amount per row, right-aligned in tabular figures, so the money column survives without a table. The state sits under the name, where it is read second.
+**Rationale:** The ING mobile activity list keeps one right-aligned amount per row in tabular figures, so the money column survives without a table. The state sits under the name, where it is read second.
 
-**Cost:** No sorting by column and no comparison across a column, because there are no columns. A reader hunting one expense they were told about is served. A reader auditing the day is not.
+**Cost:** There are no columns, so there is no sorting by column and no comparison across one. A reader looking for one expense they were told about is served; a reader auditing the day is not.
 
 **Reference:** ING
 
@@ -1288,9 +1280,9 @@ page
     fact "Net" "EUR 61,346.68"
 ```
 
-**Rationale:** The Xero mobile profit and loss keeps the statement shape at phone width, because money that adds up has to add up everywhere. Short labels and tabular figures keep the alignment of the wide option.
+**Rationale:** The Xero mobile profit and loss keeps the statement shape at phone width, because a statement must add up at every width. Short labels and tabular figures hold the alignment of the wide option.
 
-**Cost:** Labels short enough for 390 pixels lose the counts the full lines carry. The statement adds up but no longer says what it adds, which the full labels do.
+**Cost:** Labels short enough for 390 pixels lose the counts the full lines carry: the statement adds up but no longer says what it adds, which the full labels do.
 
 **Reference:** Xero
 
@@ -1300,17 +1292,15 @@ page
 
 **Strength:** default
 
-**Question:** One design rule governs identifiers: an identifier shown on screen is labeled and copyable, and a raw code never reaches the screen. A payout page that shows SH-88213 as plain text breaks it, and so does a messages list showing identifiers where a subject should be.
+**Question:** How the product shows an identifier. One design rule governs identifiers: an identifier on screen is labeled and copyable, and a raw code never reaches the screen. A payout page showing SH-88213 as plain text breaks it, and so does a messages list showing identifiers where a subject should be.
 
 **Default:** `a-code-monospaced-labeled-and-copyable`
 
-**Compact:** The recommended option reflows: each code card stacks with its label and copy control beside the value.
+**Compact:** On a narrow screen each code card stacks with its label and copy control beside the value.
 
-**Rationale:** Ship the labeled, monospaced, copyable code on the record. It is the shape of the rule and the one thing a support case needs quoted. The runner-up is the identifier as the record name. It is the better choice for records with no human name, such as a payout reference.
+**Rationale:** Ship the labeled, monospaced, copyable code on the record: it is the shape of the rule and the one thing a support case needs quoted. The runner-up is the identifier as the record name, and it fits records with no human name, such as a payout reference. Never ship the page with no identifier: a record nobody can quote is a record support cannot help with.
 
-Never ship the page with no identifier: a record nobody can quote is a record support cannot help with.
-
-**Reviewed for:** Which built code display differs from the wireframe its catalog entry chose? Open the built monospaced, labeled, and copyable codes beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built code display match the wireframe its catalog entry chose? Open the built monospaced, labeled, and copyable codes beside the catalog entry recording the chosen option and its reason.
 
 #### `a-code-monospaced-labeled-and-copyable`: A Code, Monospaced, Labeled and Copyable
 
@@ -1337,9 +1327,9 @@ page
       action quiet "Copy"
 ```
 
-**Rationale:** The shared code shape: monospaced, never wrapped, with a copy control. A code a person reads aloud on a support call is a fact, not decoration.
+**Rationale:** The shared code shape is monospaced, never wrapped, with a copy control. A code a person reads aloud on a support call is functional, not decorative.
 
-**Cost:** A copy control on every row of a list is a control per row. And a code in a monospaced font is visibly different from a name, which is correct and slightly louder than the page around it.
+**Cost:** A copy control on every row of a list is a control per row, and a code in a monospaced font looks visibly different from a name, which is correct and slightly more prominent than the page around it.
 
 #### `the-identifier-labeled-by-what-it-is-not-by-its-form`: The Identifier Labeled by What It Is, Not by Its Form
 
@@ -1356,9 +1346,9 @@ page
       item: text "Case number" · text muted "What the bank calls it" · text "D-0182" · action quiet "Copy"
 ```
 
-**Rationale:** The label says Expense number rather than Reference, because a reference could be anything. A reader who knows what a thing is can use it. A reader who does not can ask.
+**Rationale:** Labels name what the code is, so Expense number is used instead of Reference, which could mean anything. A reader who knows what a thing is can use it, and a reader who does not can ask.
 
-**Cost:** Some identifiers have no natural name and end up labeled by their kind, which tells a reader nothing about where to use it.
+**Cost:** Some identifiers have no natural name and end up labeled by their kind, which tells a reader nothing about where to use them.
 
 #### `the-identifier-as-the-record-s-name`: The Identifier as the Record's Name
 
@@ -1381,6 +1371,6 @@ page
       item: text "Attached at filing" · text muted "8 Oct 2026, 09:34"
 ```
 
-**Rationale:** Where a record has no human name, the identifier is the heading. The code is what the record is called and it is never repeated as a field.
+**Rationale:** Where a record has no human name the identifier is the heading: the code is what the record is called, and it is never repeated as a field.
 
-**Cost:** A code as a heading is not readable aloud. It is the right shape for a system where the code is all there is. It is the wrong shape for one where a person named the thing.
+**Cost:** A code as a heading cannot be read aloud. It is the right shape where the code is all there is, and the wrong shape where the record has a human name.

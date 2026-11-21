@@ -17,10 +17,10 @@ static class RecordPages
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
-        "product", "goal", "vision", "problem", "feature", "requirement", "constraint", "research",
-        "decision", "journey", "actor", "module", "aggregate", "use-case",
+        "product", "goal", "direction", "problem", "feature", "requirement", "constraint", "research",
+        "decision", "flow", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
-        "runbook", "departure", "screen",
+        "runbook", "waiver", "screen", "read-model", "reference-data",
     };
 
     /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>
@@ -33,11 +33,13 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
+        ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a rule that binds several aggregates",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
-        ["event"] = "its aggregate file",
-        ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/integration-events/",
+        ["step"] = "its flow file",
+        ["domain-event"] = "its aggregate file",
+        ["refusal-set"] = ".litespec/behavior/modules/<m>/aggregates/<aggregate>/refusals.yaml, or .litespec/behavior/modules/<m>/refusals.yaml for a refusal no aggregate raises",
+        ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/aggregates/<aggregate>/integration-events/",
         ["setting"] = "a setting-set file under .litespec/behavior/modules/<m>/settings/",
         ["permission"] = ".litespec/behavior/modules/<m>/permissions.yaml",
         ["entry-point"] = ".litespec/behavior/entry-points/<entry-point>/entry-point.yaml",
@@ -141,8 +143,21 @@ static class RecordPages
             return Path.Combine(DocsRoot(config), "implementation", "decisions");
         }
 
+        // The product is one fixed file at the documentation root, so a rename keeps it there.
+        if (type == "product")
+        {
+            return DocsRoot(config);
+        }
+
         // A type whose identifier carries no home, such as an integration event, keeps the folder it sits in.
         if (newHome is null && RecordFolders.NeedsHome(type))
+        {
+            return ContainerOf(oldFile);
+        }
+
+        // A module event or integration event keeps the aggregate folder it sits in: the
+        // identifier names no aggregate, so a rename cannot place it under another one.
+        if (type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
         {
             return ContainerOf(oldFile);
         }
@@ -213,7 +228,8 @@ static class RecordPages
     /// <returns>The grammar error message, or null when the home and name follow the identifier grammar.</returns>
     public static string? GrammarError(string type, string? home, string name, string full)
     {
-        if (RecordTypes.WithHome.Contains(type) && home is null)
+        // A product-level requirement is named by its own name alone; a feature requirement keeps its home.
+        if (RecordTypes.WithHome.Contains(type) && home is null && type != RecordTypes.Requirement)
         {
             return $"Identifier '{full}' needs a home: use {type}/<home>.<name>.";
         }
@@ -241,9 +257,8 @@ static class RecordPages
     /// <summary>
     ///     Rewrites every citation of <paramref name="oldId"/> as
     ///     <paramref name="newId"/>. A match inside a longer identifier is left
-    ///     alone; a journey step keeps its fragment. A dot after the match ends
-    ///     the citation unless a name character follows it, so a sentence that
-    ///     ends on the identifier is rewritten.
+    ///     alone. A dot after the match ends the citation unless a name character
+    ///     follows it, so a sentence that ends on the identifier is rewritten.
     /// </summary>
     /// <param name="text">The file text to rewrite.</param>
     /// <param name="oldId">The identifier to replace.</param>

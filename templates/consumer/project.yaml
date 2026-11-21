@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/7.0.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: __PROJECT__
@@ -12,7 +12,9 @@ layers:
   behavior: litespec
   implementation: litespec
   proof: litespec
-reviewedLiteSpecVersion: 6.0.0
+reviewedLiteSpecVersion: 7.0.0
+# problemTypeBase names the URI prefix of every problem type, with a trailing slash. Without it, a code's problem type is the code's part after its module.
+# problemTypeBase: https://example.com/problems/
 screenshots:
   galleries:
   - apps/web/test-results/gallery
@@ -24,8 +26,9 @@ paths:
   - apps/api/tests
 stackConfig:
   dotnet:
-    modules: apps/api/src/__PROJECT__.Modules
-    sharedKernel: apps/api/src/__PROJECT__.SharedKernel
+    modules: apps/api/src/Modules/*
+    kernel: apps/api/src/__PROJECT__.Kernel
+    platform: apps/api/src/__PROJECT__.Platform
 frontends:
 - name: web
   path: apps/web

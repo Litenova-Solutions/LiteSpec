@@ -19,9 +19,7 @@ static class RefusalCodes
     /// <returns>The refusal code of the rule, or null when it refuses with none.</returns>
     public static string? ResultCode(ProjectModel model, Record rule)
     {
-        return RefusalCode.Of(rule, ById);
-
-        IRecordFields? ById(string id) => model.ById.TryGetValue(id, out var result) ? result : null;
+        return RefusalCode.Of(rule);
     }
 
     /// <summary>Indexes the refusal codes each class carries from the literals the code read found.</summary>

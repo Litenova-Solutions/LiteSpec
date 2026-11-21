@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ScopeChecksTests
 {
     /// <summary>An unnamed runbook reports.</summary>
-    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#link-every-runbook-to-its-caller</proves>
     [Fact]
     public void UnnamedRunbookReports()
     {
@@ -29,7 +29,7 @@ public sealed class ScopeChecksTests
     }
 
     /// <summary>A runbook a job names passes.</summary>
-    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#link-every-runbook-to-its-caller</proves>
     [Fact]
     public void RunbookNamedByJobPasses()
     {
@@ -51,7 +51,7 @@ public sealed class ScopeChecksTests
     }
 
     /// <summary>A runbook a use-case failure policy names passes.</summary>
-    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#link-every-runbook-to-its-caller</proves>
     [Fact]
     public void RunbookNamedByFailurePolicyPasses()
     {
@@ -73,7 +73,7 @@ public sealed class ScopeChecksTests
     }
 
     /// <summary>A runbook an alert rule names passes.</summary>
-    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#link-every-runbook-to-its-caller</proves>
     [Fact]
     public void RunbookNamedByAlertPasses()
     {

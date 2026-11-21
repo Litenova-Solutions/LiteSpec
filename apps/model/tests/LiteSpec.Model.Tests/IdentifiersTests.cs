@@ -17,8 +17,8 @@ public sealed class IdentifiersTests
     [InlineData("citation", "no records here", false)]
     [InlineData("shared", "litespec/core/scope#keep-one-bounded-context", true)]
     [InlineData("shared", "litespec/core/scope", false)]
-    [InlineData("event", "event/expense.submitted", true)]
-    [InlineData("event", "event/expense", false)]
+    [InlineData("domain-event", "domain-event/expense.submitted", true)]
+    [InlineData("domain-event", "domain-event/expense", false)]
     [InlineData("refusal", "lending.copy-not-available", true)]
     [InlineData("refusal", "lending", false)]
     [InlineData("implements", "<implements>use-case/lending.borrow-copy</implements>", true)]
@@ -33,7 +33,7 @@ public sealed class IdentifiersTests
         {
             "citation" => Identifiers.Citation,
             "shared" => Identifiers.SharedCitation(),
-            "event" => Identifiers.EventId,
+            "domain-event" => Identifiers.DomainEventId,
             "refusal" => Identifiers.RefusalCode(),
             "implements" => Identifiers.ImplementsTag,
             "proves" => Identifiers.ProvesTag,
@@ -48,7 +48,7 @@ public sealed class IdentifiersTests
     /// <param name="name">The identifier kind name that selects the pattern.</param>
     /// <param name="decision">Whether the name belongs to a decision.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/core/language#follow-the-identifier-form-of-each-record-type</proves>
+    /// <proves>litespec/core/language#use-the-declared-record-identifier-grammar</proves>
     [Theory]
     [InlineData("0001-loan-period", true, true)]
     [InlineData("01-loan-period", true, false)]

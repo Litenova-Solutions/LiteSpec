@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Standards;
 
@@ -15,7 +16,7 @@ public sealed class InitCommandTests
 
         <!-- generated:agent-protocol -->
         When __LITESPEC_COMMAND__ disagrees, the tool wins.
-        Release __LITESPEC_VERSION__ size __SIZE__ shape __SHAPE__ stacks __STACKS__ extensions __EXTENSIONS__ layers __LAYERS__ key __SELECTION_KEY__ command __LITESPEC_COMMAND__.
+        Release __LITESPEC_VERSION__ size __SIZE__ shape __SHAPE__ stacks __STACKS__ extensions __EXTENSIONS__ layers __LAYERS__ docs __LITESPEC_DOCS__ command __LITESPEC_COMMAND__.
         <!-- /generated:agent-protocol -->
 
         ## Project Commands
@@ -101,7 +102,7 @@ public sealed class InitCommandTests
             agents,
             StringComparison.Ordinal);
         Assert.DoesNotContain("__STACKS__", agents, StringComparison.Ordinal);
-        Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_DOCS__", agents, StringComparison.Ordinal);
     }
 
     /// <summary>Init fills the project name and leaves no placeholder to fill.</summary>
@@ -116,7 +117,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("Fill these placeholders before validating", result.Stdout, StringComparison.Ordinal);
         var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"));
-        Assert.Contains("apps/api/src/shop.Modules", text, StringComparison.Ordinal);
+        Assert.Contains("apps/api/src/shop.Kernel", text, StringComparison.Ordinal);
         Assert.Contains("\"@shop/ui\"", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__PROJECT__", text, StringComparison.Ordinal);
         Assert.DoesNotContain("fixture", text, StringComparison.Ordinal);
@@ -158,7 +159,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"));
         Assert.Contains("\"@team-expenses/ui\"", text, StringComparison.Ordinal);
-        Assert.Contains("apps/api/src/Team Expenses.Modules", text, StringComparison.Ordinal);
+        Assert.Contains("apps/api/src/Team Expenses.Kernel", text, StringComparison.Ordinal);
     }
 
     /// <summary>Init copies the agent context, glossary, and example cast beside the project file.</summary>
@@ -322,7 +323,7 @@ public sealed class InitCommandTests
         Assert.DoesNotContain("__STACKS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__EXTENSIONS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__LAYERS__", agents, StringComparison.Ordinal);
-        Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_DOCS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__LITESPEC_COMMAND__", agents, StringComparison.Ordinal);
     }
 
@@ -392,7 +393,7 @@ public sealed class InitCommandTests
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
         Assert.Contains("When dotnet litespec disagrees, the tool wins.", agents, StringComparison.Ordinal);
         Assert.Contains(
-            "Release 9.9.9 size small shape server stacks dotnet, react extensions none layers intent and behavior: litespec, implementation and proof: litespec key server.dotnet.react command dotnet litespec.",
+            $"Release 9.9.9 size small shape server stacks dotnet, react extensions none layers intent and behavior: litespec, implementation and proof: litespec docs {AgentProtocol.DocsFor(Path.Combine(home.Path, "docs"), consumer.Path)} command dotnet litespec.",
             agents,
             StringComparison.Ordinal);
     }
@@ -414,7 +415,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
         Assert.Contains(
-            "Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec key server command dotnet litespec.",
+            $"Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec docs {AgentProtocol.DocsFor(Path.Combine(home.Path, "docs"), consumer.Path)} command dotnet litespec.",
             agents,
             StringComparison.Ordinal);
     }
@@ -441,7 +442,7 @@ public sealed class InitCommandTests
             "# Ours\n\n"
             + "<!-- generated:agent-protocol -->\n"
             + "When dotnet litespec disagrees, the tool wins.\n"
-            + "Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec key server command dotnet litespec.\n"
+            + $"Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec docs {AgentProtocol.DocsFor(Path.Combine(home.Path, "docs"), consumer.Path)} command dotnet litespec.\n"
             + "<!-- /generated:agent-protocol -->\n"
             + "\nOur notes.\n",
             File.ReadAllText(agents));

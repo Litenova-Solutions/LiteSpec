@@ -2,7 +2,7 @@
 // coverage percent, and the proof, lacks and completion judgements the store shows.
 
 import type { BookRecord, ProofState } from "./shard-types";
-import { isFlowType } from "./shard-types";
+import { isScenarioType } from "./shard-types";
 
 /** Whether a completion line expects nothing, has what it expects, or misses it. */
 export type CompletionMark = "none-expected" | "present" | "missing";
@@ -15,6 +15,29 @@ export interface CompletionReaders {
   get(id: string): BookRecord | undefined;
   claimed(layer: string): boolean;
   scenariosOf(id: string): string[];
+}
+
+/** The stage line the completion block draws: the stage with its scope counts, and the parked count when any child is parked. */
+export function stageLine(completion: BookRecord["completion"]): string | null {
+  if (completion === null || completion === undefined) return null;
+  const stage = completion.stage;
+  const inScope = completion.inScope;
+  const total = completion.total;
+  const parked = completion.parked;
+  if (stage === undefined || inScope === undefined || total === undefined || parked === undefined) return null;
+  const parkedSuffix = parked > 0 ? "; " + parked + " parked" : "";
+  return stage + ", " + inScope + " of " + total + parkedSuffix;
+}
+
+/** A stale proof as the book shows it: when its run commit passed and how many commits behind it sits. */
+export function freshnessLine(proof: BookRecord["proof"]): string | null {
+  if (proof === null || proof === undefined) return null;
+  if (proof.status !== "stale") return null;
+  const at = proof.lastPassedAt ?? "";
+  const behind = proof.commitsBehind ?? 0;
+  if (at === "") return null;
+  const noun = behind === 1 ? "commit ago" : "commits ago";
+  return "last passed at " + at + ", " + behind + " " + noun;
 }
 
 /** The lines the completion block draws: code, tests and scenarios, each marked. */
@@ -78,7 +101,7 @@ export function proofStateFor(readers: CompletionReaders, id: string): ProofStat
   const record = readers.get(id);
   if (record === undefined) return null;
   if (record.proof) return record.proof.state ?? null;
-  if (isFlowType(record.type)) {
+  if (isScenarioType(record.type)) {
     const states: ProofState[] = [];
     for (const scenario of readers.scenariosOf(id)) {
       const state = readers.get(scenario)?.proof?.state;

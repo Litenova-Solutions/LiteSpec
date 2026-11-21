@@ -1,0 +1,14 @@
+type: requirement
+id: requirement/ui-target-size
+title: UI Pointer Target Size
+kind: quality
+statement: Every pointer target meets 24 by 24 CSS pixels or its spacing.
+rationale: Readers tap actions on phones between tasks, so small targets cause missed taps and wrong actions.
+stimulus: A reader operates any route by touch or pointer
+environment: Normal operation on a phone or desktop display
+response: Every pointer target meets the minimum size or spacing
+measure: Pointer targets below the minimum size and spacing
+target: Zero targets
+check: route-suite
+cites:
+- "<constraint, goal or problem>"

@@ -104,8 +104,8 @@ static class ContractBreaks
     /// <param name="findings">The findings a removed or changed code adds to.</param>
     static void RefusalCode(Record before, Record after, List<Finding> findings)
     {
-        var oldCode = before.Field(RecordFields.Code);
-        var newCode = after.Field(RecordFields.Code);
+        var oldCode = LiteSpec.Model.RefusalCode.Of(before);
+        var newCode = LiteSpec.Model.RefusalCode.Of(after);
 
         if (oldCode is null || string.Equals(oldCode, newCode, StringComparison.Ordinal))
         {

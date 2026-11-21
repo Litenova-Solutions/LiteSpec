@@ -1,24 +1,24 @@
 type: use-case
 id: use-case/lending.cancel-hold
 title: Cancel hold
+exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong cancellation loses the reader's place in the hold queue.
 kind: command
 access:
   grant: permission/place-hold
   tenant: own
 serves:
-- journey/borrow-and-return#s7
+- step/borrow-and-return.cancel-hold
 fulfills:
 - requirement/borrowing.hold-pickup-window
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/hold.hold-canceled
+- domain-event/hold.hold-canceled
+steps:
+- statement: The reader cancels the waiting hold.
 idempotency:
   mode: none
   reason: Each call cancels its own hold, and canceling an ended hold is refused.
-audit:
-  level: none
-  target: No audit trail; the hold record shows each cancellation.
 records:
 - type: result
   id: result/cancel-hold.canceled
@@ -29,8 +29,7 @@ records:
   id: result/cancel-hold.hold-ended
   title: Hold ended
   outcome: refusal
-  code: lending.hold-not-waiting
-  meaning: The hold already left the queue.
+  refusal: refusal/lending.hold-not-waiting
 - type: scenario
   id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
   title: Canceling a waiting hold succeeds
@@ -38,3 +37,12 @@ records:
   when: The reader cancels the hold.
   then: The hold is canceled.
   result: result/cancel-hold.canceled
+- type: scenario
+  id: scenario/cancel-hold.canceling-an-ended-hold-is-refused
+  title: Canceling an ended hold is refused
+  given: A hold already left the queue.
+  when: The reader cancels the hold.
+  then: The cancellation is refused because the hold already left the queue.
+  result: result/cancel-hold.hold-ended
+  exercises:
+  - rule/hold.waiting-before-cancel

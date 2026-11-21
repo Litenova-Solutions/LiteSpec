@@ -6,26 +6,28 @@ namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>One permission with the facts the generated entry carries.</summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
-/// <follows>litespec/core/access#scope-every-role</follows>
+/// <follows>litespec/core/access#scope-every-role-to-its-one-reach</follows>
 internal sealed class PermissionFacts : IEquatable<PermissionFacts>
 {
     /// <summary>Initializes a new instance of the <see cref="PermissionFacts"/> class.Creates permission facts.</summary>
     /// <param name="id">The permission identifier.</param>
-    /// <param name="scope">The one reach the allowing roles grant it at, or empty when they grant it at several or none.</param>
+    /// <param name="scope">The one reach the granting roles hold, or empty when they hold several or none.</param>
     /// <param name="group">The group ordering it beside its peers, or null when the record states none.</param>
     /// <param name="risks">The risks the record marks, in record order.</param>
-    public PermissionFacts(string id, string scope, string? group, ImmutableArray<string> risks)
+    /// <param name="grantedTo">The role identifiers the record grants the permission to, in record order.</param>
+    public PermissionFacts(string id, string scope, string? group, ImmutableArray<string> risks, ImmutableArray<string> grantedTo)
     {
         Id = id;
         Scope = scope;
         Group = group;
         Risks = risks;
+        GrantedTo = grantedTo;
     }
 
     /// <summary>Gets the permission identifier.</summary>
     public string Id { get; }
 
-    /// <summary>Gets the one reach the allowing roles grant it at, or empty when they grant it at several or none.</summary>
+    /// <summary>Gets the one reach the granting roles hold, or empty when they hold several or none.</summary>
     public string Scope { get; }
 
     /// <summary>Gets the group ordering it beside its peers, or null when the record states none.</summary>
@@ -34,13 +36,17 @@ internal sealed class PermissionFacts : IEquatable<PermissionFacts>
     /// <summary>Gets the risks the record marks, in record order.</summary>
     public ImmutableArray<string> Risks { get; }
 
+    /// <summary>Gets the role identifiers the record grants the permission to, in record order.</summary>
+    public ImmutableArray<string> GrantedTo { get; }
+
     /// <inheritdoc />
     public bool Equals(PermissionFacts? other) =>
         other is not null
         && string.Equals(Id, other.Id, StringComparison.Ordinal)
         && string.Equals(Scope, other.Scope, StringComparison.Ordinal)
         && string.Equals(Group, other.Group, StringComparison.Ordinal)
-        && Risks.SequenceEqual(other.Risks);
+        && Risks.SequenceEqual(other.Risks)
+        && GrantedTo.SequenceEqual(other.GrantedTo);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is PermissionFacts other && Equals(other);
@@ -62,6 +68,11 @@ internal sealed class PermissionFacts : IEquatable<PermissionFacts>
             foreach (var risk in Risks)
             {
                 hash = hash * 31 + StringComparer.Ordinal.GetHashCode(risk);
+            }
+
+            foreach (var role in GrantedTo)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(role);
             }
 
             return hash;

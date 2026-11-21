@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/6.0.0/schemas/litespec-manifest.schema.yaml'
+$id: 'https://litespec.dev/7.0.0/schemas/litespec-manifest.schema.yaml'
 title: LiteSpec Manifest
 type: object
 additionalProperties: false
@@ -150,7 +150,7 @@ $defs:
     - constraint
     - research
     - goal
-    - vision
+    - direction
     - decision
     - requirement
     - problem
@@ -158,14 +158,15 @@ $defs:
     - actor
     - role
     - permission
-    - journey
+    - flow
     - module
     - aggregate
     - rule
     - use-case
     - result
     - scenario
-    - event
+    - domain-event
+    - read-model
     - entry-point
     - external-system
     - reaction
@@ -174,7 +175,7 @@ $defs:
     - setting
     - integration-event
     - runbook
-    - departure
+    - waiver
     - term
   provisionId:
     type: string

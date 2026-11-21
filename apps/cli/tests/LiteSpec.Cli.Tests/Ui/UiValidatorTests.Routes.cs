@@ -5,10 +5,10 @@ namespace LiteSpec.Cli.Tests.Ui;
 /// </summary>
 public sealed partial class UiValidatorTests
 {
-    // Route suite coverage (litespec/frontend/ui#check-every-route).
+    // Route suite coverage (litespec/frontend/ui#pass-every-route-suite-check).
 
     /// <summary>A Route With No Route Suite.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ARouteWithNoRouteSuite()
     {
@@ -16,11 +16,11 @@ public sealed partial class UiValidatorTests
         File.Delete(fixture.SuiteFile);
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#check-every-route] frontend 'web': route 'apps/web/src/routes/case.tsx' has no route suite at 'apps/web/tests/routes/every-route.spec.ts'");
+            "[litespec/frontend/ui#pass-every-route-suite-check] frontend 'web': route 'apps/web/src/routes/case.tsx' has no route suite at 'apps/web/tests/routes/every-route.spec.ts'");
     }
 
     /// <summary>A Second Route Is Reported Beside The First.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ASecondRouteIsReportedBesideTheFirst()
     {
@@ -34,7 +34,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Frontend With No Routes Needs No Suite.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void AFrontendWithNoRoutesNeedsNoSuite()
     {
@@ -45,7 +45,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Router Files Are Not Routes.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void RouterFilesAreNotRoutes()
     {
@@ -60,7 +60,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Router Ignored Segment Is Not A Route.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ARouterIgnoredSegmentIsNotARoute()
     {
@@ -73,7 +73,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Suite Outside The Frontend Does Not Cover Its Routes.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ASuiteOutsideTheFrontendDoesNotCoverItsRoutes()
     {
@@ -87,7 +87,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Page With No Route Suite.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ASveltePageWithNoRouteSuite()
     {
@@ -98,11 +98,11 @@ public sealed partial class UiValidatorTests
             fixture.PathCase(
                 "apps/web/src/routes/orders/+page.svelte",
                 "<h1>Orders</h1>\n"),
-            "[litespec/frontend/ui#check-every-route] frontend 'web': route 'apps/web/src/routes/orders/+page.svelte' has no route suite at 'apps/web/tests/routes/every-route.spec.ts'");
+            "[litespec/frontend/ui#pass-every-route-suite-check] frontend 'web': route 'apps/web/src/routes/orders/+page.svelte' has no route suite at 'apps/web/tests/routes/every-route.spec.ts'");
     }
 
     /// <summary>A Svelte Page With Its Suite.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ASveltePageWithItsSuite()
     {
@@ -114,7 +114,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Non Page File Is Not A Route.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ASvelteNonPageFileIsNotARoute()
     {
@@ -127,7 +127,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Server Endpoint Is Not A Route.</summary>
-    /// <proves>litespec/frontend/ui#check-every-route</proves>
+    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
     [Fact]
     public void ASvelteServerEndpointIsNotARoute()
     {

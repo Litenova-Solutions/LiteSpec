@@ -1,5 +1,8 @@
+using System.Text.Json;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
+using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
@@ -18,7 +21,80 @@ internal static class AccessChecks
     {
         CheckScopeTerms(model, findings);
         CheckPermissionVerbs(model, findings);
+        CheckUseCaseAccess(model, findings);
     }
+
+    /// <summary>The grant forms a use case may state: signed-in, anonymous, system, a permission, or self over a permission.</summary>
+    private static readonly System.Text.RegularExpressions.Regex GrantForm = new(
+        @"^(signed-in|anonymous|system|self\(permission/[a-z0-9-]+\)|permission/[a-z0-9-]+)$",
+        System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    /// <summary>The entry point auth kind a device caller states, which only a device entry point may carry.</summary>
+    private const string DeviceAuth = "device";
+
+    /// <summary>
+    ///     Reports a grant outside its forms or naming no permission record, a system grant reached through an outside entry point,
+    ///     a recentSignInLimit that names no setting, and a device entry point whose kind is not device.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every use case, permission, setting and entry point.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCaseAccess(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase && !record.Derived))
+        {
+            if (useCase.Raw.ValueKind != JsonValueKind.Object || !useCase.Raw.TryGetProperty(RecordFields.Access, out var access) || access.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var reached = useCase.Ids(RecordFields.ReachedThrough);
+
+            foreach (var grant in LinkStrings(access, RecordFields.Grant))
+            {
+                if (!GrantForm.IsMatch(grant))
+                {
+                    findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' holds grant '{grant}', which is no signed-in, anonymous, system, permission or self grant.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    continue;
+                }
+
+                foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(grant, @"permission/[a-z0-9-]+"))
+                {
+                    if (!model.ById.ContainsKey(match.Value))
+                    {
+                        findings.Add(new Finding("reference-unknown", $"Use case '{useCase.Id}' grants '{match.Value}', which no record holds.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    }
+                }
+
+                if (grant == "system" && reached.Any(id => !IsModuleId(id)))
+                {
+                    findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' grants system, which authorizes no outside caller, yet it is reached through an entry point.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                }
+            }
+
+            if (Str(access, RecordFields.RecentSignInLimit) is { } window
+                && (!window.StartsWith(RecordTypes.Setting + "/", StringComparison.Ordinal) || !model.ById.TryGetValue(window, out var setting) || setting.Type != RecordTypes.Setting))
+            {
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignInLimit '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            }
+
+            foreach (var id in reached)
+            {
+                if (model.ById.TryGetValue(id, out var point)
+                    && point.Type == RecordTypes.EntryPoint
+                    && point.Field(RecordFields.Authentication) == DeviceAuth
+                    && point.Field(RecordFields.Kind) != "device")
+                {
+                    findings.Add(new Finding("record-invalid", $"Entry point '{point.Id}' states auth device but its kind is '{point.Field(RecordFields.Kind)}', not device.", point.File, point.Line, SubjectOf(point)));
+                }
+            }
+        }
+    }
+
+    /// <summary>Whether the identifier names a module.</summary>
+    /// <param name="id">The identifier under test.</param>
+    /// <returns>True when the identifier opens with the module prefix.</returns>
+    private static bool IsModuleId(string id) =>
+        Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix == RecordTypes.Module;
 
     /// <summary>Reports each role whose scope has no glossary term titled with the level and Scope.</summary>
     /// <param name="model">The loaded project model that holds every record and the glossary terms.</param>

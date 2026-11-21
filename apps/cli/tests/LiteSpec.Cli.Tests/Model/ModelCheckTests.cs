@@ -17,34 +17,26 @@ public sealed class ModelCheckTests
         "effect-undeclared",
         "erasure-undeclared",
         "except-fallback-missing",
-        "departure-invalid",
+        "waiver-invalid",
         "identifier-duplicate",
         "identifier-invalid",
-        "use-case-journey-missing",
-        "departure-expired",
+        "use-case-flow-missing",
+        "waiver-expired",
         "link-unknown",
-        "notification-sender-missing",
-        "job-guard-missing",
+        "notification-effect-missing",
         "paging-undeclared",
         "product-count-invalid",
         "proves-unreached",
         "query-output-missing",
-        "reaction-trigger-unknown",
         "record-link-missing",
         "record-invalid",
-        "folder-invalid",
-        "module-undeclared",
         "record-placement-invalid",
-        "identifier-folder-drift",
-        "name-duplicate",
-        "decision-number-duplicate",
         "link-locality-invalid",
         "module-dependency-invalid",
         "event-publisher-invalid",
         "intent-unreached",
-        "role-orphaned",
-        "permission-orphaned",
-        "decision-decides-duplicate",
+        "role-unused",
+        "permission-unused",
         "reference-unknown",
         "refusal-unimplemented",
         "requirement-fulfillment-missing",
@@ -52,19 +44,19 @@ public sealed class ModelCheckTests
         "reservation-release-missing",
         "result-undeclared",
         "retention-enforcement-missing",
-        "rule-name-invalid",
-        "scenario-result-unknown",
         "schedule-invalid",
         "setting-requirement-missing",
         "size-type-missing",
         "state-unreached",
         "step-use-case-missing",
-        "transition-unknown",
         "use-case-unimplemented",
         "use-case-scenario-missing",
         "use-case-success-missing",
         "widening-cites-missing",
         "write-undeclared",
+        "link-direction-invalid",
+        "use-case-writes-invalid",
+        "folder-ungrouped",
     ];
 
     /// <summary>Gets the finding codes as theory rows, one row per broken overlay.</summary>
@@ -83,7 +75,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Clean small fixture exits 0.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CleanSmallFixtureExits0()
     {
@@ -93,7 +85,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Clean large fixture exits 0.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void CleanLargeFixtureExits0()
     {
@@ -104,7 +96,7 @@ public sealed class ModelCheckTests
 
     /// <summary>Broken overlay '&lt;code&gt;' exits 1 with its finding code in the output.</summary>
     /// <param name="code">The finding code the broken-overlay case expects in the output.</param>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Theory]
     [MemberData(nameof(FindingCodeData))]
     // The MemberData values name each broken-overlay finding code case.
@@ -112,11 +104,7 @@ public sealed class ModelCheckTests
     {
         using var fixture = ModelFixture.Prepare("large", code);
 
-        // Planned Intent blocks only in the pull-request check, so its cases run there.
-        var environment = Severity.PlannedIntent.Contains(code)
-            ? new Dictionary<string, string> { ["CI"] = "true" }
-            : null;
-        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         Assert.Equal(1, result.Status);
         Assert.Contains(code, result.Output);
     }
@@ -135,7 +123,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Every listed code names a broken overlay folder, so a renamed code without its folder fails.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
     [Fact]
     public void FindingCodesNameBrokenOverlayFolders()
     {
@@ -150,32 +138,32 @@ public sealed class ModelCheckTests
         }
     }
 
-    /// <summary>An open departure turns its findings into exit 0.</summary>
-    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
+    /// <summary>An open waiver turns its findings into exit 0.</summary>
+    /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
     [Fact]
-    public void OpenDepartureTurnsItsFindingsIntoExit0()
+    public void OpenWaiverTurnsItsFindingsIntoExit0()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteDeparture(
+        WriteWaiver(
             fixture.Path,
-            "departure/list-loans-unimplemented",
+            "waiver/list-loans-unimplemented",
             "List Loans Unimplemented",
-            ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
-            ["use-case/lending.list-loans", "screen/library-app.loans"],
+            ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded", "step-implementation-missing"],
+            ["use-case/lending.list-loans", "screen/library-app.loans", "step/borrow-and-return.review-loans"],
             "2035-06-01");
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
-    /// <summary>An expired departure exits 1.</summary>
-    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
+    /// <summary>An expired waiver exits 1.</summary>
+    /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
     [Fact]
-    public void ExpiredDepartureExits1()
+    public void ExpiredWaiverExits1()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteDeparture(
+        WriteWaiver(
             fixture.Path,
-            "departure/list-loans-unimplemented",
+            "waiver/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented"],
             ["use-case/lending.list-loans"],
@@ -184,36 +172,40 @@ public sealed class ModelCheckTests
         Assert.Equal(1, result.Status);
     }
 
-    /// <summary>Writes a departure covering the codes on the subjects.</summary>
+    /// <summary>Writes a waiver covering the codes on the subjects.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="id">The departure record id.</param>
-    /// <param name="title">The departure page title.</param>
-    /// <param name="covers">The finding codes the departure covers.</param>
-    /// <param name="subject">The record ids the departure applies to.</param>
-    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
-    static void WriteDeparture(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
+    /// <param name="id">The waiver record id.</param>
+    /// <param name="title">The waiver page title.</param>
+    /// <param name="covers">The finding codes the waiver waives.</param>
+    /// <param name="subject">The record ids the waiver applies to.</param>
+    /// <param name="expiresOn">The date the waiver expires, in ISO form.</param>
+    static void WriteWaiver(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var name = id.Split('/')[1];
-        TestRecords.Write(root, $".litespec/governance/departures/{name}/{name}.yaml", DepartureJson(id, title, covers, subject, expiresOn));
-        TestRecords.Explain(root, $".litespec/governance/departures/{name}/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
+        TestRecords.Write(root, $".litespec/governance/waivers/{name}/{name}.yaml", WaiverJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $".litespec/governance/waivers/{name}/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
-    // Builds the departure fields as JSON. A departure is live when present and unexpired.
-    static string DepartureJson(string id, string title, string[] covers, string[] subject, string expiresOn)
+    // Builds the waiver fields as JSON. A waiver is live when present and unexpired.
+    static string WaiverJson(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         return "{\n"
-            + "  \"type\": \"departure\",\n"
+            + "  \"type\": \"waiver\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
-            + "  \"covers\": [\n"
+            + "  \"kind\": \"gap\",\n"
+            + "  \"waives\": [\n"
             + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
             + "\n  ],\n"
-            + "  \"subject\": [\n"
+            + "  \"appliesTo\": [\n"
             + string.Join(",\n", subject.Select(entry => $"    \"{entry}\""))
             + "\n  ],\n"
+            + "  \"closedBy\": [\n"
+            + $"    \"{subject[0]}\"\n"
+            + "  ],\n"
             + $"  \"expiresOn\": \"{expiresOn}\",\n"
             + "  \"reason\": \"Listing waits for the search index.\",\n"
-            + "  \"exit\": \"The search index ships and listing loans gains its handler.\"\n"
+            + "  \"exitWhen\": \"The search index ships and listing loans gains its handler.\"\n"
             + "}\n";
     }
 

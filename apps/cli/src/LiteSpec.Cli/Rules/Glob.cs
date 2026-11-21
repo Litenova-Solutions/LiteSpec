@@ -2,7 +2,7 @@ namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     A glob over consumer-relative paths: <c>*</c> crosses no folder and
-///     <c>**</c> crosses folders. Convention scopes and departure paths use it.
+///     <c>**</c> crosses folders. Convention scopes and waiver paths use it.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal static class Glob

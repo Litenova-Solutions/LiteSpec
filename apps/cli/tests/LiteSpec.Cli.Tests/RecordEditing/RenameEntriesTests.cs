@@ -99,7 +99,7 @@ public sealed class RenameEntriesTests
                   "id": "result/borrow-copy.copy-unavailable",
                   "title": "Copy unavailable",
                   "outcome": "refusal",
-                  "code": "lending.copy-not-available",
+                  "refusal": "refusal/lending.copy-not-available",
                   "meaning": "The copy is unavailable."
                 },
                 {

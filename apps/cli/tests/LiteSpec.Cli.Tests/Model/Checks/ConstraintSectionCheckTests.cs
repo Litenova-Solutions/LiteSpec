@@ -27,7 +27,7 @@ public sealed class ConstraintSectionCheckTests
                 "constraint/library-privacy-law",
                 Path.Combine(temp.Path, "library-privacy-law.yaml"),
                 1,
-                """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
+                """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records.", "coverage": "Reader records.", "obligations": [{"statement": "The library keeps reader records private.", "sources": ["ordinance"]}], "productEffect": "Reader records stay private in the product."}""",
                 Path.Combine(temp.Path, "library-privacy-law.md"),
                 explanation));
 
@@ -49,7 +49,7 @@ public sealed class ConstraintSectionCheckTests
                 "constraint/library-privacy-law",
                 Path.Combine(temp.Path, "library-privacy-law.yaml"),
                 1,
-                """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
+                """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/ordinance", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
                 Path.Combine(temp.Path, "library-privacy-law.md"),
                 "# Library Privacy Law\n\nReader records stay private.\n\n## Scope\n\nReader records.\n\n## Rules\n\nThe ordinance keeps them private [ordinance][ordinance].\n\n## Effect on the Product\n\nNo effect is named.\n\n<!-- generated:source-links -->\n[ordinance]: https://example.com/ordinance \"Read on 2026-01-10\"\n<!-- /generated:source-links -->\n"));
 

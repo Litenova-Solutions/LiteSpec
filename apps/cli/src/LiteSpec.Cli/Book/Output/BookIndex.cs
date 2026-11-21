@@ -56,7 +56,7 @@ sealed class BookIndex
     /// <summary>Gets or sets the latest test run, or null when the model holds none.</summary>
     public JsonNode? TestRun { get; set; }
 
-    /// <summary>Gets the journey steps a passing test walked, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    /// <summary>Gets the flow steps a passing test walked, as <c>step/&lt;flow&gt;.&lt;act&gt;</c> ids.</summary>
     public HashSet<string> ExercisedSteps { get; init; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets the tested state by record id the builder wrote, or empty when the model holds none.</summary>

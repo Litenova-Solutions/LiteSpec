@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Ui;
 public sealed partial class UiValidatorTests
 {
     // Design contract (litespec/frontend/ui#publish-a-design-contract,
-    // litespec/frontend/ui#declare-a-closed-floorplan-set).
+    // litespec/frontend/ui#map-each-page-frame-to-its-floorplan).
 
     /// <summary>Shared Package With No Design Contract.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
@@ -53,15 +53,15 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "package must be '@fixture/ui'");
     }
 
-    /// <summary>Design Contract Naming No Floorplan.</summary>
-    /// <proves>litespec/frontend/ui#declare-a-closed-floorplan-set</proves>
+    /// <summary>A design contract without a Page Frames section reports it as missing.</summary>
+    /// <proves>litespec/frontend/ui#map-each-page-frame-to-its-floorplan</proves>
     [Fact]
-    public void DesignContractNamingNoFloorplan()
+    public void DesignContractWithoutPageFramesReportsTheMissingSection()
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
-            File.ReadAllText(fixture.DesignFile).Replace("\r\n", "\n", StringComparison.Ordinal).Replace("patterns:\n  - list-page\n  - entity-page", "patterns: []", StringComparison.Ordinal));
-        UiFixture.AssertProblem(fixture.Run(), "array has fewer than 1 items");
+            File.ReadAllText(fixture.DesignFile).Replace("## Page Frames", "## Floorplans", StringComparison.Ordinal));
+        UiFixture.AssertProblem(fixture.Run(), "missing required section 'Page Frames'");
     }
 
     /// <summary>The Shipped Design Contract Is Accepted.</summary>
@@ -73,15 +73,15 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
-    /// <summary>A Design Contract Without A Vocabulary Section Stays Clean.</summary>
+    /// <summary>A design contract without a Vocabulary section reports it as missing.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
-    public void ADesignContractWithoutAVocabularySectionStaysClean()
+    public void ADesignContractWithoutAVocabularySectionReportsIt()
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
             File.ReadAllText(fixture.DesignFile).Replace("## Vocabulary", "## Notes", StringComparison.Ordinal));
-        UiFixture.AssertClean(fixture.Run());
+        UiFixture.AssertProblem(fixture.Run(), "missing required section 'Vocabulary'");
     }
 
     // Pattern catalog (litespec/frontend/patterns#keep-one-pattern-catalog,
@@ -335,7 +335,7 @@ public sealed partial class UiValidatorTests
         {
             var patterns = (JsonArray)catalog["patterns"]!;
             var pattern = (JsonObject)patterns[0]!;
-            pattern["library"] = "litespec/frontend/patterns/page-frames#record-list";
+            pattern["library"] = "litespec/frontend/patterns/page-frames#list-page";
             ((JsonArray)pattern["options"]!).Add(new JsonObject
             {
                 ["id"] = "fixture-only",
@@ -373,7 +373,7 @@ public sealed partial class UiValidatorTests
         {
             var patterns = (JsonArray)catalog["patterns"]!;
             var pattern = (JsonObject)patterns[0]!;
-            pattern["library"] = "litespec/frontend/patterns/page-frames#record-list";
+            pattern["library"] = "litespec/frontend/patterns/page-frames#list-page";
             ((JsonObject)((JsonArray)pattern["options"]!)[0]!)["name"] = "Renamed table";
         });
         UiFixture.AssertProblem(

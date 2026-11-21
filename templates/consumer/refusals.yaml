@@ -1,0 +1,10 @@
+type: refusal-set
+summary: <what refusals this module declares and why they are split this way>
+id: <page id, or remove this line>
+title: <Title in Title Case, or remove this line>
+terms:
+- <term id, or remove this line>
+records:
+- id: refusal/<module>.<name>
+  title: <Title in Title Case>
+  meaning: <what happened, in one sentence>

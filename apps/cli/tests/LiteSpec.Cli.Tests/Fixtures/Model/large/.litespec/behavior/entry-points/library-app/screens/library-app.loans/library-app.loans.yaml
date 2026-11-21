@@ -2,7 +2,15 @@ type: screen
 id: screen/library-app.loans
 title: Loans
 summary: A reader can register, borrow, extend, list, return and hold copies, and a librarian can retire a copy.
-address: /loans
+route: /
+task: The reader borrows, extends, lists and returns copies and places holds, and the librarian registers and retires copies.
+displayStates:
+- name: Empty
+  shows: The screen says no loan is active and points to borrowing.
+- name: Loading
+  shows: The rows show as placeholders while the loans load.
+- name: Failed
+  shows: The screen says the loans are unavailable and offers to try again.
 offers:
 - use-case/lending.register-copy
 - use-case/lending.borrow-copy
@@ -13,11 +21,11 @@ offers:
 - use-case/lending.cancel-hold
 - use-case/lending.retire-copy
 serves:
-- journey/borrow-and-return#s1
-- journey/borrow-and-return#s2
-- journey/borrow-and-return#s3
-- journey/borrow-and-return#s4
-- journey/borrow-and-return#s5
-- journey/borrow-and-return#s6
-- journey/borrow-and-return#s7
-- journey/borrow-and-return#s8
+- step/borrow-and-return.register-copy
+- step/borrow-and-return.borrow-copy
+- step/borrow-and-return.renew-loan
+- step/borrow-and-return.review-loans
+- step/borrow-and-return.return-copy
+- step/borrow-and-return.place-hold
+- step/borrow-and-return.cancel-hold
+- step/borrow-and-return.retire-copy

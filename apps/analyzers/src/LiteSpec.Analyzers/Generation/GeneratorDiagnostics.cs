@@ -14,6 +14,10 @@ internal static class GeneratorDiagnostics
     private static readonly Provision RegistryPermissionsAndRoles =
         Provision.Of("backend/dotnet/stack", "generate-the-registry-permissions-and-roles-from-the-records");
 
+    /// <summary>The provision the exception descriptor enforces: define the shared domain contracts once (litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once).</summary>
+    private static readonly Provision SharedDomainContracts =
+        Provision.Of("backend/dotnet/domain", "define-the-shared-domain-contracts-once");
+
     /// <summary>LS5009: two permission records produce one constant name.</summary>
     public static readonly DiagnosticDescriptor PermissionCollision = new(
         "LS5009",
@@ -38,15 +42,27 @@ internal static class GeneratorDiagnostics
         helpLinkUri: RuntimeValues.HelpLink,
         customTags: [RuntimeValues.Id]);
 
-    /// <summary>LS5012: a role allows a permission no permission record declares.</summary>
-    public static readonly DiagnosticDescriptor RoleAllowsUndeclaredPermission = new(
+    /// <summary>LS5012: a permission grants a role no role record declares.</summary>
+    public static readonly DiagnosticDescriptor PermissionGrantsUndeclaredRole = new(
         "LS5012",
-        "Role allows an undeclared permission",
-        "Role '{0}' allows '{1}', which no permission record declares",
+        "Permission grants an undeclared role",
+        "Permission '{0}' grants '{1}', which no role record declares",
         "LiteSpec.Traceability",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "A role allows only permissions the shared permission list declares. Provision: " + RegistryPermissionsAndRoles.Id,
+        description: "A permission grants only roles the role records declare. Provision: " + RegistryPermissionsAndRoles.Id,
         helpLinkUri: RegistryPermissionsAndRoles.HelpLink,
         customTags: [RegistryPermissionsAndRoles.Id]);
+
+    /// <summary>LS5013: a marked exception inherits a non-virtual Code, so the generator writes no part.</summary>
+    public static readonly DiagnosticDescriptor NonVirtualBaseCode = new(
+        "LS5013",
+        "Base declares a non-virtual Code",
+        "'{0}' inherits non-virtual 'Code' from '{1}'; declare the base member 'public abstract string Code { get; }' so generated exceptions override it",
+        "LiteSpec.Traceability",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "A marked rule exception takes its Code from its record through a generated override. Its base declares the member abstract or virtual, never non-virtual. Provision: " + SharedDomainContracts.Id,
+        helpLinkUri: SharedDomainContracts.HelpLink,
+        customTags: [SharedDomainContracts.Id]);
 }

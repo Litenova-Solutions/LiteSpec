@@ -4,36 +4,38 @@ Employees cannot get a work expense paid back quickly, because nothing shows the
 
 ## Affected Users
 
-Employees who submit expenses are affected by this problem. The problem record names `actor/employee` as the actor it affects.
+The wait falls on employees who submit expenses. The problem record names them as `actor/employee`.
 
-The affected employee submitted an expense and waits for a decision. During that wait, the employee carries the amount from their own account.
+The affected employee submitted an expense and waits for a decision on it. For the length of that wait, the employee carries the amount from their own account.
 
 ## Failure Cases
 
-- **An expense waits without a decision.** Nothing shows the approver how long an expense has waited, so it waits until the employee chases it. Until then, the employee carries the amount from their own account.
-- **The employee cannot see the decision.** Nothing tells the employee when the approver decides, so the employee learns the outcome only by asking. A decided expense still looks open, and the employee chases a decision that was already made.
+- An expense waits without a decision while the approver sees no waiting time and the employee carries the amount.
+- The employee learns the decision only by asking and chases a decision already made.
+
+Ava submits the 48.90 EUR train fare on Monday. Ben sees the fare with no waiting time, so the fare waits while Ava carries the amount. When Ben decides it on Tuesday, Ava still sees it as open and asks Ben before she learns the decision.
+
+## Example
+
+Ava submits the 48.90 EUR train fare for the client visit and waits for Ben. The fare shows no waiting time, so Ben leaves it undecided while Ava carries the amount. Ava emails Ben, and Ben answers from memory that he has not decided it yet.
 
 ## Current Workaround
 
-Employees email the approver to ask for a faster decision. The approver answers from memory, and no record shows how long the expense has waited.
-
-Each employee repeats the email for each expense that waits, and has to remember which expenses are still open.
+Employees email the approver to ask for a faster decision. The approver answers from memory with no record of the wait. Each employee repeats the email for each waiting expense.
 
 ## Cost
 
-The cost is recorded in weeks of waiting, not in money. Employees carry the amount from their own account for the length of the wait, and the evidence puts the average wait at 3 weeks. That figure is reported by employees, not measured.
-
-No total of carried money is recorded for this problem, so the money cost is unknown.
+Employees carry the amount from their own account for the length of the wait. The average wait is three weeks as reported, and the money cost is unknown.
 
 ## Evidence
 
-The evidence is one reported claim: employees wait 3 weeks on average for reimbursement. The claim cites `research/approval-time-benchmarks` as its source, and it was read on 2026-11-01.
+The evidence is one reported claim: employees wait 3 weeks on average for reimbursement. The claim cites `research/approval-time-benchmarks`, and it was read on 2026-11-01.
 
-The record marks the claim as reported, not measured. The research gives the comparison point: small companies decide expenses within 1 week.
+The record marks the claim as reported, not measured. The research sets the comparison point: small companies decide expenses within 1 week.
 
 ## Resolution Criteria
 
-- Each submitted expense is decided within 5 business days.
+- Each submitted expense is decided within five business days.
 - The employee sees the decision without asking the approver.
 
 The 5-day rule is set in `requirement/approval.decided-within-five-days`.

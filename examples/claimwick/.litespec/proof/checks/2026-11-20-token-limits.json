@@ -1,0 +1,6 @@
+{
+  "check": "token-limits",
+  "passed": true,
+  "value": "every token role meets its limit in the light and dark schemes",
+  "ranOn": "2026-11-20"
+}

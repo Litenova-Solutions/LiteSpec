@@ -68,7 +68,7 @@ public sealed class ProofTargetTests
 
         var findings = MarksFixture.Check(temp.Path);
 
-        foreach (var code in new[] { "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid" })
+        foreach (var code in new[] { "mark-missing", "mark-unknown" })
         {
             Assert.DoesNotContain(
                 MarksFixture.WithCode(findings, code),
@@ -133,7 +133,7 @@ public sealed class ProofTargetTests
             finding => FileName(finding) == "AggregateProofTests.cs");
 
         Assert.Contains("which is a aggregate record", finding.Message);
-        Assert.Contains("not a scenario or rule or requirement or decision or external-system or integration-event or litespec record.", finding.Message);
+        Assert.Contains("not a scenario or rule or requirement or decision or external-system or module-event or integration-event or litespec record.", finding.Message);
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
@@ -185,6 +185,8 @@ public sealed class ProofTargetTests
     public void ScenarioProofStillVerifies()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
+        CommitFixture(temp.Path);
+        PointLedgerAtHead(temp.Path);
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
         Assert.Equal("verified", model.Completion["use-case/lending.borrow-copy"].Stage);
@@ -233,4 +235,40 @@ public sealed class ProofTargetTests
 
     static string FileName(Finding finding) =>
         Path.GetFileName(finding.Path);
+
+    static void CommitFixture(string root)
+    {
+        Assert.Equal(0, ProcessRunner.Git(root, "init").Status);
+        Assert.Equal(0, ProcessRunner.Git(root, "config", "user.email", "litespec@example.com").Status);
+        Assert.Equal(0, ProcessRunner.Git(root, "config", "user.name", "LiteSpec").Status);
+        Assert.Equal(0, ProcessRunner.Git(root, "add", "-A").Status);
+        var commit = ProcessRunner.Git(root, "-c", "commit.gpgsign=false", "commit", "-m", "Record the passing proof.");
+        Assert.True(commit.Status == 0, commit.Error);
+    }
+
+    static void PointLedgerAtHead(string root)
+    {
+        var head = ProcessRunner.Git(root, "rev-parse", "HEAD");
+        Assert.True(head.Status == 0, head.Error);
+
+        var path = Path.Combine(root, ".litespec", "proof", "proofs.json");
+        string? run;
+
+        using (var ledger = JsonDocument.Parse(File.ReadAllText(path)))
+        {
+            run = ledger.RootElement
+                .GetProperty("scenario/borrow-copy.borrowing-an-available-copy-succeeds")
+                .GetProperty("run").GetString();
+        }
+
+        File.WriteAllText(
+            path,
+            "{\n"
+            + "  \"scenario/borrow-copy.borrowing-an-available-copy-succeeds\": {\n"
+            + $"    \"commit\": \"{head.Stdout.Trim()}\",\n"
+            + "    \"outcome\": \"Passed\",\n"
+            + $"    \"run\": \"{run}\"\n"
+            + "  }\n"
+            + "}\n");
+    }
 }

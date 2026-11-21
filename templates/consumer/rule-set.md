@@ -4,7 +4,7 @@ Say what this set of rules governs and why the rules sit together. A reader who 
 
 ## Rationale
 
-Give each rule its own H3 under this heading, named by the rule title. Under each H3, say why the rule exists, in one or two sentences, and work through any calculation with real numbers.
+Explains each rule's `rationale`. Give each rule its own H3 under this heading, named by the rule title. Under each H3, say why the rule exists, in one or two sentences, and work through any calculation with real numbers.
 
 ## Example
 

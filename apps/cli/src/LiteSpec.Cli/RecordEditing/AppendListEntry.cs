@@ -165,7 +165,7 @@ static class AppendListEntry
     static string? PageOf(string entryType) => entryType switch
     {
         "rule" => "rule-set",
-        "permission" => "permission-list",
+        "permission" => "permission-set",
         "setting" => "setting-set",
         _ => null,
     };
@@ -295,7 +295,9 @@ static class AppendListEntry
             ["id"] = id,
             ["title"] = title,
             ["meaning"] = "This permission allows the action.",
-            ["scope"] = "tenant",
+            // Every link points up: the permission names the roles it is granted to. The
+            // placeholder role draws reference-unknown until the author names a real one.
+            ["grantedTo"] = new JsonArray("role/owner"),
         },
         _ => new JsonObject
         {

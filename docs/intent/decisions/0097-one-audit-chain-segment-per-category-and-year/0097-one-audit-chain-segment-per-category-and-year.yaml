@@ -1,0 +1,14 @@
+type: decision
+id: decision/0097-one-audit-chain-segment-per-category-and-year
+title: One Audit Chain Segment per Category and Year
+context: "The audit extension requires deletion on retention end, denies the writing account `DELETE`, and chains each record to its predecessor. Deleting one category's records from a shared chain breaks every later link. Nothing names the account that deletes."
+options:
+  - name: "One chain segment per audited category and calendar year, deleted whole by an operator account, with each deletion recorded in the following segment"
+    pros: "A closed segment is deleted as a whole, so live links never break and the remaining segments still verify from their own anchors. The operator account holds `DELETE` while the application account keeps only `INSERT` and `SELECT`."
+    cons: "Each category and year pair is its own chain to checkpoint and verify, so a deployment with many categories runs more segments."
+  - name: "One shared chain with links rewritten around deleted records"
+    pros: "One chain keeps one checkpoint and one verification pass."
+    cons: "Rewriting links edits retained evidence, so a reviewer cannot tell deletion from tampering. Each expiry rewrites history instead of closing it."
+choice: "One chain segment per audited category and calendar year, deleted whole by an operator account, with each deletion recorded in the following segment"
+consequences: "An audit store holds one hash chain segment per audited category and calendar year, each with its own genesis record and checkpoints. A segment is closed with a final checkpoint and deleted as a whole after its category's retention ends. Retention deletion and tenant data erasure run through a separate audited operator process under its own account. Each deleted segment is recorded in the following segment of the same category."
+reopenedWhen: "A deployment needs a chain shape this segmentation cannot express, or per-year segments prove too coarse or too fine for retention schedules in use."

@@ -36,6 +36,14 @@ export interface CallFacts {
   operation: string;
   file: string;
   line: number;
+  fromLayout: boolean;
+}
+
+export interface NavigationFacts {
+  path: string;
+  file: string;
+  line: number;
+  fromLayout: boolean;
 }
 
 export interface RouteFacts {
@@ -44,6 +52,7 @@ export interface RouteFacts {
   address: string;
   marks: string[];
   calls: CallFacts[];
+  navigations: NavigationFacts[];
 }
 
 export interface TestFacts {
@@ -51,7 +60,7 @@ export interface TestFacts {
   line: number;
   title: string;
   proves: string[];
-  journey: string | null;
+  flow: string | null;
   gotos: string[];
   codes: string[];
   texts: string[];

@@ -15,9 +15,9 @@ public sealed class IdentifierCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("identifier-folder-drift", TestModel.Codes(model));
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
 
     /// <summary>Use Case In Another Module Reports.</summary>
@@ -30,9 +30,9 @@ public sealed class IdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "query"}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-folder-drift");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Use case 'use-case/lending.borrow-copy' sits in module 'archive' but its identifier names module 'lending'.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
@@ -50,10 +50,42 @@ public sealed class IdentifierCheckTests
             TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "aggregate.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-folder-drift");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Aggregate 'aggregate/lending.loan' sits in module 'archive' but its identifier names module 'lending'.", finding.Message);
         Assert.Equal("aggregate/lending.loan", finding.Subject);
+    }
+
+    /// <summary>Module Event In Its Module Passes.</summary>
+    /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
+    [Fact]
+    public void ModuleEventInItsModulePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "module-events", "loan-borrowed", "loan-borrowed.yaml"), """{"summary": "A loan was borrowed."}"""));
+
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Module Event In Another Module Reports.</summary>
+    /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
+    [Fact]
+    public void ModuleEventInAnotherModuleReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "module-events", "loan-borrowed", "loan-borrowed.yaml"), """{"summary": "A loan was borrowed."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Module event 'module-event/lending.loan-borrowed' sits in module 'archive' but its identifier names module 'lending'.", finding.Message);
+        Assert.Equal("module-event/lending.loan-borrowed", finding.Subject);
     }
 
     /// <summary>Module Scoped Record In Another Module Reports.</summary>
@@ -68,13 +100,17 @@ public sealed class IdentifierCheckTests
     public void ModuleScopedRecordInAnotherModuleReports(string type, string id)
     {
         using var temp = TestCli.Temp("checks");
+        var name = id[(id.IndexOf('.') + 1)..];
+        var file = type == "setting"
+            ? Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "settings", $"{name}.yaml")
+            : Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", $"{type}s", name, $"{name}.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record(type, id, Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "record.yaml"), """{}"""));
+            TestModel.Record(type, id, file, """{}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-folder-drift");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
         Assert.Contains("'archive'", finding.Message);
         Assert.Contains("'lending'", finding.Message);
@@ -94,22 +130,24 @@ public sealed class IdentifierCheckTests
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
             TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "rules", "barcodes.yaml"), """{"kind": "invariant", "statement": "A copy barcode is unique.", "governs": ["aggregate/lending.loan"]}"""));
 
-        Assert.DoesNotContain("identifier-folder-drift", TestModel.Codes(model));
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
 
-    /// <summary>Undeclared Home Stays Parent Missing.</summary>
+    /// <summary>Undeclared Home Reports Placement.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void UndeclaredHomeStaysParentMissing()
+    public void UndeclaredHomeReportsPlacement()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/nope.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/nope.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("identifier-folder-drift", TestModel.Codes(model));
-        Assert.Contains("record-parent-missing", TestModel.Codes(model));
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Use case 'use-case/nope.borrow-copy' has no parent and its home 'nope' names no module.", finding.Message);
+        Assert.Equal("use-case/nope.borrow-copy", finding.Subject);
     }
 
     /// <summary>Undeclared Folder Stays Silent.</summary>
@@ -121,9 +159,9 @@ public sealed class IdentifierCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "query"}"""));
 
-        Assert.DoesNotContain("identifier-folder-drift", TestModel.Codes(model));
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
 
     /// <summary>Record Outside Modules Stays Silent.</summary>
@@ -137,11 +175,11 @@ public sealed class IdentifierCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("identifier-folder-drift", TestModel.Codes(model));
+        Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
 
     /// <summary>Distinct Names Pass.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void DistinctNamesPass()
     {
@@ -151,11 +189,11 @@ public sealed class IdentifierCheckTests
             TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{}"""),
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{}"""));
 
-        Assert.DoesNotContain("name-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
     /// <summary>Use Case Name Reused Reports.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void UseCaseNameReusedReports()
     {
@@ -167,7 +205,7 @@ public sealed class IdentifierCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record("use-case", "use-case/archive.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
 
-        var findings = Checker.Check(model).Findings.Where(found => found.Code == "name-duplicate").ToList();
+        var findings = Checker.Check(model).Findings.Where(found => found.Code == "record-key-duplicate").ToList();
         Assert.Equal(2, findings.Count);
         var finding = Assert.Single(findings, found => found.Subject == "use-case/lending.borrow-copy");
         Assert.Equal("G", finding.Tier);
@@ -175,7 +213,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Aggregate Name Reused Reports.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void AggregateNameReusedReports()
     {
@@ -187,7 +225,7 @@ public sealed class IdentifierCheckTests
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
             TestModel.Record("aggregate", "aggregate/archive.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "aggregates", "loans", "aggregate.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
 
-        var findings = Checker.Check(model).Findings.Where(found => found.Code == "name-duplicate").ToList();
+        var findings = Checker.Check(model).Findings.Where(found => found.Code == "record-key-duplicate").ToList();
         Assert.Equal(2, findings.Count);
         var finding = Assert.Single(findings, found => found.Subject == "aggregate/lending.loan");
         Assert.Equal("G", finding.Tier);
@@ -195,7 +233,7 @@ public sealed class IdentifierCheckTests
     }
 
     /// <summary>Same Name Across Types Passes.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void SameNameAcrossTypesPasses()
     {
@@ -206,11 +244,11 @@ public sealed class IdentifierCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record("permission", "permission/borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "permissions.yaml"), """{"meaning": "Borrow an available copy.", "scope": "self"}"""));
 
-        Assert.DoesNotContain("name-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
     /// <summary>Same Identifier Twice Stays Identifier Duplicate.</summary>
-    /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
+    /// <proves>litespec/core/model#keep-each-name-unique-in-its-record-type</proves>
     [Fact]
     public void SameIdentifierTwiceStaysIdentifierDuplicate()
     {
@@ -222,7 +260,7 @@ public sealed class IdentifierCheckTests
             TestModel.Record("permission", "permission/borrow-copy", file, 5, """{"meaning": "Borrow an available copy again.", "scope": "self"}"""));
 
         Assert.Contains("identifier-duplicate", TestModel.Codes(model));
-        Assert.DoesNotContain("name-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
     /// <summary>Distinct Numbers Pass.</summary>
@@ -233,10 +271,10 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0002-hold-window", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.hold-pickup-window"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0002-hold-window", Path.Combine(temp.Path, "decisions.yaml"), """{"choice": "Seven days"}"""));
 
-        Assert.DoesNotContain("decision-number-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
     /// <summary>Number Reused Reports.</summary>
@@ -247,10 +285,10 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0001-hold-window", Path.Combine(temp.Path, "hold.yaml"), """{"decides": ["requirement/borrowing.hold-pickup-window"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan.yaml"), """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0001-hold-window", Path.Combine(temp.Path, "hold.yaml"), """{"choice": "Seven days"}"""));
 
-        var findings = Checker.Check(model).Findings.Where(found => found.Code == "decision-number-duplicate").ToList();
+        var findings = Checker.Check(model).Findings.Where(found => found.Code == "record-key-duplicate").ToList();
         Assert.Equal(2, findings.Count);
         var finding = Assert.Single(findings, found => found.Subject == "decision/0001-loan-period");
         Assert.Equal("G", finding.Tier);
@@ -265,10 +303,10 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0001-loan-period.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0001-loan-store", Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0001-loan-store.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0001-loan-period.yaml"), """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0001-loan-store", Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0001-loan-store.yaml"), """{"choice": "Twenty-one days"}"""));
 
-        var findings = Checker.Check(model).Findings.Where(found => found.Code == "decision-number-duplicate").ToList();
+        var findings = Checker.Check(model).Findings.Where(found => found.Code == "record-key-duplicate").ToList();
         Assert.Equal(2, findings.Count);
     }
 
@@ -281,11 +319,11 @@ public sealed class IdentifierCheckTests
         var file = Path.Combine(temp.Path, "decisions.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", file, 1, """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
-            TestModel.Record("decision", "decision/0001-loan-period", file, 5, """{"decides": ["requirement/borrowing.loan-period-days"]}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", file, 1, """{"choice": "Twenty-one days"}"""),
+            TestModel.Record("decision", "decision/0001-loan-period", file, 5, """{"choice": "Twenty-one days"}"""));
 
         Assert.Contains("identifier-duplicate", TestModel.Codes(model));
-        Assert.DoesNotContain("decision-number-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
     /// <summary>Decision Without Number Stays Identifier Invalid.</summary>
@@ -296,9 +334,9 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""));
+            TestModel.Record("decision", "decision/loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"choice": "Twenty-one days"}"""));
 
         Assert.Contains("identifier-invalid", TestModel.Codes(model));
-        Assert.DoesNotContain("decision-number-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 }

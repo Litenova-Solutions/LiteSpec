@@ -1,0 +1,20 @@
+type: decision
+id: decision/0081-own-scenarios-and-declare-outcomes
+title: Own Scenarios and Declare Outcomes
+context: "A scenario's parent was its result, so scenarios of reactions and jobs sat under use-case results they never touched. An automation scenario ended in a run use case's result, so authors invented commands for send-only reactions and jobs. Effects of one reaction shared a run, so one slow effect blocked the rest and a retry reran finished work."
+options:
+  - name: "Scenarios live with the behavior they exercise; reactions and jobs declare outcomes and run each effect alone"
+    pros: "Every scenario has one parent file, send-only automation ends in a named outcome with no invented command, and effects retry and deduplicate on their own."
+    cons: "Scenarios move into reaction and job files, and every reaction and job declares outcomes."
+  - name: "Keep scenarios under results with run-result ends"
+    pros: "No scenario moves and no outcome is declared."
+    cons: "A send-only reaction has no run result to end in, and scenarios of jobs sit under use cases they never touch."
+  - name: "Name outcomes but share one effect run"
+    pros: "Fewer fields per effect."
+    cons: "One slow effect blocks the rest, and a retry reruns effects that already finished."
+choice: "Scenarios live with the behavior they exercise; reactions and jobs declare outcomes and run each effect alone"
+consequences: "A scenario's parent is its use case, reaction, or job, stored in that record's file. It names its expected result or, for a reaction or job, one of its outcomes. The book groups a use case's scenarios by result. A reaction or job declares required `outcomes` of `{name, meaning}` with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, or `nothing-selected`; its scenarios end in one of them or in a run use case's result. A job running no use case takes its own verb. `litespec/core/automation#declare-the-outcomes-of-each-reaction-and-job` states the declaration. Each effect of a reaction or job runs, retries, and deduplicates on its own under its own idempotency. An author orders effects by chaining facts. `litespec/core/automation#run-each-effect-on-its-own` states the independence. `litespec/core/model#give-every-record-one-parent` and `litespec/core/automation#end-reaction-and-job-scenarios-in-the-run-result` state the parent and the scenario end."
+reopenedWhen: "A scenario proves behavior across two operations inseparably, or two effects need one shared run."
+basedOn:
+  - research/lower-layers-practice
+  - research/behavior-containment-evidence

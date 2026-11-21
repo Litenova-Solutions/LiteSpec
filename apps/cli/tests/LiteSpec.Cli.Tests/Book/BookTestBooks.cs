@@ -23,13 +23,17 @@ static class BookTestBooks
     /// <param name="editor">The editor link template, or null for the default template.</param>
     /// <param name="claims">The record layers the project claims, every layer with LiteSpec's practice by default.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
-    public static string Write(JsonObject model, string root, string outDir, string? editor = null, LayerClaims? claims = null) =>
-        BookCommand.WriteBook(
-            model,
+    public static string Write(JsonObject model, string root, string outDir, string? editor = null, LayerClaims? claims = null)
+    {
+        var links = BookBuild.FillLinks(editor ?? BookBuild.LiveLinks, root, "HEAD");
+        var build = BookSiteBuilder.Build(
+            BookStores.WithIntentCoverage(model),
             root,
             BookLexicon.Load(TestCli.Repository),
-            TestCli.Repository,
-            editor ?? BookCommand.DefaultEditor,
-            outDir,
-            claims ?? LayerClaims.All);
+            links,
+            claims ?? LayerClaims.All,
+            "2026-01-01T00:00:00.000Z");
+        build.Site.WriteTo(outDir);
+        return BookSiteBuilder.Summary(build, outDir);
+    }
 }

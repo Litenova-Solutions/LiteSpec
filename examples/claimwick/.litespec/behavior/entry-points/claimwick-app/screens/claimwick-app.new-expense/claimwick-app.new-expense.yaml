@@ -1,0 +1,30 @@
+type: screen
+id: screen/claimwick-app.new-expense
+title: New Expense
+summary: An employee files a new expense with its amount, currency, and receipt.
+route: /expenses/new
+offers:
+- use-case/spending.submit-expense
+- use-case/spending.list-expenses
+serves:
+- step/submit-and-reimburse.submit-expense
+fulfills:
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
+pageFrame:
+  pattern: form-page
+  option: one-section-one-column-of-fields-cancel-beside-save
+leadsTo:
+- screen/claimwick-app.expense-list
+- screen/claimwick-app.expense-record
+task: The employee enters the amount and currency, attaches the receipt, and submits. An expense above EUR 25.00 needs its receipt attached before it can be submitted.
+displayStates:
+- name: Working
+  shows: The submit action shows it is working and takes no second press.
+- name: Refused
+  shows: The refusal sentence appears beside the receipt field.
+- name: Failed
+  shows: Every entered value stays in place and the page offers to try again.

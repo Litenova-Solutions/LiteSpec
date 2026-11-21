@@ -6,78 +6,19 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated permission constants.</summary>
 public sealed class PermissionTests
 {
-    /// <summary>Application generates one constant per permission.</summary>
+    /// <summary>A module generates one constant per permission.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "Application generates one constant per permission")]
-    public void ApplicationGeneratesPermissionConstants()
+    [Fact(DisplayName = "A module generates one constant per permission")]
+    public void ModuleGeneratesPermissionConstants()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order", "permission/view-ledger"))),
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Spending");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
         Assert.Contains("public const string CancelOrder = \"permission/cancel-order\";", permissions, StringComparison.Ordinal);
         Assert.Contains("public const string ViewLedger = \"permission/view-ledger\";", permissions, StringComparison.Ordinal);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>Infrastructure generates permission constants from its assembly name.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "Infrastructure generates permission constants from its assembly name")]
-    public void InfrastructureGeneratesPermissionConstants()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
-            assemblyName: "Shop.Infrastructure");
-
-        Assert.True(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source is missing.");
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>WebApi generates permission constants from the declared layer.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "WebApi generates permission constants from the declared layer")]
-    public void WebApiGeneratesPermissionConstantsFromTheDeclaredLayer()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
-            assemblyName: "Shop.Core",
-            layer: "WebApi");
-
-        Assert.True(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source is missing.");
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>Domain generates permission constants for its role types.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "Domain generates permission constants for its role types")]
-    public void DomainGeneratesPermissionConstants()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
-            assemblyName: "Shop.Domain");
-
-        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("public const string CancelOrder = \"permission/cancel-order\";", permissions, StringComparison.Ordinal);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>An unknown layer generates no permission constants.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "An unknown layer generates no permission constants")]
-    public void UnknownLayerGeneratesNoPermissionConstants()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
-            assemblyName: "Shop.Core",
-            layout: "layer-projects");
-
-        Assert.False(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source must not be generated.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
@@ -89,7 +30,7 @@ public sealed class PermissionTests
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/3d-view"))),
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Spending");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
         Assert.Contains("public const string _3dView = \"permission/3d-view\";", permissions, StringComparison.Ordinal);
@@ -104,7 +45,7 @@ public sealed class PermissionTests
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
-            assemblyName: "Shop.Application");
+            assemblyName: "Shop.Spending");
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5009", diagnostic.Id);

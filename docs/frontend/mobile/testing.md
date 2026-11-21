@@ -3,15 +3,15 @@
 **Stack:** any
 **Concern:** tests
 
-## Intent
-
-The mobile app proves its behavior at two boundaries: core tests without a device, and device tests that drive each screen on an emulator or device. This page states how it follows the testing principles in [Frontend Testing](../testing.md) and where each kind of test lives. A team that applies it while writing tests keeps fast tests fast and still proves every screen where users meet it.
+The mobile app proves its behavior at two boundaries: core tests without a device, and device tests that drive each screen on an emulator or a device. These rules follow the testing principles in [Frontend Testing](../testing.md) and state where each kind of test lives. A team that applies them while writing tests keeps the fast core tests on the plain runner and still proves every screen where users meet it.
 
 ## Concepts
 
-### Two Boundaries, Two Runners
+### Which Tests Run Where
 
-The core holds no platform type, so its tests run on the plain .NET runner with no emulator. Screens render through the platform toolkit, so their tests drive them on an emulator or a device. The release build adds one manual run on a physical device per platform before publishing.
+The core holds no platform type, so its tests run on the plain .NET runner with no emulator. Screens render through the platform toolkit, so their tests drive them on an emulator or a device, where layout, insets, back behavior, and accessibility meet the platform.
+
+The release build adds one manual run on a physical device per platform before publishing, because emulators approximate performance, sensors, and vendor behavior.
 
 ## Standards
 
@@ -23,9 +23,9 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Statement:** Domain, Application, Infrastructure, and Client tests MUST run as plain .NET test projects with no emulator.
 
-**Rationale:** The core holds no platform type, so its tests need no emulator, device, or platform host. They run as plain .NET test projects in xunit.v3, the test framework the manifest pins. A core test that needs a device proves the layering already broke, and the fix belongs in the layering rather than in the test setup. This realizes litespec/frontend/testing#match-test-level-to-risk.
+**Rationale:** Core tests need no emulator, device, or platform host, because the core holds no platform type. Plain .NET test projects in xunit.v3, the framework the manifest pins, keep them fast. A core test that needs a device proves the layering already broke, and the fix belongs in the layering rather than in the test setup. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** Which core test projects need an emulator instead of running on the plain .NET runner? Look in the core test projects.
+**Reviewed for:** Does every core test project run on the plain .NET runner with no emulator? Check the core test projects.
 
 ### Prove Screens on a Device or Emulator
 
@@ -37,7 +37,7 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Rationale:** Screens render through the platform toolkit, so only a device test meets them where users do: layout, insets, back behavior, and accessibility. A screen no device test drives is proved by nothing, whatever the core tests cover. Driving each screen a use case reaches on an emulator or device keeps every reachable screen proved. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** Which screens a use case reaches lack a device test driving them on an emulator or device? Look in the device tests beside the screens.
+**Reviewed for:** Does every screen a use case reaches have a device test driving it on an emulator or a device? Check the device tests beside the screens.
 
 ### Prove Touch and Text Accessibility on a Device
 
@@ -47,15 +47,15 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Statement:** A device test for each screen MUST check that every interactive view carries a content description and the platform-minimum touch target, and that text scales with the system font scale.
 
-**Rationale:** A screen can render correctly at the default font size and still hide its commands from a screen reader, place a target a finger misses, or clip text a reader enlarged. Checking content descriptions, touch targets, and font scaling on a device meets the screen with the platform accessibility settings its visitors use, rather than with the settings the developer happened to keep. This proves `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility` on each screen.
+**Rationale:** A screen that looks right at the default font size can still hide its commands from a screen reader, offer a target too small to tap reliably, or clip text a reader enlarged. Checking descriptions, targets, and scaling on a device meets the screen with the platform accessibility settings its visitors use, not the settings the developer happened to keep. This proves `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility` on each screen.
 
-**Reviewed for:** Which screens lack a device test checking content descriptions, platform-minimum touch targets, and text scaling with the system font scale? Look in the device tests beside the screens.
+**Reviewed for:** Does every screen have a device test checking content descriptions, platform-minimum touch targets, and text scaling with the system font scale? Check the device tests beside the screens.
 
 ## Conventions
 
-### Run the Release Build Before a Release
+### Try the Release Build on Hardware Before Publishing
 
-**ID:** `litespec/frontend/mobile/testing#run-the-release-build-before-a-release`
+**ID:** `litespec/frontend/mobile/testing#try-the-release-build-on-hardware-before-publishing`
 
 **Strength:** default
 
@@ -63,6 +63,6 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Emulators approximate the device: performance, sensors, and vendor behavior differ on hardware. Trying the release build by hand on one physical device per platform meets the app as users will, and the recorded device and result make the check reviewable. A release without that record ships on emulator evidence alone.
+**Rationale:** Emulators approximate performance, sensors, and vendor behavior, and hardware differs on all three. Trying the release build by hand on one physical device per platform meets the app as users will. The recorded device and result make the check reviewable; a release without that record ships on emulator evidence alone.
 
-**Reviewed for:** Which releases publish without a record naming one physical device per platform and the result of the hand check? Look in the release records.
+**Reviewed for:** Does every release record one physical device per platform with the result of the hand check? Check the release records.

@@ -18,7 +18,7 @@ public sealed class ExplanationCheckTests
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-orphaned");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Explanation file '.litespec/stray.md' stands beside no record file.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
@@ -68,10 +68,10 @@ public sealed class ExplanationCheckTests
         Assert.DoesNotContain("explanation-orphaned", TestModel.Codes(model));
     }
 
-    /// <summary>A decision with no explanation file reports the missing file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <summary>A decision with no explanation file needs none when its layer is not listed.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
     [Fact]
-    public void DecisionWithoutAnExplanationReports()
+    public void DecisionWithoutAnExplanationNeedsNone()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "decisions", "0001-loan-period.yaml");
@@ -79,16 +79,11 @@ public sealed class ExplanationCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", file, """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("Decision 'decision/0001-loan-period' holds no explanation file '.litespec/decisions/0001-loan-period.md'.", finding.Message);
-        Assert.Equal(file, finding.Path);
-        Assert.Equal(1, finding.Line);
-        Assert.Equal("decision/0001-loan-period", finding.Subject);
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
     /// <summary>A decision explanation without Context reports the missing section.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void DecisionExplanationWithoutContextReports()
     {
@@ -101,7 +96,7 @@ public sealed class ExplanationCheckTests
                 "decision/0001-loan-period",
                 file,
                 1,
-                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
+                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts.", "context": "Readers asked for a longer loan."}""",
                 Path.Combine(temp.Path, "0001-loan-period.md"),
                 "# Loan period\n\nThe loan period decides how long a copy stays out.\n\n## Options\n\nFourteen days or twenty-one.\n\n## Decision\n\nFourteen days.\n\n## Consequences\n\nCopies turn over faster.\n\n## Revisit Conditions\n\nDemand shifts.\n"));
 
@@ -114,7 +109,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A decision explanation with Context passes.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void DecisionExplanationWithContextPasses()
     {
@@ -135,7 +130,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A research explanation without Findings reports the missing section.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void ResearchExplanationWithoutFindingsReports()
     {
@@ -148,7 +143,7 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"name": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks.", "findings": [{"statement": "Others lend for three weeks.", "sources": ["benchmark-report"]}]}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Source Notes\n\nOne source covers the answer.\n"));
 
@@ -161,7 +156,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A research explanation with Findings passes.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void ResearchExplanationWithFindingsPasses()
     {
@@ -174,34 +169,29 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"name": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nOthers lend for three weeks [per the report][benchmark-report].\n"));
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
-    /// <summary>A research record with no explanation file reports the missing file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <summary>A research record with no explanation file needs none when its layer is not listed.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
     [Fact]
-    public void ResearchWithoutAnExplanationReports()
+    public void ResearchWithoutAnExplanationNeedsNone()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("research", "research/loan-period-benchmarks", file, """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
+            TestModel.Record("research", "research/loan-period-benchmarks", file, """{"sources": [{"name": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("Research 'research/loan-period-benchmarks' holds no explanation file '.litespec/benchmarks.md'.", finding.Message);
-        Assert.Equal(file, finding.Path);
-        Assert.Equal(1, finding.Line);
-        Assert.Equal("research/loan-period-benchmarks", finding.Subject);
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
 
     /// <summary>An entry of an article type needs no explanation file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void EntryOfAnArticleTypeNeedsNoExplanation()
     {
@@ -221,7 +211,7 @@ public sealed class ExplanationCheckTests
     }
 
     /// <summary>A page outside the article types needs no explanation file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]
     public void NonArticlePageNeedsNoExplanation()
     {
@@ -272,7 +262,7 @@ public sealed class ExplanationCheckTests
                 "feature/submit-an-expense-claim",
                 file,
                 1,
-                """{"summary": "Reminders nudge approvers."}""",
+                """{"summary": "Reminders nudge approvers.", "successCriteria": ["Approvers answer reminders within three business days."]}""",
                 Path.Combine(temp.Path, "submit-an-expense-claim.md"),
                 "# Submit an Expense Claim\n\nEmployees submit claims and wait for an answer.\n\n## Capabilities\n\nReminders nudge approvers.\n\n## Boundaries\n\nThe feature stops at the approval step.\n"));
 
@@ -301,7 +291,7 @@ public sealed class ExplanationCheckTests
                 "use-case/spending.submit-expense",
                 file,
                 1,
-                """{"kind": "command"}""",
+                """{"kind": "command", "steps": [{"statement": "The employee submits the expense."}]}""",
                 Path.Combine(temp.Path, "submit-expense.md"),
                 "# Submit Expense\n\nNo sections here.\n"));
 
@@ -325,6 +315,44 @@ public sealed class ExplanationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command"}"""));
+
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
+    }
+
+    /// <summary>A waiver on the listed governance layer without its explanation file reports the missing file.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void ListedGovernanceLayerWithoutExplanationReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - governance\n");
+        var file = Path.Combine(temp.Path, "hold-queue.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("waiver", "waiver/hold-queue", file, """{"waives": ["litespec/core/model#require-explanation-files-on-the-layers-a-project-names"], "reason": "The queue ships next week."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Waiver 'waiver/hold-queue' holds no explanation file 'hold-queue.md'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+        Assert.Equal(1, finding.Line);
+        Assert.Equal("waiver/hold-queue", finding.Subject);
+    }
+
+    /// <summary>A waiver needs no explanation file when governance is not listed.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void WaiverOnUnlistedGovernanceLayerNeedsNoExplanation()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - intent\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("waiver", "waiver/hold-queue", Path.Combine(temp.Path, "hold-queue.yaml"), """{"waives": ["litespec/core/model#require-explanation-files-on-the-layers-a-project-names"], "reason": "The queue ships next week."}"""));
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
@@ -371,7 +399,7 @@ public sealed class ExplanationCheckTests
     [InlineData("product", "product/lending", new[] { "Scope", "Users", "Out of Scope", "Direction" })]
     [InlineData("aggregate", "aggregate/lending.loan", new[] { "Lifecycle", "Data and Retention", "Example" })]
     [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" })]
-    [InlineData("departure", "departure/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" })]
+    [InlineData("waiver", "waiver/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" })]
     public void RepresentativeTypePassesWithItsFixedSections(string type, string id, string[] sections)
     {
         using var temp = TestCli.Temp("checks");
@@ -389,18 +417,19 @@ public sealed class ExplanationCheckTests
     /// <param name="id">The record identifier.</param>
     /// <param name="sections">The fixed sections of the type, in order.</param>
     /// <param name="missing">The section the explanation leaves out.</param>
+    /// <param name="json">The record fields, holding the backing field of the missing section.</param>
     /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Theory]
-    [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" }, "Recovery")]
-    [InlineData("departure", "departure/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk")]
-    [InlineData("actor", "actor/reader", new[] { "Responsibilities", "Knowledge", "Example" }, "Knowledge")]
-    public void MissingFixedSectionReportsItsName(string type, string id, string[] sections, string missing)
+    [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" }, "Recovery", """{"recovery": "Restart the worker again."}""")]
+    [InlineData("waiver", "waiver/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk", """{"consequences": "The queue stays unmarked."}""")]
+    [InlineData("actor", "actor/reader", new[] { "Responsibilities", "Knowledge", "Example" }, "Knowledge", """{"knowledge": ["Readers know the catalogue."]}""")]
+    public void MissingFixedSectionReportsItsName(string type, string id, string[] sections, string missing, string json)
     {
         using var temp = TestCli.Temp("checks");
         var kept = sections.Where(section => section != missing).ToArray();
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            RecordWithExplanation(temp.Path, type, id, Explanation("An opening paragraph names the record.", kept)));
+            RecordWithExplanation(temp.Path, type, id, Explanation("An opening paragraph names the record.", kept), json));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
@@ -547,14 +576,15 @@ public sealed class ExplanationCheckTests
     /// <param name="type">The record type.</param>
     /// <param name="id">The record identifier.</param>
     /// <param name="text">The explanation file text.</param>
+    /// <param name="json">The record fields as JSON.</param>
     /// <returns>The record with its explanation file.</returns>
-    static LiteSpec.Cli.Model.Records.Record RecordWithExplanation(string root, string type, string id, string text)
+    static LiteSpec.Cli.Model.Records.Record RecordWithExplanation(string root, string type, string id, string text, string json = "{}")
     {
         var name = id[(id.IndexOf('/') + 1)..].Split('.').Last();
         var file = Path.Combine(root, ".litespec", type, name, name + ".yaml");
         var explanation = Path.ChangeExtension(file, ".md");
 
-        return TestModel.Record(type, id, file, 1, "{}", explanation, text);
+        return TestModel.Record(type, id, file, 1, json, explanation, text);
     }
 
     /// <summary>An explanation file text: the H1 title, one opening paragraph, then each section with one line.</summary>

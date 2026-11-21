@@ -1,0 +1,16 @@
+type: rule-set
+title: Reminder Preference Rules
+summary: Only the manager the preference belongs to, or finance, changes the preference.
+records:
+- type: rule
+  id: rule/reminder-preference.changed-by-owner-or-finance
+  title: Changed by Owner or Finance
+  kind: precondition
+  statement: Only the manager the preference belongs to, or finance, changes the preference.
+  governs:
+  - use-case/spending.change-reminder-preference
+  - aggregate/spending.reminder-preference
+  refusal: refusal/spending.not-preference-owner
+  basedOn: []
+  fulfills:
+  - requirement/approval-reminders.remind-approver-after-three-days

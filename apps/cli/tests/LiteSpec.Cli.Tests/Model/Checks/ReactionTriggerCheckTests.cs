@@ -2,7 +2,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the reaction-trigger-unknown check against hand-built models.</summary>
+/// <summary>Proves the reference-unknown check against hand-built models.</summary>
 public sealed class ReactionTriggerCheckTests
 {
     /// <summary>Reaction Without A Trigger Reports.</summary>
@@ -15,7 +15,7 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
 
-        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Reaction With An Unresolved Trigger Reports.</summary>
@@ -26,9 +26,9 @@ public sealed class ReactionTriggerCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.no-such-event"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/loan.no-such-event"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
 
-        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Reaction With A Non Event Trigger Reports.</summary>
@@ -42,21 +42,22 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["use-case/lending.borrow-copy"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction With An Event Trigger Passes.</summary>
+    /// <summary>Reaction With A Domain Event Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void ReactionWithAnEventTriggerPasses()
+    public void ReactionWithADomainEventTriggerPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""),
+            TestModel.Record("use-case", "use-case/lending.notify-overdue", Path.Combine(temp.Path, "notify.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Reaction With An Integration Event Trigger Passes.</summary>
@@ -68,24 +69,26 @@ public sealed class ReactionTriggerCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["integration-event/loan-exported"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
-            TestModel.Record("integration-event", "integration-event/loan-exported", Path.Combine(temp.Path, "exported.yaml"), """{"status": "reviewed"}"""));
+            TestModel.Record("integration-event", "integration-event/loan-exported", Path.Combine(temp.Path, "exported.yaml"), """{"status": "reviewed"}"""),
+            TestModel.Record("use-case", "use-case/lending.notify-overdue", Path.Combine(temp.Path, "notify.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction With Two Event Triggers Passes.</summary>
+    /// <summary>Reaction With Two Domain Event Triggers Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void ReactionWithTwoEventTriggersPasses()
+    public void ReactionWithTwoDomainEventTriggersPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.assign-seat-on-seat-sold", Path.Combine(temp.Path, "assign.yaml"), """{"status": "reviewed", "triggeredBy": ["event/ticket.seat-sold", "event/ticket.seat-released"], "effects": [{"runs": "use-case/lending.assign-seat", "timing": "async"}]}"""),
-            TestModel.Record("event", "event/ticket.seat-sold", Path.Combine(temp.Path, "sold.yaml"), """{"status": "reviewed", "meaning": "A seat was sold.", "carries": []}"""),
-            TestModel.Record("event", "event/ticket.seat-released", Path.Combine(temp.Path, "released.yaml"), """{"status": "reviewed", "meaning": "A sold seat was released.", "carries": []}"""));
+            TestModel.Record("reaction", "reaction/lending.assign-seat-on-seat-sold", Path.Combine(temp.Path, "assign.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/ticket.seat-sold", "domain-event/ticket.seat-released"], "effects": [{"runs": "use-case/lending.assign-seat", "timing": "async"}]}"""),
+            TestModel.Record("domain-event", "domain-event/ticket.seat-sold", Path.Combine(temp.Path, "sold.yaml"), """{"status": "reviewed", "meaning": "A seat was sold.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/ticket.seat-released", Path.Combine(temp.Path, "released.yaml"), """{"status": "reviewed", "meaning": "A sold seat was released.", "carries": []}"""),
+            TestModel.Record("use-case", "use-case/lending.assign-seat", Path.Combine(temp.Path, "assign-seat.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Command Without A Trigger Passes.</summary>
@@ -98,6 +101,6 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 }

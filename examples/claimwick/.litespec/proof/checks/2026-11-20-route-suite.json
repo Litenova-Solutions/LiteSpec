@@ -1,0 +1,6 @@
+{
+  "check": "route-suite",
+  "passed": true,
+  "value": "every route passes the reflow and target-size assertions",
+  "ranOn": "2026-11-20"
+}

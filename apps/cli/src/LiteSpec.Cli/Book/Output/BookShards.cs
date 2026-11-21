@@ -7,9 +7,9 @@ namespace LiteSpec.Cli.Book.Output;
 
 /// <summary>
 ///     The book's sharded data: record packs, outline packs, search packs and
-///     single-value shards, each written as one script-tag-callable file that
-///     calls <c>BookData.put</c> once. Shards load through script elements,
-///     never through <c>fetch</c>, so the book opens under <c>file://</c>.
+///     single-value shards, each produced as one named file of bytes that calls
+///     <c>BookData.put</c> once. Shards load through script elements, never
+///     through <c>fetch</c>, so the book opens under <c>file://</c>.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookShards
@@ -23,14 +23,8 @@ static class BookShards
     /// <summary>One layer outline's split point: a layer past this size writes sequential shards.</summary>
     public const int OutlineSplitBytes = 700 * 1024;
 
-    /// <summary>The UTF-8 encoding without a byte order mark, used for the written shard files.</summary>
+    /// <summary>The UTF-8 encoding without a byte order mark, used for every book text file.</summary>
     static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
-
-    /// <summary>The compact JSON of one node in UTF-8 bytes, the unit every packing budget counts in.</summary>
-    /// <param name="node">The JSON node to measure, or null.</param>
-    /// <returns>The byte count of the node compact JSON in UTF-8, or 4 for the null value.</returns>
-    public static int Utf8Bytes(JsonNode? node) =>
-        node is null ? 4 : Encoding.UTF8.GetByteCount(node.ToJsonString());
 
     /// <summary>
     ///     Packs items in order into shards: each shard fills to its target, then a
@@ -78,43 +72,113 @@ static class BookShards
     /// <param name="key">The shard key the client reads the value under.</param>
     /// <param name="value">The shard payload value.</param>
     /// <returns>The shard file text with one BookData.put call holding the key and the escaped compact JSON.</returns>
-    public static string ShardScript(string key, JsonNode value)
+    public static string ShardScript(string key, JsonNode value) =>
+        ShardScriptFromJson(key, value.ToJsonString());
+
+    /// <summary>One shard file's text from pre-serialized compact JSON.</summary>
+    /// <param name="key">The shard key the client reads the value under.</param>
+    /// <param name="json">The compact JSON payload.</param>
+    /// <returns>The shard file text with one BookData.put call holding the key and the escaped JSON.</returns>
+    public static string ShardScriptFromJson(string key, string json) =>
+        $"BookData.put({JsonValue.Create(key)!.ToJsonString()}, {EscapeJson(json)});";
+
+    /// <summary>Escapes one JSON payload for its script element in one pass: closing tags and line separators.</summary>
+    /// <param name="json">The compact JSON payload.</param>
+    /// <returns>The payload with every closing tag and line separator escaped, parsing back to the same text.</returns>
+    public static string EscapeJson(string json)
     {
-        var json = value.ToJsonString().Replace("</", "<\\/", StringComparison.Ordinal);
-        json = json.Replace(Separator(0x2028), "\\u2028", StringComparison.Ordinal);
-        json = json.Replace(Separator(0x2029), "\\u2029", StringComparison.Ordinal);
-        return $"BookData.put({JsonValue.Create(key)!.ToJsonString()}, {json});";
+        const char lineSeparator = '\u2028';
+        const char paragraphSeparator = '\u2029';
+        if (json.IndexOf('<') < 0 && json.IndexOf(lineSeparator) < 0 && json.IndexOf(paragraphSeparator) < 0)
+        {
+            return json;
+        }
+
+        var built = new StringBuilder(json.Length);
+        for (var at = 0; at < json.Length; at++)
+        {
+            var ch = json[at];
+            if (ch == '<' && at + 1 < json.Length && json[at + 1] == '/')
+            {
+                built.Append("<\\/");
+                at++;
+            }
+            else if (ch == lineSeparator)
+            {
+                built.Append("\\u2028");
+            }
+            else if (ch == paragraphSeparator)
+            {
+                built.Append("\\u2029");
+            }
+            else
+            {
+                built.Append(ch);
+            }
+        }
+
+        return built.ToString();
     }
 
-    /// <summary>One Unicode line separator from its code point, kept out of the source as text.</summary>
-    /// <param name="code">The Unicode code point of the separator character.</param>
-    /// <returns>The one-character string for the code point.</returns>
-    static string Separator(int code) => ((char)code).ToString();
-
-    /// <summary>Writes <c>data/&lt;key&gt;.js</c> holding one shard script.</summary>
-    /// <param name="dataDir">The data folder that receives the shard file, created when missing.</param>
+    /// <summary>Adds the shard <c>data/&lt;key&gt;.js</c> holding one shard script to the book's files.</summary>
+    /// <param name="into">The book files the shard joins.</param>
     /// <param name="key">The shard key, which names the file and the client value.</param>
     /// <param name="value">The shard payload value.</param>
-    public static void WriteShard(string dataDir, string key, JsonNode value)
-    {
-        Directory.CreateDirectory(dataDir);
-        File.WriteAllText(Path.Combine(dataDir, key + ".js"), ShardScript(key, value) + "\n", Utf8NoBom);
-    }
+    public static void AddShard(List<BookFile> into, string key, JsonNode value) =>
+        into.Add(BookFile.Of(DataPath(key), Utf8NoBom.GetBytes(ShardScript(key, value) + "\n")));
+
+    /// <summary>The book path of one shard: <c>data/&lt;key&gt;.js</c>.</summary>
+    /// <param name="key">The shard key.</param>
+    /// <returns>The path inside the book.</returns>
+    public static string DataPath(string key) => "data/" + key + ".js";
 
     /// <summary>
-    ///     Writes the record packs in identifier order as <c>records-&lt;nnn&gt;.js</c>,
+    ///     Adds the record packs in identifier order as <c>records-&lt;nnn&gt;.js</c>,
     ///     and returns the shard id per record id for the manifest and the outline.
+    ///     Each detail serializes once; sizing, escaping and packing read that text.
     /// </summary>
-    /// <param name="dataDir">The data folder that receives the record shard files.</param>
+    /// <param name="into">The book files the record shards join.</param>
     /// <param name="details">The enriched record details keyed by record identifier.</param>
     /// <returns>The shard identifier for each record identifier packed.</returns>
-    public static IReadOnlyDictionary<string, string> WriteRecords(string dataDir, IReadOnlyDictionary<string, JsonObject> details)
+    public static IReadOnlyDictionary<string, string> AddRecords(List<BookFile> into, IReadOnlyDictionary<string, JsonObject> details) =>
+        AddRecords(into, details, details.Keys.OrderBy(id => id, StringComparer.Ordinal).ToList());
+
+    /// <summary>
+    ///     Adds the record packs in the given order as <c>records-&lt;nnn&gt;.js</c>,
+    ///     and returns the shard id per record id for the manifest and the outline.
+    ///     A detail the order omits packs last in identifier order. Each detail
+    ///     serializes once; sizing, escaping and packing read that text.
+    /// </summary>
+    /// <param name="into">The book files the record shards join.</param>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <param name="order">The record identifiers in pack order.</param>
+    /// <returns>The shard identifier for each record identifier packed.</returns>
+    public static IReadOnlyDictionary<string, string> AddRecords(List<BookFile> into, IReadOnlyDictionary<string, JsonObject> details, IReadOnlyList<string> order)
     {
-        var ids = details.Keys.OrderBy(id => id, StringComparer.Ordinal).ToList();
+        var json = new Dictionary<string, string>(StringComparer.Ordinal);
         var sizes = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var id in ids)
+        var ids = new List<string>();
+        void Add(string id)
         {
-            sizes[id] = Utf8Bytes(details[id]) + Encoding.UTF8.GetByteCount(id) + 8;
+            if (json.ContainsKey(id) || !details.TryGetValue(id, out var detail))
+            {
+                return;
+            }
+
+            var text = detail.ToJsonString();
+            json[id] = text;
+            sizes[id] = Encoding.UTF8.GetByteCount(text) + Encoding.UTF8.GetByteCount(id) + 8;
+            ids.Add(id);
+        }
+
+        foreach (var id in order)
+        {
+            Add(id);
+        }
+
+        foreach (var id in details.Keys.OrderBy(key => key, StringComparer.Ordinal))
+        {
+            Add(id);
         }
 
         var shardOf = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -122,17 +186,52 @@ static class BookShards
         for (var shard = 0; shard < packs.Count; shard++)
         {
             var key = $"records-{shard:000}";
-            var pack = new JsonObject();
+            var built = new StringBuilder("{");
+            var first = true;
             foreach (var id in packs[shard])
             {
-                pack[id] = (JsonObject)details[id].DeepClone();
+                if (!first)
+                {
+                    built.Append(',');
+                }
+
+                first = false;
+                built.Append(JsonValue.Create(id)!.ToJsonString());
+                built.Append(':');
+                built.Append(json[id]);
                 shardOf[id] = key;
             }
 
-            WriteShard(dataDir, key, pack);
+            built.Append('}');
+            into.Add(BookFile.Of(DataPath(key), Utf8NoBom.GetBytes(ShardScriptFromJson(key, built.ToString()) + "\n")));
         }
 
         return shardOf;
+    }
+
+    /// <summary>The record ids in outline order: each layer depth-first, so parents pack with children.</summary>
+    /// <param name="outline">The built outline.</param>
+    /// <returns>The outline node ids in depth-first order.</returns>
+    public static IReadOnlyList<string> OutlineOrder(BookOutlineResult outline)
+    {
+        var order = new List<string>();
+        var stack = new Stack<BookOutlineNode>();
+        foreach (var root in outline.Layers.Reverse())
+        {
+            stack.Push(root);
+        }
+
+        while (stack.Count > 0)
+        {
+            var node = stack.Pop();
+            order.Add(node.Id);
+            foreach (var child in node.Children.AsEnumerable().Reverse())
+            {
+                stack.Push(child);
+            }
+        }
+
+        return order;
     }
 
     /// <summary>
@@ -169,34 +268,28 @@ static class BookShards
     }
 
     /// <summary>
-    ///     Writes one layer's top nodes as sequential <c>outline-&lt;layer&gt;-&lt;n&gt;.js</c>
+    ///     Adds one layer's top nodes as sequential <c>outline-&lt;layer&gt;-&lt;n&gt;.js</c>
     ///     shards, splitting past the outline budget, and returns the shard keys in
-    ///     order. An empty layer writes no shard; the client reads an empty list.
+    ///     order. An empty layer adds no shard; the client reads an empty list.
     /// </summary>
-    /// <param name="dataDir">The data folder that receives the outline shard files.</param>
+    /// <param name="into">The book files the outline shards join.</param>
     /// <param name="layer">The layer key, which names the shard files.</param>
     /// <param name="tops">The top outline nodes of the layer.</param>
     /// <param name="shardOf">The shard identifier for each record identifier.</param>
     /// <returns>The outline shard keys in order, empty when the layer holds no node.</returns>
-    public static IReadOnlyList<string> WriteLayer(
-        string dataDir,
+    public static IReadOnlyList<string> AddLayer(
+        List<BookFile> into,
         string layer,
         IReadOnlyList<BookOutlineNode> tops,
         IReadOnlyDictionary<string, string> shardOf)
     {
-        var nodes = tops.Select(node => OutlineNodeJson(node, shardOf)).ToList();
-        var packs = Pack(nodes, Utf8Bytes, OutlineSplitBytes);
+        var texts = tops.Select(node => OutlineNodeJson(node, shardOf).ToJsonString()).ToList();
+        var packs = Pack(texts, text => Encoding.UTF8.GetByteCount(text), OutlineSplitBytes);
         var keys = new List<string>();
         for (var shard = 0; shard < packs.Count; shard++)
         {
             var key = $"outline-{layer}-{shard}";
-            var array = new JsonArray();
-            foreach (var node in packs[shard])
-            {
-                array.Add((JsonNode)node);
-            }
-
-            WriteShard(dataDir, key, array);
+            into.Add(BookFile.Of(DataPath(key), Utf8NoBom.GetBytes(ShardScriptFromJson(key, "[" + string.Join(",", packs[shard]) + "]") + "\n")));
             keys.Add(key);
         }
 
@@ -204,27 +297,21 @@ static class BookShards
     }
 
     /// <summary>
-    ///     Writes the search rows as sequential <c>search-&lt;n&gt;.js</c> shards
+    ///     Adds the search rows as sequential <c>search-&lt;n&gt;.js</c> shards
     ///     packed like records, and returns the shard keys in order.
     /// </summary>
-    /// <param name="dataDir">The data folder that receives the search shard files.</param>
+    /// <param name="into">The book files the search shards join.</param>
     /// <param name="rows">The search rows to pack, each holding identifier, title, type and excerpt.</param>
     /// <returns>The search shard keys in order, empty when no row is given.</returns>
-    public static IReadOnlyList<string> WriteSearch(string dataDir, JsonArray rows)
+    public static IReadOnlyList<string> AddSearch(List<BookFile> into, JsonArray rows)
     {
-        var items = rows.OfType<JsonNode>().ToList();
-        var packs = Pack(items, Utf8Bytes, PackTargetBytes);
+        var items = rows.OfType<JsonNode>().Select(row => row.ToJsonString()).ToList();
+        var packs = Pack(items, text => Encoding.UTF8.GetByteCount(text), PackTargetBytes);
         var keys = new List<string>();
         for (var shard = 0; shard < packs.Count; shard++)
         {
             var key = $"search-{shard}";
-            var array = new JsonArray();
-            foreach (var row in packs[shard])
-            {
-                array.Add(row.DeepClone());
-            }
-
-            WriteShard(dataDir, key, array);
+            into.Add(BookFile.Of(DataPath(key), Utf8NoBom.GetBytes(ShardScriptFromJson(key, "[" + string.Join(",", packs[shard]) + "]") + "\n")));
             keys.Add(key);
         }
 

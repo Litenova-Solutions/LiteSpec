@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class TemplateValueCheckTests
 {
     /// <summary>A goal scaffolded and left as the template wrote it reports template-value-unchanged.</summary>
-    /// <proves>litespec/core/authoring#copy-each-template-from-the-example</proves>
+    /// <proves>litespec/core/authoring#validate-each-template-against-the-record-schema</proves>
     [Fact(DisplayName = "model check reports a scaffold that keeps its template values")]
     public void ReportsAScaffoldThatKeepsItsTemplateValues()
     {

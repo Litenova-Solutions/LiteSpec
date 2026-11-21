@@ -12,8 +12,8 @@ internal static class ResultScenarioChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        // Scenarios are a large-size type, so a small project shows its results through tests alone.
-        if (model.Config.Size != "large")
+        // Scenarios are a large-size type, so a small project shows its results through tests alone, unless it selects the bdd extension.
+        if (model.Config.Size != "large" && !model.Config.Extensions.Contains("bdd", StringComparer.Ordinal))
         {
             return;
         }
@@ -40,16 +40,13 @@ internal static class ResultScenarioChecks
                 findings.Add(new Finding(
                     "result-scenario-missing",
                     $"Result '{result.Id}' is shown by no scenario.",
-                    result.File, result.Line, SubjectOf(result))
-                {
-                    TierOverride = "G",
-                });
+                    result.File, result.Line, SubjectOf(result)));
             }
             else if (result.Field(RecordFields.Outcome) == "refusal")
             {
-                var code = result.Field(RecordFields.Code);
-                var message = code is { Length: > 0 }
-                    ? $"Result '{result.Id}' names code '{code}', which is shown by no scenario."
+                var refusal = result.Field(RecordFields.Refusal);
+                var message = refusal is { Length: > 0 }
+                    ? $"Result '{result.Id}' names refusal '{refusal}', which is shown by no scenario."
                     : $"Result '{result.Id}' is shown by no scenario.";
 
                 findings.Add(new Finding(

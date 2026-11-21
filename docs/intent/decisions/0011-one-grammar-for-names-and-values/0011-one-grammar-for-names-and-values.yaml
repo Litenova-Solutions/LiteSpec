@@ -1,13 +1,14 @@
 type: decision
 id: decision/0011-one-grammar-for-names-and-values
 title: One Grammar for Names and Values
+context: "One field name carries two concepts, and one concept carries two names, across the record types. Values arrive as free text with several small notations of their own. Checks parse that text instead of reading the values."
 options:
   - name: State the grammar and rename every field
     pros: The collisions already produce invalid and misleading data, and a stated grammar lets the validator check the mechanical half on every run.
     cons: Every renamed field moves schema, templates, provisions, checks, and consumer records in one change.
   - name: Define without renaming
     pros: No record migrates and no citation sweep is needed.
-    cons: Definitions fix readers but not search or tooling, and the invalid values keep arriving under the colliding names.
+    cons: Definitions guide readers but not search or tooling, and invalid values keep arriving under the colliding names.
   - name: Rename fields but skip the value style
     pros: The change stays smaller and values keep their current freedom.
     cons: Free-text values keep their mini-languages, so checks still parse prose instead of reading objects.

@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/7.0.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: Frontend Marks Fixture
@@ -13,7 +13,7 @@ layers:
   behavior: litespec
   implementation: litespec
   proof: litespec
-reviewedLiteSpecVersion: 6.0.0
+reviewedLiteSpecVersion: 7.0.0
 paths:
   docs: .litespec
   behaviorDocs: .litespec/behavior
@@ -22,11 +22,7 @@ paths:
   - apps/api/tests
 stackConfig:
   dotnet:
-    modules: apps/api/src/Library.Application
-    domain: apps/api/src/Library.Domain
-    webapi:
-    - apps/api/src/Library.WebApi
-    infrastructure: apps/api/src/Library.Infrastructure
+    modules: apps/api/src/Modules/Library.Lending
 frontends:
 - name: web
   path: apps/web

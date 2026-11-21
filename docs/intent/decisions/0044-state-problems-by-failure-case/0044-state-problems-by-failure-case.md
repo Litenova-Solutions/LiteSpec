@@ -1,6 +1,6 @@
 # State Each Problem by Its Failure Cases
 
-A problem explanation tells a reader what goes wrong for the people a product serves. Until now, it described what those people do by hand and left the failures behind that work implied. This decision gives every problem a list of failure cases, an optional example and one resolution criterion for each failure, and it states how a problem opens, claims and cites its evidence. A reader can then judge the problem and propose a different solution without asking its author.
+A problem explanation tells a reader what goes wrong for the people a product serves. An explanation that describes only what those people do by hand leaves the failures behind that work implied. This decision gives every problem a list of failure cases, an optional example and one resolution criterion for each failure, and it states how a problem opens, claims and cites its evidence. A reader can then judge the problem and propose a different solution without asking its author.
 
 ## Context
 
@@ -34,7 +34,7 @@ A problem title names the failure or its consequence, never a theme or a feature
 
 ## Consequences
 
-`explanation-missing` reports a problem explanation without the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision now asks for the burden of the workaround and keeps time, money and risk apart.
+`explanation-missing` reports a problem explanation without the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision asks for the burden of the workaround and keeps time, money and risk apart.
 
 The provision that lists the sections takes the heading Explain Every Problem in Its Fixed Sections, and its ID follows the heading.
 

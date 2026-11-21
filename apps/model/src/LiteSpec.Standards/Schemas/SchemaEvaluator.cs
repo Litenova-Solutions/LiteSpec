@@ -14,9 +14,12 @@ namespace LiteSpec.Standards;
 ///     failure in the house message shape as it evaluates: a schema's own assertions first, then
 ///     what its subschemas report. A condition (<c>if</c>) and a negation (<c>not</c>) judge a
 ///     branch, so nothing inside them reports; <c>oneOf</c> and <c>anyOf</c> report one message
-///     that names each rejected shape's first failure, and a composite that passes reports nothing
+///     that names the selected shape's errors, and a composite that passes reports nothing
 ///     from its rejected shapes; and a <c>false</c> schema names the unknown property under
 ///     <c>additionalProperties</c> and reports the value as not allowed anywhere else.
+///     The selected shape is the one the value's discriminating field names, else the one
+///     with the fewest errors, with every shape's first failure behind verbose. A schema
+///     listing a rejected field in <c>x-rejected-fields</c> names the field to use instead.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal static class SchemaEvaluator
@@ -36,7 +39,8 @@ internal static class SchemaEvaluator
     /// <param name="root">The schema root that holds the <c>$defs</c> references resolve to.</param>
     /// <param name="location">The location that opens every message, such as a file path.</param>
     /// <param name="errors">The list each message is added to.</param>
-    internal static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors)
+    /// <param name="verbose">Whether union failures list every rejected shape instead of the selected one.</param>
+    internal static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors, bool verbose = false)
     {
         if (schema is not JsonObject)
         {
@@ -44,7 +48,7 @@ internal static class SchemaEvaluator
         }
 
         var effective = EffectiveTree(schema, root);
-        var context = new Context(effective, location);
+        var context = new Context(effective, location, verbose);
 
         Evaluate(effective, value, "", null, context, errors, 0);
     }
@@ -300,7 +304,15 @@ internal static class SchemaEvaluator
                     {
                         if (!Declared(keywords, name))
                         {
-                            valid &= Evaluate(argument, field, $"{pointer}/{Escape(name)}", "additionalProperties", context, errors, depth + 1);
+                            if (errors is not null && Forbids(argument) && RejectedHint(keywords, name) is { } hint)
+                            {
+                                errors.Add($"{context.Location}{pointer}/{Escape(name)}: unknown property '{name}'. {hint}");
+                                valid = false;
+                            }
+                            else
+                            {
+                                valid &= Evaluate(argument, field, $"{pointer}/{Escape(name)}", "additionalProperties", context, errors, depth + 1);
+                            }
 
                             if (!valid && errors is null)
                             {
@@ -425,6 +437,24 @@ internal static class SchemaEvaluator
         return false;
     }
 
+    /// <summary>Whether an `additionalProperties` argument forbids every undeclared property.</summary>
+    /// <param name="argument">The `additionalProperties` value.</param>
+    /// <returns>True for the `false` schema.</returns>
+    private static bool Forbids(JsonNode? argument) =>
+        argument is JsonValue flag && flag.TryGetValue<bool>(out var allowed) && !allowed;
+
+    /// <summary>Reads the hint a schema lists for a rejected field, or null when it lists none.</summary>
+    /// <param name="keywords">The schema object.</param>
+    /// <param name="name">The property name.</param>
+    /// <returns>The hint text, or null.</returns>
+    private static string? RejectedHint(JsonObject keywords, string name) =>
+        keywords["x-rejected-fields"] is JsonObject rejected
+        && rejected.TryGetPropertyValue(name, out var hint)
+        && hint is JsonValue text
+        && text.TryGetValue<string>(out var message)
+            ? message
+            : null;
+
     /// <summary>The schema a <c>$ref</c> names, resolved against the evaluation tree.</summary>
     /// <param name="argument">The <c>$ref</c> value.</param>
     /// <param name="context">The evaluation context.</param>
@@ -487,8 +517,9 @@ internal static class SchemaEvaluator
     }
 
     /// <summary>
-    ///     Evaluates <c>oneOf</c>, adding one message that counts the matching shapes and, when none match, names each
-    ///     shape's first failure. The shapes are judged without messages first, so a value that passes builds none.
+    ///     Evaluates <c>oneOf</c>, adding one message that counts the matching shapes and, when none match, names the
+    ///     selected shape's errors, or each shape's first failure behind verbose. The shapes are judged without messages
+    ///     first, so a value that passes builds none.
     /// </summary>
     /// <param name="argument">The list of shapes.</param>
     /// <param name="value">The value.</param>
@@ -525,7 +556,10 @@ internal static class SchemaEvaluator
 
         if (matched == 0)
         {
-            var reasons = Reasons(Shapes(shapes, value, prefix, context, depth), context);
+            var outcomes = Shapes(shapes, value, prefix, context, depth);
+            var reasons = context.Verbose
+                ? Reasons(outcomes, context)
+                : SelectedReasons(shapes, value, outcomes, context);
 
             if (reasons.Count > 0)
             {
@@ -537,8 +571,9 @@ internal static class SchemaEvaluator
     }
 
     /// <summary>
-    ///     Evaluates <c>anyOf</c>, adding one message that names each shape's first failure when none matches. The
-    ///     shapes are judged without messages first, so a value that passes builds none.
+    ///     Evaluates <c>anyOf</c>, adding one message that names the selected shape's errors when none matches, or each
+    ///     shape's first failure behind verbose. The shapes are judged without messages first, so a value that passes
+    ///     builds none.
     /// </summary>
     /// <param name="argument">The list of shapes.</param>
     /// <param name="value">The value.</param>
@@ -564,7 +599,12 @@ internal static class SchemaEvaluator
             return false;
         }
 
-        return Fail(errors, prefix, $"value matches none of the {shapes.Count} allowed shapes ({string.Join("; ", Reasons(Shapes(shapes, value, prefix, context, depth), context))})");
+        var outcomes = Shapes(shapes, value, prefix, context, depth);
+        var reasons = context.Verbose
+            ? Reasons(outcomes, context)
+            : SelectedReasons(shapes, value, outcomes, context);
+
+        return Fail(errors, prefix, $"value matches none of the {shapes.Count} allowed shapes ({string.Join("; ", reasons)})");
     }
 
     /// <summary>Counts the shapes the value matches, evaluated without messages, stopping once the count reaches a bound.</summary>
@@ -630,6 +670,149 @@ internal static class SchemaEvaluator
         }
 
         return reasons;
+    }
+
+    /// <summary>
+    ///     The failures one union failure reports: the selected shape's errors
+    ///     under its shape number.
+    /// </summary>
+    /// <param name="shapes">The shapes.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="outcomes">Each shape's outcome and messages, in order.</param>
+    /// <param name="context">The evaluation context.</param>
+    /// <returns>The selected shape's errors as one reason, or none when no shape is selected.</returns>
+    private static List<string> SelectedReasons(JsonArray shapes, JsonNode? value, List<(bool Valid, List<string> Messages)> outcomes, Context context)
+    {
+        var selected = SelectShape(shapes, value, outcomes, context);
+
+        if (selected < 0 || outcomes[selected].Valid)
+        {
+            return [];
+        }
+
+        var stripped = outcomes[selected].Messages.Select(message => StripLocationPrefix(message, context.Location)).ToList();
+
+        return stripped.Count == 0 ? [] : [$"shape {selected + 1}: {string.Join("; ", stripped)}"];
+    }
+
+    /// <summary>
+    ///     Selects the one shape a union failure reports: the shape the value's
+    ///     `type` names when exactly one shape declares it, else the shape a value
+    ///     field names when exactly one shape declares it, else the rejected shape
+    ///     with the fewest errors, the first on a tie.
+    /// </summary>
+    /// <param name="shapes">The shapes.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="outcomes">Each shape's outcome and messages, in order.</param>
+    /// <param name="context">The evaluation context.</param>
+    /// <returns>The selected shape index, or -1 when every shape passes.</returns>
+    private static int SelectShape(JsonArray shapes, JsonNode? value, List<(bool Valid, List<string> Messages)> outcomes, Context context)
+    {
+        if (value is JsonObject fields
+            && fields.TryGetPropertyValue("type", out var type)
+            && type is JsonValue typeValue
+            && typeValue.TryGetValue<string>(out var name)
+            && OnlyShapeDeclaring(shapes, context, declared => DeclaresType(declared, name)) is { } typed)
+        {
+            return typed;
+        }
+
+        if (value is JsonObject members)
+        {
+            foreach (var (field, _) in members)
+            {
+                if (OnlyShapeDeclaring(shapes, context, declared => declared.ContainsKey(field)) is { } unique)
+                {
+                    return unique;
+                }
+            }
+        }
+
+        var selected = -1;
+
+        for (var index = 0; index < outcomes.Count; index++)
+        {
+            if (outcomes[index].Valid)
+            {
+                continue;
+            }
+
+            if (selected < 0 || outcomes[index].Messages.Count < outcomes[selected].Messages.Count)
+            {
+                selected = index;
+            }
+        }
+
+        return selected;
+    }
+
+    /// <summary>Finds the one shape declaring a property test, or null when zero or several do.</summary>
+    /// <param name="shapes">The shapes.</param>
+    /// <param name="context">The evaluation context.</param>
+    /// <param name="declares">Whether a shape's properties declare the test.</param>
+    /// <returns>The declaring shape index, or null.</returns>
+    private static int? OnlyShapeDeclaring(JsonArray shapes, Context context, Func<JsonObject, bool> declares)
+    {
+        int? found = null;
+
+        for (var index = 0; index < shapes.Count; index++)
+        {
+            if (ShapeProperties(shapes[index], context) is { } properties && declares(properties))
+            {
+                if (found.HasValue)
+                {
+                    return null;
+                }
+
+                found = index;
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Reads the properties a shape declares, resolving one local reference.</summary>
+    /// <param name="shape">The shape.</param>
+    /// <param name="context">The evaluation context.</param>
+    /// <returns>The declared properties, or null when the shape declares none.</returns>
+    private static JsonObject? ShapeProperties(JsonNode? shape, Context context)
+    {
+        var node = shape;
+
+        if (node is JsonObject reference && reference.TryGetPropertyValue("$ref", out var target) && target is JsonValue)
+        {
+            node = Reference(target, context);
+        }
+
+        return node is JsonObject resolved
+            && resolved.TryGetPropertyValue("properties", out var properties)
+            && properties is JsonObject declared
+                ? declared
+                : null;
+    }
+
+    /// <summary>Whether a shape's `type` property declares a type name: a matching constant or enum entry.</summary>
+    /// <param name="properties">The shape's properties.</param>
+    /// <param name="name">The type name.</param>
+    /// <returns>True when the shape declares the name.</returns>
+    private static bool DeclaresType(JsonObject properties, string name)
+    {
+        if (properties.TryGetPropertyValue("type", out var type) && type is JsonObject declared)
+        {
+            if (declared.TryGetPropertyValue("const", out var constant)
+                && constant is JsonValue fixedValue
+                && fixedValue.TryGetValue<string>(out var fixedName))
+            {
+                return fixedName == name;
+            }
+
+            if (declared["enum"] is JsonArray choices)
+            {
+                return choices.OfType<JsonValue>().Any(choice => choice.TryGetValue<string>(out var entry) && entry == name);
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Evaluates <c>required</c>, adding one message per missing property.</summary>
@@ -920,10 +1103,11 @@ internal static class SchemaEvaluator
         return false;
     }
 
-    /// <summary>The tree references resolve against and the location every message opens with.</summary>
+    /// <summary>The tree references resolve against, the location every message opens with, and whether union failures list every rejected shape.</summary>
     /// <param name="Tree">The evaluation tree.</param>
     /// <param name="Location">The location prefix.</param>
-    private sealed record Context(JsonNode Tree, string Location);
+    /// <param name="Verbose">Whether union failures list every rejected shape instead of the selected one.</param>
+    private sealed record Context(JsonNode Tree, string Location, bool Verbose);
 
     /// <summary>One cached effective tree and the root it was built against.</summary>
     private sealed class EffectiveEntry

@@ -10,7 +10,7 @@ namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the permission constants, one per permission record, each with its scope.</summary>
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
-/// <follows>litespec/core/access#scope-every-role</follows>
+/// <follows>litespec/core/access#scope-every-role-to-its-one-reach</follows>
 internal static class PermissionWriter
 {
     /// <summary>
@@ -85,6 +85,28 @@ internal static class PermissionWriter
         if (collisions > 0)
         {
             return;
+        }
+
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var role in records.Roles)
+        {
+            declared.Add(role.Id);
+        }
+
+        foreach (var permission in named)
+        {
+            foreach (var granted in permission.Facts.GrantedTo)
+            {
+                if (!declared.Contains(granted))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        GeneratorDiagnostics.PermissionGrantsUndeclaredRole,
+                        Location.None,
+                        permission.Facts.Id,
+                        granted));
+                }
+            }
         }
 
         context.AddSource("LiteSpecPermissions.g.cs", PermissionsText(named));

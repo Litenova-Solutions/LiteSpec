@@ -51,7 +51,7 @@ public static class RecordFiles
         {
             problems.Add(new Finding(
                 "record-invalid",
-                $"Record file '{path}' could not be read: {exception.Message}",
+                $"Record file '{path}' could not be read: {exception.Message}{YamlText.ColonHint(text, exception.Line) ?? string.Empty}",
                 path,
                 exception.Line,
                 null));
@@ -90,7 +90,9 @@ public static class RecordFiles
             records.Add(record);
         }
 
+        // A refusal set lists codes, not records: its entries are read by the refusal reader.
         if (root.Kind == JsonKind.Object
+            && type != RecordTypes.RefusalSet
             && root.TryGetProperty(RecordFields.Records, out var entries)
             && entries.Kind == JsonKind.Array)
         {
@@ -106,7 +108,7 @@ public static class RecordFiles
                 if (entryType is null || !RecordTypes.All.Contains(entryType))
                 {
                     problems.Add(new Finding(
-                        "field-invalid",
+                        "record-invalid",
                         $"Entry type '{entryType ?? "missing"}' is not a record type.",
                         path,
                         entry.Line,
@@ -132,6 +134,32 @@ public static class RecordFiles
             }
         }
 
+        // A flow step is an entry of its flow's page, like a result or a scenario
+        // entry: it states no type, so it reads as a step, and its title names
+        // its act.
+        if (root.Kind == JsonKind.Object
+            && type == RecordTypes.Flow
+            && root.TryGetProperty(RecordFields.Steps, out var steps)
+            && steps.Kind == JsonKind.Array)
+        {
+            foreach (var step in steps.Items)
+            {
+                if (step.Kind != JsonKind.Object)
+                {
+                    continue;
+                }
+
+                records.Add(new IndexRecord(
+                    step,
+                    path,
+                    step.Line,
+                    true,
+                    pageId,
+                    RecordTypes.Step,
+                    StringOf(step, RecordFields.Title)));
+            }
+        }
+
         return new Scanned(root, records, problems);
     }
 
@@ -146,7 +174,7 @@ public static class RecordFiles
     ///     What one record file read found.
     /// </summary>
     /// <param name="Root">The parsed top level, or null when the text is not YAML.</param>
-    /// <param name="Records">The page record first when the top level is a record type, then the entries that are record types.</param>
+    /// <param name="Records">The page record first when the top level is a record type, then the entries that are record types, then each step of a flow.</param>
     /// <param name="Problems">The problems the read found, in file order.</param>
     public sealed record Scanned(JsonText? Root, IReadOnlyList<IndexRecord> Records, IReadOnlyList<Finding> Problems);
 }

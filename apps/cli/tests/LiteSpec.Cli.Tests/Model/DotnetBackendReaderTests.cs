@@ -15,8 +15,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "CopyNotAvailableException.cs", """
-            namespace Library.Domain.Lending.Loans.Exceptions;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Exceptions"), "CopyNotAvailableException.cs", """
+            namespace Library.App.Domain.Loans.Exceptions;
 
             public sealed class CopyNotAvailableException()
                 : DomainException("The copy is not available.")
@@ -35,8 +35,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "BotCheckFailure.cs", """
-            namespace Library.Domain.Requests;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Requests"), "BotCheckFailure.cs", """
+            namespace Library.App.Domain.Requests;
 
             public static class BotCheckFailure
             {
@@ -54,8 +54,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class BorrowCopyCommandHandler
             {
@@ -85,8 +85,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "ReturnCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.ReturnCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "ReturnCopy"), "ReturnCopyCommandHandler.cs", """
+            namespace Library.App.Application.ReturnCopy;
 
             public sealed class ReturnCopyCommandHandler
             {
@@ -115,8 +115,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "Gate.cs", """
-            namespace Library.Application.Pipeline;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "Pipeline"), "Gate.cs", """
+            namespace Library.App.Application.Pipeline;
 
             public sealed class Gate
             {
@@ -136,8 +136,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "MerchantOwnerRole.cs", """
-            namespace Library.Domain.Sales;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Sales"), "MerchantOwnerRole.cs", """
+            namespace Library.App.Domain.Sales;
 
             public sealed record MerchantOwnerRole : MerchantRole
             {
@@ -155,16 +155,16 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "ILoanRepository.cs", """
+            namespace Library.App.Domain.Loans;
 
             public interface ILoanRepository
             {
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "Infrastructure", "LoanRepository.cs", """
-            namespace Library.Infrastructure.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Infrastructure", "Persistence"), "LoanRepository.cs", """
+            namespace Library.App.Infrastructure.Persistence;
 
             public sealed class LoanRepository : ILoanRepository
             {
@@ -185,16 +185,16 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "ILoanRepository.cs", """
+            namespace Library.App.Domain.Loans;
 
             public interface ILoanRepository
             {
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "App", "LoanRepository.cs", """
-            namespace Library.Application.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "LoanRepository.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class LoanRepository : ILoanRepository
             {
@@ -212,8 +212,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             [Spending.Implements("use-case/lending.borrow-copy")]
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
@@ -236,8 +236,8 @@ public sealed class DotnetBackendReaderTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     /// <summary>A Code Inside A Message Declares Nothing.</summary>
@@ -247,8 +247,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "Startup.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "Startup.cs", """
+            namespace Library.App.Application;
 
             public static class Startup
             {
@@ -267,10 +267,10 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Domain", "Lending", "Loans", "Events"), "LoanRenewedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanRenewedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/loan.extended</implements>
+            /// <implements>domain-event/loan.extended</implements>
             public sealed record LoanRenewedEvent : IDomainEvent
             {
             }
@@ -278,7 +278,7 @@ public sealed class DotnetBackendReaderTests
 
         var domainEvent = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Events);
 
-        Assert.Equal("event/loan.extended", domainEvent.EventId);
+        Assert.Equal("domain-event/loan.extended", domainEvent.EventId);
     }
 
     /// <summary>On Handler With A Tag Links To Its Reaction.</summary>
@@ -288,8 +288,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
@@ -310,8 +310,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
             {
@@ -330,15 +330,15 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NotifyOnCopyBorrowedReaction.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "NotifyOnCopyBorrowedReaction.cs", """
+            namespace Library.App.Application;
 
             public sealed class NotifyOnCopyBorrowedReaction : IDomainEventReaction<CopyBorrowedEvent>
             {
             }
             """);
-        WriteSource(temp.Path, "App", "SweepReaction.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "SweepReaction.cs", """
+            namespace Library.App.Application;
 
             public sealed class SweepReaction
             {
@@ -357,8 +357,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "BorrowCopy"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
@@ -378,8 +378,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler
@@ -397,8 +397,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
@@ -419,8 +419,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NightlyDueScanJob.cs", """
-            namespace Library.Application.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "NightlyDueScanJob.cs", """
+            namespace Library.App.Application;
 
             /// <implements>job/lending.nightly-due-scan</implements>
             public sealed class NightlyDueScanJob : BackgroundService
@@ -444,8 +444,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan
@@ -483,8 +483,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan
@@ -508,8 +508,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             public sealed class Loan
             {
@@ -537,8 +537,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             public abstract class ProductAggregate
             {
@@ -569,8 +569,8 @@ public sealed class DotnetBackendReaderTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "own", "proof": "own"}, "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

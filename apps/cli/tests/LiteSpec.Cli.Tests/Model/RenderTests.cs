@@ -73,4 +73,37 @@ public sealed class RenderTests
         Assert.Contains("A reader borrows an available copy.", rendered);
         Assert.Contains("borrow-copy.md", result.Stdout);
     }
+
+    /// <summary>Render writes nothing and names each invalid file when a record file does not parse.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void RenderRefusesWhenARecordFileDoesNotParse()
+    {
+        using var temp = FrontendMarksFixture.Prepare("clean");
+        File.WriteAllText(
+            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "broken.yaml"),
+            "type: rule\nid: rule/lending.broken\nmeaning: The statuses, each with the day it applies from: registered or exempt\n");
+
+        var result = TestCli.Run("model", "render", "--root", temp.Path);
+
+        Assert.Equal(2, result.Status);
+        Assert.Contains("broken.yaml", result.Output, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(temp.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts")));
+    }
+
+    /// <summary>Render still writes when a record file parses but holds no record: refusal covers parse failures, and semantic errors block the check instead.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void RenderWritesWhenARecordFileParsesButHoldsNoRecord()
+    {
+        using var temp = FrontendMarksFixture.Prepare("clean");
+        File.WriteAllText(
+            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "untyped.yaml"),
+            "type: not-a-record-type\nid: untyped\ntitle: Untyped\n");
+
+        var result = TestCli.Run("model", "render", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.True(File.Exists(Path.Combine(temp.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts")));
+    }
 }

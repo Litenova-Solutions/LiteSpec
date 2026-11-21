@@ -1,8 +1,6 @@
 # Add a Blazor Frontend
 
-## Purpose
-
-A product that serves its interface from Blazor runs as a client with no server of its own, with the domain model, handlers, and pages in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend for a `client-only` project: the stack, the project shape, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Declare a Blazor frontend for a `client-only` project: the stack, the project shape, and the feature layout. A Blazor product is a client with no server of its own: the domain model, the handlers, and the pages live in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -11,7 +9,7 @@ Start with:
 - A consumer project with the `client-only` shape, or an empty folder where you run `litespec init --preset blazor-client --size small` as the [initialize command](../tools/init.md) describes.
 - The .NET SDK release pinned under `stack.dotnet` in `litespec.manifest.yaml`.
 
-Read the [Blazor stack](../frontend/blazor/stack.md), the [supported scope](../core/scope.md), and the [frontend structure](../frontend/structure.md) pages before this guide: they state the obligations, and this guide shows one compliant way to meet them.
+Read the [Blazor stack](../frontend/blazor/stack.md), the [supported scope](../core/scope.md), and the [frontend structure](../frontend/structure.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 
@@ -31,5 +29,5 @@ Place each feature in the module and use case it serves, mirroring the backend u
 
 Confirm the result by build and by model check:
 
-- The client application builds with no error and no analyzer finding outside a recorded departure.
+- The client application builds with no error and no analyzer finding outside a recorded waiver.
 - `dotnet litespec model check` links each screen to its use case with no finding.

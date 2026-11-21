@@ -1,0 +1,20 @@
+type: permission-set
+id: <page id, or remove this line>
+title: <Title in Title Case, or remove this line>
+summary: <what these permissions guard, or remove this line>
+terms:
+- <term id, or remove this line>
+excludes:
+- <one thing the permissions do not allow, in one sentence, or remove this line>
+records:
+- type: permission
+  id: permission/<name>
+  title: <Title in Title Case>
+  terms:
+  - <term id, or remove this line>
+  meaning: <the right this permission grants>
+  grantedTo:
+  - role/<name>
+  group: <group name, or remove this line>
+  risk:
+  - <money|physical-access|personal-data|access, or remove this line>

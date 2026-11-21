@@ -10,10 +10,10 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Ui;
 
 /// <summary>One in-process validation run: the errors, digests, and manifest it collects.</summary>
-/// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
-/// <follows>litespec/frontend/ui#use-the-product-profiles</follows>
+/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
+/// <follows>litespec/frontend/ui#select-a-density-profile-for-each-frontend</follows>
 /// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
 sealed class UiSession
 {
     /// <summary>
@@ -37,8 +37,8 @@ sealed class UiSession
     /// <summary>Gets the parsed LiteSpec manifest.</summary>
     public JsonNode? Manifest { get; private set; }
 
-    /// <summary>The LiteSpec pages the UI checks own departures against.</summary>
-    static readonly HashSet<string> UiDeparturePages = new(StringComparer.Ordinal)
+    /// <summary>The LiteSpec pages the UI checks own waivers against.</summary>
+    static readonly HashSet<string> UiWaiverPages = new(StringComparer.Ordinal)
     {
         "frontend/ui", "frontend/components", "frontend/patterns",
         "frontend/web/ui", "frontend/web/components", "frontend/web/patterns",
@@ -98,39 +98,39 @@ sealed class UiSession
         var baselineNode = baseline.Found ? baseline.Node : null;
         var hasBaseline = baselineNode is not null && JsonValues.IsTruthy(baselineNode);
 
-        var uiDepartures = ReadUiDepartures();
+        var uiWaivers = ReadUiWaivers();
 
-        // A departure carries an expiry date and stops being live once that date
-        // passes. A departure with no expiry date is lasting and never expires. This
+        // A waiver carries an expiry date and stops being live once that date
+        // passes. A waiver with no expiry date is lasting and never expires. This
         // check is time dependent by design; every other check in this validator
-        // depends only on repository files. Only departures whose covers name a UI
+        // depends only on repository files. Only waivers whose waives name a UI
         // page are read here; the rest belong to the checks that enforce them.
         var today = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        foreach (var departure in uiDepartures)
+        foreach (var waiver in uiWaivers)
         {
-            if (!departure.Covers.Any(IsUiCover))
+            if (!waiver.Covers.Any(IsUiCover))
             {
                 continue;
             }
 
-            if (departure.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ExpiryDate.IsMatch(expiresOn))
+            if (waiver.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ExpiryDate.IsMatch(expiresOn))
             {
                 continue;
             }
 
             if (string.CompareOrdinal(expiresOn, today) < 0)
             {
-                Add("departure-expired", $"[{string.Join(", ", departure.Covers)}] expiresOn {expiresOn} has passed; renew the departure or close the gap", FilePath(departure.File));
+                Add("waiver-expired", $"[{string.Join(", ", waiver.Covers)}] expiresOn {expiresOn} has passed; renew the waiver or close the gap", FilePath(waiver.File));
             }
         }
 
         // A controlled frontend composes the shared package, so the workspace declares
         // it once. A frontend that composes no shared component carries no UI block.
-        // (litespec/frontend/ui#select-one-visual-authority)
-        // An additional registry passes both registry gates under a departure against
+        // (litespec/frontend/ui#record-one-shared-ui-package)
+        // An additional registry passes both registry gates under a waiver against
         // the pinned baseline provision. The expiry date on that record is checked
         // above; the gates below check its presence.
-        var baselineOverride = uiDepartures.Any(departure => departure.Covers.Contains("litespec/frontend/ui#pin-the-baseline-in-the-shared-package"));
+        var baselineOverride = uiWaivers.Any(waiver => waiver.Covers.Contains("litespec/frontend/ui#pin-the-baseline-in-the-shared-package"));
         var pkgValue = JsonRead.Chain(project, "ui", "package");
         var pkg = pkgValue.Found ? pkgValue.Node : null;
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
@@ -320,7 +320,7 @@ sealed class UiSession
                                 return;
                             }
 
-                            Add("ui-class-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
+                            Add("ui-class-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
                         });
                     }
                 }
@@ -349,7 +349,7 @@ sealed class UiSession
                     var inline = source.EndsWith(".svelte", StringComparison.Ordinal) ? SourceFiles.SvelteInlineStyle : SourceFiles.ReactInlineStyle;
                     if (inline.IsMatch(File.ReadAllText(source)))
                     {
-                        Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] an inline style belongs in a shared component", source);
+                        Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] an inline style belongs in a shared component", source);
                     }
                 }
 
@@ -435,26 +435,26 @@ sealed class UiSession
             return false;
         }
 
-        return UiDeparturePages.Contains(cover["litespec/".Length..].Split('#')[0]);
+        return UiWaiverPages.Contains(cover["litespec/".Length..].Split('#')[0]);
     }
 
-    // A rule override is a departure record: .litespec/governance/departures/<name>.yaml
-    // whose covers list names the provision it departs from, with the reason and the
+    // A rule override is a waiver record: .litespec/governance/waivers/<name>.yaml
+    // whose waives list names the provision it sets aside, with the reason and the
     // expiry date. The consumer validator owns the record shape; this validator reads
-    // the departures its own gates need and enforces the expiry date.
+    // the waivers its own gates need and enforces the expiry date.
     /// <summary>
-    ///     Every departure record the project carries.
+    ///     Every waiver record the project carries.
     /// </summary>
-    /// <returns>The departure records.</returns>
-    List<UiDeparture> ReadUiDepartures()
+    /// <returns>The waiver records.</returns>
+    List<UiWaiver> ReadUiWaivers()
     {
-        var directory = FilePath(".litespec/governance/departures");
+        var directory = FilePath(".litespec/governance/waivers");
         if (!Directory.Exists(directory))
         {
             return [];
         }
 
-        var found = new List<UiDeparture>();
+        var found = new List<UiWaiver>();
         foreach (var entry in new DirectoryInfo(directory).EnumerateFileSystemInfos().OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
         {
             if ((entry.Attributes & (FileAttributes.Directory | FileAttributes.ReparsePoint)) != 0)
@@ -478,12 +478,12 @@ sealed class UiSession
                 continue;
             }
 
-            if (!root.TryGetProperty("type", out var type) || type.ValueKind != JsonValueKind.String || type.GetString() != "departure")
+            if (!root.TryGetProperty("type", out var type) || type.ValueKind != JsonValueKind.String || type.GetString() != "waiver")
             {
                 continue;
             }
 
-            if (!root.TryGetProperty("covers", out var covers) || covers.ValueKind != JsonValueKind.Array)
+            if (!root.TryGetProperty("waives", out var covers) || covers.ValueKind != JsonValueKind.Array)
             {
                 continue;
             }
@@ -499,7 +499,7 @@ sealed class UiSession
                 expiresOn = JsonNode.Parse(expires.GetRawText());
             }
 
-            found.Add(new UiDeparture(PathText.Relative(Root, Path.GetFullPath(entry.FullName)), names, expiresOn));
+            found.Add(new UiWaiver(PathText.Relative(Root, Path.GetFullPath(entry.FullName)), names, expiresOn));
         }
 
         return found;

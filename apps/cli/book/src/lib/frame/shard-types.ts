@@ -54,19 +54,29 @@ export type SortKey = "outline" | "title" | "proof";
 /** A navigation view: the outline or the security list. */
 export type View = "outline" | "security";
 
+/** The Intent layer grouping in the outline: the outline order or one group per product area. */
+export type IntentGrouping = "outline" | "product-area";
+
 /** The book load state: loading, ready, or failed with the reason. */
 export type LoadState = { kind: "loading" } | { kind: "ready" } | { kind: "failed"; error: string };
 
 /** The record types with scenarios that prove them: use cases, reactions and jobs. */
-export const FLOW_TYPES: readonly ["use-case", "reaction", "job"] = ["use-case", "reaction", "job"];
+export const SCENARIO_TYPES: readonly ["use-case", "reaction", "job"] = ["use-case", "reaction", "job"];
 
 /** Whether a record type has scenarios that prove it. */
-export function isFlowType(type: string): boolean {
-  return FLOW_TYPES.some((flow) => flow === type);
+export function isScenarioType(type: string): boolean {
+  return SCENARIO_TYPES.some((scenarioType) => scenarioType === type);
 }
 
-/** The record types that live under a module member: use cases, rules, reactions, jobs, notifications and settings. */
-export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting"];
+/** The record types that live under a module member: use cases, rules, reactions, jobs, notifications, settings, read models, and reference data. */
+export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting", "read-model", "reference-data"];
+
+/** One parked child: a record a live waiver holds out of its parent's stage, with that waiver and its expiry. */
+export interface ParkedChild {
+  id: string;
+  waiver: string;
+  expiresOn?: string | null;
+}
 
 /** A record the Records packs carry, with every computed detail the book adds. */
 export interface BookRecord {
@@ -76,7 +86,8 @@ export interface BookRecord {
   folder?: string;
   module?: string | null;
   fields: RecordFields;
-  layer?: LayerKey | null;
+  /** The record layer, or root for the product above every layer. */
+  layer?: LayerKey | "root" | null;
   src?: SourceRef | null;
   impl?: { path?: string; line?: number | null; kind?: string }[];
   tests?: BookTest[];
@@ -88,12 +99,31 @@ export interface BookRecord {
     hasCode?: boolean | null;
     hasTests?: boolean | null;
     scenarios?: { pass?: number; of?: number } | null;
+    /** The model completion stage: unfulfilled, specified, coded or verified, with its scope counts. */
+    stage?: string;
+    proof?: string;
+    heldBy?: string[];
+    parkedBy?: ParkedChild[];
+    inScope?: number;
+    parked?: number;
+    total?: number;
+    counts?: Record<string, { done?: number; of?: number }>;
   } | null;
   findings?: BookFinding[];
   proof?: {
     state?: ProofState | null;
     tests?: number;
     test?: { name?: string; path?: string | null; line?: number | null } | null;
+    /** The recorded run commit, empty when the run recorded none. */
+    commit?: string;
+    /** The short run commit the book shows after "last passed at", empty when the run recorded none. */
+    lastPassedAt?: string;
+    /** Whether the proof is fresh or stale against the working tree. */
+    status?: string;
+    /** How many commits HEAD sits ahead of the run commit when stale with changed code, else 0. */
+    commitsBehind?: number;
+    /** Why the proof is stale, only when stale. */
+    staleReason?: string;
   };
   machine?: {
     coded?: boolean;
@@ -108,11 +138,13 @@ export interface BookRecord {
     reached?: boolean | number;
     total?: number;
     reachedBy?: string[];
-    steps?: { id?: string; reached?: boolean; reachedBy?: string[] }[];
+    claims?: ReachClaim[];
+    steps?: { id?: string; reached?: boolean; reachedBy?: string[]; claims?: ReachClaim[] }[];
   };
   why?: { text?: string; links?: { id?: string; kind?: string }[] }[];
   out?: BookEdgeJson[];
   in?: BookEdgeJson[];
+  /** The whole explanation rendered as one page; the writer omits it and the reader never needs it. */
   bodyHtml?: string;
   sections?: BookSections | null;
   fieldsHtml?: Record<string, string>;
@@ -126,7 +158,7 @@ export interface BookRecord {
     file?: string;
     reader?: string;
   } | null;
-  steps?: { text?: string; serves?: string[] }[];
+  steps?: { text?: string; cites?: string[] }[];
   stepServers?: Record<string, string[]>;
   stepScreens?: Record<string, string[]>;
   captures?: { path: string; bookPath?: string; theme?: string; width?: number; capturedOn?: string }[];
@@ -141,6 +173,7 @@ export interface BookRecord {
   shownBy?: string[];
   /** The concerns of a decision's followers, computed by the book command from the classification rules applies. */
   concerns?: string[];
+  outcome?: GoalOutcome;
 }
 
 /** One outline node: a record, a group, or the code, test or finding under its subject. */
@@ -164,7 +197,7 @@ export interface BookTest {
   browser?: boolean;
 }
 
-/** One finding on a record: its code, level, message, and whether a departure covers it. */
+/** One finding on a record: its code, level, message, and whether a waiver covers it. */
 export interface BookFinding {
   code?: string | null;
   tier?: string | null;
@@ -218,7 +251,7 @@ export interface LexiconSection {
   source: string;
 }
 
-/** One Links-table row: the field, its carriers and both phrases. */
+/** One Links-table row: the field, its carriers and both phrases, read from the annotations on the schema. */
 export interface LexiconLink {
   field: string;
   carriers: string[] | string;
@@ -234,25 +267,42 @@ export interface Lexicon {
   sections: Record<string, LexiconSection>;
   glossary: Record<string, { term: string; definition: string }>;
   fields: Record<string, string>;
-  findings: Record<string, { level: string; meaning: string }>;
+  findings?: Record<string, { level: string; meaning: string }>;
 }
 
-/** One Intent coverage entry: a requirement or journey step, whether a Behavior record reaches it, and the reaching records. */
+/** One Intent coverage entry: a requirement, flow step, problem or constraint, whether a Behavior record reaches it, and the reaching records. */
 export interface IntentCoverageEntry {
   id: string;
-  kind: "requirement" | "step";
+  kind: "requirement" | "step" | "problem" | "constraint";
   reached: boolean;
   reachedBy: string[];
+  claims?: ReachClaim[];
 }
 
-/** The computed Intent coverage: counts, the share reached, and one entry per requirement and journey step. */
+/** The computed Intent coverage: counts, the share reached, and one entry per requirement, flow step, problem and constraint. */
 export interface IntentCoverage {
   reached: number;
   total: number;
   share: number;
   requirements: { reached: number; total: number };
   steps: { reached: number; total: number };
+  problems?: { reached: number; total: number };
+  constraints?: { reached: number; total: number };
   entries: IntentCoverageEntry[];
+}
+
+/** One product area in the Intent product-area grouping: a Behavior module with the features and flows its records reach. */
+export interface ProductArea {
+  id: string;
+  title: string;
+  features: string[];
+  flows: string[];
+}
+
+/** The Intent product-area grouping: one entry per Behavior module, with the features and flows no module reaches. */
+export interface ProductAreas {
+  modules: ProductArea[];
+  unfulfilled: { features: string[]; flows: string[] };
 }
 
 /** One record layer the project claims, with the practice it follows: litespec or own. */
@@ -261,15 +311,21 @@ export interface LayerClaim {
   practice: string;
 }
 
-/** The manifest: project, roots, editor, test run, totals, layers, claims, shard map, search, unplaced and generation date. */
+/** The manifest: project, product, source links, release, test run, totals, layers, claims, shard map, search, unplaced and build time. */
 export interface Manifest {
   project: { id: string; title: string };
-  roots: { consumer: string; litespec: string };
-  editor: string;
+  /** The product record id (`product/<name>`), or "" when the model holds no product. */
+  productId: string;
+  /** The source link template with {path} and {line} left to fill; null when the book links no source. */
+  links: string | null;
+  /** The LiteSpec version that generated the book, for example 7.0.0. */
+  release: string;
   claims?: LayerClaim[];
   intentCoverage?: IntentCoverage;
   testRun?: { date?: string; passed?: number; failed?: number; total?: number } | null;
   totals: Record<string, number>;
+  /** How many records the builder counts complete, one number for the whole book. */
+  complete?: number;
   layers: { key: string; label: string; outline: string[] }[];
   shardOf: Record<string, string>;
   search: string[];
@@ -298,4 +354,23 @@ export interface SourceRef {
   path?: string | null;
   line?: number | null;
   litespec?: boolean;
+}
+
+/** One reaching record and how it stands: verified when its proof passes, claimed when only its claim stands. */
+export interface ReachClaim {
+  id: string;
+  state: "verified" | "claimed";
+}
+
+/** One measured observation of a goal: when, what was read and where it came from. */
+export interface GoalObservation {
+  date: string;
+  value: string;
+  source: string;
+}
+
+/** A goal's outcome, apart from delivery: measured once observations exist, else not measured. */
+export interface GoalOutcome {
+  state: "measured" | "not measured";
+  observations: GoalObservation[];
 }

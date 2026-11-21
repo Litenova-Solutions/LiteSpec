@@ -10,12 +10,23 @@ public sealed class LayerResolverTests
     /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory]
-    [InlineData("Shop.Domain", ArchitectureLayer.Domain)]
-    [InlineData("Shop.Application.Abstractions", ArchitectureLayer.ApplicationAbstractions)]
-    [InlineData("Shop.Application", ArchitectureLayer.Application)]
-    [InlineData("Shop.Infrastructure", ArchitectureLayer.Infrastructure)]
+    [InlineData("Shop.Domain", ArchitectureLayer.None)]
+    [InlineData("Shop.Application.Abstractions", ArchitectureLayer.None)]
+    [InlineData("Shop.Application", ArchitectureLayer.None)]
+    [InlineData("Shop.Infrastructure", ArchitectureLayer.None)]
     [InlineData("Shop.WebApi", ArchitectureLayer.WebApi)]
-    [InlineData("Domain", ArchitectureLayer.Domain)]
+    [InlineData("Shop.Api", ArchitectureLayer.WebApi)]
+    [InlineData("Shop.Kernel", ArchitectureLayer.Domain)]
+    [InlineData("Shop.Platform", ArchitectureLayer.Infrastructure)]
+    [InlineData("Domain", ArchitectureLayer.None)]
+    [InlineData("Application", ArchitectureLayer.None)]
+    [InlineData("Kernel", ArchitectureLayer.Domain)]
+    [InlineData("Platform", ArchitectureLayer.Infrastructure)]
+    [InlineData("Api", ArchitectureLayer.WebApi)]
+    [InlineData("Claimwick.Books", ArchitectureLayer.None)]
+    [InlineData("Shop.Modules", ArchitectureLayer.None)]
+    [InlineData("Shop.Apiary", ArchitectureLayer.None)]
+    [InlineData("Shop.Platform.Tests", ArchitectureLayer.Test)]
     [InlineData("Shop.DomainTests", ArchitectureLayer.None)]
     [InlineData("Shop.Domain.Tests", ArchitectureLayer.Test)]
     [InlineData("Shop.Integration.Tests", ArchitectureLayer.Test)]
@@ -30,8 +41,10 @@ public sealed class LayerResolverTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory]
     [InlineData("Domain", ArchitectureLayer.Domain)]
-    [InlineData("Application.Abstractions", ArchitectureLayer.ApplicationAbstractions)]
-    [InlineData("applicationabstractions", ArchitectureLayer.ApplicationAbstractions)]
+    [InlineData("Application.Abstractions", ArchitectureLayer.None)]
+    [InlineData("applicationabstractions", ArchitectureLayer.None)]
+    [InlineData("Ports", ArchitectureLayer.Ports)]
+    [InlineData("ports", ArchitectureLayer.Ports)]
     [InlineData("WebApi", ArchitectureLayer.WebApi)]
     [InlineData("Test", ArchitectureLayer.Test)]
     [InlineData("Tests", ArchitectureLayer.Test)]
@@ -41,22 +54,6 @@ public sealed class LayerResolverTests
     public void ParsesADeclaredLayer(string value, ArchitectureLayer expected) =>
         Assert.Equal(expected, ArchitectureLayerResolver.Parse(value));
 
-    /// <summary>A declared layout name parses, and anything else reads as the module layout.</summary>
-    /// <param name="value">The declared layout name to parse.</param>
-    /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Theory]
-    [InlineData(null, BackendLayout.Modules)]
-    [InlineData("", BackendLayout.Modules)]
-    [InlineData("modules", BackendLayout.Modules)]
-    [InlineData("Modules", BackendLayout.Modules)]
-    [InlineData("layer-projects", BackendLayout.LayerProjects)]
-    [InlineData("Layer-Projects", BackendLayout.LayerProjects)]
-    [InlineData("layerprojects", BackendLayout.LayerProjects)]
-    [InlineData("slices", BackendLayout.Modules)]
-    public void ParsesADeclaredLayout(string? value, BackendLayout expected) =>
-        Assert.Equal(expected, ArchitectureLayerResolver.ParseLayout(value));
-
     /// <summary>The nearest layer folder names the layer.</summary>
     /// <param name="filePath">The file path under test.</param>
     /// <param name="expected">The expected result for the case.</param>
@@ -64,8 +61,12 @@ public sealed class LayerResolverTests
     [Theory]
     [InlineData("Claimwick/Organizations/Teams/Domain/Team.cs", ArchitectureLayer.Domain)]
     [InlineData("Claimwick/Organizations/Teams/Application/CreateTeam.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/Ports/TeamReader/ITeamReader.cs", ArchitectureLayer.Ports)]
+    [InlineData("Claimwick/Organizations/Contracts/Ports/ITeamReader.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Infrastructure/TeamRepository.cs", ArchitectureLayer.Infrastructure)]
     [InlineData("Claimwick/Organizations/Teams/WebApi/TeamLinks.cs", ArchitectureLayer.WebApi)]
+    [InlineData("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Spending/Infrastructure/ExportWorkspace/WorkspaceArchiveWriter.cs", ArchitectureLayer.Infrastructure)]
     [InlineData("Claimwick/Organizations/Contracts/TeamId.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Domain/Events/TeamRenamedEvent.cs", ArchitectureLayer.Domain)]
     [InlineData("Claimwick/Application/Pipeline/Transaction.cs", ArchitectureLayer.Application)]
@@ -108,12 +109,28 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick/Organizations/Contracts/TeamId.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", ArchitectureLayer.WebApi)]
-    [InlineData("Claimwick/Organizations/Jobs/SendDigest/SendDigestJob.cs", ArchitectureLayer.Application)]
-    [InlineData("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/TeamNameRules.cs", ArchitectureLayer.Application)]
-    [InlineData("Claimwick.Modules/Organizations/UseCases/OnTeamCreated/WelcomeNoticeText.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Application/SendDigest/SendDigestJob.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Application/CreateTeam/TeamNameRules.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Application/WelcomeNotice/WelcomeNoticeText.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Application/Notifications/TeamRenamed/TeamRenamedText.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Application/ExternalSystems/PayoutBank/PayoutBankAdapter.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Application/ReadModels/ReimbursedExpenses/ReimbursedExpenseOnEmployeeReimbursedProjection.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Ports/TeamReader/ITeamReader.cs", ArchitectureLayer.Ports)]
+    [InlineData("Claimwick.Modules/Organizations/Contracts/Ports/ITeamReader.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", ArchitectureLayer.None)]
     public void ResolvesAModuleFile(string filePath, ArchitectureLayer expected) =>
-        Assert.Equal(expected, ArchitectureLayerResolver.FileLayer(filePath, "Claimwick", BackendLayout.Modules, null));
+        Assert.Equal(expected, ArchitectureLayerResolver.FileLayer(filePath, "Claimwick", null));
+
+    /// <summary>A module project names no layer: the file's folder decides.</summary>
+    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    [Fact]
+    public void ResolvesModuleFilesFromFoldersNotAssemblies()
+    {
+        var layer = ArchitectureLayerResolver.FileLayer(
+            "Shop.Billing/Application/CreateOrder/CreateOrderHandler.cs", "Shop.Billing", null);
+
+        Assert.Equal(ArchitectureLayer.Application, layer);
+    }
 
     /// <summary>A host file reads its layer from its assembly.</summary>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
@@ -123,7 +140,7 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.WebApi", ArchitectureLayer.WebApi)]
     [InlineData("Claimwick.Worker", ArchitectureLayer.Worker)]
     public void ResolvesAHostFileFromItsAssembly(string assemblyName, ArchitectureLayer expected) =>
-        Assert.Equal(expected, ArchitectureLayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, BackendLayout.Modules, null));
+        Assert.Equal(expected, ArchitectureLayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, null));
 
     /// <summary>A test file stays in the test layer whatever folders it mirrors.</summary>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
@@ -131,33 +148,38 @@ public sealed class LayerResolverTests
     public void ResolvesATestFileFromItsAssembly()
     {
         var layer = ArchitectureLayerResolver.FileLayer(
-            "Claimwick.Tests/Organizations/Teams/Domain/TeamTests.cs", "Claimwick.Tests", BackendLayout.Modules, null);
+            "Claimwick.Tests/Organizations/Teams/Domain/TeamTests.cs", "Claimwick.Tests", null);
 
         Assert.Equal(ArchitectureLayer.Test, layer);
     }
 
-    /// <summary>Under layer-projects the assembly names the layer of every file.</summary>
+    /// <summary>A declared layer wins over folders and assemblies.</summary>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Fact]
-    public void ResolvesEveryFileFromItsAssemblyUnderLayerProjects()
+    public void DeclaredLayerWins()
     {
         var layer = ArchitectureLayerResolver.FileLayer(
-            "Orders/Order.cs", "Shop.Domain", BackendLayout.LayerProjects, null);
-
-        Assert.Equal(ArchitectureLayer.Domain, layer);
-    }
-
-    /// <summary>A declared layer wins over folders and assemblies in both layouts.</summary>
-    /// <param name="layout">The backend layout under test.</param>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
-    [Theory]
-    [InlineData(BackendLayout.Modules)]
-    [InlineData(BackendLayout.LayerProjects)]
-    public void DeclaredLayerWins(BackendLayout layout)
-    {
-        var layer = ArchitectureLayerResolver.FileLayer(
-            "Claimwick/Organizations/Teams/Domain/Team.cs", "Claimwick", layout, "Application");
+            "Claimwick/Organizations/Teams/Domain/Team.cs", "Claimwick", "Application");
 
         Assert.Equal(ArchitectureLayer.Application, layer);
     }
+
+    /// <summary>The use case folder is the folder holding the file below Application, WebApi or Infrastructure.</summary>
+    /// <param name="filePath">The file path under test.</param>
+    /// <param name="expected">The expected result for the case.</param>
+    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    [Theory]
+    [InlineData("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/WebApi/SubmitExpense/SubmitExpenseEndpoint.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/Infrastructure/SubmitExpense/WorkspaceArchiveWriter.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/Infrastructure/Expenses/SubmitExpense/WorkspaceArchiveWriter.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending\\Application\\Expenses\\SubmitExpense\\SubmitExpenseCommandHandler.cs", "SubmitExpense")]
+    [InlineData("Claimwick.Spending/Domain/Expenses/Expense.cs", null)]
+    [InlineData("Claimwick.Spending/Application/SubmitExpenseHandler.cs", null)]
+    [InlineData("SubmitExpenseCommandHandler.cs", null)]
+    [InlineData(null, null)]
+    public void ReadsTheUseCaseFolder(string? filePath, string? expected) =>
+        Assert.Equal(expected, ArchitectureLayerResolver.UseCaseOf(filePath));
 }

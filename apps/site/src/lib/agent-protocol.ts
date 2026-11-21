@@ -5,6 +5,7 @@
 // same placeholders, replaced verbatim.
 import fs from "node:fs";
 import path from "node:path";
+import { SITE_ORIGIN } from "./origin.ts";
 import { backendStacks, frontendStacks, root, version } from "./spec.ts";
 
 /** The opening fence of the generated region, on its own line. */
@@ -15,9 +16,9 @@ export const AGENT_PROTOCOL_CLOSE = "<!-- /generated:agent-protocol -->";
 
 /** The values one filled agent protocol block takes, one per template placeholder. */
 export interface AgentProtocolValues {
-  /** The release, such as 6.0.0, which names the links. */
+  /** The release, such as 7.0.0, which names the links. */
   version: string;
-  /** The package version the project follows, such as 6.0.0 or 6.0.0-rc.1. */
+  /** The package version the project follows, such as 7.0.0 or 7.0.0-rc.1. */
   packageVersion: string;
   /** small or large. */
   size: string;
@@ -29,28 +30,27 @@ export interface AgentProtocolValues {
   extensions: string;
   /** The claimed layers, such as intent and behavior: litespec, implementation and proof: own. */
   layers: string;
-  /** The selection key of the shape and stacks, such as server.dotnet.react. */
-  selectionKey: string;
+  /** The docs of the release: the local docs folder from the tool, or the selection index URL on the site. */
+  docs: string;
   /** dotnet litespec or litespec. */
   command: string;
 }
 
 /** Every placeholder the region may hold, in contract order, with the values field that fills it and what it takes. */
 export const AGENT_PROTOCOL_PLACEHOLDERS: { placeholder: string; field: keyof AgentProtocolValues; takes: string }[] = [
-  { placeholder: "__LITESPEC_PACKAGE_VERSION__", field: "packageVersion", takes: "the package version the project follows, such as 6.0.0 or 6.0.0-rc.1" },
-  { placeholder: "__LITESPEC_VERSION__", field: "version", takes: "the release whose links the project reads" },
+  { placeholder: "__LITESPEC_PACKAGE_VERSION__", field: "packageVersion", takes: "the package version the project follows, such as 7.0.0 or 7.0.0-rc.1" },
   { placeholder: "__SIZE__", field: "size", takes: "small or large" },
   { placeholder: "__SHAPE__", field: "shape", takes: "server or client-only" },
   { placeholder: "__STACKS__", field: "stacks", takes: "the selected stack keys, comma and space separated, or none" },
   { placeholder: "__EXTENSIONS__", field: "extensions", takes: "the selected extension keys, comma and space separated, or none" },
   { placeholder: "__LAYERS__", field: "layers", takes: "the claimed layers, such as intent and behavior: litespec, implementation and proof: own" },
-  { placeholder: "__SELECTION_KEY__", field: "selectionKey", takes: "the selection key of the shape and stacks, such as server.dotnet.react" },
+  { placeholder: "__LITESPEC_DOCS__", field: "docs", takes: "the docs of the release the project reads" },
   { placeholder: "__LITESPEC_COMMAND__", field: "command", takes: "dotnet litespec or litespec" },
 ];
 
 /** The first line of the region, with the command that runs the CLI filled in. */
 export function precedenceSentence(command: string): string {
-  return `When this file disagrees with \`${command} rules\`, \`${command} model query\` or a record, the tool output and the record win; this file only points to them.`;
+  return `When this file disagrees with \`${command} rules\`, \`${command} model query\` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.`;
 }
 
 /** The generated region of the consumer protocol template, fences included. */
@@ -114,7 +114,7 @@ export function selectionValues(input: {
     stacks: input.stacks.length === 0 ? "none" : input.stacks.join(", "),
     extensions: input.extensions.length === 0 ? "none" : input.extensions.join(", "),
     layers: SITE_DEFAULT_LAYERS,
-    selectionKey: input.selectionKey,
+    docs: `${SITE_ORIGIN}/${version}/select/${input.selectionKey}/llms.txt`,
     command: SITE_DEFAULT_COMMAND,
   };
 }

@@ -116,7 +116,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page under the documentation root is scanned.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page under the documentation root is scanned")]
     public void PageUnderTheDocumentationRootIsScanned()
     {
@@ -131,14 +131,14 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Missing required title.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "missing required title")]
     public void MissingRequiredTitle()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             meta => meta.Remove("title"));
         AssertProblem(RunConsumer(folder.Path), "missing required property 'title'");
     }
@@ -151,7 +151,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             meta => meta["implementationStatus"] = "planned");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'implementationStatus'");
     }
@@ -164,39 +164,39 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             meta => meta["kind"] = "mutation");
         AssertProblem(RunConsumer(folder.Path), "/kind");
     }
 
     /// <summary>Result entry without its outcome.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "result entry without its outcome")]
     public void ResultEntryWithoutItsOutcome()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             meta => ((JsonObject)((JsonArray)meta["records"]!)[0]!).Remove("outcome"));
         AssertProblem(RunConsumer(folder.Path), "/records/0");
     }
 
     /// <summary>Retired page type from the old model.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "retired page type from the old model")]
     public void RetiredPageTypeFromTheOldModel()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             meta => meta["type"] = "business-record");
         AssertProblem(RunConsumer(folder.Path), "matches 0 of");
     }
 
     /// <summary>Page with no frontmatter block.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with no frontmatter block")]
     public void PageWithNoFrontmatterBlock()
     {
@@ -209,7 +209,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a broken frontmatter block.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with a broken frontmatter block")]
     public void PageWithABrokenFrontmatterBlock()
     {

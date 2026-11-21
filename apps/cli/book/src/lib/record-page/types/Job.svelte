@@ -10,9 +10,9 @@
   import DataTouched from "../shared/DataTouched.svelte";
   import EffectsBlock from "../shared/EffectsBlock.svelte";
   import FailureBlock from "../shared/FailureBlock.svelte";
-  import { codeCls } from "../page-html";
+  import { codeOf, idemHint } from "../shared/record-cells";
   import { proseOf } from "../page-prose";
-  import { idemTileOf, isRecord, jobFields, stringField } from "../page-values";
+  import { idemTileOf, isRecord, jobFields, objectField, stringField } from "../page-values";
 
   // A job: when it runs, what it does, and what it does when it fails.
   type Props = { id: string; r: BookRecord };
@@ -21,6 +21,10 @@
   const jf = $derived(jobFields(f));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
   const idem = $derived(idemTileOf(f));
+  const idemHintHtml = $derived.by(() => {
+    const i = objectField(f, "idempotency");
+    return i ? idemHint(i) : "";
+  });
   const lease = $derived(isRecord(jf.lease) ? jf.lease : {});
   const cursor = $derived(isRecord(jf.cursor) ? jf.cursor : {});
 </script>
@@ -30,14 +34,12 @@
 {/if}
 <PageSection blockKey="run" heading="schedule">
   <FactGrid>
-    {#if jf.kind === "manual"}
-      <FactCell k="manual">Runs by hand</FactCell>
-    {:else if jf.schedule}
+    {#if jf.schedule}
       <FactCell k="schedule">
         {#if jf.schedule.every}
           Every {duration(String(jf.schedule.every))}
         {:else if jf.schedule.cron}
-          <span class={codeCls}>{String(jf.schedule.cron)}</span>
+          {@html codeOf(String(jf.schedule.cron))}
         {:else if jf.schedule.at === "startup"}
           At startup
         {/if}
@@ -52,10 +54,10 @@
           : String(stringField(lease, "name") ?? "") + " for " + duration(stringField(lease, "duration") ?? "")}
       </FactCell>
     {/if}
-    {#if jf.runsWhere}<FactCell k="runsWhere">{jf.runsWhere}</FactCell>{/if}
+    {#if jf.runsWhen}<FactCell k="runsWhen">{jf.runsWhen}</FactCell>{/if}
     {#if jf.cursor}<FactCell k="cursor">{typeof jf.cursor === "string" ? jf.cursor : String(stringField(cursor, "name") ?? "")}</FactCell>{/if}
     {#if idem}
-      <FactCell k="idempotency" html={idem.value} hint={idem.hint} />
+      <FactCell k="idempotency" html={idem.value} hint={idemHintHtml} />
     {/if}
   </FactGrid>
   <DefinitionList>
@@ -65,6 +67,6 @@
     {#if jf.runbook}<DefinitionRow label="Runbook"><RecordLink id={jf.runbook} /></DefinitionRow>{/if}
   </DefinitionList>
 </PageSection>
-<EffectsBlock {f} />
+<EffectsBlock {f} caption={`Effects of ${r.title}`} />
 <FailureBlock {f} />
-<DataTouched {f} />
+<DataTouched {f} carrier={r.type} />

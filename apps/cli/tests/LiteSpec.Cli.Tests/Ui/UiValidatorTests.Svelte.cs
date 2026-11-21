@@ -7,10 +7,10 @@ namespace LiteSpec.Cli.Tests.Ui;
 /// </summary>
 public sealed partial class UiValidatorTests
 {
-    // Svelte sources (litespec/frontend/web/ui#restrict-css-decisions).
+    // Svelte sources (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only).
 
     /// <summary>A Svelte File Is Scanned For Utility Violations.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteFileIsScannedForUtilityViolations()
     {
@@ -23,7 +23,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Visual File Keeps Its Own Layout.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteVisualFileKeepsItsOwnLayout()
     {
@@ -34,7 +34,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Visual File Is Still Held To The Token Rule.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteVisualFileIsStillHeldToTheTokenRule()
     {
@@ -47,7 +47,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Class Directive Is Read As One Token.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteClassDirectiveIsReadAsOneToken()
     {
@@ -58,7 +58,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Style Attribute Is An Inline Style.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteStyleAttributeIsAnInlineStyle()
     {
@@ -71,7 +71,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Style Directive Is An Inline Style.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteStyleDirectiveIsAnInlineStyle()
     {
@@ -84,7 +84,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Style Block Is Not An Inline Style.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteStyleBlockIsNotAnInlineStyle()
     {
@@ -95,7 +95,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Svelte Visual System In The Workspace Root.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void SecondSvelteVisualSystemInTheWorkspaceRoot()
     {
@@ -107,8 +107,8 @@ public sealed partial class UiValidatorTests
     }
 
     // Svelte baseline (litespec/frontend/ui#pin-the-baseline-in-the-shared-package,
-    // litespec/frontend/web/ui#track-source-changes,
-    // litespec/frontend/ui#select-one-visual-authority,
+    // litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock,
+    // litespec/frontend/ui#record-one-shared-ui-package,
     // litespec/frontend/components#compose-composites-in-page-code).
 
     /// <summary>A Svelte Package Validates Against The Svelte Baseline.</summary>
@@ -162,7 +162,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Utility Violation Cites The Svelte Provision.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ASvelteUtilityViolationCitesTheSvelteProvision()
     {
@@ -172,7 +172,7 @@ public sealed partial class UiValidatorTests
             fixture.PathCase(
                 "packages/ui/src/floorplans/card.svelte",
                 "<div class=\"text-red-500\">Overdue</div>\n"),
-            "[litespec/frontend/web/ui#restrict-css-decisions] raw Tailwind palette value requires a semantic token 'text-red-500'");
+            "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] raw Tailwind palette value requires a semantic token 'text-red-500'");
     }
 
     /// <summary>A Svelte Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
@@ -257,21 +257,21 @@ public sealed partial class UiValidatorTests
         var components = (JsonObject)UiFixture.ReadJson(fixture.ComponentsFile)!;
         components["registry"] = "https://blocks.fixture.test";
         UiFixture.WriteJson(fixture.ComponentsFile, components);
-        fixture.WriteDeparture("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteWaiver("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>A Svelte UI Exception With An Expired Date.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
     [Fact]
     public void ASvelteUIExceptionWithAnExpiredDate()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
-        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteWaiver("ui-authority", "litespec/frontend/ui#record-one-shared-ui-package", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the departure or close the gap");
+            "[litespec/frontend/ui#record-one-shared-ui-package] expiresOn 2020-01-01 has passed; renew the waiver or close the gap");
     }
 
     /// <summary>The Fixture Is React Again After The Svelte Block.</summary>

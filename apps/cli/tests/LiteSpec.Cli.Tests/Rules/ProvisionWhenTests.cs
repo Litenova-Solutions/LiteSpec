@@ -15,7 +15,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("litespec/backend/api#bound-every-file-upload", result.Output);
@@ -32,11 +32,11 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
 
-        var conditional = ConditionalIds("query", "upload", "document-number", "erasure");
+        var conditional = ConditionalIds("query", "upload", "document-number", "erasure", "cross-module");
 
         Assert.NotEmpty(conditional);
 
@@ -53,8 +53,8 @@ public sealed class ProvisionWhenTests
         }
 
         Assert.True(
-            JudgmentLines(result.Output) <= 30,
-            "The judgment groups hold more than 30 lines.");
+            JudgmentLines(result.Output) <= 34,
+            "The judgment groups hold more than 34 lines.");
     }
 
     /// <summary>A use case taking a receipt keeps the upload provisions.</summary>
@@ -66,7 +66,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/api#store-every-upload-through-infrastructure:", result.Output);
@@ -81,32 +81,35 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/persistence#assign-document-numbers-from-a-sequence:", result.Output);
     }
 
-    /// <summary>A query collapses more record provisions than a command, which leaves query-only out.</summary>
+    /// <summary>A query and a command collapse different record provisions, each leaving the other kind out.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
-    public void RulesQueryCollapsesMoreThanCommand()
+    public void RulesQueryAndCommandCollapseDifferentProvisions()
     {
         var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
         var query = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ListExpenses/ListExpensesQueryHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ListExpenses/ListExpensesQueryHandler.cs");
         var command = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, query.Status);
         Assert.Equal(0, command.Status);
-        Assert.True(
-            CollapsedCount(query.Output, "use-case/spending.list-expenses") > CollapsedCount(command.Output, "use-case/spending.approve-expense"),
-            "The query handler collapses its query-only provisions while the command handler leaves them out.");
+
+        // 7.0.0 added command-only provisions (consistency, conflicts, replay), so the totals can match; the sets still differ.
+        Assert.Contains("- litespec/backend/persistence#query-through-the-read-session:", query.Output);
+        Assert.DoesNotContain("- litespec/backend/persistence#query-through-the-read-session:", command.Output);
+        Assert.Contains("- litespec/backend/application#implement-one-outcome-path-per-command:", command.Output);
+        Assert.DoesNotContain("- litespec/backend/application#implement-one-outcome-path-per-command:", query.Output);
     }
 
     /// <summary>An erasure use case collapses more than a command without erasure.</summary>
@@ -118,17 +121,81 @@ public sealed class ProvisionWhenTests
         var erasure = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ErasePersonalData/ErasePersonalDataCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ErasePersonalData/ErasePersonalDataCommandHandler.cs");
         var plain = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/ApproveExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, erasure.Status);
         Assert.Equal(0, plain.Status);
         Assert.True(
             CollapsedCount(erasure.Output, "use-case/spending.erase-personal-data") > CollapsedCount(plain.Output, "use-case/spending.approve-expense"),
             "The erasure handler collapses its erasure provisions while the plain command leaves them out.");
+    }
+
+    /// <summary>A command whose use case declares a queries edge keeps the cross-module provisions.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesCrossModuleCommandKeepsCrossModuleProvisions()
+    {
+        using var root = CopyCrossModuleFixture(withQueries: true);
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("- litespec/backend/application#ask-another-module-one-question-through-a-decision-port:", result.Output);
+        Assert.Contains("- litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator:", result.Output);
+        Assert.Contains("- litespec/backend/architecture#read-another-module-only-through-its-contracts:", result.Output);
+        Assert.Contains("- litespec/backend/architecture#send-commands-and-queries-upstream:", result.Output);
+    }
+
+    /// <summary>A command whose use case declares no queries edge omits the cross-module provisions.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesPlainCommandOmitsCrossModuleProvisions()
+    {
+        using var root = CopyCrossModuleFixture(withQueries: false);
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("litespec/backend/application#ask-another-module-one-question-through-a-decision-port", result.Output);
+        Assert.DoesNotContain("litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator", result.Output);
+        Assert.DoesNotContain("litespec/backend/architecture#read-another-module-only-through-its-contracts", result.Output);
+        Assert.DoesNotContain("litespec/backend/architecture#send-commands-and-queries-upstream", result.Output);
+    }
+
+    /// <summary>A command whose use case declares a commands edge keeps the same cross-module provisions as a queries edge.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesCommandsEdgeCommandKeepsCrossModuleProvisions()
+    {
+        using var commands = CopyCrossModuleFixture(withQueries: false, withCommands: true);
+        using var queries = CopyCrossModuleFixture(withQueries: true);
+        using var plain = CopyCrossModuleFixture(withQueries: false);
+        var handler = "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs";
+        var commandsResult = TestCli.Run("rules", "--root", commands.Path, handler);
+        var queriesResult = TestCli.Run("rules", "--root", queries.Path, handler);
+        var plainResult = TestCli.Run("rules", "--root", plain.Path, handler);
+
+        Assert.Equal(0, commandsResult.Status);
+        Assert.Equal(0, queriesResult.Status);
+        Assert.Equal(0, plainResult.Status);
+        foreach (var provision in new[]
+        {
+            "litespec/backend/architecture#send-commands-and-queries-upstream",
+            "litespec/backend/application#confirm-downstream-completion-through-an-upstream-command",
+        })
+        {
+            Assert.Contains("- " + provision + ":", commandsResult.Output);
+            Assert.Contains("- " + provision + ":", queriesResult.Output);
+            Assert.DoesNotContain(provision, plainResult.Output);
+        }
     }
 
     /// <summary>A record identifier prints conditional provisions with their condition shown.</summary>
@@ -162,38 +229,7 @@ public sealed class ProvisionWhenTests
         Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
     }
 
-    /// <summary>A code path marking a decision never returns the project provision.</summary>
-    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
-    [Fact]
-    public void RulesProjectProvisionNeverReturnsOnACodePath()
-    {
-        using var withStage = CopyDecisionsFixture(StageBlock);
-        using var withoutStage = CopyDecisionsFixture(null);
-        var marked = "apps/api/src/Demo/Billing/Invoicing/Audit/InvoiceRenderer.cs";
-        var withResult = TestCli.Run("rules", "--root", withStage.Path, marked);
-        var withoutResult = TestCli.Run("rules", "--root", withoutStage.Path, marked);
-
-        Assert.Equal(0, withResult.Status);
-        Assert.Equal(0, withoutResult.Status);
-        Assert.Equal(
-            CollapsedCount(withoutResult.Output, "decision/0008-render-invoices-as-pdf"),
-            CollapsedCount(withResult.Output, "decision/0008-render-invoices-as-pdf"));
-    }
-
-    /// <summary>A decision record prints the project provision with its condition shown.</summary>
-    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
-    [Fact]
-    public void RulesDecisionRecordShowsProjectCondition()
-    {
-        using var root = CopyDecisionsFixture(StageBlock);
-        var result = TestCli.Run("rules", "--root", root.Path, "decision/0008-render-invoices-as-pdf");
-
-        Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/ext/stage#promote-through-a-recorded-decision:", result.Output);
-        Assert.Contains("when project", result.Output);
-    }
-
-    /// <summary>A code path marking the named adoption decision keeps the audit-adoption provision.</summary>
+    /// <summary>A code path marking the named adoption decision keeps the audit-adoption provisions.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesNamedDecisionKeepsAuditAdoption()
@@ -211,11 +247,11 @@ public sealed class ProvisionWhenTests
         Assert.Equal(0, named.Status);
         Assert.Equal(0, other.Status);
         Assert.Equal(
-            CollapsedCount(other.Output, "decision/0008-render-invoices-as-pdf") + 1,
+            CollapsedCount(other.Output, "decision/0008-render-invoices-as-pdf") + ConditionalIds("audit-adoption").Count,
             CollapsedCount(named.Output, "decision/0007-adopt-audit-trail"));
     }
 
-    /// <summary>The audit-adoption provision follows the decision the audit selection names.</summary>
+    /// <summary>The audit-adoption provisions follow the decision the audit selection names.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesAuditAdoptionFollowsTheNamedDecision()
@@ -229,7 +265,7 @@ public sealed class ProvisionWhenTests
         Assert.Equal(0, namedResult.Status);
         Assert.Equal(0, otherResult.Status);
         Assert.Equal(
-            CollapsedCount(otherResult.Output, "decision/0008-render-invoices-as-pdf") + 1,
+            CollapsedCount(otherResult.Output, "decision/0008-render-invoices-as-pdf") + ConditionalIds("audit-adoption").Count,
             CollapsedCount(namedResult.Output, "decision/0008-render-invoices-as-pdf"));
     }
 
@@ -245,13 +281,6 @@ public sealed class ProvisionWhenTests
         Assert.Contains("- litespec/ext/audit#record-the-audit-adoption-decision:", result.Output);
         Assert.Contains("when audit-adoption", result.Output);
     }
-
-    /// <summary>The stage extension selection, as YAML under selectedExtensions.</summary>
-    const string StageBlock = """
-        - id: stage
-          criterion: no deployment holds customer data
-          releaseStage: pre-production
-        """;
 
     /// <summary>The audit extension selection naming the adoption decision, as YAML under selectedExtensions.</summary>
     /// <param name="decision">The adoption decision identifier.</param>
@@ -325,6 +354,63 @@ public sealed class ProvisionWhenTests
             /// <summary>Renders the invoice choice.</summary>
             /// <follows>decision/0008-render-invoices-as-pdf</follows>
             internal sealed class InvoiceRenderer;
+            """);
+
+        return temp;
+    }
+
+    /// <summary>Copies the rules-basic fixture with a command use case and a handler marking it.</summary>
+    /// <param name="withQueries">Whether the use case declares a queries edge to another module's public query.</param>
+    /// <param name="withCommands">Whether the use case declares a commands edge to another module's public command.</param>
+    /// <returns>The temporary consumer root.</returns>
+    static TempFolder CopyCrossModuleFixture(bool withQueries, bool withCommands = false)
+    {
+        var source = TestCli.Fixture("rules-basic");
+        var temp = TestCli.Temp("rules-cross-module");
+
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(temp.Path, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
+        }
+
+        var record = """
+            type: use-case
+            id: use-case/billing.reimburse-expense
+            title: Reimburse Expense
+            kind: command
+            """;
+
+        if (withQueries)
+        {
+            record += """
+
+                effects:
+                - queries: use-case/billing.read-invoice
+                  timing: inline
+                """;
+        }
+
+        if (withCommands)
+        {
+            record += """
+
+                effects:
+                - commands: use-case/billing.approve-invoice
+                  timing: inline
+                """;
+        }
+
+        AddFixtureFile(temp, ".litespec/behavior/invoicing/reimburse-expense.yaml", record);
+        AddFixtureFile(
+            temp,
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs",
+            """
+            namespace Demo.Billing.Invoicing.ReimburseExpense;
+
+            /// <implements>use-case/billing.reimburse-expense</implements>
+            internal sealed class ReimburseExpenseCommandHandler;
             """);
 
         return temp;

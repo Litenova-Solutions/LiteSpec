@@ -1,22 +1,20 @@
 # Read the Standard
 
-## Intent
-
-A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file `.litespec/project.yaml`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the departures the standard provides for rules a project cannot follow.
+A project applies only the part of LiteSpec its selection names: a Svelte frontend follows different pages than a React one, and a project with no backend has no use for the API rules. The project records its selection in `.litespec/project.yaml`: its size, shape, technology stacks, the record layers it claims, and the extensions it selects. That selection decides which pages apply.
 
 ## A Project's Selection
 
-Your project does not adopt all of LiteSpec. It makes five choices in `.litespec/project.yaml`, and those choices decide which pages apply:
+The selection is four choices, plus any extensions the project selects:
 
 | Choice | Options | What it changes |
 |:---|:---|:---|
-| Size | `small` or `large` | Which record types the project keeps. A large project adds problems, features, journeys, scenarios, and an Acceptance test project. |
-| Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project has no API and applies only the backend principles about modeling the domain. |
+| Size | `small` or `large` | Which record types the project keeps. A large project adds goals, problems, features, flows, and scenarios, with the Acceptance project. |
+| Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project names no backend stack: the architecture, domain, and application pages still apply to its domain model, while the persistence, HTTP API, and API testing pages have no target. |
 | Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |
-| Layers | `intent`, `behavior`, `implementation`, `proof` | Which record layers the project claims; [Adopt LiteSpec in Steps](adopting-litespec.md) walks through the claims. |
+| Layers | `intent`, `behavior`, `implementation`, `proof` | Which record layers the project claims, as [Supported Scope](../core/scope.md#layer-claims) states. |
 
-`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/select/) on the site does the same in a form and shows which pages apply.
+`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/select/) on the site fills in the same choices in a form and shows which pages apply.
 
 The Claimwick example in `examples/claimwick/` declares its own selection in `.litespec/project.yaml`:
 
@@ -34,13 +32,13 @@ layers:
   proof: litespec
 ```
 
-Read it as five answers: size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer claimed under LiteSpec practice. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`. Behavior needs intent, and implementation and proof each need behavior, so a project claims the layers in that order.
+That selection names size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer under LiteSpec practice. It applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.
 
-The project file holds more than the selection: `paths` points at the documentation roots, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team adopted. The [project file page](../reference/project-file.md) lists every field.
+The project file holds more than the selection. `paths` points at the folders the tools read, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team reviewed. The [project file page](../reference/project-file.md) lists every field.
 
 ## The Page Arrangement
 
-The folder a page sits in decides who applies it:
+The folder a page sits in decides which projects apply it:
 
 ```text
 docs/
@@ -57,75 +55,52 @@ docs/
   ext/                          only the extensions a project selects
 ```
 
-Selecting a stack applies its folder and every folder above it. A React project applies `frontend/`, `frontend/web/`, and `frontend/web/react/`. The upper pages state the principle, such as "pages compose shared components only". The lower pages state how one stack does it, such as which React component library and which test runner.
+Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack of their own. A React project applies `frontend/`, `frontend/web/`, and `frontend/web/react/`, and with `frontend/` it also applies `frontend/patterns/`, which holds no stack. The upper pages state the principle, for example that pages compose shared components only. The lower pages state how one stack follows it, for example which React component library and which test runner.
 
-The diagram below shows which folders a server project with the dotnet and react stacks applies, and which it does not.
+The diagram shows which folders a server project with the dotnet and react stacks applies, and which it does not.
 
 ![A server project with dotnet and react applies core, workspace, quality, backend, backend/dotnet, frontend, frontend/web, frontend/web/react, and selected extensions; it does not apply frontend/web/svelte or frontend/blazor.](../assets/diagrams/learn-selection-layers.svg)
 
-The other folders explain rather than govern: `learn/` (these pages), `tutorial/`, `guide/`, `reference/`, and `tools/`, which describes each command.
+The folders outside that map explain rather than govern. `learn/` holds these pages, `tutorial/` and `guide/` walk through tasks, `reference/` lists exact values, `example/` works through Claimwick, and `tools/` describes each command. The remaining folders serve those pages: the analyzer rules, the maintainer commands, LiteSpec's own records under `intent/`, and the diagrams under `assets/`.
 
 ## Page Sections and Provisions
 
 A standards page carries the same sections every time:
 
-- **Intent** introduces what the page covers, who applies it, and why it matters.
-- **Concepts**, when present, explain the ideas the rules use.
-- **Standards** are the rules you must follow.
-- **Conventions** are defaults you may replace with your own.
+- The lead says what the page covers, who applies it, and why it matters.
+- Concepts, when present, explain the ideas the rules use.
+- Standards holds the rules, each marked required or advisory.
+- Conventions holds defaults the project may replace with its own.
 
-Each rule is a heading followed by its ID line. Here is one from the [domain page](../backend/domain.md):
+Every rule on the page follows the same shape: a heading with its ID, strength, statement, and verification line, as the [Authoring Standard](../core/authoring.md) states.
 
-```markdown
-### Keep Domain Independent of Outer Layers
+## Waivers from the Rules
 
-**ID:** `litespec/backend/domain#keep-domain-independent-of-outer-layers`
+Projects depart from the standard in expected ways, and each way has a home:
 
-**Strength:** required
+- **A waiver record** sets a provision, a page, or a finding code aside for named records or paths, with its kind and its reason. A covered finding reports as covered instead of blocking, and an agent follows the waiver over the standard.
+- **A project convention** is a standing rule every change follows, written in the provision shape under `.litespec/governance/conventions/`.
+- **A deviation from advice** needs no record. An advisory provision binds no project, so the team follows it with judgment. A `SHOULD` or `SHOULD NOT` provision states its exit in its `**Deviation:**` part.
+- **An extension** can replace a baseline rule when the project selects it. The outbox extension, for example, replaces the baseline rule for collecting events with its own.
 
-**Statement:** The Domain code MUST reference only the language standard library and project-owned Domain types.
+Every waiver states its kind and what it covers; [Waivers](../core/waivers.md) states the kinds and the fields each carries.
 
-**Rationale:** Domain that references only the language standard library and its own types compiles and tests with no infrastructure at all.
+A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach.
 
-**Reviewed for:** Domain code references the language standard library and project-owned Domain types, with no outer-layer reference.
-```
+A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`.
 
-Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. Its **Strength** line states how binding it is: `required` binds every project it applies to, `default` binds unless the project records its own choice, and `advisory` is experience to apply with judgement. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation. A page scope names its concern, and a provision states its own layer or trace only when it differs from its page.
+A convention's `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`. `rules` reads conventions only from the conventions folder.
 
-Each page also states the scope its provisions apply to: the technology, the part of the system, and the kind of thing made. A provision narrower than its page names its scope, so an agent editing one file can ask which provisions govern it. The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
+The scope must reach files: `model check` reports `convention-unreached` for a convention whose `Applies to` matches no file, folder, or record. Claimwick's `claimwick/conventions#confirm-large-payouts` applies to `behavior/entry-points/claimwick-app/screens/*/*`, the screens its payout rule governs.
 
-## Departures from the Rules
+When guidance overlaps, the most specific source wins: your waiver or convention first, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the waiver in place of the original.
 
-The standard expects departures and gives each one a home:
-
-- **A departure record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date and an exit. An agent follows the departure over the standard, and a covered finding reports as covered instead of blocking.
-- **A project convention** is a standing rule every change follows, stated in the provision shape under `.litespec/governance/conventions/`. A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it; a convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads only the conventions folder.
-- **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
-
-When guidance overlaps, the most specific source wins: your departure or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the departure in place of the original.
-
-The Claimwick example carries six departures under `.litespec/governance/departures/`. One of them, `examples/claimwick/.litespec/governance/departures/export-review-bypass/export-review-bypass.yaml`, reads:
-
-```yaml
-type: departure
-id: departure/export-review-bypass
-title: Export Review Bypass
-covers:
-  - litespec/backend/application#enforce-target-authorization-in-the-pipeline
-subject:
-  - use-case/spending.export-expenses
-reason: The weekend export runs with no reviewer on shift.
-consequences: Weekend exports run without a second pair of eyes until a reviewer returns.
-expiresOn: 2027-01-01
-exit: A reviewer approves weekend exports before they run.
-```
-
-Read it as one departure: it names the provision it covers, the records it sets aside, the reason, the consequences, and the date and exit by which the gap closes. An agent follows the departure over the standard until that date.
+Claimwick carries waivers under `.litespec/governance/waivers/`, and [The Model and Its Checks](../example/model-and-checks.md#a-waiver-that-covers-a-finding) shows one of them covering a finding. An agent follows a live waiver over the standard until its expiry date.
 
 ## UI Patterns
 
-The pages in `frontend/patterns/` work differently. Each one covers a group of recurring interface questions, such as how a record's page header is laid out or how a list filters. Every pattern offers several options, each drawn as a wireframe, and names a default. Your project keeps a catalog of the option it chose for each pattern. The site draws every option on the pattern's page, so you can choose by looking.
+The pages in `docs/frontend/patterns/` work differently. Each one covers a group of recurring interface questions, such as how a record's page header is laid out or how a list filters. Every pattern offers several options, each drawn as a wireframe, and names a default. Your project keeps a catalog of the option it chose for each pattern, and the site draws every option on the pattern's page, so you can choose by looking.
 
 ## Next
 
-[Work with Agents](working-with-agents.md) explains how an agent uses the standard and the records together.
+[Work with Agents](working-with-agents.md) shows how an agent uses the standard and the records together.

@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class AdvisoryCheckTests
 {
     /// <summary>Use Case Without Summary Reports.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void UseCaseWithoutSummaryReports()
     {
@@ -23,7 +23,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Use Case With Summary Passes.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void UseCaseWithSummaryPasses()
     {
@@ -36,14 +36,14 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Reaction Without Summary Reports.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void ReactionWithoutSummaryReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-missing");
         Assert.Equal("A", finding.Tier);
@@ -52,7 +52,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Goal Without Statement Reports.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void GoalWithoutStatementReports()
     {
@@ -68,7 +68,7 @@ public sealed class AdvisoryCheckTests
     }
 
     /// <summary>Goal With Summary And Statement Passes.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
     [Fact]
     public void GoalWithSummaryAndStatementPasses()
     {
@@ -80,29 +80,29 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Atomic With Two Cites Rules Reports.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <summary>Atomic With Two BoundBy Rules Reports.</summary>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
-    public void AtomicWithTwoCitesRulesReports()
+    public void AtomicWithTwoBoundByRulesReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "boundBy": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
 
-        Assert.Contains("atomic-group-duplicate", TestModel.Codes(model));
+        Assert.Contains("atomicity-duplicate", TestModel.Codes(model));
     }
 
-    /// <summary>Atomic With One Cites Rule Passes.</summary>
-    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
+    /// <summary>Atomic With One BoundBy Rule Passes.</summary>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
     [Fact]
-    public void AtomicWithOneCitesRulePasses()
+    public void AtomicWithOneBoundByRulePasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan"]}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "boundBy": ["rule/loan.one-open-loan"]}}"""));
 
-        Assert.DoesNotContain("atomic-group-duplicate", TestModel.Codes(model));
+        Assert.DoesNotContain("atomicity-duplicate", TestModel.Codes(model));
     }
 }

@@ -105,7 +105,7 @@ internal sealed partial class ProvisionValidator
                     else if (name == "Deviation" && provision.Section == "Standards")
                     {
                         // The modal lives in the Statement; the Deviation states the
-                        // bounded reason that permits a departure, in plain words.
+                        // bounded reason that permits a deviation, in plain words.
                         if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
                             add(relative, item.Number, MaintainerDiagnostics.Codes.StandardDeviationNormative, $"Deviation for '{provision.Id}' contains normative vocabulary");
@@ -238,6 +238,8 @@ internal sealed partial class ProvisionValidator
             add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardSentenceCount, $"Statement for '{provision.Id}' must contain one sentence");
         }
 
+        // A recommendation states the bounds its advice is set aside within, so it carries a Deviation statement.
+        // A required Statement carries none: a waiver from it is recorded in the project's waivers.
         var should = ShouldPattern().IsMatch(visibleStatement);
         var deviations = nonblank.Where(item => item.Line.StartsWith("**Deviation:**", StringComparison.Ordinal)).ToList();
         if (should && deviations.Count == 0)
@@ -286,10 +288,10 @@ internal sealed partial class ProvisionValidator
         }
 
         // A Replacement names the local convention that takes the default's
-        // place. A departure instrument belongs to a Standard, never here.
-        if (replacements.Count > 0 && DeviationMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
+        // place. A waiver instrument belongs to a Standard, never here.
+        if (replacements.Count > 0 && WaiverMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
         {
-            add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementDeviation, $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
+            add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementWaiver, $"Replacement for '{provision.Id}' names an exception or waiver; name the local convention instead");
         }
     }
 
@@ -351,7 +353,7 @@ internal sealed partial class ProvisionValidator
         var add = Context.Add;
         // A provision whose Statement or Default only repeats its own heading
         // states no obligation. The heading is a label; the assertion belongs in the
-        // labeled block. (litespec/core/authoring#write-atomic-standards-provisions, litespec/core/authoring#identify-actionable-conventions)
+        // labeled block. (litespec/core/authoring#keep-each-standard-to-one-obligation, litespec/core/authoring#write-each-convention-with-a-default-and-a-replacement)
         foreach (var provision in provisions)
         {
             var label = provision.Section == "Standards" ? "Statement" : "Default";
@@ -934,10 +936,10 @@ internal sealed partial class ProvisionValidator
     [GeneratedRegex(@"\b(?:REQUIRED|FORBIDDEN|SHALL)\b")]
     private static partial Regex OtherNormativePattern();
 
-    /// <summary>Gets the pattern that matches a deviation mention.</summary>
+    /// <summary>Gets the pattern that matches a waiver mention.</summary>
     /// <returns>The compiled pattern.</returns>
-    [GeneratedRegex(@"\b(?:exceptions?|deviations?)\b", RegexOptions.IgnoreCase)]
-    private static partial Regex DeviationMentionPattern();
+    [GeneratedRegex(@"\b(?:exceptions?|waivers?)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex WaiverMentionPattern();
 
     /// <summary>Gets the pattern that matches generic evidence wording.</summary>
     /// <returns>The compiled pattern.</returns>

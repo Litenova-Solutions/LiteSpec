@@ -212,8 +212,9 @@ static class ClassDetailsReader
     }
 
     /// <summary>
-    ///     The injected names a class may call: its constructor parameters plus the fields and
-    ///     properties an explicit constructor assigns from them, each with its simple type name.
+    ///     The injected names a class may call: its constructor parameters, the fields and
+    ///     properties an explicit constructor assigns from them, and the fields and properties
+    ///     a primary-constructor parameter initializes, each with its simple type name.
     /// </summary>
     /// <param name="declared">The class declaration.</param>
     /// <returns>The injected names the class may call, each with its simple type name.</returns>
@@ -226,11 +227,18 @@ static class ClassDetailsReader
             return types;
         }
 
-        if (typed.ParameterList is { } primary)
+        var primary = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (typed.ParameterList is { } primaryList)
         {
-            foreach (var parameter in primary.Parameters)
+            foreach (var parameter in primaryList.Parameters)
             {
                 AddParameter(parameter);
+
+                if (parameter.Type is not null && parameter.Identifier.ValueText.Length > 0)
+                {
+                    primary.TryAdd(parameter.Identifier.ValueText, DotnetNames.SimpleTypeName(parameter.Type));
+                }
             }
         }
 
@@ -241,15 +249,16 @@ static class ClassDetailsReader
                 AddParameter(parameter);
             }
 
-            if (constructor.Body is null)
-            {
-                continue;
-            }
+            IEnumerable<AssignmentExpressionSyntax> assignments = constructor.Body is not null
+                ? constructor.Body.DescendantNodes().OfType<AssignmentExpressionSyntax>()
+                : constructor.ExpressionBody is not null
+                    ? constructor.ExpressionBody.DescendantNodesAndSelf().OfType<AssignmentExpressionSyntax>()
+                    : [];
 
-            foreach (var assignment in constructor.Body.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+            foreach (var assignment in assignments)
             {
-                if (assignment.Right is not IdentifierNameSyntax source
-                    || !types.TryGetValue(source.Identifier.ValueText, out var type))
+                if (SourceOf(assignment.Right) is not { } source
+                    || !types.TryGetValue(source, out var type))
                 {
                     continue;
                 }
@@ -268,6 +277,32 @@ static class ClassDetailsReader
             }
         }
 
+        // A primary-constructor parameter captured in a field or property initializer keeps
+        // its type under the member's name. An explicit constructor's parameters are out of
+        // scope in an initializer, so only primary parameters match there.
+        foreach (var field in typed.Members.OfType<FieldDeclarationSyntax>())
+        {
+            foreach (var variable in field.Declaration.Variables)
+            {
+                if (variable.Initializer?.Value is { } value
+                    && SourceOf(value) is { } source
+                    && primary.TryGetValue(source, out var type))
+                {
+                    types.TryAdd(variable.Identifier.ValueText, type);
+                }
+            }
+        }
+
+        foreach (var property in typed.Members.OfType<PropertyDeclarationSyntax>())
+        {
+            if (property.Initializer?.Value is { } value
+                && SourceOf(value) is { } source
+                && primary.TryGetValue(source, out var type))
+            {
+                types.TryAdd(property.Identifier.ValueText, type);
+            }
+        }
+
         return types;
 
         void AddParameter(ParameterSyntax parameter)
@@ -278,4 +313,16 @@ static class ClassDetailsReader
             }
         }
     }
+
+    /// <summary>The constructor parameter an assigned value comes from: the name itself, through a null guard, a null-forgiving operator, or parentheses.</summary>
+    /// <param name="value">The assigned value.</param>
+    /// <returns>The source parameter name, or null when the value names none.</returns>
+    private static string? SourceOf(ExpressionSyntax value) => value switch
+    {
+        IdentifierNameSyntax plain => plain.Identifier.ValueText,
+        BinaryExpressionSyntax coalesce when coalesce.OperatorToken.ValueText == "??" => SourceOf(coalesce.Left),
+        PostfixUnaryExpressionSyntax postfix => SourceOf(postfix.Operand),
+        ParenthesizedExpressionSyntax parenthesized => SourceOf(parenthesized.Expression),
+        _ => null,
+    };
 }

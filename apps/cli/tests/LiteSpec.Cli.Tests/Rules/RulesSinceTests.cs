@@ -39,6 +39,38 @@ public sealed class RulesSinceTests
         Assert.Equal(1, Occurrences(result.Output, "litespec/backend/api#keep-one-name-for-a-use-case-across-layers"));
     }
 
+    /// <summary>Every skeleton line carries its file count, most governed first, and a provision both files share governs two files.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void SinceSkeletonCarriesFileCountsMostGovernedFirst()
+    {
+        using var root = CopyFixture("rules-basic", "rules-since");
+        CommitAll(root.Path);
+        Touch(root.Path, "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+        Touch(root.Path, "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs");
+        var result = TestCli.Run("rules", "--root", root.Path, "--since", "HEAD");
+
+        Assert.Equal(0, result.Status);
+
+        var lines = result.Stdout
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .Where(line => line.StartsWith("- ", StringComparison.Ordinal))
+            .ToList();
+
+        Assert.NotEmpty(lines);
+        Assert.All(lines, line => Assert.Contains(" file", line, StringComparison.Ordinal));
+
+        var counts = lines.Select(FileCountOf).ToList();
+
+        for (var index = 1; index < counts.Count; index++)
+        {
+            Assert.True(counts[index] <= counts[index - 1], "The skeleton orders by governing file count, most first.");
+        }
+
+        Assert.Contains(lines, line => line.StartsWith("- litespec/backend/api#keep-one-name-for-a-use-case-across-layers (2 files): ", StringComparison.Ordinal));
+    }
+
     /// <summary>A convention without a verification line asks its Default sentence in the skeleton.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
@@ -51,7 +83,7 @@ public sealed class RulesSinceTests
         var result = TestCli.Run("rules", "--root", root.Path, "--since", "HEAD");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- demo/conventions#unstated-verification: Every invoice render keeps one layout.", result.Output);
+        Assert.Contains("- demo/conventions#unstated-verification (1 file): Every invoice render keeps one layout.", result.Output);
         Assert.Contains("  How judged:", result.Output);
     }
 
@@ -89,6 +121,16 @@ public sealed class RulesSinceTests
     /// <returns>The count of non-overlapping occurrences.</returns>
     static int Occurrences(string text, string value) =>
         text.Split(value, StringSplitOptions.None).Length - 1;
+
+    /// <summary>The file count a skeleton line carries, from its <c>(N file)</c> or <c>(N files)</c> span.</summary>
+    /// <param name="line">The skeleton line.</param>
+    /// <returns>The governing file count.</returns>
+    static int FileCountOf(string line)
+    {
+        var open = line.IndexOf(" (", StringComparison.Ordinal);
+        var close = line.IndexOf(" file", StringComparison.Ordinal);
+        return int.Parse(line.AsSpan(open + 2, close - open - 2), System.Globalization.CultureInfo.InvariantCulture);
+    }
 
     /// <summary>Appends a comment line to the fixture file, so git sees it changed.</summary>
     /// <param name="root">The temporary consumer root.</param>

@@ -4,33 +4,37 @@
 
 **Concern:** infrastructure
 
-## Intent
-
-Commands change aggregates and queries read them, with neither touching the database directly: repositories stage writes, the read session serves queries, and one post-handler commits each command. This page states that boundary, the transaction shape, and the obligations on stored data. One explicit boundary keeps storage decisions reviewable in Infrastructure instead of scattered through handlers.
+Commands change aggregates and queries read them, and neither touches the database directly. This page states that boundary, the transaction shape, and the obligations on stored data.
 
 ## Concepts
 
 ### The Storage Boundary
 
-A command handler reaches persistence only through Domain repositories. It loads aggregates through their Domain repositories, calls Domain behavior, and stages the changed aggregates back through those repositories. Exactly one command post-handler then commits the command session. A query handler projects its result through the read session instead of loading an aggregate, with filtering, scope, ordering, and limit applied before materialization.
+A command handler reaches persistence only through Domain repositories. It loads aggregates through them, calls Domain behavior, and stages the changed aggregates back through them.
 
-In the Claimwick product, `use-case/spending.submit-expense` stages the new expense through its repository, and one post-handler commits once after the handler returns. A failed submission leaves the session uncommitted, so no partial expense is stored. One store stays the default, configured in the product-level `Infrastructure/` folder, while each module's mappings and repositories live in its own `Infrastructure/` folders.
+Exactly one command post-handler then commits the command session.
+
+A query handler projects its result through the read session instead of loading an aggregate, applying filtering, scope, ordering, and limit before materialization.
+
+In the Claimwick product, `use-case/spending.submit-expense` stages the new expense through its repository, and one post-handler commits once after the handler returns. A failed submission leaves the session uncommitted, so no partial expense is stored.
+
+One store stays the default, configured in the product-level `Infrastructure/` folder. Each module keeps its mappings and repositories in its own `Infrastructure/` folders, beside the aggregates they store. One explicit boundary keeps storage decisions reviewable in Infrastructure instead of scattered through handlers.
 
 ### Consistency Modes
 
-Each use-case record declares one consistency mode, and persistence honors it. `atomic` commits everything the handler staged in one unit of work. `per-record` lets a job run one command per record, and each command commits alone with the cursor resuming the rest. `compensated` commits each step in its own command, and a failure runs the compensation the step declares. Every mode still commits once per command pipeline; the mode decides how work splits across commands.
+Each use-case record declares one consistency mode, and persistence commits exactly that way. Under `atomic`, everything the handler staged commits in one unit of work. With `guards`, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under `per-record`, a job runs one command per record. Each command commits alone, and the cursor resumes the rest after a failure. Every mode still commits once per command pipeline. The mode decides how work splits across commands, not how a command commits.
 
 ### Provider-Neutral and Provider-Specific Rules
 
-The persistence provisions divide into two groups, so a project that replaces the provider knows which obligations move with it.
+The provisions below divide into two groups, so a project that replaces its provider knows which obligations move with it.
 
-Provider-neutral provisions state the boundary, the transaction shape, and the obligations on stored data: writes go through Domain repositories, queries project through the read session, and exactly one post-handler commits each command. Each one states an obligation the provider does not change.
+Provider-neutral provisions state the boundary, the transaction shape, and the obligations on stored data. Writes go through Domain repositories, queries project through the read session, and exactly one post-handler commits each command. The provider does not change any of these obligations.
 
-Provider-specific provisions name the member names and configuration surface the pinned provider supplies, such as the document alias, the JSON contract ownership, and the session registration. The [.NET persistence binding](dotnet/persistence.md) names the baseline provider and the calls that perform each obligation.
+Provider-specific provisions name the members and configuration surface the pinned provider supplies, such as the document alias, the JSON contract ownership, and the session registration. The [.NET persistence binding](dotnet/persistence.md) names the baseline provider and the calls that perform each obligation.
 
 Each aggregate runs under exactly one provider.
 
-The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.yaml` records which choices a consumer made.
+The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one. `.litespec/project.yaml` records which choices a consumer made.
 
 ## Standards
 
@@ -44,9 +48,11 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Statement:** A command handler MUST reach persistence only through a Domain repository, never through the session directly.
 
-**Rationale:** The repository is the only path from a handler to the store, so every write passes a reviewable boundary that loads one aggregate type. Infrastructure implements each repository with the command session, and the repository exposes no session, generic query, or save operation. A handler that reached the session directly bypasses aggregate loading and scatters store calls through Application.
+**Rationale:** The repository is the one reviewable path from a handler to the store, shaped around one aggregate type. Without it, handlers reach the session directly, bypass aggregate loading, and scatter store calls through Application. Infrastructure implements each repository with the command session. The repository exposes no session, generic query, or save operation.
 
-**Checked by:** `litespec model check` reports `repository-unimplemented` (level S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository.
+**Example:** The submit-expense handler stages the new expense through the expense repository; it names no session and issues no store call of its own.
+
+**Checked by:** `litespec model check` reports `repository-unimplemented` (level S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository, and `code-placement-drift` for a repository implementation outside its aggregate's `Persistence/` folder.
 
 ### Query Through the Read Session
 
@@ -58,9 +64,9 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Statement:** A query handler MUST project through the read session, applying filter, scope, ordering, and limit before materialization.
 
-**Rationale:** The session already projects, filters, and pages, so a read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that only repeats it. Applying filter, scope, ordering, and limit before materialization keeps that work in the database; materializing first loads rows the caller does not see. Ordering and paging follow `litespec/backend/api#bound-collection-queries`.
+**Rationale:** The session already projects, filters, and pages. A read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that only repeats it. Applying filter, scope, ordering, and limit before materialization keeps that work in the database. Materializing first loads rows the caller does not see. Ordering and paging follow `litespec/backend/api#bound-collection-queries`.
 
-**Reviewed for:** Which query handlers project outside the read session, or apply filter, scope, ordering, or limit after materialization? Look at each query handler body.
+**Reviewed for:** Is any query handler projecting outside the read session, or applying filter, scope, ordering, or limit after materialization? Look at each query handler body.
 
 ### Commit Each Command Pipeline Once
 
@@ -72,7 +78,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Statement:** Exactly one global command post-handler MUST commit the session for a command pipeline.
 
-**Rationale:** One commit point makes the transaction boundary visible: everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline leaves a partial write behind. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing. A declared consistency mode other than `atomic` splits work across commands; each command still commits once.
+**Rationale:** One commit point makes the transaction boundary visible. Everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline would leave a partial write behind. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing. Every command runs as a top-level pipeline with its own commit, because no handler sends a command. A command uses no caller's commit. A declared consistency mode other than `atomic` splits work across commands. Each command still commits once.
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` stages the expense through its Domain repository, and one post-handler commits once after the handler returns:
 
@@ -82,9 +88,9 @@ post-handler collects the pending events
 post-handler commits the session once
 ```
 
-A failed submission leaves the session uncommitted, so no partial expense is stored. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing.
+A failed submission leaves the session uncommitted, so no partial expense is stored.
 
-**Reviewed for:** Which pipelines commit outside one command post-handler, or which handlers, repositories, validators, reactions, jobs, or endpoints commit? Look at the commit calls in each pipeline.
+**Reviewed for:** Does any pipeline commit outside one command post-handler, or do any handlers, repositories, validators, reactions, jobs, or endpoints commit? Look at the commit calls in each pipeline.
 
 ### Honor the Declared Consistency Mode
 
@@ -96,11 +102,11 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
-**Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `cites` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the job resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
+**Rationale:** Under `atomic`, everything the handler staged commits in one unit of work, citing the rule in `boundBy` and the decision in the rule's `basedOn` when `writes` names more than one aggregate. When `consistency` names `guards`, the guarded read holds each guard to commit by a lock, a version check, or serializable isolation, and the stack page fixes which. Under `per-record`, each record's command commits alone, and the job resumes from its cursor after a failure. A second commit inside one command splits one unit of work across two transactions. A failure between them leaves a partial write.
 
-**Example:** The erase-expired-data job commits each expense alone under `per-record`; the submit-expense command commits its staged aggregates together under `atomic`.
+**Example:** The erase-expired-data job commits each expense alone under `per-record`, while the submit-expense command commits its staged aggregates together under `atomic`.
 
-**Reviewed for:** Which commands commit outside their record's `consistency` mode? Look at each commit beside the record's mode.
+**Reviewed for:** Is any command committed in a shape its record's `consistency` mode does not declare? Look at each commit beside the record's mode.
 
 ### Collect Events Without a Public Unit of Work
 
@@ -112,9 +118,9 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** A repository MUST register each touched aggregate with the internal event buffer that the post-handler drains.
 
-**Rationale:** Pending events leave the process exactly when their write commits, so the post-handler drains the buffer and commits in one place. A public unit-of-work type exposes that mechanics to every handler; the internal buffer keeps it inside the pipeline. Async delivery leaves after the commit succeeds.
+**Rationale:** Pending events leave the process exactly when their write commits. The post-handler drains the buffer and commits in one place. A public unit-of-work type would expose that mechanism to every handler. The internal buffer keeps it inside the pipeline. Async delivery leaves after the commit succeeds.
 
-**Reviewed for:** Which repositories skip the internal event buffer, or which event mechanics escape into a public type? Look at the repository staging calls beside the post-handler.
+**Reviewed for:** Is any touched aggregate missing from the internal event buffer, or any event mechanics exposed through a public type? Look at the repository staging calls beside the post-handler.
 
 ### Keep Mappings and Aliases Explicit
 
@@ -126,9 +132,9 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Each stored aggregate MUST declare a stable document alias, typed-identifier mapping, and the indexes its accepted queries need.
 
-**Rationale:** Document types and collection names are storage identity: if they followed code names, renaming a class orphans every stored document. An explicit alias, identifier mapping, and index list keeps storage identity independent of code names, with the store configuration owned in Infrastructure.
+**Rationale:** Document types and collection names are storage identity. If they followed code names, renaming a class would orphan every stored document. An explicit alias, identifier mapping, and index list keeps storage identity independent of code names. The store configuration owned in Infrastructure holds all three.
 
-**Reviewed for:** Which stored aggregates lack a stable document alias, typed-identifier mapping, or index list? Look at the store configuration for each aggregate.
+**Reviewed for:** Is any stored aggregate missing a stable document alias, a typed-identifier mapping, or the indexes its accepted queries need? Look at the store configuration for each aggregate.
 
 ### Keep Serialization Behavior Out of Domain
 
@@ -140,11 +146,11 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Infrastructure MUST own the JSON contract for stored documents, including member names, constructors, converters, and polymorphic registration.
 
-**Rationale:** Serialization metadata on Domain types couples the business model to one store's format, so changing the format means editing the rules. Infrastructure owns member names, constructors, converters, and polymorphic registration, and Domain stays free of serialization metadata. Every concrete type behind a base or interface is registered, because an unregistered subtype fails at read time.
+**Rationale:** Serialization metadata on Domain types couples the business model to one store's format. Changing the format then means editing the rules. Infrastructure owns member names, constructors, converters, and polymorphic registration. Domain stays free of serialization metadata. Every concrete type behind a base or interface is registered, because an unregistered subtype fails at read time.
 
-Registration covers the types this store actually persists. The store that writes a union referenced from another aggregate registers it once, rather than every store that names the referencing type. The store persists no type reachable only through an identifier here, and it needs no registration.
+Registration covers the types this store actually persists. The store that writes a union referenced from another aggregate registers it once, instead of every store that names the referencing type. A type reachable only through an identifier is persisted by no store here, so it needs no registration.
 
-**Reviewed for:** Which Domain types carry serialization metadata, or which stored JSON contracts escape Infrastructure? Look at the Domain types beside the Infrastructure JSON contract.
+**Reviewed for:** Is any serialization metadata sitting on a Domain type, or any stored JSON contract owned outside Infrastructure? Look at the Domain types beside the Infrastructure JSON contract.
 
 ### Evolve Stored Document Contracts Explicitly
 
@@ -156,15 +162,15 @@ Registration covers the types this store actually persists. The store that write
 
 **Statement:** A rename, removal, type change, member move, or discriminator change MUST have a reviewed data transformation or an expand-and-contract rollout.
 
-**Rationale:** Stored JSON member names, required values, and discriminator values are database schema: old documents stay on disk after the code changes. Without a reviewed transformation or an expand-and-contract rollout, a rename or type change makes old documents unreadable. An additive member still defines its behavior for documents written earlier.
+**Rationale:** Stored JSON member names, required values, and discriminator values are database schema. Old documents stay on disk after the code changes. Without a reviewed transformation or an expand-and-contract rollout, a rename or type change makes old documents unreadable. An additive member still defines its behavior for documents written earlier.
 
-An additive change is the only kind that needs no transformation, and it is additive only when every earlier document stays valid. A new member with a defined absent-value behavior qualifies. A new required member, a narrowed type, and a new discriminator value that an earlier reader rejects do not.
+An additive change is the only kind that needs no transformation. It counts as additive only when every earlier document stays valid. A new member with a defined absent-value behavior qualifies. A new required member, a narrowed type, or a new discriminator value that an earlier reader rejects does not.
 
-**Reviewed for:** Which renames, removals, type changes, member moves, or discriminator changes lack a reviewed transformation or an expand-and-contract rollout? Look at each stored-contract change.
+**Reviewed for:** Is any rename, removal, type change, member move, or discriminator change shipping without a reviewed transformation or an expand-and-contract rollout? Look at each stored-contract change.
 
-### Bound Aggregate Document Growth
+### Keep Unbounded Collections Out of Aggregate Documents
 
-**ID:** `litespec/backend/persistence#bound-aggregate-document-growth`
+**ID:** `litespec/backend/persistence#keep-unbounded-collections-out-of-aggregate-documents`
 
 **Strength:** required
 
@@ -172,9 +178,9 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **Statement:** An aggregate document MUST NOT embed a collection that has no accepted business bound.
 
-**Rationale:** A document grows with every write to its collection, so an unbounded embedded collection eventually exceeds size limits and slows every load of its aggregate. Data without an accepted business bound belongs in another aggregate, an owned document record, or a separate query-shaped document, depending on the consistency boundary it needs.
+**Rationale:** A document grows with every write to its collection. An unbounded embedded collection eventually exceeds size limits and slows every load of its aggregate. Data with no accepted business bound belongs in another aggregate, an owned document record, or a separate query-shaped document, depending on the consistency boundary it needs.
 
-**Reviewed for:** Which aggregate documents embed a collection with no accepted business bound? Look at the embedded collections in each document.
+**Reviewed for:** Is any collection with no accepted business bound embedded in an aggregate document? Look at the embedded collections in each document.
 
 ### Use Database Naming Conventions
 
@@ -186,9 +192,9 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **Statement:** A database schema, table, column, index, constraint, document alias, or SQL identifier MUST use `snake_case`.
 
-**Rationale:** One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: the store configuration sets the casing, so no configuration repeats the rule per entity.
+**Rationale:** One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once. The store configuration sets the casing. No configuration repeats the rule per entity.
 
-**Reviewed for:** Which generated database identifiers break `snake_case`? Look at the schemas, tables, columns, and indexes.
+**Reviewed for:** Is any schema, table, column, index, constraint, document alias, or SQL identifier breaking `snake_case`? Look at the schemas, tables, columns, and indexes.
 
 ### Control Production Schema Changes
 
@@ -200,11 +206,11 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **Statement:** A hosted environment MUST apply schema changes through a reviewed step before traffic shifts, not from a starting replica.
 
-**Rationale:** A schema change that runs from a starting replica races every other starting replica, and the winner is nondeterministic. A reviewed step produces the migration artifact, and a deployment step applies that artifact before traffic shifts. Development and disposable integration databases still apply schema automatically.
+**Rationale:** A schema change that runs from a starting replica races every other starting replica. The winner is nondeterministic. A reviewed step produces the migration artifact instead. A deployment step applies that artifact before traffic shifts. Development and disposable integration databases still apply schema automatically.
 
-A tool that alters the schema from application startup is not a reviewed step whichever provider runs it.
+A tool that alters the schema from application startup is no reviewed step, whichever provider runs it.
 
-**Reviewed for:** Which hosted schema changes run outside a reviewed step before traffic shifts? Look at the deployment steps beside the startup paths.
+**Reviewed for:** Is any hosted schema change applied outside a reviewed step before traffic shifts, or from a starting replica? Look at the deployment steps beside the startup paths.
 
 ### Test Persistence Against the Pinned Database
 
@@ -216,13 +222,13 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Repository behavior, projections, mappings, correctness indexes, commit behavior, and schema application MUST run against the pinned database.
 
-**Rationale:** Only the pinned database runs the real query planner, constraints, and type behavior. An in-memory substitute proves the test's own model of the database, so a query that passes against it fails in production. HTTP integration through the real host is covered under `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
+**Rationale:** Only the pinned database runs the real query planner, constraints, and type behavior. An in-memory substitute proves the test's own model of the database. A query that passes against it fails in production. HTTP integration through the real host is covered under `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
 
-**Reviewed for:** Which persistence tests run outside the pinned database, or against an in-memory substitute? Look at the persistence test fixtures.
+**Reviewed for:** Is any repository behavior, projection, mapping, correctness index, commit behavior, or schema application tested outside the pinned database, or against an in-memory substitute? Look at the persistence test fixtures.
 
-### Read Collection Queries in the Store with Paging and Filters
+### Page and Filter Collection Queries in the Store
 
-**ID:** `litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters`
+**ID:** `litespec/backend/persistence#page-and-filter-collection-queries-in-the-store`
 
 **Strength:** required
 
@@ -230,9 +236,9 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each collection query MUST page and filter in the store, never load a whole list to shape it in memory.
 
-**Rationale:** A query that loads a whole list to filter, sort, or page it in memory pays the full read on every call and breaks when the data grows. Repository list methods take the scope and the page and filter in the database, through the shared page request and page shapes.
+**Rationale:** A query that loads a whole list to filter, sort, or page it in memory pays the full read on every call. It breaks when the data grows. Repository list methods take the scope and the page and filter in the database instead, through the shared page request and page shapes.
 
-**Example:** The list-expenses query passes its employee scope and page to the repository, while a handler that filters a full list in memory is reported.
+**Example:** The list-expenses query passes its employee scope and page to the repository. A handler that filters a full list in memory is reported.
 
 **Checked by:** `litespec model check` reports `query-filter-invalid` (level A) for a query handler filtering a repository list in memory.
 
@@ -246,11 +252,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each legal document number MUST allocate from a per-owner sequence taken in the command transaction.
 
-**Rationale:** A number computed from a count plus one hands two concurrent issues the same legal number. A per-owner counter row taken in the command transaction allocates each number once, whatever races it.
+**Rationale:** A number computed from a count plus one gives two concurrent issues the same legal number. A per-owner counter row taken in the command transaction allocates each number once, no matter what races it.
 
-**Example:** The reimburse-expense command takes its number from the spending payout sequence, never from a list count.
+**Example:** The reimburse-expense command takes its number from the spending payout sequence, not from a list count.
 
-**Reviewed for:** Which legal document numbers allocate outside a per-owner sequence taken in the command transaction? Look at each number allocation.
+**Reviewed for:** Is any legal document number allocated outside a per-owner sequence taken in the command transaction? Look at each number allocation.
 
 ### Enforce Uniqueness in the Store
 
@@ -262,11 +268,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each uniqueness rule MUST be enforced by the store, through a unique index over the stored value or, for a record that exists at most once per owner, through an identity derived from its owner.
 
-**Rationale:** The store is the only place that sees every concurrent write, while a check in code sees only its own transaction: two commands that both check and then both write store the same value twice. A unique index or an owner-derived identity makes the second write fail in the store instead. When the rule ignores case or spacing, the stored value is normalized before writing and the index covers the normalized field, so differently cased writes still collide.
+**Rationale:** The store is the only place that sees every concurrent write. A check in code sees only its own transaction. Two commands that both check and then both write store the same value twice. A unique index or an owner-derived identity makes the second write fail in the store instead. When the rule ignores case or spacing, the stored value is normalized before writing and the index covers the normalized field. Differently cased writes still collide.
 
-**Example:** In the Claimwick product, each payout carries a legal document number that is unique per spending owner; the store holds a unique index over the owner and number pair, so two concurrent reimbursements collide on the index and the loser ends with the use case conflict refusal instead of sharing one number. In the library product, each book barcode is unique across books; two clerks registering the same barcode at once collide on the barcode unique index, and the second commit refuses with `book-barcode-taken`.
+**Example:** In the Claimwick product, each payout carries a legal document number that is unique per spending owner. The store holds a unique index over the owner and number pair, so two concurrent reimbursements collide on the index and the loser ends with the use case conflict refusal instead of sharing one number. In the library product, each book barcode is unique across books: two clerks registering the same barcode at once collide on the barcode unique index, and the second commit refuses with `book-barcode-taken`.
 
-**Reviewed for:** Which uniqueness rules lack a store unique index or an owner-derived identity, or index a denormalized field? Look at the store configuration for each rule.
+**Reviewed for:** Is any uniqueness rule missing a store unique index or an owner-derived identity, or indexing a denormalized field? Look at the store configuration for each rule.
 
 ### Model a Once-Only Rule as Aggregate State
 
@@ -278,11 +284,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each rule that an action happens at most once for a record MUST be state on that record's aggregate.
 
-**Rationale:** A flag on the aggregate travels with the record it guards, so the rule is checked where the record is changed: the aggregate sees the earlier action in its own state and refuses the repeat or leaves it without effect. A counter or marker kept anywhere else splits the rule from the record, and the two disagree under concurrent writes.
+**Rationale:** A flag on the aggregate travels with the record it guards. The rule is then checked where the record is changed. The aggregate sees the earlier action in its own state and refuses the repeat, or leaves it without effect. A counter or marker kept anywhere else splits the rule from the record. The two disagree under concurrent writes.
 
-**Example:** In the library product, a loan charges its overdue fee at most once: the loan records that it charged the fee, and a repeat command finds the flag and refuses with the loan conflict refusal. In the Claimwick product, an expense is reimbursed at most once: the reimbursed state carries the fact, so a second reimbursement finds an expense that is already reimbursed and ends with `spending.not-approved`.
+**Example:** In the library product, a loan charges its overdue fee at most once. The loan records that it charged the fee, and a repeat command finds the flag and refuses with the loan conflict refusal. In the Claimwick product, an expense is reimbursed at most once: the reimbursed state carries the fact, so a second reimbursement finds an already reimbursed expense and ends with `spending.not-approved`.
 
-**Reviewed for:** Which at-most-once rules live outside their aggregate's state, or which repeats escape the refusal? Look at each such rule beside its aggregate.
+**Reviewed for:** Is any at-most-once rule held outside its aggregate's state, or any repeated action escaping the refusal? Look at each such rule beside its aggregate.
 
 ### Claim a Cross-Record Key at Commit
 
@@ -294,11 +300,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** A uniqueness rule that no single-record constraint can express MUST be declared by the aggregate as a key and claimed and released by persistence in the commit that changes the aggregate.
 
-**Rationale:** Some rules fit no single-record constraint: a value held in a list inside the aggregate, or a value that is unique across two record kinds. For those, the aggregate declares its current keys through `UniquenessKeys` (see `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`), and persistence compares the keys at load with the keys at commit, inserting the added keys and deleting the removed ones in the same transaction, so the database still arbitrates the race.
+**Rationale:** Some rules fit no single-record constraint: a value held in a list inside the aggregate, or a value that is unique across two record kinds. A check in code sees only its own transaction. It passes two racing writers. For those rules, the aggregate declares its current keys through `UniquenessKeys` (see `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`). Persistence compares the keys at load with the keys at commit, inserting the added keys and deleting the removed ones in the same transaction. The database still arbitrates the race.
 
 **Example:** In the library product, a book holds a list of copy barcodes and each barcode belongs to one book: the book declares each barcode as a key, and the commit that adds a copy claims the new barcode while releasing a removed one. In the Claimwick product, a payout reference that is unique across payouts and adjustments is declared by each aggregate that carries it, so a reference already used by either record blocks the other at commit.
 
-**Reviewed for:** Which cross-record uniqueness rules miss declared keys, or claim and release them outside the committing transaction? Look at each such rule beside its commit.
+**Reviewed for:** Is any cross-record uniqueness rule missing declared keys, or claiming and releasing them outside the committing transaction? Look at each such rule beside its commit.
 
 ### Keep Uniqueness Out of Handlers
 
@@ -310,11 +316,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** A handler MUST NOT reserve, claim, check or release a uniqueness key.
 
-**Rationale:** A reservation made in a handler runs outside the commit that needs it: it can leak when the command fails later, and it teaches every later handler to coordinate with the store directly. The store enforces the rule at commit through `litespec/backend/persistence#enforce-uniqueness-in-the-store` and `litespec/backend/persistence#claim-a-cross-record-key-at-commit`, and the pipeline turns a lost race into the use case conflict refusal under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, so the handler carries no reservation, check, or cleanup.
+**Rationale:** A reservation made in a handler runs outside the commit that needs it. It can leak when the command fails later. It also teaches every later handler to coordinate with the store directly. The store enforces the rule at commit through `litespec/backend/persistence#enforce-uniqueness-in-the-store` and `litespec/backend/persistence#claim-a-cross-record-key-at-commit`. The pipeline turns a lost race into the use case conflict refusal under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, so the handler carries no reservation, check, or cleanup.
 
-**Example:** The register-reader handler creates the reader aggregate and stages it through its Domain repository, reserving no card number and checking no registry first. When two registrations race for one card number, the second commit violates the unique index and refuses with the use case conflict, with no reservation or cleanup code in the handler. The submit-expense handler likewise stages the expense and leaves the payout number to the store sequence.
+**Example:** The register-reader handler creates the reader aggregate and stages it through its Domain repository. It reserves no card number and checks no registry first. When two registrations race for one card number, the second commit violates the unique index and refuses with the use case conflict, with no reservation or cleanup code in the handler. The submit-expense handler likewise stages the expense and leaves the payout number to the store sequence.
 
-**Reviewed for:** Which handlers reserve, claim, check, or release a uniqueness key? Look at each handler body.
+**Reviewed for:** Is any handler reserving, claiming, checking, or releasing a uniqueness key? Look at each handler body.
 
 ### Map a Constraint Violation to Its Refusal
 
@@ -326,11 +332,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each unique constraint MUST map by name to the conflict refusal of the use cases that can violate it.
 
-**Rationale:** The pipeline fault classification turns a store fault into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`. The map keys each unique constraint by name, so the classifier knows which refusal the violation answers. An unmapped violation still fails the commit, but it reaches the caller as a generic conflict that names no rule and suggests no next step. A classifier that builds the code from the lost key, one code per key scope, declares its template in the project file `refusals.composed`, so the model checks read each code as raised where its key scope is declared.
+**Rationale:** When the store refuses a commit, pipeline fault classification turns that fault into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`. The map keys each unique constraint by name. The classifier then knows which refusal the violation answers. An unmapped violation still fails the commit, but it reaches the caller as a generic conflict that names no rule and suggests no next step. A classifier that builds the code from the lost key, one code per key scope, declares its template in the project file `refusals.composed`. The model checks then read each code as raised where its key scope is declared.
 
-**Example:** The barcode unique index is named `uq_book_barcode`, and the map pairs it with `book-barcode-taken`: a registration that loses the barcode race refuses with that code. The payout number index is named `uq_payout_owner_number`, and the map pairs it with the reimburse conflict refusal, so each racing command names the number it lost.
+**Example:** The barcode unique index is named `uq_book_barcode`, and the map pairs it with `book-barcode-taken`, so a registration that loses the barcode race refuses with that code. The payout number index is named `uq_payout_owner_number`, and the map pairs it with the reimburse conflict refusal, so each racing command names the number it lost.
 
-**Reviewed for:** Which unique constraints lack a conflict refusal mapping for their violating use cases? Look at the fault classification map.
+**Reviewed for:** Is any unique constraint missing a conflict refusal mapping for the use cases that can violate it? Look at the fault classification map.
 
 ### Version Every Aggregate
 
@@ -342,11 +348,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each stored aggregate MUST carry a version that the store compares at commit, so a lost update fails the commit.
 
-**Rationale:** Without a compared version, two commands that load the same aggregate both commit, and the second silently overwrites the first. The store compares the version each command loaded with the version it commits against, so a stale write fails the commit instead of erasing newer work. A failed comparison ends with the use case conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`.
+**Rationale:** Without a compared version, two commands can load the same aggregate and both commit. The second silently overwrites the first. The store compares the version each command loaded with the version it commits against. A stale write fails the commit instead of erasing newer work. A failed comparison ends with the use case conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`.
 
-**Example:** Two approvers open the same submitted expense; the first approval commits and moves the version forward, and the second approval fails its version comparison and refuses with the approve conflict instead of overwriting the first decision. In the library product, two clerks extending one loan race the same way, and the loser re-reads the loan before deciding again.
+**Example:** Two approvers open the same submitted expense. The first approval commits and moves the version forward, and the second approval fails its version comparison and refuses with the approve conflict instead of overwriting the first decision. In the library product, two clerks extending one loan race the same way, and the loser re-reads the loan before deciding again.
 
-**Reviewed for:** Which stored aggregates lack a compared version at commit, or which stale writes escape the use case conflict refusal? Look at each stored aggregate beside its commit.
+**Reviewed for:** Is any stored aggregate committed without a compared version, or any stale write escaping the use case conflict refusal? Look at each stored aggregate beside its commit.
 
 ## Conventions
 
@@ -358,11 +364,11 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Applies to:** artifact: any
 
-**Default:** Place store setup in the product `Infrastructure/` folder and each module's repositories, mappings, and serialization in its own `Infrastructure/` folders.
+**Default:** Place store setup in the product `Infrastructure/` folder, each module's store setup in its own `Infrastructure/Persistence/` folder, and each aggregate's repository implementation, stored documents, and mapping in `Infrastructure/Persistence/{Aggregates}/`.
 
 **Replacement:** A project names its persistence layout in its backend documentation.
 
-**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module, so every persistence type has one discoverable home. Each module's repositories and mappings sit in its own `Infrastructure/` folders beside the aggregates they store. Scattered configuration hides the provider setup across the product.
+**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module. Every persistence type then has one discoverable home. Each module keeps its store setup in its own `Infrastructure/Persistence/` folder, and each aggregate's repository implementation, stored documents, and mapping in `Infrastructure/Persistence/{Aggregates}/`, so every layer nests by aggregate. Scattered configuration hides the provider setup across the product.
 
 **Example:**
 
@@ -375,26 +381,28 @@ A tool that alters the schema from application startup is not a reviewed step wh
       CommitCommandPostHandler
     Events/
       DomainEventBuffer
-  Posts/                            single aggregate whose name matches the module: files directly under the module
+  Posts/                            one aggregate: every layer holds the plural aggregate folder
     Infrastructure/
-      PostRepository
-      PostStoreConfiguration
+      Persistence/
+        Posts/
+          PostRepository
+          PostStoreConfiguration
   Customers/                        two aggregates: one folder per aggregate
-    CustomerAccounts/
-      Infrastructure/
-        CustomerAccountRepository
-        CustomerAccountStoreConfiguration
-    Consents/
-      Infrastructure/
-        ConsentRepository
-        ConsentStoreConfiguration
+    Infrastructure/
+      Persistence/
+        CustomerAccounts/
+          CustomerAccountRepository
+          CustomerAccountStoreConfiguration
+        Consents/
+          ConsentRepository
+          ConsentStoreConfiguration
 ```
 
-The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. A single-aggregate module stays flat when its aggregate root's plural name equals the module name. For example, `Post` stays flat under `Posts`. Otherwise, each aggregate takes its own folder.
+The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`: each module keeps its repositories in its `Infrastructure/Persistence/{Aggregates}/` folders.
 
-Aggregate-specific configuration sits beside its aggregate, while session and commit plumbing sit under the product store root.
+Aggregate-specific configuration sits beside its aggregate's repository. Session and commit plumbing sit under the product store root.
 
-**Reviewed for:** Which store setup, repository, or commit files sit outside the product or module `Infrastructure/` folders? Look at the persistence files beside the module tree.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a repository implementation outside its aggregate's `Persistence/` folder, for a use-case model or adapter file in `Persistence/`, and for any other file directly in `Persistence/` outside module-wide store setup.
 
 ### Use One Session per Command
 
@@ -408,9 +416,9 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **Replacement:** A project names its session scope in its backend documentation.
 
-**Rationale:** One session per command means the repositories and the commit handler stage and commit the same unit of work. Two sessions in one command commit separately, so a failure between them leaves a partial write behind.
+**Rationale:** One session per command means the repositories and the commit handler stage and commit the same unit of work. Two sessions in one command commit separately. A failure between them leaves a partial write behind.
 
-**Reviewed for:** Which commands resolve more than one session across their repositories and commit handler? Look at the session wiring in each command.
+**Reviewed for:** Is any command resolving more than one session across its repositories and commit handler? Look at the session wiring in each command.
 
 ### Review Query Plans for New Indexes
 
@@ -424,9 +432,9 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **Replacement:** A project names its index review in its backend documentation.
 
-**Rationale:** Every index costs write throughput on each change to its table. An index added without reading its plan on representative data pays that cost for a read with no measured need, so each index starts from an accepted query or a measured operating need.
+**Rationale:** Every index costs write throughput on each change to its table. An index added without reading its plan on representative data pays that cost for a read with no measured need. So each index starts from an accepted query or a measured operating need.
 
-**Reviewed for:** Which new indexes lack an accepted query and a justifying plan? Look at each new index beside its query.
+**Reviewed for:** Is any new index missing an accepted query or a justifying plan on representative data? Look at each new index beside its query.
 
 ### Add Read Documents for Query-Shaped Data
 
@@ -440,9 +448,9 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **Replacement:** A project names its read document shape in its backend documentation.
 
-**Rationale:** Aggregate documents serve simple reads, but repeated cross-aggregate composition or deep traversal through them loads whole aggregates to show a few fields. A module-owned read document carries that shape directly, and its owning use case defines its consistency and rebuild behavior.
+**Rationale:** Aggregate documents serve simple reads. Repeated cross-aggregate composition or deep traversal through them loads whole aggregates to show a few fields. A module-owned read document carries that shape directly. Its owning use case defines its consistency and rebuild behavior.
 
-**Reviewed for:** Which read documents lack recorded consistency and rebuild behavior beside their owning use case? Look at each read document.
+**Reviewed for:** Is any read document missing recorded consistency and rebuild behavior beside its owning use case? Look at each read document.
 
 ### Persist One Explicit State Object
 
@@ -456,9 +464,9 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **Replacement:** A project names its state storage shape in its backend documentation.
 
-**Rationale:** The stored state object keeps the aggregate's lifecycle and its state-specific facts in one value, so a read materializes the same state the command stored. A flattened projection splits that value across members the store cannot version together, and a flag beside the object disagrees with it after the next transition.
+**Rationale:** The stored state object keeps the aggregate's lifecycle and its state-specific facts in one value. A read then materializes the same state the command stored. A flattened projection splits that value across members the store cannot version together. A flag beside the object disagrees with it after the next transition.
 
-**Example:** A stable discriminator property uses `$state` with `draft`, `published`, and `archived` values. The persisted state value contains its state-specific data:
+**Example:** A stable discriminator property uses `$state` with `draft`, `published`, and `archived` values. The persisted state value carries its state-specific data:
 
 ```json
 {
@@ -469,9 +477,7 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 }
 ```
 
-The example registers every concrete aggregate state object in Infrastructure.
-
-For example, a reimbursed expense in the Claimwick product stores its state the same way, with the `Reimbursed` case from `aggregate/spending.expense`:
+Every concrete aggregate state object is registered in Infrastructure. A reimbursed expense in the Claimwick product stores its state the same way, with the `Reimbursed` case from `aggregate/spending.expense`:
 
 ```json
 {
@@ -482,20 +488,20 @@ For example, a reimbursed expense in the Claimwick product stores its state the 
 }
 ```
 
-The document stores the state object itself, with no flattened `isReimbursed` flag beside it. The `Submitted`, `Approved`, and `Refused` cases use the `submitted`, `approved`, and `refused` discriminators with their own data.
+The document stores the state object itself, with no flattened `isReimbursed` flag beside it. The `Submitted`, `Approved`, and `Refused` cases use the `submitted`, `approved`, and `refused` discriminators, each with its own data.
 
-Adding a state discriminator breaks an older application version during a mixed-version deployment unless the release plan prevents it. The release plan either prevents the older version from reading the new state or introduces a compatible reader before commands persist that state.
+A new state discriminator breaks an older application version during a mixed-version deployment unless the release plan prevents it. The plan either keeps the older version from reading the new state or introduces a compatible reader before commands persist that state.
 
-**Reviewed for:** Which aggregate documents flatten their state object, or which states fail to round-trip through the serializer? Look at each stored state in the integration tests.
+**Reviewed for:** Is any aggregate document flattening its state object, or any state failing to round-trip through the serializer? Look at each stored state in the integration tests.
 
 ## Reference Example
 
 This informative example demonstrates `litespec/backend/persistence#keep-serialization-behavior-out-of-domain`.
 
-An `Order` document holds a `PaymentMethod` collection with `CardPayment` and `BankTransfer` values. Infrastructure registers stable `card` and `bank_transfer` discriminators through the stored JSON contract. The Domain hierarchy carries no serialization metadata.
+An `Order` document holds a `PaymentMethod` collection with `CardPayment` and `BankTransfer` values. Infrastructure registers the stable `card` and `bank_transfer` discriminators through the stored JSON contract. The Domain hierarchy carries no serialization metadata.
 
-A `Post` document stores one `state` object. The published case uses the stable `published` discriminator and owns `publishedAt`. The document does not also store an `isPublished` flag or an aggregate-level `publishedAt` value.
+A `Post` document stores one `state` object, and the published case uses the stable `published` discriminator and owns `publishedAt`. No `isPublished` flag or aggregate-level `publishedAt` value sits beside it.
 
-Renaming `shippingAddress.postalCode` to `shippingAddress.postcode` uses a mixed-version reader and a reviewed data transformation before the old reader is removed. Renaming a property in code without that rollout is not compatible document evolution.
+Renaming `shippingAddress.postalCode` to `shippingAddress.postcode` ships with a mixed-version reader and a reviewed data transformation, and the old reader is removed only after the rollout. A rename in code without that rollout is not compatible document evolution.
 
-An accepted business rule caps `Order.Lines` at 200 entries inside the aggregate document. An unbounded status history uses a separate read document or projection instead of growing the `Order` document indefinitely.
+An accepted business rule caps `Order.Lines` at 200 entries inside the aggregate document. An unbounded status history goes in a separate read document or projection rather than growing the `Order` document indefinitely.

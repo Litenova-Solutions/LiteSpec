@@ -4,9 +4,15 @@ title: Library privacy law
 summary: Reader records stay private under the city library privacy ordinance.
 authority: City library privacy ordinance.
 sources:
-- key: privacy-ordinance
+- name: privacy-ordinance
   url: https://example.com/privacy-ordinance
   readOn: 2026-01-10
 kind: organizational
 applies: true
 appliesBecause: The library keeps reader records.
+coverage: The rule covers the reader records the library keeps.
+obligations:
+- statement: The library keeps reader records private.
+  sources:
+  - privacy-ordinance
+productEffect: "`requirement/borrowing.max-active-loans` keeps reader records private."

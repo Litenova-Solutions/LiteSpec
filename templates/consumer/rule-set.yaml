@@ -1,14 +1,30 @@
 type: rule-set
-title: Spending Rules
-summary: Receipt files are filed once across spending.
+id: <page id, or remove this line>
+title: <Title in Title Case, or remove this line>
+summary: <what these rules hold together>
+terms:
+- <term id, or remove this line>
 records:
 - type: rule
-  id: rule/spending.receipt-filed-once
-  title: Receipt Filed Once
-  kind: cross-aggregate
-  statement: A receipt file supports one expense across spending.
+  id: rule/<home>.<name>
+  title: <Title in Title Case>
+  terms:
+  - <term id, or remove this line>
+  kind: <invariant|precondition|calculation|atomicity|reservation|frozen-value>
+  statement: <what holds, in one sentence>
+  rationale: <why the rule exists, in one to three sentences completing because without the word, or remove this line>
   governs:
-  - aggregate/spending.receipt
-  basedOn: []
+  - <aggregate/<module>.<name> or use-case/<module>.<name>, or remove this line>
+  binds:
+  - aggregate/<module>.<name, or remove this line>
+  refusal: refusal/<module>.<name, or remove this line>
+  basedOn:
+  - <constraint or research id, or remove this line>
+  source: <law|product-choice|contract, or remove this line>
+  cites:
+  - <constraint or research id restated by a law rule, or remove this line>
   fulfills:
-  - requirement/approval.above-threshold-receipt
+  - requirement/<feature>.<name, or remove this line>
+  releasedBy: <use-case/<module>.<name>, or remove this line>
+  frozenWhen: <when the value freezes, or remove this line>
+  retainedIn: <where the frozen value is kept, or remove this line>

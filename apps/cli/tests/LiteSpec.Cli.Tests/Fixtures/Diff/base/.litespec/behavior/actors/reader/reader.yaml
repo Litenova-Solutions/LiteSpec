@@ -4,3 +4,7 @@ title: Reader
 kind: person
 holds:
   - role/reader
+responsibilities:
+  - Borrows copies.
+knowledge:
+  - The product assumes the reader knows the copy to borrow.

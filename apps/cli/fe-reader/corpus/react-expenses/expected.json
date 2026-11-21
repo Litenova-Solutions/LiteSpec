@@ -1,15 +1,25 @@
 {
   "protocol": 1,
-  "reader": "1.0.0",
+  "reader": "1.2.0",
   "frontends": [
     {
       "name": "web",
       "modules": [
         {
-          "folder": "src/modules/spending/expenses/list-expenses",
-          "file": "src/modules/spending/expenses/list-expenses/litespec.ts",
+          "folder": "src/modules/spending/expenses/submit-expense",
+          "file": "src/modules/spending/expenses/submit-expense/litespec.ts",
           "line": 3,
-          "marks": ["use-case/spending.list-expenses"]
+          "marks": [
+            "use-case/spending.submit-expense"
+          ]
+        },
+        {
+          "folder": "src/modules/spending/list-expenses",
+          "file": "src/modules/spending/list-expenses/litespec.ts",
+          "line": 3,
+          "marks": [
+            "use-case/spending.list-expenses"
+          ]
         }
       ],
       "routes": [
@@ -18,55 +28,131 @@
           "line": 1,
           "address": "/cart",
           "marks": [],
-          "calls": []
+          "calls": [],
+          "navigations": []
         },
         {
           "file": "src/routes/(shop)/checkout.tsx",
           "line": 4,
           "address": "/checkout",
-          "marks": ["screen/web.checkout"],
-          "calls": []
+          "marks": [
+            "screen/web.checkout"
+          ],
+          "calls": [],
+          "navigations": []
         },
         {
           "file": "src/routes/_shell/dashboard.tsx",
           "line": 1,
           "address": "/dashboard",
           "marks": [],
-          "calls": []
+          "calls": [],
+          "navigations": []
         },
         {
           "file": "src/routes/about.tsx",
           "line": 4,
           "address": "/about",
-          "marks": ["screen/web.about"],
-          "calls": [{ "operation": "listExpenses", "file": "src/routes/about.tsx", "line": 7 }]
+          "marks": [
+            "screen/web.about"
+          ],
+          "calls": [
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/about.tsx",
+              "line": 7,
+              "fromLayout": false
+            }
+          ],
+          "navigations": []
         },
         {
           "file": "src/routes/broken.tsx",
           "line": 1,
           "address": "/broken",
           "marks": [],
-          "calls": []
+          "calls": [],
+          "navigations": []
         },
         {
           "file": "src/routes/expenses.tsx",
           "line": 6,
           "address": "/expenses",
-          "marks": ["screen/web.expense-list"],
+          "marks": [
+            "screen/web.expense-list"
+          ],
           "calls": [
             {
+              "operation": "getExpense",
+              "file": "src/app/helpers.ts",
+              "line": 8,
+              "fromLayout": false
+            },
+            {
               "operation": "listExpenses",
-              "file": "src/modules/spending/expenses/list-expenses/client.ts",
-              "line": 4
+              "file": "src/modules/spending/list-expenses/client.ts",
+              "line": 4,
+              "fromLayout": false
             }
-          ]
+          ],
+          "navigations": []
         },
         {
           "file": "src/routes/expenses/$expenseId.tsx",
           "line": 4,
           "address": "/expenses/$expenseId",
-          "marks": ["screen/web.expense-detail"],
-          "calls": []
+          "marks": [
+            "screen/web.expense-detail"
+          ],
+          "calls": [],
+          "navigations": []
+        },
+        {
+          "file": "src/routes/sign-in.tsx",
+          "line": 3,
+          "address": "/sign-in",
+          "marks": [
+            "screen/web.sign-in"
+          ],
+          "calls": [],
+          "navigations": [
+            {
+              "path": "/auth/login?next=/home",
+              "file": "src/routes/sign-in.tsx",
+              "line": 6,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/callback?code=",
+              "file": "src/routes/sign-in.tsx",
+              "line": 7,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in.tsx",
+              "line": 12,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in.tsx",
+              "line": 14,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in.tsx",
+              "line": 17,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/callback?code=",
+              "file": "src/routes/sign-in.tsx",
+              "line": 18,
+              "fromLayout": false
+            }
+          ]
         }
       ],
       "tests": [
@@ -74,10 +160,16 @@
           "file": "tests/expenses.spec.ts",
           "line": 4,
           "title": "lists the expenses",
-          "proves": ["scenario/list-expenses.listing-shows-own-expenses"],
-          "journey": null,
-          "gotos": ["/expenses"],
-          "codes": ["spending.receipt-missing"],
+          "proves": [
+            "scenario/list-expenses.listing-shows-own-expenses"
+          ],
+          "flow": null,
+          "gotos": [
+            "/expenses"
+          ],
+          "codes": [
+            "spending.receipt-missing"
+          ],
           "texts": []
         }
       ],

@@ -1,10 +1,10 @@
 # Write Each Shared Record Rule Once
 
-Several record types repeat the same faults, and each fault has one cause in LiteSpec's guidance. This decision states each shared rule once, as a provision that applies to every record type it concerns, instead of writing a copy for each type.
+Several record types repeat the same faults, and each fault has one cause in LiteSpec's guidance. This decision states each shared rule once. Each rule is a provision that applies to every record type it concerns, instead of a copy written for each type.
 
 ## Context
 
-Four faults appeared in more than one record type. Records stated rules that other records own: accounting rules in journeys, product effects in constraints, sign-in rules in actors and product consequences in research. A shorter form dropped the conditions of the claim it shortened, in constraint summaries, research conclusions and actor openings.
+Four faults appeared in more than one record type. Records stated rules that other records own: accounting rules in flows, product effects in constraints, sign-in rules in actors and product consequences in research. A shorter form dropped the conditions of the claim it shortened, in constraint summaries, research conclusions and actor openings.
 
 The Example prompts of eight templates asked for numbers "worked through", which invited figures that rest on rules no record holds. Constraints and research both needed a rule for when to split a record. Several records stated release phases and future plans, which the product as it stands does not support.
 
@@ -28,7 +28,7 @@ The shared rules cover what an explanation file describes, keeping the condition
 
 ## Consequences
 
-The existing rule about behavior in explanation files applies to every Intent explanation file under the same identifier. The Example prompts of the eight templates share one sentence form, and the journey, aggregate and job prompts add the detail their type needs. No template still asks for numbers worked through or opens a prompt with walk.
+The existing rule about behavior in explanation files applies to every Intent explanation file under the same identifier. The Example prompts of the eight templates share one sentence form, and the flow, aggregate and job prompts add the detail their type needs. No template asks for numbers worked through or opens a prompt with walk.
 
 Each provision is required and reviewed for, since no check can judge whether a summary keeps its condition.
 

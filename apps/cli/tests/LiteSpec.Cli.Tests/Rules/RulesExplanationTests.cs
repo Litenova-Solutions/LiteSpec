@@ -39,6 +39,6 @@ public sealed class RulesExplanationTests
         Assert.Contains(
             "Rules for .litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md (concern: records, artifact: decision)",
             result.Output);
-        Assert.Contains("litespec/core/writing#compare-real-options-in-each-decision-record", result.Output);
+        Assert.Contains("litespec/core/intent#record-each-decision-option-with-pros-and-cons", result.Output);
     }
 }

@@ -1,0 +1,9 @@
+type: refusal-set
+summary: The refusals the copy aggregate raises.
+records:
+- id: refusal/lending.copy-already-registered
+  title: Copy Already Registered
+  meaning: The copy is already registered.
+- id: refusal/lending.copy-on-loan
+  title: Copy On Loan
+  meaning: The copy is on loan.

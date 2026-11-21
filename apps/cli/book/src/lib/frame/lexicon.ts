@@ -52,8 +52,15 @@ export function lexiconTypeQuestion(lex: Lexicon, type: string): string {
   return lex.types?.[type]?.question ?? "";
 }
 
-/** A field's LiteSpec label; an unknown field renders raw, never invented. */
-export function lexiconFieldLabel(lex: Lexicon, field: string): string {
+/** A field's LiteSpec label; an unknown field renders raw, never invented.
+ *  A typed entry of the form record-type dot field wins over the plain entry,
+ *  so scope on a constraint and scope on a role read in their own context.
+ *  A field that already carries its record type (screen.states) reads as written. */
+export function lexiconFieldLabel(lex: Lexicon, field: string, recordType?: string | null): string {
+  if (recordType && field.indexOf(".") < 0) {
+    const typed = lex.fields?.[recordType + "." + field];
+    if (typed) return typed;
+  }
   return lex.fields?.[field] || field;
 }
 
@@ -63,21 +70,30 @@ function carriersOf(carriers: string[] | string): string[] {
   return [];
 }
 
-/** A link field's Links-table row name, dropping type and nesting prefixes. */
+/** A link field's Links-table row name, dropping type and nesting prefixes, and the map keys a named map adds to a path. */
 export function lexiconResolveField(lex: Lexicon, field: string): string | null {
   let candidate = field;
   const dot = candidate.indexOf(".");
   if (dot > 0 && lex.types?.[candidate.slice(0, dot)]) candidate = candidate.slice(dot + 1);
   const links = lex.links ?? [];
+  // A value under a named map, such as a query output group, carries the map
+  // key in its path; strip leading segments until a row matches, so an output
+  // group's freshness decider reads as its freshness row. A leaf link field
+  // reads from its own row: flow steps name their actor.
+  let suffix = candidate;
   for (;;) {
-    if (links.some((link) => link.field === candidate)) return candidate;
-    const nested = candidate.lastIndexOf(".");
-    if (nested < 0) break;
-    candidate = candidate.slice(0, nested);
+    let inner = suffix;
+    for (;;) {
+      if (links.some((link) => link.field === inner)) return inner;
+      const nested = inner.lastIndexOf(".");
+      if (nested < 0) break;
+      inner = inner.slice(0, nested);
+    }
+    const leading = suffix.indexOf(".");
+    if (leading < 0) break;
+    suffix = suffix.slice(leading + 1);
   }
-  // A leaf link field reads from its own row: journey steps name their actor.
-  const leaf = field.slice(field.lastIndexOf(".") + 1);
-  return leaf !== candidate && links.some((link) => link.field === leaf) ? leaf : null;
+  return null;
 }
 
 function linkRow(lex: Lexicon, field: string, carrierType: string | null) {
@@ -96,7 +112,7 @@ function linkRow(lex: Lexicon, field: string, carrierType: string | null) {
   return { ...first, carriers: carriersOf(first.carriers) };
 }
 
-/** A link field's Links-table phrase, forward or inverse, for the carrier type. */
+/** A link field's Links-table phrase, forward or inverse, for the carrier type; a field with no phrase reads as its field label. */
 export function lexiconPhraseFor(
   lex: Lexicon,
   field: string,
@@ -105,7 +121,7 @@ export function lexiconPhraseFor(
 ): string {
   const row = linkRow(lex, field, carrierType);
   const text = row?.[dir];
-  if (row === null || row === undefined || !text) return field;
+  if (row === null || row === undefined || !text) return lexiconFieldLabel(lex, field, carrierType);
   if (text.includes(" / ")) {
     const parts = text.split(" / ");
     const idx = carrierType ? row.carriers.indexOf(carrierType) : -1;
@@ -124,7 +140,7 @@ export function lexiconLinkVaries(lex: Lexicon, field: string): boolean {
   return dedupe(rows.map((link) => link.inverse ?? "")).length > 1;
 }
 
-/** The LiteSpec text that explains a key: a proof state, a check level, a glossary term or a record type. */
+/** The LiteSpec text that explains a key: a proof state, a reach state, a stage, a check level, a glossary term or a record type. */
 export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
   const stages = (): Explanation => ({
     title: "Completion Stages",
@@ -141,6 +157,11 @@ export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
     text: lexiconSection(lex, "Check Levels"),
     source: lexiconSectionSource(lex, "Check Levels", "model.md, Check Levels"),
   });
+  const reach = (title: string): Explanation => ({
+    title,
+    text: lexiconSection(lex, "Reach States"),
+    source: lexiconSectionSource(lex, "Reach States", "model.md, The Book"),
+  });
   const table: Record<string, () => Explanation> = {
     awaiting: stages,
     unconfirmed: stages,
@@ -151,6 +172,12 @@ export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
     norun: stages,
     coded: () => glossary("Coded", "coded"),
     reachable: () => glossary("Reachable", "reachable"),
+    specified: () => glossary("Specified", "specified"),
+    unfulfilled: () => glossary("Unfulfilled", "unfulfilled"),
+    claimed: () => reach("Claimed"),
+    verified: () => reach("Verified"),
+    "reach-claimed": () => reach("Reach claimed"),
+    "reach-verified": () => reach("Reach verified"),
     G: levels,
     S: levels,
     A: levels,

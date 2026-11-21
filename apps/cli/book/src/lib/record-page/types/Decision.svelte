@@ -1,21 +1,35 @@
 <script lang="ts">
-  import { book, dedupe } from "$lib/frame";
+  import { book, dedupe, hoverState, inline } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RecordIcon, RenderedProse, SourceLink } from "$lib/record";
+  import { Hover, RenderedProse, SourceLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
+  import RecordList from "../blocks/RecordList.svelte";
   import Note from "../blocks/Note.svelte";
-  import Fact from "../blocks/Fact.svelte";
   import { proseOf } from "../page-prose";
   import { objectList, stringField } from "../page-values";
 
-  // A decision: the choice, the options weighed, the code following it by module, and when it reopens.
+  // A decision: the choice, the records it settles, what it supersedes and what
+  // supersedes it, the options weighed, the code following it by module, and
+  // when it reopens.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f = $derived(r.fields ?? {});
+  const context = $derived(stringField(f, "context") ?? "");
+  const contextHtml = $derived(context ? inline(book, context, r.src ?? null) : "");
   const choice = $derived(stringField(f, "choice") ?? "");
   const opts = $derived(objectList(f, "options"));
   const consequences = $derived(proseOf(r, "consequences"));
   const reopenedWhen = $derived(stringField(f, "reopenedWhen"));
+  const settled = $derived(
+    dedupe(
+      book.ins(id, "basedOn").filter((x) => {
+        const kind = book.typeOf(x);
+        return kind === "rule" || kind === "requirement";
+      }),
+    ).sort(),
+  );
+  const supersedes = $derived(dedupe(book.outs(id, "supersedes")).sort());
+  const supersededBy = $derived(dedupe(book.ins(id, "supersedes")).sort());
   const followers = $derived(
     dedupe(book.ins(id, "follows").map((target) => (target.startsWith("code/") ? target.slice("code/".length) : target))).sort(),
   );
@@ -54,42 +68,57 @@
   });
 </script>
 
+{#if context}
+  <PageSection blockKey="ctx" heading="context"><RenderedProse html={contextHtml} /></PageSection>
+{/if}
 {#if choice}
-  <Note kind="info" icon="passing">
-    <b>Choice:</b>{" "}
-    {choice}
+  <Note kind="good" icon="passing">
+    <b>{book.fieldLabel("choice")}</b><br />{choice}
   </Note>
 {/if}
 {#if consequences}
   <PageSection blockKey="cons" heading="consequences"><RenderedProse html={consequences} /></PageSection>
 {/if}
+{#if settled.length}
+  <PageSection blockKey="settled" heading="Settled records" count={settled.length}>
+    <RecordList ids={settled} />
+  </PageSection>
+{/if}
 {#if opts.length}
   <PageSection blockKey="opts" heading="options" count={opts.length}>
-    <div class="border-t border-border">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-px border border-border-subtle bg-border-subtle">
       {#each opts as o, i (o.name ?? i)}
         {@const chosen = !!choice && String(o.name) === choice}
-        <div class="border-b border-border py-2.5 {chosen ? 'font-medium' : ''}">
-          <h3 class="m-0 mb-1.5 text-[0.90625rem] leading-snug font-semibold">
-            {String(o.name ?? "")}
-            {#if chosen}{" "}<Fact text="Choice" />{/if}
-          </h3>
-          <div class="grid max-w-[72ch] grid-cols-[18px_1fr] gap-x-1.5 gap-y-1 text-[0.84375rem] leading-snug text-subtle-foreground">
-            <span class="text-convention-foreground"><RecordIcon name="plus" class="size-3.5" /></span>
-            <span>{String(o.pros ?? "")}</span>
-            <span class="text-warn-foreground"><RecordIcon name="minus" class="size-3.5" /></span>
-            <span>{String(o.cons ?? "")}</span>
-          </div>
+        <div class="bg-background p-4 text-sm">
+          <p class="m-0">
+            <b>{String(o.name ?? "")}</b>
+            {#if chosen}{" "}<Hover hover={hoverState(book, "g:chosen")}><span data-explain="g:chosen" class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-green px-2 text-xs tracking-[0.32px] text-tag-green-foreground">Chosen</span></Hover>{/if}
+          </p>
+          <div class="mt-3 text-xs tracking-[0.32px] text-text-secondary">{book.fieldLabel("pros")}</div>
+          <p class="mt-1 mb-0">{String(o.pros ?? "")}</p>
+          <div class="mt-3 text-xs tracking-[0.32px] text-text-secondary">{book.fieldLabel("cons")}</div>
+          <p class="mt-1 mb-0">{String(o.cons ?? "")}</p>
         </div>
       {/each}
     </div>
   </PageSection>
 {/if}
+{#if supersedes.length}
+  <PageSection blockKey="sup" heading="supersedes" count={supersedes.length}>
+    <RecordList ids={supersedes} />
+  </PageSection>
+{/if}
+{#if supersededBy.length}
+  <PageSection blockKey="supby" heading="Superseded by" count={supersededBy.length}>
+    <RecordList ids={supersededBy} />
+  </PageSection>
+{/if}
 {#if followers.length}
   <PageSection blockKey="fol" heading="Followers" count={followers.length}>
-    <div class="border-t border-border">
+    <div class="border-t border-border-subtle">
       {#each followerGroups as g (g.key || "none")}
-        <div class="border-b border-border py-2.5">
-          <h3 class="m-0 mb-1.5 text-[0.90625rem] leading-snug font-semibold">
+        <div class="border-b border-border-subtle py-2.5">
+          <h3 class="m-0 mb-1.5 text-sm leading-snug font-semibold">
             {g.label}
           </h3>
           <ul class="m-0 list-none p-0">
@@ -104,6 +133,6 @@
 {/if}
 {#if reopenedWhen}
   <PageSection blockKey="rev" heading="reopenedWhen">
-    <Note kind="quiet" icon="clock">{reopenedWhen}</Note>
+    <RenderedProse html={inline(book, reopenedWhen, r.src ?? null)} />
   </PageSection>
 {/if}

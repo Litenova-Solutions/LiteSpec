@@ -41,7 +41,7 @@ public sealed class FindOrCreateAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a constructor as the fallback of an async find.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -75,7 +75,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = await readerRepository.FindByCardAsync(command.CardId) ?? new {|LS2014:Reader|}(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a creation after a branch that leaves when the record was found.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -116,7 +116,7 @@ public sealed class FindOrCreateAnalyzerTests
                     return Reader.{|LS2014:Register|}(command.CardId).Id;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a coalescing assignment of a found record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -150,7 +150,7 @@ public sealed class FindOrCreateAnalyzerTests
                     reader ??= Reader.{|LS2014:Register|}(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a creation after refusing a missing record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -193,7 +193,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var followUp = Notice.FollowUp(first);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a creation that reads another record of its type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -225,7 +225,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var statement = new FineStatement(command.Day, previous);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a handler that only finds.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -256,7 +256,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var existing = readerRepository.FindByCard(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a handler that only creates.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -284,7 +284,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = Reader.Register(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a find and a creation of another type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -321,7 +321,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var hold = new Hold(command.BookId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a find and a creation in different methods.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -357,7 +357,7 @@ public sealed class FindOrCreateAnalyzerTests
                 public Reader Register(RegisterReaderCommand command) =>
                     Reader.Register(command.CardId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a find or create in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -391,7 +391,7 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = Reader.Register(query.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a policy-switch creation after an idempotent replay.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -435,7 +435,7 @@ public sealed class FindOrCreateAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a constructor after a leaving found branch.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -474,7 +474,7 @@ public sealed class FindOrCreateAnalyzerTests
                     return new {|LS2014:Reader|}(command.CardId).Id;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -508,5 +508,5 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = Reader.Register(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

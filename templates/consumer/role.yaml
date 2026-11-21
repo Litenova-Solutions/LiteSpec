@@ -1,9 +1,9 @@
 type: role
-id: role/approver
-title: Approver
-summary: Approvers decide their team expenses.
-scope: team
-allows:
-- permission/approve-expense
-- permission/list-expenses
-- permission/manage-policy
+id: role/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what holders of this role may do>
+scope: <scope, such as self, team or platform>
+excludes:
+- <one thing the role does not grant, in one sentence>

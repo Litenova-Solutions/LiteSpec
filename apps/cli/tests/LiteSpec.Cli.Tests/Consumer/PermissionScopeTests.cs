@@ -84,53 +84,66 @@ public sealed class PermissionScopeTests
     }
 
     /// <summary>A permission entry without scope, with its group, passes.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry without scope, with its group")]
     public void PermissionEntryWithoutScopeWithItsGroup()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/permissions.yaml",
+            ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["group"] = "orders");
         AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>A permission entry carrying scope is refused, because the role holds the scope.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry carrying scope")]
     public void PermissionEntryCarryingScope()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/permissions.yaml",
+            ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["scope"] = "self");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'scope'");
     }
 
+    /// <summary>A permission entry carrying heldBy names the grantedTo list.</summary>
+    /// <proves>litespec/core/model#name-the-field-to-use-instead-in-schema-errors</proves>
+    [Fact(DisplayName = "permission entry carrying heldBy")]
+    public void PermissionEntryCarryingHeldBy()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            ".litespec/behavior/modules/orders/permissions.yaml",
+            meta => FirstPermission(meta)["heldBy"] = "role/owner");
+        AssertProblem(RunConsumer(folder.Path), "unknown property 'heldBy'. Name the roles in the permission's `grantedTo` list.");
+    }
+
     /// <summary>Permission entry with an unknown property.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry with an unknown property")]
     public void PermissionEntryWithAnUnknownProperty()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/permissions.yaml",
+            ".litespec/behavior/modules/orders/permissions.yaml",
             meta => FirstPermission(meta)["reach"] = "self");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'reach'");
     }
 
     /// <summary>A role without its scope fails, because the scope is the role's only home.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "role without its scope")]
     public void RoleWithoutItsScope()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/roles/customer.yaml",
+            ".litespec/intent/roles/customer/customer.yaml",
             meta => meta.Remove("scope"));
         AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
     }
@@ -152,7 +165,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            ".litespec/behavior/actors/customer.yaml",
+            ".litespec/intent/actors/customer/customer.yaml",
             meta => meta["holds"] = new JsonArray(new JsonObject { ["role"] = "role/customer", ["scope"] = "self" }));
         AssertRejected(RunConsumer(folder.Path));
     }

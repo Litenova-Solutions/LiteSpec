@@ -165,6 +165,33 @@ public sealed class NodeFrontendReaderTests
         Assert.Contains("different use cases", finding.Message);
     }
 
+    /// <summary>A Layout Call And Navigation Count As Reached Outside The Route's Own Use Cases.</summary>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
+    [Fact]
+    public void LayoutCallAndNavigationCountAsReachedOutsideTheRoutesOwnUseCases()
+    {
+        using var temp = TestCli.Temp("node-reader");
+        WriteProject(temp.Path);
+        var code = CodeWithEndpoints(
+            ("ListLoans", "use-case/lending.list-loans"),
+            ("BorrowCopy", "use-case/lending.borrow-copy"));
+        code.Endpoints.Add(new EndpointOperation("", "use-case/lending.start-sign-in", "GET", "/auth/login", "Endpoint.cs", 1));
+        var facts = FactsWithLayoutCallAndNavigation(temp.Path);
+        var parsed = Assert.Single(facts.Routes);
+
+        Assert.Equal([false, true], parsed.Calls.Select(call => call.FromLayout));
+        Assert.Equal([true], (parsed.Navigations ?? []).Select(navigation => navigation.FromLayout));
+
+        var read = FrontendReadBuilder.Build(
+            ConsumerConfig.Load(temp.Path), Frontend(temp.Path), facts, code);
+        var screen = Assert.Single(read.Screens);
+
+        Assert.Equal(["use-case/lending.borrow-copy", "use-case/lending.list-loans", "use-case/lending.start-sign-in"], screen.UseCases);
+        Assert.Equal(["use-case/lending.borrow-copy", "use-case/lending.start-sign-in"], screen.LayoutOnlyUseCases);
+        Assert.Equal(["use-case/lending.list-loans"], screen.OwnUseCases());
+        Assert.Empty(read.Findings);
+    }
+
     /// <summary>Failed Facts Become One Reader Unavailable Finding.</summary>
     /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
@@ -198,9 +225,9 @@ public sealed class NodeFrontendReaderTests
             protocol: 1, reader: '1.0.0', typescript: '5.9.3', svelte: '5.38.2',
             frontends: [{
               name: 'web',
-              modules: [{ folder: 'src/lib/modules/spending/expenses/list-expenses', file: 'src/lib/modules/spending/expenses/list-expenses/litespec.ts', line: 3, marks: ['use-case/spending.list-expenses'] }],
+              modules: [{ folder: 'src/lib/modules/spending/list-expenses', file: 'src/lib/modules/spending/list-expenses/litespec.ts', line: 3, marks: ['use-case/spending.list-expenses'] }],
               routes: [{ file: 'src/routes/expenses/+page.svelte', line: 4, address: '/expenses', marks: ['screen/app.expense-list'], calls: [{ operation: 'ListExpenses', file: 'src/routes/expenses/+page.svelte', line: 9 }] }],
-              tests: [{ file: 'tests/e2e/expenses.spec.ts', line: 7, title: 'lists the expenses', proves: ['scenario/list-expenses.listing-succeeds'], journey: null, gotos: ['/expenses'], codes: [], texts: ['Expenses'] }],
+              tests: [{ file: 'tests/e2e/expenses.spec.ts', line: 7, title: 'lists the expenses', proves: ['scenario/list-expenses.listing-succeeds'], flow: null, gotos: ['/expenses'], codes: [], texts: ['Expenses'] }],
               diagnostics: []
             }]
           }));
@@ -235,6 +262,23 @@ public sealed class NodeFrontendReaderTests
             ],
             Tests: [],
             Diagnostics: []);
+
+    static FrontendFacts FactsWithLayoutCallAndNavigation(string root) =>
+        NodeFrontendReader.ParseResponse(
+            ConsumerConfig.Load(root).Frontends,
+            """
+            {"protocol": 1, "reader": "1.1.0", "typescript": "5.9.3", "svelte": "5.38.2", "frontends": [{
+              "name": "web",
+              "modules": [],
+              "routes": [{ "file": "src/routes/loans/+page.svelte", "line": 4, "address": "/loans", "marks": ["screen/app.loans"],
+                "calls": [
+                  { "operation": "ListLoans", "file": "src/routes/loans/+page.svelte", "line": 9, "fromLayout": false },
+                  { "operation": "BorrowCopy", "file": "src/routes/+layout.ts", "line": 5, "fromLayout": true }],
+                "navigations": [{ "path": "/auth/login", "file": "src/routes/+layout.ts", "line": 7, "fromLayout": true }] }],
+              "tests": [],
+              "diagnostics": []
+            }]}
+            """).Single(found => found.Name == "web");
 
     static string WriteFakeReader(string root, string script)
     {

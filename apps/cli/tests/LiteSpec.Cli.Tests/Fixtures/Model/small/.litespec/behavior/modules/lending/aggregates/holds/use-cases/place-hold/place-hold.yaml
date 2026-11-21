@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.place-hold
 title: Place hold
+exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong hold blocks the copy for other readers.
 kind: command
 access:
   grant: permission/place-hold
@@ -10,13 +11,12 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/hold.hold-placed
+- domain-event/hold.hold-placed
+steps:
+- statement: The reader places a hold on the copy.
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.
-audit:
-  level: none
-  target: No audit trail; the hold record shows each placement.
 records:
 - type: result
   id: result/place-hold.placed
@@ -27,5 +27,4 @@ records:
   id: result/place-hold.hold-already-waiting
   title: Hold already waiting
   outcome: refusal
-  code: lending.hold-already-waiting
-  meaning: A hold is already waiting.
+  refusal: refusal/lending.hold-already-waiting

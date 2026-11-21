@@ -1,6 +1,10 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Book;
+using LiteSpec.Cli.Book.Lexicon;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -12,7 +16,7 @@ public sealed class BookHygieneTests
     static readonly Regex HtmlTag = new("<[^>]+>", RegexOptions.Compiled);
 
     /// <summary>No shard holds an object coercion or the old raw-JSON fallback block.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ShardsHoldNoObjectStringOrRawJson()
     {
@@ -71,7 +75,7 @@ public sealed class BookHygieneTests
     }
 
     /// <summary>Every hash link and outgoing edge in the shards points at a record the shard map holds, and the client shows anything else as the missing-record text.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void GeneratedLinksResolveOrShowTheMissingRecordText()
     {
@@ -133,7 +137,7 @@ public sealed class BookHygieneTests
     }
 
     /// <summary>Generated content holds no data-go target: the client renders those buttons itself, only for records and outline nodes it holds, and ignores empty ones.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DataGoButtonsRenderOnlyForKnownRecords()
     {
@@ -161,7 +165,9 @@ public sealed class BookHygieneTests
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
-        Assert.Equal("myeditor://open?f={root}/{path}&l={line}", manifest["editor"]!.GetValue<string>());
+        Assert.Equal(
+            "myeditor://open?f=" + temp.Path + "/{path}&l={line}",
+            manifest["links"]!.GetValue<string>());
 
         // Record shards carry the path and line; the template lives only in the manifest.
         var sources = 0;
@@ -188,17 +194,24 @@ public sealed class BookHygieneTests
         Assert.True(sources > 0, "No record carries a source path to check.");
     }
 
-    /// <summary>Editor none keeps the manifest template at none and ships no editor link.</summary>
+    /// <summary>No source link template keeps the manifest links empty and ships no editor link.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
     public void EditorNoneSuppressesSourceLinks()
     {
         using var temp = TestCli.Temp("book-hygiene");
-        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp), "none");
+        var build = BookSiteBuilder.Build(
+            BookStores.WithIntentCoverage(BookTestBooks.LoadFixture("Book/review.json")),
+            temp.Path,
+            BookLexicon.Load(TestCli.Repository),
+            null,
+            LayerClaims.All,
+            "2026-01-01T00:00:00.000Z");
+        build.Site.WriteTo(Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
-        Assert.Equal("none", manifest["editor"]!.GetValue<string>());
+        Assert.Null(manifest["links"]);
 
         foreach (var file in Directory.GetFiles(data, "*.js"))
         {
@@ -210,7 +223,7 @@ public sealed class BookHygieneTests
     ///     The book client holds no risk tier, no T1, no fact badges, no fact chips,
     ///     no fact pills, no avatars and no card styles for facts.
     /// </summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookClientHoldsNoTierOrFactBadges()
     {
@@ -227,7 +240,7 @@ public sealed class BookHygieneTests
         Assert.DoesNotContain("Tier 3", client, StringComparison.Ordinal);
         Assert.DoesNotContain("tierb", client, StringComparison.Ordinal);
         Assert.DoesNotContain("mchip", client, StringComparison.Ordinal);
-        Assert.DoesNotContain("avatar", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-slot=\"avatar\"", client, StringComparison.Ordinal);
         Assert.DoesNotContain("data-slot=\"badge\"", client, StringComparison.Ordinal);
     }
 
@@ -244,13 +257,6 @@ public sealed class BookHygieneTests
 
     static IEnumerable<string> HtmlOf(JsonObject detail)
     {
-        if (detail["bodyHtml"] is JsonValue body
-            && body.TryGetValue<string>(out var html)
-            && html.Length > 0)
-        {
-            yield return html;
-        }
-
         var sections = detail["sections"] as JsonObject;
         if (sections?["intro"] is JsonValue intro
             && intro.TryGetValue<string>(out var lead)

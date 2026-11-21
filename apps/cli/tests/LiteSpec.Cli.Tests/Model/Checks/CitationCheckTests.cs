@@ -37,7 +37,7 @@ public sealed class CitationCheckTests
     }
 
     /// <summary>Applying Constraint Without Cites Reports.</summary>
-    /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
+    /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void ApplyingConstraintWithoutCitesReports()
     {
@@ -55,7 +55,7 @@ public sealed class CitationCheckTests
     }
 
     /// <summary>Cited Constraint Passes.</summary>
-    /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
+    /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void CitedConstraintPasses()
     {
@@ -69,7 +69,7 @@ public sealed class CitationCheckTests
     }
 
     /// <summary>Constraint Not Applying Passes.</summary>
-    /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
+    /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void ConstraintNotApplyingPasses()
     {

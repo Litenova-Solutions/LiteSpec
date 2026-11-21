@@ -113,8 +113,8 @@
             ]
           },
           {
-            "type": "event",
-            "id": "event/copy.copy-registered",
+            "type": "domain-event",
+            "id": "domain-event/copy.copy-registered",
             "title": "Copy registered",
             "owner": "lending-team",
             "status": "approved",
@@ -125,8 +125,8 @@
             ]
           },
           {
-            "type": "event",
-            "id": "event/copy.copy-retired",
+            "type": "domain-event",
+            "id": "domain-event/copy.copy-retired",
             "title": "Copy retired",
             "owner": "lending-team",
             "status": "approved",
@@ -182,15 +182,15 @@
             "governs": [
               "use-case/lending.place-hold"
             ],
-            "refusal": "result/place-hold.hold-already-waiting",
+            "refusal": "refusal/lending.hold-already-waiting",
             "basedOn": [],
             "fulfills": [
               "requirement/hold-queue.hold-pickup-window"
             ]
           },
           {
-            "type": "event",
-            "id": "event/hold.hold-placed",
+            "type": "domain-event",
+            "id": "domain-event/hold.hold-placed",
             "title": "Hold placed",
             "owner": "lending-team",
             "status": "approved",
@@ -202,8 +202,8 @@
             ]
           },
           {
-            "type": "event",
-            "id": "event/hold.hold-canceled",
+            "type": "domain-event",
+            "id": "domain-event/hold.hold-canceled",
             "title": "Hold canceled",
             "owner": "lending-team",
             "status": "approved",
@@ -259,7 +259,7 @@
             "governs": [
               "use-case/lending.borrow-copy"
             ],
-            "refusal": "result/borrow-copy.copy-unavailable",
+            "refusal": "refusal/lending.copy-not-available",
             "basedOn": [],
             "fulfills": [
               "requirement/hold-queue.max-active-loans"
@@ -282,8 +282,8 @@
             ]
           },
           {
-            "type": "event",
-            "id": "event/loan.loan-borrowed",
+            "type": "domain-event",
+            "id": "domain-event/loan.loan-borrowed",
             "title": "Loan borrowed",
             "owner": "lending-team",
             "status": "approved",
@@ -296,8 +296,8 @@
             ]
           },
           {
-            "type": "event",
-            "id": "event/loan.loan-returned",
+            "type": "domain-event",
+            "id": "domain-event/loan.loan-returned",
             "title": "Loan returned",
             "owner": "lending-team",
             "status": "approved",
@@ -308,8 +308,8 @@
             ]
           },
           {
-            "type": "event",
-            "id": "event/loan.loan-extended",
+            "type": "domain-event",
+            "id": "domain-event/loan.loan-extended",
             "title": "Loan extended",
             "owner": "lending-team",
             "status": "approved",
@@ -606,16 +606,9 @@
         ],
         "choice": "21 days",
         "reopenedWhen": "Reader demand shifts.",
-        "decides": [
-          "requirement/hold-queue.loan-period-days"
-        ],
         "basedOn": []
       },
-      "links": {
-        "decides": [
-          "requirement/hold-queue.loan-period-days"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "entry-point",
@@ -642,19 +635,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/copy.copy-registered",
+      "type": "domain-event",
+      "id": "domain-event/copy.copy-registered",
       "title": "Copy registered",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/copies/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/copies/aggregate.yaml",
       "line": 34,
       "fields": {
-        "type": "event",
-        "id": "event/copy.copy-registered",
+        "type": "domain-event",
+        "id": "domain-event/copy.copy-registered",
         "title": "Copy registered",
         "owner": "lending-team",
         "status": "reviewed",
@@ -667,19 +660,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/copy.copy-retired",
+      "type": "domain-event",
+      "id": "domain-event/copy.copy-retired",
       "title": "Copy retired",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/copies/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/copies/aggregate.yaml",
       "line": 46,
       "fields": {
-        "type": "event",
-        "id": "event/copy.copy-retired",
+        "type": "domain-event",
+        "id": "domain-event/copy.copy-retired",
         "title": "Copy retired",
         "owner": "lending-team",
         "status": "reviewed",
@@ -691,19 +684,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/hold.hold-canceled",
+      "type": "domain-event",
+      "id": "domain-event/hold.hold-canceled",
       "title": "Hold canceled",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/holds/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/holds/aggregate.yaml",
       "line": 48,
       "fields": {
-        "type": "event",
-        "id": "event/hold.hold-canceled",
+        "type": "domain-event",
+        "id": "domain-event/hold.hold-canceled",
         "title": "Hold canceled",
         "owner": "lending-team",
         "status": "reviewed",
@@ -715,19 +708,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/hold.hold-placed",
+      "type": "domain-event",
+      "id": "domain-event/hold.hold-placed",
       "title": "Hold placed",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/holds/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/holds/aggregate.yaml",
       "line": 35,
       "fields": {
-        "type": "event",
-        "id": "event/hold.hold-placed",
+        "type": "domain-event",
+        "id": "domain-event/hold.hold-placed",
         "title": "Hold placed",
         "owner": "lending-team",
         "status": "reviewed",
@@ -741,19 +734,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-borrowed",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-borrowed",
       "title": "Loan borrowed",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 52,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-borrowed",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-borrowed",
         "title": "Loan borrowed",
         "owner": "lending-team",
         "status": "reviewed",
@@ -768,19 +761,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-extended",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-extended",
       "title": "Loan extended",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 78,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-extended",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-extended",
         "title": "Loan extended",
         "owner": "lending-team",
         "status": "reviewed",
@@ -793,19 +786,19 @@
       "links": {}
     },
     {
-      "type": "event",
-      "id": "event/loan.loan-returned",
+      "type": "domain-event",
+      "id": "domain-event/loan.loan-returned",
       "title": "Loan returned",
       "owner": "lending-team",
       "status": "reviewed",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 66,
       "fields": {
-        "type": "event",
-        "id": "event/loan.loan-returned",
+        "type": "domain-event",
+        "id": "domain-event/loan.loan-returned",
         "title": "Loan returned",
         "owner": "lending-team",
         "status": "reviewed",
@@ -818,36 +811,36 @@
       "links": {}
     },
     {
-      "type": "departure",
-      "id": "departure/shelf-check-bypass",
+      "type": "waiver",
+      "id": "waiver/shelf-check-bypass",
       "title": "Shelf check bypass",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/governance/departures/shelf-check-bypass.yaml",
+      "file": ".litespec/governance/waivers/shelf-check-bypass.yaml",
       "line": 3,
       "fields": {
-        "type": "departure",
-        "id": "departure/shelf-check-bypass",
+        "type": "waiver",
+        "id": "waiver/shelf-check-bypass",
         "title": "Shelf check bypass",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
         ],
-        "subject": [
+        "appliesTo": [
           "use-case/lending.register-copy"
         ],
         "reason": "The import runs before opening.",
         "expiresOn": "2027-01-01"
       },
       "links": {
-        "covers": [
+        "waives": [
           "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
         ],
-        "subject": [
+        "appliesTo": [
           "use-case/lending.register-copy"
         ]
       }
@@ -871,68 +864,64 @@
         "status": "approved",
         "lifecycle": "shipped"
       },
-      "links": {
-        "solves": [
-          "problem/overdue-loans-pile-up"
-        ]
-      }
+      "links": {}
     },
     {
-      "type": "journey",
-      "id": "journey/borrow-and-return",
+      "type": "flow",
+      "id": "flow/borrow-and-return",
       "title": "Borrow and return",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/product/journeys/borrow-and-return.yaml",
+      "file": ".litespec/product/flows/borrow-and-return.yaml",
       "line": 3,
       "fields": {
-        "type": "journey",
-        "id": "journey/borrow-and-return",
+        "type": "flow",
+        "id": "flow/borrow-and-return",
         "title": "Borrow and return",
         "owner": "lending-team",
         "status": "approved",
         "actor": "actor/reader",
         "steps": [
           {
-            "id": "s1",
+            "id": "step/borrow-and-return.register-copy",
             "statement": "The reader registers a new copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s2",
+            "id": "step/borrow-and-return.borrow-copy",
             "statement": "The reader borrows an available copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s3",
+            "id": "step/borrow-and-return.renew-loan",
             "statement": "The reader extends an active loan.",
             "actor": "actor/reader"
           },
           {
-            "id": "s4",
+            "id": "step/borrow-and-return.review-loans",
             "statement": "The reader lists current loans.",
             "actor": "actor/reader"
           },
           {
-            "id": "s5",
+            "id": "step/borrow-and-return.return-copy",
             "statement": "The reader returns a borrowed copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s6",
+            "id": "step/borrow-and-return.place-hold",
             "statement": "The reader places a hold on a loaned copy.",
             "actor": "actor/reader"
           },
           {
-            "id": "s7",
+            "id": "step/borrow-and-return.cancel-hold",
             "statement": "The reader cancels a waiting hold.",
             "actor": "actor/reader"
           },
           {
-            "id": "s8",
+            "id": "step/borrow-and-return.retire-copy",
             "statement": "The librarian retires a worn copy.",
             "actor": "actor/librarian"
           }
@@ -958,33 +947,33 @@
       }
     },
     {
-      "type": "departure",
-      "id": "departure/retire-copy-unimplemented",
+      "type": "waiver",
+      "id": "waiver/retire-copy-unimplemented",
       "title": "Retire copy unimplemented",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/governance/departures/retire-copy-unimplemented.yaml",
+      "file": ".litespec/governance/waivers/retire-copy-unimplemented.yaml",
       "line": 3,
       "fields": {
-        "type": "departure",
-        "id": "departure/retire-copy-unimplemented",
+        "type": "waiver",
+        "id": "waiver/retire-copy-unimplemented",
         "title": "Retire copy unimplemented",
         "owner": "lending-team",
         "status": "approved",
-        "covers": [
+        "waives": [
           "use-case-unimplemented"
         ],
-        "subject": [
+        "appliesTo": [
           "use-case/lending.retire-copy"
         ],
         "reason": "Retirement waits for the weeding policy.",
         "expiresOn": "2027-06-01"
       },
       "links": {
-        "subject": [
+        "appliesTo": [
           "use-case/lending.retire-copy"
         ]
       }
@@ -1054,9 +1043,18 @@
         "title": "Borrow copy",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Borrow an available copy."
+        "meaning": "Borrow an available copy.",
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
+      }
     },
     {
       "type": "permission",
@@ -1075,9 +1073,16 @@
         "title": "Manage copies",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Register and retire copies."
+        "meaning": "Register and retire copies.",
+        "grantedTo": [
+          "role/librarian"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian"
+        ]
+      }
     },
     {
       "type": "permission",
@@ -1096,9 +1101,18 @@
         "title": "Place hold",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Place and cancel holds."
+        "meaning": "Place and cancel holds.",
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
+      }
     },
     {
       "type": "permission",
@@ -1117,9 +1131,18 @@
         "title": "Read loans",
         "owner": "lending-team",
         "status": "reviewed",
-        "meaning": "Read own loans."
+        "meaning": "Read own loans.",
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
       },
-      "links": {}
+      "links": {
+        "grantedTo": [
+          "role/librarian",
+          "role/reader"
+        ]
+      }
     },
     {
       "type": "problem",
@@ -1243,9 +1266,16 @@
         "status": "approved",
         "kind": "functional",
         "statement": "A loan lasts 21 days.",
-        "cites": []
+        "cites": [],
+        "basedOn": [
+          "decision/0001-loan-period"
+        ]
       },
-      "links": {}
+      "links": {
+        "basedOn": [
+          "decision/0001-loan-period"
+        ]
+      }
     },
     {
       "type": "requirement",
@@ -1636,22 +1666,9 @@
         "title": "Librarian",
         "owner": "lending-team",
         "status": "reviewed",
-        "scope": "platform",
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/manage-copies",
-          "permission/place-hold"
-        ]
+        "scope": "platform"
       },
-      "links": {
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/manage-copies",
-          "permission/place-hold"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "role",
@@ -1670,20 +1687,9 @@
         "title": "Reader",
         "owner": "lending-team",
         "status": "reviewed",
-        "scope": "self",
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/place-hold"
-        ]
+        "scope": "self"
       },
-      "links": {
-        "allows": [
-          "permission/borrow-copy",
-          "permission/read-loans",
-          "permission/place-hold"
-        ]
-      }
+      "links": {}
     },
     {
       "type": "rule",
@@ -1743,7 +1749,7 @@
         "governs": [
           "use-case/lending.place-hold"
         ],
-        "refusal": "result/place-hold.hold-already-waiting",
+        "refusal": "refusal/lending.hold-already-waiting",
         "basedOn": [],
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
@@ -1819,7 +1825,7 @@
         "governs": [
           "use-case/lending.borrow-copy"
         ],
-        "refusal": "result/borrow-copy.copy-unavailable",
+        "refusal": "refusal/lending.copy-not-available",
         "basedOn": [],
         "fulfills": [
           "requirement/hold-queue.max-active-loans"
@@ -2030,7 +2036,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "fulfills": [
           "requirement/hold-queue.max-active-loans"
@@ -2075,7 +2081,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "fulfills": [
           "requirement/hold-queue.max-active-loans"
@@ -2105,7 +2111,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/hold.hold-canceled"
+          "domain-event/hold.hold-canceled"
         ],
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
@@ -2150,7 +2156,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/hold.hold-canceled"
+          "domain-event/hold.hold-canceled"
         ],
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
@@ -2180,7 +2186,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-extended"
+          "domain-event/loan.loan-extended"
         ],
         "fulfills": [
           "requirement/hold-queue.loan-period-days"
@@ -2225,7 +2231,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-extended"
+          "domain-event/loan.loan-extended"
         ],
         "fulfills": [
           "requirement/hold-queue.loan-period-days"
@@ -2316,7 +2322,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/hold.hold-placed"
+          "domain-event/hold.hold-placed"
         ],
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
@@ -2361,7 +2367,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/hold.hold-placed"
+          "domain-event/hold.hold-placed"
         ],
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
@@ -2391,7 +2397,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/copy.copy-registered"
+          "domain-event/copy.copy-registered"
         ],
         "fulfills": [
           "requirement/hold-queue.copy-shelf-home"
@@ -2436,7 +2442,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/copy.copy-registered"
+          "domain-event/copy.copy-registered"
         ],
         "fulfills": [
           "requirement/hold-queue.copy-shelf-home"
@@ -2466,7 +2472,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/copy.copy-retired"
+          "domain-event/copy.copy-retired"
         ],
         "fulfills": [
           "requirement/hold-queue.copy-shelf-home"
@@ -2511,7 +2517,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/copy.copy-retired"
+          "domain-event/copy.copy-retired"
         ],
         "fulfills": [
           "requirement/hold-queue.copy-shelf-home"
@@ -2541,7 +2547,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-returned"
+          "domain-event/loan.loan-returned"
         ],
         "fulfills": [
           "requirement/hold-queue.loan-period-days"
@@ -2586,7 +2592,7 @@
           "entry-point/library-app"
         ],
         "raises": [
-          "event/loan.loan-returned"
+          "domain-event/loan.loan-returned"
         ],
         "fulfills": [
           "requirement/hold-queue.loan-period-days"
@@ -2661,12 +2667,12 @@
         "owner": "lending-team",
         "status": "reviewed",
         "translates": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ]
       },
       "links": {
         "translates": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ]
       }
     },
@@ -2724,14 +2730,14 @@
         "title": "Due reminder",
         "owner": "lending-team",
         "status": "reviewed",
-        "addresses": [
+        "audience": [
           "actor/reader"
         ],
         "channel": "email",
         "template": "due-reminder"
       },
       "links": {
-        "addresses": [
+        "audience": [
           "actor/reader"
         ]
       }
@@ -2754,7 +2760,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "triggeredBy": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "effects": [
           {
@@ -2764,7 +2770,7 @@
       },
       "links": {
         "triggeredBy": [
-          "event/loan.loan-borrowed"
+          "domain-event/loan.loan-borrowed"
         ],
         "effects": [
           "notification/lending.due-reminder"
@@ -2810,37 +2816,37 @@
         "useCase": "use-case/lending.borrow-copy",
         "operation": "BorrowCopy",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.cancel-hold",
         "operation": "CancelHold",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.extend-loan",
         "operation": "ExtendLoan",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.place-hold",
         "operation": "PlaceHold",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.register-copy",
         "operation": "RegisterCopy",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs"
       },
       {
         "useCase": "use-case/lending.return-copy",
         "operation": "ReturnCopy",
         "kind": "command",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs"
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs"
       }
     ],
     "reactions": [],
@@ -2848,75 +2854,75 @@
     "codes": [
       {
         "code": "lending.copy-already-registered",
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs",
         "class": "RegisterCopyCommandHandler"
       },
       {
         "code": "lending.copy-not-available",
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs",
         "class": "BorrowCopyCommandHandler"
       },
       {
         "code": "lending.copy-on-loan",
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Copy.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Copy.cs",
         "class": "Copy"
       },
       {
         "code": "lending.extension-refused",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs",
         "class": "ExtendLoanCommandHandler"
       },
       {
         "code": "lending.hold-already-waiting",
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs",
         "class": "PlaceHoldCommandHandler"
       },
       {
         "code": "lending.hold-not-waiting",
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs",
         "class": "CancelHoldCommandHandler"
       },
       {
         "code": "lending.loan-not-active",
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs",
         "class": "ReturnCopyCommandHandler"
       }
     ],
     "events": [
       {
         "class": "CopyRegisteredEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRegisteredEvent.cs",
-        "event": "event/copy.copy-registered"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRegisteredEvent.cs",
+        "event": "domain-event/copy.copy-registered"
       },
       {
         "class": "CopyRetiredEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRetiredEvent.cs",
-        "event": "event/copy.copy-retired"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRetiredEvent.cs",
+        "event": "domain-event/copy.copy-retired"
       },
       {
         "class": "HoldCancelledEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldCancelledEvent.cs",
-        "event": "event/hold.hold-canceled"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldCancelledEvent.cs",
+        "event": "domain-event/hold.hold-canceled"
       },
       {
         "class": "HoldPlacedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldPlacedEvent.cs",
-        "event": "event/hold.hold-placed"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldPlacedEvent.cs",
+        "event": "domain-event/hold.hold-placed"
       },
       {
         "class": "LoanBorrowedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs",
-        "event": "event/loan.loan-borrowed"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs",
+        "event": "domain-event/loan.loan-borrowed"
       },
       {
         "class": "LoanExtendedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanExtendedEvent.cs",
-        "event": "event/loan.loan-extended"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanExtendedEvent.cs",
+        "event": "domain-event/loan.loan-extended"
       },
       {
         "class": "LoanReturnedEvent",
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanReturnedEvent.cs",
-        "event": "event/loan.loan-returned"
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanReturnedEvent.cs",
+        "event": "domain-event/loan.loan-returned"
       }
     ]
   },
@@ -3189,102 +3195,102 @@
   "links": {
     "implements": [
       {
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRegisteredEvent.cs",
-        "to": "event/copy.copy-registered",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRegisteredEvent.cs",
+        "to": "domain-event/copy.copy-registered",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Events/CopyRetiredEvent.cs",
-        "to": "event/copy.copy-retired",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Events/CopyRetiredEvent.cs",
+        "to": "domain-event/copy.copy-retired",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldCancelledEvent.cs",
-        "to": "event/hold.hold-canceled",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldCancelledEvent.cs",
+        "to": "domain-event/hold.hold-canceled",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Holds/Events/HoldPlacedEvent.cs",
-        "to": "event/hold.hold-placed",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Holds/Events/HoldPlacedEvent.cs",
+        "to": "domain-event/hold.hold-placed",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs",
-        "to": "event/loan.loan-borrowed",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs",
+        "to": "domain-event/loan.loan-borrowed",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanExtendedEvent.cs",
-        "to": "event/loan.loan-extended",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanExtendedEvent.cs",
+        "to": "domain-event/loan.loan-extended",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Loans/Events/LoanReturnedEvent.cs",
-        "to": "event/loan.loan-returned",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanReturnedEvent.cs",
+        "to": "domain-event/loan.loan-returned",
         "kind": "event"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs",
         "to": "use-case/lending.borrow-copy",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs",
         "to": "use-case/lending.cancel-hold",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs",
         "to": "use-case/lending.extend-loan",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs",
         "to": "use-case/lending.place-hold",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs",
         "to": "use-case/lending.register-copy",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs",
         "to": "use-case/lending.return-copy",
         "kind": "handler"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Copies/RegisterCopy/RegisterCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/RegisterCopy/RegisterCopyCommandHandler.cs",
         "to": "result/register-copy.copy-already-registered",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Domain/Lending/Copies/Copy.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Domain/Copies/Copy.cs",
         "to": "result/retire-copy.copy-on-loan",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/CancelHold/CancelHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/CancelHold/CancelHoldCommandHandler.cs",
         "to": "result/cancel-hold.hold-ended",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Holds/PlaceHold/PlaceHoldCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/PlaceHold/PlaceHoldCommandHandler.cs",
         "to": "result/place-hold.hold-already-waiting",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs",
         "to": "result/borrow-copy.copy-unavailable",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ExtendLoan/ExtendLoanCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ExtendLoan/ExtendLoanCommandHandler.cs",
         "to": "result/extend-loan.extension-refused",
         "kind": "result"
       },
       {
-        "path": "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs",
+        "path": "apps/api/src/Modules/Library.Lending/Application/ReturnCopy/ReturnCopyCommandHandler.cs",
         "to": "result/return-copy.loan-inactive",
         "kind": "result"
       }
@@ -3389,5 +3395,121 @@
       "coded": true,
       "verified": false
     }
+  },
+  "intentCoverage": {
+    "reached": 4,
+    "total": 14,
+    "share": 0.2857142857142857,
+    "requirements": {
+      "reached": 4,
+      "total": 4
+    },
+    "steps": {
+      "reached": 0,
+      "total": 8
+    },
+    "entries": [
+      {
+        "id": "requirement/hold-queue.copy-shelf-home",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/copy.has-one-home-shelf",
+          "rule/lending.copy-barcode-unique",
+          "use-case/lending.register-copy",
+          "use-case/lending.retire-copy"
+        ]
+      },
+      {
+        "id": "requirement/hold-queue.hold-pickup-window",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/hold.names-one-copy",
+          "use-case/lending.cancel-hold",
+          "use-case/lending.place-hold"
+        ]
+      },
+      {
+        "id": "requirement/hold-queue.loan-period-days",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/loan.borrowed-copy-never-leaves-unscanned",
+          "use-case/lending.extend-loan",
+          "use-case/lending.return-copy"
+        ]
+      },
+      {
+        "id": "requirement/hold-queue.max-active-loans",
+        "kind": "requirement",
+        "reached": true,
+        "reachedBy": [
+          "rule/loan.has-one-borrower",
+          "use-case/lending.borrow-copy",
+          "use-case/lending.list-loans"
+        ]
+      },
+      {
+        "id": "problem/overdue-loans-pile-up",
+        "kind": "problem",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "constraint/library-privacy-law",
+        "kind": "constraint",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.register-copy",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.borrow-copy",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.renew-loan",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.review-loans",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.return-copy",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.place-hold",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.cancel-hold",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      },
+      {
+        "id": "step/borrow-and-return.retire-copy",
+        "kind": "step",
+        "reached": false,
+        "reachedBy": []
+      }
+    ]
   }
 }

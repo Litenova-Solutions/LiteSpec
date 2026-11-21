@@ -29,7 +29,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 Task<Order?> FindAsync(OrderId id, CancellationToken cancellationToken);
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 reports a queryable return.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -49,7 +49,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 {|LS1010:IQueryable<Order>|} Query();
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 reports an expression filter parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -72,7 +72,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 Task<IReadOnlyList<Order>> ListAsync({|LS1010:Expression<Func<Order, bool>>|} filter);
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 reports a session property.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -94,7 +94,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 {|LS1010:IDocumentSession|} Session { get; }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 reports a set property.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -116,7 +116,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 {|LS1010:DbSet<Order>|} Orders { get; }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 reports a derived queryable return.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -140,7 +140,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 {|LS1010:ISorted<Order>|} Sorted();
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 reports a generic repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -158,7 +158,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 Task<T> GetAsync(Guid id, CancellationToken cancellationToken);
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 ignores an interface not named Repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -178,7 +178,7 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 IQueryable<Order> Query();
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1010 ignores a repository outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -198,27 +198,8 @@ public sealed class RepositoryContractAnalyzerTests
             {
                 IQueryable<Order> Query();
             }
-            """, assemblyName: "Shop.Infrastructure");
+            """, path: "Shop.Spending/Infrastructure/Source.cs");
 
-    /// <summary>LS1010 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
-    [Fact(DisplayName = "LS1010 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<RepositoryContractAnalyzer>("""
-            using System.Linq;
-
-            namespace Shop.Core;
-
-            public sealed class Order
-            {
-            }
-
-            public interface IOrderRepository
-            {
-                {|LS1010:IQueryable<Order>|} Query();
-            }
-            """, assemblyName: "Shop.Core", layer: "Domain");
 
     /// <summary>LS1010 accepts a repository over an aggregate named Session.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -254,5 +235,5 @@ public sealed class RepositoryContractAnalyzerTests
 
                 void Store(SupportSession session);
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

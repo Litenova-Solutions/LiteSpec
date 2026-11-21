@@ -13,16 +13,15 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 reports a marked event that is not partial")]
     public Task ReportsAMarkedEventThatIsNotPartial() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record {|LS5006:ExpenseSubmittedEvent|} : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), DomainEvent()]);
 
     /// <summary>LS5006 reports a marked exception that is not partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -30,7 +29,7 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 reports a marked exception that is not partial")]
     public Task ReportsAMarkedExceptionThatIsNotPartial() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 using System;
 
                 namespace Claimwick.Spending;
@@ -45,8 +44,7 @@ public sealed class PartialTypeTests
                 {
                 }
                 """)],
-            [ProjectFile(), Rule()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), Rule()]);
 
     /// <summary>LS5006 accepts a partial event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -54,16 +52,15 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 accepts a partial event")]
     public Task AcceptsAPartialEvent() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), DomainEvent()]);
 
     /// <summary>LS5006 ignores an unmarked event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -71,15 +68,14 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 ignores an unmarked event")]
     public Task IgnoresAnUnmarkedEvent() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public interface IDomainEvent;
 
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), DomainEvent()]);
 
     /// <summary>LS5006 does not run outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -87,16 +83,15 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 does not run outside Domain")]
     public Task DoesNotRunOutsideDomain() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Application/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent : IDomainEvent;
                 """)],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Application");
+            [ProjectFile(), DomainEvent()]);
 
     /// <summary>LS5006 accepts a two-part event with every part partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -105,22 +100,21 @@ public sealed class PartialTypeTests
     public Task AcceptsTwoPartEventWithEveryPartPartial() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
             [
-                ("First.cs", """
+                ("Shop.Spending/Domain/First.cs", """
                     namespace Claimwick.Spending;
 
                     public interface IDomainEvent;
 
-                    /// <implements>event/expense.submitted</implements>
+                    /// <implements>domain-event/expense.submitted</implements>
                     public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                     """),
-                ("Second.cs", """
+                ("Shop.Spending/Domain/Second.cs", """
                     namespace Claimwick.Spending;
 
                     public sealed partial record ExpenseSubmittedEvent;
                     """),
             ],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), DomainEvent()]);
 
     /// <summary>LS5006 reports the enclosing type of a nested partial event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -128,19 +122,18 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 reports the enclosing type of a nested partial event")]
     public Task ReportsEnclosingTypeOfNestedPartialEvent() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public interface IDomainEvent;
 
                 public sealed class {|LS5006:ExpenseEvents|}
                 {
-                    /// <implements>event/expense.submitted</implements>
+                    /// <implements>domain-event/expense.submitted</implements>
                     public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 }
                 """)],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), DomainEvent()]);
 
     /// <summary>LS5006 accepts a nested event with a partial enclosing type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -148,17 +141,16 @@ public sealed class PartialTypeTests
     [Fact(DisplayName = "LS5006 accepts a nested event with a partial enclosing type")]
     public Task AcceptsNestedEventWithPartialEnclosingType() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
-            [("Source.cs", """
+            [("Shop.Spending/Domain/Source.cs", """
                 namespace Claimwick.Spending;
 
                 public interface IDomainEvent;
 
                 public sealed partial class ExpenseEvents
                 {
-                    /// <implements>event/expense.submitted</implements>
+                    /// <implements>domain-event/expense.submitted</implements>
                     public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
                 }
                 """)],
-            [ProjectFile(), Event()],
-            assemblyName: "Shop.Domain");
+            [ProjectFile(), DomainEvent()]);
 }

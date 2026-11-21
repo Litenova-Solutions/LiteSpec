@@ -4,9 +4,15 @@ title: Tax Receipt Retention
 summary: National tax law requires a company to keep its business receipts for seven years.
 authority: National tax law.
 sources:
-- key: national-tax-law
+- name: national-tax-law
   url: https://example.com/national-tax-law
   readOn: 2026-02-10
 kind: organizational
 applies: true
 appliesBecause: Claimwick stores receipts for reimbursed expenses.
+coverage: The rule covers business receipts. Claimwick holds only the receipts of expenses it reimburses, so those are the receipts the rule reaches in the product.
+obligations:
+- statement: A company keeps its business receipts for seven years.
+  sources:
+  - national-tax-law
+productEffect: An expense above the receipt threshold carries its receipt, which the product keeps for the retention period under `requirement/approval.above-threshold-receipt`. The personal data of a decided expense is erased after the retention period under `requirement/approval.erased-after-retention`.

@@ -4,12 +4,126 @@ title: Record Format Evidence
 sources:
   - url: https://yaml.org/spec/1.2/
     readOn: 2026-10-31
-    key: yaml-spec-1-2
+    name: yaml-spec-1-2
+    note: The record read this specification for the core schema resolution rules behind the strict subset.
   - url: https://json-schema.org/
     readOn: 2026-10-31
-    key: json-schema
+    name: json-schema
+    note: The record read this site for the validation claim that the subset relies on, and for the KSON superset claim that makes a later conversion mechanical.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
-    key: record-schema
+    name: record-schema
+    note: The record read the shipped record schema as the validation target and for the key order. The survey comparison and the consumer counts are the researcher's own measurement.
 question: Which record format holds each fact once and validates against the record schema?
-conclusion: A strict YAML subset holding one record file per page with an optional explanation file beside it carries each fact once and validates against the unchanged record schema, while the closest surveyed alternative stays in beta with no .NET implementation.
+conclusion: A strict YAML subset holds one record file per page with an optional explanation file beside it. It carries each fact once and validates against the unchanged record schema. The closest surveyed alternative stays in beta with no .NET implementation.
+findings:
+  - statement: A strict subset of YAML holds each fact once and validates against the unchanged record schema.
+    sources:
+      - yaml-spec-1-2
+      - json-schema
+      - record-schema
+  - statement: No format in the survey beats it.
+    sources:
+      - record-schema
+  - statement: The closest alternative, KSON, is in beta and has no .NET implementation.
+    sources:
+      - json-schema
+  - statement: On 31 October 2026, the largest consumer behavior folder held 2,450 pages.
+    sources:
+      - record-schema
+  - statement: Those pages carry 403 thousand lines of JSON frontmatter, against 32 thousand non-blank body lines.
+    sources:
+      - record-schema
+  - statement: Every body uses fixed sections.
+    sources:
+      - record-schema
+  - statement: Goal appears 1,273 times, Example 1,211 times, and Risk 1,022 times.
+    sources:
+      - record-schema
+  - statement: What Happens appears 984 times, Notes 476 times, and Screen Summary 380 times.
+    sources:
+      - record-schema
+  - statement: Body tables alone hold aggregate transitions and data, in 164 and 179 tables.
+    sources:
+      - record-schema
+  - statement: The record infers that a Markdown table is the source of truth for every aggregate state set.
+    sources:
+      - record-schema
+  - statement: Checks read the frontmatter and the merged tables, but not the body prose.
+    sources:
+      - record-schema
+  - statement: The record infers that Goal, Risk, and What Happens can change without any check noticing.
+    sources:
+      - record-schema
+  - statement: Behavior bodies hold 1,551 Markdown links to .md file paths.
+    sources:
+      - record-schema
+  - statement: Research pages are articles with 181 distinct headings, 160 subsections, and 85 tables.
+    sources:
+      - record-schema
+  - statement: They cite 584 distinct URLs, and 486 of those URLs are missing from the dated sources list.
+    sources:
+      - record-schema
+  - statement: A rough converter puts YAML at 78 percent of the JSON lines and 81 percent of its characters.
+    sources:
+      - record-schema
+  - statement: The gain is mainly structural, not a gain in size.
+    sources:
+      - record-schema
+  - statement: The survey compared 18 formats.
+    sources:
+      - record-schema
+  - statement: They are KDL, TOML, JSON5, JSONC, KSON, HUML, NestedText, MAML, and TOON.
+    sources:
+      - record-schema
+  - statement: They also include Ziggy, RON, EDN, CUE, Pkl, Nickel, Dhall, Jsonnet, and HCL.
+    sources:
+      - record-schema
+  - statement: None beats a strict YAML subset.
+    sources:
+      - record-schema
+  - statement: KSON is the closest by design, but it is in beta and has no .NET implementation.
+    sources:
+      - json-schema
+  - statement: KSON is a JSON superset with JSON Schema support.
+    sources:
+      - json-schema
+  - statement: The record infers that a later conversion from strict YAML to KSON would be mechanical.
+    sources:
+      - json-schema
+  - statement: The reader is YamlDotNet.
+    sources:
+      - yaml-spec-1-2
+  - statement: It accepts the YAML that YamlDotNet reads, except that it refuses an empty document.
+    sources:
+      - yaml-spec-1-2
+  - statement: It also refuses a document that does not start at the first column, document markers, tabs in indentation, folded blocks, and duplicate keys.
+    sources:
+      - yaml-spec-1-2
+  - statement: Each refusal names the line where it sits.
+    sources:
+      - yaml-spec-1-2
+  - statement: Scalars resolve by the YAML 1.2 core schema.
+    sources:
+      - yaml-spec-1-2
+  - statement: Key order comes from the record schema, which validates the parsed YAML unchanged.
+    sources:
+      - record-schema
+  - statement: A scalar that would resolve to a non-string, where a string is meant, is quoted.
+    sources:
+      - yaml-spec-1-2
+  - statement: Multi-line text uses pipe block scalars.
+    sources:
+      - yaml-spec-1-2
+  - statement: The record infers that anything a check reads is a YAML field.
+    sources:
+      - record-schema
+  - statement: The record infers that anything only helping a person understand goes in the explanation file.
+    sources:
+      - record-schema
+  - statement: The record infers that research and decision records require their explanation file.
+    sources:
+      - record-schema
+  - statement: The record infers that prose cites records by identifier, and each research source carries a key that the article cites.
+    sources:
+      - record-schema

@@ -1,35 +1,49 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
-  import { RecordIcon } from "$lib/record";
-  import { codeCls } from "../page-html";
-  import Fact from "../blocks/Fact.svelte";
+  import { book, esc, stripStep } from "$lib/frame";
+  import DataTable from "../blocks/DataTable.svelte";
+  import { codeOf, muted, outcomeTag, refLink, td } from "./record-cells";
 
-  // Results as aligned rows: the outcome icon, the title, the meaning and the code.
+  // Results as one table: the outcome tag, the result, its meaning and its code.
   type Props = {
     items: { id?: string | null; title: string; outcome: string; meaning: string; code?: string | null; kind?: string }[];
+    caption?: string | null;
   };
-  let { items }: Props = $props();
+  let { items, caption = null }: Props = $props();
+
+  // The refusals the model derives instead of a written result.
+  const GENERIC_SUFFIXES = [".forbidden", ".invalid-input", ".not-found", ".conflict", ".unauthenticated", ".sign-in-too-old"];
+
+  function isGeneric(x: { id?: string | null; kind?: string }): boolean {
+    if (x.kind === "generic") return true;
+    const id = x.id ?? "";
+    return GENERIC_SUFFIXES.some((s) => id.endsWith(s));
+  }
+
+  function sentenceOf(id: string | null | undefined): string {
+    if (!id) return "";
+    const s = book.get(stripStep(id))?.fields?.sentence;
+    return typeof s === "string" ? s : "";
+  }
+
+  function resultCell(x: { id?: string | null; title: string; kind?: string }): string {
+    if (isGeneric(x)) return `<span data-explain="g:generic refusal" tabindex="0" class="cursor-help">${esc(x.title)}</span>`;
+    if (x.id && book.has(stripStep(x.id))) return refLink(book, x.id, x.title);
+    return esc(x.title);
+  }
 </script>
 
 {#if items?.length}
-  <div>
-    {#each items as x, i (x.id ?? i)}
-      {@const ok = x.outcome === "success"}
-      <div class="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-1 sm:grid-cols-[180px_minmax(0,1fr)] border-b border-border py-2.5">
-        <div class="flex items-start gap-2 text-sm font-medium">
-          <RecordIcon name={ok ? "passing" : "x"} class="mt-0.5 size-3.5 shrink-0" />
-          {#if x.id && book.has(x.id)}
-            <button type="button" class="text-left underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go={x.id}>
-              {x.title}
-            </button>
-          {:else}
-            <span>{x.title}</span>
-          {/if}
-          {#if x.kind === "generic"}{" "}<Fact text="Generic refusal" />{/if}
-        </div>
-        <p class="m-0 text-[0.84375rem] leading-snug text-subtle-foreground">{x.meaning}</p>
-        {#if x.code}<div class="col-start-2 mt-0.5"><span class={codeCls}>{x.code}</span></div>{/if}
-      </div>
-    {/each}
-  </div>
+  <DataTable
+    head={["Outcome", "Result", "Meaning", "Code"]}
+    {caption}
+    rows={items.map((x) => {
+      const sentence = sentenceOf(x.id ?? null);
+      return [
+        td(outcomeTag(x.outcome)),
+        td(resultCell(x)),
+        td(esc(x.meaning) + (sentence ? muted(`&ldquo;${esc(sentence)}&rdquo;`) : "")),
+        td(x.code ? codeOf(x.code) : ""),
+      ];
+    })}
+  />
 {/if}

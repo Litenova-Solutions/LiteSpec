@@ -2,7 +2,7 @@ type: reaction
 id: reaction/lending.return-copy-on-loan-returned
 title: Return again
 triggeredBy:
-  - event/loan.loan-returned
+  - domain-event/loan.loan-returned
 effects:
   - runs: use-case/lending.return-copy
     timing: async

@@ -102,7 +102,7 @@ public sealed class DecisionHomeTests
         var model = ProductModel(temp.Path);
         model.Records.Add(TestModel.Record(
             "decision", "decision/0001-receipt-rule", ProductDecisionFile(model.Config),
-            """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "consequences": "Every receipt is provable.", "reopenedWhen": "Paper costs double.", "decides": ["constraint/receipts-stay-in-the-eu"]}"""));
+            """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "consequences": "Every receipt is provable.", "reopenedWhen": "Paper costs double.", "context": "Shoppers ask for a receipt at the till."}"""));
         var file = ModuleFile(temp.Path, "Booking", "Holds", "HoldRoomCache.cs");
         model.Code.Elements.Add(FollowsOnly("HoldRoomCache", file, "decision/0001-receipt-rule"));
 

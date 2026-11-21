@@ -3,93 +3,111 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-## Intent
+This page defines the patterns for the states a screen shows around its work. Each pattern answers one recurring question about those states, from what an empty list shows to how a failed command reports itself, and every decided state says what happened, what it means, and what the reader can do next.
 
-This page holds the patterns for the states a screen shows around its work: no records yet, no results, loading, a refused command, a command that worked, a notice before acting, a forbidden page, no connection, an expired sign-in, a conflict, work that runs in the background, a missing record, a server failure, maintenance, and a rate limit. An owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. Each decided state says what happened, what it means, and what to do next, so staff never guess what a screen is telling them.
+Each pattern names a default option: the shape the project builds unless the owner records another choice in the project's pattern catalog, the file that holds the project's interface decisions. This page belongs to the Feedback and States category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about screen states, such as what a list shows before its first records exist. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+A pattern answers one recurring question about screen states, such as what a list shows before its first records exist. It states that question, then names its default option: the shape the project builds unless the owner records another choice. It then states how the default behaves on a narrow screen, the reason it is the default, which alternative fits which case, and which shape to leave out.
+
+Each option is one `####` heading with a stable option ID, one wireframe, and short parts after it: its rationale, its cost, and sometimes a reference to the outside product it learns from.
+
+A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the loading pattern's default draws skeleton rows at the real row height, and an owner who needs a re-read indicator records the thin-bar option instead. The [UI patterns page](../patterns.md) states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-The drawings on this page use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them. On this page, the reader is the staff member using the screen. The Standards section states the six rules every option keeps. A refusal or error message states what failed and the next step, a failed save keeps the reader's input on screen, each status is announced by its urgency, a loading region marks itself busy, focus moves to a refusal, and unsent input survives a dropped connection.
+The reader is the staff member using the screen. The wireframes use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them.
 
-## Standards
+Every wireframe follows the six defaults in Conventions below unless the project records another choice: a refusal or error message states what failed and the next step; a failed save keeps the reader's input on screen; each status is announced by its urgency; a loading region marks itself busy; focus moves to a refusal; and unsent input survives a dropped connection.
+
+## Conventions
 
 ### State What Failed and the Next Step
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#state-what-failed-and-the-next-step`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A refusal or error message MUST state what failed and the next step the reader can take.
+**Default:** State what failed and the next step the reader can take in a refusal or error message.
 
-**Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help, and most readers retry blindly or give up. Naming what failed plus the one next step turns the dead end into a task the reader can complete.
+**Replacement:** A project that replaces the default records what its failure messages state.
 
-**Reviewed for:** Which built failure message omits the cause or the way forward? Open the refused commands and failed reads on built screens.
+**Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help; most readers retry blindly or give up. Naming what failed and the one next step gives the reader a task to complete instead of a message to guess at.
+
+**Reviewed for:** Does every built failure message name the cause and the way forward? Open the refused commands and failed reads on built screens.
 
 ### Keep the Reader's Input Through a Failure
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#keep-the-readers-input-through-a-failure`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A failed save MUST keep the reader's unsaved input on the screen.
+**Default:** Keep the reader's unsaved input on the screen after a failed save.
 
-**Rationale:** Retyping a whole form to fix one refused field wastes the reader's time and introduces new typos. Worse, readers who lose work to a failure stop trusting the form and copy long answers elsewhere before saving.
+**Replacement:** A project that replaces the default records how its forms treat input after a failure.
 
-**Reviewed for:** Which built form drops typed values after a refused save? Open the failed submits on built forms and check every field.
+**Rationale:** Retyping a whole form to fix one refused field wastes the reader's time and introduces new typos. Worse, readers who lose work to a failure stop trusting the form: they copy long answers elsewhere before saving.
+
+**Reviewed for:** Does every built form keep its typed values after a refused save? Open the failed submits on built forms and check every field.
 
 ### Announce Each Status by Its Urgency
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A page MUST announce each status through one of two live regions present when the page loads: a polite region for routine news and one assertive region for a session about to end, a lost connection holding unsent input, or a failed money command.
+**Default:** Announce each status through one of two live regions present when the page loads: a polite region for routine news and one assertive region for a session about to end, a lost connection holding unsent input, or a failed money command.
 
-**Rationale:** A live region added at the moment of the message is often not read, so both regions exist from the page load. Assertive messages interrupt whatever the reader hears, so only blocking news earns them: a session about to end, a lost connection holding unsent input, or a failed money command. This is WCAG 4.1.3 Status Messages, which asks that status changes be announced without moving focus.
+**Replacement:** A project that replaces the default records how its pages announce statuses.
 
-**Reviewed for:** Which built page announces a routine status assertively, or adds its live regions after the load? Trigger each status with a screen reader and note which region speaks.
+**Rationale:** A live region added at the moment of the message is often not read, so both regions exist from the page load. Assertive messages interrupt whatever the reader hears, so only blocking news uses the assertive region: a session about to end, a lost connection holding unsent input, or a failed money command. This is WCAG 4.1.3 Status Messages, which asks that status changes be announced without moving focus.
+
+**Reviewed for:** Does every built page announce routine news politely and add its live regions at load? Trigger each status with a screen reader and note which region speaks.
 
 ### Mark a Loading Region Busy
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#mark-a-loading-region-busy`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A loading region MUST expose its state through markup, as busy on the region or as role and value on a progress bar, and not through a live region announcement.
+**Default:** Expose a loading region state through markup, as busy on the region or as role and value on a progress bar, and not through a live region announcement.
 
-**Rationale:** A `Loading` announcement on every read buries the messages that matter. A region marked busy with `aria-busy="true"` stays silent while assistive technology reports its state on request, and a progress bar with its role and value says how far the read has come. Announcements stay for the news that matters.
+**Replacement:** A project that replaces the default records how its loading regions expose their state.
 
-**Reviewed for:** Which built loading region announces through a live region, or misses its busy mark or progress role? Trigger each load with a screen reader and inspect the loading markup.
+**Rationale:** A `Loading` announcement on every read hides the messages that matter. A region marked busy with `aria-busy="true"` stays silent while assistive technology reports its state on request, and a progress bar with its role and value says how far the read has come. Announcements stay for the news that matters.
+
+**Reviewed for:** Does every built loading region stay silent in live regions and expose its busy mark or progress role? Trigger each load with a screen reader and inspect the loading markup.
 
 ### Move Focus to a Refusal
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#move-focus-to-a-refusal`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** After the API refuses a command, focus MUST move to the refusal or to the first field it names.
+**Default:** Move focus to the refusal after the API refuses a command, or to the first field it names.
 
-**Rationale:** A sighted reader sees the refusal where it appears, while a keyboard or screen-reader user otherwise never meets it. Moving focus to the refusal, or to the first field it names, puts every reader at the same place. This is WCAG 3.3.1 Error Identification, which asks that each error be described in text.
+**Replacement:** A project that replaces the default records where its focus lands after a refusal.
 
-**Reviewed for:** Which built refusal leaves focus where the command was sent? Refuse each command with a keyboard and note where focus lands.
+**Rationale:** A sighted reader sees the refusal where it appears. A keyboard or screen-reader user otherwise never meets it. Moving focus to the refusal, or to the first field it names, puts every reader at the same place. This is WCAG 3.3.1 Error Identification, which asks that each error be described in text.
+
+**Reviewed for:** Does every built refusal move focus to itself or to the first field it names? Refuse each command with a keyboard and note where focus lands.
 
 ### Keep Unsent Input When the Connection Drops
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#keep-unsent-input-when-the-connection-drops`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A route that loses its connection MUST keep the user's unsent input and show the error state with a retry action.
+**Default:** Keep the user's unsent input on a route that loses its connection and show the error state with a retry action.
 
-**Rationale:** A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action turns the dead connection into a wait. The reader retries the read instead of retyping the form.
+**Replacement:** A project that replaces the default records how its routes treat unsent input offline.
 
-**Reviewed for:** Which built route loses typed input when the connection drops, or offers no retry? Drop the connection on each route holding unsent input and try the retry.
+**Rationale:** A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action lets the reader retry the read instead of retyping the form.
+
+**Reviewed for:** Does every built route keep typed input when the connection drops and offer a retry? Drop the connection on each route holding unsent input and try the retry.
 
 ## Patterns
 
@@ -99,15 +117,15 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 
 **Strength:** default
 
-**Question:** No record of this kind exists yet. The page states that plainly, says what the first record is for, and offers the one command that creates it.
+**Question:** No record of this kind exists yet. The page says so plainly, says what the first record is for, and offers the one command that creates it.
 
 **Default:** `positive-title-one-action`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the title, the message, and the single action stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the title, the message, and the single action stack in one column.
 
-**Rationale:** Keep the positive title with one action. It is the smallest shape and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home: prefer it when the first expense needs steps across several pages. The sample rows suit a page whose shape is learned by using it. Leave out a table with a dashed sample row, which shows a record that does not exist and leads nowhere when opened.
+**Rationale:** The default is the positive title with one action. It is the smallest shape, and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home; prefer it when the first expense needs steps across several pages. Sample rows are the other alternative for a page whose shape is learned by using it. A table with a dashed sample row stays out: it shows a record that does not exist and leads nowhere when opened.
 
-**Reviewed for:** Which built first-run screen departs from the wireframe its catalog entry chose? Open the built empty lists and setup guides beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built first-run screen match the wireframe its catalog entry chose? Open the built empty lists and setup guides beside the catalog entry recording the chosen option and its reason.
 
 #### `positive-title-one-action`: Positive Title, One Action
 
@@ -123,9 +141,9 @@ page
     action primary "New policy"
 ```
 
-**Rationale:** The page shows one positive title, one line saying what a policy is for, and one button that creates the first one.
+**Rationale:** The page shows one positive title, one line saying what a policy is for, and one button that creates the first one. A reader with nothing yet is asked for nothing.
 
-**Cost:** The reader cannot see what a row will look like, so every column is undiscoverable until there is data.
+**Cost:** The reader sees no row, so every column stays undiscoverable until there is data.
 
 **Reference:** Carbon
 
@@ -143,7 +161,7 @@ page
       item: text "Add a policy" · text muted "A name, a code and its ceiling" · action primary "New policy"
 ```
 
-**Rationale:** The steps to a first expense live once, on Home, with progress. Each list page keeps a plain one-line empty state. Setup is a journey across pages, so it gets one place rather than seven.
+**Rationale:** Setup spans pages, so the steps to a first expense live once, on Home, with progress shown, rather than on seven pages. Each list page keeps a plain one-line empty state.
 
 **Cost:** The guide has to know what is done, which is a read across several modules. It also needs a way to be dismissed, or it stays on Home after the company has paid 10,000 expenses.
 
@@ -171,7 +189,7 @@ page
 
 **Rationale:** The page shows real sample rows instead of an empty illustration, fenced with a `Sample` state and a notice. The reader learns the page by using it rather than by reading about it.
 
-**Cost:** Samples must stay out of every export, total, and spender surface. A sample left in place at go-live ships fake data as the company's own.
+**Cost:** Samples stay out of every export, total, and spender surface. A sample left in place at go-live ships fake data as the company's own.
 
 ### Nothing Matches What Was Asked For
 
@@ -179,15 +197,15 @@ page
 
 **Strength:** default
 
-**Question:** A search found nothing, but records exist. The page must say so, name the term that failed, and offer a way back.
+**Question:** A search found nothing, but records exist. The page says so, names the term that failed, and offers a way back.
 
 **Default:** `different-copy-and-it-names-the-term`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the toolbar stacks above the message, and a table keeps its first two columns.
+**Compact:** Below the md breakpoint the default option reflows: the toolbar stacks above the message, and a table keeps its first two columns.
 
-**Rationale:** Keep the copy that names the term. It says what failed and what to change, with the count proving the data exists. The runner-up is the table that keeps its headers: prefer it where readers filter all day and want the columns to stay put. The filters panel suits a page whose filters are the whole question. Leave out an empty state with no action at all: a search that names its term can always offer to clear it.
+**Rationale:** The default is the copy that names the term. It says what failed and what to change, with the count proving the data exists. The runner-up is the table that keeps its headers; prefer it where readers filter all day and want the columns to stay put. The filters panel is the other alternative for a page whose filters are the whole question. An empty state with no action at all stays out: a search that names its term can always offer to clear it.
 
-**Reviewed for:** Which built no-results screen departs from the wireframe its catalog entry chose? Open the built filtered empties and filter panels beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built no-results screen match the wireframe its catalog entry chose? Open the built filtered empties and filter panels beside the catalog entry recording the chosen option and its reason.
 
 #### `different-copy-and-it-names-the-term`: Different Copy, and It Names the Term
 
@@ -207,9 +225,9 @@ page
     action quiet "Clear the filters too"
 ```
 
-**Rationale:** The title quotes the term that found nothing. The line says how many records exist, so the reader knows the search failed rather than the data. Two actions separate clearing the search from clearing the filters.
+**Rationale:** The title quotes the term that found nothing, and the line says how many records exist, so the reader knows the search failed rather than the data. Two actions separate clearing the search from clearing the filters.
 
-**Cost:** The pattern uses two actions, where one primary action is the guidance. The secondary one is a quiet action, which is the compromise.
+**Cost:** The guidance is one primary action, and this pattern uses two. The secondary one is a quiet action, which is the compromise.
 
 **Reference:** Carbon
 
@@ -232,7 +250,7 @@ page
       item: text "No reversed call expenses" · text muted "31 expenses were reversed, all of them filed by phone"
 ```
 
-**Rationale:** The expense list keeps its column headers when a filter finds nothing. The filters name columns, and the reader is still reading the same table. The message sits in one full-width row.
+**Rationale:** The expense list keeps its column headers when a filter finds nothing. The filters name columns, and the reader is still reading the same table, with the message in one full-width row.
 
 **Cost:** A first-use empty state replaces the table, headers included; this differs on purpose. It suits a filter result and not first use, so the two states need two shapes.
 
@@ -260,7 +278,7 @@ page
 
 **Rationale:** When a filter has narrowed the list to nothing, the panel itself becomes the message. The reader sees which of their own choices did it.
 
-**Cost:** The list is gone, so the reader cannot see how many records the unfiltered list holds unless the panel says so.
+**Cost:** The list is gone, so the reader learns the unfiltered count only if the panel states it.
 
 ### Loading
 
@@ -268,15 +286,15 @@ page
 
 **Strength:** default
 
-**Question:** The page waits for its first read. The wait needs a shape that holds its place until the rows arrive.
+**Question:** The page waits for its first read. The wait needs a shape that holds the rows' place until they arrive.
 
 **Default:** `skeletons-at-the-real-row-height`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the skeleton rows keep the row height, and the toolbar stacks above them.
+**Compact:** Below the md breakpoint the default option reflows: the skeleton rows keep the row height, and the toolbar stacks above them.
 
-**Rationale:** Keep the skeletons at the real row height. Nothing moves when the data lands, even on a slow phone read. The runner-up is the thin bar over the old rows: prefer it for a re-read where the reader keeps their place, such as a changed filter. A scrim suits a wait the reader must not work through. Leave out showing nothing at all: any read slower than a blink reads as a failed page.
+**Rationale:** The default is skeletons at the real row height. Nothing moves when the data lands, even on a slow phone read. The runner-up is the thin bar over the old rows; prefer it for a re-read where the reader keeps their place, such as a changed filter. A scrim is the other alternative for a wait the reader must not work through. Showing nothing at all stays out: any read slower than a blink reads as a failed page.
 
-**Reviewed for:** Which built waiting state departs from the wireframe its catalog entry chose? Open the built skeletons, thin bars, and scrims beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built waiting state match the wireframe its catalog entry chose? Open the built skeletons, thin bars, and scrims beside the catalog entry recording the chosen option and its reason.
 
 #### `skeletons-at-the-real-row-height`: Skeletons at the Real Row Height
 
@@ -294,9 +312,9 @@ page
     text "Reading 268 expenses"
 ```
 
-**Rationale:** Each skeleton row is shaped like the row it will become, so nothing moves when the data lands.
+**Rationale:** Each skeleton row is shaped like the row it will become. Nothing moves when the data lands.
 
-**Cost:** The header, toolbar, and pagination must match the row size. A skeleton page must get four heights right, or the page jumps.
+**Cost:** The header, toolbar, and pagination match the row size. A skeleton page gets four heights right, or the page jumps.
 
 **Reference:** Carbon
 
@@ -325,7 +343,7 @@ page
 
 **Rationale:** The page keeps what was on screen and shows a thin bar while the next read runs. A reader changing a filter keeps their place, and nothing jumps when the rows arrive.
 
-**Cost:** The rows on screen are briefly the old answer. A reader who acts on a row during that second acts on the old answer. Commands on a list that is reading must wait, or say so.
+**Cost:** The rows on screen are briefly the old answer. A reader who acts on a row during that second acts on the old answer, so commands on a list that is reading wait, or say so.
 
 **Reference:** Linear, Vercel
 
@@ -346,9 +364,78 @@ page
     text "This takes a moment on a deployment this size."
 ```
 
-**Rationale:** The page shows a scrim over the whole page with a spinner and a sentence. The message is unambiguous, and the page underneath is deliberately not readable.
+**Rationale:** A scrim covers the whole page with a spinner and a sentence. The message is unambiguous, and the page underneath is deliberately not readable.
 
-**Cost:** A scrim over the page is neither a shared component nor a page slot. It hides the page a reader may want to scroll.
+**Cost:** A scrim over the page is neither a shared component nor a page slot. It hides a page the reader may want to scroll.
+
+### Route Loading Frame
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#route-loading-frame`
+
+**Strength:** default
+
+**Question:** The route waits for its first read. Page code declares no layout of its own, so the wait renders within the route's floorplan: the frame stays in place and the content slots hold the wait. The decision is what the slots hold, and what the header shows when its own copy depends on the read.
+
+**Default:** `skeletons-in-the-floorplan-slots`
+
+**Compact:** Below the md breakpoint the default option reflows: the toolbar stacks above the skeleton rows, which keep the row height.
+
+**Rationale:** The default is skeletons in the floorplan slots. The header and toolbar render with their real copy, the content slots show skeletons at the real row height, and nothing moves when the data lands. The runner-up is the skeleton header with skeleton content; prefer it on a record route whose title names the read. The spinner in the slots is the other alternative for a rare read where skeleton heights cost more than they are worth. A bare loading page outside the floorplan stays out: the route keeps its frame while it waits.
+
+**Reviewed for:** Does every built waiting route match the wireframe its catalog entry chose? Open the built slot skeletons, skeleton headers, and slot spinners beside the catalog entry recording the chosen option and its reason.
+
+#### `skeletons-in-the-floorplan-slots`: Skeletons in the Floorplan Slots
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every expense, newest first."
+  toolbar
+    field "Search expenses" search
+  region "Expenses"
+    image "Seven skeleton rows shaped like expense rows"
+  footer
+    text "Reading 268 expenses"
+```
+
+**Rationale:** The floorplan renders with its real header and toolbar, and the content slots show skeletons shaped like the rows they become. Nothing moves when the data lands.
+
+**Cost:** The header, toolbar, and pagination match the row size. A skeleton page gets four heights right, or the page jumps.
+
+#### `skeleton-header-with-skeleton-content`: Skeleton Header with Skeleton Content
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses" "EXP-1042"
+  header
+    image "Skeleton title bar shaped like the record heading"
+    text muted "Reading the expense."
+  region "The expense"
+    image "Four skeleton facts shaped like expense facts"
+```
+
+**Rationale:** On a record route the title names the read, so the header shows a skeleton bar where the title lands. The breadcrumb keeps the address, which the route knows before the read.
+
+**Cost:** Two skeleton shapes to size instead of one, and the title bar must match the heading it becomes, or the header jumps on arrival.
+
+#### `spinner-in-the-floorplan-slots`: Spinner in the Floorplan Slots
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every expense, newest first."
+  region "Expenses"
+    image "Centered spinner"
+    text "Reading the expenses."
+```
+
+**Rationale:** The floorplan renders with its real header, and the content slots show a centered spinner with one line. No skeleton heights to size, so a rare read stays cheap.
+
+**Cost:** The page jumps when the rows arrive, and the spinner says nothing about what shape is coming. A route read daily earns skeletons instead.
 
 ### Command the API Refused
 
@@ -356,15 +443,15 @@ page
 
 **Strength:** default
 
-**Question:** The API refused a command. The page must say what went wrong, why, and what the reader can do instead.
+**Question:** The API refused a command. The page says what went wrong, why, and what the reader can do instead.
 
 **Default:** `the-refusal-sentence-its-code-and-a-way-to-fix-it`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the refusal and its alternative stack under the title.
+**Compact:** Below the md breakpoint the default option reflows: the refusal and its alternative stack under the title.
 
-**Rationale:** Keep the refusal sentence with its code and its fix. It meets WCAG 3.3.1 and 3.3.3 in one place. The runner-up is the refusal inside the dialog that sent it: prefer it where closing would lose what the reader typed, such as a reversal amount. The disabled button with its reason suits a refusal the page can predict. Leave out the refusal only on the record timeline: a reader who sent the command from elsewhere never returns to find it.
+**Rationale:** The default is the refusal sentence with its code and its fix. It meets WCAG 3.3.1 and 3.3.3 in one place. The runner-up is the refusal inside the dialog that sent it; prefer it where closing would lose what the reader typed, such as a reversal amount. The disabled button with its reason is the other alternative for a refusal the page can predict. A refusal only on the record timeline stays out: a reader who sent the command from elsewhere never returns to find it.
 
-**Reviewed for:** Which built refusal notice departs from the wireframe its catalog entry chose? Open the built refused commands, with codes and fixes, beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built refusal notice match the wireframe its catalog entry chose? Open the built refused commands, with codes and fixes, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-refusal-sentence-its-code-and-a-way-to-fix-it`: The Refusal Sentence, Its Code and a Way to Fix It
 
@@ -408,7 +495,7 @@ page
     action primary "Deduct instead"
 ```
 
-**Rationale:** The reversal dialog keeps a refusal inside the dialog, above the amount, and leaves it open so the reader can change what was refused. Focus moves to the message, and the alternative is one button away.
+**Rationale:** The reversal dialog keeps the refusal inside the dialog, above the amount, and stays open so the reader can change what was refused. Focus moves to the message, and the alternative is one button away.
 
 **Cost:** The dialog grows by the height of the message, and a long refusal pushes the buttons down. On a phone the dialog may need to scroll.
 
@@ -443,15 +530,15 @@ page
 
 **Strength:** default
 
-**Question:** A command worked. The page must show what changed, so the reader trusts the result without asking.
+**Question:** A command worked. The page shows what changed, so the reader trusts the result without asking.
 
 **Default:** `evidence-on-the-page-not-only-a-toast`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the money facts stack under the header, and the timeline follows them.
+**Compact:** Below the md breakpoint the default option reflows: the money facts stack under the header, and the timeline follows them.
 
-**Rationale:** Keep the evidence on the page. State, money, and timeline all say what changed after a reversal. The runner-up is the toast with `Undo`: prefer it for a reversible change such as hiding a policy from the portal. The quiet saved line suits a settings form where the values are already the evidence. Leave out no message at all: a screen reader user gets no signal, which fails WCAG 4.1.3.
+**Rationale:** The default is evidence on the page. State, money, and timeline all say what changed after a reversal. The runner-up is the toast with `Undo`; prefer it for a reversible change such as hiding a policy from the portal. The quiet saved line is the other alternative for a settings form where the values are already the evidence. No message at all stays out: a screen reader user gets no signal, which fails WCAG 4.1.3.
 
-**Reviewed for:** Which built success notice departs from the wireframe its catalog entry chose? Open the built confirmations, toasts with undo, and quiet saves beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built success notice match the wireframe its catalog entry chose? Open the built confirmations, toasts with undo, and quiet saves beside the catalog entry recording the chosen option and its reason.
 
 #### `evidence-on-the-page-not-only-a-toast`: Evidence on the Page, Not Only a Toast
 
@@ -472,9 +559,9 @@ page
       item: text "Reversed, EUR 125.00" · text muted "8 Oct 2026, 11:04" · text muted "Cara"
 ```
 
-**Rationale:** The record changes and the page says what changed: the state becomes `Reversed`, the money section shows the reversal, and the timeline gains an entry. That is evidence a toast cannot be.
+**Rationale:** The record changes and the page says what changed: the state becomes `Reversed`, the money section shows the reversal, and the timeline gains an entry. That is evidence, which a toast never is.
 
-**Cost:** The reader needs to find the evidence. A toast is faster and leaves nothing once it goes, so a toast alone is not evidence.
+**Cost:** The reader has to find the evidence on the page. A toast is faster and leaves nothing once it goes, so a toast alone is not evidence.
 
 #### `a-toast-with-undo-for-a-change-that-can-be-taken-back`: A Toast with Undo, for a Change That Can Be Taken Back
 
@@ -516,7 +603,7 @@ page
 
 **Rationale:** The settings form says `Saved` beside the control, with the time, and nothing else moves. The values on screen are already the evidence.
 
-**Cost:** The message is easy to miss, and a screen reader hears it only if it is a live status. It suits settings and not a command that changes money.
+**Cost:** The message is easy to miss, and a screen reader hears it only if it is announced as a live status. It suits settings, not a command that changes money.
 
 **Reference:** Stripe, Notion
 
@@ -526,15 +613,15 @@ page
 
 **Strength:** default
 
-**Question:** Some pages must state a fact before staff act, such as a low budget or a closing window. Only a command result is an alert; a static fact is a notice. A tone paints the object in that state, never a full band across other work.
+**Question:** Some pages state a fact before staff act, such as a low budget or a closing window. Only a command result is an alert; a static fact is a notice. A tone paints the object in that state, never a full band across other work.
 
 **Default:** `a-neutral-notice-above-the-page`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the notice sits under the header and above the sections.
+**Compact:** Below the md breakpoint the default option reflows: the notice sits under the header and above the sections.
 
-**Rationale:** Keep one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the notice inside the section it is about: prefer it where the fact changes what the reader does in that section only. The side column suits a record where the fact changes the next step. Leave out a full-width toned band for one record, which paints other work with the same alarm.
+**Rationale:** The default is one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the notice inside the section it is about; prefer it where the fact changes what the reader does in that section only. The side column is the other alternative for a record where the fact changes the next step. A full-width toned band for one record stays out: it covers other work with an alarm meant for one record.
 
-**Reviewed for:** Which built must-read notice departs from the wireframe its catalog entry chose? Open the built page notices, section notices, and side columns beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built must-read notice match the wireframe its catalog entry chose? Open the built page notices, section notices, and side columns beside the catalog entry recording the chosen option and its reason.
 
 #### `a-neutral-notice-above-the-page`: A Neutral Notice Above the Page
 
@@ -554,7 +641,7 @@ page
     text muted "At the pace of the last seven days the rest sells in four days."
 ```
 
-**Rationale:** The page shows one neutral sentence about this page above the sections: not a band and not a tone. It says why the page is what it is.
+**Rationale:** The page shows one neutral sentence about itself above the sections: not a band and not a tone. It says why the page is what it is.
 
 **Cost:** It sits above the sections, so it is the first thing and the last thing read. A long notice pushes the work down on every visit.
 
@@ -576,9 +663,9 @@ page
       item: text "EXP-1042" · text muted "Ava asked 6 days ago" · status "Open" neutral · text "EUR 45.00" · action "Reverse"
 ```
 
-**Rationale:** A fact about one section goes in that section, not at the top of the page. The reader only meets it where it changes what they do.
+**Rationale:** A fact about one section goes in that section, not at the top of the page. The reader meets it exactly where it changes what they do.
 
-**Cost:** The reader needs to open the section to learn something that may change whether they should be in the section at all.
+**Cost:** The reader has to open the section to learn something that may change whether they should be in the section at all.
 
 #### `the-fact-beside-the-record-in-its-side-column`: The Fact Beside the Record, in Its Side Column
 
@@ -603,7 +690,7 @@ page
         text muted "After that Harbor and Pine can deduct it or take a bank transfer."
 ```
 
-**Rationale:** The fact sits in a right-hand column beside the record it is about, and the main column stays for the work.
+**Rationale:** The fact sits in a right-hand column beside the record it is about. The main column stays for the work.
 
 **Cost:** A side column drops below the record on a phone, so the fact is read last there. It needs a heading that says why it is there.
 
@@ -615,15 +702,15 @@ page
 
 **Strength:** default
 
-**Question:** Staff meet pages their role cannot use, so each such page must show the reason and the grant that would help. A back office with several roles meets this state on most pages, so it needs one shape.
+**Question:** Staff meet pages their role cannot use. Each such page shows the reason and the grant that would help. A back office with several roles meets this state on most pages, so it needs one shape.
 
 **Default:** `the-commands-are-refused-each-with-its-grant-named`
 
-**Compact:** Below the md breakpoint the recommended option reflows: each refused command and its reason stack under the control.
+**Compact:** Below the md breakpoint the default option reflows: each refused command and its reason stack under the control.
 
-**Rationale:** Keep the explained action. Each refused command names the role that grants it, and the record stays readable. On a call, reading the record is the point. The runner-up is the read-only section with values as text: prefer it where a form that fails on `Save` hurts more. The absent tab suits a capability the reader should never see offered. Leave out refusing the whole page: a support agent needs the spender name on a call, and the refusal hides more than it protects.
+**Rationale:** The default is the explained action. Each refused command names the role that grants it, and the record stays readable; on a call, reading the record is the point. The runner-up is the read-only section with values as text; prefer it where a form that fails on `Save` hurts more. The absent tab is the other alternative for a capability the reader should never see offered. Refusing the whole page stays out: a support agent needs the spender name on a call, and the refusal hides more than it protects.
 
-**Reviewed for:** Which built forbidden view departs from the wireframe its catalog entry chose? Open the built refused commands, absent tabs, and read-only sections beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built forbidden view match the wireframe its catalog entry chose? Open the built refused commands, absent tabs, and read-only sections beside the catalog entry recording the chosen option and its reason.
 
 #### `the-commands-are-refused-each-with-its-grant-named`: The Commands Are Refused, Each with Its Grant Named
 
@@ -646,7 +733,7 @@ page
     fact "Country" "Netherlands"
 ```
 
-**Rationale:** This is the explained action: the button is refused and the reason is visible text beside it, naming the role that can. The record stays readable, which on a call is the point.
+**Rationale:** This is the explained action: the button is refused and the reason is visible text beside it, naming the role that can act. The record stays readable, which on a call is the point.
 
 **Cost:** A page of refused commands looks broken to someone who does not know their role. The role's name in the reason is what makes it legible.
 
@@ -672,7 +759,7 @@ page
 
 **Rationale:** A tab, sidebar entry, or link appears only for a viewer who may open its page. Statements, Reports, and the money pages stay absent from a support agent's sidebar.
 
-**Cost:** The reader cannot find out the capability exists. On a surface where someone is guessing at what the product can do, that is a real cost.
+**Cost:** The reader never learns the capability exists. On a surface where someone is guessing at what the product can do, that is a real cost.
 
 #### `a-read-only-section-values-as-text-one-line-saying-why`: A Read-Only Section: Values as Text, One Line Saying Why
 
@@ -691,7 +778,7 @@ page
 
 **Rationale:** The settings show plain values to a role that reads but never changes them. One line at the top of the section names the role that edits. Nothing looks like a form that fails on `Save`.
 
-**Cost:** The page looks different for different roles, so a support call about it needs to start with which role the caller has.
+**Cost:** The page looks different for different roles, so a support call about it starts with which role the caller has.
 
 **Reference:** Stripe
 
@@ -701,15 +788,15 @@ page
 
 **Strength:** default
 
-**Question:** Staff lose the connection while working, so the page on screen goes stale. The decision is what a stale page says: how fresh its data is, what still works, and when to retry.
+**Question:** Staff lose the connection while working, so the page on screen goes stale. The question is what a stale page says: how fresh its data is, what still works, and when to retry.
 
 **Default:** `a-banner-saying-what-is-stale-and-what-still-works`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the band sits above the breadcrumb, and the table keeps its first two columns.
+**Compact:** Below the md breakpoint the default option reflows: the band sits above the breadcrumb, and the table keeps its first two columns.
 
-**Rationale:** Keep one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing suits a page where acting on stale money would move the wrong money. Whatever the reader typed stays on the page while the connection is gone, and every failed read offers its retry. Leave out queuing a command that moves money: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
+**Rationale:** The default is one band saying what is stale, when it was read, and what still works. A stale page the reader can still read is better than a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing is the other alternative for a page where acting on stale money would move the wrong money. Whatever the reader typed stays on the page while the connection is gone, and every failed read offers its retry. Queuing a command that moves money stays out: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
 
-**Reviewed for:** Which built offline screen departs from the wireframe its catalog entry chose? Open the built stale banners, failed reads, and refused pages beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built offline screen match the wireframe its catalog entry chose? Open the built stale banners, failed reads, and refused pages beside the catalog entry recording the chosen option and its reason.
 
 #### `a-banner-saying-what-is-stale-and-what-still-works`: A Banner Saying What Is Stale and What Still Works
 
@@ -730,7 +817,7 @@ page
     message neutral "Nothing done here reaches the server while offline."
 ```
 
-**Rationale:** The page shows a neutral band naming when the page last read and which commands are refused while it is offline. The reader can still read, and knows it.
+**Rationale:** The page shows a neutral band naming when it last read and which commands are refused while it is offline. The reader can still read, and knows it.
 
 **Cost:** Every page needs a last-read time and a notion of which commands are safe offline. Commands that change money are almost never safe offline.
 
@@ -752,7 +839,7 @@ page
 
 **Rationale:** Where a read fails because nothing answered, the section says the server could not be reached and offers `Try again`. Nothing claims to be current, because nothing is shown.
 
-**Cost:** It only appears when a read is tried. A page that loaded before the connection dropped looks normal until the reader does something.
+**Cost:** It appears only when a read is tried. A page that loaded before the connection dropped looks normal until the reader does something.
 
 #### `nothing-shown-because-a-stale-page-is-a-dangerous-one`: Nothing Shown, Because a Stale Page Is a Dangerous One
 
@@ -769,7 +856,7 @@ page
 
 **Rationale:** Where the reader is about to act on money, a stale page is refused outright. The page says so and offers one thing: `Try again`.
 
-**Cost:** A reader who needs to answer a question on a call gets nothing. The printed payout list exists precisely because a caller cannot be refused, which is why the two surfaces answer this differently.
+**Cost:** A reader who must answer a question on a call gets nothing. The printed payout list exists precisely because a caller cannot be refused, which is why the two surfaces answer this differently.
 
 ### Sign-In Ran Out
 
@@ -777,15 +864,15 @@ page
 
 **Strength:** default
 
-**Question:** A session ends while the reader is working. Sign-in runs on the application's own origin, and a refused or ended session lands on `/signed-out`. The reader's unsent work is what this state must not lose.
+**Question:** A session ends while the reader is working. Sign-in runs on the application's own origin, and a refused or ended session lands on `/signed-out`. The reader's unsent work is what this state keeps.
 
 **Default:** `a-dialog-over-the-work-which-stays-where-it-is`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the dialog fills the screen, and the form stays behind it.
+**Compact:** Below the md breakpoint the default option reflows: the dialog fills the screen, and the form stays behind it.
 
-**Rationale:** Keep the dialog over the work, which stays where it is. It keeps unsent work on screen and names the one thing to do. The runner-up is the warning before the end, which suits a reader still at the desk who never meets the expired state. The signed-out page is the fallback for a reader with no page to keep. Leave out the toast alone: the message leaves in seconds and the typed work leaves with it.
+**Rationale:** The default is the dialog over the work, which stays where it is. It keeps unsent work on screen and names the one thing to do. The runner-up is the warning before the end, which suits a reader still at the desk who never meets the expired state. The signed-out page is the other alternative for a reader with no page to keep. A toast alone stays out: the message leaves in seconds and the typed work leaves with it.
 
-**Reviewed for:** Which built expired session departs from the wireframe its catalog entry chose? Open the built sign-out pages, warnings, and re-authentication dialogs beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built expired session match the wireframe its catalog entry chose? Open the built sign-out pages, warnings, and re-authentication dialogs beside the catalog entry recording the chosen option and its reason.
 
 #### `a-dialog-over-the-work-which-stays-where-it-is`: A Dialog over the Work, Which Stays Where It Is
 
@@ -809,7 +896,7 @@ page
 
 **Rationale:** The work stays on screen behind a dialog. Signing in again returns to it, and nothing typed is lost.
 
-**Cost:** A dialog over a form the reader cannot touch until they sign in. On a phone it fills the screen, which is acceptable because there is exactly one thing to do.
+**Cost:** A dialog covers a form the reader cannot touch until they sign in. On a phone it fills the screen, which is acceptable because there is exactly one thing to do.
 
 **Reference:** Stripe, Linear
 
@@ -831,7 +918,7 @@ page
       item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
 ```
 
-**Rationale:** The session warns before it ends with a warning that stays until the reader extends the session or signs out. The warning is announced through the assertive region, so the reader who is still there never meets the expired state at all.
+**Rationale:** The session warns before it ends, with a warning that stays until the reader extends the session or signs out. The warning is announced through the assertive region, so a reader who is still there never meets the expired state at all.
 
 **Cost:** The warning sits on the page until it is answered, so it takes space from the work it guards. It appears only when the reader is idle enough to need it and active enough to answer it.
 
@@ -861,15 +948,15 @@ page
 
 **Strength:** default
 
-**Question:** Two people edit one record. The API refuses the second save with `concurrency/record.changed-elsewhere`, worded as `Someone else changed this`. The reader's unsent edits are still on the page.
+**Question:** Two people edit one record. The API refuses the second save with `concurrency/record.changed-elsewhere`, worded as `Someone else changed this`. The reader's unsent edits stay on the page.
 
 **Default:** `the-refusal-above-save-with-her-value-under-the-field`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the refusal sits above the fields, and each other value sits under its field.
+**Compact:** Below the md breakpoint the default option reflows: the refusal sits above the fields, and each other value sits under its field.
 
-**Rationale:** Keep the refusal above `Save`, with her value under the field. It refuses in the dictionary's words and fixes only what collided, with no dialog and no lost keystroke. The runner-up is the field-by-field choice, which suits a record where both people changed several fields. The whole-record dialog suits two people who rewrote the same long notes. Leave out a lock that reloads her whole version: it deletes Ben's notes to resolve an arrival time.
+**Rationale:** The default is the refusal above `Save`, with her value under the field. It refuses in the dictionary's words and fixes only what collided, with no dialog and no lost keystroke. The runner-up is the field-by-field choice, which suits a record where both people changed several fields. The whole-record dialog is the other alternative for two people who rewrote the same long notes. A lock that reloads her whole version stays out: it deletes Ben's notes to resolve an arrival time.
 
-**Reviewed for:** Which built conflict screen departs from the wireframe its catalog entry chose? Open the built field-level refusals, field-by-field merges, and conflict dialogs beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built conflict screen match the wireframe its catalog entry chose? Open the built field-level refusals, field-by-field merges, and conflict dialogs beside the catalog entry recording the chosen option and its reason.
 
 #### `the-refusal-above-save-with-her-value-under-the-field`: The Refusal Above Save, with Her Value Under the Field
 
@@ -891,9 +978,9 @@ page
       action primary "Save"
 ```
 
-**Rationale:** The save is refused in words. The other person's value appears under the field it beats, with one button to take hers. The reader fixes exactly what collided.
+**Rationale:** The save is refused in words. The other person's value appears under the field it beats, with one button to take hers. The reader fixes exactly what collided and nothing else.
 
-**Cost:** This option works field by field. Where both people rewrote the same long notes, one button per field is not enough and the dialog option takes over.
+**Cost:** This option works field by field. Where both people rewrote the same long notes, one button per field is not enough, and the dialog option takes over.
 
 **Reference:** Linear
 
@@ -921,7 +1008,7 @@ page
 
 **Rationale:** A conflict resolves per field: each row shows both values and takes one. Nothing is reloaded wholesale, so nothing Ben typed is lost.
 
-**Cost:** A row per field is a second form to build and to read. Past three fields it is longer than the form it argues about.
+**Cost:** A row per field is a second form to build and to read. Past three fields it runs longer than the form it argues about.
 
 **Reference:** Contentful, Airtable
 
@@ -947,9 +1034,9 @@ page
     action primary "Compare the two"
 ```
 
-**Rationale:** The dialog asks on a conflict: keep mine, take theirs, or look at both. It offers three buttons with no field surgery, and it says whose version is whose.
+**Rationale:** On a conflict the dialog offers three buttons with no field surgery: keep mine, take hers, or look at both. It says whose version is whose.
 
-**Cost:** This is a whole-record choice. Ben's arrival time and his notes travel together, so he cannot keep one and take the other.
+**Cost:** This is a whole-record choice: Ben keeps both his arrival time and his notes, or takes both of hers.
 
 **Reference:** Dropbox, Office
 
@@ -959,15 +1046,15 @@ page
 
 **Strength:** default
 
-**Question:** An import or a bulk reversal runs for minutes, longer than the reader waits on one page. The reader starts it and does other work. The job must stay visible while it runs and report its result when it is done.
+**Question:** An import or a bulk reversal runs for minutes, longer than the reader waits on one page. The reader starts it and moves on to other work. The question is how the job stays visible while it runs, and how it reports its result when it is done.
 
 **Default:** `an-activity-tray-like-an-upload-panel`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the tray becomes a sheet over the page, opened from one control.
+**Compact:** Below the md breakpoint the default option reflows: the tray becomes a sheet over the page, opened from one control.
 
-**Rationale:** Keep the activity tray. It stays visible on every page, it never holds the reader, and it answers progress without being asked. The runner-up is the job page with the failures published. It suits a bulk reversal where two of 31 need a person and the rest do not. The finished notice suits a job nobody needs to watch. Leave out the dialog that holds the reader: minutes of a blocked page are the cost this pattern exists to remove.
+**Rationale:** The default is the activity tray. It stays visible on every page, it never holds the reader, and it answers progress without being asked. The runner-up is the job page with the failures listed; prefer it for a bulk reversal where two of 31 need a person and the rest do not. The finished notice suits a job nobody needs to watch. The dialog that holds the reader stays out: minutes of a blocked page are the cost this pattern exists to remove.
 
-**Reviewed for:** Which built background job departs from the wireframe its catalog entry chose? Open the built trays, job pages, and finished notices beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built background job match the wireframe its catalog entry chose? Open the built trays, job pages, and finished notices beside the catalog entry recording the chosen option and its reason.
 
 #### `an-activity-tray-like-an-upload-panel`: An Activity Tray, Like an Upload Panel
 
@@ -992,9 +1079,9 @@ page
       text muted "Starts when the import finishes"
 ```
 
-**Rationale:** A tray at the corner runs uploads and imports. It shows progress while the job runs, a line when it is done, and the page behind stays usable.
+**Rationale:** A tray in the corner runs uploads and imports. It shows progress while each job runs and a line when it is done, and the page behind stays usable throughout.
 
-**Cost:** A corner tray holds two jobs well and five badly. Past that it needs a page that holds them, and the tray becomes its summary.
+**Cost:** A corner tray holds two jobs well and five badly. Past that the jobs need a page of their own, and the tray becomes that page's summary.
 
 **Reference:** Vercel, Linear, Figma
 
@@ -1012,9 +1099,9 @@ page
       item: text "EXP-1040 · Elin Lindqvist" · status "Not sent" critical · text "EUR 45.00" · action "Apply deduction"
 ```
 
-**Rationale:** A bulk run ends on a page that lists what failed and why, each with its retry. The 29 that worked need no attention. The two that did not get all of it.
+**Rationale:** A bulk run ends on a page that lists what failed and why, each failure with its retry. The 29 reversals that worked need no attention; the two that did not get all of it.
 
-**Cost:** A page per job is a place readers bookmark and support must explain. It earns its keep only for jobs that can partly fail.
+**Cost:** A page per job is a place readers bookmark and support has to explain. It earns its keep only for jobs that can partly fail.
 
 **Reference:** Stripe, Shopify
 
@@ -1035,9 +1122,9 @@ page
   toast positive "850 records are on the spender list."
 ```
 
-**Rationale:** The reader is told when a run finishes. While it runs there is nothing to decide. A toast plus a timeline entry answers the only two questions: did it work, and where is the evidence.
+**Rationale:** The reader hears nothing until the run finishes, because while it runs there is nothing to decide. A toast plus a timeline entry then answers the only two questions: did it work, and where is the evidence.
 
-**Cost:** The page is silent while the job runs. A reader who waits for 850 records with no progress bar waits less patiently than one who watches 70%.
+**Cost:** The page stays silent while the job runs. A reader waiting for 850 records with no progress bar waits less patiently than one watching progress climb past 70%.
 
 **Reference:** GitHub Actions
 
@@ -1047,15 +1134,15 @@ page
 
 **Strength:** default
 
-**Question:** A link names a record that is gone, mistyped, or at another company. A problem state words it as `Not found`. The reader needs a way back, not a code.
+**Question:** A link names a record that is gone, mistyped, or at another company. A problem state words that as `Not found`. The decision is how the page gives the reader a way back instead of a bare code.
 
 **Default:** `not-found-with-the-way-back`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the title, the explanation, and the two ways back stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the title, the explanation, and the two ways back stack in one column.
 
-**Rationale:** Keep `Not found`, with the way back. It names the record, covers the three ways a record goes missing, and offers the list and the search. The runner-up is the section that says so while the page stays: prefer it for a child missing from a parent that exists. Naming who removed a record and when suits a record the reader saw yesterday. Leave out the bare code: a code means nothing to a reader, and a dead end with a number on it is still a dead end.
+**Rationale:** The default is `Not found`, with the way back. It names the record, covers the three ways a record goes missing, and offers the list and the search. The runner-up is the section that says so while the page stays; prefer it for a child missing from a parent that exists. Naming who removed a record and when suits a record the reader saw yesterday. The bare code stays out: a code means nothing to a reader, and a page with no way back is no better for carrying a number.
 
-**Reviewed for:** Which built missing-record screen departs from the wireframe its catalog entry chose? Open the built not-found pages, section notices, and removal notices beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built missing-record screen match the wireframe its catalog entry chose? Open the built not-found pages, section notices, and removal notices beside the catalog entry recording the chosen option and its reason.
 
 #### `not-found-with-the-way-back`: Not Found, with the Way Back
 
@@ -1070,9 +1157,9 @@ page
     action "Search expenses"
 ```
 
-**Rationale:** The page names the missing record, says what may have happened, and offers the list and the search. The reader typed one character wrong. The fix is one look away.
+**Rationale:** The page names the missing record, says what may have happened, and offers the list and the search. A reader who typed one character wrong finds the record there.
 
-**Cost:** The suggestions are guesses. Where the record belongs to another company, no suggestion helps, and the copy must say so rather than keep guessing.
+**Cost:** The suggestions are guesses. Where the record belongs to another company, no suggestion helps, and the copy has to say so rather than keep guessing.
 
 **Reference:** Stripe, Linear
 
@@ -1094,9 +1181,9 @@ page
     action "See the 3 lines"
 ```
 
-**Rationale:** The expense exists. Line DL-9918 on it does not, and only the lines section says so. The rest of the record stays readable.
+**Rationale:** The expense itself exists; only line DL-9918 on it does not, so only the lines section carries the notice. The rest of the record stays readable around it.
 
-**Cost:** Use it only for a child that is missing from a parent that exists. Where the whole record is gone, a surviving page is a lie.
+**Cost:** This shape fits only a child missing from a parent that exists. Where the whole record is gone, a surviving page is a lie.
 
 **Reference:** GitHub
 
@@ -1113,9 +1200,9 @@ page
     action primary "Back to Policies"
 ```
 
-**Rationale:** The page names who removed the record and when, because `does not exist` for something the reader saw yesterday reads as a fault. The audit trail already knows. The page says it.
+**Rationale:** The page names who removed the record and when. Saying `does not exist` about something the reader saw yesterday reads as a fault; the audit trail already knows what happened, so the page says it too.
 
-**Cost:** It confirms the record existed, which leaks across companies if the reader should not know. For another company's record this must fall back to the default option.
+**Cost:** Naming the removal confirms the record existed, which leaks across companies if the reader should not know. For another company's record the page has to fall back to the default option.
 
 **Reference:** Linear, Notion
 
@@ -1125,15 +1212,15 @@ page
 
 **Strength:** default
 
-**Question:** The server fails a read or a command. A problem state words it as `That did not go through`, with a reference the reader can quote. The reader must know what did not happen.
+**Question:** The server fails a read or a command. A problem state words that failure as `That did not go through`, with a reference the reader can quote. The decision is how the page tells the reader what did not happen.
 
 **Default:** `the-shipped-failure-with-its-reference`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the failure, its reference, and `Try again` stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the failure, its reference, and `Try again` stack in one column.
 
-**Rationale:** Keep the failure with its reference. It words the failure once, says what did not move, and gives support something to read back. The runner-up is the outcome page: prefer it where the money sentence deserves a page of its own. A failed section suits a page whose other sections still read. Leave out the old data with its quiet line: figures the server could not confirm are misinformation, and a quiet line does not make them honest.
+**Rationale:** The default is the failure with its reference. It words the failure once, says what did not move, and gives support something to read back. The runner-up is the outcome page; prefer it where the money sentence deserves a page of its own. The failed section suits a page whose other sections still read. Old data with a quiet line stays out: figures the server could not confirm are misinformation, and a quiet line does not make them honest.
 
-**Reviewed for:** Which built server-failure screen departs from the wireframe its catalog entry chose? Open the built failure states, outcome pages, and failed sections beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built server-failure screen match the wireframe its catalog entry chose? Open the built failure states, outcome pages, and failed sections beside the catalog entry recording the chosen option and its reason.
 
 #### `the-shipped-failure-with-its-reference`: The Shipped Failure with Its Reference
 
@@ -1152,9 +1239,9 @@ page
     action "Try again"
 ```
 
-**Rationale:** The title, the caller-safe detail, `Try again`, and a reference the reader can quote to support. The money sentence is the point: what did not move.
+**Rationale:** The failure carries a title, caller-safe detail, `Try again`, and a reference the reader can quote to support. The money sentence is the point of it all: it says what did not move.
 
-**Cost:** A reference is only useful if support can read it back. Without that lookup it is a number that comforts nobody.
+**Cost:** A reference only helps if support can read it back. Without that lookup it is a number that comforts nobody.
 
 #### `an-outcome-page-that-says-what-did-not-happen`: An Outcome Page That Says What Did Not Happen
 
@@ -1173,7 +1260,7 @@ page
 
 **Rationale:** The failure page leads with what did not happen, because after a failed reversal that is the reader's first question. The money sentence comes before the retry.
 
-**Cost:** A page per failure is heavier than a state in place. It suits a failed command and not a failed read, where the inline state stays.
+**Cost:** A page per failure weighs more than a state in place. It suits a failed command, not a failed read, where the inline state stays.
 
 **Reference:** Stripe
 
@@ -1200,21 +1287,91 @@ page
 
 **Cost:** Two sections can fail two different ways on one page. Past one failure the page is a list of retries, and the outcome page takes over.
 
+### Route Error Frame
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#route-error-frame`
+
+**Strength:** default
+
+**Question:** The route's read failed. Page code declares no layout of its own, so the failure renders within the route's floorplan: the frame stays in place and the content slots hold the error state. The decision is what the slots hold, and what the page shows when the failure takes the header copy too.
+
+**Default:** `error-state-in-the-floorplan-slots`
+
+**Compact:** Below the md breakpoint the default option reflows: the failure, its retry, and its trace stack in one column under the header.
+
+**Rationale:** The default is the error state in the floorplan slots. The header renders with its real copy, and the slots show what failed, `Try again`, and the trace identifier in copyable form. The runner-up is the error state as the whole content; prefer it on a record route whose title the failed read would have named. The bare status outside the floorplan is the other alternative for a failure that takes the frame itself, and it names the freestyle decision behind it. A retry that cannot help stays out: a failure the reader cannot fix names the next step instead.
+
+**Reviewed for:** Does every built failed route match the wireframe its catalog entry chose? Open the built slot errors, content errors, and bare statuses beside the catalog entry recording the chosen option and its reason.
+
+#### `error-state-in-the-floorplan-slots`: Error State in the Floorplan Slots
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every expense, newest first."
+  region "Expenses"
+    heading small "The expenses could not be read"
+    text "Check the connection and try again. Nothing changed."
+    fact "Trace" "tr_8f3a2c1e"
+    action quiet "Copy"
+    action primary "Try again"
+```
+
+**Rationale:** The floorplan renders with its real header, and the content slots show the failure: what did not happen, `Try again`, and the trace identifier the reader quotes to support. The money sentence says what did not move.
+
+**Cost:** The header promises a page the slots cannot show. Where the failure takes the header copy too, the whole-content option takes over.
+
+#### `error-state-as-the-whole-content`: Error State as the Whole Content
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  region
+    heading "This expense could not be read"
+    text "Check the connection and try again. Nothing changed."
+    fact "Trace" "tr_8f3a2c1e"
+    action quiet "Copy"
+    action primary "Try again"
+    action "Back to expenses"
+```
+
+**Rationale:** The failed read would have named the title, so no header renders: the whole content is the error state, with the way back beside the retry. The breadcrumb keeps the address the route knows.
+
+**Cost:** The page loses its title, so a reader arriving from a link cannot tell which record failed to load. The trace identifier is what support reads back.
+
+#### `bare-status-outside-the-floorplan`: Bare Status Outside the Floorplan
+
+```wireframe
+page
+  header
+    heading "Expenses"
+  region
+    message "The expenses could not be read. Try again." critical
+    fact "Trace" "tr_8f3a2c1e"
+    action primary "Try again"
+```
+
+**Rationale:** The failure takes the frame itself, so no floorplan renders: the page is one main landmark with the failure message, its retry, and its trace. The route names the freestyle decision behind the bare shape, as a freestyle route must.
+
+**Cost:** The page loses the header, the breadcrumb, and the way back. Reserve it for a failure that leaves nothing to frame; anything less keeps the floorplan.
+
 ### Back Office Is Down for a Short While
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#back-office-is-down-for-a-short-while`
 
 **Strength:** default
 
-**Question:** A planned window stops the back office. Finance keeps its printed payout lists, but the payout desk checks every receipt against the system, so payouts wait too. The reader needs the window, what still works, and when to come back.
+**Question:** A planned window stops the back office. Finance keeps its printed payout lists, but the payout desk checks every receipt against the system, so payouts wait too. The decision is how the reader learns the window, what still works, and when to come back.
 
 **Default:** `told-ahead-of-time-on-every-page`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the notice sits under the header, and the facts stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the notice sits under the header, and the facts stack in one column.
 
-**Rationale:** Keep the advance notice on every page. A window nobody meets by surprise is a window finance can plan around, and the printed payout lists are the plan. The runner-up is the maintenance page itself: it is what every page becomes while the window runs. Reading while it lasts suits a short window where the records still answer a call. Leave out a message as the only signal: a Thursday message tells, and only the back office reminds on Sunday at 02:00.
+**Rationale:** The default is the advance notice on every page. A window nobody meets by surprise is a window finance can plan around, and the printed payout lists are the plan. The runner-up is the maintenance page itself, which is what every page becomes while the window runs. Read-only access suits a short window where the records still answer a call. A lone message stays out as the only signal: a Thursday message tells once, and only the back office itself reminds on Sunday at 02:00.
 
-**Reviewed for:** Which built maintenance screen departs from the wireframe its catalog entry chose? Open the built advance notices, maintenance pages, and read-only windows beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built maintenance screen match the wireframe its catalog entry chose? Open the built advance notices, maintenance pages, and read-only windows beside the catalog entry recording the chosen option and its reason.
 
 #### `told-ahead-of-time-on-every-page`: Told Ahead of Time, on Every Page
 
@@ -1231,9 +1388,9 @@ page
     fact "Portal" "Paused"
 ```
 
-**Rationale:** One sentence on every page from days before, with the window and what still works. Nobody meets maintenance by surprise.
+**Rationale:** One sentence sits on every page from days before, naming the window and what still works. Nobody meets maintenance by surprise, and finance prints its payout lists in time.
 
-**Cost:** A band on every page for days is days of noise for a 30-minute window. It must appear late enough to matter and early enough to plan finance work around.
+**Cost:** A band on every page for days is days of noise for a 30-minute window. It has to appear late enough to matter, and early enough that finance can plan its work around it.
 
 **Reference:** Stripe, Linear
 
@@ -1250,9 +1407,9 @@ page
     action primary "Check again"
 ```
 
-**Rationale:** The window is drawn as a page: what is happening, when it ends, and what still works. During the window this is every page.
+**Rationale:** The window gets a page of its own: what is happening, when it ends, and what still works. While the window runs, this is every page.
 
-**Cost:** Nothing can be read behind it, including the payout lists. Anything finance needs must be printed before 02:00.
+**Cost:** Nothing can be read behind it, including the payout lists. Anything finance needs during the window has to be printed before 02:00.
 
 **Reference:** GitHub, Vercel
 
@@ -1273,9 +1430,9 @@ page
     message "Maintenance ends at 02:30. Reversals wait until then." neutral
 ```
 
-**Rationale:** The back office degrades to reading when writing is unsafe. Expenses can be read on a call. Nothing that changes money is offered.
+**Rationale:** The back office drops to reading while writing is unsafe. Staff can still read expenses on a call, and nothing that changes money is offered anywhere.
 
-**Cost:** Read-only needs every command to know it is refused and why. A page that forgets one offers a reversal that fails at 02:15.
+**Cost:** Read-only mode needs every command to know it is refused and why. A page that forgets one command offers a reversal that fails at 02:15.
 
 **Reference:** Shopify, Notion
 
@@ -1285,15 +1442,15 @@ page
 
 **Strength:** default
 
-**Question:** The reader hits a limit: too many exports, too many sign-in tries, or too many sends. The API answers `429` with when to try again. The page must state the wait and the reason, briefly.
+**Question:** The reader hits a limit: too many exports, too many sign-in tries, or too many sends. The API answers `429` and says when to try again. The decision is how the page states the wait and the reason, briefly.
 
 **Default:** `the-button-waits-and-says-how-long`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the refusal sits under the disabled button, and the table keeps its first two columns.
+**Compact:** Below the md breakpoint the default option reflows: the refusal sits under the disabled button, and the table keeps its first two columns.
 
-**Rationale:** Keep the button that waits and says how long. It turns the limit into a 40-second wait with its reason attached, which is all a reader who hit 12 exports needs. The runner-up is the limit stated before it hits: prefer it for a reader planning a month of exports rather than one too many. The stop page suits a limit measured in minutes. Leave out a spinner that never says why: a wait the reader cannot name reads as a page that broke, and reloading restarts it.
+**Rationale:** The default is the button that waits and says how long. It turns the limit into a 40-second wait with its reason attached, which is all a reader who ran 12 exports needs. The runner-up states the limit before it hits; prefer it for a reader planning a month of exports rather than one too many. The stop page suits a limit measured in minutes. The spinner that never says why stays out: a wait the reader cannot name reads as a page that broke, and reloading restarts it.
 
-**Reviewed for:** Which built rate-limit screen departs from the wireframe its catalog entry chose? Open the built waits, usage figures, and stop pages beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does every built rate-limit screen match the wireframe its catalog entry chose? Open the built waits, usage figures, and stop pages beside the catalog entry recording the chosen option and its reason.
 
 #### `the-button-waits-and-says-how-long`: The Button Waits, and Says How Long
 
@@ -1310,9 +1467,9 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The API answers `429` with `Retry-After`, and the button counts it down. The reader waits 40 seconds knowing why, instead of clicking a button that keeps refusing.
+**Rationale:** The button carries the wait the API sent back in `Retry-After`, counting down from 40 seconds, and the message beside it names the limit that was hit. The reader sees a wait with an end and a reason, instead of a button that refuses every click without saying why.
 
-**Cost:** A countdown on a button is a timer the page must keep honestly. If the reader reloads, the count must survive or start over truthfully.
+**Cost:** That countdown is a timer the page must keep honestly. If the reader reloads mid-wait, the count must survive the reload or start over from a true value, never from a stale one.
 
 **Reference:** GitHub, Stripe
 
@@ -1334,9 +1491,9 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Usage against the ceiling is shown before anything refuses. The reader who sees nine of 12 plans the last three.
+**Rationale:** The page shows usage against the ceiling before anything refuses: nine of 12 exports used, with three left. A reader who sees that figure plans the last three exports.
 
-**Cost:** Usage figures are a read of their own, and a stale one refuses a reader it told there was room. The figure and the enforcement must agree.
+**Cost:** Usage figures are a read of their own, and a stale figure refuses a reader it just told there was room. The figure on the page and the enforcement behind it must always agree.
 
 **Reference:** Stripe, Linear
 
@@ -1353,8 +1510,8 @@ page
     action primary "Back to Expenses"
 ```
 
-**Rationale:** A hard stop becomes a page: too many tries, when to come back, and a reference. There is no retry button, because retrying is what caused this.
+**Rationale:** A hard stop gets a whole page: what happened, when to come back, and a reference to quote. There is deliberately no retry button, because retrying is what caused this state.
 
-**Cost:** The page offers nothing to do but wait. It suits a stop measured in minutes and insults one measured in seconds, which the default option handles.
+**Cost:** The page offers nothing to do but wait, so it fits a stop measured in minutes. For a stop measured in seconds a whole page is too much, and the default option handles those.
 
 **Reference:** Cloudflare

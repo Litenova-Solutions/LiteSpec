@@ -1,15 +1,13 @@
 # {Reference Title}
 
-## Intent
-
-State the exact values this page lists and the moment a reader looks them up.
+Name the exact values this page lists and the moment a reader looks them up: what they want to settle when this page is the one they need.
 
 ## Reference
 
 ### {Value Group}
 
-List each exact value with its meaning. Describe only: no procedure, no obligation.
+Give each exact value with its meaning. Describe only, with no procedure and no obligation.
 
 ## Notes
 
-State the limits of these values. Write `None.` when no limit applies.
+State one limit of these values that the list cannot show. Leave this section out when no limit applies.

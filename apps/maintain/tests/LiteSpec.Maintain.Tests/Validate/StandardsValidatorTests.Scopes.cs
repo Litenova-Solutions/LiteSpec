@@ -240,7 +240,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "scope vocabulary naming the when conditions")]
     public void ScopesVocabularyNamesWhen()
     {
-        Assert.Equal(["audit-adoption", "command", "document-number", "erasure", "project", "query", "upload"], Scopes.WhenValues.OrderBy(value => value, StringComparer.Ordinal).ToArray());
+        Assert.Equal(["audit-adoption", "command", "cross-module", "document-number", "erasure", "project", "query", "upload"], Scopes.WhenValues.OrderBy(value => value, StringComparer.Ordinal).ToArray());
     }
 
 

@@ -35,14 +35,11 @@ static class KindClosure
     {
         var backends = SourceRoots.BackendRoots(config);
         var bySimple = new Dictionary<string, List<DeclaredType>>(StringComparer.Ordinal);
-        var declaredTypes = new List<(TypeDeclarationSyntax Declared, string Qualified, bool PortRoot, bool TechnicalRoot, string File)>();
+        var declaredTypes = new List<(TypeDeclarationSyntax Declared, string Qualified, bool PortRoot, string File)>();
 
         foreach (var root in backends)
         {
-            var portRoot = root == config.ModulesRoot
-                || root == config.ModulesRoot + ".Abstractions"
-                || root == config.InfrastructureRoot;
-            var technicalRoot = root != config.DomainRoot;
+            var portRoot = config.ModulesRoots.Contains(root, StringComparer.OrdinalIgnoreCase);
 
             foreach (var file in SourceTree.Files(root, ".cs"))
             {
@@ -63,14 +60,14 @@ static class KindClosure
                     }
 
                     candidates.Add(new DeclaredType(qualified, DotnetNames.NamespaceOf(declared), file));
-                    declaredTypes.Add((declared, qualified, portRoot, technicalRoot, file));
+                    declaredTypes.Add((declared, qualified, portRoot, file));
                 }
             }
         }
 
         var qualifiedKinds = new QualifiedKinds(bySimple);
 
-        foreach (var (declared, qualified, portRoot, technicalRoot, file) in declaredTypes)
+        foreach (var (declared, qualified, portRoot, file) in declaredTypes)
         {
             if (!qualifiedKinds.Bases.TryGetValue(qualified, out var known))
             {
@@ -86,15 +83,18 @@ static class KindClosure
                 }
             }
 
+            // A port is an interface that implements the external system: a
+            // follows-only mark names no port, as DeclaredPortMarks reads it.
             if (portRoot
                 && declared is InterfaceDeclarationSyntax faceType
                 && MarkReader.Read(faceType).Any(mark =>
-                    mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
+                    mark.Verb != MarkVerb.Follows
+                    && mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
             {
                 qualifiedKinds.MarkedPorts.Add(qualified);
             }
 
-            if (technicalRoot && IsTechnicalCandidate(file, declared))
+            if (IsTechnicalCandidate(file, declared))
             {
                 qualifiedKinds.TechnicalClasses.Add(qualified);
             }
@@ -105,7 +105,7 @@ static class KindClosure
             var stateRecords = new HashSet<string>(StringComparer.Ordinal);
             var stateRecordNames = new HashSet<string>(StringComparer.Ordinal);
 
-            foreach (var (declared, qualified, _, _, _) in declaredTypes)
+            foreach (var (declared, qualified, _, _) in declaredTypes)
             {
                 if (declared is RecordDeclarationSyntax
                     && declared.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.AbstractKeyword)))
@@ -118,7 +118,7 @@ static class KindClosure
             var marked = new HashSet<string>(StringComparer.Ordinal);
             var stated = new HashSet<string>(StringComparer.Ordinal);
 
-            foreach (var (declared, qualified, _, _, _) in declaredTypes)
+            foreach (var (declared, qualified, _, _) in declaredTypes)
             {
                 if (declared is InterfaceDeclarationSyntax)
                 {

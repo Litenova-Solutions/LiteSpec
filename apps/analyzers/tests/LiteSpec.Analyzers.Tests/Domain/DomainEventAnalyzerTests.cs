@@ -21,7 +21,7 @@ public sealed class DomainEventAnalyzerTests
             public readonly record struct OrderId(Guid Value);
 
             public sealed record OrderPlacedEvent(OrderId OrderId) : IDomainEvent;
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 reports a class event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -36,7 +36,7 @@ public sealed class DomainEventAnalyzerTests
             public sealed class {|LS1007:OrderPlacedEvent|} : IDomainEvent
             {
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 reports an event with a settable property.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -52,7 +52,7 @@ public sealed class DomainEventAnalyzerTests
             {
                 public string Note { get; set; } = string.Empty;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 reports an event with a name lacking the suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -65,7 +65,7 @@ public sealed class DomainEventAnalyzerTests
             public interface IDomainEvent;
 
             public sealed record {|LS1007:OrderPlaced|}(string Note) : IDomainEvent;
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 accepts an event with init, readonly and const members.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -85,7 +85,7 @@ public sealed class DomainEventAnalyzerTests
 
                 public string Note { get; init; } = string.Empty;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 ignores an interface deriving IDomainEvent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -98,7 +98,7 @@ public sealed class DomainEventAnalyzerTests
             public interface IDomainEvent;
 
             public interface IOrderEvent : IDomainEvent;
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 reports an event with a mutable field.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -114,7 +114,7 @@ public sealed class DomainEventAnalyzerTests
             {
                 private int _attempts;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 ignores an event outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -132,20 +132,6 @@ public sealed class DomainEventAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
-    /// <summary>LS1007 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
-    [Fact(DisplayName = "LS1007 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<DomainEventAnalyzer>("""
-            namespace Shop.Core;
-
-            public interface IDomainEvent;
-
-            public sealed class {|LS1007:OrderPlacedEvent|} : IDomainEvent
-            {
-            }
-            """, assemblyName: "Shop.Core", layer: "Domain");
 
     /// <summary>LS1007 reports a multiply breaching event once.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -161,7 +147,7 @@ public sealed class DomainEventAnalyzerTests
             {
                 public string Note { get; set; } = string.Empty;
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1007 reports a record struct event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -174,5 +160,5 @@ public sealed class DomainEventAnalyzerTests
             public interface IDomainEvent;
 
             public readonly record struct {|LS1007:OrderPlacedEvent|}(string Note) : IDomainEvent;
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

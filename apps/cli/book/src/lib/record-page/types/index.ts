@@ -8,8 +8,8 @@ import Code from "./Code.svelte";
 import Constraint from "./Constraint.svelte";
 import Decision from "./Decision.svelte";
 import EntryPoint from "./EntryPoint.svelte";
-import Event from "./Event.svelte";
-import Departure from "./Departure.svelte";
+import DomainEvent from "./DomainEvent.svelte";
+import Waiver from "./Waiver.svelte";
 import ExternalSystem from "./ExternalSystem.svelte";
 import Feature from "./Feature.svelte";
 import Finding from "./Finding.svelte";
@@ -17,12 +17,14 @@ import Generic from "./Generic.svelte";
 import Goal from "./Goal.svelte";
 import GroupingPage from "./GroupingPage.svelte";
 import IntegrationEvent from "./IntegrationEvent.svelte";
+import ModuleEvent from "./ModuleEvent.svelte";
 import Job from "./Job.svelte";
-import Journey from "./Journey.svelte";
+import Flow from "./Flow.svelte";
 import Layer from "./Layer.svelte";
 import Module from "./Module.svelte";
 import Notification from "./Notification.svelte";
 import Permission from "./Permission.svelte";
+import PermissionSet from "./PermissionSet.svelte";
 import Problem from "./Problem.svelte";
 import Product from "./Product.svelte";
 import Reaction from "./Reaction.svelte";
@@ -39,26 +41,28 @@ import Setting from "./Setting.svelte";
 import Term from "./Term.svelte";
 import Test from "./Test.svelte";
 import UseCase from "./UseCase.svelte";
-import Vision from "./Vision.svelte";
+import Direction from "./Direction.svelte";
+import ReadModel from "./ReadModel.svelte";
 
 export type TypeProps = { id: string; r: BookRecord };
 
 export const TYPES: Record<string, Component<TypeProps>> = {
   product: Product,
   goal: Goal,
-  vision: Vision,
+  direction: Direction,
   problem: Problem,
   feature: Feature,
   requirement: Requirement,
   decision: Decision,
   constraint: Constraint,
   research: Research,
-  journey: Journey,
+  flow: Flow,
   actor: Actor,
   module: Module,
   aggregate: Aggregate,
   rule: Rule,
-  event: Event,
+  "domain-event": DomainEvent,
+  "module-event": ModuleEvent,
   "use-case": UseCase,
   scenario: Scenario,
   result: Result,
@@ -69,13 +73,15 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   screen: Screen,
   role: Role,
   permission: Permission,
+  "permission-set": PermissionSet,
   "entry-point": EntryPoint,
   "external-system": ExternalSystem,
   runbook: Runbook,
-  departure: Departure,
+  waiver: Waiver,
   term: Term,
   layer: Layer,
   "integration-event": IntegrationEvent,
+  "read-model": ReadModel,
   "architecture-layer": GroupingPage,
   folder: GroupingPage,
   frontend: GroupingPage,

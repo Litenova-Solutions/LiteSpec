@@ -162,7 +162,7 @@ sealed class UiFixture : IDisposable
     /// <summary>The finding codes the controlled UI pass reports.</summary>
     static readonly HashSet<string> UiCodes = new(StringComparer.Ordinal)
     {
-        "departure-expired", "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
+        "waiver-expired", "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
         "ui-components-invalid", "ui-sourcelock-invalid", "ui-design-contract-invalid",
         "ui-stylesheet-invalid", "ui-class-invalid", "ui-import-invalid", "ui-dependency-invalid",
         "ui-catalog-invalid", "ui-route-suite-missing",
@@ -260,39 +260,41 @@ sealed class UiFixture : IDisposable
         return Run();
     }
 
-    /// <summary>Writes one departure record under the default departures folder.</summary>
-    /// <param name="name">The departure file and record name.</param>
-    /// <param name="provision">The provision id the departure covers.</param>
-    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
-    /// <returns>The full path to the departure file.</returns>
-    public string WriteDeparture(string name, string provision, string expiresOn) =>
-        WriteDepartureFile($".litespec/governance/departures/{name}.yaml",
-            DepartureMeta($"departure/{name}", $"Fixture departure {name}", provision, expiresOn));
+    /// <summary>Writes one waiver record under the default waivers folder.</summary>
+    /// <param name="name">The waiver file and record name.</param>
+    /// <param name="provision">The provision id the waiver covers.</param>
+    /// <param name="expiresOn">The date the waiver expires, in ISO form.</param>
+    /// <returns>The full path to the waiver file.</returns>
+    public string WriteWaiver(string name, string provision, string expiresOn) =>
+        WriteWaiverFile($".litespec/governance/waivers/{name}.yaml",
+            WaiverMeta($"waiver/{name}", $"Fixture waiver {name}", provision, expiresOn));
 
-    /// <summary>Writes one departure record at a consumer-relative path.</summary>
+    /// <summary>Writes one waiver record at a consumer-relative path.</summary>
     /// <param name="relative">The file path under the fixture root.</param>
-    /// <param name="meta">The departure record fields.</param>
-    /// <returns>The full path to the departure file.</returns>
-    public string WriteDepartureFile(string relative, JsonObject meta) =>
+    /// <param name="meta">The waiver record fields.</param>
+    /// <returns>The full path to the waiver file.</returns>
+    public string WriteWaiverFile(string relative, JsonObject meta) =>
         TestRecords.Write(Root, relative, meta.ToJsonString());
 
-    /// <summary>The fields of a fixture departure record.</summary>
-    /// <param name="id">The departure record id.</param>
-    /// <param name="title">The departure title.</param>
-    /// <param name="provision">The provision id the departure covers.</param>
-    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
-    /// <returns>The departure record fields.</returns>
-    public static JsonObject DepartureMeta(string id, string title, string provision, string expiresOn) => new()
+    /// <summary>The fields of a fixture waiver record.</summary>
+    /// <param name="id">The waiver record id.</param>
+    /// <param name="title">The waiver title.</param>
+    /// <param name="provision">The provision id the waiver covers.</param>
+    /// <param name="expiresOn">The date the waiver expires, in ISO form.</param>
+    /// <returns>The waiver record fields.</returns>
+    public static JsonObject WaiverMeta(string id, string title, string provision, string expiresOn) => new()
     {
-        ["type"] = "departure",
+        ["type"] = "waiver",
         ["id"] = id,
         ["title"] = title,
-        ["covers"] = new JsonArray(provision),
+        ["kind"] = "gap",
+        ["waives"] = new JsonArray(provision),
         ["paths"] = new JsonArray("packages/ui/**"),
-        ["reason"] = "The fixture needs this departure.",
-        ["consequences"] = "The fixture ships with this departure until it expires.",
+        ["reason"] = "The fixture needs this waiver.",
+        ["consequences"] = "The fixture ships with this waiver until it expires.",
+        ["closedBy"] = new JsonArray(id),
         ["expiresOn"] = expiresOn,
-        ["exit"] = "The fixture closes this gap when the departure expires.",
+        ["exit"] = "The fixture closes this gap when the waiver expires.",
     };
 
     /// <summary>Mutates the source lock in place.</summary>
@@ -402,7 +404,7 @@ sealed class UiFixture : IDisposable
             "apps/web/src/routes",
             "apps/web/src/modules",
             "apps/web/tests/routes",
-            ".litespec/governance/departures",
+            ".litespec/governance/waivers",
         })
         {
             Directory.CreateDirectory(Join(directory));
@@ -572,7 +574,7 @@ sealed class UiFixture : IDisposable
 
         ## Patterns
 
-        ### Record list
+        ### List Page
 
         **Question:** How does a reader find one record among many?
 

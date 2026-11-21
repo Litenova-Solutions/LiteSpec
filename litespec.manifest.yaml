@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=./schemas/litespec-manifest.schema.yaml
 schemaVersion: 6
-version: 6.0.0
+version: 7.0.0
 name: litespec
 agentsEntry: AGENTS.md
 stacks:
@@ -29,7 +29,7 @@ extensions:
     activationScope: local
     applicableKinds:
     - use-case
-    - journey
+    - flow
     replaces: []
     switchesOn:
     - scenario
@@ -71,7 +71,7 @@ extensions:
     applicableKinds:
     - use-case
     - rule
-    - journey
+    - flow
     replaces: []
     switchesOn: []
   audit:
@@ -108,7 +108,7 @@ extensions:
     replaces:
     - 'litespec/backend/persistence#collect-events-without-a-public-unit-of-work'
     switchesOn:
-    - event
+    - domain-event
     - setting
     - runbook
   realtime:
@@ -116,28 +116,8 @@ extensions:
     activationScope: local
     applicableKinds:
     - use-case
-    - journey
+    - flow
     replaces: []
-    switchesOn: []
-  layer-projects:
-    path: docs/backend/dotnet/ext/layer-projects.md
-    activationScope: project
-    replaces:
-    - 'litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case'
-    - 'litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules'
-    - 'litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts'
-    - 'litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree'
-    - 'litespec/workspace/dependencies#follow-the-declared-dependency-graph'
-    - 'litespec/workspace/dependencies#keep-domain-dependency-free'
-    - 'litespec/workspace/dependencies#keep-application-free-of-provider-packages'
-    - 'litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer'
-    - 'litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts'
-    - 'litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout'
-    - 'litespec/backend/dotnet/application#use-the-use-case-folder-layout'
-    - 'litespec/backend/dotnet/api#place-endpoints-in-their-use-case-folders'
-    - 'litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout'
-    - 'litespec/backend/testing#keep-the-test-suites-the-size-requires'
-    - 'litespec/workspace/structure#keep-production-and-test-code-separate'
     switchesOn: []
   jobs:
     path: docs/ext/jobs.md
@@ -145,15 +125,17 @@ extensions:
     applicableKinds:
     - job
     - use-case
-    - journey
+    - flow
     replaces:
-    - 'litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request'
+    - 'litespec/backend/architecture#name-the-host-for-work-that-outlives-a-request'
     switchesOn:
     - setting
     - runbook
-  stage:
-    path: docs/ext/stage.md
-    activationScope: project
+  queues:
+    path: docs/ext/queues.md
+    activationScope: local
+    applicableKinds:
+    - use-case
     replaces: []
     switchesOn: []
   delivery:
@@ -198,24 +180,35 @@ packages:
     EFCore.NamingConventions: 10.x
     FsCheck: 3.x
     LightBDD.XUnit3: 3.x
-    LiteBus.Analyzers: 7.x
-    LiteBus.Commands: 7.x
-    LiteBus.Commands.Abstractions: 7.x
-    LiteBus.Commands.Recurring: 7.x
-    LiteBus.Events: 7.x
-    LiteBus.Events.Abstractions: 7.x
-    LiteBus.Extensions.Microsoft.DependencyInjection: 7.x
-    LiteBus.Messaging: 7.x
-    LiteBus.Messaging.Abstractions: 7.x
-    LiteBus.Outbox: 7.x
-    LiteBus.Outbox.Abstractions: 7.x
-    LiteBus.Outbox.Dispatch.InProcess: 7.x
-    LiteBus.Outbox.Storage.PostgreSql: 7.x
-    LiteBus.Queries: 7.x
-    LiteBus.Queries.Abstractions: 7.x
-    LiteBus.Storage.PostgreSql: 7.x
-    LiteBus.Testing.Mediation: 7.x
-    LiteSpec.Analyzers: 6.0.0
+    LiteBus.Analyzers: 8.0.0-preview.3
+    LiteBus.Auditing: 8.0.0-preview.3
+    LiteBus.Auditing.Abstractions: 8.0.0-preview.3
+    LiteBus.Auditing.Storage.Marten: 8.0.0-preview.3
+    LiteBus.Commands: 8.0.0-preview.3
+    LiteBus.Commands.Abstractions: 8.0.0-preview.3
+    LiteBus.Commands.Recurring: 8.0.0-preview.3
+    LiteBus.Events: 8.0.0-preview.3
+    LiteBus.Events.Abstractions: 8.0.0-preview.3
+    LiteBus.Extensions.AspNetCore: 8.0.0-preview.3
+    LiteBus.Extensions.Microsoft.DependencyInjection: 8.0.0-preview.3
+    LiteBus.Messaging: 8.0.0-preview.3
+    LiteBus.Messaging.Abstractions: 8.0.0-preview.3
+    # The pinned pipeline binding needs the LiteBus 8.0.0-preview.3 APIs, including the auditing, dispatch, storage, extensions, ASP.NET Core problem details, and durable-messaging test pins.
+    LiteBus.Outbox: 8.0.0-preview.3
+    LiteBus.Outbox.Abstractions: 8.0.0-preview.3
+    LiteBus.Outbox.Dispatch.Amqp: 8.0.0-preview.3
+    LiteBus.Outbox.Dispatch.InProcess: 8.0.0-preview.3
+    LiteBus.Outbox.Dispatch.Kafka: 8.0.0-preview.3
+    LiteBus.Outbox.Extensions.OpenTelemetry: 8.0.0-preview.3
+    LiteBus.Outbox.Storage.EntityFrameworkCore: 8.0.0-preview.3
+    LiteBus.Outbox.Storage.Marten: 8.0.0-preview.3
+    LiteBus.Outbox.Storage.PostgreSql: 8.0.0-preview.3
+    LiteBus.Queries: 8.0.0-preview.3
+    LiteBus.Queries.Abstractions: 8.0.0-preview.3
+    LiteBus.Storage.PostgreSql: 8.0.0-preview.3
+    LiteBus.Testing.DurableMessaging: 8.0.0-preview.3
+    LiteBus.Testing.Mediation: 8.0.0-preview.3
+    LiteSpec.Analyzers: 7.0.0
     Marten: 9.x
     Microsoft.AspNetCore.Authentication.JwtBearer: 10.x
     Microsoft.AspNetCore.DataProtection: 10.x
@@ -350,6 +343,7 @@ uiBaseline:
     url: 'https://ui.shadcn.com'
     allowAdditional: true
   nativeBoundary: separate-platform-profile
+# The Svelte baseline values are defaults that pass every token limit on docs/frontend/ui.md. A project keeps them or sets its own values; values that meet the limits need no waiver.
 uiBaselineSvelte:
   platform: svelte
   system: shadcn-svelte

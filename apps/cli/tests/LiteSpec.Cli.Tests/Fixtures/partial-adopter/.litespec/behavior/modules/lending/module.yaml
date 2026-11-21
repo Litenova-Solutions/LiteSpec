@@ -2,3 +2,7 @@ type: module
 id: module/lending
 title: Lending
 dependsOn: []
+covers:
+  - Lending lends copies to readers and tracks loans.
+excludes:
+  - Lending tracks no fines.

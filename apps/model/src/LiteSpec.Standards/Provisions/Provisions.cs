@@ -179,7 +179,7 @@ public static class Provisions
 
     /// <summary>
     ///     Collects every provision row from the standards pages, sorted by identifier. One
-    ///     command asks several times (the record reader, the checker, the departure check), so
+    ///     command asks several times (the record reader, the checker, the waiver check), so
     ///     the rows are read once per process and read again only when a page under
     ///     <c>docs/</c> is added, removed or written. Each caller gets its own list.
     /// </summary>
@@ -334,9 +334,7 @@ public static class Provisions
         {
             "# Provisions",
             "",
-            "## Intent",
-            "",
-            "Use this generated page to resolve a provision ID to its heading, owning page, scope, record layer, trace, strength, and verification mark, and to read the checked share of rules for each page.",
+            "Each provision ID resolves here to its heading, owning page, scope, record layer, trace, strength, and verification mark, with the share of each page's rules a tool checks.",
             "",
             "Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.",
             "",

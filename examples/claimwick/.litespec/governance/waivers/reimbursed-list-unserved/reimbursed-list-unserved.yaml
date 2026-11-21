@@ -1,0 +1,14 @@
+type: waiver
+id: waiver/reimbursed-list-unserved
+title: Reimbursed List Unserved
+summary: The list of reimbursed expenses serves no flow step, because no flow yet has a step where finance checks the payouts.
+kind: gap
+waives:
+- use-case-flow-missing
+appliesTo:
+- use-case/reporting.list-reimbursed-expenses
+reason: No flow yet has a step where finance checks the reimbursed expenses against their employees.
+exitWhen: The gap closes when a finance flow gains a step that the list serves, and the list names that step in its serves field.
+expiresOn: 2027-06-01
+closedBy:
+- use-case/reporting.list-reimbursed-expenses

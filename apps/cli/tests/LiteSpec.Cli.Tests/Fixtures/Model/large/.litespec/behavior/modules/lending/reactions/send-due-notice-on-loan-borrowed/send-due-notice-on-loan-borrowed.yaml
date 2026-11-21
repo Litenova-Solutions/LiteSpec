@@ -2,8 +2,32 @@ type: reaction
 id: reaction/lending.send-due-notice-on-loan-borrowed
 title: Send Due Notice on Loan Borrowed
 triggeredBy:
-- event/loan.loan-borrowed
+- domain-event/loan.loan-borrowed
 effects:
 - sends: notification/lending.loan-due
+outcomes:
+- name: completed
+  meaning: The due notice was sent to the reader.
+- name: skipped
+  meaning: The loan was returned before the notice was due.
+- name: failed
+  meaning: The notice could not be sent after every retry.
+- name: retry-scheduled
+  meaning: The send failed and another attempt is scheduled.
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 5
+    initialDelay: PT1M
+    maxDelay: PT1H
+    backoff: exponential
+  ifExhausted: dead-letter
+  deadLetter:
+    after: P1D
+    action: The notice is dropped and the drop is logged; the loan still shows its due date.
+idempotency:
+  mode: key
+  key: loan-due-{loanId}
+  keyScope: global
 fulfills:
 - requirement/borrowing.max-active-loans

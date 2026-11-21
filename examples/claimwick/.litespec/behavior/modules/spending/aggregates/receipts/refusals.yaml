@@ -1,0 +1,6 @@
+type: refusal-set
+summary: The refusals the receipt aggregate raises.
+records:
+- id: refusal/spending.expense-decided
+  title: Expense Decided
+  meaning: The expense is already decided.

@@ -1,24 +1,24 @@
 type: use-case
 id: use-case/lending.retire-copy
 title: Retire copy
+exposure: A signed-in librarian reaches this command through the library app under the manage-copies permission. A wrong retirement removes a copy readers can still borrow.
 kind: command
 access:
   grant: permission/manage-copies
   tenant: own
 serves:
-- journey/borrow-and-return#s8
+- step/borrow-and-return.retire-copy
 fulfills:
 - requirement/borrowing.copy-shelf-home
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/copy.copy-retired
+- domain-event/copy.copy-retired
+steps:
+- statement: The librarian retires the copy from lending.
 idempotency:
   mode: none
   reason: Each call retires its own copy, and retiring a copy on loan is refused.
-audit:
-  level: none
-  target: No audit trail; the copy record shows each retirement.
 records:
 - type: result
   id: result/retire-copy.retired
@@ -29,8 +29,7 @@ records:
   id: result/retire-copy.copy-on-loan
   title: Copy on loan
   outcome: refusal
-  code: lending.copy-on-loan
-  meaning: The copy is on loan.
+  refusal: refusal/lending.copy-on-loan
 - type: scenario
   id: scenario/retire-copy.retiring-an-available-copy-succeeds
   title: Retiring an available copy succeeds
@@ -38,3 +37,10 @@ records:
   when: The librarian retires the copy.
   then: The copy is retired.
   result: result/retire-copy.retired
+- type: scenario
+  id: scenario/retire-copy.retiring-copy-on-loan-refused
+  title: Retiring a copy on loan is refused
+  given: A reader holds a copy on loan.
+  when: The librarian retires the copy.
+  then: The retirement is refused because the copy is on loan.
+  result: result/retire-copy.copy-on-loan

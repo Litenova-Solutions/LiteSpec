@@ -6,3 +6,10 @@ kind: person
 belongsToTeam: false
 holds:
 - role/finance
+responsibilities:
+- Reimburses approved expenses.
+- Exports approved expenses.
+- Erases personal data of decided expenses past retention.
+knowledge:
+- The product assumes finance knows the approved expenses for the payout batch.
+- The product assumes finance knows the decided expenses past retention.

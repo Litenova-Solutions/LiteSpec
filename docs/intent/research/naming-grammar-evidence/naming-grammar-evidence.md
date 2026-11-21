@@ -4,38 +4,51 @@ LiteSpec records are written as YAML fields, and each field name should mean one
 
 ## Findings
 
-The record schema has 248 distinct field names, and 21 of them carry more than one shape. Of those, 18 are genuine collisions. The fix is one naming grammar, in which one concept keeps one name, one shape and one cardinality everywhere it appears.
+The [record schema][record-schema] holds 248 distinct field names. Twenty-one names carry more than one shape, and 18 are genuine collisions. A reader cannot tell the colliding shapes apart. The record infers one naming grammar where each concept keeps one name, shape, and cardinality.
 
-A script walked every properties block in the record schema on 31 October 2026. It counted 248 distinct property names, with the declaring definitions and the value shape for each name. The multi-shape table was re-verified on the same run, and the re-run still counts 248 names. The record gives high confidence for this count, because the inventory was parsed from the schemas by program.
+A script walked every properties block in the [record schema][record-schema] on 31 October 2026. The count lists the declaring definitions and the value shape for each name. The same run re-verified the multi-shape table and still counts 248 names.
 
-The field set is mostly systematic. All 37 page types share one header: `type`, `id`, `title`, `terms` and the type's own fields. Links are present-tense verbs, plural when they hold arrays. `fulfills`, `governs`, `solves`, `decides` and `basedOn` each carry one meaning everywhere. Every field name is camelCase or a single lowercase word. The record gives high confidence for this claim, for the same reason as the count.
+The record calls the field set mostly systematic [record schema][record-schema]. All 37 page types share one header of `type`, `id`, `title`, and `terms`. Links read as present-tense verbs, plural when they hold arrays. The verbs `fulfills`, `governs`, `solves`, `decides`, and `basedOn` each carry one meaning. Every field name reads as camelCase or as a single lowercase word.
 
-Most of the 21 multi-shape names are collisions that a reader cannot tell apart. The `id` and `kind` names vary by type by design, because each record carries its own identifier form and its own classifier. The other names do not vary by design. `audience` holds actor lists on a product and on a notification, but one permission on an integration event. The checker rejects that as an invalid field. `basedOn` holds 2 different arrays. `code` holds one refusal code or a list of codes. The record gives no confidence for these claims.
+The `id` and `kind` names vary by type by design [record schema][record-schema]. The `audience` name holds actor lists on a product and a notification but one permission on an integration event. The `basedOn` name holds two different arrays. The `code` name holds one refusal code or a list of codes.
 
-More names span several shapes. `direction`, `effects`, `fields`, `key`, `mode`, `runbook`, `scope`, `sends`, `steps` and `subject` each span 2 or 3 shapes. `onFailure` is a string policy on effects and a structured object on reactions and jobs. That is the most mechanical inconsistency in the schemas. `reason` is free prose in most places, but on audit and idempotency objects it is an enum that is required, optional or absent. `setBy` is `product` or `tenant` on requirements, and it adds `operator` on settings. The record gives no confidence for these claims.
+Ten names each span two or three shapes, namely `direction`, `effects`, `fields`, `key`, `mode`, `runbook`, `scope`, `sends`, `steps`, and `subject` [record schema][record-schema]. The `onFailure` name holds a string policy on effects and a structured object on reactions and jobs. The record calls `onFailure` the most mechanical inconsistency in the schemas. The `reason` name holds free prose in most places but an enum on audit and idempotency objects. The `setBy` name holds `product` or `tenant` on requirements and adds `operator` on settings.
 
-`serves` spans 2 shapes across 5 record types, with 3 target sets. `source` carries 4 shapes across 21 definitions. Those are the origin marker, the constraint's free-text source, the integration event's CloudEvents source, and the nested input and output origin. Research sources are a sixth shape beside them. The record gives no confidence for these claims.
+The `serves` name spans two shapes across five record types with three target sets [record schema][record-schema]. The `source` name carries four shapes across 21 definitions. Those shapes are the origin marker, the constraint free text, the CloudEvents source, and the nested origin. Research sources form a sixth shape beside the source shapes.
 
-The consumer already shows bad data from 2 collisions. All 111 features carry milestone-style `by` values, where the convention expects dates. Of the use-case `serves` values, 11 name a whole journey, where the schema allows only a journey step or a goal. The record gives no confidence for these claims.
+The record counts two collisions already showing bad data in the consumer [field naming evidence][field-naming-evidence]. All 111 consumer features carry milestone-style `by` values where the convention expects dates. Eleven use-case `serves` values name a whole flow where the schema allows only a flow step or a goal.
 
-One concept therefore keeps one name, one shape and one cardinality everywhere it appears, with no exemption list. The record gives no confidence for this rule.
+The record infers one name, one shape, and one cardinality for each concept, with no exemptions [record schema][record-schema].
 
-Justifications that hold links each get one rule. The `because` field on a consistency object holds a rule list, and `wideningBecause` holds a requirement link. `appliesBecause` holds prose. So `cites` becomes the one verb for a reason link everywhere. It covers the requirement, the journey, the consistency `because`, the query `wideningBecause` and the retention row intent. The record gives no confidence for this rule.
+The `because` field holds a rule list and `wideningBecause` holds a requirement link [record schema][record-schema]. The `appliesBecause` field holds prose. The record infers `cites` as the one verb for a reason link everywhere.
 
-The boolean fields need no rename. `applies`, `secret`, `recorded`, `builtAsynchronously` and `sharesTransaction` are present-tense predicates with no `is` or `has` prefix. So a boolean stays a present-tense predicate that is true about the record when it is true. The record gives no confidence for this rule.
+The `applies`, `secret`, `recorded`, `builtAsynchronously`, and `sharesTransaction` fields read as present-tense predicates [record schema][record-schema]. The record infers that a boolean stays a present-tense predicate true about the record.
 
-String mini-languages become objects with named fields. These are the bare advisory freshness, the cron and every schedule string, the free-text duration and period fields, the string `onFailure` policy, the retry and dead-letter strings, and the `call`, `via` and `operator` strings. Each of them parses only by convention today. The record gives no confidence for this rule.
+The bare freshness, schedule, duration, string `onFailure` policy, retry, dead-letter, `call`, `via`, and `operator` values parse only by convention [record schema][record-schema]. The record infers objects with named fields for each string mini-language.
 
-Several remaining renames close the gaps. The use case names the settings it reads in `reads`, and the setting's `readBy` becomes a computed inverse. Field names, enum values and prose use American spelling, such as `license` and `pseudonymize`. The word `when` keeps only its Gherkin meaning. An exception entry becomes `condition` with `fallback`, and a coordinator step names its guard `guard`. The value style becomes a set of provisions, and their mechanical half is checked. The record gives no confidence for these renames.
+The record infers `reads` for the settings a use case reads, with `readBy` as a computed inverse [record schema][record-schema]. The record infers American spelling for field names, enum values, and prose, such as `license` and `pseudonymize`. The record infers that the word `when` keeps only its Gherkin meaning [Gherkin reference][cucumber-docs-gherkin-reference]. The record infers `condition` with `fallback` for an exception entry and `guard` for a coordinator guard. The record infers provisions for the value style, with checks covering their mechanical half.
 
-The inventory supports 8 word classes. They are reason links, boolean predicates, classifiers, dates, justifications, defining and normative sentences, conditions, and names fixed by an outside standard. Only names that an outside standard fixes are exempt from the grammar. Those are the Gherkin step words `Given`, `When`, `Then`, `And` and `But`, and the CloudEvents attributes. The Gherkin reference confirms the step words, along with `Rule`, `Background` and `Examples`. The CloudEvents 1.0.3-wip text confirms that `id`, `source`, `type` and `specversion` are required, and that `dataschema` and `subject` are optional. The record gives no confidence for this claim.
+The inventory supports eight word classes, including reason links, boolean predicates, classifiers, dates, justifications, defining and normative sentences, conditions, and outside-standard names [record schema][record-schema]. The record infers an exemption only for names fixed by an outside standard. The [Gherkin reference][cucumber-docs-gherkin-reference] confirms the step words `Given`, `When`, `Then`, `And`, and `But`. The Gherkin reference also confirms `Rule`, `Background`, and `Examples`. The [CloudEvents specification][github-cloudevents-spec] text confirms `id`, `source`, `type`, and `specversion` as required. The CloudEvents text confirms `dataschema` and `subject` as optional.
 
-The normative list of classes lives on the language page. This record holds only the evidence that the list rests on. The record states no confidence for this division of work.
+The language page holds the normative list of classes, and this record holds only the evidence [record schema][record-schema].
 
 ## Source Notes
 
-The 248 count comes from a fresh script run over the current record schema on 31 October 2026. The run matches the schema this release carries. The script's definition counts per name are truncated in its output, so the record relied only on the shape lists.
+The [Gherkin reference][cucumber-docs-gherkin-reference] was read on 31 October 2026, including its keywords, `Rule`, and `Background` sections. Its index page notes an update on 27 October 2026.
 
-The consumer illustrations come second-hand from `research/field-naming-evidence`. That record measured them on 30 October 2026, over 434 scanned files and the largest consumer's built model. The Gherkin reference was read on 31 October 2026, including its keywords, Rule and Background sections. Its index page notes an update on 27 October 2026. The CloudEvents text was read as version 1.0.3-wip on the same date.
+The [CloudEvents specification][github-cloudevents-spec] text was read as version 1.0.3-wip on 31 October 2026.
 
-The record also read the glossary schema (`schemas/glossary.schema.yaml`) and the core model page (`docs/core/model.md`). It read them to check the layer, aliases and schema-version drift that `research/field-naming-evidence` reports. The record does not say which claim each source supports. It names no claim it could not confirm.
+The 248 count comes from a fresh script run over the current [record schema][record-schema] on 31 October 2026. The script output truncates definition counts per name, so the record relied only on the shape lists.
+
+The consumer illustrations come second-hand from [field naming evidence][field-naming-evidence]. It measured them on 30 October 2026 over 434 scanned files and the largest consumer built model.
+
+The record read the core [model page][model] to check the layer, aliases, and schema-version drift that `research/field-naming-evidence` reports.
+
+The record read the [glossary schema][glossary-schema] to check the layer, aliases, and schema-version drift that `research/field-naming-evidence` reports.
+
+[cucumber-docs-gherkin-reference]: https://cucumber.io/docs/gherkin/reference "Read on 2026-10-31"
+[github-cloudevents-spec]: https://github.com/cloudevents/spec "Read on 2026-10-31"
+[record-schema]: ../../../../schemas/record.schema.yaml "Read on 2026-10-31"
+[field-naming-evidence]: ../../../../docs/intent/research/field-naming-evidence/field-naming-evidence.md "Read on 2026-10-31"
+[model]: ../../../../docs/core/model.md "Read on 2026-10-31"
+[glossary-schema]: ../../../../schemas/glossary.schema.yaml "Read on 2026-10-31"

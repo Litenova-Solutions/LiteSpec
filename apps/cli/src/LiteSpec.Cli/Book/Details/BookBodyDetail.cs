@@ -7,19 +7,19 @@ namespace LiteSpec.Cli.Book.Details;
 ///     The explanation detail of one record: its explanation file rendered to HTML
 ///     with hash record links, split by section.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookBodyDetail
 {
-    /// <summary>Renders one record explanation to HTML with hash record links, split by section.</summary>
+    /// <summary>Renders one record explanation to HTML with hash record links, split into intro and sections.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="record">The record.</param>
-    /// <returns>The explanation HTML and its sections.</returns>
-    public static (string Html, JsonObject Sections) Render(BookIndex index, JsonObject record)
+    /// <returns>The intro and the sections. The whole page is never rendered: no view reads it.</returns>
+    public static JsonObject Render(BookIndex index, JsonObject record)
     {
         var explanation = WithoutTitle(BookRender.StrProp(record, "explanation") ?? "");
         (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
         Func<string, string?>? linkSource = string.Equals(BookRender.StrProp(record, "type"), "research", StringComparison.Ordinal)
-            ? key => SourceUrl(record, key)
+            ? name => SourceUrl(record, name)
             : null;
 
         string HtmlOf(string text) => BookMarkdown.Render(text, LinkRecord, linkSource);
@@ -35,11 +35,11 @@ static class BookBodyDetail
             });
         }
 
-        return (HtmlOf(explanation), new JsonObject
+        return new JsonObject
         {
             ["intro"] = HtmlOf(split.Intro),
             ["list"] = items,
-        });
+        };
     }
 
     /// <summary>Drops the leading title line of one explanation file, leaving the sections.</summary>
@@ -57,16 +57,16 @@ static class BookBodyDetail
         return newline < 0 ? "" : normalized[(newline + 1)..];
     }
 
-    /// <summary>One research source key as its URL, or null when the record names no URL source under the key.</summary>
+    /// <summary>One research source name as its URL, or null when the record names no URL source under the name.</summary>
     /// <param name="record">The record.</param>
-    /// <param name="key">The source key.</param>
+    /// <param name="name">The source name.</param>
     /// <returns>The source URL, or null.</returns>
-    static string? SourceUrl(JsonObject record, string key)
+    static string? SourceUrl(JsonObject record, string name)
     {
         foreach (var source in BookRender.Fields(record)?["sources"] as JsonArray ?? [])
         {
             if (source is JsonObject entry
-                && string.Equals(BookRender.StrProp(entry, "key"), key, StringComparison.Ordinal))
+                && string.Equals(BookRender.StrProp(entry, "name"), name, StringComparison.Ordinal))
             {
                 return BookRender.StrProp(entry, "url");
             }

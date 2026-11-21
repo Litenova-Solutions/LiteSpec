@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml'
+$id: 'https://litespec.dev/7.0.0/schemas/litespec-project.schema.yaml'
 title: LiteSpec Consumer Project
 type: object
 additionalProperties: false
@@ -65,7 +65,7 @@ properties:
         type: string
         minLength: 1
   size:
-    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, journeys and scenarios with the Acceptance project.
+    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, flows and scenarios with the Acceptance project.
     type: string
     enum:
     - small
@@ -95,7 +95,7 @@ properties:
       proof:
       - behavior
   explanations:
-    description: The record layers whose every record page carries an explanation file. Each entry is intent or behavior, the layers that hold record pages. A page on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional, except the article types, which always require one.
+    description: The record layers whose every record file carries an explanation file. Each entry is intent, behavior or governance. A record file on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional.
     type: object
     additionalProperties: false
     required:
@@ -110,6 +110,7 @@ properties:
           enum:
           - intent
           - behavior
+          - governance
   shape:
     description: 'The shape of this project: server for a project with a backend, client-only for a project with frontends and no backend. Defaults to server.'
     type: string
@@ -134,21 +135,18 @@ properties:
     type: object
     properties:
       dotnet:
-        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard expanding to the first matching folder.
+        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard; modules expands to every matching folder and the rest expand to the first matching folder.
         type: object
         additionalProperties: false
         properties:
           modules:
-            description: 'The modules project the model builder reads: every module with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/*.Modules. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.'
+            description: 'The module projects the model builder reads: one project per module under Modules/, each with its Domain, Application, Infrastructure and WebApi layers. Defaults to apps/api/src/Modules/*. A single project holding every module stays allowed as apps/api/src/*.Modules.'
             $ref: '#/$defs/projectPath'
-          sharedKernel:
-            description: 'The shared kernel project the model builder reads: what every module builds on and that names no module, where reasonless names are allowed. Defaults to apps/api/src/*.SharedKernel.'
+          kernel:
+            description: 'The Kernel project the model builder reads: the business values every module speaks, where reasonless names are allowed. Defaults to apps/api/src/*.Kernel.'
             $ref: '#/$defs/projectPath'
-          domain:
-            description: 'The Domain project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Domain with that extension and to none without it.'
-            $ref: '#/$defs/projectPath'
-          infrastructure:
-            description: 'The Infrastructure project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Infrastructure with that extension and to none without it.'
+          platform:
+            description: 'The Platform project the model builder reads: the technical capabilities with no business words. Defaults to apps/api/src/*.Platform.'
             $ref: '#/$defs/projectPath'
           webapi:
             description: The web API host projects, one path each.
@@ -203,9 +201,6 @@ properties:
           description: The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.
           type: string
           pattern: '^entry-point/[a-z0-9][a-z0-9-]*$'
-        refusalDictionary:
-          description: 'The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which refusal-sentence-missing reads.'
-          $ref: '#/$defs/projectPath'
         routeSuite:
           description: 'The route suite for this frontend: the file or folder the route-suite check reads.'
           $ref: '#/$defs/projectPath'
@@ -339,6 +334,10 @@ properties:
         items:
           type: string
           pattern: '^[a-z][a-z0-9-]*\.[a-z0-9-]*\{key\}[a-z0-9-]*$'
+  problemTypeBase:
+    description: The URI prefix of every problem type; a refusal code's problem type is this prefix followed by the code's part after its module, as RFC 9457 types.
+    type: string
+    pattern: '^https?://.+/$'
   reviewedLiteSpecVersion:
     description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1.
     type: string
@@ -414,11 +413,6 @@ properties:
         criterion:
           type: string
           minLength: 1
-        releaseStage:
-          description: 'The release stage the stage extension declares: pre-production until a deployment holds customer data, production after the promotion decision.'
-          enum:
-          - pre-production
-          - production
         decision:
           description: The identifier of the audit adoption decision the audit extension names.
           type: string
@@ -426,25 +420,11 @@ properties:
       allOf:
       - if:
           required:
-          - releaseStage
-        then:
-          properties:
-            id:
-              const: stage
-      - if:
-          required:
           - decision
         then:
           properties:
             id:
               const: audit
-      - if:
-          properties:
-            id:
-              const: stage
-        then:
-          required:
-          - releaseStage
 $defs:
   projectPath:
     type: string

@@ -226,7 +226,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
-            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n| `absent.md` | `docs/absent.md` | Renamed away. |\n");
+            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n| `absent.md` | `docs/absent.md` | Renamed away. |\n");
         },
         [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
@@ -238,7 +238,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
             StandardsFixture.Write(root, "templates/consumer/unlisted.md", "# Unlisted\n");
-            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
+            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
         [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
@@ -249,20 +249,34 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
-            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
+            StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
         [], [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
-    /// <summary>Field name carrying two shapes.</summary>
-    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
-    [Fact(DisplayName = "field name carrying two shapes")]
-    public void FieldNameCarryingTwoShapes() => Check(
+    /// <summary>Two record types sharing a field name with different shapes.</summary>
+    /// <proves>litespec/core/language#read-each-field-name-in-its-record-type</proves>
+    [Fact(DisplayName = "two record types sharing a field name with different shapes")]
+    public void TwoTypesSharingANameWithDifferentShapes() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"betaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
+
+    /// <summary>Plural record-type noun holding prose.</summary>
+    /// <proves>litespec/core/language#read-each-field-name-in-its-record-type</proves>
+    [Fact(DisplayName = "plural record-type noun holding prose")]
+    public void PluralRecordTypeNounHoldingProse() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.yaml",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"rules\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"ruleId\":{\"type\":\"string\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
         [MaintainerDiagnostics.Codes.FieldNameShape]);
@@ -457,7 +471,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
                 "\"reactionPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
-                "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"guard\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"note\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
                 "\"scenarioEntry\":{\"type\":\"object\",\"properties\":{\"exercises\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/ruleId\"}}}}," +
                 "\"aggregateId\":{\"type\":\"string\"}," +
@@ -506,7 +520,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"type\":\"goal\",\"id\":\"goal/<name>\",\"title\":\"<Goal display title>\"," +
                 "\"kind\":\"<a|b>\"}"));
         },
-        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
+        []);
 
     /// <summary>Consumer template breaking its record shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -565,17 +579,17 @@ public sealed partial class StandardsValidatorTests
                 "\"required\":[\"type\",\"id\"]," +
                 "\"properties\":{\"type\":{\"const\":\"screen\"}," +
                 "\"id\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
-                "\"address\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"route\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"host\":{\"$ref\":\"#/$defs/nonEmptyString\"}}," +
-                "\"oneOf\":[{\"required\":[\"address\"],\"not\":{\"required\":[\"host\"]}}," +
-                "{\"required\":[\"host\"],\"not\":{\"required\":[\"address\"]}}]}," +
+                "\"oneOf\":[{\"required\":[\"route\"],\"not\":{\"required\":[\"host\"]}}," +
+                "{\"required\":[\"host\"],\"not\":{\"required\":[\"route\"]}}]}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
             StandardsFixture.Write(root, "templates/consumer/screen.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"screen\",\"id\":\"screen/sample\"," +
-                "\"address\":\"<Route template, or remove this line and keep host>\"," +
+                "\"route\":\"<Route template, or remove this line and keep host>\"," +
                 "\"host\":\"screen/sample\"}"));
         },
-        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
+        []);
 
     /// <summary>Consumer template reading an enum under its shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -585,9 +599,9 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"eventPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"domainEventPage\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"type\",\"kind\"]," +
-                "\"properties\":{\"type\":{\"const\":\"event\"}," +
+                "\"properties\":{\"type\":{\"const\":\"domain-event\"}," +
                 "\"kind\":{\"enum\":[\"command\",\"query\"]}," +
                 "\"output\":{\"type\":\"object\"}}," +
                 "\"allOf\":[" +
@@ -595,8 +609,8 @@ public sealed partial class StandardsValidatorTests
                 "\"then\":{\"required\":[\"output\"]}}," +
                 "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"command\"}}}," +
                 "\"then\":{\"not\":{\"required\":[\"output\"]}}}]}}}");
-            StandardsFixture.Write(root, "templates/consumer/event.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"event\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
+            StandardsFixture.Write(root, "templates/consumer/domain-event.yaml", StandardsFixture.Yaml(
+                "{\"type\":\"domain-event\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
         },
         []);
 
@@ -612,7 +626,7 @@ public sealed partial class StandardsValidatorTests
                 "\"required\":[\"type\",\"batchSize\"]," +
                 "\"properties\":{\"type\":{\"const\":\"job\"}," +
                 "\"batchSize\":{\"type\":\"integer\"}," +
-                "\"retry\":{\"anyOf\":[{\"const\":\"none\"},{\"$ref\":\"#/$defs/retryPolicy\"}]}}}," +
+                "\"retry\":{\"$ref\":\"#/$defs/retryPolicy\"}}}," +
                 "\"retryPolicy\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"maxAttempts\"]," +
                 "\"properties\":{\"maxAttempts\":{\"type\":\"integer\",\"minimum\":1}}}}}");
@@ -662,13 +676,13 @@ public sealed partial class StandardsValidatorTests
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"triggeredBy\":{\"$ref\":\"#/$defs/reactionTriggeredBy\"}}}," +
                 "\"reactionId\":{\"type\":\"string\",\"pattern\":\"^reaction/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
-                "\"reactionTriggeredBy\":{\"type\":\"object\"}," +
+                "\"reactionTriggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
             StandardsFixture.Write(root, "templates/consumer/reaction.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"reaction\",\"id\":\"reaction/<module>.<name>\",\"title\":\"<Reaction display title>\"," +
-                "\"triggeredBy\":{}}"));
+                "\"triggeredBy\":[]}"));
         },
-        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
+        []);
 
     /// <summary>Consumer template carrying a job identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -690,35 +704,35 @@ public sealed partial class StandardsValidatorTests
                 "{\"type\":\"job\",\"id\":\"job/<module>.<name>\",\"title\":\"<Job display title>\"," +
                 "\"kind\":\"<scheduled|one-off|manual>\"}"));
         },
-        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
+        []);
 
-    /// <summary>Consumer template carrying a departure identifier.</summary>
+    /// <summary>Consumer template carrying a waiver identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact(DisplayName = "consumer template carrying a departure identifier")]
-    public void ConsumerTemplateWithDepartureId() => Check(
+    [Fact(DisplayName = "consumer template carrying a waiver identifier")]
+    public void ConsumerTemplateWithWaiverId() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"departurePage\":{\"type\":\"object\",\"additionalProperties\":false," +
-                "\"required\":[\"type\",\"id\",\"title\",\"covers\",\"reason\"]," +
-                "\"properties\":{\"type\":{\"const\":\"departure\"}," +
-                "\"id\":{\"$ref\":\"#/$defs/departureId\"}," +
+                "\"waiverPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"id\",\"title\",\"waives\",\"reason\"]," +
+                "\"properties\":{\"type\":{\"const\":\"waiver\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/waiverId\"}," +
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "" +
-                "\"covers\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
+                "\"waives\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
                 "\"reason\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"expiresOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
-                "\"departureId\":{\"type\":\"string\",\"pattern\":\"^departure/[a-z0-9][a-z0-9-]*$\"}," +
+                "\"waiverId\":{\"type\":\"string\",\"pattern\":\"^waiver/[a-z0-9][a-z0-9-]*$\"}," +
                 "\"findingCodeArray\":{\"type\":\"array\",\"minItems\":1,\"uniqueItems\":true,\"items\":{\"$ref\":\"#/$defs/findingCode\"}}," +
                 "\"findingCode\":{\"type\":\"string\",\"pattern\":\"^[a-z0-9]+(-[a-z0-9]+)*$\"}," +
                 "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/departure.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"departure\",\"id\":\"departure/<name>\",\"title\":\"<Departure display title>\"," +
-                "\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
+            StandardsFixture.Write(root, "templates/consumer/waiver.yaml", StandardsFixture.Yaml(
+                "{\"type\":\"waiver\",\"id\":\"waiver/<name>\",\"title\":\"<Waiver display title>\"," +
+                "\"waives\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
-        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
+        []);
 
     /// <summary>Consumer template carrying no record type.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -774,7 +788,7 @@ public sealed partial class StandardsValidatorTests
     {
         var error = Assert.Single(ValidateJson("{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}", "1.5"));
 
-        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string; shape 2: expected integer)", error);
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string)", error);
     }
 
     /// <summary>AnyOf names its shapes.</summary>
@@ -784,7 +798,75 @@ public sealed partial class StandardsValidatorTests
     {
         var error = Assert.Single(ValidateJson("{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"boolean\"}]}", "1"));
 
+        Assert.Equal("value.json: value matches none of the 2 allowed shapes (shape 1: expected string)", error);
+    }
+
+    /// <summary>OneOf lists every shape behind verbose.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf lists every shape behind verbose")]
+    public void OneOfListsEveryShapeBehindVerbose()
+    {
+        var error = Assert.Single(ValidateJson("{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}", "1.5", true));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string; shape 2: expected integer)", error);
+    }
+
+    /// <summary>AnyOf lists every shape behind verbose.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "anyOf lists every shape behind verbose")]
+    public void AnyOfListsEveryShapeBehindVerbose()
+    {
+        var error = Assert.Single(ValidateJson("{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"boolean\"}]}", "1", true));
+
         Assert.Equal("value.json: value matches none of the 2 allowed shapes (shape 1: expected string; shape 2: expected boolean)", error);
+    }
+
+    /// <summary>OneOf reports the shape the type names.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf reports the shape the type names")]
+    public void OneOfReportsTheShapeTheTypeNames()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"oneOf\":[{\"$ref\":\"#/$defs/a\"},{\"$ref\":\"#/$defs/b\"}],\"$defs\":{\"a\":{\"type\":\"object\",\"properties\":{\"type\":{\"const\":\"a\"},\"x\":{\"type\":\"string\"}},\"required\":[\"x\"],\"additionalProperties\":false},\"b\":{\"type\":\"object\",\"properties\":{\"type\":{\"const\":\"b\"},\"y\":{\"type\":\"string\"}},\"required\":[\"y\"],\"additionalProperties\":false}}}",
+            "{\"type\":\"b\"}"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 2: missing required property 'y')", error);
+    }
+
+    /// <summary>OneOf reports the shape a unique field names.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf reports the shape a unique field names")]
+    public void OneOfReportsTheShapeAUniqueFieldNames()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"oneOf\":[{\"type\":\"object\",\"properties\":{\"p\":{}},\"additionalProperties\":false},{\"type\":\"object\",\"properties\":{\"q\":{}},\"additionalProperties\":false}]}",
+            "{\"q\":1,\"z\":2}"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 2: unknown property 'z')", error);
+    }
+
+    /// <summary>OneOf reports the shape with the fewest errors.</summary>
+    /// <proves>litespec/core/model#report-one-shape-in-schema-errors</proves>
+    [Fact(DisplayName = "oneOf reports the shape with the fewest errors")]
+    public void OneOfReportsTheShapeWithTheFewestErrors()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"oneOf\":[{\"type\":\"object\",\"required\":[\"a\",\"b\",\"c\"]},{\"type\":\"object\",\"required\":[\"a\",\"d\"]}]}",
+            "{\"a\":1}"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 2: missing required property 'd')", error);
+    }
+
+    /// <summary>A rejected field names its replacement.</summary>
+    /// <proves>litespec/core/model#name-the-field-to-use-instead-in-schema-errors</proves>
+    [Fact(DisplayName = "rejected field names its replacement")]
+    public void RejectedFieldNamesItsReplacement()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"type\":\"object\",\"properties\":{\"a\":{}},\"additionalProperties\":false,\"x-rejected-fields\":{\"b\":\"Put b on the c record.\"}}",
+            "{\"a\":1,\"b\":2}"));
+
+        Assert.Equal("value.json/b: unknown property 'b'. Put b on the c record.", error);
     }
 
     /// <summary>Problems prefix the gate before the validation.</summary>
@@ -960,12 +1042,13 @@ public sealed partial class StandardsValidatorTests
     /// <summary>Validates one JSON value against one JSON schema.</summary>
     /// <param name="schemaJson">The schema text.</param>
     /// <param name="valueJson">The value text.</param>
+    /// <param name="verbose">Whether union failures list every rejected shape instead of the selected one.</param>
     /// <returns>The schema errors.</returns>
-    static List<string> ValidateJson(string schemaJson, string valueJson)
+    static List<string> ValidateJson(string schemaJson, string valueJson, bool verbose = false)
     {
         var schema = JsonNode.Parse(schemaJson)!;
         var errors = new List<string>();
-        JsonSchema.Validate(JsonNode.Parse(valueJson), schema, schema, "value.json", errors);
+        JsonSchema.Validate(JsonNode.Parse(valueJson), schema, schema, "value.json", errors, verbose);
         return errors;
     }
 }

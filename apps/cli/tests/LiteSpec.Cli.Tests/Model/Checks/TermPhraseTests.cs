@@ -2,7 +2,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the term-missing phrase extraction skips sentence breaks, codes, paths, tables and section names against the large fixture.</summary>
+/// <summary>Proves the term-missing phrase extraction skips sentence breaks, codes, paths, tables, section names, openers, months, currency codes, acronym pairs, cast names and wireframes against the large fixture.</summary>
 public sealed class TermPhraseTests
 {
     /// <summary>A phrase spanning a sentence stop, a colon or a semicolon is no recurring phrase.</summary>
@@ -141,6 +141,238 @@ public sealed class TermPhraseTests
         Assert.DoesNotContain("'Open Questions'", result.Output);
     }
 
+    /// <summary>A phrase opening with a sentence opener or function word is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void SentenceOpenerPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            When Archive Annex opens the team reviews it.
+            Otherwise Archive Annex stays closed.
+            With Archive Annex open the queue moves.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'When Archive Annex'", result.Output);
+        Assert.DoesNotContain("'Otherwise Archive Annex'", result.Output);
+        Assert.DoesNotContain("'With Archive Annex'", result.Output);
+    }
+
+    /// <summary>A phrase holding a month name is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void MonthPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews Archive January Review each quarter.
+            The team reviews January Archive Review each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Archive January Review'", result.Output);
+        Assert.DoesNotContain("'January Archive Review'", result.Output);
+    }
+
+    /// <summary>A phrase holding a currency code is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void CurrencyPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews Archive EUR Review each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Archive EUR Review'", result.Output);
+    }
+
+    /// <summary>A phrase holding two all-caps acronyms is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void AcronymPairPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews US AI Review each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'US AI Review'", result.Output);
+    }
+
+    /// <summary>A phrase holding one all-caps acronym names an outside standard, law or code, so it is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void SingleAcronymPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The desk checks Lowest WCAG Contrast each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Lowest WCAG Contrast'", result.Output);
+    }
+
+    /// <summary>Research, constraints and decisions quote outside sources by name, so a phrase they repeat is no product term.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void OutsideSourcePhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        const string Text = """
+            # Record
+
+            The library follows the Public Lending Charter for every loan.
+            """;
+        TestRecords.Explain(fixture.Path, ".litespec/intent/research/loan-period-benchmarks/loan-period-benchmarks.md", Text);
+        TestRecords.Explain(fixture.Path, ".litespec/intent/constraints/library-privacy-law/library-privacy-law.md", Text);
+        TestRecords.Explain(fixture.Path, ".litespec/intent/decisions/0001-loan-period/0001-loan-period.md", Text);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Public Lending Charter'", result.Output);
+    }
+
+    /// <summary>The same phrase repeated in product records is still reported, so the narrowing keeps the check.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void ProductRecordPhraseIsStillReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The library follows the Public Lending Charter for every loan.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.Contains("'Public Lending Charter'", result.Output);
+    }
+
+    /// <summary>A phrase holding a code-formatted cast name is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void CastCodeNamePhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        WriteCast(fixture.Path, """
+            ---
+            type: example-cast
+            title: Example Cast
+            ---
+
+            # Example Cast
+
+            The team uses `Marina` for expenses.
+            """);
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews Marina Archive Review each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Marina Archive Review'", result.Output);
+    }
+
+    /// <summary>A phrase holding a table cast name is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void CastTableValuePhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        WriteCast(fixture.Path, """
+            ---
+            type: example-cast
+            title: Example Cast
+            ---
+
+            # Example Cast
+
+            | Person | Actor | What they do here |
+            |:---|:---|:---|
+            | Marina | actor/marina | Files expenses. |
+            """);
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews Marina Archive Review each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Marina Archive Review'", result.Output);
+    }
+
+    /// <summary>A phrase holding a two-word cast name inside a longer phrase is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void CastNameInsideLongerPhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        WriteCast(fixture.Path, """
+            ---
+            type: example-cast
+            title: Example Cast
+            ---
+
+            # Example Cast
+
+            The team uses `Harbor Pine` for expenses.
+            """);
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews Harbor Pine Archive each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Harbor Pine Archive'", result.Output);
+    }
+
+    /// <summary>A phrase inside a wireframe block is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void WireframePhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            ```wireframe
+            page
+              header
+                heading "Archive Annex"
+            ```
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Archive Annex'", result.Output);
+    }
+
     /// <summary>A real repeated multi-word term with no glossary entry is still reported.</summary>
     /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
     [Fact]
@@ -167,5 +399,15 @@ public sealed class TermPhraseTests
         TestRecords.Explain(root, ".litespec/intent/actors/librarian/librarian.md", markdown);
         TestRecords.Explain(root, ".litespec/intent/actors/reader/reader.md", markdown);
         TestRecords.Explain(root, ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.md", markdown);
+    }
+
+    /// <summary>Writes the example cast file the term check reads for cast names.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="markdown">The example cast Markdown.</param>
+    static void WriteCast(string root, string markdown)
+    {
+        var path = Path.Combine(root, ".litespec", "example-cast.md");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, markdown);
     }
 }

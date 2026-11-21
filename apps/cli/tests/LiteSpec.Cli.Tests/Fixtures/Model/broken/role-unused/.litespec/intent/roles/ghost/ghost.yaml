@@ -1,0 +1,6 @@
+type: role
+id: role/ghost
+title: Ghost
+scope: self
+excludes:
+  - The ghost role grants no action outside ghost queues.

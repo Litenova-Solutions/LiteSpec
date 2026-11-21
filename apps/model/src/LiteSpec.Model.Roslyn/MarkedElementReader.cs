@@ -24,7 +24,7 @@ public static class MarkedElementReader
     /// </param>
     /// <param name="containingLayer">
     ///     The layer holding the tree, or null when unknown.
-    ///     A known layer matches beside the project, so a type in the one product project reads by its layer.
+    ///     A known layer matches beside the project, so a type in a module project reads by its layer.
     /// </param>
     /// <returns>The marked or markable elements, in document order.</returns>
     /// <exception cref="ArgumentNullException">The tree or context is null.</exception>

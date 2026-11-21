@@ -8,7 +8,7 @@ public sealed class HandlerAuditValueAnalyzerTests
 {
     /// <summary>LS2013 reports a target read from the message.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 reports a target read from the message")]
     public Task ReportsATargetReadFromTheMessage() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -29,11 +29,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.{|LS2013:WithTarget|}(command.LoanId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 reports a reason formatted from the message.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 reports a reason formatted from the message")]
     public Task ReportsAReasonFormattedFromTheMessage() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -54,11 +54,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.{|LS2013:WithReason|}($"Renewed by {command.ReaderName}");
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a target read from a loaded aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target read from a loaded aggregate")]
     public Task AcceptsATargetReadFromALoadedAggregate() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -92,11 +92,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                     audit.WithTarget(loan.Id);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a target read from a generated value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target read from a generated value")]
     public Task AcceptsATargetReadFromAGeneratedValue() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -120,11 +120,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                     audit.WithTarget(newId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a constant audit value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a constant audit value")]
     public Task AcceptsAConstantAuditValue() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -145,11 +145,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.WithTarget("loans");
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a message value in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a message value in a query handler")]
     public Task AcceptsAMessageValueInAQueryHandler() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -170,11 +170,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(ListLoansQuery query, IAuditScope audit) =>
                     audit.WithTarget(query.ReaderId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 accepts a target call on another receiver type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target call on another receiver type")]
     public Task AcceptsATargetCallOnAnotherReceiverType() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -194,11 +194,11 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, ITraceScope trace) =>
                     trace.WithTarget(command.LoanId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2013 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
+    /// <proves>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -219,5 +219,5 @@ public sealed class HandlerAuditValueAnalyzerTests
                 public void Handle(RenewLoanCommand command, IAuditScope audit) =>
                     audit.WithTarget(command.LoanId);
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

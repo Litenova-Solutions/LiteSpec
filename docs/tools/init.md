@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec init` starts a consumer repository from a preset, a ready-made selection of shape, stacks, frontends, and layer claims, or the records preset, which claims the record model with no stacks.
+`litespec init` starts a consumer repository from a preset: a ready-made selection of shape, stacks, frontends, and layer claims. The `records` preset claims Intent and Behavior only, with no stacks.
 
 ## Synopsis
 
@@ -12,15 +12,11 @@ litespec init --preset <name> --size <small|large> [--install <tool|standalone>]
 
 ## Description
 
-This command writes `.litespec/project.yaml` into the consumer root. It reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, writes the `layers` the preset declares, and then writes the project size, name, and `reviewedLiteSpecVersion`. A preset that names no stacks or no frontends writes a project with none, so a server project with no frontend omits `frontends`. It refuses to overwrite an existing project file.
+Run this command once in an empty folder, then validate the new project with `litespec model check`.
 
-It also copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the example cast at `.litespec/example-cast.md` into the LiteSpec folder, leaving existing files alone, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. A fresh `AGENTS.md` carries the `agent-protocol` generated region filled with the release, size, shape, stacks, layers, extensions, and selection index of the new project, and names the command that runs the CLI in the project. An existing `AGENTS.md` that holds no region gains the region after its first heading, or at the end when it holds no heading. The command never touches text outside the region, and it never rewrites a region that is already there; `litespec model render` rewrites the region.
+It writes `.litespec/project.yaml` into the consumer root: it reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, writes the `layers` the preset declares, then writes the project size, the name, and `reviewedLiteSpecVersion`.
 
-`--install` states how the project installs the CLI, as the [Install the CLI](../guide/install-the-cli.md) guide describes. With `tool`, the default, the command writes `.config/dotnet-tools.json` pinning the `LiteSpec.Cli` tool at the release, leaving an existing tool manifest alone, and the agent context runs the CLI as `dotnet litespec <command>`. With `standalone`, the project runs the native binary from the GitHub release as `litespec <command>`: the command writes no tool manifest, and `reviewedLiteSpecVersion` alone pins the release, which the install scripts read in the project root.
-
-With `--skill`, the command also installs the litespec skill for the named agents, one generated copy per agent from the carried release, as the [Skill](skill.md) page describes. At project scope each copy is stamped with the release. With `--skill-global`, the copies are written under the user's home instead and name no release; without `--skill` it installs the default agents. Without `--skill` and without `--skill-global`, the command installs nothing and prints the `skill add` command as its last line instead. A target that holds a folder this tool did not write is left alone and fails the run, and the project file stays written.
-
-When the root holds a `CLAUDE.md` that does not import `AGENTS.md`, the command prints a line saying so. Claude Code reads `AGENTS.md` only through that import.
+When a preset names no stacks or no frontends, the project file has neither: a server project without a frontend omits `frontends`. The command refuses to overwrite an existing project file.
 
 Five presets ship with the release:
 
@@ -34,7 +30,21 @@ Five presets ship with the release:
 
 The `records` preset claims `intent` and `behavior` in `layers` and names no stacks and no frontends. Every other preset keeps the layers of the template, which claims all four. Every written project file validates against `schemas/litespec-project.schema.yaml`.
 
-Run this command once in an empty folder, then run `litespec model check` to validate the new project.
+Beyond the project file, the command copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the example cast at `.litespec/example-cast.md`, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. Files that already exist are left alone.
+
+For a preset that writes the consumer scaffold, it also writes the six UI quality requirements of the consumer preset, one folder each under `.litespec/intent/requirements/<name>/`: `ui-text-contrast`, `ui-control-boundary`, `ui-focus-indicator`, `ui-chart-series`, `ui-reflow`, and `ui-target-size`. Each names a constraint or goal the project cites, with the measure and target its check proves.
+
+A fresh `AGENTS.md` carries the `agent-protocol` generated region, filled with the release, size, shape, stacks, layers, extensions, and selection index of the new project, and names the command that runs the CLI in the project. When an existing `AGENTS.md` holds no region, the command inserts one after its first heading, or at the end when it holds no heading. Text outside the region is never touched, and a region that is already there is never rewritten; `litespec model render` rewrites the region.
+
+`--install` states how the project installs the CLI, as the [Install the CLI](../guide/install-the-cli.md) guide describes. With `tool`, the default, the command writes `.config/dotnet-tools.json` pinning the `LiteSpec.Cli` tool at the release, unless a tool manifest already exists, and the agent context runs the CLI as `dotnet litespec <command>`. With `standalone`, the project runs the native binary from the GitHub release as `litespec <command>`: no tool manifest is written, and `reviewedLiteSpecVersion` alone pins the release for the install scripts in the project root to read.
+
+With `--skill`, the command also installs the litespec skill for the named agents, one generated copy per agent from the carried release, as the [Skill](skill.md) page describes. Each project-scope copy is stamped with the release. With `--skill-global`, the copies go under the user's home instead and name no release; without `--skill`, the default agents are installed.
+
+Without `--skill` and without `--skill-global`, nothing is installed: the command prints the `skill add` command as its last line instead.
+
+When a target holds a folder this tool did not write, that folder is left alone and the run fails, while the project file stays written.
+
+When the root holds a `CLAUDE.md` that does not import `AGENTS.md`, the command prints a line saying so, since Claude Code reads `AGENTS.md` only through that import.
 
 ## Arguments
 
@@ -56,7 +66,7 @@ None.
 ## Exit Codes
 
 | Code | Meaning |
-|:---|:---|
+|:--|:--|
 | `0` | The project file was written. |
 | `1` | The release holds no readable template, preset, scaffold file, skill file, or version, or a skill target holds a folder this tool did not write. |
 | `2` | The root folder is missing or invalid, the project file already exists, the preset, size, install, or agent is invalid, or an option is unknown, repeated, or empty. A usage error is reported before `--help` is honored. |
@@ -101,4 +111,6 @@ litespec init --preset dotnet-react --size small --root ./shop --skill agents --
 
 ## Underneath
 
-This command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. It copies the scaffold files from `templates/consumer/`, including the glossary as `.litespec/glossary.yaml`, the example cast as `.litespec/example-cast.md`, and `.litespec/.gitignore`, and writes `.config/dotnet-tools.json` for a tool install. It reads the `agent-protocol` region from `templates/consumer/project-agents.md`. With `--skill`, it reads the skill copies from `templates/skill/litespec/` in the same way the [Skill](skill.md) page states, and `LITESPEC_SKILL_HOME` points the global scope at another home folder. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.
+The command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. The scaffold files come from `templates/consumer/`: the glossary as `.litespec/glossary.yaml` and the example cast as `.litespec/example-cast.md`. The command writes `.litespec/.gitignore` with literal content listing the generated `model/` and `book/` folders. A tool install adds `.config/dotnet-tools.json`. The `agent-protocol` region comes from `templates/consumer/project-agents.md`.
+
+With `--skill`, the skill copies come from `templates/skill/litespec/` in the same way the [Skill](skill.md) page states, and `LITESPEC_SKILL_HOME` points the global scope at another home folder. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.

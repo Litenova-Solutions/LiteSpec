@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class ActCheckTests
 {
     /// <summary>Handler Calling No Marked Method Reports Use Case Act Uncalled.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerCallingNoMarkedMethodReportsUseCaseActUncalled()
     {
@@ -22,7 +22,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Handler Calling The Shared Method Passes.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerCallingTheSharedMethodPasses()
     {
@@ -32,10 +32,10 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
-    /// <summary>Fan Out Command With No Changes Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <summary>Fan Out Command With No Writes Reports Nothing.</summary>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
-    public void FanOutCommandWithNoChangesReportsNothing()
+    public void FanOutCommandWithNoWritesReportsNothing()
     {
         using var temp = WritePassConsumer();
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
@@ -43,19 +43,8 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.fan-out");
     }
 
-    /// <summary>Store Only Command Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
-    [Fact]
-    public void StoreOnlyCommandReportsNothing()
-    {
-        using var temp = WritePassConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
-
-        Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.record-scan");
-    }
-
     /// <summary>Entity Command Without A Called Act Still Reports.</summary>
-    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void EntityCommandWithoutACalledActStillReports()
     {
@@ -77,7 +66,7 @@ public sealed class ActCheckTests
         var finding = Assert.Single(undeclared);
         Assert.Equal("use-case/lending.renew-loan", finding.Subject);
         Assert.Contains("Loan.Borrow", finding.Message);
-        Assert.Contains("event/loan.loan-borrowed", finding.Message);
+        Assert.Contains("domain-event/loan.loan-borrowed", finding.Message);
     }
 
     /// <summary>Use Case Sharing The Method Reports No Undeclared For Its Listed Event.</summary>
@@ -101,7 +90,7 @@ public sealed class ActCheckTests
 
         var finding = Assert.Single(unraised);
         Assert.Equal("use-case/lending.renew-loan", finding.Subject);
-        Assert.Contains("event/loan.loan-renewed", finding.Message);
+        Assert.Contains("domain-event/loan.loan-renewed", finding.Message);
     }
 
     /// <summary>Use Case Whose Shared Method Raises Its Event Reports No Unraised.</summary>
@@ -138,7 +127,506 @@ public sealed class ActCheckTests
         Assert.Contains("Loan.Borrow", finding.Message);
     }
 
-    /// <summary>Writes a consumer where an entity command, a fan-out with no changes, and a store-only command each have a handler calling nothing.</summary>
+    /// <summary>Handler Loading Through ConfigureAwait And Calling Through A Helper Or Loop Reports Nothing.</summary>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    [Fact]
+    public void HandlerLoadingThroughConfigureAwaitReportsNothing()
+    {
+        using var temp = WriteModuleConsumer();
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
+
+        var finding = Assert.Single(uncalled);
+        Assert.Equal("use-case/lending.abandon-loan", finding.Subject);
+    }
+
+    /// <summary>Writes a consumer in the module layout where three handlers call the marked act through an awaited load, a helper parameter, and a loop, and one calls nothing.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WriteModuleConsumer()
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  },
+                  "vocabulary": {
+                    "verbs": [
+                      "borrow",
+                      "renew",
+                      "expire",
+                      "abandon"
+                    ]
+                  }
+                }
+                """);
+            Write(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml", """
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.loan",
+                  "title": "Loan",
+                  "states": [
+                    {
+                      "name": "Active",
+                      "meaning": "The loan is open."
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.md", """
+                # Loan
+
+                A loan lends one copy to one reader.
+                """);
+            foreach (var (useCase, title) in new[] { ("borrow-copy", "Borrow copy"), ("renew-loan", "Renew loan"), ("expire-loans", "Expire loans"), ("abandon-loan", "Abandon loan") })
+            {
+                TestRecords.Write(temp.Path, $".litespec/behavior/modules/lending/aggregates/loans/{useCase}.yaml", """
+                    {
+                      "type": "use-case",
+                      "id": "use-case/lending.USECASE",
+                      "title": "TITLE",
+                      "owner": "lending-team",
+                      "status": "reviewed",
+                      "kind": "command",
+                      "writes": [
+                        "aggregate/lending.loan"
+                      ],
+                      "records": [
+                        {
+                          "type": "result",
+                          "id": "result/USECASE.done",
+                          "title": "Done",
+                          "owner": "lending-team",
+                          "outcome": "success",
+                          "meaning": "The copy is handled."
+                        }
+                      ]
+                    }
+                    """.Replace("USECASE", useCase).Replace("TITLE", title));
+                TestRecords.Explain(temp.Path, $".litespec/behavior/modules/lending/aggregates/loans/{useCase}.md", $"""
+                    # {title}
+
+                    A reader handles a copy.
+                    """);
+            }
+
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loan/Loan.cs", """
+                namespace Library.Lending.Domain.Loan;
+
+                /// <implements>aggregate/lending.loan</implements>
+                public sealed class Loan : AggregateRoot<LoanId>
+                {
+                    public string State { get; private set; } = "active";
+
+                    /// <implements>use-case/lending.borrow-copy</implements>
+                    public void Borrow()
+                    {
+                        State = "borrowed";
+                    }
+
+                    /// <implements>use-case/lending.renew-loan</implements>
+                    public void Renew()
+                    {
+                        State = "renewed";
+                    }
+
+                    /// <implements>use-case/lending.expire-loans</implements>
+                    public void Expire()
+                    {
+                        State = "expired";
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
+
+                /// <implements>use-case/lending.borrow-copy</implements>
+                public sealed class BorrowCopyCommandHandler
+                    : ICommandHandler<BorrowCopyCommand, BorrowCopyCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public BorrowCopyCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public async Task<BorrowCopyCommandResult> HandleAsync(BorrowCopyCommand command, CancellationToken cancellationToken)
+                    {
+                        var loan = await loanRepository.FindByIdAsync(command.CopyId, cancellationToken).ConfigureAwait(false);
+                        loan.Borrow();
+                        return new BorrowCopyCommandResult(command.CopyId);
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewLoan/RenewLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.RenewLoan;
+
+                /// <implements>use-case/lending.renew-loan</implements>
+                public sealed class RenewLoanCommandHandler
+                    : ICommandHandler<RenewLoanCommand, RenewLoanCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public RenewLoanCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public async Task<RenewLoanCommandResult> HandleAsync(RenewLoanCommand command, CancellationToken cancellationToken)
+                    {
+                        var loan = await loanRepository.FindByIdAsync(command.CopyId, cancellationToken).ConfigureAwait(false);
+                        RenewOne(loan);
+                        return new RenewLoanCommandResult(command.CopyId);
+                    }
+
+                    private void RenewOne(Loan loan)
+                    {
+                        loan.Renew();
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/ExpireLoans/ExpireLoansCommandHandler.cs", """
+                namespace Library.Lending.Application.ExpireLoans;
+
+                /// <implements>use-case/lending.expire-loans</implements>
+                public sealed class ExpireLoansCommandHandler
+                    : ICommandHandler<ExpireLoansCommand, ExpireLoansCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public ExpireLoansCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public async Task<ExpireLoansCommandResult> HandleAsync(ExpireLoansCommand command, CancellationToken cancellationToken)
+                    {
+                        var loans = await loanRepository.FindExpirableAsync(cancellationToken).ConfigureAwait(false);
+                        foreach (var loan in loans)
+                        {
+                            loan.Expire();
+                        }
+
+                        return new ExpireLoansCommandResult(loans.Count);
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/AbandonLoan/AbandonLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.AbandonLoan;
+
+                /// <implements>use-case/lending.abandon-loan</implements>
+                public sealed class AbandonLoanCommandHandler
+                    : ICommandHandler<AbandonLoanCommand, AbandonLoanCommandResult>
+                {
+                    public Task<AbandonLoanCommandResult> HandleAsync(AbandonLoanCommand command, CancellationToken cancellationToken)
+                    {
+                        return Task.FromResult(new AbandonLoanCommandResult(command.CopyId));
+                    }
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>Handler Loading Through A Fallback, A List Load, An Aliased Factory, Or A Factory Result Reports Nothing.</summary>
+    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    [Fact]
+    public void HandlerLoadingThroughFallbackListAliasOrFactoryReportsNothing()
+    {
+        using var temp = WriteLoadConsumer();
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
+
+        Assert.Empty(uncalled);
+    }
+
+    /// <summary>Writes a consumer in the module layout where four handlers call the marked act through a coalesced load, a listed load, an aliased factory, and a factory result.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WriteLoadConsumer()
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  },
+                  "vocabulary": {
+                    "verbs": [
+                      "borrow",
+                      "renew",
+                      "open",
+                      "close"
+                    ]
+                  }
+                }
+                """);
+            Write(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml", """
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.loan",
+                  "title": "Loan",
+                  "states": [
+                    {
+                      "name": "Active",
+                      "meaning": "The loan is open."
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.md", """
+                # Loan
+
+                A loan lends one copy to one reader.
+                """);
+            foreach (var (useCase, title) in new[] { ("borrow-copy", "Borrow copy"), ("renew-loan", "Renew loan"), ("open-loan", "Open loan"), ("close-loan", "Close loan") })
+            {
+                TestRecords.Write(temp.Path, $".litespec/behavior/modules/lending/aggregates/loans/{useCase}.yaml", """
+                    {
+                      "type": "use-case",
+                      "id": "use-case/lending.USECASE",
+                      "title": "TITLE",
+                      "owner": "lending-team",
+                      "status": "reviewed",
+                      "kind": "command",
+                      "writes": [
+                        "aggregate/lending.loan"
+                      ],
+                      "records": [
+                        {
+                          "type": "result",
+                          "id": "result/USECASE.done",
+                          "title": "Done",
+                          "owner": "lending-team",
+                          "outcome": "success",
+                          "meaning": "The copy is handled."
+                        }
+                      ]
+                    }
+                    """.Replace("USECASE", useCase).Replace("TITLE", title));
+                TestRecords.Explain(temp.Path, $".litespec/behavior/modules/lending/aggregates/loans/{useCase}.md", $"""
+                    # {title}
+
+                    A reader handles a copy.
+                    """);
+            }
+
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loan/Loan.cs", """
+                namespace Library.Lending.Domain.Loan;
+
+                /// <implements>aggregate/lending.loan</implements>
+                public sealed class Loan : AggregateRoot<LoanId>
+                {
+                    public string State { get; private set; } = "active";
+
+                    /// <implements>use-case/lending.open-loan</implements>
+                    public static Loan Open(LoanId id)
+                    {
+                        return new Loan();
+                    }
+
+                    private Loan()
+                    {
+                    }
+
+                    /// <implements>use-case/lending.borrow-copy</implements>
+                    public void Borrow()
+                    {
+                        State = "borrowed";
+                    }
+
+                    /// <implements>use-case/lending.renew-loan</implements>
+                    public void Renew()
+                    {
+                        State = "renewed";
+                    }
+
+                    /// <implements>use-case/lending.close-loan</implements>
+                    public void Close()
+                    {
+                        State = "closed";
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
+
+                /// <implements>use-case/lending.borrow-copy</implements>
+                public sealed class BorrowCopyCommandHandler
+                    : ICommandHandler<BorrowCopyCommand, BorrowCopyCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public BorrowCopyCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public async Task<BorrowCopyCommandResult> HandleAsync(BorrowCopyCommand command, CancellationToken cancellationToken)
+                    {
+                        var loan = await loanRepository.FindByIdAsync(command.CopyId, cancellationToken).ConfigureAwait(false)
+                            ?? throw new LoanNotFoundException(command.CopyId);
+                        loan.Borrow();
+                        return new BorrowCopyCommandResult(command.CopyId);
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewLoan/RenewLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.RenewLoan;
+
+                /// <implements>use-case/lending.renew-loan</implements>
+                public sealed class RenewLoanCommandHandler
+                    : ICommandHandler<RenewLoanCommand, RenewLoanCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public RenewLoanCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public async Task<RenewLoanCommandResult> HandleAsync(RenewLoanCommand command, CancellationToken cancellationToken)
+                    {
+                        var loans = await loanRepository.ListActiveAsync(cancellationToken).ConfigureAwait(false);
+                        foreach (var loan in loans)
+                        {
+                            loan.Renew();
+                        }
+
+                        return new RenewLoanCommandResult(loans.Count);
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/OpenLoan/OpenLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.OpenLoan;
+
+                using LoanAggregate = Library.Lending.Domain.Loan.Loan;
+
+                /// <implements>use-case/lending.open-loan</implements>
+                public sealed class OpenLoanCommandHandler
+                    : ICommandHandler<OpenLoanCommand, OpenLoanCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public OpenLoanCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public Task<OpenLoanCommandResult> HandleAsync(OpenLoanCommand command, CancellationToken cancellationToken)
+                    {
+                        var loan = LoanAggregate.Open(command.CopyId);
+                        loanRepository.Stage(loan);
+                        return Task.FromResult(new OpenLoanCommandResult(command.CopyId));
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/CloseLoan/CloseLoanCommandHandler.cs", """
+                namespace Library.Lending.Application.CloseLoan;
+
+                /// <implements>use-case/lending.close-loan</implements>
+                public sealed class CloseLoanCommandHandler
+                    : ICommandHandler<CloseLoanCommand, CloseLoanCommandResult>
+                {
+                    private readonly ILoanRepository loanRepository;
+
+                    public CloseLoanCommandHandler(ILoanRepository loanRepository)
+                    {
+                        this.loanRepository = loanRepository;
+                    }
+
+                    public async Task<CloseLoanCommandResult> HandleAsync(CloseLoanCommand command, CancellationToken cancellationToken)
+                    {
+                        var loan = await loanRepository.FindByIdAsync(command.CopyId, cancellationToken).ConfigureAwait(false)
+                            ?? throw new LoanNotFoundException(command.CopyId);
+                        var chain = Loan.OpenChain(loan.Id);
+                        chain.Close();
+                        loanRepository.Stage(loan);
+                        return new CloseLoanCommandResult(command.CopyId);
+                    }
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>Writes a consumer where an entity command and a fan-out with no changes each have a handler calling nothing.</summary>
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WritePassConsumer()
     {
@@ -157,7 +645,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "7.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -172,17 +660,14 @@ public sealed class ActCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
                     "verbs": [
                       "borrow",
-                      "fan",
-                      "record"
+                      "fan"
                     ]
                   }
                 }
@@ -197,9 +682,6 @@ public sealed class ActCheckTests
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
                   "title": "Loan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "entity",
                   "states": [
                     {
                       "name": "Active",
@@ -213,21 +695,6 @@ public sealed class ActCheckTests
 
                 A loan lends one copy to one reader.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.yaml", """
-                {
-                  "type": "aggregate",
-                  "id": "aggregate/lending.outbox",
-                  "title": "Outbox",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "store"
-                }
-                """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.md", """
-                # Outbox
-
-                The lending-owned table of scans awaiting dispatch.
-                """);
             TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml", """
                 {
                   "type": "use-case",
@@ -236,7 +703,7 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.loan"
                   ],
                   "records": [
@@ -264,12 +731,6 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "effects": [
-                    {
-                      "runs": "use-case/lending.borrow-copy",
-                      "timing": "after-commit"
-                    }
-                  ],
                   "records": [
                     {
                       "type": "result",
@@ -287,43 +748,15 @@ public sealed class ActCheckTests
 
                 A pass issues one borrow command per record.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/record-scan.yaml", """
-                {
-                  "type": "use-case",
-                  "id": "use-case/lending.record-scan",
-                  "title": "Record scan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "command",
-                  "changes": [
-                    "aggregate/lending.outbox"
-                  ],
-                  "records": [
-                    {
-                      "type": "result",
-                      "id": "result/record-scan.recorded",
-                      "title": "Recorded",
-                      "owner": "lending-team",
-                      "outcome": "success",
-                      "meaning": "The scan is recorded."
-                    }
-                  ]
-                }
-                """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/record-scan.md", """
-                # Record scan
-
-                A kiosk records each scan attempt.
-                """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommand.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommand.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 public sealed record BorrowCopyCommand(Guid CopyId);
 
                 public sealed record BorrowCopyCommandResult(Guid CopyId);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs", """
-                namespace Library.Application.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
 
                 /// <implements>use-case/lending.borrow-copy</implements>
                 public sealed class BorrowCopyCommandHandler
@@ -335,15 +768,15 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/FanOut/FanOutCommand.cs", """
-                namespace Library.Application.Lending.Loans.FanOut;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/FanOut/FanOutCommand.cs", """
+                namespace Library.Lending.Application.FanOut;
 
                 public sealed record FanOutCommand;
 
                 public sealed record FanOutCommandResult(int Issued);
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/FanOut/FanOutCommandHandler.cs", """
-                namespace Library.Application.Lending.Loans.FanOut;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/FanOut/FanOutCommandHandler.cs", """
+                namespace Library.Lending.Application.FanOut;
 
                 /// <implements>use-case/lending.fan-out</implements>
                 public sealed class FanOutCommandHandler
@@ -355,27 +788,6 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Outbox/RecordScan/RecordScanCommand.cs", """
-                namespace Library.Application.Lending.Outbox.RecordScan;
-
-                public sealed record RecordScanCommand(string Barcode);
-
-                public sealed record RecordScanCommandResult(string Barcode);
-                """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Outbox/RecordScan/RecordScanCommandHandler.cs", """
-                namespace Library.Application.Lending.Outbox.RecordScan;
-
-                /// <implements>use-case/lending.record-scan</implements>
-                public sealed class RecordScanCommandHandler
-                    : ICommandHandler<RecordScanCommand, RecordScanCommandResult>
-                {
-                    public Task<RecordScanCommandResult> HandleAsync(RecordScanCommand command, CancellationToken cancellationToken)
-                    {
-                        return Task.FromResult(new RecordScanCommandResult(command.Barcode));
-                    }
-                }
-                """);
-
             return temp;
         }
         catch
@@ -404,7 +816,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "7.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -419,10 +831,8 @@ public sealed class ActCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -446,9 +856,9 @@ public sealed class ActCheckTests
                   "status": "reviewed",
                   "kind": "command",
                   "raises": [
-                    "event/loan.loan-borrowed"
+                    "domain-event/loan.loan-borrowed"
                   ],
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.loan"
                   ],
                   "records": [
@@ -473,8 +883,6 @@ public sealed class ActCheckTests
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
                   "title": "Loan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
                   "states": [
                     {
                       "name": "Active",
@@ -483,8 +891,8 @@ public sealed class ActCheckTests
                   ],
                   "records": [
                     {
-                      "type": "event",
-                      "id": "event/loan.loan-borrowed",
+                      "type": "domain-event",
+                      "id": "domain-event/loan.loan-borrowed",
                       "title": "Loan borrowed",
                       "owner": "lending-team",
                       "status": "reviewed",
@@ -501,8 +909,8 @@ public sealed class ActCheckTests
 
                 A loan lends one copy to one reader.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Loan.cs", """
-                namespace Library.Domain.Lending.Loans;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Loan.cs", """
+                namespace Library.Lending.Domain.Loans;
 
                 /// <implements>aggregate/lending.loan</implements>
                 public sealed class Loan : AggregateRoot<LoanId>
@@ -515,10 +923,10 @@ public sealed class ActCheckTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs", """
-                namespace Library.Domain.Lending.Loans.Events;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs", """
+                namespace Library.Lending.Domain.Loans.Events;
 
-                /// <implements>event/loan.loan-borrowed</implements>
+                /// <implements>domain-event/loan.loan-borrowed</implements>
                 public sealed record LoanBorrowedEvent(Guid LoanId, Guid ReaderId, DateOnly DueDate) : IDomainEvent;
                 """);
 

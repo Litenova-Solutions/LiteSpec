@@ -6,3 +6,5 @@ statement: A loan lasts 21 days.
 rationale: Three weeks lets most readers finish while copies keep moving.
 cites:
 - decision/0001-loan-period
+basedOn:
+- decision/0001-loan-period

@@ -23,7 +23,7 @@ public sealed class ProvisionsCommandTests
     {
         using var temp = Cli.Temp("provisions");
         StandardsFixture.Base(temp.Path);
-        StandardsFixture.Write(temp.Path, Provisions.IndexPath, "# Provision Index\n\n## Intent\n\nThis page is out of date.\n");
+        StandardsFixture.Write(temp.Path, Provisions.IndexPath, "# Provision Index\n\nThis page is out of date.\n");
         var result = Cli.Run("provisions", "--check", "--root", temp.Path);
         Assert.Equal(1, result.Status);
     }

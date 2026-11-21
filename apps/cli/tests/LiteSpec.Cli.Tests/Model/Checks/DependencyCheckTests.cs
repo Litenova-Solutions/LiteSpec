@@ -161,7 +161,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "6.0.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@6.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "7.0.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@7.0.0")));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -185,7 +185,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("nuget:LiteSpec.Analyzers", finding);
         Assert.Contains("5.1.1", finding);
         Assert.Contains("differs from its manifest pin", finding);
-        Assert.Contains("6.0.0", finding);
+        Assert.Contains("7.0.0", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
@@ -529,7 +529,7 @@ public sealed class DependencyCheckTests
     }
 
     static void WriteFollower(string root) =>
-        Write(root, "apps/api/src/Library.Application/Lending/Loans/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
+        Write(root, "apps/api/src/Modules/Library.Lending/Application/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
 
     static void Write(string root, string relative, string text)
     {

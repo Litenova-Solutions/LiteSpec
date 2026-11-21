@@ -45,7 +45,11 @@ public sealed class BookViewsTests
         foreach (var id in details.Keys)
         {
             Assert.Contains(id, searchIds);
-            if (unplaced.Contains(id))
+            if (id == "product/library")
+            {
+                Assert.False(ancestors.ContainsKey(id), $"{id} holds an outline node.");
+            }
+            else if (unplaced.Contains(id))
             {
                 Assert.False(ancestors.ContainsKey(id), $"{id} is unplaced but holds an outline node.");
             }
@@ -55,11 +59,12 @@ public sealed class BookViewsTests
             }
         }
 
-        Assert.Equal(details.Count - unplaced.Count, ancestors.Count);
+        // The product holds no outline node, so the outline holds every other detail.
+        Assert.Equal(details.Count - unplaced.Count - 1, ancestors.Count);
 
         // Each detail parent agrees with the outline nesting: under its parent record,
-        // or under a group when the product parents it outside Intent. An unplaced
-        // record has no node at all.
+        // or at the top of its own layer when the product parents it. An unplaced
+        // record has no node at all, and neither does the product.
         foreach (var pair in details)
         {
             var parent = Str(pair.Value, "parent");
@@ -67,7 +72,7 @@ public sealed class BookViewsTests
             {
                 if (pair.Key == "product/library")
                 {
-                    Assert.Null(ancestors[pair.Key]);
+                    Assert.False(ancestors.ContainsKey(pair.Key), $"{pair.Key} holds an outline node.");
                 }
                 else
                 {
@@ -78,6 +83,11 @@ public sealed class BookViewsTests
             else if (parent == "product/library" && TopsItsLayer(Str(pair.Value, "type")))
             {
                 Assert.Null(ancestors[pair.Key]);
+            }
+            else if (string.Equals(Str(pair.Value, "type"), "scenario", StringComparison.Ordinal) && ResultOf(pair.Value) is { } shown)
+            {
+                // A use-case scenario groups under the result it shows, not under its use case.
+                Assert.Equal(shown, ancestors[pair.Key]);
             }
             else
             {
@@ -91,9 +101,9 @@ public sealed class BookViewsTests
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.borrow-copy"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.return-copy"], "parent"));
         Assert.Equal("use-case/lending.borrow-copy", Str(details["result/borrow-copy.borrowed"], "parent"));
-        Assert.Equal("result/borrow-copy.borrowed", Str(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "parent"));
+        Assert.Equal("use-case/lending.borrow-copy", Str(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["rule/loan.one-loan-per-copy"], "parent"));
-        Assert.Equal("aggregate/lending.loan", Str(details["event/loan.loan-due"], "parent"));
+        Assert.Equal("aggregate/lending.loan", Str(details["domain-event/loan.loan-due"], "parent"));
         var reactions = details.Keys.Where(id => Str(details[id], "type") == "reaction").ToList();
         Assert.NotEmpty(reactions);
         foreach (var reactionId in reactions)
@@ -107,14 +117,17 @@ public sealed class BookViewsTests
             Assert.Equal("module/lending", Str(details[jobId], "parent"));
         }
         Assert.Equal("entry-point/library-app", Str(details["screen/library-app.search"], "parent"));
-        Assert.Equal("module/lending", Str(details["integration-event/loan-borrowed"], "parent"));
-        Assert.Equal("product/library", Str(details["journey/borrowing"], "parent"));
+        Assert.Equal("aggregate/lending.loan", Str(details["integration-event/loan-borrowed"], "parent"));
+        Assert.Equal("product/library", Str(details["flow/borrowing"], "parent"));
 
         // Group nodes carry their layer and type; record nodes carry their records shard.
-        // The journey nests under the product, so it leaves no group behind.
-        Assert.Null(TryFindNode(tops, "intent/journey"));
-        var roleGroup = FindNode(tops, "behavior/role");
-        Assert.Equal("group", Str(roleGroup, "kind"));
+        // Each intent record type groups under its own plural label.
+        var flows = FindNode(tops, "intent/flow");
+        Assert.Equal("group", Str(flows, "kind"));
+        Assert.Equal("Flows", Str(flows, "label"));
+        var roles = FindNode(tops, "intent/role");
+        Assert.Equal("group", Str(roles, "kind"));
+        Assert.Equal("Roles", Str(roles, "label"));
         foreach (var top in tops)
         {
             foreach (var node in RecordsUnder(top))
@@ -148,25 +161,24 @@ public sealed class BookViewsTests
         Assert.Equal("test", Str(test, "kind"));
         Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", parents["test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds"]);
 
-        var finding = FindNode(tops, "finding/1");
+        var finding = FindNode(tops, "use-case/lending.return-copy#finding-1");
         Assert.Equal("finding", Str(finding, "kind"));
-        Assert.Equal("use-case/lending.return-copy", parents["finding/1"]);
+        Assert.Equal("use-case/lending.return-copy", parents["use-case/lending.return-copy#finding-1"]);
 
-        var known = FindNode(tops, "finding/2");
+        var known = FindNode(tops, "flow/borrowing#finding-1");
         Assert.Equal("finding", Str(known, "kind"));
-        Assert.Equal("journey/borrowing", parents["finding/2"]);
+        Assert.Equal("flow/borrowing", parents["flow/borrowing#finding-1"]);
     }
 
     /// <summary>A record detail renders its explanation as text: headings, spans, lists, tables, code and quotes.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RecordExplanationRendersAsEscapedHtmlWithSections()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var loan = ReadRecords(Path.Combine(temp.Path, "data"))["aggregate/lending.loan"];
-        var html = Str(loan, "bodyHtml") ?? "";
-        Assert.Contains("<h3 id=\"body-bounds\">Bounds</h3>", html, StringComparison.Ordinal);
+        var html = BodyOf(loan);
         Assert.Contains("<strong>one copy</strong>", html, StringComparison.Ordinal);
         Assert.Contains("<em>one member</em>", html, StringComparison.Ordinal);
         Assert.Contains("<code>three weeks</code>", html, StringComparison.Ordinal);
@@ -178,8 +190,8 @@ public sealed class BookViewsTests
         Assert.Contains("<blockquote>", html, StringComparison.Ordinal);
         Assert.Contains("<hr>", html, StringComparison.Ordinal);
         Assert.Contains("href=\"#use-case/lending.borrow-copy\"", html, StringComparison.Ordinal);
-        Assert.Contains("<span class=\"reviewer-only\">Borrow Copy</span>", html, StringComparison.Ordinal);
-        Assert.Contains("<span class=\"dev-only mono\">use-case/lending.borrow-copy</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<a href=\"#use-case/lending.borrow-copy\" title=\"use-case/lending.borrow-copy\">Borrow Copy</a>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Borrow Copyuse-case/lending.borrow-copy", html, StringComparison.Ordinal);
         Assert.DoesNotContain("## Bounds", html, StringComparison.Ordinal);
 
         var sections = Obj(loan, "sections");
@@ -191,19 +203,19 @@ public sealed class BookViewsTests
     }
 
     /// <summary>An explanation can never inject markup: angle brackets escape inside code spans.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RecordExplanationEscapesMarkup()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
-        var html = Str(ReadRecords(Path.Combine(temp.Path, "data"))["runbook/overdue-notice"], "bodyHtml") ?? "";
+        var html = BodyOf(ReadRecords(Path.Combine(temp.Path, "data"))["runbook/overdue-notice"]);
         Assert.Contains("<code>&lt;code&gt;LOAN-1&lt;/code&gt;</code>", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<code>LOAN-1</code>", html, StringComparison.Ordinal);
     }
 
     /// <summary>No shard falls back to raw JSON: no object dumps and no raw JSON blocks anywhere.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NoShardHoldsRawJsonOrObjectDumps()
     {
@@ -218,7 +230,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>An aggregate detail carries its lifecycle fields and its reachable states.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void AggregateDetailCarriesLifecycleFieldsAndReachableStates()
     {
@@ -235,7 +247,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A scenario detail carries its Given, When and Then sentences with examples and proof.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ScenarioDetailCarriesSentencesExamplesAndProof()
     {
@@ -336,40 +348,35 @@ public sealed class BookViewsTests
         var links = ReadShard(Path.Combine(data, "lexicon.js"), "lexicon")["links"]!.AsArray();
 
         Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "use-case"));
-        Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "journey"));
+        Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "flow"));
         Assert.Equal(("advances", "is advanced by"), Phrases(links, "advances", "feature"));
         Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "requirement"));
-        Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "journey"));
+        Assert.Equal(("answers", "is answered by"), Phrases(links, "answers", "flow"));
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
-        Assert.Equal(("answers", "is answered by"), Phrases(links, "folder", "feature"));
-        Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "journey"));
-        Assert.Equal(("acts as", "is acted as by"), Phrases(links, "actor", "external-system"));
+        Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "flow"));
+        Assert.Equal(("is triggered by", "triggers"), Phrases(links, "triggeredBy", "reaction"));
 
         // Each edge key below joins to its row by the field after the carrier prefix.
         // A nested key joins when a row names the key or its longest dotted prefix.
         var eventReaction = details.Keys.First(id =>
             Str(details[id], "type") == "reaction"
-            && HasEdge(Arr(details[id], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "journey/borrowing", "use-case.serves"));
+            && HasEdge(Arr(details[id], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "step/borrowing.borrow-copy", "use-case.serves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.True(HasEdge(Arr(details["requirement/self-checkout.max-wait"], "out"), "feature/self-checkout", "requirement.cites"));
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "out"), "requirement/self-checkout.max-wait", "journey.cites"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "use-case/lending.borrow-copy", "rule.governs"));
-        Assert.True(HasEdge(Arr(details["decision/self-checkout-kiosk"], "out"), "feature/self-checkout", "decision.decides"));
-        Assert.True(HasEdge(Arr(details[eventReaction], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "out"), "actor/member", "journey.actor"));
-        Assert.True(HasEdge(Arr(details["external-system/fine-payments"], "out"), "actor/member", "external-system.actor"));
+        Assert.True(HasEdge(Arr(details["decision/self-checkout-kiosk"], "out"), "research/member-survey", "decision.basedOn"));
+        Assert.True(HasEdge(Arr(details[eventReaction], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
+        Assert.True(HasEdge(Arr(details["flow/borrowing"], "out"), "actor/member", "flow.actor"));
         foreach (var (key, carrier) in new[]
         {
             ("use-case.serves", "use-case"),
             ("feature.advances", "feature"),
             ("requirement.cites", "requirement"),
-            ("journey.cites", "journey"),
             ("rule.governs", "rule"),
-            ("decision.decides", "decision"),
+            ("decision.basedOn", "decision"),
             ("reaction.triggeredBy", "reaction"),
-            ("journey.actor", "journey"),
-            ("external-system.actor", "external-system"),
+            ("flow.actor", "flow"),
         })
         {
             var bare = key[(carrier.Length + 1)..];
@@ -383,7 +390,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A goal traces through features and requirements to the met state; a goal no feature serves has no incoming advances.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void GoalTraceReachesMetRequirements()
     {
@@ -409,10 +416,10 @@ public sealed class BookViewsTests
         Assert.DoesNotContain(quiet, edge => Str(edge, "key") == "feature.advances");
     }
 
-    /// <summary>Findings sit on their records, open and known apart, with the departure covers and expiry.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>Findings sit on their records, open and known apart, with the waiver waives and expiry.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void FindingsSitOnTheirRecordsWithDepartureExpiry()
+    public void FindingsSitOnTheirRecordsWithWaiverExpiry()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
@@ -423,17 +430,17 @@ public sealed class BookViewsTests
         Assert.Single(open);
         Assert.Equal("use-case-unimplemented", Str(open[0]!.AsObject(), "code"));
         Assert.False(BoolOf(open[0]!.AsObject()["covered"]));
-        var known = Arr(details["journey/borrowing"], "findings");
+        var known = Arr(details["flow/borrowing"], "findings");
         Assert.Single(known);
         Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
 
-        var departure = details.Values.First(detail => Str(detail, "type") == "departure");
-        Assert.True(Arr(Obj(departure, "fields"), "covers").Count > 0);
-        Assert.True((Str(Obj(departure, "fields"), "expiresOn") ?? "").Length > 0);
+        var waiver = details.Values.First(detail => Str(detail, "type") == "waiver");
+        Assert.True(Arr(Obj(waiver, "fields"), "waives").Count > 0);
+        Assert.True((Str(Obj(waiver, "fields"), "expiresOn") ?? "").Length > 0);
     }
 
     /// <summary>A rule detail states its kind, what it governs and refuses, and its proof.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RuleDetailCarriesKindGovernsAndRefusal()
     {
@@ -460,7 +467,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A requirement detail states its fit criterion and whether it is met.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RequirementDetailCarriesFitCriterionAndVerification()
     {
@@ -479,7 +486,7 @@ public sealed class BookViewsTests
         Assert.Equal(false, machine["measurePassed"]?.GetValue<bool>());
         var kept = Obj(measured, "keptBy");
         Assert.Equal(3, kept.Count);
-        Assert.Null(kept["journey"]);
+        Assert.Null(kept["flow"]);
 
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
         Assert.Equal("2026-10-20", manifest["testRun"]!.AsObject()["date"]!.GetValue<string>());
@@ -488,8 +495,8 @@ public sealed class BookViewsTests
         Assert.True(BoolOf(Obj(fulfilled, "machine")["met"]));
     }
 
-    /// <summary>A reaction detail carries its triggers, what it sends and what it fulfills; a notification carries its addresses and channel.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>A reaction detail carries its triggers, what it sends and what it fulfills; a notification carries its audience and channel.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ReactionAndNotificationDetailsCarryTriggerAndAudience()
     {
@@ -498,21 +505,21 @@ public sealed class BookViewsTests
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var reactionId = details.Keys.First(id =>
             Str(details[id], "type") == "reaction"
-            && HasEdge(Arr(details[id], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
+            && HasEdge(Arr(details[id], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
         var reaction = details[reactionId];
-        Assert.True(HasEdge(Arr(reaction, "out"), "event/loan.loan-due", "reaction.triggeredBy"));
+        Assert.True(HasEdge(Arr(reaction, "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
         Assert.True(HasEdge(Arr(reaction, "out"), "notification/lending.due-reminder", "reaction.effects.sends"));
         Assert.True(HasEdge(Arr(reaction, "out"), "requirement/self-checkout.max-wait", "reaction.fulfills"));
 
         var notification = details["notification/lending.due-reminder"];
         var fields = Obj(notification, "fields");
         Assert.Equal("email", Str(fields, "channel"));
-        Assert.True(HasString(Arr(fields, "addresses"), "actor/member"));
+        Assert.True(HasString(Arr(fields, "audience"), "actor/member"));
         Assert.True(HasEdge(Arr(notification, "in"), reactionId, "reaction.effects.sends"));
     }
 
     /// <summary>A scheduled job detail carries its kind, schedule and run fields.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ScheduledJobDetailCarriesScheduleFields()
     {
@@ -529,16 +536,16 @@ public sealed class BookViewsTests
         Assert.Equal("runbook/overdue-notice", Str(fields, "runbook"));
     }
 
-    /// <summary>A journey detail carries its chapter: steps, serving, promises and outcomes.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>A flow detail carries its chapter: steps, serving, promises and outcomes.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void JourneyDetailCarriesItsChapter()
+    public void FlowDetailCarriesItsChapter()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
-        var journey = details["journey/borrowing"];
-        var fields = Obj(journey, "fields");
+        var flow = details["flow/borrowing"];
+        var fields = Obj(flow, "fields");
         Assert.Null(fields["aim"]);
         Assert.Equal("actor/member", Str(fields, "actor"));
         Assert.Equal("The member leaves the desk with the copy before closing.", Str(fields, "finishedWhen"));
@@ -547,19 +554,19 @@ public sealed class BookViewsTests
         Assert.Equal("The member borrows a copy before closing.", Str(steps[0]!.AsObject(), "statement"));
         Assert.Equal("The desk renews the loan.", Str(steps[1]!.AsObject(), "failure"));
 
-        var servers = Obj(journey, "stepServers");
-        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
-        Assert.Empty(servers["s2"] as JsonArray ?? new JsonArray());
-        Assert.Empty(Obj(journey, "stepScreens")["s1"] as JsonArray ?? new JsonArray());
-        Assert.Empty(Arr(journey, "exercised"));
+        var servers = Obj(flow, "stepServers");
+        Assert.True(HasString(servers["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
+        Assert.Empty(servers["step/borrowing.return-copy"] as JsonArray ?? new JsonArray());
+        Assert.Empty(Obj(flow, "stepScreens")["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray());
+        Assert.Empty(Arr(flow, "exercised"));
 
-        Assert.True(HasEdge(Arr(journey, "out"), "requirement/self-checkout.max-wait", "journey.cites"));
-        Assert.True(HasEdge(Arr(journey, "out"), "actor/member", "journey.actor"));
-        Assert.True(HasEdge(Arr(journey, "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(flow, "out"), "requirement/self-checkout.max-wait", "flow.cites"));
+        Assert.True(HasEdge(Arr(flow, "out"), "actor/member", "flow.actor"));
+        Assert.True(HasEdge(Arr(details["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>A setting detail carries its meaning and default; a use-case detail carries its access grant and what it serves.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void SettingAndUseCaseDetailsCarryMeaningAccessAndServes()
     {
@@ -574,7 +581,7 @@ public sealed class BookViewsTests
         var access = Obj(Obj(useCase, "fields"), "access");
         Assert.Equal("permission/borrow-copy", Str(access, "grant"));
         Assert.Equal("own", Str(access, "tenant"));
-        Assert.True(HasString(Arr(Obj(useCase, "fields"), "serves"), "journey/borrowing#s1"));
+        Assert.True(HasString(Arr(Obj(useCase, "fields"), "serves"), "step/borrowing.borrow-copy"));
         Assert.True(HasString(Arr(Obj(useCase, "fields"), "reachedThrough"), "entry-point/library-app"));
         var keys = Arr(useCase, "out").OfType<JsonObject>().Select(edge => Str(edge, "key")).ToList();
         Assert.Contains("use-case.serves", keys);
@@ -582,7 +589,7 @@ public sealed class BookViewsTests
         Assert.Contains("use-case.raises", keys);
         Assert.Contains("use-case.reachedThrough", keys);
         Assert.Contains("use-case.access.grant", keys);
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>The search shards cover statements, summaries and explanation heads for every record.</summary>
@@ -606,7 +613,7 @@ public sealed class BookViewsTests
         Assert.Equal("requirement", wait[2]);
         Assert.Equal("A member waits less than two minutes at the desk.", wait[3]);
         Assert.Equal("One copy lent to one member.", rows.Single(row => row[0] == "aggregate/lending.loan")[3]);
-        Assert.Equal("", rows.Single(row => row[0] == "journey/borrowing")[3]);
+        Assert.Equal("", rows.Single(row => row[0] == "flow/borrowing")[3]);
         Assert.Contains(
             "Members scan and go",
             rows.Single(row => row[0] == "feature/self-checkout")[3],
@@ -615,7 +622,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Details carry no status, owner, decider, decide-by date, effective status or held-by list.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DetailsCarryNoStatusOwnerDeciderOrHeldBy()
     {
@@ -635,7 +642,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Implementation and proof rail sections read from computed code, tests, expectations and lacks.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ImplementationAndProofRailSections()
     {
@@ -693,7 +700,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Numbered reference lists read linked records with their statement, meaning or summary.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void NumberedReferenceListsReadFromFieldsAndEdges()
     {
@@ -715,8 +722,76 @@ public sealed class BookViewsTests
             Str(Obj(details["result/borrow-copy.copy-unavailable"], "fields"), "code"));
     }
 
+    /// <summary>A refusal result carries the meaning joined from its module's refusal set and the problem type from the project's base.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void RefusalResultCarriesJoinedMeaningAndProblemType()
+    {
+        using var temp = TestCli.Temp("book-views");
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        var fields = Obj(details["result/borrow-copy.copy-unavailable"], "fields");
+        Assert.Equal(
+            "The copy stays unavailable and the member is told it is on loan.",
+            Str(fields, "meaning"));
+        Assert.Equal(
+            "https://library.example/problems/copy-not-available",
+            Str(fields, "problemType"));
+        Assert.Equal("This copy is on loan to another member.", Str(fields, "sentence"));
+        Assert.Equal("lending.copy-not-available", Str(fields, "code"));
+    }
+
+    /// <summary>A module event carries the field names it selects from the domain event it translates.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void ModuleEventCarriesItsSelectedFields()
+    {
+        using var temp = TestCli.Temp("book-views");
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        var fields = Obj(details["module-event/lending.loan-borrowed"], "fields");
+        Assert.Equal(
+            new[] { "copyId", "memberId" },
+            Arr(fields, "fields").Select(node => node!.GetValue<string>()).ToList());
+        Assert.True(HasEdge(
+            Arr(details["module-event/lending.loan-borrowed"], "out"),
+            "domain-event/loan.loan-borrowed",
+            "module-event.translates"));
+    }
+
+    /// <summary>A screen and a served content entry fulfill the late-fee requirement: fulfilling edges both ways and kept-by counts per type.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
+    [Fact]
+    public void ScreenAndServedContentFulfillTheLateFeeRequirement()
+    {
+        using var temp = TestCli.Temp("book-views");
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        Assert.True(HasEdge(
+            Arr(details["screen/library-app.search"], "out"),
+            "requirement/self-checkout.late-fee",
+            "screen.fulfills"));
+        Assert.True(HasEdge(
+            Arr(details["entry-point/library-app"], "out"),
+            "requirement/self-checkout.late-fee",
+            "entry-point.servedContent.fulfills"));
+        Assert.True(HasEdge(
+            Arr(details["requirement/self-checkout.late-fee"], "in"),
+            "screen/library-app.search",
+            "screen.fulfills"));
+        Assert.True(HasEdge(
+            Arr(details["requirement/self-checkout.late-fee"], "in"),
+            "entry-point/library-app",
+            "entry-point.servedContent.fulfills"));
+
+        var kept = Obj(details["requirement/self-checkout.late-fee"], "keptBy");
+        Assert.Equal(1, kept["rule"]?.GetValue<int>());
+        Assert.Equal(1, kept["screen"]?.GetValue<int>());
+        Assert.Equal(1, kept["entry-point"]?.GetValue<int>());
+    }
+
     /// <summary>Trace bands walk goal to behavior through incoming advances, citing requirements, kept-by counts and fulfilling edges.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void TraceBandsReadFromEdgesAndKeptBy()
     {
@@ -744,15 +819,33 @@ public sealed class BookViewsTests
             .Select(edge => Str(edge, "id"))
             .ToList();
         Assert.Equal(3, fulfilling.Count);
-        Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
+        Assert.True(HasEdge(Arr(details["step/borrowing.borrow-copy"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
     /// <summary>Whether a product-parented type tops its own layer instead of nesting under the product.</summary>
     /// <param name="type">The record type to classify, or null when the node has no type.</param>
-    /// <returns>True when the type starts its own outline layer.</returns>
+    /// <returns>True when the type starts its own outline layer. A feature naming solved problems nests under each problem instead.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
-            or "departure" or "term";
+            or "waiver" or "term" or "goal" or "direction" or "problem" or "feature"
+            or "requirement" or "constraint" or "decision" or "research" or "flow"
+            or "actor" or "rule";
+
+    /// <summary>The result a scenario shows, from its outgoing result edge, or null when it shows none.</summary>
+    /// <param name="detail">The scenario detail whose outgoing edges are read.</param>
+    /// <returns>The shown result identifier, or null when the detail holds no result edge.</returns>
+    static string? ResultOf(JsonObject detail)
+    {
+        foreach (var edge in detail["out"] as JsonArray ?? new JsonArray())
+        {
+            if (edge is JsonObject link && Str(link, "key") == "scenario.result")
+            {
+                return Str(link, "id");
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>The forward and inverse phrases of one link row for one carrier type.</summary>
     /// <param name="links">The lexicon link rows to search.</param>
@@ -933,6 +1026,16 @@ public sealed class BookViewsTests
 
         Walk(node);
         return records;
+    }
+
+    /// <summary>The explanation HTML of a record detail: its intro and each section body, in order.</summary>
+    /// <param name="detail">The record detail that holds the sections.</param>
+    /// <returns>The intro HTML followed by each section body.</returns>
+    static string BodyOf(JsonObject? detail)
+    {
+        var sections = detail?["sections"] as JsonObject;
+        var bodies = (sections?["list"] as JsonArray ?? new JsonArray()).Select(item => Str(item as JsonObject, "html") ?? "");
+        return (Str(sections, "intro") ?? "") + string.Concat(bodies);
     }
 
     static string? Str(JsonObject? obj, string name) =>

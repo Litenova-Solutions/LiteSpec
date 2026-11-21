@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Book;
 public sealed class BookTruthTests
 {
     /// <summary>A model with no test run carries a null run and the not-run proof state on every scenario and rule, with machine truth kept.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void BookWithNoTestRunSaysNotRun()
     {
@@ -41,10 +41,10 @@ public sealed class BookTruthTests
         Assert.Null(borrow["proof"]);
     }
 
-    /// <summary>A journey step served only by a reaction lists the reaction as its server and no screen.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>A flow step served only by a reaction lists the reaction as its server and no screen.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void JourneyStepServedOnlyByAReactionReadsAsReaction()
+    public void FlowStepServedOnlyByAReactionReadsAsReaction()
     {
         using var temp = TestCli.Temp("book-truth");
         var reactionId = "";
@@ -52,36 +52,56 @@ public sealed class BookTruthTests
         {
             var reaction = Records(root).First(record => Text(record["type"]) == "reaction");
             reactionId = Text(reaction["id"]);
-            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("journey/borrowing#s2");
+            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("step/borrowing.return-copy");
+            ((JsonArray)root["records"]!).Add(new JsonObject
+            {
+                ["type"] = "step",
+                ["id"] = "step/borrowing.return-copy",
+                ["title"] = "The member returns the copy.",
+                ["owner"] = "lending-team",
+                ["status"] = "approved",
+                ["effectiveStatus"] = "approved",
+                ["decider"] = null,
+                ["decideBy"] = null,
+                ["file"] = ".litespec/product/flows/borrowing.yaml",
+                ["line"] = 10,
+                ["fields"] = new JsonObject
+                {
+                    ["id"] = "step/borrowing.return-copy",
+                    ["statement"] = "The member returns the copy.",
+                },
+                ["links"] = new JsonObject(),
+            });
         });
         Assert.True(reactionId.Length > 0, "The fixture holds no reaction.");
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
-        var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
-        var servers = Obj(journey, "stepServers");
-        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
-        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), reactionId));
-        Assert.Empty(Obj(journey, "stepScreens")["s2"] as JsonArray ?? new JsonArray());
-        Assert.True(HasEdge(Arr(journey, "in"), reactionId, "reaction.serves"));
+        var records = ReadRecords(Path.Combine(Out(temp), "data"));
+        var flow = records["flow/borrowing"];
+        var servers = Obj(flow, "stepServers");
+        Assert.True(HasString(servers["step/borrowing.borrow-copy"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
+        Assert.True(HasString(servers["step/borrowing.return-copy"] as JsonArray ?? new JsonArray(), reactionId));
+        Assert.Empty(Obj(flow, "stepScreens")["step/borrowing.return-copy"] as JsonArray ?? new JsonArray());
+        Assert.True(HasEdge(Arr(records["step/borrowing.return-copy"], "in"), reactionId, "reaction.serves"));
     }
 
-    /// <summary>A journey step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>A flow step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ExercisedStepRendersAsWalked()
     {
         using var temp = TestCli.Temp("book-truth");
-        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("journey/borrowing#s1"));
+        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("step/borrowing.borrow-copy"));
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
-        var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
-        var exercised = Arr(journey, "exercised");
-        Assert.True(HasString(exercised, "s1"));
-        Assert.False(HasString(exercised, "s2"));
+        var flow = ReadRecords(Path.Combine(Out(temp), "data"))["flow/borrowing"];
+        var exercised = Arr(flow, "exercised");
+        Assert.True(HasString(exercised, "step/borrowing.borrow-copy"));
+        Assert.False(HasString(exercised, "step/borrowing.return-copy"));
     }
 
     /// <summary>Findings embedded in the model reach their subject records, open and known apart.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void EmbeddedFindingsReachTheirRecords()
     {
@@ -100,7 +120,7 @@ public sealed class BookTruthTests
         Assert.Equal(".litespec/behavior/modules/lending/aggregates/loans/return-copy.yaml", Str(finding, "path"));
         Assert.Equal(3, finding["line"]?.GetValue<int>());
 
-        var known = Arr(details["journey/borrowing"], "findings");
+        var known = Arr(details["flow/borrowing"], "findings");
         Assert.Single(known);
         Assert.Equal("step-screen-missing", Str(known[0]!.AsObject(), "code"));
         Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
@@ -129,7 +149,7 @@ public sealed class BookTruthTests
                     ["code"] = "step-screen-missing",
                     ["tier"] = "A",
                     ["message"] = "Step s2 has no screen.",
-                    ["subject"] = "journey/borrowing",
+                    ["subject"] = "flow/borrowing",
                     ["outcome"] = "accepted",
                     ["reason"] = "The kiosk covers it next quarter.",
                 });

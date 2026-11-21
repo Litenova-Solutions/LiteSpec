@@ -1,26 +1,28 @@
 # Run Rules After Every Edit
 
-## Purpose
+Keep the governing provisions in front of the agent: after each file edit the agent sees the short `rules` output for that file, and before it stops the model check runs over its change set. An agent that loads the provisions once at the start of a task works from memory by its later edits, and memory drifts from the standard as the session grows.
 
-An agent that loads the governing provisions once at the start of a task works from memory by its later edits, and memory drifts from the standard as the session grows. This guide brings the provisions back at the moment they matter: after each file edit the agent sees the short `rules` output for that file, and before it stops it faces the model check over its change set. It covers Claude Code hooks and an OpenCode plugin. `skill add` writes Markdown files only and installs no hooks, so each recipe below is installed by hand. The guide adds no rule of its own.
+The guide covers Claude Code hooks and an OpenCode plugin. `skill add` writes Markdown files only and installs no hooks, so install each recipe below by hand. The guide adds no rule of its own.
 
 ## Prerequisites
 
 Start with:
 
-- The `litespec` command from [Install the CLI](install-the-cli.md): the recipes spell it `litespec`, and a local .NET tool install spells it `dotnet litespec`.
-- A consumer root holding `.litespec/project.yaml`, since both commands resolve the project from the working directory.
-- `git`, since `model check --since` reads the change set from git.
+- The `litespec` command from [Install the CLI](install-the-cli.md). The recipes spell it `litespec`, and a local .NET tool install spells it `dotnet litespec`.
+- A consumer root holding `.litespec/project.yaml`, because both commands resolve the project from the working directory.
+- `git`, because `model check --since` reads the change set from git.
 - `jq` on the PATH for the Claude Code scripts, which parse hook input as JSON.
-- No extra install for the OpenCode plugin: it runs inside the OpenCode server and calls the CLI through `node:child_process`.
+- No extra install for the OpenCode plugin, which runs inside the OpenCode server and calls the CLI through `node:child_process`.
 
-Read the [Rules Query](../tools/rules.md) and [Model Builder](../tools/model.md) pages before this guide: they own the commands the recipes run. The recipes automate `litespec/core/agent#load-applicable-provisions-before-editing`, which asks the agent to run `rules <path>` before editing a file and to answer each judgment provision `rules --since <base>` lists before reporting done.
+Read the [Rules Query](../tools/rules.md) and [Model Builder](../tools/model.md) pages before this guide, because they own the commands the recipes run. The recipes automate `litespec/core/agent#load-applicable-provisions-before-editing`, which asks the agent to run `rules <path>` before editing a file and to answer each judgment provision `rules --since <base>` lists before reporting done.
 
 ## Procedure
 
+Follow the Claude Code pair or the OpenCode pair, depending on which harness the agent runs in.
+
 ### Remind Each Edit in Claude Code
 
-Add a `PostToolUse` hook on `Edit|Write` in `.claude/settings.json`, so the project shares it through git. The hook fires after each file edit, runs `rules` in short form over the edited file, and returns the output as added context the model reads beside its edit.
+Add a `PostToolUse` hook on `Edit|Write` in `.claude/settings.json`, so the project shares it through git. After each file edit the hook fires, runs the short `rules` form over the edited file, and returns the output as added context the model reads beside its edit.
 
 ```json
 {
@@ -52,11 +54,11 @@ if [ -z "$output" ]; then exit 0; fi
 jq -n --arg ctx "$output" '{hookSpecificOutput: {hookEventName: "PostToolUse", additionalContext: $ctx}}'
 ```
 
-After an edit to the Claimwick SubmitExpense command handler, the hook returns the provisions that govern that file, so the agent corrects the handler shape before moving on. The [Rules Query](../tools/rules.md) page states the short form: judgment statements grouped by strength, checked provisions as one line each, and concern-wide provisions by identifier.
+After an edit to the Claimwick SubmitExpense command handler, the hook returns the provisions that govern that file, so the agent fixes the handler shape before moving on. The [Rules Query](../tools/rules.md) page describes the short form: judgment statements grouped by strength, checked provisions as one line each, and concern-wide provisions by identifier.
 
 ### Gate the Stop in Claude Code
 
-Add a `Stop` hook that runs `model check --since <base>` over the change set. When the check reports a blocking finding, the hook returns the output as added context so the agent continues the turn and reads the findings. When the check is clean, the hook exits silently and the turn ends.
+Add a `Stop` hook that runs `model check --since <base>` over the change set. When the check reports a blocking finding, the hook returns that output as added context, so the agent continues the turn and reads the findings. When the check is clean, the hook exits silently and the turn ends.
 
 ```json
 {
@@ -75,7 +77,7 @@ Add a `Stop` hook that runs `model check --since <base>` over the change set. Wh
 }
 ```
 
-Write the script at `.claude/hooks/litespec-stop.sh` and mark it executable. It stands down when `stop_hook_active` is already set, so the hook continues the turn at most once. It compares against `main` below; use the branch the team compares against instead.
+Write the script at `.claude/hooks/litespec-stop.sh` and mark it executable. It does nothing when `stop_hook_active` is already set, so the hook continues the turn at most once. It compares against `main` below, so replace that with the branch the team compares against.
 
 ```bash
 #!/bin/sh
@@ -89,11 +91,13 @@ output=$(litespec model check --since main 2>&1) || {
 exit 0
 ```
 
-A `Stop` hook times out after 60 seconds; set `timeout` on the hook entry when the check needs longer.
+A `Stop` hook times out after 60 seconds, so set `timeout` on the hook entry when the check needs longer.
 
 ### Remind Each Edit in OpenCode
 
-Write `.opencode/plugins/litespec-rules.ts`. OpenCode loads each file under `.opencode/plugins/` as a plugin. The setup registers an `execute.after` tool hook that keeps failed tools and tools other than edit and write out, runs `rules` in short form over the edited path, and appends the output to the tool result the model reads. A failed `rules` run resolves to empty text, so a broken CLI never breaks the session.
+Write `.opencode/plugins/litespec-rules.ts`. OpenCode loads each file under `.opencode/plugins/` as a plugin. The setup registers an `execute.after` tool hook that skips failed tools and tools other than edit and write, runs the short `rules` form over the edited path, and appends the output to the tool result the model reads.
+
+A failed `rules` run resolves to empty text, so a broken CLI never breaks the session.
 
 ```ts
 import { execFile } from "node:child_process";
@@ -184,10 +188,10 @@ export const LitespecRules: Plugin = async () => {
 
 ### Check the Change Set in OpenCode
 
-OpenCode has no stop hook, so the end-of-turn check stays a manual step. Run `litespec model check --since main` from the consumer root before reporting done, replacing `main` with the branch the team compares against.
+OpenCode has no stop hook, so the end-of-turn check stays manual. Run `litespec model check --since main` from the consumer root before reporting done, replacing `main` with the branch the team compares against.
 
 ## Check
 
 - Edit one consumer file and confirm the agent sees the `rules` output for that file beside the edit result.
 - Run `litespec rules <path>` on the same file by hand and confirm the text matches what the hook or plugin returned.
-- Run `litespec model check --since main` from the consumer root: with no blocking finding the Stop hook stays silent, and with one the turn continues with the check output.
+- Run `litespec model check --since main` from the consumer root. With no blocking finding the Stop hook stays silent, and with one the turn continues with the check output.

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0001-loan-threshold
 title: Loan threshold
+context: Readers borrow more copies, and the desk needed one threshold for open loans.
 options:
   - name: Five open loans
     pros: Readers borrow more

@@ -1,8 +1,8 @@
-// Text the book renders as HTML: inline markdown from record fields, editor links
-// and provision links. Record fields and explanations arrive rendered by the CLI;
+// Text the book renders as HTML: inline markdown from record fields and source
+// links. Record fields and explanations arrive rendered by the CLI;
 // these helpers cover only the short strings the client still formats itself.
 //
-// A record link in rendered HTML is a button with data-go; a term with an
+// A record link in rendered HTML is an anchor with data-go; a term with an
 // explanation carries data-explain. The App handles both by delegation.
 
 import type { Book } from "./book.svelte";
@@ -13,14 +13,14 @@ export function esc(s: unknown) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function editorScheme(book: Book) {
-  const t = book.man?.editor;
-  if (!t || t === "none") return null;
+function linkScheme(book: Book) {
+  const t = book.man?.links;
+  if (!t) return null;
   const scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(t.trim())?.[1];
   return scheme ? scheme.toLowerCase() : null;
 }
 
-/** A link target the book may open: http, https, mailto, the editor scheme, or a relative path. */
+/** A link target the book may open: http, https, mailto, the source link scheme, or a relative path. */
 export function safeHref(book: Book, value: unknown): string | null {
   if (value === null || value === undefined) return null;
   const text = String(value).trim();
@@ -30,30 +30,25 @@ export function safeHref(book: Book, value: unknown): string | null {
   const scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(text);
   if (scheme) {
     const name = (scheme[1] ?? "").toLowerCase();
-    return name === "http" || name === "https" || name === "mailto" || name === editorScheme(book) ? text : null;
+    return name === "http" || name === "https" || name === "mailto" || name === linkScheme(book) ? text : null;
   }
   if (text.startsWith("//") || text.startsWith("\\\\")) return null;
   return text;
 }
 
-export function editorHref(book: Book, root: string, path: string, line?: number | null) {
-  const t = book.man?.editor;
-  if (!t || t === "none" || !path) return null;
-  let href = t.split("{root}").join(root || "").split("{path}").join(path);
+/** A source link: the manifest's template with the path and line filled in, or null when the book links no source. */
+export function sourceLinkHref(book: Book, path: string, line?: number | null) {
+  const t = book.man?.links;
+  if (!t || !path) return null;
+  let href = t.split("{path}").join(path);
   href = line ? href.split("{line}").join(String(line)) : href.replace(/:{line}/g, "").split("{line}").join("");
   return safeHref(book, href);
 }
 
+/** The source link of a record's file and line; a LiteSpec release file is plain text, never a link. */
 export function srcHref(book: Book, src: SourceRef | null | undefined) {
-  if (!src?.path) return null;
-  const roots = book.man?.roots;
-  return editorHref(book, (src.litespec ? roots?.litespec : roots?.consumer) ?? "", src.path, src.line ?? null);
-}
-
-/** A LiteSpec provision ID opens its standards page in the LiteSpec checkout. */
-export function provisionHref(book: Book, provision: string) {
-  const m = /^litespec\/(.+)#(.+)$/.exec(provision);
-  return m ? editorHref(book, book.man?.roots?.litespec ?? "", "docs/" + m[1] + ".md") : null;
+  if (!src?.path || src.litespec) return null;
+  return sourceLinkHref(book, src.path, src.line ?? null);
 }
 
 export function resolvePath(from: string, rel: string) {
@@ -78,16 +73,16 @@ function unesc(s: string): string {
   return s.replace(/&quot;/g, '"').replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&");
 }
 
-/** One record link in rendered HTML: a button the App opens by delegation. */
+/** One record link in rendered HTML: an anchor the App opens by delegation. */
 export function recordRefHtml(book: Book, id: string, label?: string): string {
   const target = stripStep(id);
-  return `<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="${esc(target)}">${esc(label ?? book.title(target))}</button>`;
+  return `<a href="#${esc(target)}" class="book-ref text-link hover:underline" data-go="${esc(target)}">${esc(label ?? book.title(target))}</a>`;
 }
 
 /**
  * Inline markdown from a record field: code spans that name a record become record
  * links, bold, emphasis, and links. A relative link resolves against the record's
- * own file and opens in the editor.
+ * own file and opens as a source link.
  */
 export function inline(book: Book, s: unknown, curSrc?: SourceRef | null) {
   let out = esc(s);
@@ -110,6 +105,6 @@ export function inline(book: Book, s: unknown, curSrc?: SourceRef | null) {
     if (/^[a-z][a-z-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/.test(bid)) return book.has(bid) ? recordRefHtml(book, bid, unesc(text)) : text;
     if (!curSrc?.path) return text;
     const target = srcHref(book, { path: resolvePath(curSrc.path, bid), line: null, litespec: curSrc.litespec });
-    return target ? `<a href="${esc(target)}" title="Open ${esc(href)} in the editor">${text}</a>` : text;
+    return target ? `<a href="${esc(target)}">${text}</a>` : text;
   });
 }

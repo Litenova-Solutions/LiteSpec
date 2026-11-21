@@ -97,7 +97,7 @@ public sealed class RenameMarksTests
         var result = TestCli.Run("rename", oldRequirement, newRequirement, "--root", temp.Path);
 
         Assert.True(result.Status == 0, result.Stderr);
-        Assert.True(File.Exists(Path.Combine(temp.Path, ".litespec", "intent", "problems", "speed", "features", "performance", "requirements", "borrow-speed", "borrow-speed.yaml")), result.Output);
+        Assert.True(File.Exists(Path.Combine(temp.Path, ".litespec", "intent", "problems", "slow-borrowing", "features", "performance", "requirements", "borrow-speed", "borrow-speed.yaml")), result.Output);
         Assert.Contains($"<proves>{newRequirement}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newRequirement}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -145,22 +145,22 @@ public sealed class RenameMarksTests
     }
 
     static string DocTag(string root) => Path.Combine(
-        root, "apps", "api", "src", "Library.Application", "BorrowCopyCommandHandler.cs");
+        root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "BorrowCopy", "BorrowCopyCommandHandler.cs");
 
     static string Attribute(string root) => Path.Combine(
-        root, "apps", "api", "src", "Library.WebApi", "BorrowCopyEndpoint.cs");
+        root, "apps", "api", "src", "Modules", "Library.Lending", "WebApi", "BorrowCopy", "BorrowCopyEndpoint.cs");
 
     static string Frontend(string root) => Path.Combine(
         root, "apps", "catalog", "src", "lib", "borrow.ts");
 
     static string Unrelated(string root) => Path.Combine(
-        root, "apps", "api", "src", "Library.Application", "Labels.cs");
+        root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "BorrowCopy", "Labels.cs");
 
     static string FollowsTag(string root) => Path.Combine(
-        root, "apps", "api", "src", "Library.Application", "CommitStep.cs");
+        root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "BorrowCopy", "CommitStep.cs");
 
     static string FollowsAttribute(string root) => Path.Combine(
-        root, "apps", "api", "src", "Library.Infrastructure", "LoanDocumentStore.cs");
+        root, "apps", "api", "src", "Modules", "Library.Lending", "Infrastructure", "Persistence", "Loans", "LoanDocumentStore.cs");
 
     static string ProvesTag(string root) => Path.Combine(
         root, "apps", "api", "tests", "Library.Acceptance.Tests", "Proof", "ProvesTag.cs");
@@ -186,8 +186,7 @@ public sealed class RenameMarksTests
               },
               "stackConfig": {
                 "dotnet": {
-                  "modules": "apps/api/src/Library.Application",
-                  "domain": "apps/api/src/Library.Domain",
+                  "modules": "apps/api/src/Modules/Library.Lending",
                   "webapi": "apps/api/src/Library.WebApi"
                 }
               }
@@ -225,13 +224,13 @@ public sealed class RenameMarksTests
             }
             """);
         Write(DocTag(root), """
-            namespace Library.Application;
+            namespace Library.Lending.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler;
             """);
         Write(Attribute(root), """
-            namespace Library.WebApi;
+            namespace Library.Lending.WebApi.BorrowCopy;
 
             [Implements("use-case/lending.borrow-copy")]
             public static class BorrowCopyEndpoint;
@@ -240,7 +239,7 @@ public sealed class RenameMarksTests
             export const litespec = { implements: "use-case/lending.borrow-copy" } as const;
             """);
         Write(Unrelated(root), """
-            namespace Library.Application;
+            namespace Library.Lending.Application.BorrowCopy;
 
             public static class Labels
             {
@@ -248,18 +247,18 @@ public sealed class RenameMarksTests
             }
             """);
         Write(FollowsTag(root), """
-            namespace Library.Application;
+            namespace Library.Lending.Application.BorrowCopy;
 
             /// <follows>decision/0002-store-loans-as-documents</follows>
             internal sealed class CommitStep;
             """);
         Write(FollowsAttribute(root), """
-            namespace Library.Infrastructure;
+            namespace Library.Lending.Infrastructure.Persistence;
 
             [Follows("decision/0002-store-loans-as-documents")]
             internal sealed class LoanDocumentStore;
             """);
-        TestRecords.Write(root, ".litespec/intent/problems/speed/features/performance/performance.yaml", """
+        TestRecords.Write(root, ".litespec/intent/problems/slow-borrowing/features/performance/performance.yaml", """
             {
               "type": "feature",
               "id": "feature/performance",
@@ -267,7 +266,7 @@ public sealed class RenameMarksTests
               "offering": "Readers borrow copies quickly."
             }
             """);
-        TestRecords.Write(root, ".litespec/intent/problems/speed/features/performance/requirements/borrow-latency/borrow-latency.yaml", """
+        TestRecords.Write(root, ".litespec/intent/problems/slow-borrowing/features/performance/requirements/borrow-latency/borrow-latency.yaml", """
             {
               "type": "requirement",
               "id": "requirement/performance.borrow-latency",

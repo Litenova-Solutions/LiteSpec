@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     strings from class attributes and class-merge helper calls, and holds
 ///     each token to the utility rules.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#restrict-css-decisions</follows>
+/// <follows>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</follows>
 static class ClassStringChecks
 {
     // Tailwind class strings are extracted from class attributes and class-merge

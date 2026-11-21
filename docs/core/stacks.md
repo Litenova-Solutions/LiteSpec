@@ -1,30 +1,35 @@
 # Technology Stacks
 
 **Stack:** any
-
 **Concern:** workspace
 
-## Intent
-
-A stack binds the specification to one technology: a backend stack lives under `backend/`, a frontend stack under `frontend/`. Selecting one applies exactly the provisions, version pins, and checks that technology needs. This page states what selecting a stack applies, where its versions come from, and how a replacement names every baseline provision it replaces.
+A stack binds the specification to one technology: a backend stack lives under `backend/`, and a frontend stack under `frontend/`. Selecting a stack applies exactly the pages, version pins, and checks that technology needs: the provisions in its folder and above it, the pins in the manifest, and replacements that name every baseline provision they replace.
 
 ## Concepts
 
 ### What a Stack Folder Holds
 
-Each stack lives in one folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/`, and `docs/frontend/mobile/android/` are the current stacks. The `stack.md` states what the stack adds: its provisions, its version pins, and its checks.
+A stack is one folder with a `stack.md` page. That page states what the stack adds: its provisions, its version pins, and its checks. The standard ships five stacks: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/`, and `docs/frontend/mobile/android/`.
 
-Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. A stack folder is one with a `stack.md` page: `frontend/patterns/` has none, so it applies with `frontend/`, while `frontend/web/` applies only through its stacks. [Supported scope](scope.md) states how size, shape, and stacks combine into one selection.
+Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. It also applies the subfolders of those folders that hold no stack of their own. For example, `frontend/patterns/` holds no `stack.md`, so it applies with `frontend/`; `frontend/web/` applies only through its stacks.
 
-### Versions and Replacements
+[Supported Scope](scope.md) states how size, shape, and stacks combine into one selection.
 
-Every SDK, framework, and package version resolves from `litespec.manifest.yaml`, which owns the pins. A version copied from prose, an example, a package search, or agent memory drifts from that pin.
+### Where Versions Come From
 
-When an extension or a departure replaces baseline behavior, it names every baseline provision ID it replaces. The departure names the provision it replaces in `covers`; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
+The standards-selected stack versions resolve from `litespec.manifest.yaml`, which owns the pins, as `litespec/core/principles#locate-package-versions-in-the-manifest` states. One source for every pin keeps each consumer on the same tested combination. A version copied from anywhere else, prose, an example, a package search, or agent memory, drifts from the pin with the next edit. Consumer dependencies still live in package manifests and lockfiles.
+
+### How a Replacement Names What It Changes
+
+Baseline behavior sometimes gives way to an extension or a waiver. A replacement then names every baseline provision ID it replaces, so reviewers see the exact boundary of the change, and everything unnamed stays active.
+
+A waiver names the provision in `waives`; there is no separate type or folder. `rules <path>` shows the waiver in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named.
+
+Each extension also states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
 ### Selection Diagnostics
 
-These checks report a manifest selection no page can apply, so they are listed here instead of beside a provision.
+A selection can name a stack, shape, page, or extension that no page applies. The checks below report those dead selections, so they sit here instead of beside one provision.
 
 | Family | Meaning | Codes |
 |:---|:---|:---|
@@ -45,31 +50,19 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **Rationale:** The stack is the unit of conformance: a consumer cannot claim a stack while silently omitting an applicable page. Applying the folder, every folder above it, and their stackless subfolders keeps inherited principles in force without restating them. A deeper page replaces only the provisions it names, so everything it leaves unnamed keeps applying.
 
-**Reviewed for:** The consumer file set covers every page in its stack folders, the folders above them, and their stackless subfolders.
+**Reviewed for:** Does the project apply every page its stack selection brings in? Compare the files against the stack folders, the folders above them, and their stackless subfolders.
 
-### Use Manifest Version Pins
+### Name Every Provision a Replacement Replaces
 
-**ID:** `litespec/core/stacks#use-manifest-version-pins`
-
-**Strength:** required
-
-**Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.yaml`.
-
-**Rationale:** The manifest owns every pin, so resolving versions anywhere else produces builds the standard never described. A version copied from prose, an example, a package search, or agent memory drifts from the pin with the next edit. One resolution source keeps every consumer on the same tested combination.
-
-**Reviewed for:** Each resolved SDK, framework, and package version matches its pin in `litespec.manifest.yaml`.
-
-### Declare Replacements
-
-**ID:** `litespec/core/stacks#declare-replacements`
+**ID:** `litespec/core/stacks#name-every-provision-a-replacement-replaces`
 
 **Strength:** required
 
-**Statement:** An extension or a departure MUST name every baseline provision ID it replaces.
+**Statement:** An extension or a waiver MUST name every baseline provision ID it replaces.
 
-**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure names the provision in `covers`, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
+**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A waiver names the provision in `waives`, and `rules <path>` shows the waiver in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
 
-**Reviewed for:** Each extension or departure names every baseline provision ID it replaces, with the rest staying active.
+**Reviewed for:** Does every extension and waiver name each baseline provision it replaces? Check each replacement against the baseline provisions it touches.
 
 ## Conventions
 
@@ -83,6 +76,6 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Naming each selected stack in `.litespec/project.yaml` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
+**Rationale:** When `.litespec/project.yaml` names each selected stack and the root `AGENTS.md` names the solution, applications, and commands, an agent resolves the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. A visible selection also tells a human reader what the project runs before opening any code.
 
-**Reviewed for:** `.litespec/project.yaml` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands.
+**Reviewed for:** Does `.litespec/project.yaml` name each selected stack, and does the root `AGENTS.md` name the solution, applications, and commands? Check both files against the project layout.

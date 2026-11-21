@@ -6,3 +6,9 @@ kind: person
 belongsToTeam: false
 holds:
 - role/librarian
+responsibilities:
+- Keeps the shelves in order.
+- Helps readers borrow.
+knowledge:
+- The product assumes the librarian knows the home shelf of each copy.
+- The product assumes the librarian knows the loan period.

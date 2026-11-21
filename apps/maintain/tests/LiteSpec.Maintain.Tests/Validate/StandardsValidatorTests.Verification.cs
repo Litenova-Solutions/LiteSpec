@@ -8,7 +8,7 @@ namespace LiteSpec.Maintain.Tests.Validate;
 public sealed partial class StandardsValidatorTests
 {
     /// <summary>Duplicate verification line.</summary>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "duplicate verification line")]
     public void DuplicateVerificationLine() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.", "**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.\n\n**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.")),
@@ -16,21 +16,21 @@ public sealed partial class StandardsValidatorTests
 
     /// <summary>Leftover verification section and table.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "leftover verification section and table")]
     public void LeftoverVerificationSection() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.TopicPage + "\n## Verification\n\n| ID | Mark | Evidence |\n|:---|:---|:---|\n| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec-maintain validate` confirms the topic stays inside its declared boundary. |\n"),
         [MaintainerDiagnostics.Codes.PageUnknownSection, MaintainerDiagnostics.Codes.VerifyHeader]);
 
     /// <summary>Missing verification line.</summary>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "missing verification line")]
     public void MissingVerificationLine() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.\n\n", "")),
         [MaintainerDiagnostics.Codes.VerifyMissingId]);
 
     /// <summary>Verification line before the statement.</summary>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "verification line before the statement")]
     public void VerificationLineBeforeStatement() => Check(
         root =>
@@ -42,7 +42,7 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.VerifyOrder]);
 
     /// <summary>Content after the verification line.</summary>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "content after the verification line")]
     public void ContentAfterVerificationLine() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.", "**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.\n\nAdditional constraint.")),
@@ -141,7 +141,7 @@ public sealed partial class StandardsValidatorTests
         []);
 
     /// <summary>Guidance evidence names no command.</summary>
-    /// <proves>litespec/core/authoring#mark-every-provision-checkable-or-guidance</proves>
+    /// <proves>litespec/core/authoring#mark-each-provision-as-checked-or-reviewed</proves>
     [Fact(DisplayName = "guidance evidence names no command")]
     public void GuidanceEvidenceNoCommand() => Check(
         root =>
@@ -166,7 +166,7 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.StandardInformativeNormative]);
 
     /// <summary>Provision restates its heading.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "provision restates its heading")]
     public void ProvisionRestatesHeading() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Statement:** Consumers MUST keep the topic inside its declared boundary.", "**Statement:** Consumers MUST keep the topic bounded.")),
@@ -187,7 +187,7 @@ public sealed partial class StandardsValidatorTests
         [MaintainerDiagnostics.Codes.VerifyDuplicateEvidence]);
 
     /// <summary>Pattern provision without a verification line.</summary>
-    /// <proves>litespec/core/authoring#map-provisions-to-evidence</proves>
+    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
     [Fact(DisplayName = "pattern provision without a verification line")]
     public void PatternWithoutVerificationLine() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "**Reviewed for:** Does the top of each record page match the default option or the one its catalog records?\n\n", "")),

@@ -2,9 +2,29 @@ type: screen
 id: screen/claimwick-app.expense-list
 title: Expense List
 summary: An employee sees their own expenses, newest first, with the amount and the latest state of each.
-address: /expenses
+route: /expenses
 offers:
 - use-case/spending.list-expenses
 serves:
-- journey/submit-and-reimburse#s5
-floorplan: list-page
+- step/submit-and-reimburse.watch-expenses
+fulfills:
+- requirement/ui-chart-series
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
+pageFrame:
+  pattern: list-page
+  option: search-and-a-state-filter-only
+leadsTo:
+- screen/claimwick-app.expense-record
+- screen/claimwick-app.new-expense
+task: The employee scans the list for one expense, opens it to read or act on it, or starts a new one.
+displayStates:
+- name: Empty
+  shows: The list says it is empty and points to the new expense form.
+- name: Loading
+  shows: The rows show as placeholders while the list loads.
+- name: Failed
+  shows: The page says the list is unavailable and offers to try again.

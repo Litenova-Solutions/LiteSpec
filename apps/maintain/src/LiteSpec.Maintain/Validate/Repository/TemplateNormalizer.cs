@@ -42,7 +42,7 @@ internal static class TemplateNormalizer
         ["nonEmptyString"] = "sample",
         ["productId"] = "product/sample",
         ["goalId"] = "goal/sample",
-        ["visionId"] = "vision/sample",
+        ["directionId"] = "direction/sample",
         ["constraintId"] = "constraint/sample",
         ["researchId"] = "research/sample",
         ["decisionId"] = "decision/0001-sample",
@@ -52,8 +52,8 @@ internal static class TemplateNormalizer
         ["actorId"] = "actor/sample",
         ["roleId"] = "role/sample",
         ["permissionId"] = "permission/sample",
-        ["journeyId"] = "journey/sample",
-        ["journeyStepId"] = "journey/sample#s1",
+        ["flowId"] = "flow/sample",
+        ["flowStepId"] = "step/sample.act",
         ["moduleId"] = "module/sample",
         ["aggregateId"] = "aggregate/sample.entry",
         ["ruleId"] = "rule/sample.entry",
@@ -61,7 +61,7 @@ internal static class TemplateNormalizer
         ["resultId"] = "result/sample.entry",
         ["derivedResultId"] = "result/sample.forbidden",
         ["scenarioId"] = "scenario/sample.entry",
-        ["eventId"] = "event/sample.entry",
+        ["domainEventId"] = "domain-event/sample.entry",
         ["entryPointId"] = "entry-point/sample",
         ["screenId"] = "screen/sample.entry",
         ["externalSystemId"] = "external-system/sample",
@@ -72,9 +72,9 @@ internal static class TemplateNormalizer
         ["settingId"] = "setting/sample.entry",
         ["integrationEventId"] = "integration-event/sample",
         ["runbookId"] = "runbook/sample",
-        ["departureId"] = "departure/sample",
+        ["waiverId"] = "waiver/sample",
         ["termId"] = "term/sample",
-        ["refusalCode"] = "sample.entry",
+        ["refusalId"] = "refusal/sample.entry",
         ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",
         ["genericRecordId"] = "sample/entry",
         ["grantValue"] = "permission/sample",
@@ -415,6 +415,11 @@ internal static class TemplateNormalizer
 
         if (type == "array")
         {
+            if (defName == "sentenceArray")
+            {
+                return new JsonArray("Sample sentence.");
+            }
+
             var items = resolved["items"];
             var least = resolved["minItems"] is JsonValue count && count.TryGetValue<int>(out var fewest) ? Math.Max(fewest, 1) : 1;
             var filled = new JsonArray();
@@ -428,7 +433,16 @@ internal static class TemplateNormalizer
 
         if (type == "object")
         {
-            return new JsonObject();
+            // The new prose shapes synthesize their required members so a template
+            // that leaves the array empty still validates against the schema.
+            return defName switch
+            {
+                "sourcedStatement" => new JsonObject { ["statement"] = "sample", ["sources"] = new JsonArray("sample") },
+                "screenState" => new JsonObject { ["name"] = "sample", ["shows"] = "sample" },
+                "sessionPolicy" => new JsonObject { ["lifetime"] = "PT1H" },
+                "useCaseStep" => new JsonObject { ["statement"] = "sample" },
+                _ => new JsonObject(),
+            };
         }
 
         if (defName is not null && TemplateExamples.TryGetValue(defName, out var example))

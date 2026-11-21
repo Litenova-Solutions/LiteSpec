@@ -1,17 +1,19 @@
 using System.Text.Json;
-using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
+using static LiteSpec.Cli.Model.Checks.ProseText;
 using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The privacy checks: each aggregate data class and personal field holds an erasure position, each data class names what enforces its retention, and each retention schedule row names the reaction or job record that enforces it.</summary>
+/// <summary>The privacy checks: each aggregate data class and personal field holds an erasure position, each data class states its classification and its field list and holds the fields that name it, and each data class states its retention period, the event it counts from, its basis and what enforces it.</summary>
 /// <follows>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</follows>
-/// <follows>litespec/core/privacy#schedule-every-data-class-for-retention</follows>
 internal static class PrivacyChecks
 {
+    /// <summary>The period ends that a data class may count from by a calendar rather than an event.</summary>
+    private static readonly string[] CalendarStarts = ["financial-year-end", "calendar-year-end"];
+
     /// <summary>The aggregate data classes, in array or map form.</summary>
     /// <param name="aggregate">The aggregate record whose data classes field is read.</param>
     /// <returns>Each declared data class position, or an empty list when the aggregate declares none.</returns>
@@ -58,9 +60,12 @@ internal static class PrivacyChecks
         name,
         Str(element, RecordFields.Classification) ?? "",
         Str(element, RecordFields.OnErasure),
-        Str(element, RecordFields.EnforcedBy),
+        LinkStrings(element, RecordFields.EnforcedBy),
         LinkStrings(element, RecordFields.Fields),
-        ExceptionsOf(element));
+        ExceptionsOf(element),
+        Str(element, RecordFields.Period),
+        Str(element, RecordFields.PeriodStartsAt),
+        LinkStrings(element, RecordFields.Basis));
 
     /// <summary>Reads the field exceptions of one data class object.</summary>
     /// <param name="element">The JSON object that holds the exceptions array.</param>
@@ -91,7 +96,33 @@ internal static class PrivacyChecks
         return found;
     }
 
-    /// <summary>Reports an aggregate data class or field holding personal data with no erasure position.</summary>
+    /// <summary>One aggregate data field as the checks read it: its name, classification and the data class it names.</summary>
+    /// <param name="aggregate">The aggregate record whose data array is read.</param>
+    /// <returns>Each data entry with a name and a classification, with its data class when it names one.</returns>
+    private static List<(string Name, string Classification, string? DataClass)> FieldsOf(Record aggregate)
+    {
+        var found = new List<(string Name, string Classification, string? DataClass)>();
+
+        if (aggregate.Raw.ValueKind != JsonValueKind.Object
+            || !aggregate.Raw.TryGetProperty(RecordFields.Data, out var list)
+            || list.ValueKind != JsonValueKind.Array)
+        {
+            return found;
+        }
+
+        foreach (var entry in list.EnumerateArray())
+        {
+            if (Str(entry, RecordFields.Name) is { Length: > 0 } name
+                && Str(entry, RecordFields.Classification) is { Length: > 0 } classification)
+            {
+                found.Add((name, classification, Str(entry, RecordFields.DataClass)));
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Reports an aggregate data class or field holding personal data with no erasure position, a field whose classification differs from its data class, a field naming a data class the aggregate does not declare, and a data class whose field list differs from the fields naming it.</summary>
     /// <param name="model">The loaded project model that holds every aggregate record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunErasure(ProjectModel model, List<Finding> findings)
@@ -99,6 +130,7 @@ internal static class PrivacyChecks
         foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
         {
             var classes = DataClassesOf(aggregate);
+            var fields = FieldsOf(aggregate);
 
             foreach (var position in classes.OrderBy(entry => entry.Name, StringComparer.Ordinal))
             {
@@ -106,11 +138,35 @@ internal static class PrivacyChecks
                 {
                     findings.Add(new Finding("erasure-undeclared", $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' with {position.Classification} data and no erasure position.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
+
+                var named = fields.Where(field => field.DataClass == position.Name).Select(field => field.Name).ToHashSet(StringComparer.Ordinal);
+
+                if (!named.SetEquals(position.Fields))
+                {
+                    findings.Add(new Finding("data-class-fields-drift", $"Aggregate '{aggregate.Id}' data class '{position.Name}' lists fields '{string.Join("', '", position.Fields.Order(StringComparer.Ordinal))}' but the fields naming it are '{string.Join("', '", named.Order(StringComparer.Ordinal))}'.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+            }
+
+            foreach (var field in fields.OrderBy(entry => entry.Name, StringComparer.Ordinal))
+            {
+                if (field.DataClass is not { Length: > 0 } className)
+                {
+                    continue;
+                }
+
+                if (classes.FirstOrDefault(position => position.Name == className) is not { } owner)
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' field '{field.Name}' names data class '{className}', which the aggregate does not declare.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+                else if (owner.Classification != field.Classification)
+                {
+                    findings.Add(new Finding("classification-drift", $"Aggregate '{aggregate.Id}' field '{field.Name}' is {field.Classification} but its data class '{className}' is {owner.Classification}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
             }
 
             var listed = classes.Any(position => position.Fields.Count > 0);
 
-            foreach (var field in DataOf(aggregate)
+            foreach (var field in fields
                 .Where(entry => Personal(entry.Classification))
                 .OrderBy(entry => entry.Name, StringComparer.Ordinal))
             {
@@ -143,7 +199,10 @@ internal static class PrivacyChecks
         classification.Equals("personal", StringComparison.OrdinalIgnoreCase)
         || classification.Equals("sensitive", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Reports an aggregate data class or field with no enforcedBy, and a retention schedule row whose enforcedBy names no reaction or job record.</summary>
+    /// <summary>
+    ///     Reports a data class with no enforcedBy, an enforcer that is no job or use case, a period with no
+    ///     start or basis, a period start that names no domain event or calendar end, and a basis that names no record.
+    /// </summary>
     /// <param name="model">The loaded project model that holds every aggregate record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRetention(ProjectModel model, List<Finding> findings)
@@ -152,87 +211,81 @@ internal static class PrivacyChecks
         {
             foreach (var position in DataClassesOf(aggregate).OrderBy(entry => entry.Name, StringComparer.Ordinal))
             {
-                if (position.EnforcedBy is not { Length: > 0 })
+                if (position.EnforcedBy.Count == 0)
                 {
                     findings.Add(new Finding("retention-enforcement-missing", $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' with no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                foreach (var enforcer in position.EnforcedBy.Order(StringComparer.Ordinal))
+                {
+                    if (!model.ById.TryGetValue(Identifiers.BaseId(enforcer), out var resolved))
+                    {
+                        findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' data class '{position.Name}' names enforcer '{enforcer}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    }
+                    else if (resolved.Type is not (RecordTypes.Job or RecordTypes.UseCase))
+                    {
+                        findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' names enforcer '{enforcer}', which is a {resolved.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    }
+                }
+
+                if (position.Period is not null && !IsoDuration.IsMatch(position.Period))
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' holds period '{position.Period}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                if (position.Period is not null && position.PeriodStartsAt is null)
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' holds a period with no periodStartsAt.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                if (position.Period is not null && position.Basis.Count == 0)
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' holds a period with no basis.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                if (position.PeriodStartsAt is { } start && !PeriodStartValid(model, start))
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' data class '{position.Name}' counts its period from '{start}', which is no domain event, state transition or calendar end.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                foreach (var basis in position.Basis.Order(StringComparer.Ordinal))
+                {
+                    if (!model.ById.ContainsKey(Identifiers.BaseId(basis)))
+                    {
+                        findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' data class '{position.Name}' names basis '{basis}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    }
                 }
 
                 foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
                 {
                     if (exception.OnErasure is { Length: > 0 }
                         && exception.EnforcedBy is not { Length: > 0 }
-                        && position.EnforcedBy is not { Length: > 0 })
+                        && position.EnforcedBy.Count == 0)
                     {
                         findings.Add(new Finding("retention-enforcement-missing", $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' with no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                     }
                 }
             }
         }
-
-        RunRetentionRows(model, findings);
     }
 
-    /// <summary>Reports a retention schedule row whose enforcedBy is no reaction or job identifier, or names no record.</summary>
-    /// <param name="model">The loaded project model that resolves each enforcedBy target.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void RunRetentionRows(ProjectModel model, List<Finding> findings)
+    /// <summary>Decides whether a period start names a domain event that exists, a state transition written as two states, or a calendar year end.</summary>
+    /// <param name="model">The loaded project model that resolves a domain event start.</param>
+    /// <param name="start">The periodStartsAt value under test.</param>
+    /// <returns>True when the start is a known form; otherwise false.</returns>
+    private static bool PeriodStartValid(ProjectModel model, string start)
     {
-        // The retention schedule is a container page, not a record, so its rows
-        // reach no record check; this check reads the page beside the records.
-        var file = Path.Combine(model.Config.BehaviorDocs, "retention-schedule.yaml");
-
-        if (!File.Exists(file))
+        if (CalendarStarts.Contains(start, StringComparer.Ordinal))
         {
-            return;
+            return true;
         }
 
-        string text;
-
-        try
+        if (start.StartsWith(RecordTypes.DomainEvent + "/", StringComparison.Ordinal))
         {
-            text = SourceTree.Read(file);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            return;
+            return model.ById.TryGetValue(Identifiers.BaseId(start), out var resolved) && resolved.Type == RecordTypes.DomainEvent;
         }
 
-        // A page the reader refuses, and rows without their shape, are left to record-invalid.
-        if (!RecordFile.TryParseTree(text, out var tree, out _)
-            || tree.Kind != JsonKind.Object
-            || !tree.TryGetProperty(RecordFields.Rows, out var rows)
-            || rows.Kind != JsonKind.Array)
-        {
-            return;
-        }
-
-        foreach (var row in rows.Items)
-        {
-            if (row.Kind != JsonKind.Object
-                || !row.TryGetProperty(RecordFields.DataClass, out var dataClass)
-                || dataClass.GetString() is not { Length: > 0 } name
-                || !row.TryGetProperty(RecordFields.EnforcedBy, out var enforced)
-                || enforced.GetString() is not { Length: > 0 } target)
-            {
-                continue;
-            }
-
-            if (!Identifiers.TrySplit(target, out _, out _, out _))
-            {
-                findings.Add(new Finding("field-invalid", $"Retention schedule row '{name}' holds '{target}' in enforcedBy, which is not a reaction or job identifier.", file, enforced.Line, null));
-                continue;
-            }
-
-            if (!model.ById.TryGetValue(Identifiers.BaseId(target), out var resolved))
-            {
-                findings.Add(new Finding("reference-unknown", $"Retention schedule row '{name}' holds enforcedBy '{target}', which no record holds.", file, enforced.Line, null));
-                continue;
-            }
-
-            if (resolved.Type is not (RecordTypes.Reaction or RecordTypes.Job))
-            {
-                findings.Add(new Finding("field-invalid", $"Retention schedule row '{name}' links enforcedBy to '{target}', which is a {resolved.Type}.", file, enforced.Line, null));
-            }
-        }
+        var parts = start.Split(" to ", StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 2 && parts.All(part => part.Length > 0);
     }
 }

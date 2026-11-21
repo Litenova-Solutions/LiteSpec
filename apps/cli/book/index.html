@@ -8,6 +8,14 @@
 </head>
 <body>
 <div id="app"></div>
+<script>
+try {
+  var kept = localStorage.getItem("book-theme");
+  if (kept === "dark" || kept === "light") document.documentElement.dataset.theme = kept;
+} catch {
+  /* A reader without storage still reads in light mode. */
+}
+</script>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

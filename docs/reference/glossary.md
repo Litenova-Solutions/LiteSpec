@@ -2,59 +2,77 @@
 
 ## Code Terms
 
-These terms name the code shapes that fulfill the specification.
+These terms name the code shapes that put the specification into effect.
 
 ### Aggregate Root
 
-The single type through which outside code changes an aggregate.
+The single type through which outside code changes an aggregate; child entities expose no mutable state outside it.
+
+Home: docs/backend/domain.md
 
 Source: DDD.
 
 ### AppHost
 
-The local orchestrator that starts every application and its dependencies together for development.
+The local orchestrator that starts every application together with its dependencies for development.
+
+Home: docs/backend/dotnet/architecture.md
 
 Source: .NET Aspire.
 
 ### Architecture Layer
 
-One role a backend type plays, whatever folder or project holds it: Domain, Application, Infrastructure, or WebApi.
+One role a backend type plays, regardless of which folder or project holds it: Domain, Application, Infrastructure, or WebApi.
+
+Home: docs/backend/architecture.md
 
 Source: LiteSpec.
 
 ### Authorization Policy
 
-One rule deciding whether an actor is allowed to perform an action on a target.
+One rule that decides whether an actor is allowed to perform an action on a target.
+
+Home: docs/core/access.md
 
 Source: RBAC.
 
 ### Caller
 
-The party making the current call, distinct from the Actor record holding roles.
+The party making the current call. It is distinct from the Actor record, which holds roles.
+
+Home: docs/core/access.md
 
 Source: LiteSpec.
 
 ### Central Package Management
 
-One central file pinning every dependency version in the workspace.
+One central file that pins every dependency version in the workspace.
+
+Home: docs/workspace/dependencies.md
 
 Source: NuGet.
 
 ### Child Entity
 
-One entity inside an aggregate, changed only through its root.
+One entity inside an aggregate, changed only through the aggregate's root.
+
+Home: docs/backend/domain.md
 
 Source: DDD.
 
 ### Domain Event
 
-One immutable record that describes a fact completed inside the bounded context.
+One immutable statement that a relevant fact completed inside the bounded context. A published fact crossing the boundary is an integration event instead.
+
+Home: docs/core/domain-model.md
 
 Source: DDD.
 
 ### Domain Repository
 
-One boundary interface that loads and stages complete aggregates.
+One boundary interface that loads and stages complete aggregates, with one repository per aggregate.
+
+Home: docs/backend/persistence.md
 
 Source: DDD.
 
@@ -62,7 +80,9 @@ Rejected: repository used alone, which hides whether the boundary loads a whole 
 
 ### Endpoint
 
-One class serving one route operation, converting HTTP input to an Application message and mapping the result back.
+One class serving one route operation. It converts HTTP input to an Application message and maps the result back to HTTP.
+
+Home: docs/backend/api.md
 
 Source: web API practice.
 
@@ -70,53 +90,63 @@ Source: web API practice.
 
 One object defined by its identity rather than by its values.
 
+Home: docs/backend/domain.md
+
 Source: DDD.
 
 ### Input Validation
 
-Checks on the shape of a command or query, run before business behavior runs.
+Checks on the shape of a command or query, run before any business behavior runs.
+
+Home: docs/backend/application.md
 
 Source: LiteSpec.
 
 ### Layer Claim
 
-The record layer a project claims in `layers`, with the practice it follows in that layer: `intent` and `behavior` take `litespec`, and `implementation` and `proof` take `litespec` or `own`.
+One record layer a project claims in `layers`, with the practice it follows there: `intent` and `behavior` take `litespec`, while `implementation` and `proof` take `litespec` or `own`.
 
-Source: LiteSpec.
-
-### Layer Projects
-
-The backend layout with one project per architecture layer, selected through the layer-projects extension.
+Home: docs/core/scope.md
 
 Source: LiteSpec.
 
 ### Lockfile
 
-The committed file recording the exact resolved dependency versions.
+The committed file that records the exact resolved dependency versions.
+
+Home: docs/workspace/dependencies.md
 
 Source: the package managers.
 
 ### Module Layout
 
-The default backend layout, with every module in the modules project beside the shared kernel project, layer folders at each node, one `UseCases/` folder per aggregate and module, and one flat folder per use case inside it.
+The backend layout: one project per module beside the Kernel and Platform projects, with the `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, and `WebApi/` folders at the top of each module, and one folder per use case inside each layer that serves it.
+
+Home: docs/backend/dotnet/architecture.md
 
 Source: LiteSpec.
 
 ### Operation
 
-One route operation, carrying its stable operation id and served by one endpoint class.
+One route operation with its stable operation id, served by one endpoint class.
+
+Home: docs/backend/api.md
 
 Source: web API practice.
 
 ### Page File
 
-The framework file that serves one address: `+page.svelte` with its `+page.ts` on Svelte, one route file on React. A page file renders one screen; the screen is the record, the route is the address, and the page file is the code.
+The framework file serving one address: `+page.svelte` with its `+page.ts` on Svelte, and one route file on React. A page file renders one screen. The screen is the record, the route is the address, and the page file is the code.
+
+Home: docs/frontend/web/structure.md
 
 Source: LiteSpec.
 
 ### Persistence Constraint
 
-One rule enforced by durable storage, such as uniqueness.
+One rule enforced by durable storage itself, such as uniqueness.
+
+Home: docs/backend/persistence.md
 
 Source: LiteSpec.
 
@@ -124,23 +154,33 @@ Source: LiteSpec.
 
 One read model derived from authoritative facts.
 
+Home: docs/backend/persistence.md
+
 Source: CQRS.
 
 ### Read Model
 
-Data shaped for a query, served without loading an aggregate.
+One record holding a module's own copy of another module's state. It is filled from published module or integration events and shaped for a query.
+
+Home: docs/core/automation.md
 
 Source: CQRS.
 
+Rejected: view, which collides with UI and database views.
+
 ### Route
 
-One HTTP path with its method, resolving to the one endpoint class serving it.
+One HTTP path with its method, resolving to the one endpoint class that serves it.
+
+Home: docs/backend/api.md
 
 Source: web API practice.
 
 ### Trace Context
 
-The trace and span identifiers carried across logs and calls.
+The trace and span identifiers carried across logs and calls, tying one request's records together.
+
+Home: docs/quality/operations.md
 
 Source: W3C Trace Context.
 
@@ -148,31 +188,55 @@ Source: W3C Trace Context.
 
 One immutable type defined by its values rather than by identity.
 
+Home: docs/backend/domain.md
+
 Source: DDD.
 
 ## Product and Domain Terms
 
-These terms name the records and domain concepts a specification is written in.
+These terms name the records and domain concepts that specifications are written in.
 
 ### Access
 
-One risk value marking permissions that decide who may act.
+One risk value. It marks permissions that decide who may act.
+
+Home: docs/core/access.md
+
+Source: LiteSpec.
+
+### Act
+
+One run of behavior that changes state. Each value it copies from elsewhere freezes at the act.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Actor
 
-One person or organization that acts in the product. An actor records whether it belongs to the team building and running the product. An external system is no actor, and internal machinery is no actor.
+One person or organization acting in the product. The record notes whether the actor belongs to the team building and running the product. An external system is no actor, and internal machinery is no actor either.
 
 Layer: Intent.
 
+Home: docs/core/intent.md
+
 Source: RBAC.
+
+### After-Commit
+
+The effect timing for work that runs only after the use case commits its change, so a refused or failed command sends and calls nothing.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
 
 ### Aggregate
 
-One unit of business state that stays consistent and changes in one step. Its kind is entity or store.
+One unit of business state that stays consistent and changes in one step, with states and invariants.
 
 Layer: Behavior.
+
+Home: docs/core/domain-model.md
 
 Source: DDD.
 
@@ -180,29 +244,55 @@ Rejected: entity, which in DDD also names a child inside an aggregate.
 
 ### Aggregate Data
 
-The named fields of an aggregate, each with a meaning, a data class, and a classification of public, internal, personal, or sensitive.
+The named fields of an aggregate. Each field carries a meaning, a data class, and a classification of `public`, `internal`, `personal`, or `sensitive`.
 
 Layer: Behavior.
+
+Home: docs/core/domain-model.md
 
 Source: LiteSpec.
 
 ### Anonymize
 
-One erasure position after which data can no longer identify anyone.
+One erasure position. Past it, the data can no longer identify anyone.
 
 Layer: Behavior.
 
+Home: docs/core/privacy.md
+
 Source: the GDPR.
+
+### Async
+
+The effect timing for work that runs on its own after the commit, apart from the request that caused it. A reaction that states no timing runs async.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
+### Audience
+
+The actors using an entry point, named as actor identifiers on the entry point record.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
 
 ### Automation
 
-The work that runs without a request, stated as reactions and jobs.
+Work that runs without a request, stated as reactions and jobs.
+
+Home: docs/core/automation.md
 
 Source: LiteSpec.
 
 ### Behavior
 
-The record layer stating how the system keeps the promises Intent states.
+The record layer stating how the system keeps the promises the Intent layer states.
+
+Home: docs/core/behavior.md
 
 Source: LiteSpec.
 
@@ -210,233 +300,489 @@ Rejected: behaviour, the British spelling.
 
 ### Bounded Context
 
-The boundary inside which one domain model and one glossary hold.
+The boundary inside which one domain model and one glossary hold; each LiteSpec project covers one bounded context.
+
+Home: docs/core/scope.md
 
 Source: DDD.
 
+### Brand
+
+The stated character of the product, which every screen keeps: its reader, what it is accountable for, the three words it is and the three it is not, and the rules every screen keeps.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### Calculation
 
-One rule stating how a value is derived, proven by a scenario with an examples table.
+One rule stating how a value is derived. It is proven by a scenario with an examples table.
 
 Layer: Behavior.
 
+Home: docs/core/use-cases.md
+
 Source: the Business Rules Group.
+
+### Chosen
+
+The option a decision record names in its `choice` field: the one option the team adopted from the options it compared.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
 
 ### Cites
 
-The reason link a record carries to the records behind it.
+The link a record carries to the records behind it, giving its reason.
 
 Layer: Intent or Behavior.
+
+Home: docs/core/model.md
+
+Source: LiteSpec.
+
+### Closing Record
+
+One record whose change closes a gap waiver. The waiver names it in `closedBy`.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
 
 Source: LiteSpec.
 
 ### Command
 
-One use case kind that changes business state.
+One use case kind. A command changes business state.
 
 Layer: Behavior.
 
+Home: docs/core/use-cases.md
+
 Source: CQRS.
+
+### Compatibility
+
+How a module or integration event stays compatible with its consumers.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Compensation
+
+Work a reaction does to undo a committed step after a later step fails. It names the undone use case in `compensates`.
+
+Layer: Behavior.
+
+Home: docs/core/automation.md
+
+Aliases: undo.
+
+Source: LiteSpec.
 
 ### Conclusion
 
-The one sentence a research record concludes, stated as data so a decision can cite it.
+The one sentence a research record concludes with, stated as data so a decision can cite it.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Consistency
 
-The declared write shape of a use case: atomic, per-record, or compensated.
+The declared write shape of a command writing more than one aggregate: `atomic` or `per-record`.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Constraint
 
-One outside rule the product obeys, such as a law or provider terms, with its authority, its kind, and the date it was read.
+One outside rule the product obeys, such as a law or provider terms. It carries its authority, its kind, and the date it was read.
 
 Layer: Intent.
 
+Home: docs/core/intent.md
+
 Source: plain English.
 
-### Cross-Aggregate Rule
+### Context
 
-One rule spanning more than one aggregate.
+The situation that forced a decision, stated on the decision record. It says what held when the choice had to be made.
 
-Layer: Behavior.
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Cost
+
+What a problem costs its sufferer, with time, money, and risk kept apart. Each is stated in the sufferer's own units, or as unknown where nobody priced it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Coverage
+
+Which subjects, transactions, and periods a constraint's rule covers. It states whom the rule covers; it is separate from applies, which says whether the rule binds the product at all.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Creation
+
+The transition that brings a new aggregate instance into being and sets the first state it holds.
+
+Home: docs/core/domain-model.md
 
 Source: LiteSpec.
 
 ### Data Class
 
-One named group of aggregate fields sharing one classification, one purpose, and one erasure position.
+One named group of aggregate fields. The group shares one classification, one purpose, one erasure position, and one retention period with its basis and enforcement.
 
 Layer: Behavior.
+
+Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
+### Decided By
+
+The command use case or aggregate that decides the figure at write time. A `snapshot` or `eventual` freshness names it in `decidedBy`.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Decision
 
-One dated choice with options weighed and evidence cited.
+One dated choice, with its options weighed and its evidence cited.
 
 Layer: Intent.
 
+Home: docs/core/intent.md
+
 Source: decision records.
 
-### Departure
+### Density
 
-One recorded departure from a provision or a check, with its reason, the provisions, pages or finding codes it covers, the records or paths it covers, and an expiry date with an exit when the team means to close it.
+How much a screen shows at once, stated per entry point as `public-light`, `application-balanced`, or `admin-dense`.
 
-Layer: Intent or Behavior.
+Layer: Behavior.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
+### Direction
+
+A way the product may grow beyond what it promises now, stated without a date or priority. A decision keeping it open cites it, and nothing builds from it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: product direction practice.
+
 ### Domain
 
-The real-world knowledge, language, rules, state, and behavior the software models.
+The real-world knowledge, language, rules, state, and behavior that the software models.
+
+Home: docs/backend/domain.md
 
 Source: DDD.
 
-### Effect
+### Edge Case
 
-One declared edge from a use case, a reaction, or a job to a command, a notification, an integration event, or an outside call.
+One case a command does not follow its steps for, stated as a plain sentence on the use case.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
+### Effect
+
+One declared edge from a use case, reaction, or job to a command, a notification, an integration event, or an outside call.
+
+Layer: Behavior.
+
+Home: docs/core/automation.md
+
+Source: LiteSpec.
+
+### Effect on the Product
+
+What a constraint's rule changes in the product, naming each requirement that holds it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Entry Point
 
-One door from outside through which people or systems reach the product.
+One way in from outside, through which people or systems reach the product. A `browser` entry point lists the static content it serves in `servedContent`, each entry with the requirement it fulfills.
 
 Layer: Behavior.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
-### Event
+### Entry Point Set
 
-One immutable statement that a relevant fact completed. The domain event stays inside the bounded context; a published fact is an integration event.
+One page holding one module's entry points, with each point's kind and authentication.
 
 Layer: Behavior.
 
-Source: DDD.
+Home: docs/core/edges.md
+
+Source: LiteSpec.
 
 ### Evidence
 
-One dated claim behind a problem, with its source and its kind: observed, reported or assumed. The strongest kind present is computed and never written.
+One dated claim behind a problem, with its source and its kind: `observed`, `reported`, or `assumed`. The strongest kind present is computed and never written.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Example
 
-One narrative showing behavior on a real occasion, drawn from the example cast.
+One narrative showing behavior on one real occasion, drawn from the example cast.
+
+Home: docs/core/writing.md
 
 Source: plain English.
 
 ### Example Cast
 
-The people, place, dates, and amounts every example draws on.
+The people, place, dates, and amounts that every example draws on.
+
+Home: docs/core/writing.md
 
 Source: plain English.
 
 ### Examples Table
 
-One table of rows a scenario reads through, holding the values the parts argue about.
+One table of rows a scenario reads through. It holds the debated values.
+
+Home: docs/core/use-cases.md
 
 Source: BDD.
 
+### Excludes
+
+The list of plain-sentence exclusions on a product, feature, module, or permission set, stating what each leaves out. On the product these are the only statements that override a requirement.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### External System
 
-One outside system the product exchanges messages with. It stands alone and names no actor; a system calling the product reaches it through an API entry point.
+One outside system the product exchanges messages with. It stands alone and names no actor. A system calling the product reaches it through an API entry point.
 
 Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Failure Case
+
+One failure a problem's sufferer can meet on its own, stated as a plain sentence. It names what is missing or wrong, how the sufferer finds it, and what follows when they miss it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Failure Policy
 
-The `onFailure` handling a reaction, job, or effect declares, with a mode of `retry`, `skip-and-log`, or `discard` and the retry, dead-letter, surface, and runbook its mode states.
+The `onFailure` handling a reaction, job, or effect declares. It carries a mode of `retry`, `skip-and-log`, or `discard`, with the retry, dead-letter, surface, and runbook its mode states.
 
 Layer: Behavior.
+
+Home: docs/core/automation.md
 
 Source: LiteSpec.
 
 ### Feature
 
-One answer to a problem, advancing a goal. It sits in the features folder of the one problem it answers.
+One standalone answer to one or more problems. It advances a goal and holds its requirements.
 
 Layer: Intent.
 
+Home: docs/core/intent.md
+
 Source: plain English.
+
+### Flow
+
+The ordered steps by which one actor reaches one goal it serves, or one problem or constraint it answers. The record describes who takes the flow, what starts it, what good looks like, and the consequence at stake.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: plain English.
+
+### Flow Branch
+
+A path leaving a flow's step order at one step. It names the step it leaves, the condition under which it leaves, and the step it continues at, or the end, and states no action of its own.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: plain English.
+
+### Format
+
+The shape of a money amount or a moment on a screen. It is chosen from the money and moment patterns and named on the entry point.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
+
+Source: LiteSpec.
 
 ### Freshness
 
-How current a query group is: immediate, snapshot, bounded by a duration, or advisory.
+How current a query group or read model is: its mode of `immediate`, `snapshot`, or `eventual`, with the duration within which it holds.
 
 Layer: Behavior.
+
+Home: docs/core/automation.md
 
 Source: LiteSpec.
 
 ### Functional Requirement
 
-One requirement stating what the product does.
+One requirement stating what the product does, as opposed to how well it performs.
 
 Layer: Intent.
 
+Home: docs/core/intent.md
+
 Source: BABOK and IREB.
+
+### Gap Waiver
+
+One waiver for work the team means to close. It carries an expiry date, an exit, and the records whose change closes it.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
 
 ### Generic Refusal
 
-One refusal the builder derives from access and input instead of a written result: forbidden or invalid input.
+One refusal the model derives instead of a written result: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated`, or `sign-in-too-old`.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Glossary
 
-The project glossary: each term, its meaning, and its rejected synonyms, held as data in glossary.yaml.
+The project glossary: each term with its meaning and its rejected synonyms, held as data in `glossary.yaml`.
+
+Home: docs/core/language.md
 
 Source: arc42; DDD's ubiquitous language.
 
 ### Goal
 
-One measurable outcome a feature advances and a journey serves or a quality requirement confirms, carrying no authority.
+One measurable outcome. A feature advances it, a flow serves it, or a quality requirement confirms it. A goal carries no authority.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: Volere and product practice.
 
 ### Idempotency
 
-The declared way a repeated call collapses to one effect, stated as a mode of `key`, `state`, `not-pending`, or `none` with the key, scope, or reason its mode needs.
+The declared way a repeated command collapses to one effect. It states the mode of `key`, `state`, or `none`, and what a recognized replay does.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Implementation
 
-The record layer holding code and technical decisions.
+The record layer that holds the code and technical decisions carrying out Behavior.
+
+Home: docs/core/layers.md
+
+Source: LiteSpec.
+
+### Inline
+
+The effect timing for a call that runs inside the use case before it answers. Only a query's `calls` effect may be inline.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Integration Event
 
-One published fact crossing the bounded context, with its direction, payload, and trust.
+One published fact crossing the bounded context. It carries its action (send or receive), payload, and trust, and names the external system it travels through. A fact for another module of the same product is a module event instead.
 
 Layer: Behavior.
+
+Home: docs/core/edges.md
 
 Source: DDD.
 
 ### Intent
 
-The record layer stating why the product exists and what it promises.
+The record layer that states why the product exists and what it promises.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Internal
+
+The classification of a value the business keeps for its own use that identifies no person and is not published.
+
+Home: docs/core/privacy.md
 
 Source: LiteSpec.
 
@@ -446,95 +792,237 @@ One rule that holds at every observable moment.
 
 Layer: Behavior.
 
+Home: docs/core/domain-model.md
+
 Source: DDD.
 
 ### Job
 
-One record stating work that runs on a schedule, once, or by hand.
+One record stating work that runs on a schedule or once. It declares the outcomes each run ends in.
 
 Layer: Behavior.
 
+Home: docs/core/automation.md
+
 Source: LiteSpec.
 
-### Journey
+### Knowledge
 
-The ordered steps by which one actor reaches one goal, with a description of who takes it, what starts it, what good looks like and the consequence at stake. A step is performed by an actor, or by a named external system, job or reaction when no person acts. Steps name no use case; each serving use case points up with serves.
-
-Layer: Intent.
-
-Source: plain English.
-
-### Journey Branch
-
-A path that leaves the order of a journey's steps at one step, named by the step it leaves, the condition under which it leaves, and the step it continues at, or end. A branch states no action of its own; an action is always a step.
+What the product assumes an actor knows, stated as an assumption of the product. It names the product and the actor it applies to, never a fact about every user.
 
 Layer: Intent.
 
-Source: plain English.
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Language
+
+One language an entry point serves, named by its BCP 47 tag. The first tag listed is the default.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
+
+Source: BCP 47.
+
+### Lasting Waiver
+
+One waiver for a choice the project keeps. It carries the consequences the project accepts, and no end date.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
+
+### Limit
+
+One thing a role, aggregate, or entry point does not do, stated as a plain sentence. A role limit names an act inside the role's scope that the grant does not allow.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/access.md
+
+Source: LiteSpec.
 
 ### Measured Requirement
 
-One quality requirement carrying a measure, a target, and a check that confirms them.
+One quality requirement carrying a measure, a target, and a check confirming them.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: Volere.
 
 ### Module
 
-One business area organizing language, records, and use cases.
+One business area that organizes language, records, and use cases.
 
 Layer: Behavior.
 
+Home: docs/core/behavior.md
+
 Source: DDD.
+
+### Module Event
+
+One fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox. It translates one domain event of its own module and selects the fields it publishes from that event in `fields`.
+
+Layer: Behavior.
+
+Home: docs/core/automation.md
+
+Source: LiteSpec.
 
 ### Money
 
-One risk value marking permissions that move, hold, or decide money.
+One risk value. It marks permissions that move, hold, or decide money.
+
+Home: docs/core/access.md
+
+Source: LiteSpec.
+
+### Navigation Map
+
+The drawing of one entry point's screens as places, with the connections between them. The book draws it from `leadsTo`.
+
+Home: docs/tools/book.md
+
+Source: LiteSpec.
+
+### Note
+
+One remark on a research source, holding what a later reader needs about that source.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Notification
 
-One person-facing message with its addresses, channel, consent, and claims.
+One person-facing message with its audience, channel, consent rule, and claims. It is delivered through one external system.
 
 Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Obligation
+
+One outside rule a constraint states as a sourced statement, with the keys of the sources that support it. It keeps the condition under which it holds and states no product effect.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Observation
+
+One dated measured value on a goal, with its source. It shows the outcome reached, apart from delivery.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Open Point
+
+One open question about how a constraint applies, held on the constraint record until it is settled.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Open Question
+
+One thing a research record's sources do not establish, held until it is answered.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Outcome
 
-One named success or failure kind at the API boundary, answered with the status the outcome table assigns it.
+One named way an operation ends. It is answered with a status at the API boundary, or with one of the closed run states of a reaction or job.
 
 Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Page Frame
+
+One named screen layout from the page-frame pattern catalog. Each screen record names it with the option the product chose.
+
+Layer: Behavior.
+
+Home: docs/frontend/patterns/page-frames.md
 
 Source: LiteSpec.
 
 ### Permission
 
-One allowed action from the shared closed list.
+One allowed action, taken from the shared closed list.
 
 Layer: Behavior.
 
+Home: docs/core/access.md
+
 Source: RBAC.
+
+### Permission Set
+
+One page holding one module's permissions, with the risk each permission carries.
+
+Layer: Behavior.
+
+Home: docs/core/access.md
+
+Source: LiteSpec.
+
+### Personal
+
+The classification of a value that identifies a person or can be tied to one, so privacy law and the data class's erasure position apply to it.
+
+Home: docs/core/privacy.md
+
+Source: LiteSpec.
 
 ### Personal Data
 
-One risk value marking permissions that keep personal or sensitive data.
+One risk value. It marks permissions that keep personal or sensitive data.
+
+Home: docs/core/access.md
 
 Source: LiteSpec.
 
 ### Physical Access
 
-One risk value marking permissions that control who passes a physical boundary.
+One risk value. It marks permissions that control who passes a physical boundary.
+
+Home: docs/core/access.md
 
 Source: LiteSpec.
 
 ### Policy Requirement
 
-One requirement stating a policy the business holds, with effective dates where the value changes over time.
+One requirement stating a policy the business holds. Where the value changes over time, it carries effective dates.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
@@ -544,77 +1032,159 @@ One rule that holds before a use case runs.
 
 Layer: Behavior.
 
+Home: docs/core/use-cases.md
+
 Source: Design by Contract.
 
 ### Problem
 
-One pain a person or organization outside the team building the product has today, with its primary sufferer, its cost today, its workaround today and its graded evidence.
+One pain a person or organization outside the team building the product has today. It names its primary sufferer, its cost today, its workaround today, and its graded evidence.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: plain English.
 
 ### Product
 
-The software capability offered to users, with its boundary.
+The software capability offered to users, with its boundary and the exclusions that override its requirements. The product stands above the record layers as their root.
 
-Layer: Intent.
+Home: docs/core/intent.md
 
 Source: plain English.
 
+### Product Area
+
+One Behavior module. The book groups Intent by product area, with one group per module. Each group lists the features and flows the module's use cases, reactions, jobs, or screens reach.
+
+Home: docs/tools/book.md
+
+Source: LiteSpec.
+
+### Product Requirement
+
+One requirement with no offer behind it. It sits at product level and cites the constraint, goal, or problem it comes from.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Prose Reference
+
+One record identifier or provision identifier written in prose in backticks. It must name a written record, or a provision the carried release ships.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/model.md
+
+Source: LiteSpec.
+
 ### Pseudonymize
 
-One erasure position that keeps personal data personal while replacing direct identifiers.
+One erasure position. It keeps personal data personal while replacing direct identifiers.
 
 Layer: Behavior.
+
+Home: docs/core/privacy.md
 
 Source: the GDPR.
 
 Rejected: pseudonymise, the British spelling.
 
+### Public
+
+The classification of a value anyone may see without harm, such as a published price or a product name.
+
+Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
 ### Purpose
 
-The reason personal data is kept, stated on each data class and retention row.
+The reason for keeping personal data, stated on each data class.
 
 Layer: Behavior.
+
+Home: docs/core/privacy.md
 
 Source: the GDPR.
 
 ### Quality Requirement
 
-One requirement stating how well the product performs, with a measure and a target.
+One requirement stating how well the product performs. It carries a measure and a target.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: BABOK and IREB.
 
 ### Query
 
-One use case kind that reads a read model without changing business state.
+One use case kind. A query reads without changing business state.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: CQRS.
 
+### Rationale
+
+The reason behind a requirement or a rule, stated beside the commitment. It completes "because" without the word and adds no behavior.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
 ### Reaction
 
-One record stating work that runs when a domain or integration event arrives.
+One record stating work that runs when a domain, module, or integration event arrives. It declares the outcomes each run ends in.
 
 Layer: Behavior.
+
+Home: docs/core/automation.md
+
+Source: LiteSpec.
+
+### Reauthentication Trigger
+
+One situation in which an entry point requires a fresh sign-in, stated as a plain sentence.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Receive
+
+The action of an integration event or an external-system operation that the outside starts: the fact or the call arrives at the product.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
 ### Record
 
-One written unit of the specification, of a fixed type with fixed links.
+One written unit of the specification, of a fixed type and with fixed links.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Refusal
 
-One named way a use case ends without its effect, listed in precedence order with first match winning.
+One named way a use case ends without its effect. Refusals read in precedence order, with the first match winning. A refusal is a declared business outcome where the use case did not perform its act because a rule, access or input said no; a technical failure (a timeout, a provider error, a crash) is not a result and is handled by retry, the outbox and operations, not declared on the use case.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Aliases: rejection, error.
 
@@ -622,17 +1192,41 @@ Source: LiteSpec.
 
 ### Refusal Code
 
-The stable identifier of one refusal, in identifier form.
+One stable identifier a module's refusal set declares for a way a use case ends without its effect. It reads `<module>.<name>`.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
+### Refusal Sentence
+
+The sentence a person reads when a refusal reaches them. It sits on the refusal result in the product's language, with one sentence per further language beside it.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Refusal Set
+
+One page holding one module's refusal codes, with each code's meaning. A refusal result names its code and keeps its sentence; the problem type of a code is the project's `problemTypeBase` followed by the code's part after its module.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows or one guarantee it keeps. A departure names its fallback requirement; a tenant-set value is not a departure. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
+One behavior the product shows, or one guarantee it keeps. An `except` entry names its fallback requirement, and a tenant-set value is no exception to the requirement. Its `cites` names the goals, directions, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: BABOK and IREB.
 
@@ -640,59 +1234,103 @@ Rejected: product rule, which clashes with the rule record.
 
 ### Research
 
-One outside fact informing a choice.
+One outside fact that informs a choice.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: plain English.
 
 Rejected: decision evidence, which states where the fact is used instead of what it is.
 
+### Research Finding
+
+One claim a research record states with its sources, saying whether the source states the claim or the writer infers it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Resolution Criteria
+
+The observable outcomes that would end a problem, one per failure case. Each states what the sufferer can do once the failure is gone, naming no product, feature, or solution.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Responsibility
+
+One act the product holds an actor to, or one thing a business area covers, stated as a plain sentence.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
 ### Result
 
-One way a use case ends: success or a named refusal. Refusals read in precedence order; a success may carry codes for recorded outcomes inside it. Its identifier is `result/<use-case>.<name>`.
+One way a use case ends: success or a named refusal. Refusals read in precedence order, and a success may carry codes for recorded outcomes inside it. A refusal result carries a code from its module's refusal set, and its identifier is `result/<use-case>.<name>`.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: the Result pattern.
 
-### Retention Schedule
-
-The one page mapping each data class to its basis, purpose, period, enforcement, and cites.
-
-Layer: Behavior.
-
-Source: the GDPR.
-
 ### Role
 
-One named set of permissions granted together, at the one scope the role holds.
+One named set of permissions granted together. The role holds one scope.
 
 Layer: Intent.
+
+Home: docs/core/access.md
 
 Source: RBAC.
 
 ### Rule
 
-One testable commitment stating what holds.
+One testable commitment that states what holds.
 
 Layer: Behavior.
 
+Home: docs/core/use-cases.md
+
 Source: the Business Rules Group.
+
+### Rule Set
+
+One page holding one module's or aggregate's rules, with each rule's condition and refusal.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
 
 ### Runbook
 
-The steps to run or recover the product.
+The steps for running or recovering the product.
 
 Layer: Implementation.
+
+Home: docs/quality/operations.md
 
 Source: the SRE book.
 
 ### Scenario
 
-One testable example proving one result, stated as given, when, then. A scenario may point at a derived result. Its identifier is `scenario/<use-case>.<name>`.
+One testable example proving one behavior, stated as given, when, then, and stored in the file of the use case, reaction, or job it exercises. A scenario may point at a derived result. Its identifier names the behavior it exercises, as `scenario/<use-case>.<name>`.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: BDD and Gherkin.
 
@@ -700,17 +1338,67 @@ Rejected: acceptance criterion, which names the review use instead of the exampl
 
 ### Screen
 
-One page a person sees through a browser or device entry point, which serves a journey step only through a use case it offers.
+One page a person sees through a browser or device entry point. It serves a flow step only through a use case it offers, and it may fulfill a requirement about the interface in `fulfills`.
 
 Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Screen State
+
+One state a screen can show, with what the screen shows in it.
+
+Layer: Behavior.
+
+Home: docs/frontend/ui.md
+
+Source: LiteSpec.
+
+### Send
+
+The action of an integration event or an external-system operation that the product starts: the product emits the fact or makes the call.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Sensitive
+
+The classification of personal data that needs more care than other personal data. A sensitive data class kept with `pseudonymize`, `retain` or `exempt` names the requirement or decision that accepts it.
+
+Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
+### Session
+
+How long a signed-in session on an entry point lasts, as a lifetime and an idle timeout in ISO 8601 durations.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
 
 Source: LiteSpec.
 
 ### Setting
 
-One named bound or default the product runs within, with its setter and its behavior at the bound. The use cases that read it name it in `reads`.
+One operator configuration value the running system reads, such as a provider timeout or a delay the operator tunes. A value the business changes while the system runs is aggregate data instead. The use case, reaction, or job reading it names it in `reads`.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
+### Setting Set
+
+One page holding one module's settings, with each setting's bound or default.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
@@ -718,37 +1406,75 @@ Source: LiteSpec.
 
 The whole set of records describing one product.
 
+Home: docs/core/model.md
+
 Source: LiteSpec.
 
 ### State
 
-One named stage in an aggregate lifecycle, with its meaning.
+One named stage in an aggregate's lifecycle, with its meaning.
 
 Layer: Behavior.
+
+Home: docs/core/domain-model.md
 
 Source: LiteSpec.
 
-### Store
+### Step
 
-One aggregate kind holding state no invariant guards.
+One ordered step of a flow or a use case. A flow step states what its performer experiences; a use-case step states who acts and the rules, results, settings, or events it applies.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
+### Storyboard
+
+The drawing of one flow as a strip of its steps' screens in step order. The book draws it.
+
+Home: docs/tools/book.md
+
+Source: LiteSpec.
+
+### Success Criteria
+
+The outcomes a feature brings about on its own, each stated so a tester can check it.
+
+Layer: Intent.
+
+Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Task
+
+What a person does on a screen, stated in one to three sentences on the screen record.
 
 Layer: Behavior.
+
+Home: docs/frontend/ui.md
 
 Source: LiteSpec.
 
 ### Team Actor
 
-One actor that belongs to the team building and running the product, marked on its record. A problem never names a team actor as its primary sufferer.
+One actor belonging to the team building and running the product, marked on its record. A problem never names a team actor as its primary sufferer.
 
 Layer: Intent.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Tenant Scope
 
-The declared reach of a use case grant across tenants: own, cross, public, or none.
+The declared reach of a use case grant across tenants: `own`, `cross`, `public`, or `none`.
 
 Layer: Behavior.
+
+Home: docs/core/access.md
 
 Source: LiteSpec.
 
@@ -758,139 +1484,229 @@ One word with one meaning, labels in each language, and rejected synonyms. Each 
 
 Layer: Intent or Behavior.
 
+Home: docs/core/language.md
+
 Source: arc42; DDD's ubiquitous language.
+
+### Token Role
+
+One named use of color, such as text, card edge, or focus ring. The token file holds the role's values, and the role carries the limits they meet in each declared scheme.
+
+Home: docs/frontend/ui.md
+
+Source: LiteSpec.
 
 ### Transition
 
-One declared move between aggregate states, made by a use case.
+One declared move between aggregate states. A use case makes it, or time moves it through a job.
 
 Layer: Behavior.
+
+Home: docs/core/domain-model.md
 
 Source: LiteSpec.
 
 ### Trigger
 
-The event that starts a reaction, or the schedule or manual run that starts a job.
+The domain, module, or integration event starting a reaction, or the schedule starting a job.
 
 Layer: Behavior.
+
+Home: docs/core/automation.md
 
 Source: LiteSpec.
 
 ### Ubiquitous Language
 
-The shared domain words the team and the model use alike.
+The domain words the team and the model share and use alike.
+
+Home: docs/core/language.md
 
 Source: DDD.
 
 ### Use Case
 
-One command or query with its access, results, and scenarios.
+One command or query, with its access, results, and scenarios.
 
 Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: Cockburn.
 
 ### User
 
-The person the product serves, reached through a browser or device entry point.
+The person the product serves. A user reaches the product through a browser or device entry point.
 
 Layer: Behavior.
 
+Home: docs/core/edges.md
+
 Source: LiteSpec.
 
-### Vision
+### Verified Claim
 
-Where the product is heading beyond what it promises now, stated without a date or priority, which a decision keeping it open cites and nothing builds from.
+One input value a provider checked that the caller can never supply. The record names the entry point or external system that verified it.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
+
+Source: LiteSpec.
+
+### Voice
+
+How the product addresses one entry point's audience, stated on the entry point record in a sentence or two.
+
+Layer: Behavior.
+
+Home: docs/core/edges.md
+
+Source: LiteSpec.
+
+### Waiver
+
+One record that sets a required provision, page, or finding code aside for the records or paths it names, with its reason. A gap waiver carries an expiry date, an exit, and the records whose change closes it; a lasting waiver carries the consequences the project accepts.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
+
+### Wireframe
+
+One text drawing of a screen's structure in the wireframe language. It sits in the screen's explanation file.
+
+Layer: Behavior.
+
+Home: docs/frontend/patterns.md
+
+Source: LiteSpec.
+
+### Workaround
+
+What a problem's sufferer does instead today, with the burden that work carries. It states the time the work takes, what the sufferer repeats or has to remember, and what it still misses.
 
 Layer: Intent.
 
-Source: product vision practice.
+Home: docs/core/intent.md
+
+Source: LiteSpec.
 
 ## Standard Terms
 
-These terms name the parts of the LiteSpec standard itself.
+These terms name the parts of the LiteSpec standard rather than the product.
 
 ### Agent
 
 Software that reads task context, plans bounded work, changes the files it is allowed to change, and runs verification.
 
+Home: docs/core/agent.md
+
 Source: LiteSpec.
 
 ### Agent-Driven Engineering
 
-The operating model where agents do engineering work and people keep decision authority.
+The operating model in which agents do engineering work while people keep decision authority.
+
+Home: docs/core/agent.md
 
 Source: LiteSpec.
 
 ### Alert Inventory
 
-The list of alerts a product can fire, with the runbook each alert names.
+The list of alerts a product can fire. Each alert names its runbook.
+
+Home: docs/quality/operations.md
 
 Source: the SRE book.
 
 ### Audit Record
 
-One entry stating actor, action, target, outcome, time, origin, and reason.
+One entry stating the actor, action, target, outcome, time, origin, and reason.
+
+Home: docs/ext/audit.md
 
 Source: NIST SP 800-53, control AU-3.
 
 ### Audit Trail
 
-The append-only store that holds audit records, kept separate from logs and domain events.
+The append-only store holding audit records, kept separate from logs and domain events.
+
+Home: docs/ext/audit.md
 
 Source: NIST SP 800-53.
 
 ### Background Caller
 
-The reaction or job whose `runs` edge names a background-only use case.
+The reaction or job with a `runs` edge to a background-only use case.
+
+Home: docs/core/automation.md
 
 Source: LiteSpec.
 
 ### Background-Only
 
-The computed state of a use case a reaction or job runs, needing no journey to reach it.
+The computed state of a use case a reaction or job runs. It needs no flow to reach it.
+
+Home: docs/core/automation.md
 
 Source: LiteSpec.
 
 ### Check Level
 
-One of the three check levels: G reads records only and always blocks, S reads code through a stack reader, A reports, and blocks only for the release-readiness findings under `litespec model check --release`.
+One of the three check levels. G reads records only, S reads code through a stack reader, and A reports. Whether a finding blocks follows the strength of the provision it reports.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Checkable
 
-One provision a tool checks, carrying a Checked by verification line.
+One provision a tool checks. It carries a `Checked by` verification line.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Closed Specification
 
-The specification with every record decided and every required link holding.
+A specification with every record decided and every required link holding.
+
+Home: docs/core/release.md
 
 Source: LiteSpec.
 
 ### Coded
 
-The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.
+The computed state of a use case, rule, domain event, or aggregate state for which the stack's builder finds code.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Command Page
 
-One page that documents one shipped command: its arguments, options, exit codes, and what it runs underneath.
+One page documenting one shipped command: its arguments, options, exit codes, and what it runs underneath.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Completion Stage
 
-One of the four stages of a record's completion: unfulfilled, specified, coded, or verified.
+One of the four stages of a record's completion: `unfulfilled`, `specified`, `coded`, or `verified`.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Component Inventory
 
-The list of shipped components published with each release artifact.
+The list of shipped components, published with each release artifact.
+
+Home: docs/workspace/dependencies.md
 
 Source: supply-chain practice.
 
@@ -898,73 +1714,97 @@ Rejected: SBOM, which names one format where the inventory names the content.
 
 ### Configuration Page
 
-One page holding every setting a reader can change.
+One page that holds every setting a reader can change.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Consumer
 
-One project built against a pinned LiteSpec release.
+One project built against one pinned LiteSpec release.
+
+Home: docs/core/scope.md
 
 Source: LiteSpec.
 
 ### Contract
 
-One named set of obligations or shapes holding between parts, such as a page, a provision, a pattern, a release, or an API.
+One named set of obligations or shapes that holds between parts, such as a page, a provision, a pattern, a release, or an API.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Controlled Technical Prose
 
-The fixed writing profile that sets the allowed structures, prose bounds, exact terms, and testable provisions.
+The fixed writing profile setting the allowed structures, prose bounds, exact terms, and testable provisions.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Convention
 
-One replaceable default for a name, location, file shape, or pattern.
+One replaceable default for a name, a location, a file shape, or a pattern.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### CORS
 
-The browser rule that decides which origins can call the API.
+The browser rule deciding which origins can call the API.
+
+Home: docs/backend/api.md
 
 Source: the Fetch standard.
 
 ### Covered
 
-The outcome of a finding a departure record covers: reported, and never blocking.
+The outcome of a finding that a waiver record covers. It is reported, and never blocking.
+
+Home: docs/core/waivers.md
 
 Source: LiteSpec.
 
 ### Current Standards Material
 
-The pinned release taken on its own, without transition or history material.
+The pinned release, taken on its own without transition or history material.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Derived Artifact
 
-One committed file produced from an authored source, such as generated types.
+One committed file produced from an authored source. Generated types are one example.
+
+Home: docs/workspace/structure.md
 
 Source: LiteSpec.
 
 ### Diagnostic
 
-One issue litespec-maintain validate reports about standards material.
+One issue `litespec-maintain validate` reports about standards material.
+
+Home: docs/maintain/validate.md
 
 Source: LiteSpec.
 
 ### Document
 
-One Markdown page under a record root that holds no record.
+One Markdown page under a record root, holding no record.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Documentation Layer
 
-One depth of documentation, from a first working result down to the mechanism a command runs.
+One depth of documentation, running from a first working result down to the mechanism a command runs.
+
+Home: docs/core/authoring.md
 
 Source: Diataxis.
 
@@ -972,77 +1812,103 @@ Source: Diataxis.
 
 One connected set of decisions, specifications, standards, verification, and release practices.
 
+Home: docs/learn/how-litespec-works.md
+
 Source: LiteSpec.
 
 ### Exercised
 
-The computed state of a journey step with a passing proof of a use case serving it.
+The computed state of a flow step with a passing proof of a use case, reaction, or job that serves it.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Explanation
 
-One page that builds understanding of what LiteSpec is and why it works the way it does.
+One page building understanding of what LiteSpec is and why it works the way it does.
+
+Home: docs/core/authoring.md
 
 Source: Diataxis.
 
 ### Explanation File
 
-One Markdown file beside a record file that explains the record for people and agents.
+One Markdown file beside a record file, explaining the record for people and agents.
+
+Home: docs/core/writing.md
 
 Source: LiteSpec.
 
 ### Extension
 
-One conditional standards bundle a project selects when its criterion holds.
+One conditional standards bundle, which a project selects when its criterion holds.
+
+Home: docs/core/scope.md
 
 Source: LiteSpec.
 
 ### Finding
 
-One issue litespec model check reports, with its level, code, message, path, and line.
+One issue `litespec model check` reports, with its level, code, message, path, and line.
+
+Home: docs/tools/model.md
 
 Source: LiteSpec.
 
 ### Flaky
 
-The computed state of a proof whose test both passed and failed within the runs read.
+The computed state of a proof whose test passed in some runs read and failed in others.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Frontmatter
 
-The opening block of a document stating its page style.
+The opening block of a document, stating its page style.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Governance
 
-The group of records beside the four record layers, holding departures.
+The group of records beside the four record layers. It holds waivers.
+
+Home: docs/core/waivers.md
 
 Source: LiteSpec.
 
 ### Guidance
 
-One provision a person judges, carrying a Reviewed for verification line.
+One provision a person judges. It carries a `Reviewed for` verification line.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### How-To Page
 
-One page that solves one stated problem for a reader who already has a working result.
+One page solving one stated problem for a reader who already has a working result.
+
+Home: docs/core/authoring.md
 
 Source: Diataxis.
 
 ### Index
 
-One page routing readers to the pages of its section.
+One page that routes readers to the pages of its section.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### License
 
-One SPDX identifier naming the terms a shipped package carries.
+One SPDX identifier that names the terms a shipped package carries.
+
+Home: docs/workspace/dependencies.md
 
 Source: SPDX.
 
@@ -1050,19 +1916,25 @@ Rejected: licence and licences, the British spellings.
 
 ### LiteSpec
 
-The standards contract for specifying, building, verifying, releasing, and operating software with agents.
+The standards contract covering how software is specified, built, verified, released, and operated with agents.
+
+Home: docs/README.md
 
 Source: LiteSpec.
 
 ### LiteSpec Release
 
-One published, pinned, complete standards contract.
+One standards contract that is published, pinned, and complete.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Mark
 
-One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or departure shaping it, holding the identifier in the project mark style.
+One written link from a code element or a test, holding the identifier in the project mark style. An `implements` mark names the record the element serves, and a `follows` mark names the provision, decision, or waiver shaping it.
+
+Home: docs/core/layers.md
 
 Source: LiteSpec.
 
@@ -1070,25 +1942,33 @@ Rejected: anchor and tag, which name the link by one of its forms.
 
 ### Normative
 
-Required of a conforming consumer through an identified provision.
+What an identified provision requires of a conforming consumer.
+
+Home: docs/core/authoring.md
 
 Source: standards practice, as the W3C QA Framework and ISO Directives use it.
 
 ### Page
 
-One authored record file or document under the documentation root.
+One authored record file, or one document, under the documentation root.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Page Segment
 
-The part of a provision ID naming its owning page.
+The part of a provision ID that names its owning page.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Page Style
 
-One page template for prose or record lists.
+One template for a page of prose or record lists.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
@@ -1096,207 +1976,267 @@ Rejected: page class, which reads as a code type.
 
 ### Pattern
 
-One named answer to a recurring interface question, with its options and wireframes.
+One named answer to a recurring interface question. It carries its options and wireframes.
+
+Home: docs/frontend/patterns.md
 
 Source: LiteSpec.
 
 ### Preset
 
-One ready-made selection of shape, stacks, and frontends for a new project.
+One ready-made selection of a shape, stacks, and frontends for a new project.
+
+Home: docs/tools/init.md
 
 Source: LiteSpec.
 
 ### Project
 
-One bounded-context business application built with LiteSpec.
+One business application in one bounded context, built with LiteSpec.
 
-Source: LiteSpec.
-
-### Proof Hash
-
-The hash of a scenario or of its test body recorded in `.litespec/proof/proofs.json` at the last passing run.
+Home: docs/core/scope.md
 
 Source: LiteSpec.
 
 ### Provision
 
-One rule, convention, or pattern on a standards page, carrying an identifier, a strength, and a verification line.
+One rule, convention, or pattern on a standards page. It carries an identifier, a strength, and a verification line.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Rate Limit
 
-One bound on request frequency at an exposed endpoint.
+One bound on how often an exposed endpoint accepts requests.
+
+Home: docs/backend/api.md
 
 Source: web API practice.
 
 ### Reachable
 
-The computed state of an aggregate state a transition leads into.
+The computed state of an aggregate state that a transition leads into.
+
+Home: docs/core/domain-model.md
 
 Source: LiteSpec.
 
 ### Reader
 
-The stack reader that reads code for the model and the checks. The reader of a documentation page is not a reader in this sense.
+The stack reader that reads code for the model and the checks. A person reading a documentation page is not a reader in this sense.
+
+Home: docs/core/layers.md
 
 Source: LiteSpec.
 
 ### Reads As
 
-The phrase stating how one link reads from its record, with its pair stating how it reads back.
+The phrase stating how one link reads from its record. Its pair states how the link reads back.
 
 Layer: Behavior.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Record File
 
-One YAML file holding one record page with its entries.
+One YAML file that holds one record page with its entries.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Record Layer
 
-One of the four homes of records: Intent, Behavior, Implementation, or Proof.
+One of the four homes of records. The layers are Intent, Behavior, Implementation, and Proof.
+
+Home: docs/core/layers.md
 
 Source: LiteSpec.
 
 ### Record-Driven Delivery
 
-Delivery where records select work and define completion.
+Delivery in which records select work and define completion.
+
+Home: docs/learn/how-litespec-works.md
 
 Source: LiteSpec.
 
 ### Recovery Objectives
 
-The accepted time and data loss bounds for a restore.
+The accepted bounds on time and data loss for a restore.
+
+Home: docs/quality/operations.md
 
 Source: the SRE book.
 
 ### Reference Page
 
-One page of exact values a reader looks up.
+One page of exact values, written for a reader to look up.
+
+Home: docs/core/authoring.md
 
 Source: Diataxis.
 
 ### Roll-Forward
 
-Recovery by deploying a newer version rather than restoring the old one.
+Recovery through deploying a newer version rather than restoring the old one.
+
+Home: docs/quality/operations.md
 
 Source: release practice.
 
 ### Scope
 
-The part of a project a provision applies to, stated in Applies to when narrower than the page.
+The part of a project a provision applies to. It is stated in `Applies to` when narrower than the page.
+
+Home: docs/core/scopes.md
 
 Source: LiteSpec.
 
 ### Secret Inventory
 
-The list of production secrets, each with its location and rotation date.
+The list of production secrets. Each entry names its location and rotation date.
+
+Home: docs/quality/security.md
 
 Source: security practice.
 
 ### Shape
 
-One deployment boundary of a project: server or client-only.
+One deployment boundary of a project: `server` or `client-only`.
+
+Home: docs/core/scope.md
 
 Source: LiteSpec.
 
 ### Size
 
-One of the required-record sets of a project: small or large.
+One of the required-record sets of a project: `small` or `large`.
+
+Home: docs/core/scope.md
 
 Source: LiteSpec.
 
 ### Source Material
 
-Research kept outside the documentation, which carries no authority on its own.
+Research kept outside the documentation. It carries no authority on its own.
+
+Home: docs/core/intent.md
 
 Source: LiteSpec.
 
 ### Specified
 
-The completion stage of a record that is named in the specification but has no code and no passing proof.
+The completion stage of a record named in the specification that has no code and no passing proof.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Stack
 
-One technology binding of the specification, held in one folder.
+One technology binding of the specification. It is held in one folder.
+
+Home: docs/core/stacks.md
 
 Source: LiteSpec.
 
 ### Stale
 
-The computed state of a proof whose scenario or test body changed after its test last passed.
+The computed state of a proof whose run commit is behind HEAD with a code change since: a path changed between the run commit and the working tree that is neither under the LiteSpec folder nor a Markdown file. It reads `last passed at <short commit>, <N> commits ago`.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Standard
 
-One identified provision stating a required boundary for consumers.
+One identified provision that states a required boundary for consumers.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Statement
 
-The one sentence in a provision carrying its obligation.
+The one sentence in a provision that carries its obligation.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Strength
 
-One of the three provision strengths: required, default, or advisory.
+One of the three provision strengths: `required`, `default`, or `advisory`.
+
+Home: docs/core/scopes.md
 
 Source: LiteSpec.
 
 ### Sub-Processor
 
-One provider processing personal data for the product.
+One provider that processes personal data for the product.
+
+Home: docs/core/privacy.md
 
 Source: the GDPR.
 
 ### Task Authorizer
 
-The person who gave the agent its task.
+The person who assigns the agent its task.
+
+Home: docs/core/agent.md
 
 Source: LiteSpec.
 
 ### Tested
 
-The computed state of a record with a passing test that asserts something linking to it.
+The computed state of a record with a passing test that asserts something linked to it.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Tutorial
 
-One page that takes a reader to a first working result.
+One page taking a reader to a first working result.
+
+Home: docs/core/authoring.md
 
 Source: Diataxis.
 
 ### Underneath
 
-The command page section stating what the command runs.
+The command page section that states what the command runs.
+
+Home: docs/core/authoring.md
 
 Source: LiteSpec.
 
 ### Unfulfilled
 
-The completion stage of a record the specification names but nothing yet specifies, codes or verifies.
+The completion stage of a record the specification names, but which nothing yet specifies, codes, or verifies.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Verified
 
-The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale, and of a requirement everything fulfilling it verifies, with its measure's check passing.
+The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale. A requirement is verified when everything fulfilling it is verified and its measure's check passes.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
 ### Workspace
 
-The repository that holds a consumer application or the standards.
+The repository holding a consumer application or the standards.
+
+Home: docs/workspace/structure.md
 
 Source: LiteSpec.
 

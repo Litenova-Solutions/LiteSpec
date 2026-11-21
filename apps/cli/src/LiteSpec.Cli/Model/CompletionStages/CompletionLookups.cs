@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Checks;
 using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
@@ -30,7 +31,7 @@ sealed class CompletionLookups
     /// <summary>The implementation decisions based on each record, in model order.</summary>
     readonly Dictionary<string, List<Record>> decisionsBasedOn;
 
-    /// <summary>The records serving each journey step, in model order.</summary>
+    /// <summary>The records serving each flow step, in model order.</summary>
     readonly Dictionary<string, List<Record>> servers;
 
     /// <summary>The proves links by the record they claim, in model order.</summary>
@@ -51,7 +52,10 @@ sealed class CompletionLookups
     /// <summary>Gets the ids a follows link reaches.</summary>
     public HashSet<string> Followed { get; }
 
-    /// <summary>Gets the stage of each journey step worked out so far.</summary>
+    /// <summary>Gets the live waiver parking each record, by record id: the waiver id with its expiry date, or null for a lasting waiver.</summary>
+    public Dictionary<string, (string Waiver, string? ExpiresOn)> ParkedBy { get; }
+
+    /// <summary>Gets the stage of each flow step worked out so far.</summary>
     public Dictionary<string, string> StepStages { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Initializes a new instance of the <see cref="CompletionLookups"/> class, indexing the model's records and links once.</summary>
@@ -61,7 +65,7 @@ sealed class CompletionLookups
         Model = model;
         byType = RecordsByType(model);
         scenariosByHome = ScenariosByHome(model);
-        fulfilling = Citing(model, RecordTypes.FulfillingTypes, RecordFields.Fulfills);
+        fulfilling = Fulfilling(model);
         decisionsBasedOn = Citing(
             model,
             [RecordTypes.Decision],
@@ -78,6 +82,7 @@ sealed class CompletionLookups
             .ToHashSet(StringComparer.Ordinal);
         Implemented = model.Implements.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
         Followed = model.Follows.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
+        ParkedBy = ParkingWaivers(model);
     }
 
     /// <summary>The records of one type, in id order.</summary>
@@ -111,8 +116,8 @@ sealed class CompletionLookups
         return fulfillers.OrderBy(record => record.Id, StringComparer.Ordinal).ToList();
     }
 
-    /// <summary>The records serving a journey step.</summary>
-    /// <param name="step">The journey step id.</param>
+    /// <summary>The records serving a flow step.</summary>
+    /// <param name="step">The flow step id.</param>
     /// <returns>The records serving the step, in model order.</returns>
     public List<Record> ServersOf(string step) =>
         servers.TryGetValue(step, out var found) ? found : NoRecords;
@@ -173,6 +178,29 @@ sealed class CompletionLookups
         return byHome;
     }
 
+    /// <summary>The Behavior records fulfilling each requirement: records of a fulfilling type by their fulfills, and entry points by their served-content entries, each record once per id, in model order.</summary>
+    /// <param name="model">The built project model.</param>
+    /// <returns>The fulfilling records by fulfilled id.</returns>
+    static Dictionary<string, List<Record>> Fulfilling(ProjectModel model)
+    {
+        var byTarget = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records)
+        {
+            // A served-content entry fulfills the requirements it names for its entry point.
+            var targets = RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal)
+                ? record.Ids(RecordFields.Fulfills)
+                : record.ServedFulfills();
+
+            foreach (var target in targets.Distinct(StringComparer.Ordinal))
+            {
+                Add(byTarget, target, record);
+            }
+        }
+
+        return byTarget;
+    }
+
     /// <summary>The records of the given types by each id one of their fields names, each record once per id, in model order.</summary>
     /// <param name="model">The built project model.</param>
     /// <param name="types">The record types that cite.</param>
@@ -219,6 +247,42 @@ sealed class CompletionLookups
 
         return asserting;
     }
+
+    /// <summary>The live waiver parking each record, by record id: the first live waiver in id order naming it in appliesTo, with its expiry date or null for a lasting waiver.</summary>
+    /// <param name="model">The built project model.</param>
+    /// <returns>The parking waiver per parked record id.</returns>
+    static Dictionary<string, (string Waiver, string? ExpiresOn)> ParkingWaivers(ProjectModel model)
+    {
+        var parked = new Dictionary<string, (string Waiver, string? ExpiresOn)>(StringComparer.Ordinal);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        foreach (var waiver in model.Records
+            .Where(record => record.Type == RecordTypes.Waiver)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (!Live(waiver, today))
+            {
+                continue;
+            }
+
+            var expiresOn = waiver.Field(RecordFields.ExpiresOn);
+
+            foreach (var subject in waiver.Ids(RecordFields.AppliesTo))
+            {
+                parked.TryAdd(subject, (waiver.Id, expiresOn));
+            }
+        }
+
+        return parked;
+    }
+
+    /// <summary>Whether the waiver holds today: it has no expiry date, or its expiry date has not passed.</summary>
+    /// <param name="waiver">The waiver record.</param>
+    /// <param name="today">Today's date.</param>
+    /// <returns>True when the waiver parks its subjects today.</returns>
+    static bool Live(Record waiver, DateOnly today) =>
+        waiver.Field(RecordFields.ExpiresOn) is not { } expiresOn
+        || (ProseText.IsoDate(expiresOn, out var expires) && today <= expires);
 
     /// <summary>Adds a record to the list a key holds, starting the list when the key is new.</summary>
     /// <param name="index">The index to add to.</param>

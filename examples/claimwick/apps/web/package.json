@@ -1,0 +1,34 @@
+{
+  "name": "@claimwick/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.28.5",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "playwright test",
+    "test:structure": "vitest run"
+  },
+  "dependencies": {
+    "@claimwick/api": "workspace:*",
+    "@claimwick/ui": "workspace:*",
+    "@tanstack/svelte-query": "6.x",
+    "svelte": "5.x"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.x",
+    "@playwright/test": "1.x",
+    "@sveltejs/adapter-static": "4.x",
+    "@sveltejs/kit": "3.x",
+    "@sveltejs/vite-plugin-svelte": "7.x",
+    "svelte-check": "4.x",
+    "typescript": "6.x",
+    "vite": "8.x",
+    "vitest": "8.x"
+  }
+}

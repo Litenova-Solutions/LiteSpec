@@ -6,7 +6,9 @@ using static LiteSpec.Maintain.Validate.RepositoryWalk;
 namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
-///     The field-naming contract: one concept, one name, and one shape on every record that carries it.
+///     The field-naming contract: a field name reads in its record type, one concept keeps
+///     one name across types, a type noun holds links, a link verb holds links, and a date
+///     name holds a date. The same name may hold a different shape on another record type.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal sealed class FieldValidator
@@ -23,14 +25,9 @@ internal sealed class FieldValidator
     /// <summary>Gets the shared validation context.</summary>
     private ValidationContext Context { get; }
 
-    // One concept keeps one name and one shape everywhere it appears, so an
-    // author who has learned a field on one record has learned it on them all.
-    // The names below are the declared exceptions beside the provision; every
-    // other field follows the rule.
-    // (litespec/core/language#name-each-field-by-its-word-class)
-    /// <summary>Gets the fields excepted from the same-shape rule.</summary>
-    private static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "evidence", "subject"], StringComparer.Ordinal);
-
+    // A field name reads in its record type, so the same name may hold
+    // different shapes on different record types. Only three guards stay.
+    // (litespec/core/language#read-each-field-name-in-its-record-type)
     /// <summary>Gets the fields excepted from the ISO date name rule.</summary>
     private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);
 
@@ -40,14 +37,14 @@ internal sealed class FieldValidator
     // (litespec/core/language#name-each-field-by-its-word-class)
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
-        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
-            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries",
-            "binds", "exercises"],
+        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "writes", "waives",
+            "affects", "holds", "offers", "sends", "translates", "admits", "carries",
+            "binds", "exercises", "represents"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name a closed set.</summary>
     private static readonly HashSet<string> ClosedSetNouns = new(
-        ["kind", "mode", "direction", "trust", "reach", "level"],
+        ["kind", "mode", "trust", "reach", "level"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name prose.</summary>
@@ -65,7 +62,7 @@ internal sealed class FieldValidator
     // cannot collide with record-level names.
     /// <summary>Gets the entry definition names in field-naming scope.</summary>
     private static readonly HashSet<string> FieldNamingEntries = new(
-        ["permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "eventEntry", "entryPointEntry", "settingEntry"],
+        ["permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "domainEventEntry", "entryPointEntry", "settingEntry"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the schemas whose fields face the naming rules.</summary>
@@ -112,6 +109,77 @@ internal sealed class FieldValidator
         }
     }
 
+    /// <summary>Checks every record schema field against the field table: one meaning and one shape per name.</summary>
+    internal void CheckFieldTable()
+    {
+        const string relative = "schemas/record.schema.yaml";
+        var file = JoinRoot(Context.Root, relative);
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        JsonNode? schema;
+        try
+        {
+            schema = RecordText.Read(file);
+        }
+        catch (LiteSpec.Model.JsonTextException)
+        {
+            return;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return;
+        }
+        catch (IOException)
+        {
+            return;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if ((schema as JsonObject)?["$defs"] is not JsonObject defs)
+        {
+            return;
+        }
+
+        var add = Context.Add;
+        foreach (var entry in defs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if ((entry.Value as JsonObject)?["properties"] is not JsonObject properties)
+            {
+                continue;
+            }
+
+            foreach (var (field, node) in properties.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                if (!FieldTable.ByName.TryGetValue(field, out var row))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} is outside the field table; add it with its meaning and shape");
+                    continue;
+                }
+
+                if (row.Shape == "any")
+                {
+                    continue;
+                }
+
+                var shape = FieldShape(node, defs, []);
+                if (shape is not null && shape != row.Shape)
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} holds {shape} but the field table declares {row.Shape}; one name holds one shape");
+                }
+                else if (shape is null)
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} mixes shapes but the field table declares {row.Shape}; one name holds one shape");
+                }
+            }
+        }
+    }
+
     /// <summary>Checks the field names of one schema file.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="defs">The schema definitions.</param>
@@ -133,58 +201,6 @@ internal sealed class FieldValidator
             .Where(name => name.Length > 2 && name.EndsWith("Id", StringComparison.Ordinal))
             .ToHashSet(StringComparer.Ordinal);
         var nouns = idDefs.Select(name => name[..^2]).ToHashSet(StringComparer.Ordinal);
-
-        var shapes = new Dictionary<string, List<(string Def, string? Shape)>>(StringComparer.Ordinal);
-        foreach (var (def, properties) in scope)
-        {
-            foreach (var (field, node) in properties!.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                if (!shapes.TryGetValue(field, out var seen))
-                {
-                    seen = [];
-                    shapes[field] = seen;
-                }
-
-                seen.Add((def, FieldShape(node, defs, [])));
-            }
-        }
-
-        foreach (var field in shapes.Keys.OrderBy(name => name, StringComparer.Ordinal))
-        {
-            if (SameShapeExceptions.Contains(field))
-            {
-                continue;
-            }
-
-            string? shapeA = null;
-            string? defA = null;
-            string? shapeB = null;
-            string? defB = null;
-            foreach (var (def, shape) in shapes[field])
-            {
-                if (shape is null)
-                {
-                    continue;
-                }
-
-                if (shapeA is null)
-                {
-                    shapeA = shape;
-                    defA = def;
-                }
-                else if (shape != shapeA)
-                {
-                    shapeB = shape;
-                    defB = def;
-                    break;
-                }
-            }
-
-            if (shapeB is not null)
-            {
-                add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/language#name-each-field-by-its-word-class");
-            }
-        }
 
         var reported = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (def, properties) in scope)
@@ -216,6 +232,17 @@ internal sealed class FieldValidator
                     else if (shape == "string" && !ReachesTypeId(node, TypeIdsFor(field, idDefs), defs, []))
                     {
                         add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds prose; use the plural name for a list and another name for prose");
+                    }
+                }
+
+                // A plural type noun holds links to that type, like the singular.
+                // (litespec/core/language#read-each-field-name-in-its-record-type)
+                if (field.Length > 1 && field.EndsWith('s') && nouns.Contains(field[..^1]))
+                {
+                    var pluralNoun = field[..^1];
+                    if (!ReachesTypeId(node, TypeIdsFor(pluralNoun, idDefs), defs, []))
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds no links to `{pluralNoun}`; use another name for prose");
                     }
                 }
 
@@ -474,7 +501,7 @@ internal sealed class FieldValidator
     /// <param name="typeIds">The identifier definitions of the record type.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
-    /// <returns>True when every branch reaches an identifier definition.</returns>
+    /// <returns>True when every branch reaches an identifier definition, following an array's items.</returns>
     private static bool ReachesTypeId(JsonNode? node, HashSet<string> typeIds, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
@@ -511,6 +538,12 @@ internal sealed class FieldValidator
             {
                 return branches.All(branch => ReachesTypeId(branch, typeIds, defs, visited));
             }
+        }
+
+        // A list of links: the items schema names the type.
+        if (JsonString(obj["type"]) == "array" && obj["items"] is JsonObject items)
+        {
+            return ReachesTypeId(items, typeIds, defs, visited);
         }
 
         return false;

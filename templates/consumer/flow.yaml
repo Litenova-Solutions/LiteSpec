@@ -1,0 +1,24 @@
+type: flow
+id: flow/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+actor: actor/<name>
+summary: <the path the actor takes, from its start to its end>
+# A flow carries serves or answers, never both.
+serves:
+- goal/<name>
+startedWhen: <the state the actor starts from>
+finishedWhen: <the state the actor ends in>
+# A step names the actor that performs it, a person, an organization or a system actor.
+steps:
+- id: step/<flow>.<act>
+  title: <Title in Title Case>
+  statement: <what the actor does, in one sentence>
+  actor: actor/<name, or remove this line>
+  carries:
+  - requirement/<feature>.<name, or remove this line>
+  failure: <what goes wrong at this step, or remove this line>
+  branches:
+  - when: <when the path differs>
+    then: step/<flow>.<act>

@@ -1,10 +1,11 @@
 type: decision
 id: decision/0043-use-plain-noun-sections
 title: Use Plain Noun Sections and an Opening Paragraph
+context: "Each record type had its own headings: 8 types had a fixed list, and every other type had one generic heading. Some headings were questions and some were stories, so the same content sat under different words, and the check knew only the 8 lists."
 options:
   - name: "Keep the headings each record type had, phrased as questions and stories"
     pros: "Each heading reads as the question a reader asks, and the text under it answers in the author's own voice."
-    cons: "Headings differ from type to type and phrase the same content in different words, so a reader cannot predict a section's name, a check must list every phrasing, and the types without a fixed list shared one generic heading."
+    cons: "Headings differ from type to type and phrase the same content in different words, so a reader cannot predict a section's name, a check must list every phrasing, and the types without a fixed list share one generic heading."
   - name: "Give each record type one fixed list of plain noun sections, and open each explanation with one paragraph"
     pros: "Each type has one list, each name says what its section holds, and the opening paragraph tells a cold reader what the record is before any section is read."
     cons: "Every explanation file written under the old headings must be rewritten, and a noun heading carries less voice than a question."

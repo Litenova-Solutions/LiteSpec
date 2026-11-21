@@ -1,11 +1,70 @@
 type: reaction
 id: reaction/spending.send-approver-reminders-on-expense-submitted
 title: Send Approver Reminders on Expense Submitted
-summary: A submitted expense that waits past three business days without a decision earns one reminder to its approver. Decided expenses are left alone.
+summary: A submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. Decided expenses are left alone, and so is an expense whose approver holds a reminder preference.
 triggeredBy:
-- event/expense.submitted
-skippedWhen: The expense waits past three business days with no decision.
+- domain-event/expense.submitted
+skippedWhen: The expense is already decided when the waiting time ends.
 effects:
 - sends: notification/spending.approval-reminder
+outcomes:
+- name: completed
+  meaning: The reminder was sent to the approver.
+- name: skipped
+  meaning: The expense was already decided when the waiting time ended.
+- name: suppressed
+  meaning: The approver holds a reminder preference.
+- name: failed
+  meaning: The reminder could not be sent after every retry.
+- name: retry-scheduled
+  meaning: The send failed and another attempt is scheduled.
 fulfills:
 - requirement/approval-reminders.remind-approver-after-three-days
+serves:
+- step/submit-and-reimburse.decide-expense
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 5
+    initialDelay: PT1M
+    maxDelay: PT1H
+    backoff: exponential
+  ifExhausted: dead-letter
+  deadLetter:
+    after: P1D
+    action: The reminder is dropped and the drop is logged; the expense still waits for its decision.
+idempotency:
+  mode: key
+  key: approval-reminder-{expenseId}
+  keyScope: global
+reads:
+- aggregate/spending.expense
+- aggregate/spending.reminder-preference
+- setting/spending.approval-reminder-delay
+records:
+- type: scenario
+  id: scenario/send-approver-reminders-on-expense-submitted.waiting-expense-earns-a-reminder
+  title: Waiting Expense Earns a Reminder
+  given: An employee submitted an expense that waits past the reminder delay with no decision.
+  when: The waiting time ends.
+  then: The approver gets one reminder for the expense.
+  outcome: completed
+  exercises:
+  - rule/spending.suppressed-manager-gets-no-reminder
+- type: scenario
+  id: scenario/send-approver-reminders-on-expense-submitted.decided-expense-is-skipped
+  title: Decided Expense Is Skipped
+  given: A manager decided an expense before the waiting time ended.
+  when: The waiting time ends.
+  then: No reminder is sent for the expense.
+  outcome: skipped
+  exercises: []
+- type: scenario
+  id: scenario/send-approver-reminders-on-expense-submitted.suppressed-manager-gets-nothing
+  title: Suppressed Manager Gets Nothing
+  given: An expense waits past the reminder delay and its approver holds a reminder preference.
+  when: The waiting time ends.
+  then: No reminder is sent for the expense.
+  outcome: suppressed
+  exercises:
+  - rule/spending.suppressed-manager-gets-no-reminder

@@ -2,17 +2,24 @@ type: external-system
 id: external-system/text-gateway
 title: Text gateway
 summary: The text gateway sends overdue notices to readers.
-failure: Notices queue until the gateway answers.
+vendor: Messageline
+represents: actor/text-gateway
 operations:
 - name: send-overdue-notice
-  direction: out
-  timeout: 5 seconds
-  onTimeout: The notice queues for the next run.
+  action: send
+  timeout: PT5S
+  rejected: The gateway refuses the notice, which queues for the next run.
+  accepted: The gateway accepts the notice and returns a delivery receipt.
+  unknown: The call times out before a receipt arrives.
+  onUnknown: dedupe-key
   response: A delivery receipt.
   cache: none, every notice is sent once
 - name: receive-delivery-receipt
-  direction: in
-  timeout: none
-  onTimeout: Receipts arrive when the gateway answers.
+  action: receive
+  timeout: PT0S
+  rejected: The receipt names no sent notice, so it is dropped.
+  accepted: The receipt is recorded against the notice.
+  unknown: The receipt is lost before it is read.
+  onUnknown: retry-safe
   response: The receipt id.
   cache: none, each receipt is read once

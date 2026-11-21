@@ -2,70 +2,52 @@
 schemaVersion: 2
 package: "@fixture/ui"
 profile: application-balanced
-patterns:
-  - list-page
-  - entity-page
+tokens: tokens/fixture.tokens.json
+pageFrames:
+  list-page: ListPage
+  record-page: EntityPage
+  form-page: FormPage
 ---
 
 # fixture shared UI package design contract
 
 Read this before composing anything. The list below is the whole of it. A screen that needs a pattern outside it needs a decision first.
 
-## Brand
+## Baseline
 
-State who the reader is and what they came to do. Name the one thing this surface is accountable for.
-
-Three words it is: __WORD__, __WORD__, __WORD__.
-
-Three words it is not: __WORD__, __WORD__, __WORD__.
+State the pinned design baseline and its version: the system, style, base, colors, and font the package builds on.
 
 ## Tokens
 
-Values live in the global CSS entry. Change them there. A color written into a component is a color nobody can theme and nobody can find.
+Name the path of the token values file, in the W3C Design Tokens format, version 2025.10, with the schemes it carries. Values live there, and the component stylesheet is generated from it.
 
-| Token | Utility | What it is for |
+## Page Frames
+
+The page frames this package provides, each mapped to the floorplan that implements it. A route composes exactly one of them, or names the decision behind a freestyle layout.
+
+| Page frame | Component | Use it when the user |
 |:---|:---|:---|
-| Surface | `bg-background` | The page. |
-| Elevated | `bg-card` with `border` | A card, a panel, a popover. |
-| Quiet | `text-muted-foreground` | A label, a hint, a count. |
-| Primary | `bg-primary` | The one action that is the point of the screen. |
+| `list-page` | `ListPage` | Finds one record among many. The page shows the result count. |
+| `record-page` | `EntityPage` | Acts on one record: its facts, its state, and the actions that state permits. |
+| `form-page` | `FormPage` | Supplies the input of one command, with one primary action. |
 
 ## Vocabulary
 
-The composites applications compose from, listed by the entry point that exports each one. Name the ones a page reaches for, one sentence each.
+The composites applications compose from. Name the ones a page reaches for, one sentence each.
 
-- A `button` is the only clickable element. A `div` carrying an `onClick` is refused.
+- A `button` runs an action on the page, and a link moves the reader to another place. A clickable element that is neither carries its role, its keyboard behavior and its focus state.
 - A `badge` is a state in one word, and its tone is one of five.
 - A `card` is a grouped fact set, never a screen.
-
-## Patterns
-
-The floorplans this package provides. A route composes exactly one of them, or names the decision behind a freestyle layout.
-
-| Floorplan | Component | Use it when the reader |
-|:---|:---|:---|
-| `list-page` | `ListPage` | Finds one record among many. The page shows the result count. |
-| `entity-page` | `EntityPage` | Acts on one record: its facts, its state, and the actions that state permits. |
-
-## Do
-
-- Lead with the action the reader can take now.
-- Put the deadline beside the work, never in a tooltip.
-- Say what a disabled control is waiting for.
-
-## Do Not
-
-- Do not decorate. A border earns its place, a color earns its place, and nothing else does.
-- Do not nest a card inside a card.
-- Do not ship a button whose success is a paragraph. Success is a `role=status` announcement, and failure is `role=alert`.
 
 ## Motion
 
 | Name | Duration | Where |
 |:---|:---|:---|
-| instant | 0ms | Any state change a button causes. |
+| instant | 0ms | The default for a state change a button causes. |
 | quick | 120ms | Row hover, badge change, focus ring. |
 | slow | 240ms | Drawer open, mobile navigation. |
+
+These timings are defaults. A product may set its own, within the reduced-motion limit below.
 
 When the reader asks for reduced motion, `quick` and `slow` become a fade of at most 120ms, and nothing slides, scales or loops.
 
@@ -74,11 +56,3 @@ A number is never animated. The number is the answer.
 ## Browser Support
 
 Baseline widely available. Every platform feature this package and its routes use has worked in every major browser for at least 30 months, or the file that uses it carries a fallback beside it.
-
-## Voice
-
-Name the reader and write to them. State the words this product uses and the words it refuses.
-
-| Say | Not |
-|:---|:---|
-| __PHRASE__ | __PHRASE__ |

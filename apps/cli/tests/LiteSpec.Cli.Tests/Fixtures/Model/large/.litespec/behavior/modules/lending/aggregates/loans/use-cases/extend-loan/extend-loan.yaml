@@ -1,24 +1,24 @@
 type: use-case
 id: use-case/lending.extend-loan
 title: Extend loan
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong extension keeps a copy past its due date.
 kind: command
 access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-- journey/borrow-and-return#s3
+- step/borrow-and-return.renew-loan
 fulfills:
 - requirement/borrowing.loan-period-days
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/loan.loan-extended
+- domain-event/loan.loan-extended
+steps:
+- statement: The reader extends the loan before its due date.
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
-audit:
-  level: none
-  target: No audit trail; the loan record shows each extension.
 records:
 - type: result
   id: result/extend-loan.extended
@@ -29,8 +29,7 @@ records:
   id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
-  code: lending.extension-refused
-  meaning: The extension is refused.
+  refusal: refusal/lending.extension-refused
 - type: scenario
   id: scenario/extend-loan.extending-an-active-loan-succeeds
   title: Extending an active loan succeeds
@@ -38,3 +37,12 @@ records:
   when: The reader extends the loan.
   then: The loan is extended.
   result: result/extend-loan.extended
+- type: scenario
+  id: scenario/extend-loan.extending-loan-past-due-refused
+  title: Extending a loan past its due date is refused
+  given: A loan passed its due date.
+  when: The reader extends the loan.
+  then: The extension is refused.
+  result: result/extend-loan.extension-refused
+  exercises:
+  - rule/loan.extended-before-due

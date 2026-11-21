@@ -1,7 +1,5 @@
 # Release Manifest
 
-## Intent
-
 `litespec.manifest.yaml` is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release's real values and states what each field drives.
 
 ## Reference
@@ -106,7 +104,7 @@ What the field drives:
 | `customer-rules` | `docs/ext/customer-rules.md` | `project` | none |
 | `ai` | `docs/ext/ai.md` | `local` | none |
 
-Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` and `layer-projects` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `journey` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `event`, `setting`, and `runbook` for `outbox`. `replaces` names the baseline provisions an extension supersedes, and the manifest holds the list. The [extensions index](../ext/README.md) states each extension with its activation criterion.
+Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `flow` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `domain-event`, `setting`, and `runbook` for `outbox`. `replaces` names the baseline provisions an extension supersedes, and the manifest holds the list. The [extensions index](../ext/README.md) states each extension with its activation criterion.
 
 What the field drives:
 
@@ -133,24 +131,34 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `EFCore.NamingConventions` | `10.x` |
 | nuget | `FsCheck` | `3.x` |
 | nuget | `LightBDD.XUnit3` | `3.x` |
-| nuget | `LiteBus.Analyzers` | `7.x` |
-| nuget | `LiteBus.Commands` | `7.x` |
-| nuget | `LiteBus.Commands.Abstractions` | `7.x` |
-| nuget | `LiteBus.Commands.Recurring` | `7.x` |
-| nuget | `LiteBus.Events` | `7.x` |
-| nuget | `LiteBus.Events.Abstractions` | `7.x` |
-| nuget | `LiteBus.Extensions.Microsoft.DependencyInjection` | `7.x` |
-| nuget | `LiteBus.Messaging` | `7.x` |
-| nuget | `LiteBus.Messaging.Abstractions` | `7.x` |
-| nuget | `LiteBus.Outbox` | `7.x` |
-| nuget | `LiteBus.Outbox.Abstractions` | `7.x` |
-| nuget | `LiteBus.Outbox.Dispatch.InProcess` | `7.x` |
-| nuget | `LiteBus.Outbox.Storage.PostgreSql` | `7.x` |
-| nuget | `LiteBus.Queries` | `7.x` |
-| nuget | `LiteBus.Queries.Abstractions` | `7.x` |
-| nuget | `LiteBus.Storage.PostgreSql` | `7.x` |
-| nuget | `LiteBus.Testing.Mediation` | `7.x` |
-| nuget | `LiteSpec.Analyzers` | `6.0.0` |
+| nuget | `LiteBus.Analyzers` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Auditing` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Auditing.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Auditing.Storage.Marten` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Commands` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Commands.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Commands.Recurring` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Events` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Events.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Extensions.AspNetCore` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Extensions.Microsoft.DependencyInjection` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Messaging` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Messaging.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Dispatch.Amqp` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Dispatch.InProcess` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Dispatch.Kafka` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Extensions.OpenTelemetry` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Storage.EntityFrameworkCore` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Storage.Marten` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Outbox.Storage.PostgreSql` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Queries` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Queries.Abstractions` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Storage.PostgreSql` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Testing.DurableMessaging` | `8.0.0-preview.3` |
+| nuget | `LiteBus.Testing.Mediation` | `8.0.0-preview.3` |
+| nuget | `LiteSpec.Analyzers` | `7.0.0` |
 | nuget | `Marten` | `9.x` |
 | nuget | `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.x` |
 | nuget | `Microsoft.AspNetCore.DataProtection` | `10.x` |
@@ -265,8 +273,9 @@ The `stack` object pins the toolchain this release builds with, and the `package
 
 What the pins drive:
 
-- Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/stacks#use-manifest-version-pins` requires the pins over prose, examples, and agent memory.
+- Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/principles#locate-package-versions-in-the-manifest` requires the pins over prose, examples, and agent memory.
 - UI validation: `litespec model check` reads the pinned npm packages and the baselines below when it checks the shared package and the stylesheets.
+- Floor: the outbox, auditing and problem details provisions need the LiteBus packages pinned at `8.0.0-preview.3`.
 
 ### UI Baselines
 
@@ -302,7 +311,7 @@ The `registry` block names the component source:
 | `url` | `https://ui.shadcn.com` | `https://shadcn-svelte.com/registry` |
 | `allowAdditional` | `true` | `true` |
 
-`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/frontend/ui#select-one-visual-authority` requires the one shared package, and `litespec/frontend/ui#pin-the-baseline-in-the-shared-package` requires the pin.
+`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/frontend/ui#record-one-shared-ui-package` requires the one shared package, and `litespec/frontend/ui#pin-the-baseline-in-the-shared-package` requires the pin.
 
 ## Notes
 

@@ -14,8 +14,8 @@ public sealed class DotnetParseOnceTests
     {
         using var temp = TestCli.Temp("reader-parse-once");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
@@ -23,14 +23,14 @@ public sealed class DotnetParseOnceTests
                 public Task Handle(BorrowCopyCommand command) => Task.CompletedTask;
             }
             """);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/lending.loan-borrowed</implements>
+            /// <implements>domain-event/lending.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
             """);
-        WriteSource(temp.Path, "WebApi", "BorrowCopyEndpoint.cs", """
-            namespace Library.WebApi.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "WebApi", "BorrowCopy"), "BorrowCopyEndpoint.cs", """
+            namespace Library.App.WebApi.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyEndpoint : IEndpoint
@@ -68,8 +68,7 @@ public sealed class DotnetParseOnceTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App", "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

@@ -8,6 +8,7 @@ using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Model.Readers;
 using LiteSpec.Cli.Model.Readers.Measures;
 using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
@@ -101,10 +102,41 @@ static partial class ModelBuilder
         ProofConfirmation.Compute(model);
         CompletionCalculator.Compute(model);
         ComputeReachableStates(model);
-        Constituents.Compute(model);
+        ComputeFlowCitations(model);
+        model.RefusalSets.AddRange(RefusalSetReader.Read(config, model.Problems));
+        ComputeDerivedRefusals(model);
+        Parts.Compute(model);
         ScreenshotCaptures.Compute(model);
 
         return model;
+    }
+
+    /// <summary>
+    ///     Derives the generic refusals of each use case from its access, inputs and kind. A refusal is derived, never written.
+    /// </summary>
+    /// <param name="model">The project model.</param>
+    private static void ComputeDerivedRefusals(ProjectModel model)
+    {
+        model.DerivedRefusals.Clear();
+
+        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase && !record.Derived))
+        {
+            model.DerivedRefusals[useCase.Id] = RefusalSetReader.DeriveFor(useCase);
+        }
+    }
+
+    /// <summary>
+    ///     Computes each flow's citations: the union of its steps' <c>carries</c>, which a flow never states itself.
+    /// </summary>
+    /// <param name="model">The project model.</param>
+    private static void ComputeFlowCitations(ProjectModel model)
+    {
+        model.FlowCitations.Clear();
+
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow && !record.Derived))
+        {
+            model.FlowCitations[flow.Id] = [.. flow.StepCitations()];
+        }
     }
 
     /// <summary>
@@ -308,7 +340,7 @@ static partial class ModelBuilder
                 break;
 
             case JsonValueKind.Object:
-                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event" })
+                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "calls", "queries", "commands", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event", "movedBy", "boundBy", "widenedBy", "verifiedBy", "consentRule", "deliveredThrough", "arrivesThrough", "through", "cites" })
                 {
                     if (value.TryGetProperty(name, out var nested))
                     {

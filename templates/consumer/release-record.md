@@ -16,7 +16,7 @@ This record binds one immutable artifact to the behavior it ships and the eviden
 
 Included behavior:
 
-- journey/<name> (<the outcome it proves, or remove this line>)
+- flow/<name> (<the outcome it proves, or remove this line>)
 - use-case/<module>.<name> (<the behavior it ships, or remove this line>)
 - <extension id, or remove this line when no extension applies>
 
@@ -28,7 +28,7 @@ Included behavior:
 | Test | <the test result with its reference> |
 | Contract | <the contract result with its reference> |
 | Security | <the security result with its reference> |
-| Journey | <the journey result with its reference> |
+| Flow | <the flow result with its reference> |
 | Schema | <the schema result with its reference> |
 | Backup | <the backup result with its reference> |
 | Deployment | <the deployment result with its reference> |
@@ -45,7 +45,7 @@ Operating readiness:
 - Conditions: <the known operating conditions, or none>
 - Skipped checks: <the skipped checks with their reasons, or none>
 
-## Notes
+## Operations
 
 Optional. Remove this section when the record needs no note.
 

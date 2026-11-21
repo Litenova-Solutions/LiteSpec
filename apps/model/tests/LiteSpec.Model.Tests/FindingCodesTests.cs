@@ -67,6 +67,24 @@ public sealed class FindingCodesTests
         Assert.Equal(FindingCodes.All.Count, FindingCodes.All.Select(row => row.Code).Distinct(StringComparer.Ordinal).Count());
     }
 
+    /// <summary>Each scope and term finding code added for rc.10 carries its contracted tier, layer and trace.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="tier">The tier the code must carry.</param>
+    /// <param name="layer">The record layer the code must govern.</param>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("module-reference-undeclared", "G", RecordLayer.Any)]
+    [InlineData("tenant-setting-change-missing", "G", RecordLayer.Behavior)]
+    [InlineData("on-failure-placement-invalid", "G", RecordLayer.Behavior)]
+    [InlineData("reference-data-pack-missing", "G", RecordLayer.Behavior)]
+    public void Rc10ScopeFindingCodesHaveTiers(string code, string tier, RecordLayer layer)
+    {
+        var row = FindingCodes.Of(code);
+        Assert.Equal(tier, row.Level);
+        Assert.Equal(layer, row.Layer);
+        Assert.False(row.Trace);
+    }
+
     /// <summary>Each new Intent finding code carries its contracted tier.</summary>
     /// <param name="code">The finding code under test.</param>
     /// <param name="tier">The tier the code must carry.</param>
@@ -83,15 +101,24 @@ public sealed class FindingCodesTests
     /// <param name="code">The finding code under test.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("explanation-orphaned")]
     [InlineData("explanation-missing")]
     [InlineData("format-drift")]
     [InlineData("source-link-bare")]
-    [InlineData("source-key-unknown")]
-    [InlineData("source-unused")]
     public void NewYamlCodesAreAdvisory(string code)
     {
         Assert.Equal("A", FindingCodes.Of(code).Level);
+    }
+
+    /// <summary>Each YAML finding code about a link between files or records blocks at level G.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("explanation-orphaned")]
+    [InlineData("source-unused")]
+    [InlineData("link-direction-invalid")]
+    public void YamlLinkCodesAreGeneral(string code)
+    {
+        Assert.Equal("G", FindingCodes.Of(code).Level);
     }
 
     /// <summary>Each new Behavior finding code carries its contracted tier.</summary>
@@ -99,13 +126,23 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("job-name-invalid", "G")]
-    [InlineData("reaction-trigger-unknown", "G")]
-    [InlineData("job-guard-missing", "G")]
+    [InlineData("job-name-invalid", "A")]
     [InlineData("reaction-unimplemented", "S")]
     [InlineData("job-unimplemented", "S")]
-    [InlineData("atomic-group-drift", "G")]
-    [InlineData("atomic-group-invalid", "A")]
+    [InlineData("atomicity-drift", "G")]
+    [InlineData("atomicity-invalid", "A")]
+    [InlineData("rule-sibling-uncited", "G")]
+    [InlineData("exercises-uncited", "A")]
+    [InlineData("refusal-next-step-unknown", "A")]
+    [InlineData("guard-module-foreign", "G")]
+    [InlineData("command-target-invalid", "G")]
+    [InlineData("command-consumer-missing", "G")]
+    [InlineData("command-edge-invalid", "G")]
+    [InlineData("use-case-writes-invalid", "G")]
+    [InlineData("idempotency-key-uncarried", "G")]
+    [InlineData("module-event-unused", "G")]
+    [InlineData("enforcement-job-unreached", "G")]
+    [InlineData("scenario-result-unknown", "G")]
     public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -116,8 +153,8 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("departure-expired", "G")]
-    [InlineData("departure-invalid", "G")]
+    [InlineData("waiver-expired", "G")]
+    [InlineData("waiver-invalid", "G")]
     [InlineData("use-case-unverified", "A")]
     [InlineData("proof-invalid", "A")]
     public void NewGovernanceCodesHaveTiers(string code, string tier)
@@ -140,6 +177,23 @@ public sealed class FindingCodesTests
     [InlineData("record-invalid", RecordLayer.Any, false, null)]
     [InlineData("quality-alert-missing", RecordLayer.Any, false, "delivery")]
     [InlineData("alert-link-missing", RecordLayer.Any, false, "delivery")]
+    [InlineData("audit-missing", RecordLayer.Behavior, false, "audit")]
+    [InlineData("field-extension-unselected", RecordLayer.Behavior, false, null)]
+    [InlineData("statement-measure-missing", RecordLayer.Proof, false, null)]
+    [InlineData("rule-sibling-uncited", RecordLayer.Behavior, false, null)]
+    [InlineData("exercises-uncited", RecordLayer.Behavior, false, null)]
+    [InlineData("refusal-next-step-unknown", RecordLayer.Behavior, false, null)]
+    [InlineData("guard-module-foreign", RecordLayer.Behavior, false, null)]
+    [InlineData("command-target-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("command-consumer-missing", RecordLayer.Behavior, false, null)]
+    [InlineData("command-edge-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("use-case-writes-invalid", RecordLayer.Behavior, false, null)]
+    [InlineData("idempotency-key-uncarried", RecordLayer.Behavior, false, null)]
+    [InlineData("module-event-unused", RecordLayer.Behavior, false, null)]
+    [InlineData("enforcement-job-unreached", RecordLayer.Behavior, false, null)]
+    [InlineData("scenario-result-unknown", RecordLayer.Behavior, false, null)]
+    [InlineData("link-direction-invalid", RecordLayer.Any, false, null)]
+    [InlineData("folder-ungrouped", RecordLayer.Implementation, false, null)]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);
@@ -207,9 +261,7 @@ public sealed class FindingCodesTests
     /// <returns>True when the code follows the subject-problem grammar; otherwise false.</returns>
     static bool FollowsGrammar(string code)
     {
-        var dash = code.LastIndexOf('-');
-
-        return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);
+        return ProblemWords.Any(word => code.Length > word.Length + 1 && code.EndsWith("-" + word, StringComparison.Ordinal));
     }
 
     /// <summary>Gets the problem words of the finding-code grammar, as the problem-word table on the record language page lists them.</summary>
@@ -218,6 +270,8 @@ public sealed class FindingCodesTests
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
+        "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
+        "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked", "ungrouped",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

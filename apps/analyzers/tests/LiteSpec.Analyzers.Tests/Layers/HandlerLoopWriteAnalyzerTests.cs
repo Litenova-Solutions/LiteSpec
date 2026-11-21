@@ -1,5 +1,6 @@
 using LiteSpec.Analyzers.Rules.Layers.Application;
 using LiteSpec.Analyzers.Tests.Support;
+using static LiteSpec.Analyzers.Tests.Support.TraceabilityFixtures;
 
 namespace LiteSpec.Analyzers.Tests.Layers;
 
@@ -40,7 +41,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 reports repository writes in a for body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -75,7 +76,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 reports a repository delete in a while body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -108,7 +109,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop that builds a result list.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -141,7 +142,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     return expired;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop that writes through another type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -174,7 +175,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a repository store outside a loop.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -206,7 +207,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     loanRepository.Store(loan);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop with a store in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -239,7 +240,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a loop with a store in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -281,7 +282,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 accepts a write then return search loop.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -321,7 +322,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     return false;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 reports a write followed by a conditional return.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -358,7 +359,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2015 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -391,5 +392,83 @@ public sealed class HandlerLoopWriteAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
+
+    /// <summary>LS2015 accepts a loop write in a handler whose use case states per-record consistency.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    [Fact(DisplayName = "LS2015 accepts a loop write in a per-record handler")]
+    public Task AcceptsALoopWriteInAPerRecordHandler() =>
+        Verify.AnalyzerWithRecordsAsync<HandlerLoopWriteAnalyzer>(
+            [("Shop.Spending/Application/Source.cs", """
+                using System;
+                using System.Collections.Generic;
+
+                namespace Shop.Loans;
+
+                public sealed class Loan
+                {
+                    public void Expire(DateTime now) { }
+                }
+
+                public interface ILoanRepository
+                {
+                    void Store(Loan loan);
+                }
+
+                public sealed record ExpireLoansCommand(DateTime Now);
+
+                /// <implements>use-case/spending.expire-loans</implements>
+                internal sealed class ExpireLoansCommandHandler(ILoanRepository loanRepository)
+                {
+                    public void Handle(ExpireLoansCommand command, List<Loan> loans)
+                    {
+                        foreach (var loan in loans)
+                        {
+                            loan.Expire(command.Now);
+                            loanRepository.Store(loan);
+                        }
+                    }
+                }
+                """)],
+            [ProjectFile(), ConsistentUseCase("use-case/spending.expire-loans", "Expire loans", "per-record")]);
+
+    /// <summary>LS2015 reports a loop write in a handler whose use case states atomic consistency.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    [Fact(DisplayName = "LS2015 reports a loop write in an atomic handler")]
+    public Task ReportsALoopWriteInAnAtomicHandler() =>
+        Verify.AnalyzerWithRecordsAsync<HandlerLoopWriteAnalyzer>(
+            [("Shop.Spending/Application/Source.cs", """
+                using System;
+                using System.Collections.Generic;
+
+                namespace Shop.Loans;
+
+                public sealed class Loan
+                {
+                    public void Expire(DateTime now) { }
+                }
+
+                public interface ILoanRepository
+                {
+                    void Store(Loan loan);
+                }
+
+                public sealed record ExpireLoansCommand(DateTime Now);
+
+                /// <implements>use-case/spending.expire-loans</implements>
+                internal sealed class ExpireLoansCommandHandler(ILoanRepository loanRepository)
+                {
+                    public void Handle(ExpireLoansCommand command, List<Loan> loans)
+                    {
+                        foreach (var loan in loans)
+                        {
+                            loan.Expire(command.Now);
+                            loanRepository.{|LS2015:Store|}(loan);
+                        }
+                    }
+                }
+                """)],
+            [ProjectFile(), ConsistentUseCase("use-case/spending.expire-loans", "Expire loans", "atomic")]);
 }

@@ -96,12 +96,12 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/analyzers/rules/sample.md", StandardsFixture.GuidePage),
         [MaintainerDiagnostics.Codes.PageMissingSection]);
 
-    /// <summary>Example page without an Intent.</summary>
+    /// <summary>Example page without a lead.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "example page without an Intent")]
-    public void ExamplePageWithoutIntent() => Check(
-        root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## The product\n\nA library lends copies.\n"),
-        [MaintainerDiagnostics.Codes.PageMissingSection]);
+    [Fact(DisplayName = "example page without a lead")]
+    public void ExamplePageWithoutLead() => Check(
+        root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## The Product\n\nA library lends copies.\n"),
+        [MaintainerDiagnostics.Codes.PageLeadMissing]);
 
     /// <summary>Reference page carrying an unknown section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -116,21 +116,23 @@ public sealed partial class StandardsValidatorTests
     public void ReferenceOutOfOrder() => Check(
         root =>
         {
-            var page = StandardsFixture.ReplaceFirst(StandardsFixture.ReferencePage, "## Intent\n\nState the exact values that this repository publishes.\n\n", "");
-            page = StandardsFixture.ReplaceFirst(page, "The values above come from the repository manifest.", "State the exact values that this repository publishes.\n\n## Intent\n\nThe values above come from the repository manifest.");
+            var page = StandardsFixture.ReplaceFirst(
+                StandardsFixture.ReferencePage,
+                "## Reference\n\n| Name | Value |\n|:---|:---|\n| Sample | One published value. |\n\n## Notes\n\nThe values above come from the repository manifest.\n",
+                "## Notes\n\nThe values above come from the repository manifest.\n\n## Reference\n\n| Name | Value |\n|:---|:---|\n| Sample | One published value. |\n");
             StandardsFixture.Write(root, "docs/reference/sample.md", page);
         },
         [MaintainerDiagnostics.Codes.PageSectionOrder]);
 
     /// <summary>Command page hiding its mechanism.</summary>
-    /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
+    /// <proves>litespec/core/authoring#state-what-the-command-runs-underneath</proves>
     [Fact(DisplayName = "command page hiding its mechanism")]
     public void CommandHidingMechanism() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Underneath\n\nNone.\n", "")),
         [MaintainerDiagnostics.Codes.PageMissingSection]);
 
     /// <summary>Command page without exit codes.</summary>
-    /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
+    /// <proves>litespec/core/authoring#state-what-the-command-runs-underneath</proves>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "command page without exit codes")]
     public void CommandWithoutExitCodes() => Check(
@@ -148,7 +150,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "docs/frontend/web/sample.md", page);
             StandardsFixture.RebuildIndex(root);
         },
-        [MaintainerDiagnostics.Codes.PageUnknownSection, MaintainerDiagnostics.Codes.PageSectionOrder]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Per-stack section outside frontend pages.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -277,21 +279,21 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "index without a routing block")]
     public void IndexWithoutRouting() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\nUse this page to find repository documentation.\n"),
         [MaintainerDiagnostics.Codes.IndexMissingRouting]);
 
     /// <summary>Routing block after the first navigation group.</summary>
     /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "routing block after the first navigation group")]
     public void RoutingAfterNavigation() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n\n## Core\n\n- [Topic](core/topic.md)\n\n" + StandardsFixture.IndexRouting),
+        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\nUse this page to find repository documentation.\n\n## Core\n\n- [Topic](core/topic.md)\n\n" + StandardsFixture.IndexRouting),
         [MaintainerDiagnostics.Codes.IndexMissingRouting]);
 
     /// <summary>Stale provision index.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "stale provision index")]
     public void StaleProvisionIndex() => Check(
-        root => StandardsFixture.Write(root, Provisions.IndexPath, "# Provision Index\n\n## Intent\n\nThis page is out of date.\n"),
+        root => StandardsFixture.Write(root, Provisions.IndexPath, "# Provision Index\n\nThis page is out of date.\n"),
         [MaintainerDiagnostics.Codes.ProvisionsStale]);
 
     /// <summary>Missing provision index.</summary>
@@ -348,10 +350,11 @@ public sealed partial class StandardsValidatorTests
         {
             MaintainerDiagnostics.Codes.AnchorBroken,
             MaintainerDiagnostics.Codes.CheckedByUnknown,
+            MaintainerDiagnostics.Codes.ProvisionCheckScope,
             MaintainerDiagnostics.Codes.ConventionDefaultSentence,
             MaintainerDiagnostics.Codes.ConventionMissingDefault,
             MaintainerDiagnostics.Codes.ConventionMissingReplacement,
-            MaintainerDiagnostics.Codes.ConventionReplacementDeviation,
+            MaintainerDiagnostics.Codes.ConventionReplacementWaiver,
             MaintainerDiagnostics.Codes.ConventionReplacementSentence,
             MaintainerDiagnostics.Codes.ExtensionActivation,
             MaintainerDiagnostics.Codes.ExtensionBaseline,
@@ -368,6 +371,7 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.StackFolder,
             MaintainerDiagnostics.Codes.StackReference,
             MaintainerDiagnostics.Codes.GlossaryDefinition,
+            MaintainerDiagnostics.Codes.LinkAnnotationMissing,
             MaintainerDiagnostics.Codes.GlossaryOrder,
             MaintainerDiagnostics.Codes.HeadingAction,
             MaintainerDiagnostics.Codes.HeadingEmptyBody,
@@ -378,7 +382,7 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.IdPageFilename,
             MaintainerDiagnostics.Codes.IdUnknownReference,
             MaintainerDiagnostics.Codes.IndexContainsProcedure,
-            MaintainerDiagnostics.Codes.IndexIntent,
+            MaintainerDiagnostics.Codes.PageLeadMissing,
             MaintainerDiagnostics.Codes.CheckedByFindingMissing,
             MaintainerDiagnostics.Codes.CommandOptionUnknown,
             MaintainerDiagnostics.Codes.ExampleRecordUnknown,
@@ -440,8 +444,6 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.StandardUnlabeledContent,
             MaintainerDiagnostics.Codes.TemplateIndexPath,
             MaintainerDiagnostics.Codes.TemplateSchema,
-            MaintainerDiagnostics.Codes.TemplateSourceDiffers,
-            MaintainerDiagnostics.Codes.TemplateSourceMissing,
             MaintainerDiagnostics.Codes.TemplateCitationUnknown,
             MaintainerDiagnostics.Codes.StandardStrengthModal,
             MaintainerDiagnostics.Codes.VerifyCommand,

@@ -1,13 +1,14 @@
 type: decision
 id: decision/0062-declare-project-verbs-in-the-glossary
 title: Declare Project Verbs in the Glossary
+context: "Project verbs lived in a Markdown convention page no tool reads, so an undeclared verb passed every check. The permission check could not accept project verbs either, so a permission opening with a declared project verb was still reported."
 options:
   - name: "Glossary verb entries"
     pros: "One home for product language, and the model check reads the verbs it declares."
     cons: "Every project verb moves from its convention page into the glossary as a verb term."
   - name: "A separate typed verb list file"
     pros: "The verbs are checked data without touching the glossary."
-    cons: "Product words split across two files, and a verb means one thing in each."
+    cons: "Product words split across two files, and one verb can carry two meanings."
   - name: "Keep the Markdown convention"
     pros: "No record moves and no check is written."
     cons: "The verb list stays prose no tool reads, so an undeclared verb passes every check."

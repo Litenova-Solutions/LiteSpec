@@ -32,13 +32,13 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "record template citing a provision the index holds")]
     public void TemplateYamlCitingKnownProvision() => Check(
-        root => StandardsFixture.Write(root, "templates/consumer/sample.yaml", "covers:\n- litespec/core/topic#keep-the-topic-bounded\n"),
+        root => StandardsFixture.Write(root, "templates/consumer/sample.yaml", "waives:\n- litespec/core/topic#keep-the-topic-bounded\n"),
         []);
 
     /// <summary>Record template citing a provision the index lacks.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "record template citing a provision the index lacks")]
     public void TemplateYamlCitingUnknownProvision() => Check(
-        root => StandardsFixture.Write(root, "templates/consumer/sample.yaml", "covers:\n- litespec/core/topic#no-such-provision\n"),
+        root => StandardsFixture.Write(root, "templates/consumer/sample.yaml", "waives:\n- litespec/core/topic#no-such-provision\n"),
         [MaintainerDiagnostics.Codes.TemplateCitationUnknown]);
 }

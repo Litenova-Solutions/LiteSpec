@@ -1,9 +1,10 @@
 type: decision
 id: decision/0027-projects-claim-record-layers
 title: Projects Claim the Record Layers They Use
+context: "The project file conformance takes one of three values, and each bundles the code practice and the proof practice together. A team that wants LiteSpec architecture with its own tests takes all of full or none of it."
 options:
   - name: "A `layers` map that names the practice each layer follows"
-    pros: "A team names the layers it uses, in their own words, and can take LiteSpec's architecture while it keeps its own tests. Each of today's three levels stays expressible."
+    pros: "A team names each layer it uses and the practice it follows, and it can take LiteSpec's architecture while it keeps its own tests. Each of the three conformance levels stays expressible."
     cons: "The conformance level leaves the project file and every tool, and each citation of the level changes in one change."
   - name: "Keep the conformance levels and add a level for each partial case"
     pros: "No project file changes, and each partial case gets a name."
@@ -12,7 +13,7 @@ options:
     pros: "A team switches off exactly the rules it does not use."
     cons: "A project lists dozens of IDs, and each rename breaks the list."
 choice: "A `layers` map that names the practice each layer follows"
-consequences: "The project file's `layers` map takes the keys `intent`, `behavior`, `implementation` and `proof`. `intent` and `behavior` take `litespec`; `implementation` and `proof` take `litespec` or `own`. A key left out is not claimed. `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. Every provision and finding code carries its `layer` and its `trace`, and a project that claims implementation or proof names its stacks. The mark check, LS4001, runs whenever proof is claimed under either practice. The alert and runbook checks move to the `delivery` extension. The Claimwick example selects no extension, because selecting `delivery` widened the deploy rules past the precision target."
+consequences: "The project file's `layers` map takes the keys `intent`, `behavior`, `implementation`, and `proof`. `intent` and `behavior` take `litespec`; `implementation` and `proof` take `litespec` or `own`. A key left out is not claimed. `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. Every provision and finding code carries its `layer` and its `trace`, and a project that claims implementation or proof names its stacks. The mark check, LS4001, runs whenever proof is claimed under either practice. The alert and runbook checks move to the `delivery` extension. The Claimwick example selects no extension, because selecting `delivery` widened the deploy rules past the precision target."
 reopenedWhen: "A team needs a claim the four keys cannot state, such as a claim per stack."
 basedOn:
   - research/layer-claim-evidence

@@ -11,18 +11,18 @@ public sealed class ClaimwickExampleTests
 {
     static readonly string Root = Path.Combine(TestCli.Repository, "examples", "claimwick");
 
-    /// <summary>The Claimwick example passes the model check with only covered findings.</summary>
-    /// <proves>litespec/core/release#run-consistency-checks</proves>
-    [Fact(DisplayName = "the Claimwick example passes the model check with only covered findings")]
+    /// <summary>The Claimwick example passes the model check with no blocking finding.</summary>
+    /// <proves>litespec/core/release#check-intent-and-behavior-changes-with-the-book</proves>
+    [Fact(DisplayName = "the Claimwick example passes the model check with no blocking finding")]
     public void PassesModelCheck()
     {
         var result = TestCli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        // 16 long-standing covered findings plus the 9 use-case-unverified findings the
-        // no-test-run departure holds: the example ships code and proofs but no run. The
-        // journey split of the submit-and-reimburse steps leaves six unscreened steps where
-        // seven were covered, so the total is one lower than before the split.
-        Assert.Contains("0 findings, 0 blocking, 25 covered.", result.Output);
+        // The covered findings sit under their waivers. Six use cases no screen calls yet are
+        // advisory. The six UI quality requirements are proved by token and route runs, so no
+        // Behavior record fulfills them and they report nothing. The reminder-preference step
+        // has no screen yet, so its step finding sits under the unscreened-steps waiver.
+        Assert.Contains("0 findings, 0 blocking, 21 covered.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

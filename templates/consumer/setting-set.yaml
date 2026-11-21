@@ -1,26 +1,37 @@
 type: setting-set
-title: Settings
+summary: <what these settings tune, or remove this line>
+id: <page id, or remove this line>
+title: <Title in Title Case, or remove this line>
+terms:
+- <term id, or remove this line>
 records:
+# A setting is operator configuration the running system reads. A value the business changes while the system runs is aggregate data instead.
 - type: setting
-  id: setting/spending.receipt-threshold
-  title: Receipt Threshold
-  valueType: money
-  default: EUR 25
-  range: EUR 0 to EUR 500
-  unit: EUR
-  setBy: product
-  atBound: refuse
-  fulfills:
-  - requirement/approval.above-threshold-receipt
-- type: setting
-  id: setting/spending.approval-reminder-delay
-  title: Approval Reminder Delay
-  valueType: duration
-  default: 48 hours
-  range: 1-120 hours
-  unit: hours
+  id: setting/<module>.<name>
+  title: <Title in Title Case>
+  terms:
+  - <term id, or remove this line>
+  valueType: text
+  default: <default value>
+  dated: <true|false, or remove this line>
+  range: <accepted bounds, or remove this line>
+  unit: <unit, or remove this line>
   setBy: operator
-  key: Spending:ApprovalReminderDelay
-  atBound: refuse
+  configurationPath: <Section:Key, or remove this line>
+  meaning: <what the setting tunes, or remove this line>
+  outOfRange: <refuse|truncate|degrade, or remove this line>
+  secret: <true|false, or remove this line>
   fulfills:
-  - requirement/approval.decided-within-five-days
+  - requirement/<feature>.<name, or remove this line>
+- type: setting
+  id: setting/<module>.<name>
+  title: <Title in Title Case>
+  terms:
+  - <term id, or remove this line>
+  valueType: choice
+  default: <default value>
+  choices:
+  - <allowed value>
+  setBy: operator
+  fulfills:
+  - requirement/<feature>.<name, or remove this line>

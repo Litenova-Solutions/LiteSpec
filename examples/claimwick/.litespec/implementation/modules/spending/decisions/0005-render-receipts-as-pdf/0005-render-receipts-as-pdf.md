@@ -1,10 +1,10 @@
 # Render Receipts as PDF
 
-Claimwick renders each receipt as a PDF file that finance keeps. Finance keeps each receipt as a file next to its expense, so the tax file holds the proof it needs. This decision is part of the Spending module's implementation. It chose a PDF library over rendering receipts in the browser, and it admits one package for the job.
+Claimwick renders each receipt as a PDF file that finance keeps next to its expense, so the tax file holds the proof it needs. This decision belongs to the Spending module's implementation. It chose a PDF library over rendering receipts in the browser, and it admits one package for the job.
 
 ## Context
 
-Finance keeps each receipt as a file next to its expense. The decision rests on `constraint/tax-receipt-retention`, the constraint behind this choice.
+Finance kept each receipt as a file next to its expense for the tax file. Behind this choice sits `constraint/tax-receipt-retention`, the constraint the decision rests on.
 
 ## Options
 

@@ -1,0 +1,19 @@
+type: decision
+id: decision/0064-raise-facts-and-send-nothing-from-handlers
+title: Raise Facts and Send Nothing from Handlers
+context: "A use case declared inline runs effects with shared transactions, so one command ran another inside its own transaction. It declared emits effects for the integration events it published, and the handler or a factory built each event from the aggregate. One large consumer held 57 inline edges in 47 records, with nested dispatch needing ambient values, a message cache and reload methods."
+options:
+  - name: "Handlers raise facts; reactions run what follows; the pipeline publishes"
+    pros: "Every commit belongs to one use case. Every follow-on act is a reaction record with its own failure handling. No user code builds or publishes an integration event."
+    cons: "An edge that ran inline in one transaction becomes eventual. A consumer writes a state guard where the old edge relied on atomicity. A caller waits for the later fact."
+  - name: "Keep inline edges that state their transaction sharing"
+    pros: "A caller gets every answer in one round trip, and atomic writes span use cases."
+    cons: "Nested dispatch needs ambient scopes and shared caches. A nested command shares its caller's commit. The edge graph hides which use case owns a write."
+  - name: "Allow act ports between modules"
+    pros: "A module changes another module's aggregate through a typed interface instead of a message."
+    cons: "An act port is a nested command through an interface. It keeps the same transaction coupling with less visibility in the records."
+choice: "Handlers raise facts; reactions run what follows; the pipeline publishes"
+consequences: "A use case's `effects` hold only `sends` and `calls`. A reaction or job runs at most one use case, and only a reaction or job runs one. No record declares `emits`. An outbound integration event names the domain event it carries in `translates`. The use cases raising that event publish it through the one pipeline step that stages raised events. `sharesTransaction` is removed. Atomic consistency stays inside one use case's writes. Every command commits in its own pipeline. LS2021 reports a mediator held outside an endpoint, event handler, or job, and LS2022 reports an integration event published by user code. A module publishes typed identifiers, integration events, and ports, and no command or refusal. The provisions `litespec/core/principles#share-no-transaction-across-an-edge`, `litespec/core/principles#confine-atomic-consistency-to-one-use-case`, `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs` and `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates` state the new rules under identifiers that name them."
+reopenedWhen: "A consumer shows a decision that cannot hold with a state guard and needs two use cases' writes in one transaction. Or a consumer shows a caller whose answer cannot wait for a later fact."
+basedOn:
+  - research/cross-module-coupling-practice

@@ -21,7 +21,7 @@ public sealed class HandlerNamingAnalyzerTests
             internal sealed class {|LS2005:PlaceOrderUseCase|} : ICommandHandler<PlaceOrderCommand, int>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2005 reports a query handler without its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -38,7 +38,7 @@ public sealed class HandlerNamingAnalyzerTests
             internal sealed class {|LS2005:GetOrderReader|} : IQueryHandler<GetOrderQuery, int>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2005 accepts handlers with their full suffixes.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -63,7 +63,7 @@ public sealed class HandlerNamingAnalyzerTests
             internal sealed class GetOrderQueryHandler : IQueryHandler<GetOrderQuery, int>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2005 ignores a Handler name that implements neither contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -76,7 +76,7 @@ public sealed class HandlerNamingAnalyzerTests
             internal sealed class NotifySubscribersOnPostPublishedHandler
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2005 ignores an interface extending a handler contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -91,7 +91,7 @@ public sealed class HandlerNamingAnalyzerTests
             public interface IPlaceOrder : ICommandHandler<int, int>
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2005 ignores a handler outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -108,22 +108,6 @@ public sealed class HandlerNamingAnalyzerTests
             public sealed class PlaceOrderUseCase : ICommandHandler<PlaceOrderCommand, int>
             {
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS2005 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2005 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
-            namespace Shop.Core;
-
-            public interface ICommandHandler<TCommand, TResult> { }
-
-            public sealed record PlaceOrderCommand(int Quantity);
-
-            internal sealed class {|LS2005:PlaceOrderUseCase|} : ICommandHandler<PlaceOrderCommand, int>
-            {
-            }
-            """, assemblyName: "Shop.Core", layer: "Application");
 }

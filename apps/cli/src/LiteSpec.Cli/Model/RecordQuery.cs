@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Links;
+using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -9,7 +11,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model;
 
 /// <summary>
-///     Prints one record with its links in both directions.
+///     Prints one record with its links in both directions, and lists records by text or by type.
 /// </summary>
 /// <follows>litespec/core/agent#select-task-context</follows>
 static class RecordQuery
@@ -44,7 +46,11 @@ static class RecordQuery
                 {
                     var targets = ModelBuilder.TargetsOf(property.Value);
 
-                    if (targets.Contains(key, StringComparer.Ordinal))
+                    // An external-system operation links through its carrying record,
+                    // as does a step in the old flow/name#step form, so its base
+                    // id links back too.
+                    if (targets.Any(target => string.Equals(target, key, StringComparison.Ordinal)
+                        || string.Equals(Identifiers.BaseId(target), key, StringComparison.Ordinal)))
                     {
                         if (!incoming.TryGetValue(other.Id, out var fields))
                         {
@@ -81,6 +87,21 @@ static class RecordQuery
                 };
             }
         }
+        else if (record.Type == RecordTypes.Scenario && model.ProofStatuses.TryGetValue(key, out var proof))
+        {
+            computed = new JsonObject
+            {
+                ["proof"] = ProofJson(proof),
+                ["proves"] = ProvesJson(model.Proves.Where(link => link.Claim == key)),
+            };
+        }
+        else if (record.Type == RecordTypes.Step)
+        {
+            computed = new JsonObject
+            {
+                ["trace"] = StepTraceJson(model, record),
+            };
+        }
 
         var query = new JsonObject
         {
@@ -100,6 +121,78 @@ static class RecordQuery
         return CliJson.Serialize(query);
     }
 
+    /// <summary>
+    ///     Finds the written records whose identifier, title, summary or statement holds the text,
+    ///     case-insensitive. An exact identifier match comes first, then other identifier matches,
+    ///     then title, summary and statement matches; each group orders by identifier.
+    /// </summary>
+    /// <param name="model">The built project model to search.</param>
+    /// <param name="text">The text to find in the records.</param>
+    /// <returns>The matching records in print order.</returns>
+    public static IReadOnlyList<Record> Search(ProjectModel model, string text) =>
+        model.Records
+            .Where(record => !record.Derived && record.Id.Length > 0 && Rank(record, text) >= 0)
+            .OrderBy(record => Rank(record, text))
+            .ThenBy(record => record.Id, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>Lists the written records of the type, optionally only those of one module, by identifier.</summary>
+    /// <param name="model">The built project model to list from.</param>
+    /// <param name="type">The record type to list, such as <c>use-case</c>.</param>
+    /// <param name="module">The module to keep, or null for every module.</param>
+    /// <returns>The records of the type in identifier order.</returns>
+    public static IReadOnlyList<Record> List(ProjectModel model, string type, string? module) =>
+        model.Records
+            .Where(record => !record.Derived
+                && record.Id.Length > 0
+                && record.Type.Equals(type, StringComparison.Ordinal)
+                && (module is null || module.Equals(record.Module, StringComparison.Ordinal)))
+            .OrderBy(record => record.Id, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>One record's line for search and list output: its identifier, title and file path.</summary>
+    /// <param name="model">The built project model holding the consumer root.</param>
+    /// <param name="record">The record to print.</param>
+    /// <returns>The printed line for the record.</returns>
+    public static string Line(ProjectModel model, Record record) =>
+        $"{record.Id} - {record.Title} ({PathText.Relative(model.Config.Root, record.File)})";
+
+    /// <summary>The search rank of a record: 0 for an exact identifier, 1 to 4 down the fields, -1 for no match.</summary>
+    /// <param name="record">The record to rank.</param>
+    /// <param name="text">The searched text.</param>
+    /// <returns>The rank, or -1 when no searched field holds the text.</returns>
+    static int Rank(Record record, string text)
+    {
+        if (record.Id.Equals(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 0;
+        }
+
+        if (record.Id.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 1;
+        }
+
+        if (record.Title.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 2;
+        }
+
+        if (record.Field(RecordFields.Summary) is { } summary
+            && summary.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 3;
+        }
+
+        if (record.Field(RecordFields.Statement) is { } statement
+            && statement.Contains(text, StringComparison.OrdinalIgnoreCase))
+        {
+            return 4;
+        }
+
+        return -1;
+    }
+
     /// <summary>One record's computed completion as its JSON object.</summary>
     /// <param name="completion">The completion to project.</param>
     /// <returns>The JSON object for the completion.</returns>
@@ -112,13 +205,50 @@ static class RecordQuery
             counts[label] = new JsonObject { ["done"] = count.Done, ["of"] = count.Of };
         }
 
+        var parkedBy = new JsonArray();
+
+        foreach (var parked in completion.ParkedBy)
+        {
+            parkedBy.Add((JsonNode)new JsonObject
+            {
+                ["id"] = parked.Id,
+                ["waiver"] = parked.Waiver,
+                ["expiresOn"] = parked.ExpiresOn,
+            });
+        }
+
         return new JsonObject
         {
             ["stage"] = completion.Stage,
             ["proof"] = completion.Proof,
             ["heldBy"] = CliJson.Strings(completion.HeldBy),
+            ["parkedBy"] = parkedBy,
+            ["inScope"] = completion.InScope,
+            ["parked"] = completion.Parked,
+            ["total"] = completion.Total,
             ["counts"] = counts,
         };
+    }
+
+    /// <summary>One scenario's computed proof status as its JSON object.</summary>
+    /// <param name="proof">The proof status to project.</param>
+    /// <returns>The JSON object for the proof status.</returns>
+    static JsonObject ProofJson(ProofStatus proof)
+    {
+        var json = new JsonObject
+        {
+            ["commit"] = proof.Commit,
+            ["lastPassedAt"] = proof.LastPassedAt,
+            ["status"] = proof.Status,
+            ["commitsBehind"] = proof.CommitsBehind,
+        };
+
+        if (proof.StaleReason is not null)
+        {
+            json["staleReason"] = proof.StaleReason;
+        }
+
+        return json;
     }
 
     /// <summary>The proof links of a record as a JSON array, in model order.</summary>
@@ -132,6 +262,96 @@ static class RecordQuery
             ["confirmed"] = link.Confirmed,
             ["passing"] = link.Passing,
         })]);
+
+    /// <summary>One step's trace: the records serving it, the requirements it carries with the records fulfilling them, and the code and tests behind each.</summary>
+    /// <param name="model">The built project model that holds every record and link.</param>
+    /// <param name="step">The step record whose trace is wanted.</param>
+    /// <returns>The trace as a JSON object.</returns>
+    static JsonObject StepTraceJson(ProjectModel model, Records.Record step)
+    {
+        var servedBy = model.Records
+            .Where(record => (RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal) || record.Type == RecordTypes.Screen)
+                && record.Ids(RecordFields.Serves).Contains(step.Id, StringComparer.Ordinal))
+            .Select(record => record.Id)
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        var carried = new JsonArray();
+        var traced = new SortedSet<string>(servedBy, StringComparer.Ordinal);
+
+        foreach (var requirement in CarriedRequirements(step))
+        {
+            var fulfilledBy = model.Records
+                .Where(record => (RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal)
+                        && record.Ids(RecordFields.Fulfills).Contains(requirement, StringComparer.Ordinal))
+                    || record.ServedFulfills().Contains(requirement, StringComparer.Ordinal))
+                .Select(record => record.Id)
+                .Order(StringComparer.Ordinal)
+                .ToList();
+
+            traced.UnionWith(fulfilledBy);
+
+            carried.Add((JsonNode)new JsonObject
+            {
+                ["requirement"] = requirement,
+                ["fulfilledBy"] = CliJson.Strings(fulfilledBy),
+            });
+        }
+
+        var implements = new JsonObject();
+        var proves = new JsonObject();
+
+        foreach (var id in traced)
+        {
+            implements[id] = CliJson.Strings(model.Implements.Where(link => link.To == id).Select(link => link.Path));
+            proves[id] = ProvesJson(model.Proves.Where(link => ScenarioOf(model, link.Claim) == ScenarioName(id)));
+        }
+
+        return new JsonObject
+        {
+            ["servedBy"] = CliJson.Strings(servedBy),
+            ["carried"] = carried,
+            ["implements"] = implements,
+            ["proves"] = proves,
+        };
+    }
+
+    /// <summary>The requirements a step carries: its own carries, then its branches' carries, each once.</summary>
+    /// <param name="step">The step record whose carries are read.</param>
+    /// <returns>The carried requirement identifiers, in written order.</returns>
+    static List<string> CarriedRequirements(Records.Record step)
+    {
+        var carried = new List<string>();
+
+        foreach (var id in step.Ids(RecordFields.Carries))
+        {
+            if (!carried.Contains(id, StringComparer.Ordinal))
+            {
+                carried.Add(id);
+            }
+        }
+
+        foreach (var branch in step.Objects(RecordFields.Branches))
+        {
+            if (!branch.TryGetProperty(RecordFields.Carries, out var value)
+                || value.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in value.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.String
+                    && entry.GetString() is { } id
+                    && !carried.Contains(id, StringComparer.Ordinal))
+                {
+                    carried.Add(id);
+                }
+            }
+        }
+
+        return carried;
+    }
 
     /// <summary>The home name a scenario id belongs to.</summary>
     /// <param name="model">The built project model, kept for symmetry with the other query helpers.</param>

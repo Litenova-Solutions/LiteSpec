@@ -2,13 +2,13 @@
 
 Say what product area this module covers, who uses it and why it is a separate area. A reader who has read nothing else should understand the module from this paragraph.
 
-## Responsibilities
+## Coverage
 
-Say what the module owns, in one or two sentences.
+Explains `covers`. Say what the module owns, in one or two sentences.
 
 ## Boundaries
 
-Say what the module leaves to other modules, and why that split holds.
+Explains `excludes`. Say what the module leaves to other modules, and why that split holds.
 
 ## Example
 

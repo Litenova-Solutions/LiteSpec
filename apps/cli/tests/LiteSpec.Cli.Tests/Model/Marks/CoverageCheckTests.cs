@@ -17,17 +17,6 @@ public sealed class CoverageCheckTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
-    /// <summary>Store Aggregate Without A Root Reports Nothing.</summary>
-    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
-    [Fact]
-    public void StoreAggregateWithoutARootReportsNothing()
-    {
-        using var temp = WriteKindConsumer();
-        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
-
-        Assert.DoesNotContain(findings, finding => finding.Subject == "aggregate/lending.outbox");
-    }
-
     /// <summary>Entity Aggregate Without A Root Still Reports.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
@@ -102,6 +91,40 @@ public sealed class CoverageCheckTests
         Assert.Contains("entry-point/library-app", finding.Message);
     }
 
+    /// <summary>Pipeline Handler Carrying The Use Case Mark Reports No Endpoint Missing.</summary>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void PipelineHandlerCarryingTheUseCaseMarkReportsNoEndpointMissing()
+    {
+        using var temp = WritePipelineConsumer("Infrastructure/Pipeline");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-endpoint-missing");
+
+        Assert.Empty(findings);
+    }
+
+    /// <summary>Pipeline Handler Endpoint Needs No Screen Call.</summary>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void PipelineHandlerEndpointNeedsNoScreenCall()
+    {
+        using var temp = WritePipelineConsumer("Infrastructure/Pipeline");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-unreached");
+
+        Assert.Empty(findings);
+    }
+
+    /// <summary>Use Case Mark Outside Pipeline Still Reports Endpoint Missing.</summary>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void UseCaseMarkOutsidePipelineStillReportsEndpointMissing()
+    {
+        using var temp = WritePipelineConsumer("Infrastructure/Handlers");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-endpoint-missing");
+
+        var finding = Assert.Single(findings);
+        Assert.Equal("use-case/identity.complete-sign-in", finding.Subject);
+    }
+
     /// <summary>Declared Edge No Code Takes Reports Effect Unimplemented.</summary>
     /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
     [Fact]
@@ -112,10 +135,343 @@ public sealed class CoverageCheckTests
 
         var finding = Assert.Single(findings);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
-        Assert.Contains("runs use-case/lending.register-copy", finding.Message);
+        Assert.Contains("sends notification/lending.loan-due", finding.Message);
     }
 
-    /// <summary>Writes a consumer where an entity and a store aggregate each have no root in code.</summary>
+    /// <summary>A job host registering its command and a job sending through a resolved mediator report no unimplemented edge.</summary>
+    /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
+    [Fact]
+    public void JobHostsTakingTheirRunsEdgeReportNothing()
+    {
+        using var temp = WriteJobConsumer();
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "effect-unimplemented");
+
+        var finding = Assert.Single(findings);
+        Assert.Equal("job/lending.abandon-sweep", finding.Subject);
+    }
+
+    /// <summary>A job running a command whose handler marks the use case reports no unimplemented edge for it.</summary>
+    /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
+    [Fact]
+    public void JobRunningAliasedCommandReportsNothing()
+    {
+        using var temp = WriteJobConsumer();
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "effect-unimplemented");
+
+        var finding = Assert.Single(findings);
+        Assert.Equal("job/lending.abandon-sweep", finding.Subject);
+    }
+
+    /// <summary>Writes a consumer in the module layout where one job registers its command, one sends it through a resolved mediator, one runs a command named apart from its use case, and one has no host.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WriteJobConsumer()
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  },
+                  "vocabulary": {
+                    "verbs": [
+                      "borrow",
+                      "renew",
+                      "abandon",
+                      "lend"
+                    ]
+                  }
+                }
+                """);
+            Write(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            foreach (var (useCase, title) in new[] { ("borrow-copy", "Borrow copy"), ("renew-loan", "Renew loan"), ("abandon-loan", "Abandon loan"), ("lend-copy", "Lend copy") })
+            {
+                TestRecords.Write(temp.Path, $".litespec/behavior/modules/lending/aggregates/loans/{useCase}.yaml", """
+                    {
+                      "type": "use-case",
+                      "id": "use-case/lending.USECASE",
+                      "title": "TITLE",
+                      "owner": "lending-team",
+                      "status": "reviewed",
+                      "kind": "command",
+                      "records": [
+                        {
+                          "type": "result",
+                          "id": "result/USECASE.done",
+                          "title": "Done",
+                          "owner": "lending-team",
+                          "outcome": "success",
+                          "meaning": "The copy is handled."
+                        }
+                      ]
+                    }
+                    """.Replace("USECASE", useCase).Replace("TITLE", title));
+                TestRecords.Explain(temp.Path, $".litespec/behavior/modules/lending/aggregates/loans/{useCase}.md", $"""
+                    # {title}
+
+                    A reader handles a copy.
+                    """);
+            }
+
+            foreach (var (job, runs) in new[] { ("borrow-sweep", "borrow-copy"), ("renew-sweep", "renew-loan"), ("abandon-sweep", "abandon-loan"), ("lend-sweep", "lend-copy") })
+            {
+                TestRecords.Write(temp.Path, $".litespec/behavior/modules/lending/jobs/{job}/{job}.yaml", """
+                    {
+                      "type": "job",
+                      "id": "job/lending.JOB",
+                      "title": "TITLE",
+                      "owner": "lending-team",
+                      "status": "reviewed",
+                      "kind": "scheduled",
+                      "schedule": {"every": "P1D", "timezone": "UTC"},
+                      "selection": "Copies past their due date.",
+                      "effects": [{"runs": "use-case/lending.RUNS", "timing": "inline"}],
+                      "outcomes": [{"name": "completed", "meaning": "The sweep handled the due copies."}],
+                      "onFailure": {"mode": "skip-and-log"}
+                    }
+                    """.Replace("JOB", job).Replace("TITLE", job).Replace("RUNS", runs));
+                TestRecords.Explain(temp.Path, $".litespec/behavior/modules/lending/jobs/{job}/{job}.md", $"""
+                    # {job}
+
+                    A sweep handles the due copies.
+                    """);
+            }
+
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopy/BorrowCopySchedule.cs", """
+                namespace Library.Lending.Application.BorrowCopy;
+
+                /// <implements>job/lending.borrow-sweep</implements>
+                internal static class BorrowCopySchedule
+                {
+                    public static void Register(CommandModuleBuilder commands)
+                    {
+                        commands.AddRecurring(() => new BorrowCopyCommand(Guid.NewGuid()));
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/RenewLoan/RenewLoanSweepJob.cs", """
+                namespace Library.Lending.Application.RenewLoan;
+
+                /// <implements>job/lending.renew-sweep</implements>
+                internal sealed class RenewLoanSweepJob : BackgroundService
+                {
+                    private readonly IServiceScopeFactory scopes;
+
+                    public RenewLoanSweepJob(IServiceScopeFactory scopes)
+                    {
+                        this.scopes = scopes;
+                    }
+
+                    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+                    {
+                        using var scope = scopes.CreateScope();
+                        var commands = scope.ServiceProvider.GetRequiredService<ICommandMediator>();
+                        var renew = new RenewLoanCommand(Guid.NewGuid());
+                        await commands.SendAsync(renew, stoppingToken);
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendCopy/LendCopySchedule.cs", """
+                namespace Library.Lending.Application.LendCopy;
+
+                /// <implements>job/lending.lend-sweep</implements>
+                internal static class LendCopySchedule
+                {
+                    public static void Register(CommandModuleBuilder commands)
+                    {
+                        commands.AddRecurring(() => new LendOverdueCopiesCommand(Guid.NewGuid()));
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendCopy/LendOverdueCopiesCommandHandler.cs", """
+                namespace Library.Lending.Application.LendCopy;
+
+                /// <implements>use-case/lending.lend-copy</implements>
+                internal sealed class LendOverdueCopiesCommandHandler : ICommandHandler<LendOverdueCopiesCommand, LendOverdueCopiesResult>
+                {
+                    public Task<LendOverdueCopiesResult> HandleAsync(LendOverdueCopiesCommand command, CancellationToken cancellationToken)
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>Writes a consumer where a hosted sign-in completes through a ticket handler in the given Infrastructure folder, with no mapped endpoint and no screen.</summary>
+    /// <param name="handlerFolder">The Infrastructure folder holding the ticket handler, such as <c>Infrastructure/Pipeline</c>.</param>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WritePipelineConsumer(string handlerFolder)
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, ".litespec/project.yaml", """
+                schemaVersion: 1
+                project:
+                  name: Marks Fixture
+                size: small
+                shape: server
+                stacks:
+                - dotnet
+                layers:
+                  intent: litespec
+                  behavior: litespec
+                  implementation: litespec
+                  proof: litespec
+                reviewedLiteSpecVersion: 7.0.0
+                paths:
+                  docs: .litespec
+                  behaviorDocs: .litespec/behavior
+                  glossary: .litespec/glossary.yaml
+                  testRoots:
+                  - apps/api/tests
+                stackConfig:
+                  dotnet:
+                    modules: apps/api/src/Modules/Library.Identity
+                frontends: []
+                """);
+            Write(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/entry-points.yaml", """
+                {
+                  "type": "entry-point-set",
+                  "title": "Entry points",
+                  "records": [
+                    {
+                      "type": "entry-point",
+                      "id": "entry-point/identity-app",
+                      "title": "Identity app",
+                      "kind": "browser",
+                      "authentication": ["session"],
+                      "audience": ["actor/reader"]
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/entry-points.md", """
+                # Entry points
+
+                The identity app serves each signed-in person.
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/identity/aggregates/sessions/use-cases/complete-sign-in/complete-sign-in.yaml", """
+                {
+                  "type": "use-case",
+                  "id": "use-case/identity.complete-sign-in",
+                  "title": "Complete sign in",
+                  "kind": "command",
+                  "steps": [
+                    {"statement": "The provider redirects the browser to the host callback."},
+                    {"statement": "Identity completes the sign in and opens the session."}
+                  ],
+                  "reachedThrough": ["entry-point/identity-app"],
+                  "records": [
+                    {
+                      "type": "result",
+                      "id": "result/complete-sign-in.signed-in",
+                      "title": "Signed in",
+                      "outcome": "success",
+                      "meaning": "The person is signed in."
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/identity/aggregates/sessions/use-cases/complete-sign-in/complete-sign-in.md", """
+                # Complete sign in
+
+                The provider callback completes the hosted sign in.
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Identity/Application/CompleteSignIn/CompleteSignInCommand.cs", """
+                namespace Library.Identity.Application.CompleteSignIn;
+
+                public sealed record CompleteSignInCommand(Guid Subject);
+
+                public sealed record CompleteSignInCommandResult(Guid SessionId);
+                """);
+            Write(temp.Path, "apps/api/src/Modules/Library.Identity/Application/CompleteSignIn/CompleteSignInCommandHandler.cs", """
+                namespace Library.Identity.Application.CompleteSignIn;
+
+                /// <implements>use-case/identity.complete-sign-in</implements>
+                public sealed class CompleteSignInCommandHandler
+                    : ICommandHandler<CompleteSignInCommand, CompleteSignInCommandResult>
+                {
+                    public Task<CompleteSignInCommandResult> HandleAsync(CompleteSignInCommand command, CancellationToken cancellationToken)
+                    {
+                        return Task.FromResult(new CompleteSignInCommandResult(Guid.Empty));
+                    }
+                }
+                """);
+            Write(temp.Path, $"apps/api/src/Modules/Library.Identity/{handlerFolder}/CompleteSignInTicketHandler.cs", $$"""
+                namespace Library.Identity.{{handlerFolder.Replace("/", ".")}};
+
+                /// <implements>use-case/identity.complete-sign-in</implements>
+                public sealed class CompleteSignInTicketHandler : ISignInTicketHandler
+                {
+                    private readonly ICommandMediator commands;
+
+                    public CompleteSignInTicketHandler(ICommandMediator commands)
+                    {
+                        this.commands = commands;
+                    }
+
+                    public async Task HandleAsync(SignInTicket ticket, CancellationToken cancellationToken)
+                    {
+                        await commands.SendAsync(new CompleteSignInCommand(ticket.Subject), cancellationToken);
+                    }
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>Writes a consumer where an aggregate has no root in code.</summary>
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteKindConsumer()
     {
@@ -134,7 +490,7 @@ public sealed class CoverageCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "7.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -149,10 +505,8 @@ public sealed class CoverageCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   }
                 }
@@ -167,9 +521,6 @@ public sealed class CoverageCheckTests
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
                   "title": "Loan",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "entity",
                   "states": [
                     {
                       "name": "Active",
@@ -182,21 +533,6 @@ public sealed class CoverageCheckTests
                 # Loan
 
                 A loan lends one copy to one reader.
-                """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.yaml", """
-                {
-                  "type": "aggregate",
-                  "id": "aggregate/lending.outbox",
-                  "title": "Outbox",
-                  "owner": "lending-team",
-                  "status": "reviewed",
-                  "kind": "store"
-                }
-                """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.md", """
-                # Outbox
-
-                The lending-owned table of scans awaiting dispatch.
                 """);
 
             return temp;

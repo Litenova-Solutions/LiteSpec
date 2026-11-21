@@ -1,6 +1,7 @@
 type: decision
 id: decision/0030-limit-the-jobs-extension
 title: Jobs Extension Limited to Scheduled and Manual Work
+context: "The jobs extension holds 73 provisions across 6 subjects, and the ingest pipeline and workflow engine serve products a small team does not run. No check can prove the workflow engine steps, because the record schema has no kind for a multi-step workflow."
 options:
   - name: "Keep scheduled and manual jobs, occurrences, time rules, queues and reports"
     pros: "The extension covers the work a small team runs, and no provision describes a check that nothing reads."
@@ -12,5 +13,5 @@ options:
     pros: "No extension to maintain."
     cons: "Teams that run scheduled work lose the lease, cursor and misfire rules they still need."
 choice: "Keep scheduled and manual jobs, occurrences, time rules, queues and reports"
-consequences: "The extension keeps 59 provisions, down from 73, for scheduled and manual jobs, occurrences, time rules, human-cleared queues and reports. The ingest pipeline and the workflow-engine subjects leave with their 14 provisions. The record schema has no saga kind, and no check reads engine steps. The removed IDs appear in the 5.0.0 provision diff."
-reopenedWhen: "A team must prove a multi-step workflow that no record can state, or an ingest pipeline that a product must prove."
+consequences: "The extension keeps 59 provisions, down from 73, for scheduled and manual jobs, occurrences, time rules, human-cleared queues, and reports. The ingest pipeline and the workflow-engine subjects leave with their 14 provisions. The record schema has no saga kind, and no check reads engine steps. The removed IDs appear in the 5.0.0 provision diff."
+reopenedWhen: "An ingest pipeline that a product must prove reopens this decision. A multi-step workflow that no record can state reopens decision/0015-automations-and-sagas, whose revisit condition covers it."

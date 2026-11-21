@@ -14,7 +14,7 @@ public sealed class MarkParserTests
         var marks = MarkParser.ReadTags(
             "<implements>  use-case/spending.submit-expense  </implements> " +
             "<proves>scenario/submit-expense.succeeds</proves> " +
-            "<follows>decision/0002-store-expenses-as-documents</follows>");
+            "<follows>decision/0002-keep-expenses-as-documents</follows>");
 
         Assert.Equal(3, marks.Count);
         Assert.Equal(MarkVerb.Implements, marks[0].Verb);
@@ -23,7 +23,7 @@ public sealed class MarkParserTests
         Assert.Equal(MarkVerb.Proves, marks[1].Verb);
         Assert.Equal("scenario/submit-expense.succeeds", marks[1].RecordId);
         Assert.Equal(MarkVerb.Follows, marks[2].Verb);
-        Assert.Equal("decision/0002-store-expenses-as-documents", marks[2].RecordId);
+        Assert.Equal("decision/0002-keep-expenses-as-documents", marks[2].RecordId);
     }
 
     /// <summary>Tags in another case read no marks.</summary>
@@ -53,7 +53,7 @@ public sealed class MarkParserTests
         var marks = MarkParser.ReadAttributes(
             "[Implements(\"  use-case/spending.submit-expense  \")] " +
             "[Proves(\"scenario/submit-expense.succeeds\")] " +
-            "[Follows(\"decision/0002-store-expenses-as-documents\")]");
+            "[Follows(\"decision/0002-keep-expenses-as-documents\")]");
 
         Assert.Equal(3, marks.Count);
         Assert.Equal(MarkVerb.Implements, marks[0].Verb);
@@ -83,7 +83,7 @@ public sealed class MarkParserTests
     public void DomainQualifiedAttributesReadNone()
     {
         Assert.Empty(MarkParser.ReadAttributes("[Spending.Implements(\"use-case/spending.submit-expense\")]"));
-        Assert.Empty(MarkParser.ReadAttributes("[global::Spending.Follows(\"decision/0002-store-expenses-as-documents\")]"));
+        Assert.Empty(MarkParser.ReadAttributes("[global::Spending.Follows(\"decision/0002-keep-expenses-as-documents\")]"));
     }
 
     /// <summary>Attributes read several entries of one list.</summary>

@@ -52,3 +52,28 @@ LS5008 | LiteSpec.Traceability | Error | Descriptors
 LS5009 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 LS5011 | LiteSpec.Traceability | Error | Descriptors
 LS5012 | LiteSpec.Traceability | Error | GeneratorDiagnostics
+
+## Release 7.0.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+LS1014 | LiteSpec.Domain | Error | Descriptors
+LS1015 | LiteSpec.Domain | Error | Descriptors
+LS1016 | LiteSpec.Domain | Error | Descriptors
+LS2021 | LiteSpec.Layers | Error | Descriptors
+LS2022 | LiteSpec.Layers | Error | Descriptors
+LS2023 | LiteSpec.Layers | Error | Descriptors
+LS2024 | LiteSpec.Layers | Error | Descriptors
+LS2025 | LiteSpec.Layers | Error | Descriptors
+LS2026 | LiteSpec.Layers | Error | Descriptors
+LS2027 | LiteSpec.Layers | Error | Descriptors
+LS2028 | LiteSpec.Layers | Error | Descriptors
+LS2029 | LiteSpec.Layers | Error | Descriptors
+LS2030 | LiteSpec.Layers | Error | Descriptors
+LS2031 | LiteSpec.Layers | Error | Descriptors
+LS3002 | LiteSpec.Style | Error | Descriptors
+LS3003 | LiteSpec.Style | Error | Descriptors
+LS3005 | LiteSpec.Style | Info | Descriptors
+LS5013 | LiteSpec.Traceability | Error | GeneratorDiagnostics

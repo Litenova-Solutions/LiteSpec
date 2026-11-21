@@ -1,0 +1,14 @@
+type: permission-set
+title: Permissions
+excludes:
+- The list-reimbursed-expenses permission does not grant the right to reimburse an expense.
+- The list-reimbursed-expenses permission changes none of the expenses it lists.
+records:
+- type: permission
+  id: permission/list-reimbursed-expenses
+  title: List Reimbursed Expenses
+  meaning: The right to list the reimbursed expenses with the employee each was paid to.
+  grantedTo:
+  - role/finance
+  risk:
+  - personal-data

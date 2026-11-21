@@ -5,11 +5,10 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
 /// <summary>The identifier checks: every identifier is unique, follows the type and home grammar, sits in the folder its home names, carries a name used once in the product, takes a decision number used once, and takes its name from its title with its file named for it.</summary>
-/// <follows>litespec/core/language#follow-the-identifier-form-of-each-record-type</follows>
-/// <follows>litespec/core/language#name-records-with-one-to-six-words</follows>
+/// <follows>litespec/core/language#use-the-declared-record-identifier-grammar</follows>
 /// <follows>litespec/core/language#use-every-identifier-once</follows>
 /// <follows>litespec/core/model#move-each-identifier-with-its-module</follows>
-/// <follows>litespec/core/model#keep-each-name-unique-in-the-product</follows>
+/// <follows>litespec/core/model#keep-each-name-unique-in-its-record-type</follows>
 /// <follows>litespec/core/model#take-decision-numbers-from-one-sequence</follows>
 /// <follows>litespec/core/model#name-each-identifier-from-its-title</follows>
 internal static class IdentifierChecks
@@ -23,6 +22,8 @@ internal static class IdentifierChecks
         RecordTypes.Job,
         RecordTypes.Notification,
         RecordTypes.Setting,
+        RecordTypes.ReadModel,
+        RecordTypes.ModuleEvent,
     };
 
     /// <summary>Types whose name segment stays unique in the product.</summary>
@@ -35,7 +36,8 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent,
         RecordTypes.ExternalSystem,
         RecordTypes.Runbook,
-        RecordTypes.Departure,
+        RecordTypes.Waiver,
+        RecordTypes.ReadModel,
     };
 
     /// <summary>Record file names fixed by type: the file carries the type's name instead of the record's name.</summary>
@@ -49,7 +51,13 @@ internal static class IdentifierChecks
         "glossary.yaml",
     };
 
-    /// <summary>Reports identifier-invalid, identifier-duplicate, identifier-folder-drift, identifier-title-invalid, name-duplicate and decision-number-duplicate.</summary>
+    /// <summary>Acts that only number or order a step, which a verb phrase names instead.</summary>
+    private static readonly HashSet<string> PositionalActs = new(StringComparer.Ordinal)
+    {
+        "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "last",
+    };
+
+    /// <summary>Reports identifier-invalid, identifier-duplicate, record-placement-invalid, identifier-title-invalid, record-key-duplicate and record-key-duplicate.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -72,7 +80,7 @@ internal static class IdentifierChecks
             if (!Identifiers.TrySplit(record.Id, out var prefix, out var home, out var name))
             {
                 // A home-parented record reports its missing home through
-                // record-parent-missing, so identifier-invalid stays silent here.
+                // record-placement-invalid, so identifier-invalid stays silent here.
                 if (ParentChecks.ReportsMissingHome(record))
                 {
                     continue;
@@ -87,7 +95,7 @@ internal static class IdentifierChecks
                 findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' names type {prefix} on a {record.Type} record.", record.File, record.Line, SubjectOf(record)));
             }
 
-            var wantsHome = RecordTypes.WithHome.Contains(record.Type);
+            var wantsHome = WantsHome(record);
 
             if (wantsHome && home is null)
             {
@@ -117,12 +125,92 @@ internal static class IdentifierChecks
                     record.Line,
                     SubjectOf(record)));
             }
+
+            CheckStepId(record, home, name, findings);
         }
 
         CheckFolderDrift(model, findings);
         CheckNameDuplicate(model, findings);
         CheckDecisionNumbers(model, findings);
         CheckIdentifierTitle(model, findings);
+    }
+
+    /// <summary>Reports a step whose home names another flow, or whose act only numbers or orders the step.</summary>
+    /// <param name="record">The record whose identifier is judged, judged only when it is a step.</param>
+    /// <param name="home">The home the identifier split gave, or null when it holds none.</param>
+    /// <param name="name">The act the identifier split gave.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckStepId(Record record, string? home, string name, List<Finding> findings)
+    {
+        if (record.Type != RecordTypes.Step)
+        {
+            return;
+        }
+
+        // A step's home is its flow's name, read from the carrying page.
+        if (home is not null
+            && record.PageId is { Length: > 0 } pageId
+            && pageId.StartsWith("flow/", StringComparison.Ordinal)
+            && !string.Equals(home, pageId["flow/".Length..], StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "identifier-invalid",
+                $"Step '{record.Id}' sits in flow '{pageId}' but its identifier names flow '{home}'.",
+                record.File,
+                record.Line,
+                SubjectOf(record)));
+        }
+
+        if (IsPositionalAct(name))
+        {
+            findings.Add(new Finding(
+                "identifier-invalid",
+                $"Step '{record.Id}' carries a positional act '{name}'; name the act for what the step does.",
+                record.File,
+                record.Line,
+                SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Whether the act only numbers or orders the step: s3, step-2, or an ordinal word.</summary>
+    /// <param name="name">The act the step identifier ends in.</param>
+    /// <returns>True when the act is positional; otherwise false.</returns>
+    private static bool IsPositionalAct(string name)
+    {
+        if (PositionalActs.Contains(name))
+        {
+            return true;
+        }
+
+        if (name.Length > 1 && name[0] == 's' && IsDigits(name[1..]))
+        {
+            return true;
+        }
+
+        return name.StartsWith("step-", StringComparison.Ordinal) && IsDigits(name["step-".Length..]);
+    }
+
+    /// <summary>Whether the text is one or more digits.</summary>
+    /// <param name="text">The text under test.</param>
+    /// <returns>True when the text is non-empty and all digits.</returns>
+    private static bool IsDigits(string text) =>
+        text.Length > 0 && text.All(char.IsDigit);
+
+    /// <summary>
+    ///     Whether a record's identifier carries a home. A requirement at product level is named by its
+    ///     own name alone; a feature requirement names its feature as its home.
+    /// </summary>
+    /// <param name="record">The record whose identifier is judged.</param>
+    /// <returns>True when the identifier must name a home.</returns>
+    private static bool WantsHome(Record record)
+    {
+        if (record.Type == RecordTypes.Requirement
+            && record.File.Replace(Path.DirectorySeparatorChar, '/').Contains("/intent/requirements/", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return RecordTypes.WithHome.Contains(record.Type);
     }
 
     /// <summary>Reports a module-homed record whose identifier home disagrees with its folder module.</summary>
@@ -149,15 +237,15 @@ internal static class IdentifierChecks
                 continue;
             }
 
-            // A home naming no declared module is record-parent-missing, and a
-            // folder naming none is module-undeclared, so drift stays silent here.
+            // A home naming no declared module is record-placement-invalid, and a
+            // folder naming none is record-placement-invalid, so drift stays silent here.
             if (!model.ById.ContainsKey($"module/{home}") || !model.ById.ContainsKey($"module/{folder}"))
             {
                 continue;
             }
 
             findings.Add(new Finding(
-                "identifier-folder-drift",
+                "record-placement-invalid",
                 $"{Label(record.Type)} '{record.Id}' sits in module '{folder}' but its identifier names module '{home}'.",
                 record.File,
                 record.Line,
@@ -208,7 +296,7 @@ internal static class IdentifierChecks
                 var label = Label(type);
 
                 findings.Add(new Finding(
-                    "name-duplicate",
+                    "record-key-duplicate",
                     $"{label} '{record.Id}' shares its name '{name}' with another {label.ToLowerInvariant()}.",
                     record.File,
                     record.Line,
@@ -259,7 +347,7 @@ internal static class IdentifierChecks
             foreach (var record in records)
             {
                 findings.Add(new Finding(
-                    "decision-number-duplicate",
+                    "record-key-duplicate",
                     $"Decision '{record.Id}' shares its number '{number}' with another decision.",
                     record.File,
                     record.Line,
@@ -268,15 +356,18 @@ internal static class IdentifierChecks
         }
     }
 
-    /// <summary>Reports a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type.</summary>
+    /// <summary>Reports a page record whose identifier name is no word subsequence of its title, a step whose act is no word subsequence of its title, or a page record whose file is named for neither its identifier name nor the fixed file name of its type.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIdentifierTitle(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
         {
-            // Entries live in their page's file, and a derived record carries no written title.
-            if (record.Derived || record.IsEntry || !RecordTypes.All.Contains(record.Type))
+            // Entries live in their page's file, and a derived record carries no written title. A step
+            // is an entry whose act still faces its title, so it reads the subsequence rule below.
+            var isStep = record.Type == RecordTypes.Step;
+
+            if (record.Derived || (record.IsEntry && !isStep) || !RecordTypes.All.Contains(record.Type))
             {
                 continue;
             }
@@ -291,7 +382,7 @@ internal static class IdentifierChecks
                 continue;
             }
 
-            var wantsHome = RecordTypes.WithHome.Contains(record.Type);
+            var wantsHome = WantsHome(record);
 
             if ((wantsHome && home is null) || (!wantsHome && home is not null))
             {
@@ -311,10 +402,18 @@ internal static class IdentifierChecks
             {
                 findings.Add(new Finding(
                     "identifier-title-invalid",
-                    $"{record.Title} '{record.Id}' carries an identifier name that is not a word subsequence of its title.",
+                    isStep
+                        ? $"Step '{record.Id}' carries an act that is not a word subsequence of its title."
+                        : $"{record.Title} '{record.Id}' carries an identifier name that is not a word subsequence of its title.",
                     record.File,
                     record.Line,
                     SubjectOf(record)));
+            }
+
+            // A step lives in its flow's file, so no file name faces its act.
+            if (isStep)
+            {
+                continue;
             }
 
             // A fixed file name carries the type's name instead of the record's, and the
@@ -407,7 +506,7 @@ internal static class IdentifierChecks
     }
 
     /// <summary>The name of the feature whose folder holds a requirement's own folder, or null when the path holds none.</summary>
-    /// <param name="file">The requirement record file path, <c>features/&lt;feature&gt;/&lt;name&gt;/&lt;name&gt;.yaml</c>.</param>
+    /// <param name="file">The requirement record file path, <c>features/&lt;feature&gt;/requirements/&lt;name&gt;/&lt;name&gt;.yaml</c>.</param>
     /// <returns>The feature folder name, or null when the file sits too shallow.</returns>
     private static string? FeatureFolderOf(string file)
     {
@@ -449,11 +548,13 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent => "Integration event",
         RecordTypes.ExternalSystem => "External system",
         RecordTypes.Runbook => "Runbook",
-        RecordTypes.Departure => "Departure",
+        RecordTypes.Waiver => "Waiver",
         RecordTypes.Reaction => "Reaction",
         RecordTypes.Job => "Job",
         RecordTypes.Notification => "Notification",
         RecordTypes.Setting => "Setting",
+        RecordTypes.ReadModel => "Read model",
+        RecordTypes.ModuleEvent => "Module event",
         _ => "Record",
     };
 }

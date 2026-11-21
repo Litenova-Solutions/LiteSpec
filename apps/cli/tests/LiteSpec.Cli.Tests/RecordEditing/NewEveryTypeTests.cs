@@ -21,7 +21,7 @@ public sealed class NewEveryTypeTests
         // A requirement is written in its feature's folder, so the feature exists first.
         if (type == "requirement")
         {
-            Assert.Equal(0, TestCli.Run("new", "feature", "waiting.approval", "--root", consumer.Path).Status);
+            Assert.Equal(0, TestCli.Run("new", "feature", "waiting-for-money.approval", "--root", consumer.Path).Status);
         }
 
         var result = TestCli.Run("new", type, argument, "--root", consumer.Path);
@@ -37,8 +37,8 @@ public sealed class NewEveryTypeTests
 
         var explanation = Path.ChangeExtension(record, ".md");
 
-        // A requirement takes no explanation file, and a departure sits on the governance layer, which explanations.layers does not name.
-        if (type is "requirement" or "departure")
+        // The product stands above the record layers, so it takes no explanation file. A waiver sits on the governance layer, which this consumer lists, so it takes its explanation file like any listed type.
+        if (type is "product")
         {
             Assert.False(File.Exists(explanation), $"A {type} takes no explanation file.");
             return;
@@ -52,7 +52,7 @@ public sealed class NewEveryTypeTests
     }
 
     /// <summary>A query is scaffolded from the query template, which its kind names, and the record opens with the scaffold marker.</summary>
-    /// <proves>litespec/core/authoring#copy-each-template-from-the-example</proves>
+    /// <proves>litespec/core/authoring#validate-each-template-against-the-record-schema</proves>
     [Fact(DisplayName = "new writes a query from the query template")]
     public void NewWritesAQueryFromTheQueryTemplate()
     {
@@ -72,28 +72,29 @@ public sealed class NewEveryTypeTests
     /// <returns>One row per listed type.</returns>
     public static IEnumerable<object[]> Cases()
     {
-        yield return ["product", "claimwick", "intent/product.yaml", "Claimwick", "product/claimwick"];
+        yield return ["product", "claimwick", "product.yaml", "Claimwick", "product/claimwick"];
         yield return ["goal", "faster-reimbursement", "intent/goals/faster-reimbursement/faster-reimbursement.yaml", "Faster Reimbursement", "goal/faster-reimbursement"];
-        yield return ["vision", "one-desk", "intent/visions/one-desk/one-desk.yaml", "One Desk", "vision/one-desk"];
+        yield return ["direction", "one-desk", "intent/directions/one-desk/one-desk.yaml", "One Desk", "direction/one-desk"];
         yield return ["problem", "waiting-for-money", "intent/problems/waiting-for-money/waiting-for-money.yaml", "Waiting for Money", "problem/waiting-for-money"];
-        yield return ["feature", "waiting.approval", "intent/problems/waiting/features/approval/approval.yaml", "Approval", "feature/approval"];
-        yield return ["requirement", "approval.decided-in-five", "intent/problems/waiting/features/approval/requirements/decided-in-five/decided-in-five.yaml", "Decided in Five", "requirement/approval.decided-in-five"];
+        yield return ["feature", "waiting-for-money.approval", "intent/problems/waiting-for-money/features/approval/approval.yaml", "Approval", "feature/approval"];
+        yield return ["requirement", "approval.decided-in-five", "intent/problems/waiting-for-money/features/approval/requirements/decided-in-five/decided-in-five.yaml", "Decided in Five", "requirement/approval.decided-in-five"];
         yield return ["constraint", "receipt-retention", "intent/constraints/receipt-retention/receipt-retention.yaml", "Receipt Retention", "constraint/receipt-retention"];
         yield return ["decision", "receipt-threshold", "intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml", "Receipt Threshold", "decision/0001-receipt-threshold"];
         yield return ["research", "benchmark-approval-times", "intent/research/benchmark-approval-times/benchmark-approval-times.yaml", "Benchmark Approval Times", "research/benchmark-approval-times"];
-        yield return ["journey", "close-the-year", "intent/journeys/close-the-year/close-the-year.yaml", "Close the Year", "journey/close-the-year"];
+        yield return ["flow", "close-the-year", "intent/flows/close-the-year/close-the-year.yaml", "Close the Year", "flow/close-the-year"];
         yield return ["actor", "reader", "intent/actors/reader/reader.yaml", "Reader", "actor/reader"];
         yield return ["role", "approver", "intent/roles/approver/approver.yaml", "Approver", "role/approver"];
         yield return ["module", "spending", "behavior/modules/spending/module.yaml", "Spending", "module/spending"];
-        yield return ["aggregate", "spending.expense", "behavior/modules/spending/aggregates/expense/aggregate.yaml", "Expense", "aggregate/spending.expense"];
+        yield return ["aggregate", "spending.expense", "behavior/modules/spending/aggregates/expenses/aggregate.yaml", "Expense", "aggregate/spending.expense"];
         yield return ["use-case", "spending.submit-expense", "behavior/modules/spending/use-cases/submit-expense/submit-expense.yaml", "Submit Expense", "use-case/spending.submit-expense"];
         yield return ["reaction", "spending.send-reminder", "behavior/modules/spending/reactions/send-reminder/send-reminder.yaml", "Send Reminder", "reaction/spending.send-reminder"];
         yield return ["job", "spending.erase-data", "behavior/modules/spending/jobs/erase-data/erase-data.yaml", "Erase Data", "job/spending.erase-data"];
         yield return ["notification", "spending.approver-reminder", "behavior/modules/spending/notifications/approver-reminder/approver-reminder.yaml", "Approver Reminder", "notification/spending.approver-reminder"];
+        yield return ["read-model", "reporting.reimbursed-expense", "behavior/modules/reporting/read-models/reimbursed-expense/reimbursed-expense.yaml", "Reimbursed Expense", "read-model/reporting.reimbursed-expense"];
         yield return ["external-system", "bank", "behavior/external-systems/bank/bank.yaml", "Bank", "external-system/bank"];
         yield return ["screen", "library-app.loans", "behavior/entry-points/library-app/screens/library-app.loans/library-app.loans.yaml", "Loans", "screen/library-app.loans"];
         yield return ["runbook", "month-end", "implementation/runbooks/month-end/month-end.yaml", "Month End", "runbook/month-end"];
-        yield return ["departure", "legacy-export", "governance/departures/legacy-export/legacy-export.yaml", "Legacy Export", "departure/legacy-export"];
+        yield return ["waiver", "legacy-export", "governance/waivers/legacy-export/legacy-export.yaml", "Legacy Export", "waiver/legacy-export"];
     }
 
     /// <summary>A consumer that lists every layer, so each type's explanation is written.</summary>

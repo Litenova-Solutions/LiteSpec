@@ -79,7 +79,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.True(problems.Count == 0, result.Output);
     }
 
-    /// <summary>Asserts a failing run: exit 1 with some consumer problem carrying the expectation. Every consumer finding blocks, so the exit follows.</summary>
+    /// <summary>Asserts a failing run: exit 1 with some consumer problem carrying the expectation. Blocking findings fail the run, so the exit follows.</summary>
     /// <param name="result">The completed model check run.</param>
     /// <param name="expected">The text one problem line must contain.</param>
     static void AssertProblem(CliResult result, string expected)
@@ -87,6 +87,16 @@ public sealed partial class ConsumerValidatorTests
         var problems = Problems(result);
         Assert.Equal(1, result.Status);
         Assert.Contains(problems, problem => problem.Contains(expected, StringComparison.Ordinal));
+    }
+
+    /// <summary>Asserts an advisory consumer problem: listed with <c>--all</c>, summarized without it. The exit code belongs to the whole check, so it is not asserted here.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="expected">The text one problem line must contain.</param>
+    static void AssertAdvisory(string root, string expected)
+    {
+        var listed = Problems(RunConsumer(root, "--all"));
+        Assert.Contains(listed, problem => problem.Contains(expected, StringComparison.Ordinal));
+        Assert.All(Problems(RunConsumer(root)), problem => Assert.DoesNotContain(expected, problem));
     }
 
     /// <summary>Asserts no consumer problem names the diagnostic.</summary>
@@ -113,7 +123,7 @@ public sealed partial class ConsumerValidatorTests
     static JsonObject PathsOf(JsonObject project) => (JsonObject)project["paths"]!;
 
     /// <summary>Fixture validates as written.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "fixture validates as written")]
     public void FixtureValidatesAsWritten()
     {

@@ -34,8 +34,8 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "step statement without an actor start or a period")]
     public void StepStatementWithoutActorStartOrPeriod() => Check(
-        root => WriteExample(root, "journey.yaml",
-            "{\"type\":\"journey\",\"id\":\"journey/sample\",\"title\":\"Sample Journey\"," +
+        root => WriteExample(root, "flow.yaml",
+            "{\"type\":\"flow\",\"id\":\"flow/sample\",\"title\":\"Sample Flow\"," +
             "\"steps\":[{\"id\":\"s1\",\"statement\":\"submits the expense\"}]}"),
         [MaintainerDiagnostics.Codes.ValueStyle]);
 
@@ -101,8 +101,8 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "When condition starting with when")]
     public void WhenConditionStartingWithWhen() => Check(
-        root => WriteExample(root, "journey.yaml",
-            "{\"type\":\"journey\",\"id\":\"journey/sample\",\"title\":\"Sample Journey\"," +
+        root => WriteExample(root, "flow.yaml",
+            "{\"type\":\"flow\",\"id\":\"flow/sample\",\"title\":\"Sample Flow\"," +
             "\"finishedWhen\":\"When the employee holds the reimbursement.\"}"),
         [MaintainerDiagnostics.Codes.ValueStyle]);
 

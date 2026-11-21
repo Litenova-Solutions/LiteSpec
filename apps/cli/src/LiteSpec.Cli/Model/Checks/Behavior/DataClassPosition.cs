@@ -1,10 +1,13 @@
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>One data class erasure position with its per-field exceptions.</summary>
+/// <summary>One aggregate data class: its classification, erasure position, retention period and per-field exceptions.</summary>
 internal sealed record DataClassPosition(
     string Name,
     string Classification,
     string? OnErasure,
-    string? EnforcedBy,
+    IReadOnlyList<string> EnforcedBy,
     IReadOnlyList<string> Fields,
-    IReadOnlyList<DataClassException> Exceptions);
+    IReadOnlyList<DataClassException> Exceptions,
+    string? Period,
+    string? PeriodStartsAt,
+    IReadOnlyList<string> Basis);

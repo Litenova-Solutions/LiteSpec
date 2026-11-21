@@ -1,24 +1,24 @@
 type: use-case
 id: use-case/lending.return-copy
 title: Return copy
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong return closes a loan that is still open.
 kind: command
 access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-- journey/borrow-and-return#s5
+- step/borrow-and-return.return-copy
 fulfills:
 - requirement/borrowing.loan-period-days
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/loan.loan-returned
+- domain-event/loan.loan-returned
+steps:
+- statement: The reader returns the copy to the desk.
 idempotency:
   mode: none
   reason: Each call returns its own copy, and returning an inactive loan is refused.
-audit:
-  level: none
-  target: No audit trail; the loan record shows each return.
 records:
 - type: result
   id: result/return-copy.returned
@@ -29,8 +29,7 @@ records:
   id: result/return-copy.loan-inactive
   title: Loan inactive
   outcome: refusal
-  code: lending.loan-not-active
-  meaning: The loan is inactive.
+  refusal: refusal/lending.loan-not-active
 - type: scenario
   id: scenario/return-copy.returning-a-borrowed-copy-succeeds
   title: Returning a borrowed copy succeeds
@@ -38,3 +37,12 @@ records:
   when: The reader returns the copy.
   then: The loan is returned.
   result: result/return-copy.returned
+- type: scenario
+  id: scenario/return-copy.returning-an-inactive-loan-is-refused
+  title: Returning an inactive loan is refused
+  given: A loan already stands returned.
+  when: The reader returns the copy.
+  then: The return is refused because the loan is inactive.
+  result: result/return-copy.loan-inactive
+  exercises:
+  - rule/loan.returned-while-active

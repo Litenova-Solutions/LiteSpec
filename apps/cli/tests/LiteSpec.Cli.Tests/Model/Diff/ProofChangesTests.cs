@@ -77,19 +77,34 @@ public sealed class ProofChangesTests
         Assert.DoesNotContain(Checker.Check(head).Findings, finding => finding.Code == "proof-hash-drift");
     }
 
-    /// <summary>A passing run records the proving test method hash in the ledger beside the scenario and test hashes.</summary>
+    /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift from the two models, with no hashes in the ledger.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void PassingRunRecordsTheMethodHash()
+    public void MethodDriftIsFoundFromTheModelsWithoutLedgerHashes()
     {
         using var temp = ModelFixture.Prepare("small");
-        Prove(temp.Path);
+        var baseModel = Prove(temp.Path);
 
+        // The ledger carries the run commit, the outcome and the run, and no hashes.
         using var ledger = System.Text.Json.JsonDocument.Parse(File.ReadAllText(
             Path.Combine(temp.Path, ".litespec", "proof", "proofs.json")));
         var entry = ledger.RootElement.GetProperty(Scenario);
 
-        Assert.Matches("^[0-9a-f]{16}$", entry.GetProperty("method").GetString()!);
+        Assert.True(entry.TryGetProperty("commit", out _));
+        Assert.True(entry.TryGetProperty("outcome", out _));
+        Assert.True(entry.TryGetProperty("run", out _));
+        Assert.False(entry.TryGetProperty("method", out _));
+        Assert.False(entry.TryGetProperty("scenario", out _));
+        Assert.False(entry.TryGetProperty("test", out _));
+
+        Write(temp.Path, ProofPath, ProofFile.Replace("RegisterACopy(\"copy-1\")", "RegisterACopy(\"copy-2\")", StringComparison.Ordinal));
+
+        var head = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+        var finding = Assert.Single(ProofChanges.Find(baseModel, head));
+
+        Assert.Equal("proof-hash-drift", finding.Code);
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal(Scenario, finding.Subject);
     }
 
     /// <summary>Writes the scenario and proving test, reads one passing run, saves the ledger, and returns the built base model.</summary>

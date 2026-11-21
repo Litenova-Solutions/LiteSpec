@@ -103,7 +103,7 @@ internal static class ResultChecks
                     continue;
                 }
 
-                if (result.Field(RecordFields.Code) is { } code)
+                if (RefusalCode.Of(result) is { } code)
                 {
                     declared.Add(code);
                 }

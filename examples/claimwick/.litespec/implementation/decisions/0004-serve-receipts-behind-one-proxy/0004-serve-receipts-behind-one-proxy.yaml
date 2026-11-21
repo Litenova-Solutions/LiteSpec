@@ -15,3 +15,4 @@ consequences: Receipt traffic shares one entry point with one set of security he
 reopenedWhen: Receipt traffic outgrows one proxy.
 basedOn:
 - requirement/approval-reminders.month-end-submission
+context: Receipts needed one hardened entry point before the pilot started.

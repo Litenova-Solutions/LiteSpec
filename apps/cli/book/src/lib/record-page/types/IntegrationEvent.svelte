@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { BookRecord, RecordFields } from "$lib/frame";
-  import { book, esc } from "$lib/frame";
+  import { book, esc, safeHref } from "$lib/frame";
   import { RecordLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import { codeCls, linkOrTextHtml, tdHtml } from "../page-html";
-  import { clsBadgeHtml, objectList, stringField, typedFieldHtml } from "../page-values";
+  import { clsTag, codeOf, fieldType, muted, td, thRow } from "../shared/record-cells";
+  import { objectList, stringField } from "../page-values";
 
   // An integration event: its identity and trust, and the payload it carries.
   type Props = { id: string; r: BookRecord };
@@ -18,27 +18,45 @@
   const translates = $derived(stringField(f, "translates"));
   const trust = $derived(stringField(f, "trust"));
   const correlation = $derived(stringField(f, "correlation"));
+  const compatibility = $derived(stringField(f, "compatibility") ?? "");
   const dataschema = $derived(f.dataschema);
+  const dataschemaHtml = $derived.by(() => {
+    if (dataschema === undefined || dataschema === null || String(dataschema) === "") return "";
+    const href = safeHref(book, dataschema);
+    return href
+      ? `<a href="${esc(href)}" class="text-link hover:underline">${esc(dataschema)}</a>`
+      : esc(dataschema);
+  });
+
+  function payloadQualifiers(p: RecordFields): string {
+    const quals = [
+      p.required === true ? "required" : p.required === false ? "optional" : "",
+      p.many ? "many" : "",
+    ].filter(Boolean);
+    return quals.length ? muted(quals.map(esc).join(" &middot; ")) : "";
+  }
 </script>
 
 <PageSection blockKey="id" heading="eventType">
   <DefinitionList>
-    <DefinitionRow label="Event type" html={`<span class="${codeCls}">${esc(eventType)}</span>`} />
+    <DefinitionRow label="Event type" html={codeOf(eventType)} />
     {#if translates}<DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>{/if}
     {#if trust}<DefinitionRow label="Trust">{trust}</DefinitionRow>{/if}
     {#if correlation}<DefinitionRow label="Correlation">{correlation}</DefinitionRow>{/if}
-    {#if dataschema}<DefinitionRow label="Dataschema" html={linkOrTextHtml(book, dataschema)} />{/if}
+    {#if compatibility}<DefinitionRow label="compatibility">{compatibility}</DefinitionRow>{/if}
+    {#if dataschemaHtml}<DefinitionRow label="Dataschema" html={dataschemaHtml} />{/if}
   </DefinitionList>
 </PageSection>
 {#if payload.length}
   <PageSection blockKey="pay" heading="payload" count={payload.length}>
     <DataTable
       head={["Name", "Type", "Meaning", "Classification"]}
+      caption={`Payload of ${r.title}`}
       rows={payload.map((p) => [
-        tdHtml(esc(stringField(p, "name") ?? ""), "nm"),
-        tdHtml(typedFieldHtml(book, p)),
-        tdHtml(esc(stringField(p, "meaning") ?? "")),
-        tdHtml(clsBadgeHtml(p.classification)),
+        thRow(codeOf(stringField(p, "name") ?? "") + payloadQualifiers(p)),
+        td(fieldType(book, p)),
+        td(esc(stringField(p, "meaning") ?? "")),
+        td(clsTag(p.classification)),
       ])}
     />
   </PageSection>

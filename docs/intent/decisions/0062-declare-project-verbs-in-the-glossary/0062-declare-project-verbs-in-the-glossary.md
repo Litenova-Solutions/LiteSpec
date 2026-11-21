@@ -4,7 +4,7 @@ A use-case name starts with a verb, and LiteSpec ships the baseline vocabulary t
 
 ## Context
 
-A project added its verbs beyond the baseline in a Markdown convention page, which no tool reads. The use-cases page admitted that no tool checks the verb, so an undeclared verb passed every check.
+A project added its verbs beyond the baseline in a Markdown convention page, which no tool reads. The use-cases page stated that no tool checks the verb, so an undeclared verb passed every check.
 
 The permission check could not accept project verbs either: the list was prose, so a permission opening with a project verb was reported even where the project had declared it.
 

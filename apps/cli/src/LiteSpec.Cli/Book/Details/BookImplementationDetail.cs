@@ -8,13 +8,13 @@ namespace LiteSpec.Cli.Book.Details;
 ///     The implementation detail of one record: the code implementing it, the tests
 ///     proving it, what it expects, and what it lacks.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookImplementationDetail
 {
     /// <summary>Gets the record types that expect code.</summary>
     static HashSet<string> ImplExpected { get; } = new(StringComparer.Ordinal)
     {
-        "aggregate", "reaction", "job", "external-system", "use-case", "screen",
+        "aggregate", "reaction", "job", "external-system", "use-case", "screen", "read-model",
     };
 
     /// <summary>Gets the record types that expect proof.</summary>

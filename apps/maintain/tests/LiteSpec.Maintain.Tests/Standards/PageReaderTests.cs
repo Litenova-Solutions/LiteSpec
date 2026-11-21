@@ -38,7 +38,7 @@ public sealed class PageReaderTests
     }
 
     /// <summary>Reader passes a Statement inside a code span.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "reader passes a Statement inside a code span")]
     public void StatementCodeSpanPass()
     {
@@ -54,7 +54,7 @@ public sealed class PageReaderTests
     }
 
     /// <summary>Reader fails a second Statement outside a code span.</summary>
-    /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
+    /// <proves>litespec/core/authoring#keep-each-standard-to-one-obligation</proves>
     [Fact(DisplayName = "reader fails a second Statement outside a code span")]
     public void StatementCodeSpanFail()
     {

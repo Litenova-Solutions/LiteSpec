@@ -1,15 +1,13 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { SourceLink } from "$lib/record";
-  import { routeFileOf } from "./page-values";
+  import { Hover } from "$lib/record";
   import { fieldRowsFor } from "./type-facts";
 
   // The field table: the type's relations and facts, then the plain fields.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
 
-  const routePath = $derived(r.type === "screen" ? routeFileOf(r.route) : null);
   const rows = $derived(
     fieldRowsFor(book, r, {
       parent: book.parent(id),
@@ -23,22 +21,14 @@
 </script>
 
 {#if rows.length}
-  <table class="mb-7 w-full border-collapse text-[0.90625rem]">
-    <tbody class="[&_tr:last-child_th]:border-b-0 [&_tr:last-child_td]:border-b-0">
-      {#each rows as row, i (i)}
-        <tr>
-          <th class="w-[34%] border-b border-border py-2 pr-4 text-left align-top font-medium text-muted-foreground sm:w-[180px]">
-            {row.label}
-          </th>
-          <td class="border-b border-border py-2 align-top break-words text-foreground">
-            {#if row.route && routePath}
-              <SourceLink src={{ path: routePath, line: 1 }} />
-            {:else}
-              {@html row.html}
-            {/if}
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+  <dl class="mt-6 grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
+    {#each rows as row, i (i)}
+      <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">
+        <Hover hover={hoverSection(book, row.label, id)}>{row.label}</Hover>
+      </dt>
+      <dd class="m-0 min-w-0 border-b border-border-subtle py-3">
+        {@html row.html}
+      </dd>
+    {/each}
+  </dl>
 {/if}

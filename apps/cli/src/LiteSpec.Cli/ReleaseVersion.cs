@@ -4,7 +4,7 @@ namespace LiteSpec.Cli;
 
 /// <summary>
 ///     The version names a tool build carries. The release is the base version the carried
-///     manifest names, such as 6.0.0. A release candidate is packed as 6.0.0-rc.1: the build
+///     manifest names, such as 7.0.0. A release candidate is packed as 6.0.0-rc.1: the build
 ///     stamps the suffix into the assembly's informational version, and the tool reads it back
 ///     so the packages it writes into a consumer name the candidate it came from.
 /// </summary>
@@ -13,7 +13,7 @@ static class ReleaseVersion
 {
     /// <summary>The package version of this build: the carried release with the suffix it was packed with.</summary>
     /// <param name="release">The base version the carried release names.</param>
-    /// <returns>The package version, such as 6.0.0 or 6.0.0-rc.1.</returns>
+    /// <returns>The package version, such as 7.0.0 or 6.0.0-rc.1.</returns>
     public static string PackageOf(string release) => PackageOf(release, Informational());
 
     /// <summary>The package version for a release and an informational version.</summary>
@@ -23,8 +23,8 @@ static class ReleaseVersion
     public static string PackageOf(string release, string informational) => release + Suffix(informational);
 
     /// <summary>The base version of a version: the part before any prerelease suffix.</summary>
-    /// <param name="version">A version such as 6.0.0 or 6.0.0-rc.1.</param>
-    /// <returns>The base version, such as 6.0.0.</returns>
+    /// <param name="version">A version such as 7.0.0 or 6.0.0-rc.1.</param>
+    /// <returns>The base version, such as 7.0.0.</returns>
     public static string BaseOf(string version)
     {
         var dash = version.IndexOf('-', StringComparison.Ordinal);
@@ -36,7 +36,7 @@ static class ReleaseVersion
     ///     candidate and one rendered by its final release compare equal, as the manifest check compares base versions.
     /// </summary>
     /// <param name="text">The generated text.</param>
-    /// <param name="release">The base version of the release, such as 6.0.0.</param>
+    /// <param name="release">The base version of the release, such as 7.0.0.</param>
     /// <returns>The text with each <c>release-suffix</c> written as <c>release</c>.</returns>
     public static string WithoutCandidateSuffix(string text, string release) => release.Length == 0 ? text :
         System.Text.RegularExpressions.Regex.Replace(

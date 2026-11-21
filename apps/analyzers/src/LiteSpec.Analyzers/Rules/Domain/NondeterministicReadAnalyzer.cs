@@ -39,23 +39,23 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
     /// <summary>Holds the well known types data the nondeterministic read analyzer code works with.</summary>
     private sealed class WellKnownTypes
     {
-        /// <summary>Stores the date time used by the well known types code.</summary>
+        /// <summary>Holds the date time used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _dateTime;
-        /// <summary>Stores the date time offset used by the well known types code.</summary>
+        /// <summary>Holds the date time offset used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _dateTimeOffset;
-        /// <summary>Stores the time provider used by the well known types code.</summary>
+        /// <summary>Holds the time provider used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _timeProvider;
-        /// <summary>Stores the guid used by the well known types code.</summary>
+        /// <summary>Holds the guid used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _guid;
-        /// <summary>Stores the environment used by the well known types code.</summary>
+        /// <summary>Holds the environment used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _environment;
-        /// <summary>Stores the stopwatch used by the well known types code.</summary>
+        /// <summary>Holds the stopwatch used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _stopwatch;
-        /// <summary>Stores the random used by the well known types code.</summary>
+        /// <summary>Holds the random used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _random;
-        /// <summary>Stores the random number generator used by the well known types code.</summary>
+        /// <summary>Holds the random number generator used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _randomNumberGenerator;
-        /// <summary>Stores the scope used by the well known types code.</summary>
+        /// <summary>Holds the scope used by the well known types code.</summary>
         private readonly FileScope _scope;
 
         /// <summary>Initializes a new instance of the <see cref="WellKnownTypes"/> class.</summary>

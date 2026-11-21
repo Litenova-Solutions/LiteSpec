@@ -8,21 +8,47 @@ access:
   grant: permission/post-reimbursement
   tenant: own
 serves:
-- journey/submit-and-reimburse#s4
+- step/submit-and-reimburse.reimburse-expense
 fulfills:
 - requirement/approval.expense-reimbursed-at-most-once
 reachedThrough:
 - entry-point/claimwick-app
 raises:
-- event/expense.reimbursed
-changes:
+- domain-event/expense.reimbursed
+input:
+- name: expense
+  meaning: The approved expense to reimburse.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+writes:
 - aggregate/spending.expense
 idempotency:
-  mode: none
+  mode: state
   reason: the first payment moves the expense to reimbursed, so the aggregate refuses a second payment
-audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
+  replay: refuses
+  recognizedBy: the aggregate state already holds the outcome this command sets
+steps:
+- statement: Finance picks an approved expense.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending refuses the payment with `spending.not-approved` when the expense is not approved.
+  cites:
+  - result/reimburse-expense.not-approved
+  - rule/expense.approved-before-reimbursement
+- statement: Spending refuses the payment with `spending.already-reimbursed` when the expense is reimbursed.
+  cites:
+  - result/reimburse-expense.already-reimbursed
+  - rule/expense.reimbursed-once
+- statement: Spending moves the expense to Reimbursed and raises the reimbursed event.
+  cites:
+  - result/reimburse-expense.reimbursed
+  - domain-event/expense.reimbursed
+  - aggregate/spending.expense
+edgeCases:
+- Spending refuses payment of an unapproved expense with `spending.not-approved`.
 records:
 - type: result
   id: result/reimburse-expense.reimbursed
@@ -33,14 +59,18 @@ records:
   id: result/reimburse-expense.not-approved
   title: Not Approved
   outcome: refusal
-  code: spending.not-approved
-  meaning: The expense is not approved.
+  refusal: refusal/spending.not-approved
+  sentence: This expense is not approved yet, so it cannot be reimbursed.
+  sentences:
+    nl: Deze uitgave is nog niet goedgekeurd, dus deze kan nog niet worden vergoed.
 - type: result
   id: result/reimburse-expense.already-reimbursed
   title: Already Reimbursed
   outcome: refusal
-  code: spending.already-reimbursed
-  meaning: The expense is already reimbursed.
+  refusal: refusal/spending.already-reimbursed
+  sentence: This expense is already reimbursed.
+  sentences:
+    nl: Deze uitgave is al vergoed.
 - type: scenario
   id: scenario/reimburse-expense.reimbursing-an-approved-expense-succeeds
   title: Reimbursing an Approved Expense Succeeds
@@ -48,6 +78,9 @@ records:
   when: Finance reimburses the expense.
   then: The expense is reimbursed.
   result: result/reimburse-expense.reimbursed
+  exercises:
+  - rule/expense.approved-before-reimbursement
+  - rule/expense.reimbursed-once
 - type: scenario
   id: scenario/reimburse-expense.reimbursing-an-unapproved-expense-is-refused
   title: Reimbursing an Unapproved Expense Is Refused
@@ -55,6 +88,8 @@ records:
   when: Finance reimburses the expense.
   then: The reimbursement is refused because the expense is not approved.
   result: result/reimburse-expense.not-approved
+  exercises:
+  - rule/expense.approved-before-reimbursement
 - type: scenario
   id: scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused
   title: Reimbursing a Reimbursed Expense Is Refused
@@ -62,3 +97,5 @@ records:
   when: Finance reimburses the expense again.
   then: The reimbursement is refused because the expense is already reimbursed.
   result: result/reimburse-expense.already-reimbursed
+  exercises:
+  - rule/expense.reimbursed-once

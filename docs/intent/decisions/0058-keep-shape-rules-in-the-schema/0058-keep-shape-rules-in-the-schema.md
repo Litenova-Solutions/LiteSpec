@@ -4,9 +4,9 @@ LiteSpec checks each record twice: a JSON schema lets an editor check a YAML fil
 
 ## Context
 
-The schema and the model check disagreed on some local requirements. An editor validating against the schema accepted a role without `allows`, which the model check required. Decision `choice`, empty research sources, module `dependsOn` and empty policy values had the same disagreement.
+The schema and the model check disagreed on some local requirements. An editor validating against the schema accepted a permission without `grantedTo`, which the model check required. The same disagreement covered decision `choice`, empty research sources, module `dependsOn`, and empty policy values.
 
-The schema also used `uniqueItems` on lists of objects, such as research sources and journey steps. That rule compares whole objects, so two entries that share one key both passed.
+The schema also used `uniqueItems` on lists of objects, such as research sources and flow steps. That rule compares whole objects, so two sources sharing one name, or two steps sharing one id, both passed.
 
 ## Options
 
@@ -28,7 +28,7 @@ A test runs both validators over a set of invalid records and asserts that they 
 
 The five named disagreements are settled and written into the schema. Duplicate keys inside a record are reported by the model check, because `uniqueItems` cannot catch them. Each duplicate-key case has its own test.
 
-The change touches the schema, the schema checks and the parity test. No record changes shape because of it, except where a disagreement is settled in favor of the stricter rule.
+The change edits the schema, the schema checks and the parity test. No record changes shape because of it, except where a disagreement is settled in favor of the stricter rule.
 
 ## Revisit Conditions
 

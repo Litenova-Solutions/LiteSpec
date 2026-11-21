@@ -263,8 +263,7 @@ public sealed class ReaderProblemsTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App", "webapi": "src/WebApi"}}}
             """);
 
     static string WriteApp(string root, string file, string text)

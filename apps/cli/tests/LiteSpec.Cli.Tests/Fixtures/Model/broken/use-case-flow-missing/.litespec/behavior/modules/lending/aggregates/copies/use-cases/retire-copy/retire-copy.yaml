@@ -1,0 +1,36 @@
+type: use-case
+id: use-case/lending.retire-copy
+title: Retire copy
+kind: command
+steps:
+  - statement: The librarian sends the copy to retire.
+  - statement: Lending retires the copy.
+access:
+  grant: permission/manage-copies
+  tenant: own
+serves: []
+fulfills:
+  - requirement/borrowing.copy-shelf-home
+reachedThrough:
+  - entry-point/library-app
+raises:
+  - domain-event/copy.copy-retired
+records:
+  - type: result
+    id: result/retire-copy.retired
+    title: Retired
+    outcome: success
+    meaning: The copy is retired.
+  - type: result
+    id: result/retire-copy.copy-on-loan
+    title: Copy on loan
+    outcome: refusal
+    code: lending.copy-on-loan
+    meaning: The copy is on loan.
+  - type: scenario
+    id: scenario/retire-copy.retiring-an-available-copy-succeeds
+    title: Retiring an available copy succeeds
+    given: A copy sits available past weeding.
+    when: The librarian retires the copy.
+    then: The copy is retired.
+    result: result/retire-copy.retired

@@ -2,11 +2,14 @@ type: use-case
 id: use-case/lending.list-loans
 title: List loans
 kind: query
+steps:
+  - statement: The reader asks for their loans.
+  - statement: Lending lists the loans.
 access:
   grant: permission/read-loans
   tenant: own
 serves:
-  - journey/borrow-and-return#s4
+  - step/borrow-and-return.review-loans
 fulfills:
   - requirement/borrowing.max-active-loans
   - requirement/borrowing.list-loans-latency

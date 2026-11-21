@@ -1,12 +1,20 @@
 type: problem
-id: problem/expenses-wait-weeks
-title: Expenses Wait Weeks
+id: problem/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
 affects:
-- actor/employee
-summary: Submitted expenses wait weeks for a decision, so employees chase managers by email. Decisions arrive late without notice.
-statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.
+- actor/<name>
+summary: <the pain, who feels it, and what it costs, in one paragraph>
+statement: <the pain, in one sentence>
+failureCases:
+- <one failure that can happen on its own, in one sentence>
+workaround: <what sufferers do today instead, in one to three sentences>
+cost: <what the pain costs sufferers, in one to three sentences>
+resolutionCriteria:
+- <one observable outcome that shows the failure no longer happens, in one sentence>
 evidence:
-- claim: Employees wait three weeks on average for reimbursement.
-  source: research/approval-time-benchmarks
-  readOn: 2026-11-01
-  kind: reported
+- claim: <what the source shows>
+  source: <source name>
+  readOn: <date read, such as 2026-02-10>
+  kind: <observed|reported|assumed>

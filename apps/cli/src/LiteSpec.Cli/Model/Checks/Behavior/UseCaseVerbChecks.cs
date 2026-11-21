@@ -1,15 +1,61 @@
+using System.Text.RegularExpressions;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The use-case verb checks: each use-case name opens with a declared verb of its own kind, and no glossary verb restates a baseline verb.</summary>
+/// <summary>The use-case verb checks: each use-case name opens with a declared verb of its own kind, no glossary verb restates a baseline verb, and each retaken retired synonym names the baseline verb it differs from.</summary>
 /// <follows>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</follows>
 /// <follows>litespec/core/use-cases#keep-one-kind-per-verb</follows>
 internal static class UseCaseVerbChecks
 {
     /// <summary>The glossary term field holding the use-case kind a verb term opens.</summary>
     private const string VerbKindField = "verbKind";
+
+    /// <summary>The baseline verb each retired synonym was retired into, as the use-cases page states it.</summary>
+    internal static readonly Dictionary<string, string> Retired = new(StringComparer.Ordinal)
+    {
+        ["get"] = "read",
+        ["fetch"] = "read",
+        ["lookup"] = "read",
+        ["count"] = "read",
+        ["browse"] = "list",
+        ["find"] = "search",
+        ["update"] = "change",
+        ["edit"] = "change",
+        ["modify"] = "change",
+        ["revise"] = "change",
+        ["set"] = "change",
+        ["adjust"] = "change",
+        ["configure"] = "change",
+        ["rename"] = "change",
+        ["define"] = "create",
+        ["compose"] = "create",
+        ["save"] = "create",
+        ["new"] = "create",
+        ["delete"] = "remove",
+        ["notify"] = "send",
+        ["remind"] = "send",
+        ["email"] = "send",
+        ["suggest"] = "answer",
+        ["ask"] = "answer",
+        ["mark"] = "record",
+        ["note"] = "record",
+        ["log"] = "record",
+        ["end"] = "close",
+        ["finish"] = "complete",
+        ["abandon"] = "cancel",
+        ["lapse"] = "expire",
+        ["clone"] = "duplicate",
+        ["copy"] = "duplicate",
+        ["replay"] = "retry",
+        ["recheck"] = "verify",
+        ["archive"] = "retire",
+        ["reject"] = "refuse",
+        ["deny"] = "refuse",
+        ["unpublish"] = "withdraw",
+        ["hide"] = "withdraw",
+    };
 
     /// <summary>Runs every use-case verb check.</summary>
     /// <param name="model">The loaded project model that holds every record and the glossary terms.</param>
@@ -21,6 +67,7 @@ internal static class UseCaseVerbChecks
         CheckUseCaseVerbs(model, verbs, findings);
         CheckVerbKinds(model, verbs, findings);
         CheckBaselineVerbs(model, findings);
+        CheckVerbDistinctions(model, findings);
     }
 
     /// <summary>Every glossary verb term by its verb, each with the kind it opens.</summary>
@@ -171,4 +218,39 @@ internal static class UseCaseVerbChecks
             findings.Add(new Finding("term-verb-duplicate", $"Term '{term.Id}' declares the verb '{verb}', which the use-case verb table already declares.", term.File, term.Line, SubjectOf(term)));
         }
     }
+
+    /// <summary>Reports each glossary verb term retaking a retired synonym whose meaning names no baseline verb it differs from.</summary>
+    /// <param name="model">The loaded project model that holds the glossary terms.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckVerbDistinctions(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var term in model.Records.Where(record => record.Type == RecordTypes.Term && !record.Derived))
+        {
+            var verb = term.Field(RecordFields.Term);
+
+            if (verb is not { Length: > 0 } || !term.Has(VerbKindField))
+            {
+                continue;
+            }
+
+            if (!Retired.TryGetValue(verb, out var baseline))
+            {
+                continue;
+            }
+
+            if (NamesBaseline(term.Field(RecordFields.Meaning) ?? "", baseline))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("verb-distinction-missing", $"Term '{term.Id}' declares the verb '{verb}', whose meaning names no '{baseline}', the baseline verb it differs from.", term.File, term.Line, SubjectOf(term)));
+        }
+    }
+
+    /// <summary>Whether a meaning names a baseline verb as a whole word.</summary>
+    /// <param name="meaning">The term meaning under inspection.</param>
+    /// <param name="baseline">The baseline verb the meaning must name.</param>
+    /// <returns>True when the meaning holds the baseline verb as a whole word; otherwise false.</returns>
+    private static bool NamesBaseline(string meaning, string baseline) =>
+        Regex.IsMatch(meaning, $@"\b{Regex.Escape(baseline)}\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 }

@@ -1,6 +1,7 @@
 type: decision
 id: decision/0028-one-default-and-two-pattern-options
 title: One Default and Two Options per Pattern
+context: "Pattern pages offered long option lists for one decision, with 107 options before the cut. A reader cannot compare that many, and a building agent has no basis to choose among them."
 options:
   - name: "The Default and at most two options, enforced by validate"
     pros: "A reader compares three options at most, and validate stops a fourth from entering the catalog."
@@ -10,7 +11,7 @@ options:
     cons: "The pattern pages listed 107 options before the cut, and a reader cannot compare that many."
   - name: "The Default only"
     pros: "The catalog holds one answer per pattern."
-    cons: "An owner with a real choice has no option to pick, so each departure becomes a pattern outside the catalog."
+    cons: "An owner with a real choice has no option to pick, so each waiver becomes a pattern outside the catalog."
 choice: "The Default and at most two options, enforced by validate"
-consequences: "`validate` reports a pattern that offers more than its Default and two options, under `PATTERN_OPTION_COUNT`. The pattern pages were cut to the Default and the two options that their rationale points to most, with page order breaking a tie."
+consequences: "`validate` reports a pattern that offers more than its Default and two options, under `PATTERN_OPTION_COUNT`. The pattern pages hold the Default and the two options with the strongest rationale. Page order breaks a tie between options."
 reopenedWhen: "An owner needs a third option that a proposal to the pattern page cannot settle."

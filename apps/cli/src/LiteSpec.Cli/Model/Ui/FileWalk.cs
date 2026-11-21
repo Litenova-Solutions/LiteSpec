@@ -6,9 +6,9 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     Walks the consumer's files for the UI checks: existence, containment,
 ///     and every file under a directory that matches, in a stable order.
 /// </summary>
-/// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
+/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
 /// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
 static class FileWalk
 {
     /// <summary>

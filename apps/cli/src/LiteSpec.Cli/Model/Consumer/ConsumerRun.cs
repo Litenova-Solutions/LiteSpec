@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 ///     of the pass, and the caller reports the collected findings in the one finding
 ///     shape.
 /// </summary>
-/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 sealed class ConsumerRun
 {
@@ -30,6 +30,9 @@ sealed class ConsumerRun
 
     /// <summary>Gets the findings the checks reported.</summary>
     public List<Finding> Errors { get; } = [];
+
+    /// <summary>Gets or sets a value indicating whether schema errors list every rejected shape instead of the selected one.</summary>
+    public bool Verbose { get; set; }
 
     /// <summary>Gets the file texts read so far, by file.</summary>
     public Dictionary<string, string> TextCache { get; } = new(StringComparer.Ordinal);
@@ -155,7 +158,6 @@ sealed class ConsumerRun
 
 
         PageChecks.CheckPages(this);
-        ManifestSelectionChecks.CheckStageDeferrals(this);
         GlossaryChecks.CheckGlossary(this);
 
         ControlledUiChecks.CheckControlledUi(this);
@@ -163,8 +165,8 @@ sealed class ConsumerRun
 
     /// <summary>
     ///     Records one finding. Every finding carries its code, level, path, line
-    ///     and subject, the one finding shape the model check reports. Consumer
-    ///     findings read pages only and always block, so G.
+    ///     and subject, the one finding shape the model check reports. The level
+    ///     is the one the finding code table states for the code.
     /// </summary>
     /// <param name="finding">The finding to record.</param>
     public void Err(Finding finding) => Errors.Add(finding);

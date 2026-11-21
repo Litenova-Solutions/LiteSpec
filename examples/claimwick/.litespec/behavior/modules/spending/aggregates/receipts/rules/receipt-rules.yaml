@@ -9,7 +9,12 @@ records:
   statement: A receipt attaches before the expense is decided.
   governs:
   - use-case/spending.attach-receipt
-  refusal: result/attach-receipt.expense-decided
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
+  binds:
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
+  refusal: refusal/spending.expense-decided
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt

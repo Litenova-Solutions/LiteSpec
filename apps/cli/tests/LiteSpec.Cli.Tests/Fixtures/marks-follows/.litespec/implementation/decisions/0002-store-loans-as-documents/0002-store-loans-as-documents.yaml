@@ -1,6 +1,7 @@
 type: decision
 id: decision/0002-store-loans-as-documents
 title: Store loans as documents
+context: Loans needed one persistence shape for reads and writes.
 options:
   - name: Documents
     pros: Loans read as one document

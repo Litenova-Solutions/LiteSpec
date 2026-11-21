@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 
 /// <summary>Reads every top-level Domain type of one file into the model.</summary>
-/// <follows>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</follows>
+/// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
 static class DomainTypeReader
 {
     /// <summary>
@@ -17,7 +17,7 @@ static class DomainTypeReader
     ///     are read. Nested types, generated types, enumerations and delegates are left out:
     ///     enumerations and delegates are not type declarations, so the type walk skips them.
     /// </summary>
-    /// <follows>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</follows>
+    /// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="file">The file.</param>
     /// <param name="tree">The parsed syntax tree.</param>

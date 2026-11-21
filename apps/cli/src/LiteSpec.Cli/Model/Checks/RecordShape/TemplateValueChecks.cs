@@ -8,7 +8,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
 /// <summary>The template value check: a record that <c>litespec new</c> scaffolded keeps no text or number its template copied.</summary>
-/// <follows>litespec/core/authoring#copy-each-template-from-the-example</follows>
+/// <follows>litespec/core/authoring#validate-each-template-against-the-record-schema</follows>
 internal static class TemplateValueChecks
 {
     /// <summary>The keys that name the record's kind and identity and so never count as a copied value.</summary>

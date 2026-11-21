@@ -22,12 +22,18 @@ export interface CallSite {
   line: number;
 }
 
+export interface NavigationSite {
+  path: string;
+  line: number;
+}
+
 export interface FileFacts {
   marks: MarkSite[];
   calls: CallSite[];
   imports: string[];
   functions: string[];
   route: string | null;
+  navigations: NavigationSite[];
 }
 
 export type FileKind = "ts" | "svelte";
@@ -149,12 +155,28 @@ export function collectCalls(sourceFile: ts.SourceFile, lineOffset: number): Cal
   return calls;
 }
 
-// Every module specifier of the import and re-export declarations, sorted with
-// duplicates removed.
+// Whether a declaration brings in types only: `import type`, `export type`, or an
+// import whose every named binding is marked `type`. Such a declaration carries no
+// runtime code, so no call is reached through it.
+function isTypeOnly(statement: ts.ImportDeclaration | ts.ExportDeclaration): boolean {
+  if (ts.isExportDeclaration(statement)) return statement.isTypeOnly;
+  const clause = statement.importClause;
+  if (clause === undefined) return false;
+  if (clause.isTypeOnly) return true;
+  if (clause.name !== undefined) return false;
+  const bindings = clause.namedBindings;
+  return bindings !== undefined
+    && ts.isNamedImports(bindings)
+    && bindings.elements.length > 0
+    && bindings.elements.every(element => element.isTypeOnly);
+}
+
+// Every module specifier of the import and re-export declarations that bring in
+// runtime code, sorted with duplicates removed.
 export function collectImports(sourceFile: ts.SourceFile): string[] {
   const specifiers = new Set<string>();
   for (const statement of sourceFile.statements) {
-    if (ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) {
+    if ((ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) && !isTypeOnly(statement)) {
       const specifier = statement.moduleSpecifier;
       if (specifier !== undefined) {
         const text = plainText(specifier);
@@ -210,6 +232,114 @@ export function collectExportedFunctions(sourceFile: ts.SourceFile): string[] {
   return [...names].sort();
 }
 
+// The literal path a navigation target holds: a string literal or
+// no-substitution template as written, or the literal head of a template
+// with substitutions. Anything else is dynamic and never a navigation.
+function navigationPath(node: ts.Expression): string | null {
+  const unwrapped = unwrapExpression(node);
+  if (ts.isStringLiteral(unwrapped) || ts.isNoSubstitutionTemplateLiteral(unwrapped)) return unwrapped.text;
+  if (ts.isTemplateExpression(unwrapped)) return unwrapped.head.text;
+  return null;
+}
+
+// Whether the target is a navigation path: a literal path from the root.
+function isNavigationPath(value: string | null): value is string {
+  return value !== null && value.startsWith("/");
+}
+
+// Whether the expression names the document location: `location` or a
+// member expression ending in `.location`, such as `window.location`.
+function isLocationTarget(node: ts.Expression): boolean {
+  const unwrapped = unwrapExpression(node);
+  if (ts.isIdentifier(unwrapped)) return unwrapped.text === "location";
+  if (ts.isPropertyAccessExpression(unwrapped)) return unwrapped.name.text === "location";
+  return false;
+}
+
+// Every local name the file imports as `goto` from SvelteKit's navigation
+// module, through a named import with or without an alias.
+export function collectGotoNames(sourceFile: ts.SourceFile): Set<string> {
+  const names = new Set<string>();
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement)) continue;
+    if (!ts.isStringLiteral(statement.moduleSpecifier) || statement.moduleSpecifier.text !== "$app/navigation") continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (bindings === undefined || !ts.isNamedImports(bindings)) continue;
+    for (const element of bindings.elements) {
+      const imported = element.propertyName !== undefined ? element.propertyName.text : element.name.text;
+      if (imported === "goto") names.add(element.name.text);
+    }
+  }
+  return names;
+}
+
+// The navigation target of a JSX anchor, link, button or form opening: the
+// `href` or `action` attribute initializer, or null for any other tag or
+// attribute. A `Link` or `Button` component counts like an anchor.
+function jsxNavigationTarget(opening: ts.JsxOpeningLikeElement): ts.Expression | null {
+  if (!ts.isIdentifier(opening.tagName)) return null;
+  const tag = opening.tagName.text;
+  const wanted = tag === "a" || tag === "Link" || tag === "Button" ? "href" : tag === "form" ? "action" : null;
+  if (wanted === null) return null;
+  for (const attribute of opening.attributes.properties) {
+    if (!ts.isJsxAttribute(attribute) || !ts.isIdentifier(attribute.name) || attribute.name.text !== wanted) continue;
+    const initializer = attribute.initializer;
+    if (initializer === undefined) return null;
+    if (ts.isStringLiteral(initializer)) return initializer;
+    if (ts.isJsxExpression(initializer) && initializer.expression !== undefined) return initializer.expression;
+    return null;
+  }
+  return null;
+}
+
+// Every full-page navigation of a source in source order: an assignment to the
+// location itself or to a location `href`, a `location.assign` or
+// `location.replace` call, a call to a `goto` imported from SvelteKit's
+// navigation module, and a literal `href` on an anchor, `Link` or `Button`, or
+// `action` on a form. Only literal paths or template literals with a literal
+// path prefix count; anything dynamic is never a navigation.
+export function collectNavigations(sourceFile: ts.SourceFile, lineOffset: number, gotoNames: Set<string>): NavigationSite[] {
+  const navigations: NavigationSite[] = [];
+  const push = (target: ts.Expression | null, node: ts.Node): void => {
+    if (target === null) return;
+    const path = navigationPath(target);
+    if (isNavigationPath(path)) navigations.push({ path, line: lineOf(sourceFile, node) + lineOffset });
+  };
+  walk(sourceFile, node => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      const left = unwrapExpression(node.left);
+      if (isLocationTarget(left)
+        || (ts.isPropertyAccessExpression(left) && left.name.text === "href" && isLocationTarget(left.expression))) {
+        push(node.right, node);
+      }
+      return;
+    }
+    if (ts.isCallExpression(node)) {
+      const target = unwrapExpression(node.expression);
+      if (ts.isPropertyAccessExpression(target)
+        && (target.name.text === "assign" || target.name.text === "replace")
+        && isLocationTarget(target.expression)) {
+        const first = node.arguments[0];
+        push(first ?? null, node);
+        return;
+      }
+      if (ts.isIdentifier(target) && gotoNames.has(target.text)) {
+        const first = node.arguments[0];
+        push(first ?? null, node);
+      }
+      return;
+    }
+    if (ts.isJsxElement(node)) {
+      push(jsxNavigationTarget(node.openingElement), node.openingElement);
+      return;
+    }
+    if (ts.isJsxSelfClosingElement(node)) {
+      push(jsxNavigationTarget(node), node);
+    }
+  });
+  return navigations;
+}
+
 // The createFileRoute("...") path argument of a React route file, when present.
 export function collectRoutePath(sourceFile: ts.SourceFile): string | null {
   let found: string | null = null;
@@ -242,16 +372,17 @@ export interface SvelteScript {
 }
 
 // The module and instance scripts of a component with their content and the
-// 1-based line each content starts on. A component that fails to parse yields
-// ok false; the error text is left out so diagnostics stay deterministic.
-export function parseSvelteScripts(text: string): { ok: boolean; scripts: SvelteScript[] } {
+// 1-based line each content starts on, plus the markup fragment for the
+// anchor and form reader. A component that fails to parse yields ok false;
+// the error text is left out so diagnostics stay deterministic.
+export function parseSvelteScripts(text: string): { ok: boolean; scripts: SvelteScript[]; fragment: unknown } {
   let ast: unknown;
   try {
     ast = parseSvelte(text, { modern: true });
   } catch {
-    return { ok: false, scripts: [] };
+    return { ok: false, scripts: [], fragment: null };
   }
-  if (!isRecord(ast)) return { ok: false, scripts: [] };
+  if (!isRecord(ast)) return { ok: false, scripts: [], fragment: null };
   const scripts: SvelteScript[] = [];
   for (const key of ["module", "instance"] as const) {
     const node = ast[key];
@@ -268,7 +399,91 @@ export function parseSvelteScripts(text: string): { ok: boolean; scripts: Svelte
     }
     scripts.push({ content: text.slice(start, end), startLine, context: key });
   }
-  return { ok: true, scripts };
+  return { ok: true, scripts, fragment: ast["fragment"] ?? null };
+}
+
+// The 1-based line of an offset in the text.
+function lineOfOffset(text: string, offset: number): number {
+  let line = 1;
+  const end = Math.min(offset, text.length);
+  for (let i = 0; i < end; i++) {
+    if (text.charCodeAt(i) === 10) line++;
+  }
+  return line;
+}
+
+// The path an expression tag holds: a string literal or the literal head of
+// a template literal. Anything else is dynamic and never a navigation.
+function expressionTagPath(expression: unknown): string | null {
+  if (!isRecord(expression)) return null;
+  const value = expression["value"];
+  if (expression["type"] === "Literal" && typeof value === "string") {
+    return value;
+  }
+  const quasis = expression["quasis"];
+  if (expression["type"] === "TemplateLiteral" && Array.isArray(quasis) && quasis.length > 0) {
+    const first = quasis[0];
+    if (isRecord(first) && isRecord(first["value"])) {
+      const cooked = first["value"]["cooked"];
+      if (typeof cooked === "string") return cooked;
+    }
+  }
+  return null;
+}
+
+// The leading static text of a Svelte attribute value: the Text data before
+// any expression, or the literal the single expression holds. A lone value in
+// braces arrives unwrapped, so it reads like the first entry of a list. A
+// value starting with a dynamic expression is never a navigation.
+function svelteAttributePath(value: unknown): string | null {
+  const first = Array.isArray(value) ? value[0] : value;
+  if (first === undefined || !isRecord(first)) return null;
+  if (first["type"] === "Text") {
+    const data = first["data"];
+    return typeof data === "string" ? data : null;
+  }
+  if (first["type"] === "ExpressionTag") return expressionTagPath(first["expression"]);
+  return null;
+}
+
+// Every markup navigation of a Svelte fragment in document order: a literal
+// `href` on an anchor or a `Button` component, or `action` on a form. Only
+// literal paths or template literals with a literal path prefix count;
+// anything dynamic is never a navigation. The walk visits every nested node
+// once, whatever block holds it.
+export function collectSvelteMarkupNavigations(fragment: unknown, text: string): NavigationSite[] {
+  const navigations: NavigationSite[] = [];
+  const seen = new Set<object>();
+  const visit = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      for (const entry of node) visit(entry);
+      return;
+    }
+    if (!isRecord(node) || seen.has(node)) return;
+    seen.add(node);
+    const isLink = node["type"] === "RegularElement" && (node["name"] === "a" || node["name"] === "form");
+    const isButton = node["type"] === "Component" && node["name"] === "Button";
+    if (isLink || isButton) {
+      const wanted = node["name"] === "form" ? "action" : "href";
+      const attributes = node["attributes"];
+      if (Array.isArray(attributes)) {
+        for (const attribute of attributes) {
+          if (!isRecord(attribute) || attribute["type"] !== "Attribute" || attribute["name"] !== wanted) continue;
+          const path = svelteAttributePath(attribute["value"]);
+          if (isNavigationPath(path)) {
+            const start = attribute["start"];
+            navigations.push({ path, line: typeof start === "number" ? lineOfOffset(text, start) : 1 });
+          }
+        }
+      }
+    }
+    for (const key of Object.keys(node)) {
+      if (key === "parent" || key === "metadata") continue;
+      visit(node[key]);
+    }
+  };
+  visit(fragment);
+  return navigations;
 }
 
 function extractTypeScript(text: string, fileName: string): FileFacts | null {
@@ -280,6 +495,7 @@ function extractTypeScript(text: string, fileName: string): FileFacts | null {
     imports: collectImports(sourceFile),
     functions: collectExportedFunctions(sourceFile),
     route: collectRoutePath(sourceFile),
+    navigations: collectNavigations(sourceFile, 0, collectGotoNames(sourceFile)),
   };
 }
 
@@ -288,20 +504,32 @@ function extractSvelte(text: string): FileFacts | null {
   if (!parsed.ok) return null;
   const marks: MarkSite[] = [];
   const calls: CallSite[] = [];
+  const navigations: NavigationSite[] = [];
   const imports = new Set<string>();
+  const sources: { sourceFile: ts.SourceFile; script: SvelteScript }[] = [];
   for (const script of parsed.scripts) {
     const sourceFile = parseTypeScript("script.ts", script.content);
     if (sourceFile === null) return null;
+    sources.push({ sourceFile, script });
+  }
+  const gotoNames = new Set<string>();
+  for (const { sourceFile } of sources) {
+    for (const name of collectGotoNames(sourceFile)) gotoNames.add(name);
+  }
+  for (const { sourceFile, script } of sources) {
     if (script.context === "module") {
       for (const site of collectMarks(sourceFile)) {
         marks.push({ values: site.values, line: site.line + script.startLine - 1 });
       }
     }
     for (const site of collectCalls(sourceFile, script.startLine - 1)) calls.push(site);
+    for (const site of collectNavigations(sourceFile, script.startLine - 1, gotoNames)) navigations.push(site);
     for (const specifier of collectImports(sourceFile)) imports.add(specifier);
   }
+  for (const site of collectSvelteMarkupNavigations(parsed.fragment, text)) navigations.push(site);
   calls.sort((a, b) => a.line - b.line);
-  return { marks, calls, imports: [...imports].sort(), functions: [], route: null };
+  navigations.sort((a, b) => a.line - b.line);
+  return { marks, calls, imports: [...imports].sort(), functions: [], route: null, navigations };
 }
 
 // The line of the first mark site of a file, or 1 when the file carries none.

@@ -13,7 +13,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsAUsingOfAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     using {|LS1001:Microsoft.Extensions.Logging|};
 
                     namespace Shop.Orders;
@@ -22,7 +22,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                     {
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace Microsoft.Extensions.Logging
                     {
                         public interface ILogger
@@ -39,14 +39,14 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsABaseTypeFromAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     namespace Shop.Orders;
 
                     public sealed class Order : Microsoft.EntityFrameworkCore.{|LS1001:DbContext|}
                     {
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace Microsoft.EntityFrameworkCore
                     {
                         public class DbContext
@@ -69,7 +69,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                 [System.Text.Json.Serialization.{|LS1001:JsonPropertyName|}("id")]
                 public string Id { get; }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1001 reports a generic argument and a nested outer-layer namespace.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -78,7 +78,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsAGenericArgumentAndANestedNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     using System.Collections.Generic;
 
                     namespace Shop.Orders;
@@ -90,7 +90,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                         public Microsoft.Extensions.Logging.Abstractions.{|LS1001:NullLogger|}? Logger { get; set; }
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace Microsoft.Extensions.Logging
                     {
                         public interface ILogger
@@ -114,7 +114,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsAGlobalUsingOfAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     global using {|LS1001:Marten|};
 
                     namespace Shop.Orders;
@@ -123,7 +123,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                     {
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace Marten
                     {
                         public interface IDocumentStore
@@ -157,7 +157,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                     return Task.FromResult(Tags.Count);
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1001 ignores a namespace that only shares a prefix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -166,7 +166,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task IgnoresANamespaceThatOnlySharesAPrefix() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     namespace Shop.Orders;
 
                     public sealed class OrderService
@@ -174,7 +174,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                         public MartenStore.Store? Store { get; set; }
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace MartenStore
                     {
                         public sealed class Store
@@ -191,7 +191,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsAParameterAndAMemberAccess() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     namespace Shop.Orders;
 
                     public sealed class OrderService
@@ -202,7 +202,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                         }
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace Marten
                     {
                         public interface IDocumentSession
@@ -220,7 +220,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsObjectCreationAndTypeof() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.Spending/Domain/Source.cs", """
                     namespace Shop.Orders;
 
                     public sealed class OrderService
@@ -232,7 +232,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                         }
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.Spending/Domain/Stubs.cs", """
                     namespace Microsoft.Extensions.Logging
                     {
                         public sealed class LoggerFactory
@@ -259,7 +259,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                     return {|LS1001:Serialize|}(value);
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1001 ignores outer-layer types outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -268,7 +268,7 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task IgnoresOuterLayerTypesOutsideDomain() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Source.cs", """
+                ("Shop.WebApi/WebApi/OrderService.cs", """
                     using Microsoft.Extensions.Logging;
 
                     namespace Shop.Orders;
@@ -280,7 +280,7 @@ public sealed class DomainOuterLayerAnalyzerTests
                         }
                     }
                     """),
-                ("Stubs.cs", """
+                ("Shop.WebApi/WebApi/Stubs.cs", """
                     namespace Microsoft.Extensions.Logging
                     {
                         public interface ILogger
@@ -290,32 +290,6 @@ public sealed class DomainOuterLayerAnalyzerTests
                     """),
             ], assemblyName: "Shop.WebApi");
 
-    /// <summary>LS1001 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
-    [Fact(DisplayName = "LS1001 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
-            [
-                ("Source.cs", """
-                    using {|LS1001:Microsoft.Extensions.Logging|};
-
-                    namespace Shop.Core;
-
-                    public sealed class Order
-                    {
-                        public {|LS1001:ILogger|}? Logger { get; set; }
-                    }
-                    """),
-                ("Stubs.cs", """
-                    namespace Microsoft.Extensions.Logging
-                    {
-                        public interface ILogger
-                        {
-                        }
-                    }
-                    """),
-            ], assemblyName: "Shop.Core", layer: "Domain");
 
     /// <summary>LS1001 reports a Domain file naming an Application type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -324,16 +298,18 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsADomainFileNamingAnApplicationType() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    using Claimwick.Organizations.Application.CreateTeam;
+
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                         internal Team Rename({|LS1001:CreateTeamCommand|} command) => this;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.CreateTeam;
 
                     internal sealed class CreateTeamCommand
                     {
@@ -348,8 +324,11 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsADomainFileNamingInfrastructureAndWebApiTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    using Claimwick.Organizations.Infrastructure.Persistence;
+                    using Claimwick.Organizations.WebApi.CreateTeam;
+
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
@@ -358,21 +337,49 @@ public sealed class DomainOuterLayerAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Infrastructure/TeamStore.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Infrastructure/Persistence/TeamStore.cs", """
+                    namespace Claimwick.Organizations.Infrastructure.Persistence;
 
                     internal sealed class TeamStore
                     {
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamEndpoint.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/WebApi/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace Claimwick.Organizations.WebApi.CreateTeam;
 
                     internal sealed class CreateTeamEndpoint
                     {
                     }
                     """),
             ], assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS1001 reports a Domain file naming a port.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 reports a Domain file naming a port")]
+    public Task ReportsADomainFileNamingAPort() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("Claimwick.Spending/Domain/Expenses/Expense.cs", """
+                    using Claimwick.Spending.Ports.ReceiptPdf;
+
+                    namespace Claimwick.Spending.Domain.Expenses;
+
+                    internal sealed class Expense
+                    {
+                        internal void Print({|LS1001:IReceiptPdf|} pdf)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Spending/Ports/ReceiptPdf/IReceiptPdf.cs", """
+                    namespace Claimwick.Spending.Ports.ReceiptPdf;
+
+                    internal interface IReceiptPdf
+                    {
+                    }
+                    """),
+            ], assemblyName: "Claimwick.Spending");
 
     /// <summary>LS1001 accepts a typed identifier from another module's Contracts and reports a port there.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -381,21 +388,21 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task AcceptsAContractsIdentifierAndReportsAContractsPort() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/Domain/Invoice.cs", """
-                    namespace Claimwick.Billing.Invoices;
+                ("Claimwick.Modules/Billing/Domain/Invoice/Invoice.cs", """
+                    namespace Claimwick.Billing.Domain.Invoice;
 
                     internal sealed class Invoice
                     {
-                        internal Invoice Bill(Claimwick.Organizations.OrganizerId organizer, Claimwick.Organizations.{|LS1001:IOrganizerReader|} reader) => this;
+                        internal Invoice Bill(Claimwick.Organizations.Contracts.Identifiers.OrganizerId organizer, Claimwick.Organizations.Contracts.Ports.{|LS1001:IOrganizerReader|} reader) => this;
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/OrganizerId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct OrganizerId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Ports/IOrganizerReader.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Ports;
 
                     internal interface IOrganizerReader
                     {
@@ -410,16 +417,16 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task AcceptsAContractsRuleRefusal() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/Domain/Invoice.cs", """
-                    namespace Claimwick.Billing.Invoices;
+                ("Claimwick.Modules/Billing/Domain/Invoice/Invoice.cs", """
+                    namespace Claimwick.Billing.Domain.Invoice;
 
                     internal sealed class Invoice
                     {
-                        internal static void Refuse() => throw new Claimwick.Organizations.OrganizerUnknownException();
+                        internal static void Refuse() => throw new Claimwick.Organizations.Contracts.Exceptions.OrganizerUnknownException();
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Exceptions/OrganizerUnknownException.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Exceptions;
 
                     internal sealed class OrganizerUnknownException : System.Exception
                     {
@@ -434,47 +441,18 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task AcceptsADomainFileNamingOnlyDomainTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                         internal Team Rename(TeamName name) => this;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/TeamName.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/TeamName.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed record TeamName(string Value);
                     """),
             ], assemblyName: "Claimwick.Modules");
-
-    /// <summary>LS1001 reports an outer-layer namespace under layer-projects.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
-    [Fact(DisplayName = "LS1001 reports an outer-layer namespace under layer-projects")]
-    public Task ReportsAnOuterLayerNamespaceUnderLayerProjects() =>
-        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
-            [
-                ("Shop.Domain/Orders/Order.cs", """
-                    using {|LS1001:Marten|};
-
-                    namespace Shop.Orders;
-
-                    public sealed class Order
-                    {
-                        public void Store({|LS1001:IDocumentSession|} session)
-                        {
-                        }
-                    }
-                    """),
-                ("Shop.Domain/Stubs.cs", """
-                    namespace Marten
-                    {
-                        public interface IDocumentSession
-                        {
-                        }
-                    }
-                    """),
-            ], assemblyName: "Shop.Domain", layout: "layer-projects");
 }

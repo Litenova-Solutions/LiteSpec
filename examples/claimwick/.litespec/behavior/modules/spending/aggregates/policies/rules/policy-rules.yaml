@@ -9,7 +9,8 @@ records:
   statement: A threshold is never negative.
   governs:
   - use-case/spending.change-receipt-threshold
-  refusal: result/change-receipt-threshold.negative-threshold
+  - aggregate/spending.policy
+  refusal: refusal/spending.negative-threshold
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt

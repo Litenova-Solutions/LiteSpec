@@ -1,8 +1,30 @@
+# A requirement under a feature carries id requirement/<feature>.<name> in its feature's requirements folder.
+# A product requirement carries id requirement/<name> at intent/requirements/<name>/ and cites at least one constraint, goal or problem.
 type: requirement
-id: requirement/approval-reminders.remind-approver-after-three-days
-title: Remind Approver After Three Business Days
-kind: functional
-statement: The product sends the approver one reminder for each expense that waits past three business days without a decision.
-rationale: Managers decide in batches, so an expense can wait unseen for weeks.
+id: requirement/<feature>.<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+kind: <functional|quality|policy>
+statement: <what the product does or guarantees, in one sentence>
+rationale: <why the product promises it, in one sentence>
+values:
+- value: <the policy value>
+  effectiveFrom: <date the value takes effect, such as 2026-02-10>
+stimulus: <what happens, for a quality requirement, or remove this line>
+environment: <what surrounds it, for a quality requirement, or remove this line>
+response: <what the product does, for a quality requirement, or remove this line>
+measure: <how the response is read, for a quality requirement, or remove this line>
+target: <the value the response must reach, or remove this line>
+conditions: <when the requirement holds, or remove this line>
+check: <the check that confirms it, or remove this line>
+runsOn: <pull-request|nightly|pre-release|production, or remove this line>
+evidence: <where the confirmation is read, or remove this line>
 cites:
-- feature/approval-reminders
+- <goal, direction, problem, feature, constraint, research or decision id, or remove this line>
+basedOn:
+- <decision id, or remove this line>
+except:
+- condition: <when the rule does not hold>
+  fallback: requirement/<feature>.<name>
+setBy: <product|operator|tenant, or remove this line>

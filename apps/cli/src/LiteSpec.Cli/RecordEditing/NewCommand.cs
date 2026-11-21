@@ -22,7 +22,9 @@ static class NewCommand
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new <document-style> <name> [--root <path>]
                litespec new decision <name> [--root <path>]
+               litespec new feature <problem>.<name> [--root <path>]
                litespec new requirement <feature>.<name> [--root <path>]
+               litespec new requirement <name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new use-case <id> --kind command|query [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
@@ -36,12 +38,12 @@ static class NewCommand
         lending.notify-reader; the full identifier is <type>/<id>. The file is
         written at the home its type owns, under behavior/: a reaction under
         modules/<module>/reactions/, a job under modules/<module>/jobs/,
-        a notification under modules/<module>/notifications/, a decision under
-        the decisions folder. A named record is written in its own folder beside
+        a notification under modules/<module>/notifications/, a view under
+        modules/<module>/views/, a decision under the decisions folder. A named record is written in its own folder beside
         its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
         modules/<module>/reactions/<name>/<name>.md. A module file is
         modules/<module>/module.yaml; an aggregate file is
-        modules/<module>/aggregates/<aggregate>/aggregate.yaml. A use-case file starts
+        modules/<module>/aggregates/<aggregates>/aggregate.yaml. A use-case file starts
         under modules/<module>/use-cases/<name>/<name>.yaml; move the folder
         under its aggregate's use-cases/ folder once the use case names one. The
         title is one Title Case title, written to the YAML title and to the
@@ -52,11 +54,14 @@ static class NewCommand
         with the title filled in and the fixed sections of the type. The command
         refuses an identifier a record already carries.
 
-        new requirement <feature>.<name> writes a requirement file of its own in its
-        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The
-        feature record <feature> must exist; the command refuses an unknown feature.
-        A requirement takes no explanation file, because its statement is its lead;
-        add <name>.md beside it only when the requirement needs an example.
+        new feature <problem>.<name> writes a feature file of its own in its problem's features/
+        folder: intent/problems/<problem>/features/<name>/<name>.yaml. The identifier carries no problem:
+        it is feature/<name>. new requirement <feature>.<name> writes a requirement file of its own in its
+        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The feature record <feature> must
+        exist; the command refuses an unknown feature. new requirement <name> writes a product requirement at
+        intent/requirements/<name>/<name>.yaml, which cites the constraint, goal or problem it comes from.
+        On a project listing intent in explanations.layers, a new requirement
+        gets <name>.md beside its record file from templates/consumer/requirement.md.
 
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
@@ -201,13 +206,9 @@ static class NewCommand
                 return CommandFailure.UsageError("New feature needs a problem: use litespec new feature <problem>.<name>.", Usage, json: false);
             }
 
-            if (type == RecordTypes.Requirement && homeName is null)
-            {
-                return CommandFailure.UsageError("New requirement needs a feature: use litespec new requirement <feature>.<name>.", Usage, json: false);
-            }
-
             // A feature lives in its problem's folder, but its identifier carries no home:
             // the problem picks the folder and the identifier is feature/<name>.
+            // A requirement names its feature (<feature>.<name>); one with no feature is a product requirement.
             var identifierHome = homeName;
 
             if (type == "feature")
@@ -294,9 +295,9 @@ static class NewCommand
         }
 
         // A requirement lives in its feature's folder, so the feature record must exist first.
-        var requirementFolder = type == RecordTypes.Requirement ? RecordPages.FeatureFolder(records, homeName!) : null;
+        var requirementFolder = type == RecordTypes.Requirement && homeName is not null ? RecordPages.FeatureFolder(records, homeName) : null;
 
-        if (type == RecordTypes.Requirement && requirementFolder is null)
+        if (type == RecordTypes.Requirement && homeName is not null && requirementFolder is null)
         {
             CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <problem>.{homeName}.");
             return 2;
@@ -335,16 +336,27 @@ static class NewCommand
             node["title"] = title;
         }
 
+        // A product decision states no kind: only a technical decision under
+        // implementation/decisions does, so the template's kind placeholder leaves.
+        if (isDecision)
+        {
+            node.Remove("kind");
+        }
+
+        // A use case is a command or a query, and the scaffold carries the chosen kind.
+        if (type == RecordTypes.UseCase)
+        {
+            node["kind"] = parsed.Value("--kind") == "query" ? "query" : "command";
+        }
+
         var filled = RecordScaffold.LineFor(templateFile) + "\n" + RecordFile.Write(node);
         string? explanation = null;
 
         // An article type, and a type on a layer the project lists, gets the explanation template for its own
-        // type, with the title filled in, so the record starts with its fixed sections. A requirement takes none:
-        // its statement is its lead.
-        if (type != RecordTypes.Requirement
-            && (RecordFile.ArticleTypes.Contains(type)
-                || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-                    && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))))
+        // type, with the title filled in, so the record starts with its fixed sections.
+        if (RecordFile.ArticleTypes.Contains(type)
+            || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
+                && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal)))
         {
             if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {
@@ -354,9 +366,11 @@ static class NewCommand
             explanation = FillTitle(explanationTemplate, title);
         }
 
-        var target = requirementFolder is null
-            ? RecordPages.PagePath(config, type, homeName, name)
-            : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
+        var target = type == RecordTypes.Requirement && homeName is null
+            ? Path.Combine(RecordPages.DocsRoot(config), "intent", "requirements", name, name + RecordFiles.Extension)
+            : requirementFolder is null
+                ? RecordPages.PagePath(config, type, homeName, name)
+                : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
 
         if (File.Exists(target))
         {

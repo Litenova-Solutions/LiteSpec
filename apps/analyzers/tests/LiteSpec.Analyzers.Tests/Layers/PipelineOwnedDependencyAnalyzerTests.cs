@@ -25,7 +25,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
                 {
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2016 reports a query handler taking the outbox.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -46,7 +46,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
                 {
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2016 reports a handler detected through its contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -72,7 +72,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
                     public RenewLoanUseCase({|LS2016:IIdempotencyStore|} idempotencyStore) { }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2016 accepts a handler taking a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -90,7 +90,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             internal sealed class RenewLoanCommandHandler(ILoanRepository loanRepository)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2016 accepts a handler taking an unlisted collaborator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -108,7 +108,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             internal sealed class RenewLoanCommandHandler(IClock clock)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2016 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -129,5 +129,5 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
                 {
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

@@ -23,7 +23,7 @@ public sealed class FrontendRecordsTests
         {
             var text = File.ReadAllText(file);
 
-            Assert.Contains("  | \"litespec/frontend/ui#check-every-route\"", text);
+            Assert.Contains("  | \"litespec/frontend/ui#pass-every-route-suite-check\"", text);
             Assert.Equal(
                 // The tool writes the file with LF; the raw literal takes the test file's line ending.
                 ExpectedUnion.ReplaceLineEndings("\n") + "\n",
@@ -71,6 +71,7 @@ public sealed class FrontendRecordsTests
         Assert.Contains("export type ScreenId = never;", text);
         Assert.Contains("export type ProofTargetId = never;", text);
         Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }", text);
+        Assert.DoesNotContain("offers", text);
         Assert.Contains("export function proves(id: ProofTargetId)", text);
         Assert.EndsWith("\n", text);
     }

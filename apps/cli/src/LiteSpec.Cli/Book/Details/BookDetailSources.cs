@@ -7,15 +7,16 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Book.Details;
 
 /// <summary>
-///     The lookups the record details read: outline layers, fulfilling counts, journey
+///     The lookups the record details read: outline layers, fulfilling counts, flow
 ///     servers, tests, findings, screen routes and calls, and code entries, each
 ///     grouped once from the model and the outline.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
-static class BookDetailSources
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
+static partial class BookDetailSources
 {
     /// <summary>A record or provision identifier a finding message quotes, such as 'goal/approve-claims', shown as code.</summary>
-    static readonly Regex QuotedIds = new("'([a-z-]+/[^']+)'", RegexOptions.Compiled);
+    [GeneratedRegex("'([a-z-]+/[^']+)'")]
+    private static partial Regex QuotedIds();
 
     /// <summary>Gets the layer keys the outline roots may name.</summary>
     static HashSet<string> KnownLayers { get; } = new(StringComparer.Ordinal)
@@ -23,7 +24,7 @@ static class BookDetailSources
         "intent", "behavior", "implementation", "proof", "governance", "glossary",
     };
 
-    /// <summary>Gets the record types that may serve a journey step.</summary>
+    /// <summary>Gets the record types that may serve a flow step.</summary>
     static HashSet<string> StepServerTypes { get; } = new(StringComparer.Ordinal)
     {
         "use-case", "reaction", "job", "notification", "screen",
@@ -96,7 +97,7 @@ static class BookDetailSources
         return id;
     }
 
-    /// <summary>Counts, per fulfilled requirement, how many records of each type fulfill it.</summary>
+    /// <summary>Counts, per fulfilled requirement, how many records of each type fulfill it, served content included.</summary>
     /// <param name="index">The model index.</param>
     /// <returns>The fulfilling counts per requirement id and record type.</returns>
     public static Dictionary<string, Dictionary<string, int>> KeptBy(BookIndex index)
@@ -105,7 +106,7 @@ static class BookDetailSources
         foreach (var record in index.Records.OfType<JsonObject>())
         {
             var type = BookRender.StrProp(record, "type") ?? "";
-            foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["fulfills"]))
+            foreach (var target in FulfilledBy(record))
             {
                 if (!kept.TryGetValue(target, out var counts))
                 {
@@ -120,7 +121,43 @@ static class BookDetailSources
         return kept;
     }
 
-    /// <summary>The records serving each journey step id, such as journey/name#s1.</summary>
+    /// <summary>The requirements one record fulfills: its fulfills links, and for a browser entry point each served content entry's fulfills.</summary>
+    /// <param name="record">The record object.</param>
+    /// <returns>The fulfilled requirement ids, each once.</returns>
+    public static IEnumerable<string> FulfilledBy(JsonObject record)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["fulfills"]))
+        {
+            if (seen.Add(target))
+            {
+                yield return target;
+            }
+        }
+
+        if (!string.Equals(BookRender.StrProp(record, "type"), "entry-point", StringComparison.Ordinal))
+        {
+            yield break;
+        }
+
+        foreach (var entry in BookRender.Fields(record)?["servedContent"] as JsonArray ?? [])
+        {
+            if (entry is not JsonObject content)
+            {
+                continue;
+            }
+
+            foreach (var target in BookDetailValues.StringsOf(content["fulfills"]))
+            {
+                if (seen.Add(target))
+                {
+                    yield return target;
+                }
+            }
+        }
+    }
+
+    /// <summary>The records serving each flow step id.</summary>
     /// <param name="index">The model index.</param>
     /// <returns>The serving record ids per step id.</returns>
     public static Dictionary<string, List<string>> ServedBy(BookIndex index)
@@ -142,7 +179,7 @@ static class BookDetailSources
 
             foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["serves"]))
             {
-                if (!target.Contains('#'))
+                if (!target.StartsWith("step/", StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -282,7 +319,7 @@ static class BookDetailSources
                 ["tier"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level")),
                 ["level"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier")),
                 ["message"] = message,
-                ["messageHtml"] = BookMarkdown.Inline(QuotedIds.Replace(message, "`$1`"), LinkRecord, null),
+                ["messageHtml"] = BookMarkdown.Inline(QuotedIds().Replace(message, "`$1`"), LinkRecord, null),
                 ["covered"] = covered,
                 ["outcome"] = finding["outcome"]?.DeepClone(),
                 ["reason"] = finding["reason"]?.DeepClone(),

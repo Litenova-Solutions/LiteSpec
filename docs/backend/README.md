@@ -1,23 +1,27 @@
 # Overview
 
-## Intent
+The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers.
 
-The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers, with the stack binding that realizes each one. A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand. A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, and application pages, so every reader finds the rules for the layers their product has and no others.
+A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, and application pages.
+
+A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand.
 
 ## How the Pages Fit Together
 
-The six principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its shared kernel and modules projects with their hosts, its C# shapes, and its Marten persistence. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
+The six principle pages directly in this folder hold for every backend. They state what each layer owns and which way references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its Kernel, Platform, and module projects with their hosts, its C# shapes, and its Marten persistence.
+
+When you add a use case, read the principle page for the layer it touches first, then the matching .NET page for the binding.
 
 ## Backend Principles
 
 - [Backend Architecture](architecture.md): the four layers, the direction references point, and the module tree that organizes every layer.
-- [Domain Layer](domain.md): aggregates, lifecycles, closed value sets, and domain repositories, and the boundary that keeps technical concerns out of business rules.
-- [Application Layer](application.md): use-case coordination, pipeline stages, ports, reactions, jobs, and declared effects.
+- [Domain Layer](domain.md): aggregates, lifecycles, closed value sets, and domain repositories, with the boundary that keeps technical concerns out of business rules.
+- [Application Layer](application.md): how use cases coordinate, and what pipeline stages, ports, reactions, jobs, and declared effects do.
 - [Persistence](persistence.md): domain repositories, the read session, the one commit per command, and the obligations on stored data.
-- [HTTP API](api.md): endpoints, routes, errors, collection paging, and the generated OpenAPI contract.
-- [Backend Testing](testing.md): the test suites each project size keeps and what each suite may use.
+- [HTTP API](api.md): how endpoints, routes, errors, and collection paging serve HTTP requests, and what the generated OpenAPI contract holds.
+- [Backend Testing](testing.md): which test suites each project size keeps, and what each suite runs with.
 
 ## Backend Stack
 
 - [.NET Stack](dotnet/stack.md): the .NET binding of every principle page, and the test-result formats the model builder reads.
-- [.NET Extensions Overview](dotnet/ext/README.md): the extensions only a .NET backend offers: executable BDD scenarios and the five-project layer packaging.
+- [.NET Extensions Overview](dotnet/ext/README.md): the extension only a .NET backend offers: executable BDD scenarios.

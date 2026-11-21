@@ -4,9 +4,9 @@
 
 **Concern:** application
 
-## Intent
+Stored data lives for a defined time: how long it stays, when it is deleted, and when it can return. This extension states where those terms live and how code carries them out: hard delete where nothing needs the data later, explicit archive and restore states where a use case needs them, and authorized, audited operations throughout. A use case is one command or query the product offers.
 
-Data lifecycle rules decide how long each piece of stored data lives: how long it stays, when it is deleted, and when it can return. This page states what the team writes down for each lifetime and which behavior the code owns: hard delete wherever nothing needs the data later, explicit archive and restore states where a use case (one command or query the product offers) needs them, and authorized, audited operations throughout. A team selects it for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.
+Select these rules for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.
 
 ## Activation
 
@@ -14,15 +14,15 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`, `rule`.
 
-A use case or rule selects this extension when it deletes a record, keeps one past its active life, archives or restores one, holds one under a legal duty, exports one person's data on request, or reuses a value after deletion. For example, a spending rule that keeps receipts for 7 years under the tax receipt retention constraint selects the extension for that rule, while an expense use case that deletes nothing does not.
+Select this extension on a use case or rule that deletes a record, keeps one past its active life, archives or restores one, holds one under a legal duty, exports one person's data on request, or reuses a value after deletion. For example, a spending rule that keeps receipts for 7 years under the tax receipt retention constraint selects the extension for that rule, while an expense use case that deletes nothing does not.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision.
+No baseline provision changes under this extension.
 
-Selecting it switches on the setting record type: the retention bounds the lifecycle rules name live in setting records.
+Selecting it switches on the setting record type, which holds the retention bounds the lifecycle rules name.
 
-A record retires, and a retirement that removes declared behavior is a breaking change under the `compat` extension.
+A lifecycle record retires, and a retirement that removes declared behavior is a breaking change under the `compat` extension.
 
 ## Standards
 
@@ -36,9 +36,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle record MUST name classification, retention, deletion trigger, hold, export, restore, and backup.
 
-**Rationale:** A lifecycle record names every choice the team makes about a record's lifetime in one place: what kind of data it is, how long it stays, what triggers deletion, and how holds, exports, restores, and backups behave. Without that record, the choices scatter across tickets and memory, and a deletion runs before anyone checks the retention bound. Retention bounds live in setting records.
+**Rationale:** A record's lifetime raises one set of choices: what kind of data it is, how long it stays, what triggers deletion, and how holds, exports, restores, and backups behave. Naming them all in one lifecycle record keeps them reviewable together. Without that record, the choices scatter across tickets and memory, and a deletion runs before anyone checks the retention bound. Retention bounds live in setting records.
 
-**Reviewed for:** Which lifecycle records omit classification, retention, deletion trigger, hold, export, restore, or backup? Look at each lifecycle record.
+**Reviewed for:** Does every lifecycle record name classification, retention, deletion trigger, hold, export, restore, and backup? Check each lifecycle record.
 
 ### Default to Hard Delete
 
@@ -50,11 +50,11 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle implementation MUST use hard delete when no accepted retention or restore requirement applies.
 
-**Rationale:** When no use case needs the data back, removing the row deletes the least and keeps the least: no hidden state, no filtered queries, no purge job to write and watch. A team that keeps deleted rows just in case pays for retention without a requirement and answers subject-access exports with data it promised to delete.
+**Rationale:** When no use case needs the data back, removing the row deletes the least and keeps the least: no hidden state, no filtered queries, and no purge job to write and watch. A team that keeps deleted rows just in case pays for retention without a requirement and answers subject-access exports with data it promised to delete.
 
-**Example:** An expense deleted without a retention duty removes the expense row in the delete transaction.
+**Example:** A Claimwick expense deleted without a retention duty removes the expense row in the delete transaction.
 
-**Reviewed for:** Which deletions with no retention or restore requirement keep the row past the delete transaction? Look at the delete transaction code.
+**Reviewed for:** Does every deletion with no retention or restore requirement remove the row in the delete transaction? Check the delete transaction code.
 
 ### Model Retained Lifecycle States
 
@@ -66,11 +66,11 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A soft-deleted or archived record MUST have a business reason and explicit state transition.
 
-**Rationale:** A record that stays after deletion or moves to an archive still affects the product: it appears in some reads, skips others, and can return. A named state with a named transition shows that behavior in the aggregate itself, so a reader sees which transitions exist and which checks each one runs. Without the transition, the retained data is a row the code treats specially in scattered places.
+**Rationale:** A record that stays after deletion or moves to an archive still affects the product: it appears in some reads, skips others, and can return. A named state with a named transition shows that behavior in the aggregate itself, so a reader sees which transitions exist and which checks each one runs. Without the transition, the retained data is a row that code handles with special cases in scattered places.
 
 **Example:** `Archive` changes aggregate state after the authorization and audit checks succeed.
 
-**Reviewed for:** Which retained records lack a business reason or a named state transition? Look at each retained record beside its state transitions.
+**Reviewed for:** Does every retained record carry a business reason and a named state transition? Check each retained record beside its state transitions.
 
 ### Reject Hidden Lifecycle Flags
 
@@ -82,9 +82,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle implementation MUST NOT use a hidden boolean as its sole lifecycle behavior.
 
-**Rationale:** A boolean column that only the storage layer reads can flip without running the business checks: no authorization, no audit entry, no named transition a reviewer can find. The record then looks deleted in one query and active in another, depending on which filter the query remembered. An explicit lifecycle operation keeps the flag, where one exists, as an effect of the transition rather than the transition itself.
+**Rationale:** A boolean column that only the storage layer reads can flip without running the business checks: no authorization, no audit entry, and no named transition a reviewer can find. The record then looks deleted in one query and active in another, depending on which filter each query applies. An explicit lifecycle operation keeps the flag, where one exists, as an effect of the transition rather than the transition itself.
 
-**Reviewed for:** Which lifecycle transitions run through a storage-only flag instead of explicit behavior? Look at the transition code.
+**Reviewed for:** Does every lifecycle transition run through explicit behavior instead of a storage-only flag? Check the transition code.
 
 ### Model Lifecycle Operations in Domain
 
@@ -96,9 +96,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A Domain aggregate MUST expose delete, archive, and restore as explicit behavior when those operations apply.
 
-**Rationale:** Delete, archive, and restore change what the business promises about a record, so the aggregate owns them the way it owns any rule: one method per operation, with the checks beside the change. When the operation lives anywhere else, two callers implement it two ways and the checks drift apart.
+**Rationale:** Delete, archive, and restore change what the business promises about a record. The aggregate owns them the way it owns any rule: one method per operation, with the checks beside the change. When the operation lives anywhere else, two callers implement it two ways and the checks drift apart.
 
-**Reviewed for:** Which aggregates lack a delete, archive, or restore method where those operations apply? Look at each aggregate's methods.
+**Reviewed for:** Does every aggregate expose delete, archive, and restore methods where those operations apply? Check each aggregate's methods.
 
 ### Authorize Lifecycle Changes
 
@@ -110,9 +110,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle operation MUST apply its documented authorization.
 
-**Rationale:** Deleting or restoring the wrong record harms a customer or breaks a legal duty, so each lifecycle operation checks that the actor may perform it.
+**Rationale:** Deleting or restoring the wrong record harms a customer or breaks a legal duty. The authorization check runs before the record changes, because a check that runs after can only report harm it already allowed.
 
-**Reviewed for:** Which lifecycle operations change the record before checking their documented authorization? Look at each operation's authorization check.
+**Reviewed for:** Does every lifecycle operation check its documented authorization before changing the record? Check each operation's authorization check.
 
 ### Audit Lifecycle Changes
 
@@ -124,9 +124,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle operation MUST record its audit as an audit record when audit is selected and a standalone record otherwise.
 
-**Rationale:** The audit entry lets a reviewer answer who deleted what and when, which a subject-access or legal-hold dispute asks for first.
+**Rationale:** A subject-access or legal-hold dispute asks first who deleted what and when. The audit entry lets a reviewer answer from the record.
 
-**Reviewed for:** Which lifecycle operations write neither an audit record nor a standalone record where audit is not selected? Look at each operation's writes.
+**Reviewed for:** Does every lifecycle operation write an audit record, or a standalone record where audit is not selected? Check each operation's writes.
 
 ### Exclude Persistence-Only Lifecycle Behavior
 
@@ -138,9 +138,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle rule MUST NOT rely only on persistence filters or property setters.
 
-**Rationale:** A query filter or a property setter runs without the business checks: it filters rows in storage while the aggregate never learns the transition happened. The product then enforces lifecycle in two places that disagree, and a new query that skips the filter exposes data the lifecycle retired.
+**Rationale:** A query filter or a property setter runs without the business checks. It filters rows in storage while the aggregate never learns the transition happened. The product then enforces lifecycle in two places that disagree, and a new query that skips the filter exposes data the lifecycle retired.
 
-**Reviewed for:** Which lifecycle transitions run through persistence filters or property setters alone? Look at the transition code and the persistence filters.
+**Reviewed for:** Does every lifecycle transition run through behavior beyond persistence filters or property setters alone? Check the transition code and the persistence filters.
 
 ### Exclude Inactive Records from Normal Reads
 
@@ -152,9 +152,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A normal query MUST exclude deleted or archived records.
 
-**Rationale:** An employee browsing expenses expects live data: deleted and archived records in that list confuse the employee and leak data the lifecycle retired. Normal queries therefore read only the active state, while the named privileged paths serve the records outside it.
+**Rationale:** An employee browsing expenses expects live data. Deleted and archived records in that list confuse the employee and leak data the lifecycle retired. Normal queries therefore read only the active state, while the named privileged paths serve the records outside it.
 
-**Reviewed for:** Which normal queries return deleted or archived records? Look at the query filters beside the active state.
+**Reviewed for:** Is every normal query free of deleted or archived records? Check the query filters beside the active state.
 
 ### Authorize Lifecycle Access Paths
 
@@ -168,7 +168,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Rationale:** Restore and administration queries reach records normal queries cannot see, so they need a path of their own with checks of their own. Without the named path, a privileged read hides inside normal query code and inherits normal authorization, which grants too much to too many callers.
 
-**Reviewed for:** Which administrative or restore queries run outside a named path or without explicit authorization? Look at the query paths and their authorization.
+**Reviewed for:** Does every administrative or restore query run on a named path with explicit authorization? Check the query paths and their authorization.
 
 ### Define Post-Deletion References
 
@@ -180,13 +180,13 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A lifecycle specification MUST define post-deletion behavior for cross-aggregate references, exports, and unique constraints.
 
-**Rationale:** Other records can point at the deleted one, exports can carry its values, and a unique value such as an expense reference number can become available again. When the specification stays silent, each developer guesses: one nulls the reference, another keeps it, and a duplicate value slips through or a report breaks. Writing the behavior down gives every reference, export, and constraint one answer.
+**Rationale:** Other records can point at the deleted one, exports can carry its values, and a unique value such as an expense reference number can become available again. When the specification does not define the behavior, each developer guesses: one nulls the reference, another keeps it, and a duplicate value slips through or a report breaks. Writing the behavior down gives every reference, export, and constraint one answer.
 
-**Reviewed for:** Which specifications omit post-deletion behavior for references, exports, or unique constraints? Look at each specification's deletion section.
+**Reviewed for:** Does every specification define post-deletion behavior for references, exports, and unique constraints? Check each specification's deletion section.
 
-### Define Storage Lifecycle Behavior
+### Define Document Lifecycle Behavior
 
-**ID:** `litespec/ext/lifecycle#define-storage-lifecycle-behavior`
+**ID:** `litespec/ext/lifecycle#define-document-lifecycle-behavior`
 
 **Strength:** required
 
@@ -194,9 +194,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A Marten lifecycle implementation MUST define document state, filtered queries, indexes, purge transformations, and contract evolution.
 
-**Rationale:** A document store keeps whatever the aggregate writes, so the team states how each lifecycle state lands in the document: which state the document carries, which queries filter it, which indexes serve those queries, how a purge rewrites the document, and how the contract changes when the shape does. Without those choices, the business transition lands in storage by accident and each query invents its own filter.
+**Rationale:** A document store keeps whatever the aggregate writes. The team states how each lifecycle state lands in the document: which state the document carries, which queries filter it, which indexes serve those queries, how a purge rewrites the document, and how the contract changes when the shape does. Without those choices, the business transition lands in storage by accident and each query invents its own filter.
 
-**Reviewed for:** Which document implementations omit document state, filtered queries, indexes, purge transformations, or contract evolution? Look at each document implementation.
+**Reviewed for:** Does every document implementation define document state, filtered queries, indexes, purge transformations, and contract evolution? Check each document implementation.
 
 ### Define Relational Lifecycle Behavior
 
@@ -208,9 +208,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A relational lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.
 
-**Rationale:** A relational table keeps retained rows beside active ones, so the team states which columns mark the state, which query filters hide retained rows, which partial indexes keep active values unique, which migrations add all of it, and what each named filter means. Without those choices, a unique constraint blocks a legitimate reuse or a query returns rows the lifecycle retired.
+**Rationale:** A relational table keeps retained rows beside active ones. The team states which columns mark the state, which query filters hide retained rows, which partial indexes keep active values unique, which migrations add all of it, and what each named filter means. Without those choices, a unique constraint blocks a legitimate reuse or a query returns rows the lifecycle retired.
 
-**Reviewed for:** Which relational implementations omit columns, query filters, partial indexes, migrations, or named filter behavior? Look at each relational implementation.
+**Reviewed for:** Does every relational implementation define columns, query filters, partial indexes, migrations, and named filter behavior? Check each relational implementation.
 
 ### Test Provider Lifecycle Paths
 
@@ -222,13 +222,13 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A selected persistence provider MUST test normal and lifecycle query paths.
 
-**Rationale:** Filters, indexes, and migrations behave differently per provider, and a filter that works on documents can fail on tables. Tests that read through both the normal path and the lifecycle path on the selected provider catch the difference before a customer does.
+**Rationale:** Filters, indexes, and migrations behave differently per provider: a filter that works on documents can fail on tables. Tests that read through both the normal path and the lifecycle path on the selected provider catch the difference before a customer does.
 
-**Reviewed for:** Which lifecycle tests skip the normal and lifecycle query paths on the selected provider? Look at the lifecycle tests.
+**Reviewed for:** Does the suite test the normal and lifecycle query paths on the selected provider? Check the lifecycle tests.
 
-### Bound Purge and Archive Work
+### Keep Purge and Archive Work Bounded and Observable
 
-**ID:** `litespec/ext/lifecycle#bound-purge-and-archive-work`
+**ID:** `litespec/ext/lifecycle#keep-purge-and-archive-work-bounded-and-observable`
 
 **Strength:** required
 
@@ -238,7 +238,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Rationale:** A purge or archive job can run for hours across millions of rows, and a deployment, a failure, or an operator stops it midway. Resumable, bounded, cancellation-aware work restarts where it stopped instead of from the beginning, and observable progress tells the operator whether it moves or stalls.
 
-**Reviewed for:** Which purge and archive runs fail to resume after interruption within declared bounds, or show no progress? Look at the purge and archive tests.
+**Reviewed for:** Does every purge and archive run resume after interruption within declared bounds and show progress? Check the purge and archive tests.
 
 ### Preserve Legal-Hold Data
 
@@ -250,9 +250,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A retention job MUST preserve data under legal hold.
 
-**Rationale:** A legal hold suspends the duty to delete: the named data stays until the hold releases, even when its retention date passes. A retention job that ignores the hold destroys evidence the organization had a duty to keep.
+**Rationale:** A legal hold suspends the duty to delete. The named data stays until the hold releases, even when its retention date passes. A retention job that ignores the hold destroys evidence the organization had a duty to keep.
 
-**Reviewed for:** Which retention runs delete held data past its retention date? Look at the retention run code beside the hold records.
+**Reviewed for:** Does every retention run preserve held data past its retention date? Check the retention run code beside the hold records.
 
 ### Record Retention Progress
 
@@ -264,9 +264,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A retention job MUST record its progress.
 
-**Rationale:** A retention run can stop midway through millions of rows, and recorded progress tells the next run where to resume. Observable progress tells the operator whether the job moves or stalls.
+**Rationale:** A retention run can stop midway through millions of rows. Recorded progress tells the next run where to resume, and observable progress tells the operator whether the job moves or stalls.
 
-**Reviewed for:** Which retention runs persist no progress for the next run to resume from? Look at the retention run code.
+**Reviewed for:** Does every retention run persist progress for the next run to resume from? Check the retention run code.
 
 ### Record the Release of a Legal Hold
 
@@ -278,11 +278,11 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** A legal-hold release MUST record actor, data covered, reason, and resumed retention: an audit record when audit is selected, a standalone record otherwise.
 
-**Rationale:** A hold suspends the duty to erase, and releasing it resumes that duty from a date the team can name. Without a release record, nobody can state when the suspension ended, so a subject's [erasure request](https://gdpr-info.eu/art-17-gdpr/) has no answer date and the next retention run cannot tell which data is deletable again. The record also tells the retention job exactly which data resumed which retention date.
+**Rationale:** A hold suspends the duty to erase, and releasing it resumes that duty from a date the team can name. Without a release record, nobody can state when the suspension ended. A subject [erasure request](https://gdpr-info.eu/art-17-gdpr/) then has no answer date, and the next retention run cannot tell which data is deletable again. The record also tells the retention job exactly which data resumed which retention date.
 
 **Example:** A release record names the hold, the release date, and the retention date the covered data carries.
 
-**Reviewed for:** Which legal-hold releases lack an actor, data covered, reason, or resumed retention? Look at the release records.
+**Reviewed for:** Does every legal-hold release record the actor, data covered, reason, and resumed retention? Check the release records.
 
 ### Align Backup Deletion Behavior
 
@@ -294,9 +294,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Statement:** Backup and replica operations MUST follow the documented deletion guarantee.
 
-**Rationale:** A deletion promise covers every copy the product keeps, including backups and replicas that restore for months after the live row disappears. When backup behavior stays undocumented, the team promises erasure it cannot deliver and learns the gap during an audit or a restore.
+**Rationale:** Every copy the product keeps falls under the deletion promise, including backups and replicas that restore for months after the live row disappears. When backup behavior stays undocumented, the team promises erasure it cannot deliver and learns the gap during an audit or a restore.
 
-**Reviewed for:** Which backup and replica operations break the documented deletion guarantee? Look at the backup and replica procedures.
+**Reviewed for:** Does every backup and replica operation follow the documented deletion guarantee? Check the backup and replica procedures.
 
 ## Conventions
 
@@ -312,9 +312,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Replacement:** A project names another column for the soft-delete timestamp in its documentation.
 
-**Rationale:** One name for the deletion timestamp lets every reader and query recognize it on sight: the event and the unit remove the two guesses a reviewer otherwise makes.
+**Rationale:** One name for the deletion timestamp lets every reader and query recognize it on sight. The name states the event and the unit, removing two guesses a reviewer otherwise makes.
 
-**Reviewed for:** Which soft-delete timestamps use another column than `deleted_at_utc`, with no other column named in the documentation? Look at the schema columns.
+**Reviewed for:** Does every soft-delete timestamp use `deleted_at_utc`, or another column the documentation names? Check the schema columns.
 
 ### Keep Archive Records Module-Owned
 
@@ -328,9 +328,9 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Replacement:** A project keeps archive records in one shared archive area.
 
-**Rationale:** The module that defines what the record means also defines what its archive means and who may read it. An archive kept elsewhere sits under two modules, and its access checks drift from its home module.
+**Rationale:** The module that defines what a record means also defines what its archive means and who may read it. An archive kept elsewhere sits under two modules, and its access checks drift from its home module.
 
-**Reviewed for:** Which archive records sit outside their owning module, with no shared archive area the project keeps? Look at the module folders.
+**Reviewed for:** Does every archive record sit under its owning module, or in the shared archive area the project keeps? Check the module folders.
 
 ### Separate Query-Shaped History
 
@@ -344,14 +344,14 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Replacement:** A project keeps query-shaped history on the aggregate.
 
-**Rationale:** History kept for display, such as a list of past expenses, constrains nothing the aggregate protects, so it lives cheaper as a read model beside the record. Folding it into the record widens the transaction boundary for data no invariant needs.
+**Rationale:** History kept for display, such as a list of past expenses, constrains nothing the aggregate protects. It costs less as a read model beside the record. Folding it into the record widens the transaction boundary for data no invariant needs.
 
-**Reviewed for:** Which query-shaped histories sit on an aggregate, with no read model the project keeps for them? Look at the aggregate code beside the read models.
+**Reviewed for:** Does every query-shaped history live in a read model instead of on its aggregate, unless the project keeps it on the aggregate? Check the aggregate code beside the read models.
 
 ## Dependencies
 
 Packages: None.
 
-Related extensions: `audit`, and `compat` for retiring declared behavior.
+Related extensions: `audit`, which supplies the audit record a lifecycle operation writes when audit is selected, and `compat`, which governs retiring declared behavior.
 
 Guides: None.

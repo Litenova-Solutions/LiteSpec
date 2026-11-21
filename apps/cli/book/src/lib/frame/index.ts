@@ -14,24 +14,30 @@ window.BookData = createShardLoader(document);
 export const book = new Book(window.BookData);
 
 export { Book, type Explanation } from "./book.svelte";
+export { hoverRecord, hoverType, hoverRelation, hoverSection, hoverState, type Hover } from "./hover-text";
 export { capitalize, dedupe, formatCount, formatLabel, pluralize, stripStep } from "./text";
 export { cn, type WithElementRef, type WithoutChild, type WithoutChildrenOrChild } from "./cn";
-export { duration, editorHref, esc, inline, recordRefHtml, safeHref, srcHref } from "./html";
-export { fixtureBook } from "./fixture";
+export { duration, esc, inline, recordRefHtml, safeHref, sourceLinkHref, srcHref } from "./html";
+export { startLive } from "./live";
 export { proofLabel, proofRank, proofWord } from "./proof-order";
 export { layerStats } from "./relations";
-export { completionLines, coveragePercent } from "./completion";
+export { completionLines, coveragePercent, freshnessLine, stageLine } from "./completion";
 export { copyText } from "./clipboard";
-export { theme } from "./theme.svelte";
-export { preferences } from "./preferences.svelte";
-export { MODULE_MEMBER_TYPES, isFlowType } from "./shard-types";
+export { applyTheme, currentTheme, initTheme, type BookTheme } from "./theme";
+export { MODULE_MEMBER_TYPES, isScenarioType } from "./shard-types";
+export { UNFULFILLED_AREA, areaGroupKey, areaKeysOf } from "./product-areas";
 export type {
   BookRecord,
   BookTest,
   CheckLevel,
   ImplKind,
+  IntentGrouping,
   LayerKey,
+  ParkedChild,
+  ProductArea,
+  ProductAreas,
   ProofState,
+  ReachClaim,
   RecordFields,
   SecurityItem,
   SortKey,

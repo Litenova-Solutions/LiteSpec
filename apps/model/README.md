@@ -1,14 +1,16 @@
 # LiteSpec.Model
 
+The shared model library holds the rules both command lines use.
+
 ## Audience
 
-You maintain the shared model library in `apps/model/`. You change how a record file parses, how an identifier or a finding code is formed, how a C# mark is read, or how a layer claim is kept. After reading this page you know which project owns each rule, and how to prove a change with its tests.
+You maintain the shared model library in `apps/model/`: changing how a record file parses, how an identifier or a finding code is formed, how a C# mark is read, or how a layer claim is kept. After reading this page, you know which project owns each rule and how to prove a change through its tests.
 
 ## What It Is
 
-`apps/model` holds the rules that the CLI and the maintainer tool share: the record types and their folders, the identifier grammar, the finding codes, the YAML reader and writer, the layer claims, and the C# mark reader. It has no command line of its own. The [CLI](../cli/README.md) reads a consumer's records through it, and the [maintainer tool](../maintain/README.md) reads the LiteSpec pages through it.
+`apps/model` holds the rules both command lines share: the record types and their folders, the identifier grammar, the finding codes, the YAML reader and writer, the layer claims, and the C# mark reader. It ships no command line of its own. The [CLI](../cli/README.md) reads a consumer's records through this library, and the [maintainer tool](../maintain/README.md) reads the LiteSpec pages through it.
 
-The library is four projects. `LiteSpec.Model` targets `netstandard2.0`, holds the project model's vocabulary, and reads YAML with YamlDotNet. `LiteSpec.Model.Roslyn` targets `netstandard2.0`, reads the marks in C# source, and references `Microsoft.CodeAnalysis.CSharp`. `LiteSpec.CommandLine` holds how both command lines talk: option parsing and JSON output. `LiteSpec.Standards` reads the standards material the release carries: the LiteSpec release locator, the page reader, the stack selection, the provisions, the pattern parsers, and the JSON Schema evaluator.
+The library is four projects. `LiteSpec.Model` targets `netstandard2.0`, holds the project model's vocabulary, and reads YAML with YamlDotNet. `LiteSpec.Model.Roslyn` targets `netstandard2.0`, reads the marks in C# source, and references `Microsoft.CodeAnalysis.CSharp`. `LiteSpec.CommandLine` handles how both command lines talk: option parsing and JSON output. `LiteSpec.Standards` reads the standards material the release carries: the LiteSpec release locator, the page reader, the stack selection, the provisions, the pattern parsers, and the JSON Schema evaluator.
 
 ## Quick Start
 
@@ -36,8 +38,8 @@ dotnet build LiteSpec.slnx
 | `src/LiteSpec.Standards/` | The standards material the release carries. `Release/LiteSpecHome.cs` locates the LiteSpec release, `Pages/` reads the Markdown pages and the stack selection, `Provisions/` builds the provision index and reads scopes, `Patterns/` parses the pattern pages, `Schemas/` holds the JSON Schema evaluator, and `Files/` reads record and file text. |
 | `tests/LiteSpec.Model.Tests/` | The model tests, one file per area, on `xunit.v3` and the Microsoft Testing Platform. `Layers/`, `Marks/` and `Roslyn/` hold the tests of those folders. |
 
-A rule that changes a record type or a finding code belongs in `LiteSpec.Model`, with a test in `tests/LiteSpec.Model.Tests/`. A change to a command's output belongs in the command, not here.
+A change to a record type or a finding code belongs in `LiteSpec.Model`, with a test in `tests/LiteSpec.Model.Tests/`. A change to a command's output belongs in the command, not here.
 
 ## Limits
 
-The library reads and checks records. It runs no tests, reads no git history, and writes no file on its own: the CLI and the maintainer tool decide when to write. The Roslyn reader sees syntax only, so a mark that depends on a type declared in another file is read as written.
+The library reads and checks records. It runs no tests, reads no git history, and writes no file on its own: the CLI and the maintainer tool decide when to write. The Roslyn reader sees syntax only, so it reads a mark that depends on a type declared in another file as written.

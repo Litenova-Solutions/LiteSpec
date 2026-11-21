@@ -2,3 +2,7 @@ type: feature
 id: feature/borrowing
 title: Borrowing performance
 offering: Readers borrow available copies through the app with an answer that feels instant.
+successCriteria:
+- Readers borrow available copies through the app with an answer that feels instant.
+excludes:
+- Borrowing tracks no fines.

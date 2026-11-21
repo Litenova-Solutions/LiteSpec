@@ -11,11 +11,11 @@ Harbor and Pine is a small consultancy of forty people. Employees travel to clie
 
 ## The People
 
-Ava is an employee who travels. Ben is her manager and approver. Cara works in finance and runs reimbursements.
+Ava is an employee who travels. Ben is her manager, and he approves her expenses. Cara works in finance, and she runs reimbursements.
 
 ## The Occasion
 
-A client visit in another city: train fare, one hotel night, and meals.
+A client visit in another city, with a train fare, one hotel night, and meals.
 
 ## The Amounts
 

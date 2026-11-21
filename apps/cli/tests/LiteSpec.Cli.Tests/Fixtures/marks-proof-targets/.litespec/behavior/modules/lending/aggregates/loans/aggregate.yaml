@@ -14,9 +14,9 @@ records:
     statement: A borrowed copy is available.
     governs:
       - use-case/lending.borrow-copy
-    refusal: result/borrow-copy.copy-unavailable
-  - type: event
-    id: event/loan.loan-borrowed
+    refusal: lending.copy-not-available
+  - type: domain-event
+    id: domain-event/loan.loan-borrowed
     title: Loan borrowed
     meaning: A copy was lent.
     carries:

@@ -23,7 +23,7 @@ public sealed class NondeterministicReadAnalyzerTests
                     return DateTime.{|LS1009:UtcNow|};
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1009 reports Guid.NewGuid and Random construction.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -47,7 +47,7 @@ public sealed class NondeterministicReadAnalyzerTests
                     return new {|LS1009:Random|}().Next();
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1009 reports reads in initializers, expression bodies and lambdas.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -70,7 +70,7 @@ public sealed class NondeterministicReadAnalyzerTests
 
                 public Func<DateTime> Clock() => () => DateTime.{|LS1009:Now|};
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1009 reports TimeProvider.System, Random.Shared and RandomNumberGenerator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -104,7 +104,7 @@ public sealed class NondeterministicReadAnalyzerTests
                     return bytes;
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1009 accepts injected values and deterministic members.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -133,7 +133,7 @@ public sealed class NondeterministicReadAnalyzerTests
                     return DateTime.MinValue;
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1009 ignores nameof.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -152,7 +152,7 @@ public sealed class NondeterministicReadAnalyzerTests
                     return nameof(DateTime.UtcNow);
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1009 ignores nondeterministic reads outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -173,24 +173,6 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
-    /// <summary>LS1009 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
-    [Fact(DisplayName = "LS1009 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
-            using System;
-
-            namespace Shop.Core;
-
-            public sealed class OrderService
-            {
-                public Guid NextId()
-                {
-                    return Guid.{|LS1009:NewGuid|}();
-                }
-            }
-            """, assemblyName: "Shop.Core", layer: "Domain");
 
     /// <summary>LS1009 reports the remaining clock and randomness members.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -230,5 +212,5 @@ public sealed class NondeterministicReadAnalyzerTests
                     return Environment.{|LS1009:TickCount|};
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

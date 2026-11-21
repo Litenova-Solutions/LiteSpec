@@ -1,0 +1,17 @@
+type: decision
+id: decision/0101-check-rule-citations
+title: Check Rule Citations Across Sibling Commands and Scenarios
+context: "A consumer review found a command posting entry lines without the rules its five sibling commands obeyed, so one form posted without the checks the others applied. It also found scenarios exercising rules their use cases never apply, which inflates coverage and misleads test authors. The model check saw neither gap: governs matched the written links, and no check compared an exercises entry with the use case holding its scenario."
+options:
+  - name: "Report a command that misses an invariant most writers of its aggregate cite, blocking; report a scenario exercising a rule its use case applies nowhere, advisory"
+    pros: "The blocking finding fires only where the omission is almost surely a gap: an invariant holds on every change, and most writers already cite it. The advisory finding keeps scenarios honest without blocking on judgment calls."
+    cons: "The sibling finding stays silent while only a minority cites the rule, so two missing commands out of four report nothing."
+  - name: "Report every missing citation as advisory"
+    pros: "No new blocking finding; every gap is a suggestion the author may set aside."
+    cons: "The entry-form gap ships exactly as specified, since an advisory finding never stops a run."
+  - name: "Report a command missing any rule any sibling cites"
+    pros: "The simplest rule: one citing sibling is enough to report every command that misses the rule."
+    cons: "Commands that cannot break the rule report anyway, such as a submit command missing a reimburse-once invariant, so authors waive the finding instead of reading it."
+choice: "Report a command that misses an invariant most writers of its aggregate cite, blocking; report a scenario exercising a rule its use case applies nowhere, advisory"
+consequences: "A command cites a rule in its steps' cites, its input rules, its consistency boundBy, or a result carrying the rule's refusal code. A scenario's exercises claims the rule without applying it, so exercises never counts as a citation. The sibling finding covers invariants only and fires only when fewer writers miss the rule than cite it. The new provisions are litespec/core/use-cases#cite-the-invariants-most-writers-cite and the extended litespec/core/use-cases#exercise-rules-from-scenarios, checked by rule-sibling-uncited at level G and exercises-uncited at level A. The scenario code reads exercises-uncited rather than exercises-unrelated, since unrelated is no word of the finding-code grammar."
+reopenedWhen: "Authors report true gaps the minority gate misses, or a rule kind beyond invariants needs the same coverage."

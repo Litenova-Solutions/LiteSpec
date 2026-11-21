@@ -18,7 +18,7 @@ public sealed class SharedCitationTests
         using var temp = ModelFixture.Prepare("small");
         using var home = WriteFixtureHome();
         PinReviewedVersion(temp.Path);
-        AppendCitation(temp.Path, "litespec/core/principles#retire-records-with-replaces");
+        AppendCitation(temp.Path, "litespec/core/principles#keep-one-authored-source");
         var result = TestCli.Run(
             ["model", "check", "--root", temp.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
@@ -59,7 +59,7 @@ public sealed class SharedCitationTests
         File.WriteAllText(Path.Combine(folder, "principles.md"), PinnedPage);
         var backend = Path.Combine(home.Path, "docs", "backend");
         Directory.CreateDirectory(backend);
-        File.WriteAllText(Path.Combine(backend, "application.md"), PinnedDeviationTarget);
+        File.WriteAllText(Path.Combine(backend, "application.md"), PinnedWaiverTarget);
         return home;
     }
 
@@ -73,7 +73,7 @@ public sealed class SharedCitationTests
 
     static void AppendCitation(string root, string citation)
     {
-        var page = Path.Combine(root, ".litespec", "intent", "product.md");
+        var page = Path.Combine(root, ".litespec", "product.md");
         File.AppendAllText(page, $"\nSee {citation}.\n");
     }
 
@@ -82,13 +82,13 @@ public sealed class SharedCitationTests
 
         ## Standards
 
-        ### Retire records with replaces
+        ### Keep One Authored Source
 
-        A retired record stays readable.
+        Each fact has one authored source.
         """;
 
     /// <summary>The provision the fixture's exception cites, so pinning stays complete.</summary>
-    const string PinnedDeviationTarget = """
+    const string PinnedWaiverTarget = """
         # Application Layer
 
         ## Standards

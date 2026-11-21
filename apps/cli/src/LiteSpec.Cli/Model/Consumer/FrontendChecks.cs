@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 ///     the project names.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
-/// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
+/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
 static class FrontendChecks
 {
     /// <summary>The platforms whose frontends compose the shared UI package.</summary>

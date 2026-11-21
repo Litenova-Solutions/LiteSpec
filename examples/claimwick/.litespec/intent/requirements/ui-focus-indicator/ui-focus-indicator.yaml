@@ -1,0 +1,14 @@
+type: requirement
+id: requirement/ui-focus-indicator
+title: UI Focus Indicator Contrast
+kind: quality
+statement: Each focus indicator reaches 3:1 against the surface beside it.
+rationale: Keyboard readers tab through every screen, so an invisible focus loses their place.
+stimulus: A reader tabs through any screen in any declared color scheme
+environment: Normal operation with keyboard input
+response: Every focus indicator meets its contrast limit against the surface beside it
+measure: Lowest contrast ratio of a focus indicator against the surface beside it, per declared scheme
+target: At least 3:1
+check: token-limits
+cites:
+- goal/decided-in-days

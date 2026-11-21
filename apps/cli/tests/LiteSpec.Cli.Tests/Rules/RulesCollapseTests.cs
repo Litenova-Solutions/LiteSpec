@@ -14,13 +14,13 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("use-case/spending.submit-expense: ", result.Output);
         Assert.Contains(" provisions about the record; model check checks ", result.Output);
         Assert.Contains("run rules use-case/spending.submit-expense for the rest", result.Output);
-        Assert.DoesNotContain("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
+        Assert.DoesNotContain("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
     }
 
     /// <summary>A record identifier still prints the record provisions in full.</summary>
@@ -32,7 +32,7 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run("rules", "--root", root, "use-case/spending.submit-expense");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
+        Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
         Assert.DoesNotContain("provisions about the record", result.Output);
     }
 
@@ -48,7 +48,7 @@ public sealed class RulesCollapseTests
             ".litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
+        Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
         Assert.DoesNotContain("provisions about the record", result.Output);
     }
 
@@ -61,7 +61,7 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/application#keep-command-handlers-to-load-call-and-stage:", result.Output);

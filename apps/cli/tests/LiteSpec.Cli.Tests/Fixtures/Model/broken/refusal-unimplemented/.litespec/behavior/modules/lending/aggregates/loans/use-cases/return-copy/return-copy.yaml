@@ -2,17 +2,20 @@ type: use-case
 id: use-case/lending.return-copy
 title: Return copy
 kind: command
+steps:
+  - statement: The reader sends the copy to return.
+  - statement: Lending returns the copy and raises the returned event.
 access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - journey/borrow-and-return#s5
+  - step/borrow-and-return.return-copy
 fulfills:
   - requirement/borrowing.loan-period-days
 reachedThrough:
   - entry-point/library-app
 raises:
-  - event/loan.loan-returned
+  - domain-event/loan.loan-returned
 records:
   - type: result
     id: result/return-copy.returned
@@ -23,7 +26,7 @@ records:
     id: result/return-copy.loan-inactive
     title: Loan inactive
     outcome: refusal
-    code: lending.loan-never-existed
+    refusal: refusal/lending.loan-never-existed
     meaning: The loan is inactive.
   - type: scenario
     id: scenario/return-copy.returning-a-borrowed-copy-succeeds

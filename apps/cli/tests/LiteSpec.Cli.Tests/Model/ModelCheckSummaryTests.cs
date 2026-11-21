@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model;
@@ -107,6 +108,36 @@ public sealed partial class ModelCheckSummaryTests
         Assert.DoesNotContain("advisory findings summarized by code", all.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>A release drift prints before every other finding, naming both releases and the install command, in text and in JSON.</summary>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
+    [Fact]
+    public void CheckPrintsReleaseDriftFirst()
+    {
+        using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
+        SetReviewedVersion(fixture.Path, "6.0.0");
+
+        var text = TestCli.Run("model", "check", "--root", fixture.Path);
+
+        Assert.Equal(1, text.Status);
+        Assert.Contains("[paging-undeclared]", text.Output, StringComparison.Ordinal);
+
+        var first = Lines(text.Stdout)[0];
+
+        Assert.Contains("[release-drift]", first, StringComparison.Ordinal);
+        Assert.Contains("6.0.0", first, StringComparison.Ordinal);
+        Assert.Contains("7.0.0", first, StringComparison.Ordinal);
+        Assert.Contains("dotnet tool update", first, StringComparison.Ordinal);
+
+        var json = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.Equal(1, json.Status);
+
+        var findings = JsonNode.Parse(json.Stdout)!["findings"]!.AsArray();
+
+        Assert.True(findings.Count > 1);
+        Assert.Equal("release-drift", findings[0]!["code"]!.GetValue<string>());
+    }
+
     /// <summary>A dead check option is rejected as an unknown option.</summary>
     /// <param name="option">The dead option to pass.</param>
     /// <param name="value">The value to pass with the option.</param>
@@ -136,6 +167,18 @@ public sealed partial class ModelCheckSummaryTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains($"Unknown format '{format}'; use json or text.", result.Output);
+    }
+
+    /// <summary>Records another reviewed release in the fixture project file.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="version">The reviewed release to record.</param>
+    static void SetReviewedVersion(string root, string version)
+    {
+        var project = Path.Combine(root, ".litespec", "project.yaml");
+        var text = File.ReadAllText(project);
+
+        Assert.Contains("reviewedLiteSpecVersion: 7.0.0", text, StringComparison.Ordinal);
+        File.WriteAllText(project, text.Replace("reviewedLiteSpecVersion: 7.0.0", $"reviewedLiteSpecVersion: {version}", StringComparison.Ordinal));
     }
 
     /// <summary>Writes a scenario for borrow-copy with no proving test, so an advisory finding prints.</summary>

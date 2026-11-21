@@ -59,7 +59,7 @@ public sealed class FrontendModuleReaderTests
 
         Assert.Equal(2, modules.Count);
 
-        var borrow = Assert.Single(modules, element => element.Class == "lending/loans/borrow-copy");
+        var borrow = Assert.Single(modules, element => element.Class == "lending/borrow-copy");
 
         Assert.Empty(borrow.Marks);
         Assert.Equal(1, borrow.Line);

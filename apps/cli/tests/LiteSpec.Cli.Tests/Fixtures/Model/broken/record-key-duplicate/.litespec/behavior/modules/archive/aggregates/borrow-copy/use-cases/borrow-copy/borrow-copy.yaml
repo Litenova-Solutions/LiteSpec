@@ -1,0 +1,30 @@
+type: use-case
+id: use-case/archive.borrow-copy
+title: Borrow copy
+kind: command
+steps:
+  - statement: The reader sends the archived copy to borrow.
+  - statement: Archive lends the archived copy.
+access:
+  grant: permission/borrow-copy
+  tenant: own
+serves:
+  - step/borrow-and-return.borrow-copy
+fulfills:
+  - requirement/borrowing.max-active-loans
+reachedThrough:
+  - entry-point/library-app
+raises: []
+records:
+  - type: result
+    id: result/borrow-copy.archived
+    title: Archived
+    outcome: success
+    meaning: The archived copy is lent.
+  - type: scenario
+    id: scenario/borrow-copy.archiving-a-borrow-succeeds
+    title: Archiving a borrow succeeds
+    given: An archived copy sits available.
+    when: The reader borrows the copy.
+    then: The loan is active.
+    result: result/borrow-copy.archived

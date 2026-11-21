@@ -1,10 +1,10 @@
 # Use Cases Read Their Settings
 
-A setting is a value that the product reads from its configuration. A use case is one action that the product performs. This decision sets where the link between them lives. The link lives on the use case, which names the settings it reads. A reader who opens a use case sees its settings, and a setting does not need to list its readers.
+A reader who opens a use case needs to see the settings it reads. A setting is a value that the product reads from its configuration, and a use case is one action that the product performs. This decision puts the link on the use case, which names the settings it reads, so a setting lists no readers.
 
 ## Context
 
-The setting's `readBy` field reads passively, against the verb grammar. It also restates on the setting what the use case already knows, which is the settings that the use case reads.
+The setting's `readBy` field reads passively, against the verb grammar. It also repeats on the setting the settings that the use case reads.
 
 ## Options
 
@@ -25,11 +25,11 @@ A use case names the settings it reads in `reads`. The setting's `readBy` field 
 
 ## Consequences
 
-The provision `litespec/core/model#write-links-on-the-record-that-points` places the link on the use case. The provision `litespec/core/language#name-each-field-by-its-word-class` reads `reads` as a link verb. The provision `litespec/core/use-cases#name-the-settings-each-use-case-reads` is restated for `reads`.
+The provision `litespec/core/model#write-links-on-the-record-that-points` places the link on the use case. The provision `litespec/core/language#name-each-field-by-its-word-class` reads `reads` as a link verb. This decision restates `litespec/core/use-cases#name-the-settings-each-use-case-reads` for `reads`.
 
 ## Evidence
 
-`research/naming-grammar-evidence` holds the field inventory behind the link-verb reading. It is read from the schemas and measured over the largest consumer, with high confidence.
+`research/naming-grammar-evidence` holds the field inventory behind the link-verb reading. It comes from the schemas and from measurements over the largest consumer, with high confidence.
 
 ## Revisit Conditions
 

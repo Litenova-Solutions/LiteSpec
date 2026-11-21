@@ -85,7 +85,7 @@ static class ElementReader
                             element.Name,
                             file,
                             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-                            SingleMark(marks, "event/")));
+                            SingleMark(marks, "domain-event/")));
                         break;
                     case CodeKind.Endpoint:
                         EndpointReader.ReadEndpoint(file, tree, declared, marks, model);

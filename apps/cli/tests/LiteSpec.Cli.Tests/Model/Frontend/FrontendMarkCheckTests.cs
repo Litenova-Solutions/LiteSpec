@@ -27,7 +27,7 @@ public sealed class FrontendMarkCheckTests
 
         var finding = Assert.Single(missing);
         Assert.Contains("Frontend module", finding.Message);
-        Assert.Contains("lending/loans/borrow-copy", finding.Message);
+        Assert.Contains("lending/borrow-copy", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -58,18 +58,15 @@ public sealed class FrontendMarkCheckTests
         Assert.Equal("use-case/lending.ghost", finding.Subject);
     }
 
-    /// <summary>Frontend Mark Reports No Mark Style Mixed Where A Backend Mark Does.</summary>
+    /// <summary>Model Check Reports No Mark Style For Frontend Or Backend Marks.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void FrontendMarkReportsNoMarkStyleMixedWhereABackendMarkDoes()
+    public void ModelCheckReportsNoMarkStyleForFrontendOrBackendMarks()
     {
         using var fixture = FrontendMarksFixture.Prepare("style");
         var findings = FrontendMarksFixture.Check(fixture.Path);
-        var mixed = FrontendMarksFixture.WithCode(findings, "mark-style-invalid");
 
-        var finding = Assert.Single(mixed);
-        Assert.Contains("BorrowCopyCommandHandler", finding.Message);
-        Assert.DoesNotContain("Frontend module", finding.Message);
+        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-style-invalid"));
         Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-missing"));
         Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-unknown"));
     }

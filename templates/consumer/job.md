@@ -4,7 +4,7 @@ Say what this job does and why it runs on its own schedule. A reader who has rea
 
 ## Invocation
 
-Say how each run starts: on its schedule, once when requested, or by hand, and what each run covers. Say whether a run waits for an earlier run still in progress, and where a run resumes after it stops.
+Say how each run starts: on its schedule or once when requested, and what each run covers. Say whether a run waits for an earlier run still in progress, and where a run resumes after it stops.
 
 ## Failure Handling
 

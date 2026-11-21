@@ -1,14 +1,48 @@
 type: rule-set
 title: Spending Rules
-summary: Receipt files are filed once across spending.
+summary: Receipt files are filed once across spending, each receipt attaches with its expense link in one write, and a manager holding a reminder preference gets no approval reminder.
 records:
 - type: rule
   id: rule/spending.receipt-filed-once
   title: Receipt Filed Once
-  kind: cross-aggregate
+  kind: invariant
   statement: A receipt file supports one expense across spending.
   governs:
+  - use-case/spending.attach-receipt
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
+  binds:
+  - aggregate/spending.expense
   - aggregate/spending.receipt
   basedOn: []
   fulfills:
   - requirement/approval.above-threshold-receipt
+- type: rule
+  id: rule/spending.receipt-attached-atomically
+  title: Receipt Attached Atomically
+  kind: atomicity
+  statement: Attaching a receipt stores the receipt and its expense link together.
+  governs:
+  - use-case/spending.attach-receipt
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
+  binds:
+  - aggregate/spending.expense
+  - aggregate/spending.receipt
+  basedOn:
+  - decision/0002-attach-receipt-writes-two-aggregates
+  fulfills:
+  - requirement/approval.above-threshold-receipt
+- type: rule
+  id: rule/spending.suppressed-manager-gets-no-reminder
+  title: Suppressed Manager Gets No Reminder
+  kind: precondition
+  statement: A manager holding a reminder preference gets no approval reminder.
+  governs:
+  - aggregate/spending.reminder-preference
+  binds:
+  - aggregate/spending.reminder-preference
+  basedOn: []
+  source: product-choice
+  fulfills:
+  - requirement/approval-reminders.remind-approver-after-three-days

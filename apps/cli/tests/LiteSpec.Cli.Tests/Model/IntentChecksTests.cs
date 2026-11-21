@@ -7,14 +7,14 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model;
 
-/// <summary>Proves the Intent checks on problems, actors, journeys and goals against the large fixture.</summary>
+/// <summary>Proves the Intent checks on problems, actors, flows and goals against the large fixture.</summary>
 public sealed class IntentChecksTests
 {
     /// <summary>The problem record file of the large fixture.</summary>
     const string ProblemFile = ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.yaml";
 
-    /// <summary>The journey record file of the large fixture.</summary>
-    const string JourneyFile = ".litespec/intent/journeys/borrow-and-return/borrow-and-return.yaml";
+    /// <summary>The flow record file of the large fixture.</summary>
+    const string FlowFile = ".litespec/intent/flows/borrow-and-return/borrow-and-return.yaml";
 
     /// <summary>A problem whose primary sufferer belongs to the team blocks with problem-sufferer-invalid.</summary>
     /// <proves>litespec/core/intent#admit-only-outside-pains-as-problems</proves>
@@ -62,8 +62,8 @@ public sealed class IntentChecksTests
         Assert.Contains("problem-evidence-missing", result.Output);
     }
 
-    /// <summary>An actor named by no journey, problem or access position advises with actor-unused.</summary>
-    /// <proves>litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position</proves>
+    /// <summary>An actor named by no flow, problem or access position advises with actor-unused.</summary>
+    /// <proves>litespec/core/intent#name-every-actor-from-a-flow-a-problem-or-an-access-position</proves>
     [Fact]
     public void UnnamedActorAdvises()
     {
@@ -87,8 +87,8 @@ public sealed class IntentChecksTests
         Assert.Contains("actor-unused", result.Output);
     }
 
-    /// <summary>A goal moved by no journey and no quality requirement blocks with goal-mover-missing.</summary>
-    /// <proves>litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement</proves>
+    /// <summary>A goal moved by no flow and no quality requirement blocks with goal-mover-missing.</summary>
+    /// <proves>litespec/core/intent#move-every-goal-with-a-flow-or-a-quality-requirement</proves>
     [Fact]
     public void UnmovedGoalBlocks()
     {
@@ -115,20 +115,39 @@ public sealed class IntentChecksTests
         Assert.Contains("goal-mover-missing", result.Output);
     }
 
-    /// <summary>A journey step naming both an actor and a system blocks with field-invalid.</summary>
-    /// <proves>litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system</proves>
+    /// <summary>A flow step naming a system actor no external system represents blocks with record-invalid.</summary>
+    /// <proves>litespec/core/intent#perform-each-flow-step-with-an-actor</proves>
     [Fact]
-    public void JourneyStepWithActorAndSystemBlocks()
+    public void FlowStepWithUnrepresentedSystemActorBlocks()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var journey = ReadRecord(fixture.Path, JourneyFile);
-        ((JsonArray)journey["steps"]!)[0]!["system"] = "external-system/text-gateway";
-        Restamp(fixture.Path, JourneyFile, journey);
+        TestRecords.Write(
+            fixture.Path,
+            ".litespec/intent/actors/mail-relay.yaml",
+            """
+            {
+              "type": "actor",
+              "id": "actor/mail-relay",
+              "title": "Mail Relay",
+              "summary": "The mail relay sends receipts to readers.",
+              "kind": "system",
+              "belongsToTeam": false,
+              "responsibilities": [
+                "The mail relay sends receipts to readers."
+              ],
+              "knowledge": [
+                "The product assumes the mail relay accepts one receipt per call."
+              ]
+            }
+            """);
+        var flow = ReadRecord(fixture.Path, FlowFile);
+        ((JsonArray)flow["steps"]!)[0]!["actor"] = "actor/mail-relay";
+        Restamp(fixture.Path, FlowFile, flow);
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
         Assert.Equal(1, result.Status);
-        Assert.Contains("field-invalid", result.Output);
+        Assert.Contains("record-invalid", result.Output);
     }
 
     /// <summary>A capitalized phrase named in three records with no glossary term advises with term-missing.</summary>

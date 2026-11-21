@@ -1,0 +1,14 @@
+type: decision
+id: decision/0099-rule-sources
+title: Rule Sources
+context: "A rule that restates the law reads like a rule that makes a product choice: both state what holds with no word on where the statement comes from. Simplifications later get mistaken for law, so owners will not change them, or real legal rules get changed as if they were choices."
+options:
+  - name: "State the source on the rule, with a cites link when it is law"
+    pros: "One field states the kind, and the cites link names the restated record, so each law rule traces to its constraint or research."
+    cons: "Rules written before the field gain it only as they are touched."
+  - name: "State the basis on each basedOn entry"
+    pros: "Each link carries its own restates, interprets, or chooses."
+    cons: "Every link gains a judgment, and a rule with several links states its kind several times."
+choice: "State the source on the rule, with a cites link when it is law"
+consequences: "Each rule states source as law, contract, or product-choice, and a rule with source law names the restated constraint or research record in cites. The new provisions are litespec/core/domain-model#state-each-rules-source and litespec/core/domain-model#name-the-record-each-law-rule-restates."
+reopenedWhen: "A rule mixes restating and choosing in one statement in a way one source fails to state."

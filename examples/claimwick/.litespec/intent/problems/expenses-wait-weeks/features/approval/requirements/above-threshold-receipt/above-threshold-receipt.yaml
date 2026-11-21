@@ -7,3 +7,5 @@ rationale: Proof above the line keeps the tax file defensible.
 cites:
 - feature/approval-reminders
 - constraint/tax-receipt-retention
+basedOn:
+- decision/0001-receipt-threshold

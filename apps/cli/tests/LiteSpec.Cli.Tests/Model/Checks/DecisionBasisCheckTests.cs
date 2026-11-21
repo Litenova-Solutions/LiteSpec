@@ -4,7 +4,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves a technical decision names its basis in basedOn, and cites never names a requirement outside a journey.</summary>
+/// <summary>Proves a technical decision names its basis in basedOn, and cites never names a requirement outside a flow.</summary>
 public sealed class DecisionBasisCheckTests
 {
     /// <summary>Technical Decision Naming Requirement Passes Links.</summary>
@@ -16,10 +16,10 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove returns with receipts."}"""),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("requirement/checkout.receipt-on-request")));
 
-        Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <summary>Requirement Naming Requirement Reports Invalid Field.</summary>
@@ -30,10 +30,10 @@ public sealed class DecisionBasisCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "cites": ["requirement/checkout.two-second-answer"]}"""),
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "Checkout answers within two seconds at peak."}"""));
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove returns with receipts.", "cites": ["requirement/checkout.two-second-answer"]}"""),
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "Checkout answers within two seconds at peak.", "rationale": "Slow checkout loses shoppers."}"""));
 
-        Assert.True(Reports(model, "field-invalid", "links cites to 'requirement/checkout.two-second-answer', which is a requirement"));
+        Assert.True(Reports(model, "record-invalid", "links cites to 'requirement/checkout.two-second-answer', which is a requirement"));
     }
 
     /// <summary>Technical Decision With Empty Or Missing BasedOn Reports Without Basis.</summary>
@@ -79,7 +79,7 @@ public sealed class DecisionBasisCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
-            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
+            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "context": "Shoppers ask for a receipt at the till.", "basedOn": []}"""));
 
         Assert.DoesNotContain("decision-basis-missing", TestModel.Codes(model));
     }
@@ -96,14 +96,14 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("requirement/checkout.no-such-target")));
 
         Assert.True(Reports(model, "reference-unknown", "cites 'requirement/checkout.no-such-target', which no record holds"));
-        Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <summary>A technical decision naming the target in basedOn.</summary>
     /// <param name="basedOn">The target id placed in the decision basedOn list.</param>
     /// <returns>The decision fields as JSON.</returns>
     static string DecisionJson(string basedOn) =>
-        "{\"options\": [{\"name\": \"Documents\", \"pros\": \"Reads stay simple.\", \"cons\": \"Queries need an index.\"}], \"choice\": \"Documents\", \"reopenedWhen\": \"Queries pass one hundred a day.\", \"basedOn\": [\"" + basedOn + "\"]}";
+        "{\"options\": [{\"name\": \"Documents\", \"pros\": \"Reads stay simple.\", \"cons\": \"Queries need an index.\"}], \"choice\": \"Documents\", \"reopenedWhen\": \"Queries pass one hundred a day.\", \"context\": \"Orders live in one store today.\", \"basedOn\": [\"" + basedOn + "\"]}";
 
     /// <summary>A decision file under the implementation decisions folder, so the check reads it as technical.</summary>
     /// <param name="config">The consumer config carrying the root folder.</param>

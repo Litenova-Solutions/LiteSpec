@@ -1,6 +1,7 @@
 type: use-case
 id: use-case/lending.extend-loan
 title: Extend loan
+exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong extension keeps a copy past its due date.
 kind: command
 access:
   grant: permission/borrow-copy
@@ -10,13 +11,12 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises:
-- event/loan.loan-extended
+- domain-event/loan.loan-extended
+steps:
+- statement: The reader extends the loan before its due date.
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
-audit:
-  level: none
-  target: No audit trail; the loan record shows each extension.
 records:
 - type: result
   id: result/extend-loan.extended
@@ -27,5 +27,4 @@ records:
   id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
-  code: lending.extension-refused
-  meaning: The extension is refused.
+  refusal: refusal/lending.extension-refused

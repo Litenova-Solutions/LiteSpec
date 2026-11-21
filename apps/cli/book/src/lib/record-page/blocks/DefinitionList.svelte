@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // A definition list of facts. Pairs carry rendered HTML and empty pairs drop
@@ -14,11 +15,11 @@
 </script>
 
 {#if pairs ? rows.length > 0 : true}
-  <dl class="grid grid-cols-[minmax(0,1fr)] gap-x-5 gap-y-1 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-y-2.5 text-[0.90625rem]">
+  <dl class="grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
     {#if pairs}
       {#each rows as p (p.label)}
-        <dt class="text-muted-foreground">{book.fieldLabel(p.label)}</dt>
-        <dd class="m-0 min-w-0">{@html p.html}</dd>
+        <dt class="border-b border-border-subtle py-3 pr-2 font-semibold"><Hover hover={hoverSection(book, p.label, "")}>{book.fieldLabel(p.label)}</Hover></dt>
+        <dd class="m-0 min-w-0 border-b border-border-subtle py-3">{@html p.html}</dd>
       {/each}
     {:else}
       {@render children?.()}

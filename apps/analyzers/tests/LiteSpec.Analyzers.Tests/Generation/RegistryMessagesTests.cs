@@ -193,11 +193,11 @@ public sealed class RegistryMessagesTests
             "xml",
             ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
             ("rename-expense.yaml", RecordPages.UseCasePage("use-case/spending.rename-expense", null)));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "The registry source is missing.");
         Assert.Empty(run.ReportedDiagnostics);
 
-        var compilation = GeneratorVerify.CreateCompilation(sources, "Shop.Application");
+        var compilation = GeneratorVerify.CreateCompilation(sources, "Shop.Spending");
         var trees = new List<SyntaxTree>();
 
         foreach (var generated in run.Sources)

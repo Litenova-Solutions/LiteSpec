@@ -8,7 +8,7 @@ public sealed partial class UiValidatorTests
     // Baseline.
 
     /// <summary>Tracked Templates Validate As Shipped.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
     [Fact]
     public void TrackedTemplatesValidateAsShipped()
     {
@@ -16,10 +16,10 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
-    // Allowed construction (litespec/frontend/web/ui#restrict-css-decisions).
+    // Allowed construction (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only).
 
-    /// <summary>Approved BackendLayout Utilities.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <summary>Approved Layout Utilities.</summary>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ApprovedLayoutUtilities()
     {
@@ -29,7 +29,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Semantic Token Classes.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void SemanticTokenClasses()
     {
@@ -39,7 +39,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>State And Container Variants.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void StateAndContainerVariants()
     {
@@ -49,7 +49,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Class Merge Helper.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ClassMergeHelper()
     {
@@ -59,7 +59,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Pinned Icon Family.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void PinnedIconFamily()
     {
@@ -69,7 +69,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>The Primitive Library Named By The Package That Owns It.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ThePrimitiveLibraryNamedByThePackageThatOwnsIt()
     {
@@ -79,7 +79,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Javascript Negation Is Not An Important Modifier.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void JavascriptNegationIsNotAnImportantModifier()
     {
@@ -89,7 +89,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Class Name Inside A Comment Is Prose.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AClassNameInsideACommentIsProse()
     {
@@ -99,7 +99,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Composed Functional Variants.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ComposedFunctionalVariants()
     {
@@ -109,7 +109,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A File Under Tests Is Outside The Controlled Surface.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AFileUnderTestsIsOutsideTheControlledSurface()
     {
@@ -120,7 +120,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A File Under The Copied Primitive Boundary Is Unedited Source.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AFileUnderTheCopiedPrimitiveBoundaryIsUneditedSource()
     {
@@ -131,7 +131,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Visual File Keeps Its Own Layout.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AVisualFileKeepsItsOwnLayout()
     {
@@ -142,7 +142,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Visual File Is Still Held To The Token Rule.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AVisualFileIsStillHeldToTheTokenRule()
     {
@@ -155,7 +155,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Generated Web Asset Is Ignored.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void GeneratedWebAssetIsIgnored()
     {
@@ -166,7 +166,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Route Composing One Floorplan.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ARouteComposingOneFloorplan()
     {
@@ -175,10 +175,10 @@ public sealed partial class UiValidatorTests
             "import { ListPage } from \"@fixture/ui/floorplans\";\nexport function Case() {\n  return <ListPage title=\"Orders\" />;\n}\n"));
     }
 
-    // Restricted Tailwind use (litespec/frontend/web/ui#restrict-css-decisions).
+    // Restricted Tailwind use (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only).
 
     /// <summary>Arbitrary Length.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ArbitraryLength()
     {
@@ -189,7 +189,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Arbitrary Color.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ArbitraryColor()
     {
@@ -200,7 +200,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Raw Palette Value.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void RawPaletteValue()
     {
@@ -211,7 +211,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Raw Palette Value With Opacity.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void RawPaletteValueWithOpacity()
     {
@@ -222,7 +222,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Important Modifier Prefix.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ImportantModifierPrefix()
     {
@@ -233,7 +233,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Escaped Quote Keeps The Following Literal Readable.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AnEscapedQuoteKeepsTheFollowingLiteralReadable()
     {
@@ -244,7 +244,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Arbitrary Selector Variant In A Drawing.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AnArbitrarySelectorVariantInADrawing()
     {
@@ -257,7 +257,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Runtime Measurement In A Composite.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ARuntimeMeasurementInAComposite()
     {
@@ -268,7 +268,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Feature Selector In The Token Entry.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void FeatureSelectorInTheTokenEntry()
     {
@@ -279,7 +279,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Comma Inside A Quoted Attribute Value Is Not A Selector List.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ACommaInsideAQuotedAttributeValueIsNotASelectorList()
     {
@@ -288,7 +288,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Brace Inside A Quoted Attribute Value Is Not A Block.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ABraceInsideAQuotedAttributeValueIsNotABlock()
     {
@@ -297,7 +297,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Unterminated String Is Reported Once.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void AnUnterminatedStringIsReportedOnce()
     {
@@ -308,7 +308,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Apply Directive Outside The Generated Base Layer.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void ApplyDirectiveOutsideTheGeneratedBaseLayer()
     {
@@ -319,7 +319,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Unapproved Global Import.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
     [Fact]
     public void UnapprovedGlobalImport()
     {

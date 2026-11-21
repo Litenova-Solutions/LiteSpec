@@ -46,7 +46,7 @@ public sealed class DecideTests
         });
         var (outcome, _) = OutcomeOf(json.Stdout, "reader-missing");
 
-        Assert.True(json.Status == 0, json.Output);
+        Assert.True(json.Status == 3, json.Output);
         Assert.Equal("reported", outcome);
     }
 

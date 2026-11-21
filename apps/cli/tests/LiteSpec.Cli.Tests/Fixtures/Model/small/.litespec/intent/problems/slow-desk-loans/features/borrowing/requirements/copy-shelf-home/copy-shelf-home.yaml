@@ -6,3 +6,5 @@ statement: A copy lives on one home shelf.
 rationale: One home shelf keeps every copy findable.
 cites:
 - decision/0001-loan-period
+basedOn:
+- decision/0001-loan-period

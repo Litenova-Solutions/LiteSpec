@@ -1,6 +1,6 @@
 # Bind the Docs to the Tools and the Example
 
-LiteSpec's documentation states facts about its tools, such as finding codes, templates and the record IDs that the example uses. This decision makes `validate` check each such fact against the data the tools hold. It also generates the reference tables from that data, so a doc fact that drifts from the tools fails the check instead of misleading a reader.
+LiteSpec's documentation states facts about its tools, such as finding codes, templates and the record IDs that the example uses. This decision makes `validate` check each such fact against the data the tools hold. It also generates the reference tables from that data, so a fact that drifts from the tools fails the check instead of misleading a reader.
 
 ## Context
 

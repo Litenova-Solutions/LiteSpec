@@ -33,7 +33,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
     /// <param name="isPartial">Whether the type and every enclosing type carry partial in every declaration.</param>
     /// <param name="hasClassification">Whether a Classification member is declared in source.</param>
     /// <param name="hasCode">Whether a Code member is declared in source.</param>
-    /// <param name="baseHasVirtualCode">Whether a base type declares a virtual string Code.</param>
+    /// <param name="baseHasVirtualCode">Whether the nearest base Code is an overridable string property.</param>
+    /// <param name="baseHasNonVirtualCode">Whether the nearest base Code cannot be overridden.</param>
+    /// <param name="baseCodeOwner">The simple name of the base declaring the nearest Code, or empty when no base declares one.</param>
     public MarkedType(
         string fullName,
         string ns,
@@ -48,7 +50,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         bool isPartial,
         bool hasClassification,
         bool hasCode,
-        bool baseHasVirtualCode)
+        bool baseHasVirtualCode,
+        bool baseHasNonVirtualCode,
+        string baseCodeOwner)
     {
         FullName = fullName;
         Namespace = ns;
@@ -64,6 +68,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         HasClassification = hasClassification;
         HasCode = hasCode;
         BaseHasVirtualCode = baseHasVirtualCode;
+        BaseHasNonVirtualCode = baseHasNonVirtualCode;
+        BaseCodeOwner = baseCodeOwner;
     }
 
     /// <summary>Gets the dotted name with generic arity, the registry key.</summary>
@@ -105,8 +111,14 @@ internal sealed class MarkedType : IEquatable<MarkedType>
     /// <summary>Gets a value indicating whether whether a Code member is declared in source.</summary>
     public bool HasCode { get; }
 
-    /// <summary>Gets a value indicating whether whether a base type declares a virtual string Code.</summary>
+    /// <summary>Gets a value indicating whether the nearest base Code is an overridable string property.</summary>
     public bool BaseHasVirtualCode { get; }
+
+    /// <summary>Gets a value indicating whether the nearest base Code cannot be overridden.</summary>
+    public bool BaseHasNonVirtualCode { get; }
+
+    /// <summary>Gets the simple name of the base declaring the nearest Code, or empty when no base declares one.</summary>
+    public string BaseCodeOwner { get; }
 
     /// <summary>
     /// Whether a syntax node may carry a mark: a type declaration with an attribute list or a
@@ -201,6 +213,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
             }
         }
 
+        var baseCode = BaseCodeOf(symbol);
+
         return new MarkedType(
             FullNameOf(symbol),
             NamespaceOf(symbol),
@@ -215,7 +229,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
             isPartial,
             symbol.GetMembers("Classification").Length > 0,
             symbol.GetMembers("Code").Length > 0,
-            BaseDeclaresVirtualCode(symbol));
+            baseCode.Virtual,
+            baseCode.NonVirtual,
+            baseCode.Owner);
     }
 
     /// <inheritdoc />
@@ -234,7 +250,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         && IsPartial == other.IsPartial
         && HasClassification == other.HasClassification
         && HasCode == other.HasCode
-        && BaseHasVirtualCode == other.BaseHasVirtualCode;
+        && BaseHasVirtualCode == other.BaseHasVirtualCode
+        && BaseHasNonVirtualCode == other.BaseHasNonVirtualCode
+        && string.Equals(BaseCodeOwner, other.BaseCodeOwner, StringComparison.Ordinal);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is MarkedType other && Equals(other);
@@ -269,6 +287,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
             hash = hash * 31 + HasClassification.GetHashCode();
             hash = hash * 31 + HasCode.GetHashCode();
             hash = hash * 31 + BaseHasVirtualCode.GetHashCode();
+            hash = hash * 31 + BaseHasNonVirtualCode.GetHashCode();
+            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(BaseCodeOwner);
 
             return hash;
         }
@@ -499,25 +519,33 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         }
     }
 
-    /// <summary>Returns true when the base-declares-virtual-code condition holds; otherwise false.</summary>
+    /// <summary>Returns how the nearest base Code reads: overridable, non-overridable with its owner, or absent.</summary>
     /// <param name="symbol">The symbol declared by the element under inspection.</param>
-    /// <returns>True when the base-declares-virtual-code condition holds; otherwise false.</returns>
-    private static bool BaseDeclaresVirtualCode(INamedTypeSymbol symbol)
+    /// <returns>Whether the nearest base Code is overridable or not, and its owner's simple name.</returns>
+    private static (bool Virtual, bool NonVirtual, string Owner) BaseCodeOf(INamedTypeSymbol symbol)
     {
         for (var current = symbol.BaseType; current is not null; current = current.BaseType)
         {
-            foreach (var member in current.GetMembers("Code"))
+            var members = current.GetMembers("Code");
+            if (members.Length == 0)
+            {
+                continue;
+            }
+
+            foreach (var member in members)
             {
                 if (member is IPropertySymbol property
                     && (property.IsVirtual || property.IsAbstract || property.IsOverride)
                     && property.Type.SpecialType == SpecialType.System_String)
                 {
-                    return true;
+                    return (true, false, string.Empty);
                 }
             }
+
+            return (false, true, current.Name);
         }
 
-        return false;
+        return (false, false, string.Empty);
     }
 
     /// <summary>Escapes the identifier with a verbatim prefix when it is a keyword.</summary>

@@ -4,12 +4,57 @@ title: How Agent-Written Tests Fail and What Guards Them
 sources:
   - url: https://arxiv.org/abs/2602.00409
     readOn: 2026-11-10
-    key: hora-robbes-over-mocked
+    name: hora-robbes-over-mocked
+    note: "Covers mock use and test-file changes in commits made by coding agents and by non-agents. Read from its arXiv abstract page; no full text was read."
   - url: https://arxiv.org/abs/2607.22883
     readOn: 2026-11-10
-    key: zhao-misguidance
+    name: zhao-misguidance
+    note: "Covers misguided and bug-finding tests written from buggy code in LLMs. Read from its arXiv abstract page; no full text was read."
   - url: https://arxiv.org/abs/2510.20270
     readOn: 2026-11-10
-    key: impossiblebench
+    name: impossiblebench
+    note: "Covers shortcuts taken on tests that conflict with the specification. Read from its arXiv abstract page; no full text was read."
 question: Which failure modes of agent-written tests does LiteSpec's testing standard need to guard, and which have measured evidence?
-conclusion: Two studies measure coding agents adding mocks and models asserting buggy behavior from buggy code. A benchmark measures shortcuts on conflicting tests but gives no rate here.
+conclusion: Two studies measure coding agents adding mocks and models asserting buggy behavior from buggy code. A benchmark counts shortcuts on conflicting tests but reports no rate for agents.
+findings:
+  - statement: "The testing standard most needs to guard against agents adding mocks to tests."
+    sources:
+      - hora-robbes-over-mocked
+  - statement: "Measured rates exist for two of the three failure modes, and the third has no rate for agents."
+    sources:
+      - hora-robbes-over-mocked
+      - zhao-misguidance
+      - impossiblebench
+  - statement: "Coding agents add mocks to tests more often than non-agents do."
+    sources:
+      - hora-robbes-over-mocked
+  - statement: "36 percent of commits made by coding agents add mocks to tests, against 26 percent for non-agents."
+    sources:
+      - hora-robbes-over-mocked
+  - statement: "Agents change test files in 23 percent of their commits, against 13 percent for non-agents."
+    sources:
+      - hora-robbes-over-mocked
+  - statement: "Models shown buggy code write tests that assert the buggy behavior."
+    sources:
+      - zhao-misguidance
+  - statement: "Zhao, Zhou, and Cohen study LLMs in general, not coding agents alone."
+    sources:
+      - zhao-misguidance
+  - statement: "Buggy code in the prompt raises the share of misguided tests, which assert incorrect behavior."
+    sources:
+      - zhao-misguidance
+  - statement: "Buggy code in the prompt lowers the share of tests that find the bug."
+    sources:
+      - zhao-misguidance
+  - statement: "The abstract does not give the share of misguided tests that also pass on the fixed version."
+    sources:
+      - zhao-misguidance
+  - statement: "Agents take shortcuts to pass a test that conflicts with the specification."
+    sources:
+      - impossiblebench
+  - statement: "ImpossibleBench builds such conflicts deliberately and counts a pass as a shortcut."
+    sources:
+      - impossiblebench
+  - statement: "Its abstract gives no rate for any named model."
+    sources:
+      - impossiblebench

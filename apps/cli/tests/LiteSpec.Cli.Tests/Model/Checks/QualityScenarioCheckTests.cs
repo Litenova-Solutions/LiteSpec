@@ -90,7 +90,7 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()),
-            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }

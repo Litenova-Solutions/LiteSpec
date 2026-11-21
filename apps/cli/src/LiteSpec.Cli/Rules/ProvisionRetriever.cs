@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Rules;
 ///     the target artifact and the marked records, a provision naming the artifact
 ///     <c>any</c> and page-scope provisions match the target concern, an <c>any</c>
 ///     provision of layer <c>any</c> also matches an explanation file, and conventions
-///     match their scope glob or the scope vocabulary against the target. A live departure whose subject or paths cover the
+///     match their scope glob or the scope vocabulary against the target. A live waiver whose subject or paths cover the
 ///     target replaces the provision its covers names. Only provisions whose record
 ///     layer the project claims are retrieved, and a code path in a project that claims
 ///     neither Implementation nor Proof retrieves none.
@@ -20,14 +20,14 @@ internal static class ProvisionRetriever
     /// <summary>Retrieves the provisions that govern the target, in group then identifier order.</summary>
     /// <param name="catalog">The applied provisions.</param>
     /// <param name="conventions">The project conventions.</param>
-    /// <param name="departures">The live departures.</param>
+    /// <param name="waivers">The live waivers.</param>
     /// <param name="config">The consumer configuration.</param>
     /// <param name="target">The rules target.</param>
     /// <returns>The retrieved provisions with their reasons.</returns>
     public static IReadOnlyList<ProvisionMatch> Retrieve(
         ProvisionCatalog catalog,
         IReadOnlyList<ProvisionEntry> conventions,
-        IReadOnlyList<DepartureFiles.Departure> departures,
+        IReadOnlyList<WaiverFiles.Waiver> waivers,
         ConsumerConfig config,
         PathContext target)
     {
@@ -85,10 +85,10 @@ internal static class ProvisionRetriever
 
         foreach (var (entry, reasons) in found.Values)
         {
-            var departure = departures.FirstOrDefault(candidate =>
-                DepartureFiles.Names(candidate, entry) && DepartureFiles.Covers(candidate, target, candidates));
+            var waiver = waivers.FirstOrDefault(candidate =>
+                WaiverFiles.Names(candidate, entry) && WaiverFiles.Covers(candidate, target, candidates));
 
-            results.Add(new ProvisionMatch(entry, reasons, departure));
+            results.Add(new ProvisionMatch(entry, reasons, waiver));
         }
 
         var groups = ProvisionEntry.GroupOrder.ToList();

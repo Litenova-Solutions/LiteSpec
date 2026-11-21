@@ -82,7 +82,7 @@ internal static class RecordEntries
                 found.Add(new AggregateTransition(
                     leave,
                     enter,
-                    entry.TryGetProperty(RecordFields.By, out var by) && by.ValueKind == JsonValueKind.String ? by.GetString() : null));
+                    entry.TryGetProperty(RecordFields.MovedBy, out var movedBy) && movedBy.ValueKind == JsonValueKind.String ? movedBy.GetString() : null));
             }
         }
 

@@ -1,0 +1,20 @@
+type: waiver
+id: waiver/<name>
+title: <Title in Title Case>
+summary: <what is set aside and why, or remove this line>
+kind: <gap|lasting>
+terms:
+- <term id, or remove this line>
+waives:
+- <provision id, page id or finding code>
+appliesTo:
+- <record id>
+paths:
+- <path the waiver applies to, or remove this line>
+reason: <why the project sets it aside>
+# A lasting waiver carries consequences and no expiresOn, exitWhen or closedBy.
+exitWhen: <how the gap closes, or remove this line>
+consequences: <what the project accepts>
+expiresOn: <expiry date, such as 2027-01-01, or remove this line>
+closedBy:
+- <record id whose change closes the gap, or remove this line>

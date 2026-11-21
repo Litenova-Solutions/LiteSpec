@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The stylesheet checks of the UI validator: the token stylesheet, the
 ///     shared stylesheets beside it, and each application stylesheet.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#restrict-css-decisions</follows>
+/// <follows>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</follows>
 /// <follows>litespec/frontend/ui#keep-tokens-in-one-definition</follows>
 sealed class StylesheetChecks
 {
@@ -152,7 +152,7 @@ sealed class StylesheetChecks
         var structure = CssStructure(text, reason =>
         {
             malformed = true;
-            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] global CSS has {reason}", file);
+            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] global CSS has {reason}", file);
         });
         var depth = 0;
         foreach (var character in structure)
@@ -167,7 +167,7 @@ sealed class StylesheetChecks
                 depth--;
                 if (depth < 0)
                 {
-                    session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] closing brace has no matching opening brace", file);
+                    session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] closing brace has no matching opening brace", file);
                     malformed = true;
                     break;
                 }
@@ -176,7 +176,7 @@ sealed class StylesheetChecks
 
         if (!malformed && depth != 0)
         {
-            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] global CSS has an unclosed block", file);
+            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] global CSS has an unclosed block", file);
         }
 
         // The packages the manifest already pins. A pinned font family is a token, so
@@ -206,7 +206,7 @@ sealed class StylesheetChecks
 
             if (!pinned.Contains(packageName))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] import '{specifier}' is outside the approved global CSS surface", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] import '{specifier}' is outside the approved global CSS surface", file);
             }
         }
 
@@ -277,7 +277,7 @@ sealed class StylesheetChecks
 
         if (applyOutsideBase)
         {
-            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] '@apply' outside the generated '@layer base' block hides a utility group outside the generated source", file);
+            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] '@apply' outside the generated '@layer base' block hides a utility group outside the generated source", file);
         }
     }
 
@@ -310,7 +310,7 @@ sealed class StylesheetChecks
             var name = rest[..end];
             if (!AllowedGlobalAtRules.Contains(name))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] at-rule '@{name}' is outside the approved global CSS surface", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] at-rule '@{name}' is outside the approved global CSS surface", file);
             }
 
             return;
@@ -327,7 +327,7 @@ sealed class StylesheetChecks
 
             if (trimmed.StartsWith('.') || trimmed.StartsWith('#'))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] selector '{trimmed}' is a feature style; use a component variant or semantic token", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] selector '{trimmed}' is a feature style; use a component variant or semantic token", file);
             }
         }
     }

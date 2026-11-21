@@ -189,8 +189,7 @@ public sealed class DotnetScenarioMarkTests
             {"stacks": ["dotnet"],
               "paths": {"testRoots": ["tests/Acceptance"]},
               "stackConfig": {"dotnet": {
-                "modules": "src/App", "domain": "src/Domain",
-                "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+                "modules": "src/App", "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string file, string text)

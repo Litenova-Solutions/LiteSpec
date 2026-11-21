@@ -9,6 +9,7 @@ namespace LiteSpec.Cli.Model.Readers;
 /// <param name="Marks">Every screen id the entry's mark names, in source order.</param>
 /// <param name="Calls">Every generated-client call the route reaches.</param>
 /// <param name="Styles">The style each mark was written in, one per mark, or null when the reader records none: the TypeScript reader reads only typed constants, so its routes carry none.</param>
+/// <param name="Navigations">Every full-page navigation the route takes, or null when the reader records none: the .NET reader reads no navigations, so its routes carry none.</param>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 sealed record RouteFact(
     string File,
@@ -16,4 +17,5 @@ sealed record RouteFact(
     string Address,
     IReadOnlyList<string> Marks,
     IReadOnlyList<CallFact> Calls,
-    IReadOnlyList<MarkStyle>? Styles = null);
+    IReadOnlyList<MarkStyle>? Styles = null,
+    IReadOnlyList<NavigationFact>? Navigations = null);

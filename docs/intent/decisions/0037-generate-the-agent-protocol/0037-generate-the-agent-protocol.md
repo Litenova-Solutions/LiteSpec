@@ -34,7 +34,9 @@ One template generates the protocol everywhere: `init`, `model render`, the sele
 
 `init` writes the region into a fresh `AGENTS.md`, and it inserts the region into an existing file that holds none. `init` never touches text outside the region. `model render` rewrites the region from the carried release and the project file.
 
-`model check` reports `agent-protocol-drift` when the region differs from what `render` writes, and it reports `agent-protocol-missing` when `AGENTS.md` holds no region. Both findings are at level S. The site renders the same template for the chosen selection, and `llms.txt` embeds the filled template under Agent Protocol.
+`model check` reports `agent-protocol-drift` when the region differs from what `render` writes, and it reports `agent-protocol-missing` when `AGENTS.md` holds no region. Both findings are at level S.
+
+The site renders the same template for the chosen selection, and `llms.txt` embeds the filled template under Agent Protocol.
 
 `litespec/core/agent#keep-the-agent-protocol-current` holds the obligation. `litespec/core/agent#select-task-context` states that the agent queries the model for the records and reads the output. The `rules` lines cite `litespec/core/agent#load-applicable-provisions-before-editing`. `validate` reports `TEMPLATE_CITATION_UNKNOWN` for a citation that resolves to no provision.
 

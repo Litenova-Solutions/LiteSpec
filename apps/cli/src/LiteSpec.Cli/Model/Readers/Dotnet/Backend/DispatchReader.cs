@@ -5,9 +5,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 
 /// <summary>
-///     The dispatch calls a class makes: commands through <c>ICommandMediator</c>, events
-///     through a publisher or the outbox, notifications through a messenger, notifier or
-///     sender, and a call on an interface anchored to an external-system record as a calls edge.
+///     The dispatch calls a class makes: commands through <c>ICommandMediator</c>, queries
+///     through <c>IQueryMediator</c>, events through a publisher or the outbox, notifications
+///     through a messenger, notifier or sender, and a call on an interface anchored to an
+///     external-system record as a calls edge.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static class DispatchReader
@@ -93,7 +94,18 @@ static class DispatchReader
                 _ => null,
             };
 
-            if (receiver is null || !receivers.TryGetValue(receiver, out var type))
+            if (receiver is null)
+            {
+                continue;
+            }
+
+            // A per-record unit of work resolves its own mediator from a scope it opens, so a
+            // receiver the class neither injects nor holds may still be a local it resolved.
+            var type = receivers.TryGetValue(receiver, out var injected)
+                ? injected
+                : CalledMethodDispatchReader.LocalType(invocation, receiver);
+
+            if (type is null)
             {
                 continue;
             }
@@ -109,11 +121,18 @@ static class DispatchReader
                     found.Add((receiver, new CodeDispatch("runs", runs.Target, "", file, line)));
                 }
             }
-            else if (EmitsThrough(kind))
+            else if (kind == "IQueryMediator" && method == "QueryAsync")
             {
-                if (MessageTarget(invocation, templateCounts: false) is { } emits)
+                if (MessageTarget(invocation, templateCounts: false) is { } queries)
                 {
-                    found.Add((receiver, new CodeDispatch("emits", emits.Target, "", file, line)));
+                    found.Add((receiver, new CodeDispatch("queries", queries.Target, "", file, line)));
+                }
+            }
+            else if (PublishesThrough(kind))
+            {
+                if (MessageTarget(invocation, templateCounts: false) is { } published)
+                {
+                    found.Add((receiver, new CodeDispatch("publishes", published.Target, "", file, line)));
                 }
             }
             else if (SendsThrough(kind))
@@ -139,10 +158,10 @@ static class DispatchReader
         return found;
     }
 
-    /// <summary>Whether a receiver kind emits events: a publisher or the outbox.</summary>
+    /// <summary>Whether a receiver kind publishes events: a publisher or the outbox.</summary>
     /// <param name="kind">The receiver kind.</param>
-    /// <returns>True when a receiver kind emits events.</returns>
-    public static bool EmitsThrough(string kind) =>
+    /// <returns>True when a receiver kind publishes events.</returns>
+    public static bool PublishesThrough(string kind) =>
         kind.EndsWith("Publisher", StringComparison.Ordinal)
         || kind.Contains("Outbox", StringComparison.Ordinal);
 
@@ -163,8 +182,8 @@ static class DispatchReader
     {
         var kind = DotnetNames.KindOf(type);
 
-        return kind == "ICommandMediator"
-            || EmitsThrough(kind)
+        return kind is "ICommandMediator" or "IQueryMediator"
+            || PublishesThrough(kind)
             || SendsThrough(kind)
             || (!ExcludedReceiver(kind) && qualified.IsExternalPort(scope, kind));
     }
@@ -248,10 +267,10 @@ static class DispatchReader
             _ => null,
         };
 
-    /// <summary>The type a local builds before the call, for a message held in a local.</summary>
+    /// <summary>The type a local builds or declares before the call, for a message held in a local.</summary>
     /// <param name="invocation">The dispatch invocation.</param>
     /// <param name="name">The local's name.</param>
-    /// <returns>The type a local builds before the call, or null when it builds none.</returns>
+    /// <returns>The type a local builds or declares before the call, or null when it names none.</returns>
     public static string? LocalConstruction(InvocationExpressionSyntax invocation, string name)
     {
         var scope = invocation.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault();
@@ -267,6 +286,14 @@ static class DispatchReader
                 && declarator.Initializer?.Value is ObjectCreationExpressionSyntax creation)
             {
                 return DotnetNames.SimpleTypeName(creation.Type);
+            }
+
+            // A local declared with its message type names the message however it is built,
+            // for example by a factory method on a posting.
+            if (declarator.Identifier.ValueText == name
+                && declarator.Parent is VariableDeclarationSyntax { Type: { IsVar: false } declaredType })
+            {
+                return DotnetNames.SimpleTypeName(declaredType);
             }
         }
 

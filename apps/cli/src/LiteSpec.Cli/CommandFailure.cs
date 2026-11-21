@@ -54,6 +54,10 @@ internal static class CommandFailure
         else
         {
             stderr.WriteLine($"Failed: {exception.Message}");
+            if (string.Equals(Environment.GetEnvironmentVariable("LITESPEC_TRACE"), "1", StringComparison.Ordinal))
+            {
+                stderr.WriteLine(exception.ToString());
+            }
         }
 
         return 1;

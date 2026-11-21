@@ -9,10 +9,10 @@ namespace LiteSpec.Cli.Tests.Book;
 /// <summary>Proves the book names the decision that chooses each external system's provider.</summary>
 public sealed class BookDecisionTests
 {
-    /// <summary>An external system gains a decides edge from the decision a class implementing it follows, on both ends.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>An external system gains a chooses edge from the decision a class implementing it follows, on both ends.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void ExternalSystemGainsDecidesEdgeFromTheFollowedDecision()
+    public void ExternalSystemGainsChoosesEdgeFromTheFollowedDecision()
     {
         var model = Model(
             [
@@ -35,14 +35,14 @@ public sealed class BookDecisionTests
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));
 
-        Assert.True(HasEdge(details["decision/0005-render-receipts-as-pdf"], "out", "external-system/receipt-store", "decides"));
-        Assert.True(HasEdge(details["external-system/receipt-store"], "in", "decision/0005-render-receipts-as-pdf", "decides"));
+        Assert.True(HasEdge(details["decision/0005-render-receipts-as-pdf"], "out", "external-system/receipt-store", "chooses"));
+        Assert.True(HasEdge(details["external-system/receipt-store"], "in", "decision/0005-render-receipts-as-pdf", "chooses"));
     }
 
-    /// <summary>Two systems decide independently: each names only the decision its own implementers follow.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>Two systems name their choosing decisions independently: each names only the decision its own implementers follow.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void EachSystemNamesOnlyItsOwnDecidingDecision()
+    public void EachSystemNamesOnlyItsOwnChoosingDecision()
     {
         var model = Model(
             [
@@ -61,16 +61,16 @@ public sealed class BookDecisionTests
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));
 
-        Assert.True(HasEdge(details["external-system/main-store"], "in", "decision/0004-use-postgres", "decides"));
-        Assert.False(HasEdge(details["external-system/main-store"], "in", "decision/0005-use-sqlite", "decides"));
-        Assert.True(HasEdge(details["external-system/audit-store"], "in", "decision/0005-use-sqlite", "decides"));
-        Assert.False(HasEdge(details["external-system/audit-store"], "in", "decision/0004-use-postgres", "decides"));
+        Assert.True(HasEdge(details["external-system/main-store"], "in", "decision/0004-use-postgres", "chooses"));
+        Assert.False(HasEdge(details["external-system/main-store"], "in", "decision/0005-use-sqlite", "chooses"));
+        Assert.True(HasEdge(details["external-system/audit-store"], "in", "decision/0005-use-sqlite", "chooses"));
+        Assert.False(HasEdge(details["external-system/audit-store"], "in", "decision/0004-use-postgres", "chooses"));
     }
 
-    /// <summary>The first decision in identifier order decides when the implementers follow several.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>The first decision in identifier order chooses when the implementers follow several.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void FirstDecisionInIdentifierOrderDecides()
+    public void FirstDecisionInIdentifierOrderChooses()
     {
         var model = Model(
             [
@@ -86,38 +86,38 @@ public sealed class BookDecisionTests
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));
 
-        Assert.True(HasEdge(details["external-system/main-store"], "in", "decision/0004-use-postgres", "decides"));
-        Assert.False(HasEdge(details["external-system/main-store"], "in", "decision/0005-use-sqlite", "decides"));
+        Assert.True(HasEdge(details["external-system/main-store"], "in", "decision/0004-use-postgres", "chooses"));
+        Assert.False(HasEdge(details["external-system/main-store"], "in", "decision/0005-use-sqlite", "chooses"));
     }
 
-    /// <summary>No decides edge appears when the implementers follow no decision: a provision, a departure, or an unknown id.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>No chooses edge appears when the implementers follow no decision: a provision, a waiver, or an unknown id.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void NoDecidesEdgeWhenImplementersFollowNoDecision()
+    public void NoChoosesEdgeWhenImplementersFollowNoDecision()
     {
         var model = Model(
             [
                 Record("product", "product/library", "Library", "approved"),
                 Record("decision", "decision/0004-use-postgres", "Use Postgres", "approved"),
-                Record("departure", "departure/kiosk-cache", "Kiosk Cache", "approved"),
+                Record("waiver", "waiver/kiosk-cache", "Kiosk Cache", "approved"),
                 Record("external-system", "external-system/main-store", "Main Store", "reviewed"),
             ],
             implements: Links(Link("src/Infra/MainStore.cs", "external-system/main-store")),
             follows: Links(
                 Link("src/Infra/MainStore.cs", "litespec/backend/persistence#commit-each-command-pipeline-once"),
-                Link("src/Infra/MainStore.cs", "departure/kiosk-cache"),
+                Link("src/Infra/MainStore.cs", "waiver/kiosk-cache"),
                 Link("src/Infra/MainStore.cs", "decision/0099-missing")));
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));
 
-        Assert.Empty(Decides(details["external-system/main-store"], "in"));
-        Assert.Empty(Decides(details["decision/0004-use-postgres"], "out"));
+        Assert.Empty(Chooses(details["external-system/main-store"], "in"));
+        Assert.Empty(Chooses(details["decision/0004-use-postgres"], "out"));
     }
 
-    /// <summary>No decides edge appears when nothing implements the system, even when code follows a decision.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>No chooses edge appears when nothing implements the system, even when code follows a decision.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void NoDecidesEdgeWhenNothingImplementsTheSystem()
+    public void NoChoosesEdgeWhenNothingImplementsTheSystem()
     {
         var model = Model(
             [
@@ -129,44 +129,12 @@ public sealed class BookDecisionTests
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));
 
-        Assert.Empty(Decides(details["external-system/main-store"], "in"));
-        Assert.Empty(Decides(details["decision/0004-use-postgres"], "out"));
-    }
-
-    /// <summary>A decision that already writes decides to the system gains no second, computed edge.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
-    [Fact]
-    public void WrittenDecidesEdgeIsNotDuplicated()
-    {
-        var model = Model(
-            [
-                Record("product", "product/library", "Library", "approved"),
-                Record(
-                    "decision",
-                    "decision/0004-use-postgres",
-                    "Use Postgres",
-                    "approved",
-                    fields: new JsonObject { ["decides"] = Links("external-system/main-store") }),
-                Record("external-system", "external-system/main-store", "Main Store", "reviewed"),
-            ],
-            implements: Links(Link("src/Infra/MainStore.cs", "external-system/main-store")),
-            follows: Links(Link("src/Infra/MainStore.cs", "decision/0004-use-postgres")));
-
-        var details = BookRecordDetails.Build(model, BookOutline.Build(model));
-
-        var outs = Decides(details["decision/0004-use-postgres"], "out");
-        Assert.Single(outs);
-        Assert.Equal("external-system/main-store", outs[0].Id);
-        Assert.Equal("decision.decides", outs[0].Key);
-
-        var ins = Decides(details["external-system/main-store"], "in");
-        Assert.Single(ins);
-        Assert.Equal("decision/0004-use-postgres", ins[0].Id);
-        Assert.Equal("decision.decides", ins[0].Key);
+        Assert.Empty(Chooses(details["external-system/main-store"], "in"));
+        Assert.Empty(Chooses(details["decision/0004-use-postgres"], "out"));
     }
 
     /// <summary>A decision detail carries the concerns the book command wrote beside its record.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DecisionDetailCarriesComputedConcerns()
     {
@@ -185,7 +153,7 @@ public sealed class BookDecisionTests
     }
 
     /// <summary>Decision concerns come from the one classification rules applies, reading the configured roots.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void DecisionConcernsReadTheConfiguredRoots()
     {
@@ -211,7 +179,7 @@ public sealed class BookDecisionTests
                 Link("apps/api/qa/Loans.cs", "decision/0004-use-postgres"),
                 Link("apps/api/deploy/compose.yaml", "decision/0004-use-postgres"),
                 Link("apps/shop/src/routes/Home.ts", "decision/0004-use-postgres"),
-                Link("apps/api/src/Library.Domain/Lending/Loan.cs", "decision/0004-use-postgres")));
+                Link("apps/api/src/Modules/Library.Lending/Domain/Loan.cs", "decision/0004-use-postgres")));
 
         BookDecisionDetail.AddDecisionConcerns(model, config);
 
@@ -261,7 +229,7 @@ public sealed class BookDecisionTests
             array.Add(record);
         }
 
-        return new JsonObject
+        return BookStores.WithIntentCoverage(new JsonObject
         {
             ["records"] = array,
             ["links"] = new JsonObject
@@ -269,7 +237,7 @@ public sealed class BookDecisionTests
                 ["implements"] = implements ?? new JsonArray(),
                 ["follows"] = follows ?? new JsonArray(),
             },
-        };
+        });
     }
 
     static JsonObject Link(string path, string to) =>
@@ -291,21 +259,10 @@ public sealed class BookDecisionTests
         return array;
     }
 
-    static JsonArray Links(params string[] ids)
-    {
-        var array = new JsonArray();
-        foreach (var id in ids)
-        {
-            array.Add(id);
-        }
-
-        return array;
-    }
-
     static bool HasEdge(JsonObject? detail, string direction, string id, string key) =>
-        Decides(detail, direction).Contains((id, key));
+        Chooses(detail, direction).Contains((id, key));
 
-    static List<(string Id, string Key)> Decides(JsonObject? detail, string direction)
+    static List<(string Id, string Key)> Chooses(JsonObject? detail, string direction)
     {
         var edges = new List<(string Id, string Key)>();
         foreach (var entry in detail?[direction] as JsonArray ?? [])
@@ -315,7 +272,7 @@ public sealed class BookDecisionTests
                 && to.TryGetValue<string>(out var id)
                 && edge["key"] is JsonValue kind
                 && kind.TryGetValue<string>(out var key)
-                && (string.Equals(key, "decides", StringComparison.Ordinal) || key.EndsWith(".decides", StringComparison.Ordinal)))
+                && string.Equals(key, "chooses", StringComparison.Ordinal))
             {
                 edges.Add((id, key));
             }

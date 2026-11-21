@@ -20,7 +20,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasoned Names Pass.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonedNamesPass()
     {
@@ -35,7 +35,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasonless Folder Reports.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonlessFolderReports()
     {
@@ -50,7 +50,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasonless Type Reports.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonlessTypeReports()
     {
@@ -66,19 +66,19 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("OrderManager", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Shared Kernel Project Is Exempt.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
+    /// <summary>Kernel Project Is Exempt.</summary>
+    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
-    public void SharedKernelProjectIsExempt()
+    public void KernelProjectIsExempt()
     {
         using var temp = TestCli.Temp("checks");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
-            """{"stackConfig": {"dotnet": {"sharedKernel": "src/App.SharedKernel"}}}""");
+            """{"stackConfig": {"dotnet": {"kernel": "src/App.Kernel"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
-            Path.Combine(temp.Path, "src", "App.SharedKernel", "OrderHelper.cs"),
+            Path.Combine(temp.Path, "src", "App.Kernel", "OrderHelper.cs"),
             "OrderHelper"));
 
         Assert.DoesNotContain("name-reason-missing", TestModel.Codes(model));
@@ -131,7 +131,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reads Outside Loops Pass.</summary>
-    /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
+    /// <proves>litespec/backend/application#keep-repository-reads-out-of-loops</proves>
     [Fact]
     public void ReadsOutsideLoopsPass()
     {
@@ -145,7 +145,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Repository Read In A Loop Reports.</summary>
-    /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
+    /// <proves>litespec/backend/application#keep-repository-reads-out-of-loops</proves>
     [Fact]
     public void RepositoryReadInALoopReports()
     {
@@ -160,7 +160,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Store Filtered Query Passes.</summary>
-    /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
+    /// <proves>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</proves>
     [Fact]
     public void StoreFilteredQueryPasses()
     {
@@ -174,7 +174,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Query Filter In Memory Reports.</summary>
-    /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
+    /// <proves>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</proves>
     [Fact]
     public void QueryFilterInMemoryReports()
     {
@@ -189,7 +189,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Effects After Commit Pass.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void EffectsAfterCommitPass()
     {
@@ -202,7 +202,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Inline Send Reports.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void InlineSendReports()
     {
@@ -218,17 +218,17 @@ public sealed class HandlerShapeCheckTests
         Assert.EndsWith(" inline.", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Departure Holds An Inline Call On Its Subject.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <summary>Waiver Holds An Inline Call On Its Subject.</summary>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void DepartureHoldsAnInlineCallOnItsSubject()
+    public void WaiverHoldsAnInlineCallOnItsSubject()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("departure", "departure/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"kind": "gap", "waives": ["effect-timing-invalid"], "appliesTo": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "closedBy": ["use-case/spending.reimburse-expense"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 
@@ -237,7 +237,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Inline Call Reports.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void InlineCallReports()
     {
@@ -254,7 +254,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Query Inline Send Is Not Reported.</summary>
-    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void QueryInlineSendIsNotReported()
     {

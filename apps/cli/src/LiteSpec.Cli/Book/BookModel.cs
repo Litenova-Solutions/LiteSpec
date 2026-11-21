@@ -5,24 +5,24 @@ using LiteSpec.Cli.Book.Output;
 namespace LiteSpec.Cli.Book;
 
 /// <summary>
-///     The book's model words and addresses: the navigation layers, the type and
-///     link labels, the precedence order, and the URL of every page, plus the
-///     entry points the index builder and the review queries keep under this name.
+///     The book's model words and addresses: the navigation layers, the type labels and the
+///     precedence order, plus the entry points the index builder and the review queries keep under
+///     this name. Connection labels come from the carried schema, never from this file.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookModel
 {
     /// <summary>The navigation layers, in display order.</summary>
     public static readonly IReadOnlyList<BookLayer> Layers =
     [
-        new("Why", ["product", "goal", "vision", "constraint", "research", "decision", "requirement"]),
+        new("Why", ["product", "goal", "direction", "constraint", "research", "decision", "requirement"]),
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
-        new("Journeys", ["journey"]),
-        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "reaction", "job", "notification", "setting"]),
+        new("Flows", ["flow", "step"]),
+        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event", "reaction", "job", "notification", "setting", "read-model", "reference-data"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
-        new("How We Build", ["departure"]),
+        new("How We Build", ["waiver"]),
         new("Terms", ["term"]),
     ];
 
@@ -32,7 +32,7 @@ static class BookModel
         {
             ["product"] = ("Product", "Product"),
             ["goal"] = ("Goal", "Goals"),
-            ["vision"] = ("Vision", "Visions"),
+            ["direction"] = ("Direction", "Directions"),
             ["constraint"] = ("Constraint", "Constraints"),
             ["research"] = ("Research", "Research"),
             ["decision"] = ("Decision", "Decisions"),
@@ -42,109 +42,28 @@ static class BookModel
             ["actor"] = ("Actor", "Actors"),
             ["role"] = ("Role", "Roles"),
             ["permission"] = ("Permission", "Permissions"),
-            ["journey"] = ("Journey", "Journeys"),
+            ["flow"] = ("Flow", "Flows"),
+            ["step"] = ("Step", "Steps"),
             ["module"] = ("Module", "Modules"),
             ["aggregate"] = ("Aggregate", "Aggregates"),
             ["rule"] = ("Rule", "Rules"),
             ["use-case"] = ("Use case", "Use cases"),
             ["result"] = ("Result", "Results"),
             ["scenario"] = ("Scenario", "Scenarios"),
-            ["event"] = ("Event", "Events"),
+            ["domain-event"] = ("Domain event", "Domain events"),
+            ["module-event"] = ("Module event", "Module events"),
             ["integration-event"] = ("Integration event", "Integration events"),
             ["reaction"] = ("Reaction", "Reactions"),
             ["job"] = ("Job", "Jobs"),
+            ["read-model"] = ("Read model", "Read models"),
+            ["reference-data"] = ("Reference data", "Reference data"),
             ["notification"] = ("Notification", "Notifications"),
             ["setting"] = ("Setting", "Settings"),
             ["entry-point"] = ("Entry point", "Entry points"),
             ["external-system"] = ("External system", "External systems"),
             ["runbook"] = ("Runbook", "Runbooks"),
-            ["departure"] = ("Departure", "Departures"),
+            ["waiver"] = ("Waiver", "Waivers"),
             ["term"] = ("Term", "Terms"),
-        };
-
-    /// <summary>
-    ///     The outgoing link fields, in display order with their headings. Refusal
-    ///     renders as rule sentences instead, so it stays out of this list.
-    /// </summary>
-    public static readonly IReadOnlyList<(string Field, string Label)> LinkLabels =
-    [
-        ("decides", "Decides"),
-        ("basedOn", "Based On"),
-        ("affects", "Affects"),
-
-        ("serves", "Serves"),
-        ("cites", "Cites"),
-        ("fulfills", "Fulfills"),
-        ("governs", "Governs"),
-        ("computedBy", "Computed By"),
-        ("raises", "Raises"),
-        ("triggeredBy", "Triggered By"),
-        ("runs", "Runs"),
-        ("sends", "Sends"),
-        ("emits", "Emits"),
-        ("calls", "Calls"),
-        ("binds", "Binds"),
-        ("exercises", "Exercises"),
-        ("changes", "Changes"),
-        ("reads", "Reads"),
-        ("translates", "Translates"),
-        ("enforcedBy", "Enforced By"),
-        ("acceptedBy", "Accepted By"),
-        ("allows", "Allows"),
-        ("reachedThrough", "Reached Through"),
-        ("dependsOn", "Depends On"),
-        ("terms", "Terms"),
-        ("result", "Illustrates"),
-        ("actor", "Actor"),
-        ("runbook", "Runbook"),
-        ("subject", "About"),
-        ("replaces", "Replaces"),
-        ("covers", "Covers"),
-    ];
-
-    /// <summary>The incoming link headings by field.</summary>
-    public static readonly IReadOnlyDictionary<string, string> LinkInverseLabels =
-        new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["decides"] = "Decided By",
-            ["basedOn"] = "Basis For",
-            ["affects"] = "Problems Affecting This",
-
-            ["serves"] = "Served By",
-            ["cites"] = "Cited By",
-            ["fulfills"] = "Fulfilled By",
-            ["except"] = "Excepted By",
-            ["fallback"] = "Fallback For",
-            ["governs"] = "Governed By",
-            ["computedBy"] = "Computes",
-            ["raises"] = "Raised By",
-            ["triggeredBy"] = "Triggered By",
-            ["runs"] = "Run By",
-            ["sends"] = "Sent By",
-            ["emits"] = "Emitted By",
-            ["calls"] = "Called By",
-            ["binds"] = "Bound By",
-            ["exercises"] = "Exercised By",
-            ["effects"] = "Effect For",
-            ["changes"] = "Changed By",
-            ["reads"] = "Read By",
-            ["translates"] = "Translated By",
-            ["releasedBy"] = "Releases",
-            ["enforcedBy"] = "Enforces",
-            ["acceptedBy"] = "Accepts",
-            ["dataClasses"] = "Data Class For",
-            ["access"] = "Access For",
-            ["allows"] = "Allowed By",
-            ["reachedThrough"] = "Entry For",
-            ["dependsOn"] = "Depended On By",
-            ["terms"] = "Used By",
-            ["result"] = "Illustrated By",
-            ["actor"] = "Systems For",
-            ["runbook"] = "Runbook For",
-            ["subject"] = "Departures",
-            ["replaces"] = "Replaced By",
-            ["refusal"] = "Refusal For",
-            ["covers"] = "Covered By",
         };
 
     /// <summary>The record types in precedence order.</summary>
@@ -187,10 +106,58 @@ static class BookModel
             : new SplitId(id[..slash], rest[..dot], rest[(dot + 1)..]);
     }
 
-    /// <summary>The title a record sorts and links under: its title, or its id when empty.</summary>
+    /// <summary>The title a record sorts and links under: its display title, or its id when empty.</summary>
     /// <param name="record">The record.</param>
     /// <returns>The sort title.</returns>
     public static string SortTitle(JsonObject record) =>
-        BookRender.IsTruthy(record["title"]) ? BookRender.Str(record["title"]) : BookRender.PropText(record, "id");
+        BookRender.IsTruthy(record["title"])
+            ? DisplayTitle(BookRender.StrProp(record, "type"), BookRender.Str(record["title"]))
+            : BookRender.PropText(record, "id");
 
+    /// <summary>Small words that stay lowercase in a term title unless they open it.</summary>
+    static readonly HashSet<string> TermSmallWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "with",
+    };
+
+    /// <summary>The title a record displays under: a term record shows its term in Title Case, every other record shows its title.</summary>
+    /// <param name="type">The record type, or null.</param>
+    /// <param name="title">The record title as written.</param>
+    /// <returns>The display title.</returns>
+    public static string DisplayTitle(string? type, string title) =>
+        string.Equals(type, "term", StringComparison.Ordinal) && title.Length > 0
+            ? TermTitleCase(title)
+            : title;
+
+    /// <summary>One glossary word in Title Case: every word opens uppercase, every hyphenated part opens uppercase, and a small word stays lowercase unless it opens the title.</summary>
+    /// <param name="term">The glossary word as written.</param>
+    /// <returns>The word in Title Case.</returns>
+    public static string TermTitleCase(string term)
+    {
+        var words = term.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        for (var at = 0; at < words.Length; at++)
+        {
+            var word = words[at];
+            if (word.Contains('-'))
+            {
+                words[at] = string.Join("-", word.Split('-').Select(Cap));
+            }
+            else if (at > 0 && TermSmallWords.Contains(word))
+            {
+                words[at] = word.ToLowerInvariant();
+            }
+            else
+            {
+                words[at] = Cap(word);
+            }
+        }
+
+        return string.Join(" ", words);
+    }
+
+    /// <summary>One word with its first letter uppercased, the rest unchanged.</summary>
+    /// <param name="word">The word to capitalize, possibly empty.</param>
+    /// <returns>The word with its first letter uppercased.</returns>
+    static string Cap(string word) =>
+        word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..];
 }

@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Domain;
 
-/// <summary>LS1001: Domain references no outer-layer namespace and no Application, Infrastructure or WebApi type.</summary>
+/// <summary>LS1001: Domain references no outer-layer namespace and no Application, Ports, Infrastructure or WebApi type.</summary>
 /// <follows>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
@@ -120,12 +120,12 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>True when the type is an outer-layer concern for Domain; otherwise false.</returns>
-    // A value type in a module Contracts folder is a typed identifier or shared value the module
+    // A value type in a module Contracts project or folder is a typed identifier or shared value the module
     // publishes, and an exception there is a rule refusal the module publishes; Domain may name both.
     // A port or an integration event there stays outer.
     private static bool IsOuter(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
         IsOuterLayerNamespace(type.ContainingNamespace, out _)
-        || (map.ReferencedLayer(type, compilation) is ArchitectureLayer.Application or ArchitectureLayer.Infrastructure or ArchitectureLayer.WebApi
+        || (map.ReferencedLayer(type, compilation) is ArchitectureLayer.Application or ArchitectureLayer.Ports or ArchitectureLayer.Infrastructure or ArchitectureLayer.WebApi
             && !((type.IsValueType || IsException(type)) && CodeMap.IsContracts(CodeMap.SourceFileOf(type, compilation))));
 
     /// <summary>Whether the type derives from <see cref="System.Exception" />.</summary>

@@ -3,5 +3,17 @@ id: entry-point/claimwick-app
 title: Claimwick App
 summary: Employees reach spending through the expenses app.
 kind: browser
-auth:
+authentication:
 - session
+audience:
+- actor/employee
+- actor/manager
+- actor/finance
+density: application-balanced
+voice: Claimwick addresses the employee plainly and names the next step on every screen.
+languages:
+- en
+- nl
+formats:
+  money: code-and-the-currency-s-own-decimals
+  moment: one-form-per-table-with-the-zone-stated-once

@@ -63,7 +63,7 @@ static class ModelLinks
                 continue;
             }
 
-            if (!model.ById.TryGetValue(code.EventId, out var record) || record.Type != RecordTypes.Event)
+            if (!model.ById.TryGetValue(code.EventId, out var record) || record.Type != RecordTypes.DomainEvent)
             {
                 model.Code.Events[index] = code with { EventId = null };
             }
@@ -107,7 +107,7 @@ static class ModelLinks
 
         foreach (var result in model.Records.Where(record => record.Type == RecordTypes.Result))
         {
-            if (result.Field(RecordFields.Code) is { } code && codes.TryGetValue(code, out var path))
+            if (RefusalCode.Of(result) is { } code && codes.TryGetValue(code, out var path))
             {
                 model.Implements.Add(new ImplementsLink(path, result.Id, "result"));
             }
@@ -140,7 +140,7 @@ static class ModelLinks
         CodeKind.EventHandler => "reaction",
         CodeKind.Job => "job",
         CodeKind.Endpoint => "endpoint",
-        CodeKind.DomainEvent => "event",
+        CodeKind.DomainEvent => "domain-event",
         CodeKind.AggregateRoot => "aggregate-root",
         CodeKind.AggregateMethod => "aggregate-method",
         CodeKind.RuleException => "rule-exception",

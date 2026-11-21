@@ -23,19 +23,19 @@ public sealed class ReachabilityTests
                 {
                     ["from"] = "Active",
                     ["to"] = "Overdue",
-                    ["by"] = "use-case/lending.extend-loan",
+                    ["movedBy"] = "use-case/lending.extend-loan",
                 },
                 new JsonObject
                 {
                     ["from"] = "Overdue",
                     ["to"] = "Returned",
-                    ["by"] = "use-case/lending.return-copy",
+                    ["movedBy"] = "use-case/lending.return-copy",
                 },
                 new JsonObject
                 {
                     ["from"] = "Active",
                     ["to"] = "Returned",
-                    ["by"] = "use-case/lending.return-copy",
+                    ["movedBy"] = "use-case/lending.return-copy",
                 });
         });
 

@@ -16,7 +16,7 @@ internal static class FolderChecks
     /// <summary>Type folders directly under <c>intent/</c>.</summary>
     private static readonly HashSet<string> IntentRootFolders = new(StringComparer.Ordinal)
     {
-        "goals", "visions", "problems", "constraints", "decisions", "research", "actors", "journeys", "roles",
+        "goals", "directions", "problems", "constraints", "decisions", "research", "actors", "flows", "roles", "requirements",
     };
 
     /// <summary>Folders directly under <c>implementation/</c>.</summary>
@@ -49,7 +49,7 @@ internal static class FolderChecks
         "model", "book",
     };
 
-    /// <summary>Reports folder-invalid, module-undeclared and record-placement-invalid.</summary>
+    /// <summary>Reports record-placement-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -137,7 +137,7 @@ internal static class FolderChecks
                     }
 
                     findings.Add(new Finding(
-                        "folder-invalid",
+                        "record-placement-invalid",
                         $"Folder '{PathText.Relative(model.Config.Root, directory)}' sits outside the closed folder set of its layer and level.",
                         directory,
                         1,
@@ -161,7 +161,7 @@ internal static class FolderChecks
             if (!declared.Contains(name))
             {
                 findings.Add(new Finding(
-                    "module-undeclared",
+                    "record-placement-invalid",
                     $"Module folder '{PathText.Relative(model.Config.Root, directory)}' names no declared module.",
                     directory,
                     1,
@@ -277,6 +277,11 @@ internal static class FolderChecks
                 || (full.Length == 6 && full[3] == "features" && full[5] == "requirements");
         }
 
+        if (full[1] == "requirements")
+        {
+            return full.Length <= 3;
+        }
+
         return full.Length == 2 && IntentRootFolders.Contains(full[1]);
     }
 
@@ -371,10 +376,10 @@ internal static class FolderChecks
                 return true;
             }
 
-            return full.Length == 4 && full[3] == "departures";
+            return full.Length == 4 && full[3] == "waivers";
         }
 
-        return full.Length == 2 && full[1] == "departures";
+        return full.Length == 2 && full[1] == "waivers";
     }
 
     /// <summary>Collects the module folder for the declaration check.</summary>
@@ -500,14 +505,177 @@ internal static class FolderChecks
             return;
         }
 
+        CheckAggregateFolder(model, record, folders, findings);
+        CheckEventTranslates(model, record, folders, findings);
+
         // The entries of a file share its page's file, so the folder finding names the page once.
         if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName))
         {
             findings.Add(new Finding(
-                "record-folder-drift",
+                "record-placement-invalid",
                 $"{Label(record.Type)} '{record.Id}' sits in folder '{folders[folders.Length - 1]}', but its file is '{fileName}'; the folder must carry the file's name.",
                 record.File, record.Line, SubjectOf(record)));
         }
+    }
+
+    /// <summary>Reports a record under an aggregates folder whose folder is not the plural its aggregate takes.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record.</param>
+    /// <param name="record">The record whose aggregate folder is inspected.</param>
+    /// <param name="folders">The record file path as folders anchored at its record layer.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckAggregateFolder(ProjectModel model, Record record, string[] folders, List<Finding> findings)
+    {
+        if (folders is not ["behavior", "modules", _, "aggregates", var written, ..])
+        {
+            return;
+        }
+
+        string expected;
+
+        if (record.Type == RecordTypes.Aggregate)
+        {
+            // The aggregate record names its own folder: the plural of its name part.
+            if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name.Length == 0)
+            {
+                return;
+            }
+
+            expected = Naming.PluralKebab(name);
+        }
+        else if (AggregateFolderNames.OwnerDirectory(record.File) is { } owner
+            && AggregateFolderNames.Resolve(model, written, owner) is (false, var resolved))
+        {
+            // Under an owned folder the aggregate record's own finding covers the folder,
+            // so only an unowned folder is reported here.
+            expected = resolved;
+        }
+        else
+        {
+            return;
+        }
+
+        if (string.Equals(expected, written, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        findings.Add(new Finding(
+            "record-placement-invalid",
+            record.Type == RecordTypes.Aggregate
+                ? $"Aggregate '{record.Id}' sits in folder '{written}', but its folder is the plural of its name: '{expected}'."
+                : $"{Label(record.Type)} '{record.Id}' sits in aggregate folder '{written}', but its aggregate lives in '{expected}'.",
+            record.File, record.Line, SubjectOf(record)));
+    }
+
+    /// <summary>Reports a module or integration event filed under another module or aggregate than the domain event it translates, and an inbound integration event filed under another aggregate than the use case it runs.</summary>
+    /// <param name="model">The loaded project model that holds the translated domain event.</param>
+    /// <param name="record">The event record whose folder is inspected.</param>
+    /// <param name="folders">The record file path as folders anchored at its record layer.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckEventTranslates(ProjectModel model, Record record, string[] folders, List<Finding> findings)
+    {
+        if (record.Type != RecordTypes.ModuleEvent && record.Type != RecordTypes.IntegrationEvent)
+        {
+            return;
+        }
+
+        if (folders is not ["behavior", "modules", var module, "aggregates", var written, ..])
+        {
+            return;
+        }
+
+        // An inbound event carries no translates: it sits under the aggregate of
+        // its receiving module whose use case it runs.
+        if (record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Action) == "receive")
+        {
+            CheckInboundEventAggregate(model, record, module, written, findings);
+            return;
+        }
+
+        // A missing or dangling translates is owned by the shape and link checks, so one defect draws one finding.
+        var translatedIds = record.Ids(RecordFields.Translates);
+        var translated = translatedIds.Count > 0 ? translatedIds[0] : null;
+
+        if (translated is not { Length: > 0 }
+            || !model.ById.TryGetValue(Identifiers.BaseId(translated), out var domainEvent)
+            || domainEvent.Type != RecordTypes.DomainEvent)
+        {
+            return;
+        }
+
+        if (!UnderRoot(model.Config, domainEvent.File, out var eventSegments)
+            || eventSegments is not ["behavior", "modules", var eventModule, "aggregates", var eventAggregate, ..])
+        {
+            return;
+        }
+
+        if (!string.Equals(eventModule, module, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "record-placement-invalid",
+                $"{Label(record.Type)} '{record.Id}' sits in module '{module}', but the domain event it translates lives in module '{eventModule}'.",
+                record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (!string.Equals(eventAggregate, written, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "record-placement-invalid",
+                $"{Label(record.Type)} '{record.Id}' sits in aggregate folder '{written}', but the domain event it translates lives in '{eventAggregate}'.",
+                record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports an inbound integration event filed under another aggregate than the use case it runs in its receiving module.</summary>
+    /// <param name="model">The loaded project model that holds the reactions answering the event and the use cases they run.</param>
+    /// <param name="record">The inbound event record whose folder is inspected.</param>
+    /// <param name="module">The receiving module the event file sits under.</param>
+    /// <param name="written">The aggregate folder the event file sits under.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckInboundEventAggregate(ProjectModel model, Record record, string module, string written, List<Finding> findings)
+    {
+        // Each reaction answering the event runs one use case; the event sits
+        // under the aggregate of the receiving module whose use case it runs.
+        var expected = new SortedSet<string>(StringComparer.Ordinal);
+
+        foreach (var reaction in model.Records.Where(candidate =>
+            !candidate.Derived && candidate.Type == RecordTypes.Reaction))
+        {
+            if (!reaction.Ids(RecordFields.TriggeredBy).Select(Identifiers.BaseId).Contains(record.Id, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var run in reaction.EdgeIds(RecordFields.Runs))
+            {
+                if (!model.ById.TryGetValue(Identifiers.BaseId(run), out var useCase)
+                    || useCase.Type != RecordTypes.UseCase)
+                {
+                    continue;
+                }
+
+                if (UnderRoot(model.Config, useCase.File, out var segments)
+                    && segments is ["behavior", "modules", var useModule, "aggregates", var useAggregate, ..]
+                    && string.Equals(useModule, module, StringComparison.Ordinal))
+                {
+                    expected.Add(useAggregate);
+                }
+            }
+        }
+
+        // No runnable use case of the receiving module resolved: the link and
+        // trigger checks own the gap, so one defect draws one finding.
+        if (expected.Count == 0 || expected.Contains(written))
+        {
+            return;
+        }
+
+        var homes = string.Join("', '", expected);
+
+        findings.Add(new Finding(
+            "record-placement-invalid",
+            $"Integration event '{record.Id}' sits in aggregate folder '{written}', but the use case it runs lives in '{homes}'.",
+            record.File, record.Line, SubjectOf(record)));
     }
 
     /// <summary>Whether the file is the glossary.</summary>
@@ -553,6 +721,6 @@ internal static class FolderChecks
     /// <returns>The phrase, from the folder map; a requirement lives in its own folder inside its feature's folder.</returns>
     private static string Expected(string type) =>
         type == RecordTypes.Requirement
-            ? "requirements live in their own folder under their feature's 'requirements/' folder, 'intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml'"
+            ? "requirements live in their own folder under their feature's 'requirements/' folder, 'intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml', or at product level in 'intent/requirements/<name>/<name>.yaml'"
             : RecordFolders.Phrase(type);
 }

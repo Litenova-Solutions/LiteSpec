@@ -11,17 +11,20 @@ public static class RecordFields
     /// <summary>Gets the name of the `access` field.</summary>
     public const string Access = "access";
 
+    /// <summary>Gets the name of the `accumulate` field.</summary>
+    public const string Accumulate = "accumulate";
+
     /// <summary>Gets the name of the `action` field.</summary>
     public const string Action = "action";
 
     /// <summary>Gets the name of the `actor` field.</summary>
     public const string Actor = "actor";
 
-    /// <summary>Gets the name of the `address` field.</summary>
-    public const string Address = "address";
+    /// <summary>Gets the name of the `route` field.</summary>
+    public const string Route = "route";
 
-    /// <summary>Gets the name of the `addresses` field.</summary>
-    public const string Addresses = "addresses";
+    /// <summary>Gets the name of the `audience` field.</summary>
+    public const string Audience = "audience";
 
     /// <summary>Gets the name of the `admits` field.</summary>
     public const string Admits = "admits";
@@ -35,9 +38,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `after` field.</summary>
     public const string After = "after";
 
-    /// <summary>Gets the name of the `allows` field.</summary>
-    public const string Allows = "allows";
-
     /// <summary>Gets the name of the `amount` field.</summary>
     public const string Amount = "amount";
 
@@ -50,14 +50,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `at` field.</summary>
     public const string At = "at";
 
-    /// <summary>Gets the name of the `atBound` field.</summary>
-    public const string AtBound = "atBound";
+    /// <summary>Gets the name of the `outOfRange` field.</summary>
+    public const string OutOfRange = "outOfRange";
 
     /// <summary>Gets the name of the `audit` field.</summary>
     public const string Audit = "audit";
 
-    /// <summary>Gets the name of the `auth` field.</summary>
-    public const string Auth = "auth";
+    /// <summary>Gets the name of the `authentication` field.</summary>
+    public const string Authentication = "authentication";
 
     /// <summary>Gets the name of the `authority` field.</summary>
     public const string Authority = "authority";
@@ -88,12 +88,8 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `branches` field.</summary>
     public const string Branches = "branches";
-
-    /// <summary>Gets the name of the `builtAsynchronously` field.</summary>
-    public const string BuiltAsynchronously = "builtAsynchronously";
-
-    /// <summary>Gets the name of the `by` field.</summary>
-    public const string By = "by";
+    /// <summary>Gets the name of the `movedBy` field.</summary>
+    public const string MovedBy = "movedBy";
 
     /// <summary>Gets the name of the `cache` field.</summary>
     public const string Cache = "cache";
@@ -104,11 +100,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `calls` field.</summary>
     public const string Calls = "calls";
 
+    /// <summary>Gets the name of the `commands` field.</summary>
+    public const string Commands = "commands";
+
     /// <summary>Gets the name of the `carries` field.</summary>
     public const string Carries = "carries";
 
-    /// <summary>Gets the name of the `changes` field.</summary>
-    public const string Changes = "changes";
+    /// <summary>Gets the name of the `writes` field.</summary>
+    public const string Writes = "writes";
 
     /// <summary>Gets the name of the `channel` field.</summary>
     public const string Channel = "channel";
@@ -136,8 +135,14 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `codes` field.</summary>
     public const string Codes = "codes";
+    /// <summary>Gets the name of the `compatibility` field.</summary>
+    public const string Compatibility = "compatibility";
+
     /// <summary>Gets the name of the `computedBy` field.</summary>
     public const string ComputedBy = "computedBy";
+
+    /// <summary>Gets the name of the `configurationPath` field.</summary>
+    public const string ConfigurationPath = "configurationPath";
 
     /// <summary>Gets the name of the `conclusion` field.</summary>
     public const string Conclusion = "conclusion";
@@ -166,8 +171,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `contentType` field.</summary>
     public const string ContentType = "contentType";
 
+    /// <summary>Gets the name of the `context` field.</summary>
+    public const string Context = "context";
+
     /// <summary>Gets the name of the `correlation` field.</summary>
     public const string Correlation = "correlation";
+
+    /// <summary>Gets the name of the `cost` field.</summary>
+    public const string Cost = "cost";
 
     /// <summary>Gets the name of the `covers` field.</summary>
     public const string Covers = "covers";
@@ -196,11 +207,8 @@ public static class RecordFields
     /// <summary>Gets the name of the `deadLetter` field.</summary>
     public const string DeadLetter = "deadLetter";
 
-    /// <summary>Gets the name of the `decides` field.</summary>
-    public const string Decides = "decides";
-
-    /// <summary>Gets the name of the `dedupKey` field.</summary>
-    public const string DedupKey = "dedupKey";
+    /// <summary>Gets the name of the `deduplicationKey` field.</summary>
+    public const string DeduplicationKey = "deduplicationKey";
 
     /// <summary>Gets the name of the `default` field.</summary>
     public const string Default = "default";
@@ -214,25 +222,32 @@ public static class RecordFields
     /// <summary>Gets the name of the `dependsOn` field.</summary>
     public const string DependsOn = "dependsOn";
 
-    /// <summary>Gets the name of the `direction` field.</summary>
-    public const string Direction = "direction";
     /// <summary>Gets the name of the `duration` field.</summary>
     public const string Duration = "duration";
+
+    /// <summary>Gets the name of the `edgeCases` field.</summary>
+    public const string EdgeCases = "edgeCases";
 
     /// <summary>Gets the name of the `effectiveFrom` field.</summary>
     public const string EffectiveFrom = "effectiveFrom";
 
+    /// <summary>Gets the name of the `effectiveTo` field.</summary>
+    public const string EffectiveTo = "effectiveTo";
+
     /// <summary>Gets the name of the `effects` field.</summary>
     public const string Effects = "effects";
 
-    /// <summary>Gets the name of the `emits` field.</summary>
-    public const string Emits = "emits";
+    /// <summary>Gets the name of the `ends` field.</summary>
+    public const string Ends = "ends";
 
     /// <summary>Gets the name of the `enforcedBy` field.</summary>
     public const string EnforcedBy = "enforcedBy";
 
     /// <summary>Gets the name of the `environment` field.</summary>
     public const string Environment = "environment";
+
+    /// <summary>Gets the name of the `erasedBy` field.</summary>
+    public const string ErasedBy = "erasedBy";
 
     /// <summary>Gets the name of the `erasure` field.</summary>
     public const string Erasure = "erasure";
@@ -261,14 +276,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `exceptions` field.</summary>
     public const string Exceptions = "exceptions";
 
-    /// <summary>Gets the name of the `exempt` field.</summary>
-    public const string Exempt = "exempt";
+    /// <summary>Gets the name of the `exemptBecause` field.</summary>
+    public const string ExemptBecause = "exemptBecause";
 
     /// <summary>Gets the name of the `exercises` field.</summary>
     public const string Exercises = "exercises";
 
-    /// <summary>Gets the name of the `exit` field.</summary>
-    public const string Exit = "exit";
+    /// <summary>Gets the name of the `exitWhen` field.</summary>
+    public const string ExitWhen = "exitWhen";
 
     /// <summary>Gets the name of the `expiresOn` field.</summary>
     public const string ExpiresOn = "expiresOn";
@@ -282,6 +297,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `failureBehavior` field.</summary>
     public const string FailureBehavior = "failureBehavior";
 
+    /// <summary>Gets the name of the `failureCases` field.</summary>
+    public const string FailureCases = "failureCases";
+
     /// <summary>Gets the name of the `fallback` field.</summary>
     public const string Fallback = "fallback";
 
@@ -291,12 +309,11 @@ public static class RecordFields
     /// <summary>Gets the name of the `fields` field.</summary>
     public const string Fields = "fields";
 
+    /// <summary>Gets the name of the `findings` field.</summary>
+    public const string Findings = "findings";
+
     /// <summary>Gets the name of the `finishedWhen` field.</summary>
     public const string FinishedWhen = "finishedWhen";
-
-    /// <summary>Gets the name of the `floorplan` field.</summary>
-    public const string Floorplan = "floorplan";
-
     /// <summary>Gets the name of the `forEach` field.</summary>
     public const string ForEach = "forEach";
 
@@ -327,6 +344,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `grant` field.</summary>
     public const string Grant = "grant";
 
+    /// <summary>Gets the name of the `grantedTo` field.</summary>
+    public const string GrantedTo = "grantedTo";
+
     /// <summary>Gets the name of the `group` field.</summary>
     public const string Group = "group";
 
@@ -356,11 +376,21 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `input` field.</summary>
     public const string Input = "input";
+
+    /// <summary>Gets the name of the `instead` field.</summary>
+    public const string Instead = "instead";
+
     /// <summary>Gets the name of the `key` field.</summary>
     public const string Key = "key";
 
+    /// <summary>Gets the name of the `keyedBy` field.</summary>
+    public const string KeyedBy = "keyedBy";
+
     /// <summary>Gets the name of the `kind` field.</summary>
     public const string Kind = "kind";
+
+    /// <summary>Gets the name of the `knowledge` field.</summary>
+    public const string Knowledge = "knowledge";
 
     /// <summary>Gets the name of the `labels` field.</summary>
     public const string Labels = "labels";
@@ -413,8 +443,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `nextStep` field.</summary>
     public const string NextStep = "nextStep";
 
-    /// <summary>Gets the name of the `of` field.</summary>
-    public const string Of = "of";
+    /// <summary>Gets the name of the `note` field.</summary>
+    public const string Note = "note";
+
+    /// <summary>Gets the name of the `obligations` field.</summary>
+    public const string Obligations = "obligations";
+
+    /// <summary>Gets the name of the `identifies` field.</summary>
+    public const string Identifies = "identifies";
 
     /// <summary>Gets the name of the `offering` field.</summary>
     public const string Offering = "offering";
@@ -440,6 +476,12 @@ public static class RecordFields
     /// <summary>Gets the name of the `onTimeout` field.</summary>
     public const string OnTimeout = "onTimeout";
 
+    /// <summary>Gets the name of the `openPoints` field.</summary>
+    public const string OpenPoints = "openPoints";
+
+    /// <summary>Gets the name of the `openQuestions` field.</summary>
+    public const string OpenQuestions = "openQuestions";
+
     /// <summary>Gets the name of the `operation` field.</summary>
     public const string Operation = "operation";
 
@@ -464,11 +506,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `package` field.</summary>
     public const string Package = "package";
 
+    /// <summary>Gets the name of the `pack` field.</summary>
+    public const string Pack = "pack";
+
     /// <summary>Gets the name of the `paging` field.</summary>
     public const string Paging = "paging";
 
-    /// <summary>Gets the name of the `params` field.</summary>
-    public const string Params = "params";
+    /// <summary>Gets the name of the `parameters` field.</summary>
+    public const string Parameters = "parameters";
 
     /// <summary>Gets the name of the `parts` field: the child entities and value objects inside the aggregate.</summary>
     public const string Parts = "parts";
@@ -493,14 +538,20 @@ public static class RecordFields
     /// <summary>Gets the name of the `procedure` field.</summary>
     public const string Procedure = "procedure";
 
-    /// <summary>Gets the name of the `processors` field.</summary>
-    public const string Processors = "processors";
+    /// <summary>Gets the name of the `processes` field.</summary>
+    public const string Processes = "processes";
+
+    /// <summary>Gets the name of the `productEffect` field.</summary>
+    public const string ProductEffect = "productEffect";
 
     /// <summary>Gets the name of the `pros` field.</summary>
     public const string Pros = "pros";
 
     /// <summary>Gets the name of the `provision` field.</summary>
     public const string Provision = "provision";
+
+    /// <summary>Gets the name of the `queries` field.</summary>
+    public const string Queries = "queries";
 
     /// <summary>Gets the name of the `raises` field.</summary>
     public const string Raises = "raises";
@@ -525,6 +576,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `reason` field.</summary>
     public const string Reason = "reason";
 
+    /// <summary>Gets the name of the `reauthenticationTriggers` field.</summary>
+    public const string ReauthenticationTriggers = "reauthenticationTriggers";
+
     /// <summary>Gets the name of the `receives` field.</summary>
     public const string Receives = "receives";
 
@@ -543,6 +597,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `releasedBy` field.</summary>
     public const string ReleasedBy = "releasedBy";
 
+    /// <summary>Gets the name of the `removedBy` field.</summary>
+    public const string RemovedBy = "removedBy";
+
     /// <summary>Gets the name of the `reopenedWhen` field.</summary>
     public const string ReopenedWhen = "reopenedWhen";
 
@@ -554,6 +611,12 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `response` field.</summary>
     public const string Response = "response";
+
+    /// <summary>Gets the name of the `resolutionCriteria` field.</summary>
+    public const string ResolutionCriteria = "resolutionCriteria";
+
+    /// <summary>Gets the name of the `responsibilities` field.</summary>
+    public const string Responsibilities = "responsibilities";
 
     /// <summary>Gets the name of the `result` field.</summary>
     public const string Result = "result";
@@ -570,6 +633,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `role` field.</summary>
     public const string Role = "role";
 
+    /// <summary>Gets the name of the `rounding` field.</summary>
+    public const string Rounding = "rounding";
+
     /// <summary>Gets the name of the `rows` field.</summary>
     public const string Rows = "rows";
 
@@ -585,8 +651,8 @@ public static class RecordFields
     /// <summary>Gets the name of the `runsOn` field.</summary>
     public const string RunsOn = "runsOn";
 
-    /// <summary>Gets the name of the `runsWhere` field.</summary>
-    public const string RunsWhere = "runsWhere";
+    /// <summary>Gets the name of the `runsWhen` field.</summary>
+    public const string RunsWhen = "runsWhen";
 
     /// <summary>Gets the name of the `schedule` field.</summary>
     public const string Schedule = "schedule";
@@ -603,20 +669,26 @@ public static class RecordFields
     /// <summary>Gets the name of the `sends` field.</summary>
     public const string Sends = "sends";
 
+    /// <summary>Gets the name of the `servedContent` field.</summary>
+    public const string ServedContent = "servedContent";
+
     /// <summary>Gets the name of the `serves` field.</summary>
     public const string Serves = "serves";
 
     /// <summary>Gets the name of the `serviceLevel` field.</summary>
     public const string ServiceLevel = "serviceLevel";
 
+    /// <summary>Gets the name of the `session` field.</summary>
+    public const string Session = "session";
+
     /// <summary>Gets the name of the `setBy` field.</summary>
     public const string SetBy = "setBy";
 
+    /// <summary>Gets the name of the `setting` field.</summary>
+    public const string Setting = "setting";
+
     /// <summary>Gets the name of the `severity` field.</summary>
     public const string Severity = "severity";
-
-    /// <summary>Gets the name of the `sharesTransaction` field.</summary>
-    public const string SharesTransaction = "sharesTransaction";
 
     /// <summary>Gets the name of the `skippedWhen` field.</summary>
     public const string SkippedWhen = "skippedWhen";
@@ -648,6 +720,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `subject` field.</summary>
     public const string Subject = "subject";
 
+    /// <summary>Gets the name of the `successCriteria` field.</summary>
+    public const string SuccessCriteria = "successCriteria";
+
     /// <summary>Gets the name of the `summary` field.</summary>
     public const string Summary = "summary";
 
@@ -657,11 +732,11 @@ public static class RecordFields
     /// <summary>Gets the name of the `surfacesIn` field.</summary>
     public const string SurfacesIn = "surfacesIn";
 
-    /// <summary>Gets the name of the `system` field.</summary>
-    public const string System = "system";
-
     /// <summary>Gets the name of the `target` field.</summary>
     public const string Target = "target";
+
+    /// <summary>Gets the name of the `task` field.</summary>
+    public const string Task = "task";
 
     /// <summary>Gets the name of the `template` field.</summary>
     public const string Template = "template";
@@ -720,6 +795,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `useCase` field.</summary>
     public const string UseCase = "useCase";
 
+    /// <summary>Gets the name of the `users` field.</summary>
+    public const string Users = "users";
+
     /// <summary>Gets the name of the `value` field.</summary>
     public const string Value = "value";
 
@@ -728,6 +806,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `valueType` field.</summary>
     public const string ValueType = "valueType";
+
+    /// <summary>Gets the name of the `vendor` field.</summary>
+    public const string Vendor = "vendor";
 
     /// <summary>Gets the name of the `verification` field.</summary>
     public const string Verification = "verification";
@@ -743,4 +824,179 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `within` field.</summary>
     public const string Within = "within";
+
+    /// <summary>Gets the name of the `workaround` field.</summary>
+    public const string Workaround = "workaround";
+
+    /// <summary>Gets the name of the `represents` field.</summary>
+    public const string Represents = "represents";
+
+    /// <summary>Gets the name of the `requires` field.</summary>
+    public const string Requires = "requires";
+
+    /// <summary>Gets the name of the `answers` field.</summary>
+    public const string Answers = "answers";
+
+    /// <summary>Gets the name of the `observations` field.</summary>
+    public const string Observations = "observations";
+
+    /// <summary>Gets the name of the `outcomes` field.</summary>
+    public const string Outcomes = "outcomes";
+
+    /// <summary>Gets the name of the `through` field.</summary>
+    public const string Through = "through";
+
+    /// <summary>Gets the name of the `arrivesThrough` field.</summary>
+    public const string ArrivesThrough = "arrivesThrough";
+
+    /// <summary>Gets the name of the `verifiedBy` field.</summary>
+    public const string VerifiedBy = "verifiedBy";
+
+    /// <summary>Gets the name of the `periodStartsAt` field.</summary>
+    public const string PeriodStartsAt = "periodStartsAt";
+
+    /// <summary>Gets the name of the `purpose` field.</summary>
+    public const string Purpose = "purpose";
+
+    /// <summary>Gets the name of the `dated` field.</summary>
+    public const string Dated = "dated";
+
+    /// <summary>Gets the name of the `choices` field.</summary>
+    public const string Choices = "choices";
+
+    /// <summary>Gets the name of the `contentTypes` field.</summary>
+    public const string ContentTypes = "contentTypes";
+
+    /// <summary>Gets the name of the `maxSize` field.</summary>
+    public const string MaxSize = "maxSize";
+
+    /// <summary>Gets the name of the `minItems` field.</summary>
+    public const string MinItems = "minItems";
+
+    /// <summary>Gets the name of the `unique` field.</summary>
+    public const string Unique = "unique";
+
+    /// <summary>Gets the name of the `replay` field.</summary>
+    public const string Replay = "replay";
+
+    /// <summary>Gets the name of the `recognizedBy` field.</summary>
+    public const string RecognizedBy = "recognizedBy";
+
+    /// <summary>Gets the name of the `recentSignInLimit` field.</summary>
+    public const string RecentSignInLimit = "recentSignInLimit";
+
+    /// <summary>Gets the name of the `deliveredThrough` field.</summary>
+    public const string DeliveredThrough = "deliveredThrough";
+
+    /// <summary>Gets the name of the `consentRule` field.</summary>
+    public const string ConsentRule = "consentRule";
+
+    /// <summary>Gets the name of the `winner` field.</summary>
+    public const string Winner = "winner";
+
+    /// <summary>Gets the name of the `excludes` field.</summary>
+    public const string Excludes = "excludes";
+
+    /// <summary>Gets the name of the `boundBy` field.</summary>
+    public const string BoundBy = "boundBy";
+
+    /// <summary>Gets the name of the `guards` field: the aggregates a command reads whose rule must hold at commit.</summary>
+    public const string Guards = "guards";
+
+    /// <summary>Gets the name of the `competesWith` field: the command a race scenario runs at the same moment.</summary>
+    public const string CompetesWith = "competesWith";
+
+    /// <summary>Gets the name of the `supersedes` field: the decisions a decision replaces.</summary>
+    public const string Supersedes = "supersedes";
+
+
+    /// <summary>Gets the name of the `widenedBy` field.</summary>
+    public const string WidenedBy = "widenedBy";
+
+    /// <summary>Gets the name of the `ifExhausted` field.</summary>
+    public const string IfExhausted = "ifExhausted";
+
+    /// <summary>Gets the name of the `onUnknown` field.</summary>
+    public const string OnUnknown = "onUnknown";
+
+    /// <summary>Gets the name of the `aggregate` field.</summary>
+    public const string Aggregate = "aggregate";
+
+    /// <summary>Gets the name of the `brand` field.</summary>
+    public const string Brand = "brand";
+
+    /// <summary>Gets the name of the `reader` field.</summary>
+    public const string Reader = "reader";
+
+    /// <summary>Gets the name of the `accountableFor` field.</summary>
+    public const string AccountableFor = "accountableFor";
+
+    /// <summary>Gets the name of the `is` field.</summary>
+    public const string Is = "is";
+
+    /// <summary>Gets the name of the `isNot` field.</summary>
+    public const string IsNot = "isNot";
+
+    /// <summary>Gets the name of the `do` field.</summary>
+    public const string Do = "do";
+
+    /// <summary>Gets the name of the `doNot` field.</summary>
+    public const string DoNot = "doNot";
+
+    /// <summary>Gets the name of the `density` field.</summary>
+    public const string Density = "density";
+
+    /// <summary>Gets the name of the `voice` field.</summary>
+    public const string Voice = "voice";
+
+    /// <summary>Gets the name of the `pageFrame` field.</summary>
+    public const string PageFrame = "pageFrame";
+
+    /// <summary>Gets the name of the `pattern` field.</summary>
+    public const string Pattern = "pattern";
+
+    /// <summary>Gets the name of the `option` field.</summary>
+    public const string Option = "option";
+
+    /// <summary>Gets the name of the `leadsTo` field.</summary>
+    public const string LeadsTo = "leadsTo";
+
+    /// <summary>Gets the name of the `sentence` field.</summary>
+    public const string Sentence = "sentence";
+
+    /// <summary>Gets the name of the `aliases` field.</summary>
+    public const string Aliases = "aliases";
+
+    /// <summary>Gets the name of the `sentences` field.</summary>
+    public const string Sentences = "sentences";
+
+    /// <summary>Gets the name of the `languages` field.</summary>
+    public const string Languages = "languages";
+
+    /// <summary>Gets the name of the `formats` field.</summary>
+    public const string Formats = "formats";
+
+    /// <summary>Gets the name of the `appliesTo` field.</summary>
+    public const string AppliesTo = "appliesTo";
+
+    /// <summary>Gets the name of the `waives` field.</summary>
+    public const string Waives = "waives";
+
+    /// <summary>Gets the name of the `coverage` field.</summary>
+    public const string Coverage = "coverage";
+
+    /// <summary>Gets the name of the `keyScope` field.</summary>
+    public const string KeyScope = "keyScope";
+
+    /// <summary>Gets the name of the `displayStates` field.</summary>
+    public const string DisplayStates = "displayStates";
+
+    /// <summary>Gets the name of the `targetKind` field.</summary>
+    public const string TargetKind = "targetKind";
+
+    /// <summary>Gets the name of the `retentionHolds` field.</summary>
+    public const string RetentionHolds = "retentionHolds";
+
+    /// <summary>Gets the name of the `rowShape` field.</summary>
+    public const string RowShape = "rowShape";
 }

@@ -6,3 +6,9 @@ kind: person
 belongsToTeam: false
 holds:
 - role/employee
+responsibilities:
+- Submits expenses.
+- Attaches receipts to expenses.
+knowledge:
+- The product assumes the employee knows the amount and currency of the expense.
+- The product assumes the employee knows the receipt for the expense.

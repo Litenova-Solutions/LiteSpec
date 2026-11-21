@@ -1,0 +1,33 @@
+type: screen
+id: screen/claimwick-app.expense-record
+title: Expense Record
+summary: A reader sees one expense with its state and the actions that state permits.
+route: /expenses/{expenseId}
+offers:
+- use-case/spending.approve-expense
+- use-case/spending.attach-receipt
+- use-case/spending.erase-personal-data
+- use-case/spending.refuse-expense
+- use-case/spending.reimburse-expense
+serves:
+- step/submit-and-reimburse.attach-receipt
+- step/submit-and-reimburse.decide-expense
+- step/submit-and-reimburse.reimburse-expense
+fulfills:
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
+pageFrame:
+  pattern: record-page
+  option: summary-sections-aside-for-history
+leadsTo:
+- screen/claimwick-app.expense-list
+task: The reader checks the expense, then acts depending on who they are and what the state permits.
+displayStates:
+- name: Loading
+  shows: The expense facts show as placeholders while the expense loads.
+- name: Missing
+  shows: The page says the expense does not exist and links back to the list.
+- name: Refused
+  shows: The refusal sentence appears beside the action.

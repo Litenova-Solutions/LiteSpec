@@ -30,7 +30,7 @@ internal static class TraceabilityFixtures
     /// <summary>A use-case page with its raises list.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
-    /// <param name="raises">The identifiers of the events the use case raises, or null for the default raised event.</param>
+    /// <param name="raises">The identifiers of the domain events the use case raises, or null for the default raised domain event.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) UseCase(
         string id = "use-case/spending.submit-expense",
@@ -41,20 +41,40 @@ internal static class TraceabilityFixtures
               "type": "use-case",
               "id": "{{id}}",
               "title": "{{title}}",
-              "raises": [{{string.Join(", ", (raises ?? ["event/expense.submitted"]).Select(Quote))}}]
+              "raises": [{{string.Join(", ", (raises ?? ["domain-event/expense.submitted"]).Select(Quote))}}]
             }
             """);
 
-    /// <summary>An event page.</summary>
+    /// <summary>A use-case page stating its consistency mode.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="mode">The consistency mode the page states: atomic or per-record.</param>
+    /// <returns>The path and source text of the additional file.</returns>
+    public static (string Path, string Source) ConsistentUseCase(
+        string id,
+        string title,
+        string mode) =>
+        Page(FileOf(id), $$"""
+            {
+              "type": "use-case",
+              "id": "{{id}}",
+              "title": "{{title}}",
+              "consistency": {
+                "mode": "{{mode}}"
+              }
+            }
+            """);
+
+    /// <summary>A domain-event page.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
     /// <returns>The path and source text of the additional file.</returns>
-    public static (string Path, string Source) Event(
-        string id = "event/expense.submitted",
+    public static (string Path, string Source) DomainEvent(
+        string id = "domain-event/expense.submitted",
         string title = "Expense submitted") =>
         Page(FileOf(id), $$"""
             {
-              "type": "event",
+              "type": "domain-event",
               "id": "{{id}}",
               "title": "{{title}}"
             }
@@ -63,28 +83,31 @@ internal static class TraceabilityFixtures
     /// <summary>A rule page with its refusal.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
-    /// <param name="refusal">The identifier of the refusing result, or null when the rule names no refusal.</param>
+    /// <param name="refusal">The refusal identifier the rule names, or null when the rule names no refusal.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Rule(
         string id = "rule/spending.receipt-required",
         string title = "Receipt required",
-        string? refusal = "result/submit-expense.receipt-missing") =>
-        Page(FileOf(id), $$"""
+        string? refusal = "refusal/spending.receipt-missing")
+    {
+        var refusalLine = refusal is null ? "" : $",\n  \"refusal\": \"{refusal}\"";
+
+        return Page(FileOf(id), $$"""
             {
               "type": "rule",
               "id": "{{id}}",
               "title": "{{title}}",
               "kind": "precondition",
-              "statement": "An expense over twenty euros carries a receipt.",
-              "refusal": "{{refusal}}"
+              "statement": "An expense over twenty euros carries a receipt."{{refusalLine}}
             }
             """);
+    }
 
-    /// <summary>A result page with its outcome and code.</summary>
+    /// <summary>A result page with its outcome and refusal.</summary>
     /// <param name="id">The record identifier of the page.</param>
     /// <param name="title">The title of the page.</param>
     /// <param name="outcome">The outcome the result declares.</param>
-    /// <param name="code">The stable code the result carries.</param>
+    /// <param name="code">The stable code the result carries, written as its refusal identifier.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Result(
         string id = "result/submit-expense.receipt-missing",
@@ -97,7 +120,7 @@ internal static class TraceabilityFixtures
               "id": "{{id}}",
               "title": "{{title}}",
               "outcome": "{{outcome}}",
-              "code": "{{code}}",
+              "refusal": "refusal/{{code}}",
               "meaning": "The expense carries no receipt."
             }
             """);
@@ -181,31 +204,32 @@ internal static class TraceabilityFixtures
             }
             """);
 
-    /// <summary>A departure covering the codes on the subjects and paths until 2099, or for good when no expiry is given.</summary>
-    /// <param name="covers">The covers list: finding codes the departure covers.</param>
-    /// <param name="subjects">The subject identifiers the departure covers, or null for none.</param>
-    /// <param name="paths">The file paths the departure covers, or null for none.</param>
+    /// <summary>A gap waiver covering the codes on the subjects and paths until 2099, or a lasting waiver when no expiry is given.</summary>
+    /// <param name="covers">The waives list: finding codes the waiver covers.</param>
+    /// <param name="subjects">The appliesTo identifiers the waiver covers, or null for none.</param>
+    /// <param name="paths">The file paths the waiver covers, or null for none.</param>
     /// <param name="id">The record identifier of the page.</param>
-    /// <param name="expiresOn">The date the departure expires, as ISO date text, or null for a lasting departure.</param>
+    /// <param name="expiresOn">The date the waiver expires, as ISO date text, or null for a lasting waiver.</param>
     /// <returns>The path and source text of the additional file.</returns>
-    public static (string Path, string Source) Departure(
+    public static (string Path, string Source) Waiver(
         string[] covers,
         string[]? subjects = null,
         string[]? paths = null,
-        string id = "departure/marks-deferred",
+        string id = "waiver/marks-deferred",
         string? expiresOn = "2099-01-01")
     {
+        var closers = subjects is { Length: > 0 } ? subjects : [id];
         var tail = expiresOn is null
-            ? ""
-            : $",\n  \"expiresOn\": \"{expiresOn}\",\n  \"exit\": \"Marks are added.\"";
+            ? ",\n  \"kind\": \"lasting\",\n  \"consequences\": \"Marks stay deferred.\""
+            : $",\n  \"kind\": \"gap\",\n  \"closedBy\": [{string.Join(", ", closers.Select(Quote))}],\n  \"expiresOn\": \"{expiresOn}\",\n  \"exit\": \"Marks are added.\"";
 
         return Page(FileOf(id), $$"""
             {
-              "type": "departure",
+              "type": "waiver",
               "id": "{{id}}",
               "title": "Marks deferred",
-              "covers": [{{string.Join(", ", covers.Select(Quote))}}],
-              "subject": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}],
+              "waives": [{{string.Join(", ", covers.Select(Quote))}}],
+              "appliesTo": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}],
               "paths": [{{string.Join(", ", (paths ?? []).Select(Quote))}}],
               "reason": "Marks are deferred."{{tail}}
             }
@@ -217,8 +241,8 @@ internal static class TraceabilityFixtures
     /// <param name="title">The title of the page.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Decision(
-        string id = "decision/0002-store-expenses-as-documents",
-        string title = "Store expenses as documents") =>
+        string id = "decision/0002-keep-expenses-as-documents",
+        string title = "Keep expenses as documents") =>
         Page(FileOf(id), $$"""
             {
               "type": "decision",
@@ -232,9 +256,9 @@ internal static class TraceabilityFixtures
     /// <param name="title">The title of the page.</param>
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) TechnicalDecision(
-        string id = "decision/0002-store-expenses-as-documents",
-        string title = "Store expenses as documents") =>
-        Page("implementation/decisions/0002-store-expenses-as-documents.yaml", $$"""
+        string id = "decision/0002-keep-expenses-as-documents",
+        string title = "Keep expenses as documents") =>
+        Page("implementation/decisions/0002-keep-expenses-as-documents.yaml", $$"""
             {
               "type": "decision",
               "id": "{{id}}",

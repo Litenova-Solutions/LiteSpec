@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { book, dedupe } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover, RecordIcon } from "$lib/record";
   import PageSection from "./blocks/PageSection.svelte";
   import RecordList from "./blocks/RecordList.svelte";
   import { relationLabelOf } from "./page-values";
   import type { PhraseLookup } from "./page-values";
 
   // The links of a record, grouped by relation, eight with a Show all button each.
+  // Each group heading explains its link from this record's side.
   type Props = { id: string };
   let { id }: Props = $props();
   const rows = $derived(book.connectionsOf(id));
@@ -14,21 +16,38 @@
     phraseFor: (field, carrier, dir) => book.phraseFor(field, carrier, dir),
     typeOf: (rid) => book.typeOf(rid),
   };
-  const groups = $derived(
-    dedupe(rows.map((x) => x.label)).map((label) => {
-      const items = rows.filter((x) => x.label === label);
+  // One pass over the links: each label keeps its first-seen order.
+  const groups = $derived.by(() => {
+    const order: string[] = [];
+    const byLabel = new Map<string, typeof rows>();
+    for (const row of rows) {
+      const hit = byLabel.get(row.label);
+      if (hit) hit.push(row);
+      else {
+        byLabel.set(row.label, [row]);
+        order.push(row.label);
+      }
+    }
+    return order.map((label) => {
+      const items = byLabel.get(label) ?? [];
       return { label, items, heading: relationLabelOf(label, items, selfType, lookup) };
-    }),
-  );
+    });
+  });
 </script>
 
 {#if rows.length}
-  <PageSection blockKey="links" heading="Links" count={rows.length}>
+  <PageSection blockKey="links" heading="Links" count={rows.length} recordId={id}>
     {#each groups as g (g.label)}
-      <div class="mb-[18px] last:mb-0">
-        <h3 class="m-0 mb-1.5 text-sm font-semibold">{g.heading} ({g.items.length})</h3>
-        <RecordList ids={g.items.map((x) => x.id)} limit={8} moreKey={id + "|" + g.label} />
-      </div>
+      <h3 class="mt-5 flex min-h-8 items-center justify-between border-b border-border-subtle text-sm font-semibold">
+        <Hover hover={hoverSection(book, g.label, id)} side="bottom">
+          <span class="inline-flex items-center gap-1.5">
+            {g.heading}
+            <RecordIcon name="info" class="size-3.5 font-normal text-text-secondary" />
+          </span>
+        </Hover>
+        <span class="font-normal text-text-secondary tabular-nums">{g.items.length}</span>
+      </h3>
+      <RecordList ids={g.items.map((x) => x.id)} limit={8} moreKey={id + "|" + g.label} />
     {/each}
   </PageSection>
 {/if}

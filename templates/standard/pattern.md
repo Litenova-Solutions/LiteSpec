@@ -3,9 +3,7 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-## Intent
-
-State the recurring interface question this page answers and the screens it covers.
+Name the recurring interface question this page settles and the screens it covers, so a reader facing that question recognizes the right place.
 
 ## Patterns
 
@@ -23,7 +21,7 @@ State the recurring interface question this page answers and the screens it cove
 
 **Rationale:** One primary action answers what comes next.
 
-**Reviewed for:** Does the top of each record page match the default option or the one its catalog records?
+**Reviewed for:** Does the top of each record page follow the default option or the one its catalog records? Look at the record pages beside the catalog.
 
 #### `one-primary`: One Primary Action
 
@@ -34,9 +32,9 @@ page
     action primary "Mark as shipped"
 ```
 
-**Rationale:** The next step is plain.
+**Rationale:** The next step reads plainly.
 
-**Cost:** Other commands wait in a menu.
+**Cost:** The remaining commands wait in a menu.
 
 #### `two-equal`: Two Equal Actions
 
@@ -48,6 +46,6 @@ page
     action "Refund"
 ```
 
-**Rationale:** Both commands are one click away.
+**Rationale:** Both commands sit one click away.
 
-**Cost:** The reader compares labels before acting.
+**Cost:** The reader weighs two labels before acting.

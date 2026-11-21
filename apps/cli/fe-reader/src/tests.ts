@@ -1,5 +1,5 @@
 // Playwright test reading. Each test(...) call below a test root yields one
-// entry with its title, proves and journey annotations, goto targets, and the
+// entry with its title, proves and flow annotations, goto targets, and the
 // refusal codes and texts its assertions hold. Annotations come from raw
 // { type, description } objects and from proves("...") helper calls; goto
 // templates map each hole to [param]; a string matching the refusal code
@@ -17,7 +17,7 @@ interface FileTest {
   line: number;
   title: string;
   proves: string[];
-  journey: string | null;
+  flow: string | null;
   gotos: string[];
   codes: string[];
   texts: string[];
@@ -98,18 +98,18 @@ function annotationOf(node: ts.ObjectLiteralExpression): { kind: string; descrip
     if (key === "type" && kind === null) kind = plainText(unwrap(prop.initializer));
     if (key === "description" && description === null) description = plainText(unwrap(prop.initializer));
   }
-  if ((kind === "proves" || kind === "journey") && description !== null) return { kind, description };
+  if ((kind === "proves" || kind === "flow") && description !== null) return { kind, description };
   return null;
 }
 
 interface CollectedAnnotations {
   proves: string[];
-  journey: string | null;
+  flow: string | null;
 }
 
 function collectAnnotations(args: readonly ts.Expression[]): CollectedAnnotations {
   const proves: string[] = [];
-  let journey: string | null = null;
+  let flow: string | null = null;
   for (const arg of args) {
     if (isFunctionArg(arg)) continue;
     walkSkippingFunctions(arg, node => {
@@ -128,12 +128,12 @@ function collectAnnotations(args: readonly ts.Expression[]): CollectedAnnotation
         const annotation = annotationOf(node);
         if (annotation !== null) {
           if (annotation.kind === "proves") proves.push(annotation.description);
-          else if (journey === null) journey = annotation.description;
+          else if (flow === null) flow = annotation.description;
         }
       }
     });
   }
-  return { proves, journey };
+  return { proves, flow };
 }
 
 function passthroughParent(node: ts.Node): boolean {
@@ -207,7 +207,7 @@ function extractTests(text: string, fileName: string): { ok: boolean; tests: Fil
     const codes: string[] = [];
     const texts: string[] = [];
     collectBody(node.arguments.filter(arg => isFunctionArg(arg)), gotos, codes, texts);
-    tests.push({ line: lineOf(sourceFile, node), title, proves: annotations.proves, journey: annotations.journey, gotos, codes, texts });
+    tests.push({ line: lineOf(sourceFile, node), title, proves: annotations.proves, flow: annotations.flow, gotos, codes, texts });
   });
   tests.sort((a, b) => a.line - b.line);
   return { ok: true, tests };

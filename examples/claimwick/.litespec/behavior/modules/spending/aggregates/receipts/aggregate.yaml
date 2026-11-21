@@ -2,19 +2,22 @@ type: aggregate
 id: aggregate/spending.receipt
 title: Receipt
 summary: A receipt is proof of payment attached to an expense.
-kind: entity
 states:
 - name: Attached
   meaning: The receipt sits on the expense.
 transitions:
 - from: "-"
   to: Attached
-  by: use-case/spending.attach-receipt
+  movedBy: use-case/spending.attach-receipt
 records:
-- type: event
-  id: event/receipt.attached
+- type: domain-event
+  id: domain-event/receipt.attached
   title: Receipt Attached
   meaning: A receipt was attached.
   carries:
-  - receiptId
-  - expenseId
+  - name: receiptId
+    type: id
+    identifies: aggregate/spending.receipt
+  - name: expenseId
+    type: id
+    identifies: aggregate/spending.expense

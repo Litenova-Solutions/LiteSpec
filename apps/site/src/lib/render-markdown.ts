@@ -514,21 +514,16 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
   };
 
   let firstH1 = true;
-  let firstH2 = true;
   let html = code.replace(headingPattern, (match, depth: string, inner: string) => {
     const text = unescape(stripTags(inner)).replace(/\s+\{#[^}]+\}\s*$/, "").trim();
     const id = unique(slug(text));
     const level = Number(depth);
-    // The page template shows the title itself, so the Markdown H1 is dropped.
+    // The page template shows the title itself, so the Markdown H1 is dropped,
+    // and the lead paragraphs under it, up to the first H2, are the page's
+    // introduction, shown under the title.
     if (level === 1 && firstH1) {
       firstH1 = false;
-      return "";
-    }
-    // The opening Intent or Purpose section is the page's introduction: the
-    // template shows it under the title, without its heading.
-    if (level === 2 && firstH2) {
-      firstH2 = false;
-      if (text === "Intent" || text === "Purpose") return introMarker;
+      return introMarker;
     }
     const display = text.replace(/`/g, "").replace(/\s+/g, " ");
     if (level === 2) toc.push({ depth: 2, text: display, id });
@@ -554,8 +549,11 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
   html = decorateCodeBlocks(html);
   html = wrapProvisions(html, page);
   const { intro, body } = splitIntro(html);
+  // The Stack and Concern lines sit between the title and the lead paragraphs,
+  // so they are split from the start of the introduction.
+  const lead = splitMeta(intro);
   const { meta, rest } = splitMeta(body);
-  return { html: rest, intro, toc, meta };
+  return { html: rest, intro: lead.rest.trim(), toc, meta: [...lead.meta, ...meta] };
 }
 
 // Renders a short Markdown fragment such as a page intent to inline HTML.

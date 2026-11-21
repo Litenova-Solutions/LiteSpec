@@ -1,55 +1,81 @@
 # Why LiteSpec Exists
 
-## Intent
+When people or AI agents build software, they make decisions that rarely make it into the documentation. Requirements stay in chat threads. Business rules end up buried in handlers. The reasons behind a design disappear when someone leaves.
 
-LiteSpec exists because teams that build with AI agents watch the same request produce a different design each time, while the reasons behind past designs leave with the people who made them. This page names those failure modes and the 3 parts LiteSpec answers with: a versioned standard (one published set of rules), written records (short YAML files stating product intent), and a model builder (the command joining records to code, screens, and tests) that checks one against the other. Technical leads read it when they decide whether LiteSpec fits their team.
+AI agents make this harder to manage: give two agents the same request and they may produce different designs. Both compile and both pass their tests, but each introduces its own patterns, names, and assumptions.
+
+LiteSpec gives teams a shared set of rules, a place to record what the product should do, and a tool that checks how those records connect to the implementation.
 
 ## The Problem
 
-AI [agents](../reference/glossary.md) now write a large share of the code in many teams. Each one starts from what it can see: the request, the files it opens, and its own habits. Give the same request to two agents, or to one agent on two days, and the two designs differ. Both compile. Both pass their own tests. Together they leave a codebase with no single shape.
+An agent works from the context it has: the request, the files it reads, and the patterns it recognizes. If a requirement is missing, it may fill the gap rather than flag it.
 
-People drift the same way, more slowly. Over months, the reasons behind a design leave with the people who made them. A rule lives only in a handler. A requirement lives only in a chat thread. The documentation describes what the system did a year ago.
+Developers do this too. Over time, assumptions accumulate and the code, requirements, and documentation drift apart.
 
-These gaps cause failures that repeat:
+The same problems keep showing up:
 
-- Intent is lost between the request and the code, so nobody can say which requirement a piece of code serves.
-- An agent meets a gap and invents behavior, because nothing marks the gap as missing.
-- Familiar patterns are renamed until a new developer no longer recognizes them.
-- A feature ships in one layer while its storage, its API, its tests, or its operating impact is missing.
-- Documentation claims behavior that the code and its tests do not show.
+- Nobody can explain which requirement a piece of code implements.
+- Missing requirements become invented behavior.
+- The same concept gets different names in different parts of the codebase.
+- A feature is treated as complete even though its storage, API, tests, or operational needs haven't been addressed.
+- Documentation describes behavior that the code and tests don't support.
 
-## The Approach
+Beneath these sits a deeper gap: no reliable record of what was intended, what was decided, and what was actually built.
 
-LiteSpec makes the written record durable and the person or agent doing the work replaceable. A different developer, model, or tool can pick up the same records and reach the same boundaries.
+## How LiteSpec Helps
 
-It does that with three parts:
+LiteSpec puts that information in version-controlled records, so it doesn't depend on one developer's memory or one agent's context. Someone else can pick up the work and see the requirements, decisions, and constraints.
 
-- **A standard.** A versioned set of rules for building one [bounded-context business application](../core/scope.md): how Intent states promises, how Behavior keeps them, and how code, tests, security, operations, and releases work. Each rule carries a stable ID, so a person, an agent, or a tool cites exactly one rule, and each states its strength, so an agent tells binding from advisory without a check existing. [Read the standard](reading-the-standard.md) explains how the standard is organized.
-- **Records.** A project writes its intent as small record files of fixed types: the product, its modules with their features and requirements, its journeys, its aggregates, rules, use cases with their results, the reactions, jobs, notifications, and settings around them, and the decisions behind them. A record in git is decided, and the pull request that changes it is its review. [How LiteSpec Works](how-litespec-works.md) explains what a project writes down.
-- **A model builder.** A command-line tool reads the records, follows the marks by which code and tests point up to them, and works out how they connect: which handler implements which use case, which screen calls it, and which test proves it. It reports what is missing, and it renders the book the team reads. [How LiteSpec Works](how-litespec-works.md) explains when each tool runs.
+It has three parts.
 
-The standard tells everyone how to build. The records say what to build, top down from promises to behavior to code. The model shows whether the two match.
+### A Standard: How to Build
 
-## The End Goal
+The standard defines rules for building one [bounded-context business application](../core/scope.md). It covers how to describe product intent and behavior, along with rules for code, tests, security, operations, and releases.
 
-LiteSpec aims at one end goal: Intent so clear and structured that a person who is not a developer can read it, and exact enough that an agent builds from it without guessing.
+Each rule, called a provision, has a stable ID and states whether it is required, a default the project may replace with its own convention, or advisory. People, agents, and tools can refer to the same rule without having to infer how strictly it applies.
 
-Work runs top down through four layers: people and agents write Intent first, then Behavior from Intent, then code from Behavior, and tests prove each promised example through the public boundary. The [record layers](../core/layers.md) state the four layers and the translation rules between them, and [How LiteSpec Works](how-litespec-works.md) states what the model computes from them.
+[Read the standard](reading-the-standard.md) explains how it is organized.
 
-## Non-Goals
+### Records: What to Build
 
-Three things LiteSpec does not try to be:
+A project describes its product in short YAML files with defined record types. These cover the product's modules, features, requirements, user flows, business rules, use cases, and supporting behavior, as well as the decisions behind them.
 
-- **No framework or library.** A team builds with its own stack. LiteSpec states how, and checks the result.
-- **No process.** LiteSpec holds no ceremonies or sprints. Who answers for an area is `CODEOWNERS`, not a record field.
-- **No wider scope.** LiteSpec covers one bounded-context business application: one domain, one API, and one database, with one or more frontends. A platform of many services, a game, or an embedded system sits outside that scope.
+The records live in git. Committed records represent agreed decisions; changes are reviewed through pull requests.
 
-## One Narrow Scope
+### A Model Builder: How It Connects
 
-LiteSpec stays narrow on purpose. A standard that tries to cover every architecture must stay vague, and a vague rule gives an agent nothing to follow. By fixing the shape of the application, LiteSpec states concrete rules: the modules project ordered by module, aggregate, and use case, one way to model a lifecycle, and one way to report a refused command. An agent that follows them makes the same choices a careful senior developer makes.
+A command-line tool reads the records and the references to them in code and tests. It maps connections such as:
 
-The name reflects that scope. *Lite* means a project adopts one bounded context, one size, and the stacks it selects, and nothing more. *Spec* means written records and rules define the work.
+- Which handler implements a use case?
+- Which screen calls it?
+- Which test verifies the expected behavior?
+
+The builder reports missing connections and generates documentation from the model.
+
+[How LiteSpec Works](how-litespec-works.md) explains the records, the tools, and when each tool runs.
+
+## The Goal
+
+LiteSpec aims to make product intent readable by someone who isn't a developer, while giving an agent enough detail to implement it without inventing requirements.
+
+Work moves through four layers, from Intent through Behavior and Implementation to Proof; the [record layers](../core/layers.md) define what belongs in each layer and how one translates into the next.
+
+## Why the Scope Is Narrow
+
+LiteSpec covers one bounded-context business application: one domain, one API, and one database, with one or more frontends.
+
+That limit is deliberate. A standard for every kind of software would have to leave many architectural choices open. LiteSpec fixes enough of the application's structure to give specific guidance: how to organize code by module, aggregate, and use case; how to model a lifecycle; and how to report a refused command.
+
+Those choices give developers and agents fewer gaps to fill and fewer reasons to invent competing patterns.
+
+The name reflects this scope. *Lite* means adopting only what applies to one bounded context and the project's chosen size and stack. *Spec* means recording the requirements and rules that guide the work.
+
+## What LiteSpec Is Not
+
+- **A framework or library.** You build with your own stack. LiteSpec supplies rules and checks, not runtime code.
+- **A project-management process.** It doesn't prescribe sprints or ceremonies. Ownership stays in `CODEOWNERS`, not in record fields.
+- **A standard for every kind of system.** Multi-service platforms, games, and embedded systems are outside its scope.
 
 ## Next
 
-[How LiteSpec works](how-litespec-works.md) follows these parts through one Claimwick use case.
+[How LiteSpec Works](how-litespec-works.md) walks through these parts using a Claimwick use case.

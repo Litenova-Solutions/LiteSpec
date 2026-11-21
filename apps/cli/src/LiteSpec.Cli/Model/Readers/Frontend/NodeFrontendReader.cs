@@ -383,11 +383,12 @@ static class NodeFrontendReader
                 Text(element, "folder"), Text(element, "file"), Line(element), Strings(element, "marks"))),
             Routes: ArrayOf(entry, "routes", element => new RouteFact(
                 Text(element, "file"), Line(element), Text(element, "address"), Strings(element, "marks"),
-                ArrayOf(element, "calls", call => new CallFact(Text(call, "operation"), Text(call, "file"), Line(call))))),
+                ArrayOf(element, "calls", call => new CallFact(Text(call, "operation"), Text(call, "file"), Line(call), Flag(call, "fromLayout"))),
+                Navigations: ArrayOf(element, "navigations", navigation => new NavigationFact(Text(navigation, "path"), Text(navigation, "file"), Line(navigation), Flag(navigation, "fromLayout"))))),
             Tests: ArrayOf(entry, "tests", element => new BrowserTestFact(
                 Text(element, "file"), Line(element), Text(element, "title"), Strings(element, "proves"),
-                element.TryGetProperty("journey", out var journey) && journey.ValueKind == JsonValueKind.String
-                    ? journey.GetString()
+                element.TryGetProperty("flow", out var flow) && flow.ValueKind == JsonValueKind.String
+                    ? flow.GetString()
                     : null,
                 Strings(element, "gotos"), Strings(element, "codes"), Strings(element, "texts"))),
             Diagnostics: ArrayOf(entry, "diagnostics", element => new FrontendDiagnostic(
@@ -435,4 +436,11 @@ static class NodeFrontendReader
     /// <returns>The line the entry states, or 1 when it states none or a non-positive line.</returns>
     private static int Line(JsonElement owner) =>
         owner.TryGetProperty("line", out var value) && value.TryGetInt32(out var line) && line > 0 ? line : 1;
+
+    /// <summary>Whether a response entry sets the named flag: true only when the field is present and true.</summary>
+    /// <param name="owner">The JSON object that holds the field.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <returns>True when the field is present and true; otherwise false.</returns>
+    private static bool Flag(JsonElement owner, string field) =>
+        owner.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.True;
 }

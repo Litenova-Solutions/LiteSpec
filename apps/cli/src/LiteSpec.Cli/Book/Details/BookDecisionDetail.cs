@@ -11,21 +11,20 @@ namespace LiteSpec.Cli.Book.Details;
 ///     decision its implementing classes follow, so the system page names
 ///     the decision that chooses its provider without a written link.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookDecisionDetail
 {
     /// <summary>
-    ///     Adds one decides edge from the deciding decision to each
+    ///     Adds one chooses edge from the choosing decision to each
     ///     external system whose implementing classes follow a decision:
     ///     the outgoing edge on the decision and the incoming edge on the
-    ///     system. A decision that already writes decides to the system
-    ///     keeps that edge, and gains no second one.
+    ///     system.
     /// </summary>
     /// <param name="model">The parsed model object that holds the follows links.</param>
     /// <param name="index">The model index that holds the records and the implements links.</param>
-    /// <param name="outs">The outgoing edges per record id, which receive the decides edges.</param>
-    /// <param name="ins">The incoming edges per record id, which receive the decides edges.</param>
-    public static void AddDecidesEdges(JsonObject model, BookIndex index, Dictionary<string, List<BookEdge>> outs, Dictionary<string, List<BookEdge>> ins)
+    /// <param name="outs">The outgoing edges per record id, which receive the chooses edges.</param>
+    /// <param name="ins">The incoming edges per record id, which receive the chooses edges.</param>
+    public static void AddChoosesEdges(JsonObject model, BookIndex index, Dictionary<string, List<BookEdge>> outs, Dictionary<string, List<BookEdge>> ins)
     {
         foreach (var pair in index.ById)
         {
@@ -34,24 +33,19 @@ static class BookDecisionDetail
                 continue;
             }
 
-            var deciding = DecidingDecision(model, index, pair.Key);
-            if (deciding is null)
+            var choosing = ChoosingDecision(model, index, pair.Key);
+            if (choosing is null)
             {
                 continue;
             }
 
-            if (!outs.TryGetValue(deciding, out var from) || !ins.TryGetValue(pair.Key, out var to))
+            if (!outs.TryGetValue(choosing, out var from) || !ins.TryGetValue(pair.Key, out var to))
             {
                 continue;
             }
 
-            if (from.Any(edge => string.Equals(edge.Id, pair.Key, StringComparison.Ordinal) && IsDecides(edge.Key)))
-            {
-                continue;
-            }
-
-            from.Add(new BookEdge(pair.Key, "decides"));
-            to.Add(new BookEdge(deciding, "decides"));
+            from.Add(new BookEdge(pair.Key, "chooses"));
+            to.Add(new BookEdge(choosing, "chooses"));
         }
     }
 
@@ -63,8 +57,8 @@ static class BookDecisionDetail
     /// <param name="model">The parsed model object that holds the follows links.</param>
     /// <param name="index">The model index that holds the records and the implements links.</param>
     /// <param name="id">The external-system record id.</param>
-    /// <returns>The deciding decision id, or null when no implementing class follows a decision.</returns>
-    public static string? DecidingDecision(JsonObject model, BookIndex index, string id)
+    /// <returns>The choosing decision id, or null when no implementing class follows a decision.</returns>
+    public static string? ChoosingDecision(JsonObject model, BookIndex index, string id)
     {
         if (!index.ImplementsByTarget.TryGetValue(id, out var implements) || implements.Count == 0)
         {
@@ -115,12 +109,6 @@ static class BookDecisionDetail
 
         return first;
     }
-
-    /// <summary>Whether an edge key is the decides link, written on the record or computed here.</summary>
-    /// <param name="key">The edge key.</param>
-    /// <returns>True for the bare computed key and any dotted written key ending in the decides field.</returns>
-    static bool IsDecides(string key) =>
-        string.Equals(key, "decides", StringComparison.Ordinal) || key.EndsWith(".decides", StringComparison.Ordinal);
 
     /// <summary>
     ///     Writes the concerns of each decision's followers onto its record: the

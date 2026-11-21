@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 
@@ -10,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</follows>
 internal static class RecordNameChecks
 {
-    /// <summary>Audience words a template key may end with whatever the record declares.</summary>
+    /// <summary>Audience words a template key may end with when the notification declares no audience.</summary>
     private static readonly HashSet<string> TemplateAudienceAliases = new(StringComparer.Ordinal)
     {
         "customer", "member", "owner", "team", "staff", "approver", "requester", "reader",
@@ -50,19 +51,8 @@ internal static class RecordNameChecks
                 continue;
             }
 
-            var accepted = new HashSet<string>(TemplateAudienceAliases, StringComparer.Ordinal);
-
-            foreach (var audience in notification.Ids(RecordFields.Addresses))
-            {
-                accepted.Add(audience);
-
-                var slash = audience.LastIndexOf('/');
-
-                if (slash >= 0 && slash < audience.Length - 1)
-                {
-                    accepted.Add(audience[(slash + 1)..]);
-                }
-            }
+            // Each key ends with the audience the record declares; without a declared audience, the audience aliases stand in.
+            var accepted = AudienceEndings(notification);
 
             var keys = template.Split(',')
                 .Select(key => key.Trim())
@@ -76,10 +66,24 @@ internal static class RecordNameChecks
 
                 if (!names)
                 {
-                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no addresses the record declares.", notification.File, notification.Line, SubjectOf(notification)));
+                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no audience the record declares.", notification.File, notification.Line, SubjectOf(notification)));
                 }
             }
         }
+    }
+
+    /// <summary>The endings a notification's template keys may end with: the name of each declared audience, else the audience aliases.</summary>
+    /// <param name="notification">The notification record whose declared audience is read.</param>
+    /// <returns>The accepted key endings.</returns>
+    private static HashSet<string> AudienceEndings(Record notification)
+    {
+        var declared = notification.Ids(RecordFields.Audience)
+            .Select(id => Identifiers.TrySplit(id, out _, out _, out var name) ? name : null)
+            .Where(name => name is { Length: > 0 })
+            .Select(name => name!);
+
+        var endings = new HashSet<string>(declared, StringComparer.Ordinal);
+        return endings.Count > 0 ? endings : new HashSet<string>(TemplateAudienceAliases, StringComparer.Ordinal);
     }
 
     /// <summary>Reports a setting holding a number or a duration with no unit.</summary>
@@ -106,7 +110,7 @@ internal static class RecordNameChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIntegrationEventWording(ProjectModel model, List<Finding> findings)
     {
-        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Direction) == "out"))
+        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Action) == "send"))
         {
             if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name is null)
             {

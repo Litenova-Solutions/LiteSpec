@@ -1,27 +1,34 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover, pageSections, RecordIcon } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // One page section: a heading from the field label, an optional count, and an
   // optional aside. Blocks that only list linked records stay off the page; the
-  // rail shows them. A zero count or empty HTML hides the block.
+  // rail shows them. A zero count or empty HTML hides the block. The heading
+  // takes focus so the rail's On this page links can land on it, and hovering
+  // it explains the section with an info mark beside the text. The explained
+  // record defaults to the open record; a caller showing another record passes it.
   type Props = {
     blockKey: string;
     heading: string;
     count?: number | null;
     aside?: string;
     html?: string | null;
+    recordId?: string | null;
     children?: Snippet;
   };
-  let { blockKey, heading, count = null, aside = "", html = null, children }: Props = $props();
+  let { blockKey, heading, count = null, aside = "", html = null, recordId = null, children }: Props = $props();
 
   const LINKS_IN_RAIL = new Set([
     "based on", "depends on", "governs", "raised by", "fulfilled by", "governed by", "fulfills",
-    "fulfills and serves", "advances", "basedOn", "addresses", "actor", "dependsOn",
-    "decides", "raises", "subject", "affects", "replaces", "implements", "calls", "proves",
+    "fulfills and serves", "advances", "basedOn", "requires", "actor", "dependsOn",
+    "chooses", "raises", "subject", "affects", "replaces", "implements", "calls", "proves",
     "serves", "advances", "cites",
   ]);
 
+  const forId = $derived(recordId ?? book.selected ?? "");
+  const headingType = $derived(forId ? book.typeOf(forId) : null);
   const hidden = $derived.by(() => {
     if (count === 0) return true;
     if (html !== null && !html) return true;
@@ -29,18 +36,31 @@
     return (
       LINKS_IN_RAIL.has(heading) ||
       LINKS_IN_RAIL.has(heading.toLowerCase()) ||
-      LINKS_IN_RAIL.has(book.fieldLabel(heading).toLowerCase())
+      LINKS_IN_RAIL.has(book.fieldLabel(heading, headingType).toLowerCase())
     );
+  });
+
+  const label = $derived(book.fieldLabel(heading, headingType));
+  const hover = $derived(hoverSection(book, heading, forId));
+
+  // A shown section lists itself in the rail's On this page.
+  $effect(() => {
+    if (hidden) return;
+    return pageSections.add({ key: blockKey, label: book.fieldLabel(heading, headingType), count: count ?? null });
   });
 </script>
 
 {#if !hidden}
-  <section class="mb-8 scroll-mt-20" id={"b-" + blockKey}>
-    <h2 class="mb-3 flex items-center gap-2.5 text-base font-semibold tracking-tight">
-      {book.fieldLabel(heading)}
-      {#if count != null}<span class="font-mono text-xs font-normal text-muted-foreground">{count}</span>{/if}
-      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
-      {#if aside}<span class="text-xs font-normal text-muted-foreground">{aside}</span>{/if}
+  <section class="mt-10 scroll-mt-20" id={"b-" + blockKey}>
+    <h2 tabindex="-1" class="mb-2 flex items-baseline gap-3 text-xl leading-7 font-normal outline-none">
+      <Hover {hover} side="bottom">
+        <span class="inline-flex items-center gap-1.5">
+          {label}
+          <RecordIcon name="info" class="size-3.5 text-text-secondary" />
+        </span>
+      </Hover>
+      {#if count != null}<span class="text-sm text-text-secondary tabular-nums">{count}</span>{/if}
+      {#if aside}<span class="ml-auto text-xs tracking-[0.32px] text-text-secondary">{aside}</span>{/if}
     </h2>
     {#if html !== null}
       {@html html}

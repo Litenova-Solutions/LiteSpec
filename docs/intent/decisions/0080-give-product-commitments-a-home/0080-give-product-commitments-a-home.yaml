@@ -1,0 +1,19 @@
+type: decision
+id: decision/0080-give-product-commitments-a-home
+title: Give Product Commitments a Home
+context: "A permanent commitment with no offer had no home, since every requirement needed a feature, so authors filed tenant isolation, audit integrity, and retention of the books under invented features, or left them unwritten."
+options:
+  - name: "Product requirements at product level, citing their reason"
+    pros: "Commitments with no offer gain a home with their reason cited, and no invented feature is needed."
+    cons: "Invented features split into product requirements."
+  - name: "Keep commitments under features"
+    pros: "No home is added."
+    cons: "Tenant isolation and audit integrity still wait on an offer to hang from, or hide under invented features."
+  - name: "Leave commitments unwritten"
+    pros: "Nothing is written for what no offer carries."
+    cons: "Permanent commitments stay out of the records, so no check reads them and no Behavior fulfills them."
+choice: "Product requirements at product level, citing their reason"
+consequences: "Requirements with no offer live at `intent/requirements/<name>/` with identifier `requirement/<name>` under the product, citing at least one `constraint/`, `goal/`, or `problem/` in `cites`. `litespec/core/intent#place-product-wide-commitments-as-product-requirements` states the home."
+reopenedWhen: "A product commitment needs an offer to be built."
+basedOn:
+  - research/established-traceability-practice

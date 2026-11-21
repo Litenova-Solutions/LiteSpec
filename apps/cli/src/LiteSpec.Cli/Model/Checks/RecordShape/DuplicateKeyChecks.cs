@@ -29,11 +29,10 @@ internal static class DuplicateKeyChecks
             {
                 case RecordTypes.Constraint:
                 case RecordTypes.Research:
-                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Sources), RecordFields.Key, "source key", null, findings);
+                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Sources), RecordFields.Name, "source name", null, findings);
                     break;
 
-                case RecordTypes.Journey:
-                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Steps), RecordFields.Id, "step id", null, findings);
+                case RecordTypes.Flow:
                     CheckBranchKeys(record, findings);
                     break;
 
@@ -95,15 +94,16 @@ internal static class DuplicateKeyChecks
             : null;
 
     /// <summary>
-    ///     Reports each path that two branches of one journey name twice. A branch is keyed by the
+    ///     Reports each path that two branches of one step name twice. A branch is keyed by the
     ///     step it leaves and the step it continues at, so one step may hold several branches with
     ///     different targets, and two branches to the same target are one path named twice.
+    ///     A step id repeats as an identifier, so the identifier check owns it.
     /// </summary>
-    /// <param name="record">The journey record whose branches are read.</param>
+    /// <param name="record">The flow record whose steps are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckBranchKeys(Record record, List<Finding> findings)
     {
-        if (ArrayProperty(record.Raw, RecordFields.Branches) is not { } list)
+        if (ArrayProperty(record.Raw, RecordFields.Steps) is not { } steps)
         {
             return;
         }
@@ -111,24 +111,38 @@ internal static class DuplicateKeyChecks
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var reported = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var entry in list.EnumerateArray())
+        foreach (var step in steps.EnumerateArray())
         {
-            if (Str(entry, RecordFields.Step) is not { Length: > 0 } step
-                || Str(entry, RecordFields.NextStep) is not { Length: > 0 } next)
+            if (Str(step, RecordFields.Id) is not { Length: > 0 } id
+                || ArrayProperty(step, RecordFields.Branches) is not { } list)
             {
                 continue;
             }
 
-            var path = $"{step} to {next}";
-
-            if (!seen.Add(path) && reported.Add(path))
+            foreach (var entry in list.EnumerateArray())
             {
-                findings.Add(new Finding(
-                    "record-key-duplicate",
-                    $"Record '{record.Id}' names the branch '{path}' twice.",
-                    record.File,
-                    record.Line,
-                    SubjectOf(record)));
+                if (Str(entry, RecordFields.Then) is not { Length: > 0 } next)
+                {
+                    // A branch that ends names its end, so two ends on one step are one path named twice.
+                    next = Str(entry, RecordFields.Ends) is { Length: > 0 } ? "end" : null;
+
+                    if (next is null)
+                    {
+                        continue;
+                    }
+                }
+
+                var path = $"{id} to {next}";
+
+                if (!seen.Add(path) && reported.Add(path))
+                {
+                    findings.Add(new Finding(
+                        "record-key-duplicate",
+                        $"Record '{record.Id}' names the branch '{path}' twice.",
+                        record.File,
+                        record.Line,
+                        SubjectOf(record)));
+                }
             }
         }
     }

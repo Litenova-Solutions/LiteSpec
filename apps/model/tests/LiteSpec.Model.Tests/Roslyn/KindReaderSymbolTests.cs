@@ -391,6 +391,8 @@ public sealed class KindReaderSymbolTests
 
         Assert.Equal(CodeKind.Port, KindReader.KindOf(node, KindContext.Empty, "Shop.Application"));
         Assert.Equal(CodeKind.Port, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+        Assert.Equal(CodeKind.Port, KindReader.KindOf(node, KindContext.Empty, "Shop.Billing", "Ports"));
+        Assert.Equal(CodeKind.Port, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Billing", "Ports"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.WebApi"));
     }
 
@@ -414,6 +416,28 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Worker"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Domain"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty));
+    }
+
+    /// <summary>A symbol message definition class takes no kind: definitions take no mark.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact(DisplayName = "A symbol message definition class takes no kind")]
+    public void SymbolMessageDefinitionClassTakesNoKind()
+    {
+        const string code = """
+            public interface IAuthorizationDefinition<TMessage>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandAuthorizationDefinition : IAuthorizationDefinition<SubmitExpenseCommand>
+            {
+                public void Authorize()
+                {
+                }
+            }
+            """;
+        var symbol = SymbolOf(code, "SubmitExpenseCommandAuthorizationDefinition");
+
+        Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
     }
 
     /// <summary>A symbol record, nested class, or constructor-only class is not technical.</summary>

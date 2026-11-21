@@ -1,0 +1,55 @@
+type: flow
+id: flow/borrow-and-return
+title: Borrow and return
+actor: actor/reader
+summary: A reader borrows a copy from the shelf and returns it to the desk. The flow starts when the reader takes the copy and ends with the copy back on its shelf. A good flow keeps each loan inside its due date, because overdue loans block the next reader.
+serves:
+- goal/faster-pickup
+startedWhen: The reader stands at the shelf with the copy in view.
+finishedWhen: The reader holds the copy, then the copy sits back on its shelf.
+steps:
+- id: step/borrow-and-return.register-copy
+  title: Register Copy
+  statement: The librarian registers the copy on its home shelf.
+  actor: actor/librarian
+- id: step/borrow-and-return.borrow-copy
+  title: Borrow Copy
+  statement: The reader borrows the copy from the shelf.
+  actor: actor/reader
+  failure: The copy is lent out, so the reader places a hold instead.
+  carries:
+  - requirement/borrowing.max-active-loans
+  branches:
+  - when: the copy is lent out
+    then: step/borrow-and-return.place-hold
+  - when: the loan is active
+    then: step/borrow-and-return.renew-loan
+- id: step/borrow-and-return.renew-loan
+  title: Renew Loan
+  statement: The reader renews the loan before it ends.
+  actor: actor/reader
+  failure: The loan already ended, so the reader returns the copy late.
+- id: step/borrow-and-return.review-loans
+  title: Review Loans
+  statement: The reader reviews their loans and due dates.
+  actor: actor/reader
+- id: step/borrow-and-return.return-copy
+  title: Return Copy
+  statement: The reader returns the copy to the desk.
+  actor: actor/reader
+  failure: The copy is damaged, so the librarian retires it.
+  branches:
+  - when: the copy is damaged
+    then: step/borrow-and-return.retire-copy
+- id: step/borrow-and-return.place-hold
+  title: Place Hold
+  statement: The reader places a hold on a lent copy.
+  actor: actor/reader
+- id: step/borrow-and-return.cancel-hold
+  title: Cancel Hold
+  statement: The reader cancels a hold they no longer need.
+  actor: actor/reader
+- id: step/borrow-and-return.retire-copy
+  title: Retire Copy
+  statement: The librarian retires a worn copy.
+  actor: actor/librarian

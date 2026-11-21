@@ -1,18 +1,19 @@
 # Claimwick Agent Context
 
 <!-- generated:agent-protocol -->
-When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them.
+When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 
-This project follows LiteSpec 6.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
+This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
-Before a task, read https://litespec.dev/6.0.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
-UI work: the pattern pages listed in that index.
+Before a task, read the LiteSpec pages of this release at ../../docs and open only the pages the task touches.
+Read this release only: never substitute another version when a page is missing.
+UI work: the pattern pages of this release.
 
 Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#select-task-context)
 
 Follow one order on every task: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code. (litespec/core/agent#select-task-context, litespec/core/agent#load-applicable-provisions-before-editing, litespec/core/agent#inspect-local-examples-after-standards)
 
-`litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. (litespec/core/agent#select-task-context)
+`litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. Then read the YAML record files themselves, which hold the whole specification, and their explanation files when you need the context they add. Find records by text with `litespec model query --search <text>` and list every record of a type with `litespec model query --list <type>`. (litespec/core/agent#select-task-context, litespec/core/model#keep-the-whole-specification-in-the-records, litespec/core/writing#explain-the-same-specification-the-records-state, litespec/core/writing#update-a-record-and-its-explanation-together)
 
 Run `litespec rules <path>` before editing a file. (litespec/core/agent#load-applicable-provisions-before-editing)
 
@@ -24,13 +25,15 @@ Build only what the specification states, and take anything missing to the owner
 
 Never delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; report a test you believe is wrong instead of editing it. (litespec/core/agent#protect-proofs-from-implementation-edits)
 
-Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect. (litespec/core/system#declare-every-edge-between-records)
+Declare every edge between use cases, reactions, jobs, notifications, module events, integration events, and external systems. An undeclared edge is the defect. (litespec/core/system#declare-every-edge-between-records)
 
-A project departure record sets a Standard aside only when it names the provision ID, with its reason, and with an expiry date when the gap is meant to close. (litespec/core/agent#apply-guidance-precedence)
+Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run; only a live waiver covers one. (litespec/core/model#mark-every-check-with-its-level)
+
+A project waiver record sets a Standard aside only when it names the provision ID, states its kind, and, for a gap, names the expiry date, the `exitWhen` and the closing records in `closedBy`. (litespec/core/agent#apply-guidance-precedence, litespec/core/waivers#state-the-kind-of-every-waiver, litespec/core/waivers#name-the-records-that-close-a-gap)
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 
-Read `.litespec/intent/product.yaml` and the affected module's feature files before changing behavior that touches money, payouts, or terms. (litespec/core/intent#keep-intent-in-its-homes)
+Read `.litespec/product.yaml` and the affected feature files before changing behavior that touches money, payouts, or terms. (litespec/core/model#write-every-record-in-its-home)
 
 Record a product decision for any changed product choice. Research outside `.litespec/` is source material, never authority. (litespec/core/intent#treat-generated-research-as-source-material)
 <!-- /generated:agent-protocol -->
@@ -39,14 +42,14 @@ Record a product decision for any changed product choice. Research outside `.lit
 
 This example holds no solution file, C# project file or package manifest, so its build and test gates have no command here. A consumer names its own in this section. The commands below run against the records and the code in this folder.
 
-Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#declare-structured-specification-metadata)
+Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema)
 
-Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
+Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#justify-each-freestyle-route-with-a-decision-record)
 
-Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/core/edges#show-every-refusal-a-screen-can-reach)
+Reach each declared refusal in an evidence specification and assert it by its result's code. (litespec/frontend/testing#assert-each-declared-refusal-by-its-code)
 
-Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
+Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#name-the-evidence-for-each-ui-change, litespec/frontend/ui#pass-every-route-suite-check)
 
-Record a departure before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)
+Record a waiver before selecting another visual system or component base. (litespec/frontend/ui#record-one-shared-ui-package)
 
 Report every skipped check with its reason, and name the provisions `rules` returned and how each was judged. (litespec/core/release#report-verification-exactly)

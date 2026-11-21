@@ -1,47 +1,118 @@
+using System.Text.Json;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
-using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Proof;
-using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model;
 
-/// <summary>Proves test hashes ignore checkout path and line endings, and a damaged ledger reports.</summary>
+/// <summary>Proves the ledger records the run commit and outcome per scenario, and a damaged ledger reports.</summary>
 public sealed class ProofLedgerTests
 {
     const string Scenario = "scenario/borrow-copy.borrowing-an-available-copy-succeeds";
-    const string TestTitle = "Borrowing an available copy succeeds";
-    const string TestFile = "tests/Proof.cs";
 
-    /// <summary>The same test file with CRLF and LF content hashes the same.</summary>
+    /// <summary>A run passing the proof for the first time records its commit and reads fresh.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void SameTestWithCrlfAndLfHashesTheSame()
+    public void NewRunRecordsCommitAndReadsFresh()
     {
         using var temp = TestCli.Temp("proof");
-        WriteTest(temp.Path, "first line\nsecond line\n");
-        var model = Model(temp.Path);
-        var lf = ProofLedger.TestHashOf(model, Scenario);
+        var config = ConsumerConfig.Load(temp.Path);
+        var ledger = ProofLedger.Empty();
 
-        WriteTest(temp.Path, "first line\r\nsecond line\r\n");
+        Assert.False(ledger.Stale(Scenario, "run-1", "commit-1", new ProofFreshness(config)));
+        Assert.True(ledger.Changed);
 
-        Assert.Equal(lf, ProofLedger.TestHashOf(model, Scenario));
+        var entry = ledger.Entries[Scenario];
+
+        Assert.Equal("commit-1", entry.Commit);
+        Assert.Equal("Passed", entry.Outcome);
+        Assert.Equal("run-1", entry.Run);
     }
 
-    /// <summary>The same test file under another project root hashes the same.</summary>
+    /// <summary>The same run read again without git reads stale, since no commit can be compared.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void SameTestUnderAnotherRootHashesTheSame()
+    public void SameRunWithoutGitReadsStale()
     {
-        using var first = TestCli.Temp("proof");
-        using var second = TestCli.Temp("proof");
-        WriteTest(first.Path, "first line\nsecond line\n");
-        WriteTest(second.Path, "first line\nsecond line\n");
+        using var temp = TestCli.Temp("proof");
+        var config = ConsumerConfig.Load(temp.Path);
+        var ledger = ProofLedger.Empty();
+        var freshness = new ProofFreshness(config);
 
-        Assert.Equal(
-            ProofLedger.TestHashOf(Model(first.Path), Scenario),
-            ProofLedger.TestHashOf(Model(second.Path), Scenario));
+        Assert.False(ledger.Stale(Scenario, "run-1", "", freshness));
+        Assert.True(ledger.Stale(Scenario, "run-1", "", freshness));
+    }
+
+    /// <summary>The ledger saves the commit, the outcome and the run per scenario, and reads them back.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void LedgerSavesCommitOutcomeAndRun()
+    {
+        using var temp = TestCli.Temp("proof");
+        var config = ConsumerConfig.Load(temp.Path);
+        var ledger = ProofLedger.Empty();
+        ledger.Stale(Scenario, "run-1", "commit-1", new ProofFreshness(config));
+        ledger.Save(config);
+
+        using var saved = JsonDocument.Parse(File.ReadAllText(
+            Path.Combine(temp.Path, ".litespec", "proof", "proofs.json")));
+        var written = saved.RootElement.GetProperty(Scenario);
+
+        Assert.Equal("commit-1", written.GetProperty("commit").GetString());
+        Assert.Equal("Passed", written.GetProperty("outcome").GetString());
+        Assert.Equal("run-1", written.GetProperty("run").GetString());
+        Assert.False(written.TryGetProperty("scenario", out _));
+        Assert.False(written.TryGetProperty("test", out _));
+        Assert.False(written.TryGetProperty("method", out _));
+        Assert.False(written.TryGetProperty("marks", out _));
+
+        var loaded = ProofLedger.Load(config);
+
+        Assert.Empty(loaded.Problems);
+
+        var entry = loaded.Entries[Scenario];
+
+        Assert.Equal("commit-1", entry.Commit);
+        Assert.Equal("Passed", entry.Outcome);
+        Assert.Equal("run-1", entry.Run);
+    }
+
+    /// <summary>A ledger entry without an outcome reads as passed, from its commit and run.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void LedgerEntryWithoutOutcomeReadsAsPassed()
+    {
+        using var temp = TestCli.Temp("proof");
+        var folder = Path.Combine(temp.Path, ".litespec", "proof");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "proofs.json"),
+            $$"""{ "{{Scenario}}": { "commit": "commit-1", "run": "run-1" } }""");
+
+        var ledger = ProofLedger.Load(ConsumerConfig.Load(temp.Path));
+
+        Assert.Empty(ledger.Problems);
+
+        var entry = ledger.Entries[Scenario];
+
+        Assert.Equal("commit-1", entry.Commit);
+        Assert.Equal("Passed", entry.Outcome);
+        Assert.Equal("run-1", entry.Run);
+    }
+
+    /// <summary>A missing ledger file reads as an empty ledger with no problems.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void MissingLedgerLoadsEmpty()
+    {
+        using var temp = TestCli.Temp("proof");
+
+        var ledger = ProofLedger.Load(ConsumerConfig.Load(temp.Path));
+
+        Assert.Empty(ledger.Entries);
+        Assert.Empty(ledger.Problems);
+        Assert.False(ledger.Changed);
     }
 
     /// <summary>A ledger that does not parse reports a model problem.</summary>
@@ -57,21 +128,5 @@ public sealed class ProofLedgerTests
         var ledger = ProofLedger.Load(ConsumerConfig.Load(temp.Path));
 
         Assert.Contains(ledger.Problems, problem => problem.Code == "record-invalid");
-    }
-
-    static ProjectModel Model(string root)
-    {
-        var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
-        model.Proves.Add(new ProvesLink(TestTitle, Scenario, true, true, false));
-        model.BrowserTests.Add(new CodeBrowserTest("web", TestTitle, TestFile, 1, [], null, [], [], []));
-
-        return model;
-    }
-
-    static void WriteTest(string root, string text)
-    {
-        var path = Path.Combine(root, TestFile.Replace('/', Path.DirectorySeparatorChar));
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, text);
     }
 }

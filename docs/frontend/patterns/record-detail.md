@@ -3,31 +3,33 @@
 **Stack:** any
 **Concern:** frontend-ui
 
-## Intent
-
-One screen shows one record of the product, with its state, facts, history, and the commands a reader may run, and this page holds the patterns for that screen: header, tabs, summary, aside, timeline, relations, refusals, change history, notes, attachments, identifiers, neighbor movement, and the whole record screen assembled from them. A team building a record screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared record shape keeps every record readable in the same order, so support finds the state and the next step without hunting.
+A record screen shows one record of the product: its state, its facts, its history, and the commands a reader may run. This page gives one pattern for each part of that screen, and a final pattern that assembles the parts into a whole screen. To build a record screen, an owner picks one option from the drawings in each pattern, and the team records each choice in its pattern catalog, the file holding the project's interface decisions. One shared record shape keeps every record readable in the same order, so support staff find the state and the next step in the same place on every record. This page belongs to the Lists and Tables category. Its patterns are tested layouts a team chooses from, not required rules.
 
 ## Concepts
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about a record screen, such as what the header states. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+A pattern is LiteSpec's answer to one recurring interface question, such as what the top of a record states. It exists so every screen answers that question the same way instead of each route answering it differently. Each pattern below names its question, the default option a project builds unless its catalog records another, how that default behaves on a narrow screen, and why it is the default.
+
+Each option shows one wireframe drawing, a plain-text sketch of the parts and their order, with its rationale, its cost, and a reference naming the outside product it learns from, where there is one. Your project records its choice in its pattern catalog and builds the chosen option with its own components and design system. The [catalog contract and wireframe language](../patterns.md) state what each catalog entry holds and how to read the drawings.
 
 ### The Running Example
 
-The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part of the Rotterdam client visit. The header states the expense and its state, the sections state the spender, lines, and money, and the aside carries the history. The Standards section states the two rules every option keeps: a record header shows at most one primary action, and a destructive command never takes the primary place or style.
+Most drawings on this page use one Claimwick expense, EXP-1042 for Ava: paid, totaling EUR 125.00, part of the Rotterdam client visit. The Record Tabs patterns and the editable children table use the Travel spending policy. The file list and the grouped evidence use dispute D-0182 on expense EXP-1019. The decision aside uses expense EXP-1027. The trip summary, the four tiles, and the thumbnail files use the Rotterdam client visit trip. The parent preview uses receipt RC-0C893968A2 on EXP-1042. In the expense example the header names the expense and its state, the sections give the spender, the lines, and the money, and the aside gives the history. The Conventions section states the two defaults every option keeps unless the project records another choice: a record header shows at most one primary action, and a destructive command never takes the primary place or style.
 
-## Standards
+## Conventions
 
 ### Show One Primary Action in a Record Header
 
 **ID:** `litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A record header wireframe MUST show at most one primary action.
+**Default:** Show at most one primary action in a record header wireframe.
 
-**Rationale:** One primary action names the step readers take most often next on the record, such as Message spender on expense EXP-1042. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong command.
+**Replacement:** A project that replaces the default records how its record headers rank their actions.
+
+**Rationale:** One primary action names the step readers most often take next on the record, such as Message spender on expense EXP-1042. With two equal buttons, the reader compares labels on every visit, and a hurried click lands on the wrong command.
 
 **Checked by:** `litespec-maintain validate` emits `PATTERN_INVALID` for a wireframe header holding two primary actions.
 
@@ -35,13 +37,15 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **ID:** `litespec/frontend/patterns/record-detail#keep-destructive-commands-out-of-the-primary-place`
 
-**Strength:** required
+**Strength:** default
 
-**Statement:** A destructive command MUST NOT take the primary action's place or style in a record header.
+**Default:** Keep a destructive command out of the primary action's place and style in a record header.
 
-**Rationale:** The primary place draws the hurried click, so it holds only the safe next step. A destructive command styled or placed as primary turns a routine visit into a retired policy or a voided expense, with no step between intent and loss.
+**Replacement:** A project that replaces the default records where its destructive commands sit.
 
-**Reviewed for:** Which built record header hands a destructive command the primary style? Open the headers on built record screens and read each command's tone.
+**Rationale:** The primary place draws the hurried click, so it holds only the safe next step. A destructive command styled or placed as primary, such as Void the expense, turns a routine visit into a retired policy or a voided expense, with no step between the click and the loss.
+
+**Reviewed for:** Does any built record header give a destructive command the primary style? Open the headers on built record screens and read each command's tone.
 
 ## Patterns
 
@@ -51,15 +55,15 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **Strength:** default
 
-**Question:** One record, stated at the top. A record header always carries a title. It carries a breadcrumb when the record has a parent. It offers exactly one primary action, with everything else secondary beside it. A common failure puts a destructive action where the primary should be.
+**Question:** What the top of a record states. The header always carries a title, plus a breadcrumb when the record has a parent. It offers exactly one primary action, with everything else secondary beside it. A common failure puts a destructive command where the primary action should be.
 
 **Default:** `title-state-breadcrumb-one-primary-action`
 
-**Compact:** Below the `sm` breakpoint the header stacks: the title and state read first, a full-width primary under them, and rarer commands wait behind a menu.
+**Compact:** Below the `sm` breakpoint the header stacks: title and state first, a full-width primary action under them, and the rarer commands behind a menu.
 
-**Rationale:** Keep the title, state, breadcrumb, and one primary action. The state beside the title answers the first question on every record. The runner-up is the overflow menu option. It is the better choice once a record carries four or more commands. Prefer the facts option only where the record's own facts are the reason to open it: a tall header pushes the sections below the fold. Never ship a header with no title. Every page carries exactly one `h1`, which automated checks enforce.
+**Rationale:** The default keeps the title, the state, the breadcrumb, and one primary action. The state beside the title answers the first question on every record. The overflow menu is the runner-up, and the better choice once a record carries four or more commands. Prefer the facts option only where the record's own facts are the reason to open it, since a tall header pushes the sections off the first screen. Never ship a header with no title: every page carries exactly one `h1`, which automated checks enforce.
 
-**Reviewed for:** Which built title row differs from the wireframe its catalog entry chose? Open the built facts and overflow menus beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built title row match the wireframe its catalog entry chose? Open the built facts option and overflow menu beside the catalog entry recording the chosen option and its reason.
 
 #### `title-state-breadcrumb-one-primary-action`: Title, State, Breadcrumb, One Primary Action
 
@@ -95,7 +99,7 @@ page
     fact "Email" "ava@harbor-pine.example"
 ```
 
-**Rationale:** This option follows the shape Polaris describes for a Claimwick expense. The state badge sits beside the title so the record's state is read before anything else.
+**Rationale:** This option follows the header shape Polaris describes, drawn here for a Claimwick expense. The state badge sits beside the title, so the record's state reads before anything else.
 
 **Cost:** Two actions of the same weight sit beside the primary. The destructive one shares a visual group with a harmless one unless the tone separates them.
 
@@ -123,9 +127,9 @@ page
     fact "Paid" "EUR 125.00"
 ```
 
-**Rationale:** Stripe draws one primary action on a charge and folds the rest behind an overflow menu. The header stays one line however many commands a record gains. Resend, reverse, and export all fit without a second row of buttons.
+**Rationale:** Stripe draws one primary action on a charge and puts the rest behind an overflow menu. The header stays one line however many commands a record gains, so resending, reversing, and exporting all fit without a second row of buttons.
 
-**Cost:** Secondary commands are a click further away, and a reader cannot tell what the menu holds without opening it. The menu also needs its items ordered by frequency, which is a judgment per record.
+**Cost:** Secondary commands sit one click further away, and a reader cannot tell what the menu holds without opening it. The menu items also need ordering by frequency, which is a separate decision on every record.
 
 **Reference:** Stripe
 
@@ -150,9 +154,9 @@ page
       item: text "Train fare" · text muted "one receipt" · text muted "RC-0C893968A2" · status "Attached" neutral · action "Detach"
 ```
 
-**Rationale:** The record's own values sit in the header as a definition list, so a reader never scrolls to learn what they are looking at. The commands stack beside it.
+**Rationale:** The record's own values sit in the header as a definition list, so a reader never scrolls to learn what they are looking at. The paid amount, the receipts, and the method read at a glance, and the commands stack beside the facts.
 
-**Cost:** A tall header pushes the content below the fold on a phone. A four-fact list competes with the trail for the same vertical space.
+**Cost:** A tall header pushes the content off the first screen on a phone, and a four-fact list competes with the breadcrumb for the same vertical space.
 
 ### Record Tabs
 
@@ -160,15 +164,15 @@ page
 
 **Strength:** default
 
-**Question:** A record holds at most three sections, and further facets become tabs. A policy record carries four facets. Tab sets stay small, at six at most, and the active tab stays in the URL.
+**Question:** Where a record's facets go once they outgrow three stacked sections. A facet is one face of the record, such as the ceilings or the appeals of a policy. The example here is a policy record with four facets. Tab sets stay small, at six at most, and the active tab stays in the URL so a link carries it.
 
 **Default:** `four-tabs-with-the-active-one-in-the-url`
 
-**Compact:** Below the `md` breakpoint the tab row becomes a select naming the current facet. The panels stay the same.
+**Compact:** Below the `md` breakpoint the tab row becomes a select naming the current facet, and the panels stay the same.
 
-**Rationale:** Keep the four tabs with the active one in the URL. Four stays inside every cited ceiling, and each panel repeats its tab label as a heading. The runner-up is the side rail option. It is the better choice past five facets or where one facet is a long form. Prefer three tabs with the fourth as its own page only where the fourth facet is long enough to stand as a page. Never ship tabs with icons in their labels: icons are forbidden in tab labels, and they add a second channel for one meaning.
+**Rationale:** The default keeps four tabs with the active one in the URL. Four stays inside every cited ceiling, and each panel repeats its tab label as a heading. The side rail is the runner-up, and the better choice once a record has more than five facets, or where one facet is a long form. Prefer three tabs with the fourth as its own page only where the fourth facet is long enough to stand alone. Never ship tabs with icons in their labels: icons are forbidden in tab labels, since they add a second channel for one meaning.
 
-**Reviewed for:** Which built facet row differs from the wireframe its catalog entry chose? Open the built side rails and three-tab rows beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built facet row match the wireframe its catalog entry chose? Open the built side rails and three-tab rows beside the catalog entry recording the chosen option and its reason.
 
 #### `four-tabs-with-the-active-one-in-the-url`: Four Tabs with the Active One in the URL
 
@@ -201,9 +205,9 @@ page
     text muted "412 expenses under this policy"
 ```
 
-**Rationale:** Four facets in tabs, which is inside the six every cited system allows. GOV.UK also asks for a heading inside each panel repeating the tab label, which the Details tab does.
+**Rationale:** Four facets in tabs stay inside the ceiling of six that every cited system allows. GOV.UK also asks for a heading inside each panel repeating the tab label, which the Details tab has.
 
-**Cost:** A reader cannot see two facets at once, and GOV.UK says tabs are the wrong choice when comparing across facets is the job.
+**Cost:** A reader cannot see two facets at once, and GOV.UK calls tabs the wrong choice when comparing across facets is the reader's task.
 
 **Reference:** GOV.UK
 
@@ -231,9 +235,9 @@ page
       action "Change the ceiling"
 ```
 
-**Rationale:** GitHub draws repository settings as a side rail of links rather than a tab row. The rail holds a dozen facets without scrolling and keeps the panel wide enough for a form. The current facet reads as selected in the rail, and each facet keeps its own URL.
+**Rationale:** GitHub draws repository settings as a side rail of links rather than a tab row, and this option learns from it. The rail lists a dozen facets without scrolling, the panel beside it stays wide enough for a form, and the current facet reads as selected, with each facet keeping its own URL.
 
-**Cost:** The rail takes about 200 px from every facet at desktop width. On a phone it has to become a select or stack above the panel. That is a second arrangement to keep true.
+**Cost:** The rail takes about 200 px from every facet at desktop width. On a phone it must become a select or stack above the panel, which is a second arrangement to keep consistent.
 
 **Reference:** GitHub
 
@@ -255,9 +259,9 @@ page
       link "Policy text and what each rule holds"
 ```
 
-**Rationale:** Hold the ceiling at three facets in tabs and push the fourth to its own route. Every cited system treats six as the ceiling; holding to three is the same discipline applied earlier.
+**Rationale:** This option holds the tab row to three facets and moves the fourth to its own route. Every cited system treats six as the ceiling, and holding to three sets it lower.
 
-**Cost:** One more navigation step for the reader who wants details. The fourth page joins a system that already counts its routes in the hundreds.
+**Cost:** The reader who wants details takes one more navigation step, and the fourth page joins a system that already holds hundreds of routes.
 
 ### Record Summary
 
@@ -265,15 +269,15 @@ page
 
 **Strength:** default
 
-**Question:** The section at the top of a record answers what the reader is looking at without scrolling. It states the record's identity. A summary that states supporting information answers the wrong question.
+**Question:** What the section at the top of a record states. The summary answers what the reader is looking at without scrolling: the identity of the record. A summary that states supporting information answers the wrong question.
 
 **Default:** `facts-about-the-record-itself`
 
-**Compact:** The recommended option reflows: the identity facts stack in one column under the header, in the same order.
+**Compact:** The default option reflows: the identity facts stack in one column under the header, keeping the order they read in on a wide screen.
 
-**Rationale:** Keep the facts about the record itself. A trip summary states when, where, and what it may spend, which is the identity of the record rather than its support. The runner-up is the copyable identifiers option. It is the better choice on records a reader quotes elsewhere, such as an expense read out on the phone. Prefer the tiles option only where the reader checks four figures at a glance rather than reading the facts line by line. Never ship values with no section: a row of values standing on the canvas breaks the rule that a section is the only box.
+**Rationale:** The default keeps the facts about the record itself. A trip summary states when, where, and what the trip may spend: the identity of the record rather than detail that supports it. The copyable identifiers option is the runner-up, and the better choice on records a reader quotes elsewhere, such as an expense read out on the phone. Prefer the tiles option only where the reader checks four figures at a glance rather than reading facts line by line. Never ship values with no section: a row of values standing directly on the page breaks the rule that a section is the only box.
 
-**Reviewed for:** Which built fact block differs from the wireframe its catalog entry chose? Open the built copy buttons and figure tiles beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built fact block match the wireframe its catalog entry chose? Open the built copy buttons and figure tiles beside the catalog entry recording the chosen option and its reason.
 
 #### `facts-about-the-record-itself`: Facts About the Record Itself
 
@@ -294,9 +298,9 @@ page
     fact "Claimed" "EUR 1,800 of EUR 2,000"
 ```
 
-**Rationale:** The summary holds the facts that define this record: its date, its place, its state, and what it holds. Everything else is a section below it.
+**Rationale:** The summary holds the facts that define this record: its date, its place, its state, and what it holds. The Rotterdam trip reads as one dated visit with its budget and claimed amount, and everything else sits in a section below it.
 
-**Cost:** Repeats what the header already says, since the header carries the title and state. Saying a thing twice is what the design contract forbids.
+**Cost:** The summary repeats what the header already says, since the header carries the title and state. The design contract forbids stating a thing twice.
 
 #### `facts-plus-copyable-identifiers`: Facts Plus Copyable Identifiers
 
@@ -321,9 +325,9 @@ page
     action quiet "Copy"
 ```
 
-**Rationale:** Stripe puts a copy button beside every identifier on a charge. Support reads a reference out on the phone or pastes it into a dispute. The human facts stay plain text; the expense number, payment reference, and spender email copy with one click.
+**Rationale:** Stripe puts a copy button beside every identifier on a charge, and this option learns from it. Support reads a reference out on the phone or pastes it into a dispute: the descriptive facts stay plain text, while the expense number, the payment reference, and the spender email each copy with one click.
 
-**Cost:** A copy button per row is visual noise on a record nobody quotes. Each button needs its copied confirmation, which is a small behavior per row.
+**Cost:** A copy button per row is visual noise on a record nobody quotes. Each button also needs its copied confirmation, which is one more behavior per row.
 
 **Reference:** Stripe
 
@@ -349,9 +353,9 @@ page
     fact "Company" "Harbor and Pine"
 ```
 
-**Rationale:** Vercel opens a project on four stat tiles. Four figures side by side compare at a glance where a fact list reads line by line. Claimed, left, money so far, and days to travel are the four finance checks each morning.
+**Rationale:** Vercel opens a project page with four stat tiles, and this option learns from it. Four figures side by side compare at a glance where a fact list reads line by line: claimed, left, money so far, and days to travel are the four figures finance checks each morning.
 
-**Cost:** Tiles carry figures, not sentences, so anything that needs a qualifier does not fit. A tile row also answers nothing about who or where, so the facts still need a home below it.
+**Cost:** Tiles carry figures, not sentences, so a value that needs a qualifier has no room for it. A tile row also says nothing about who or where, so the trip facts still need their own section below it.
 
 **Reference:** Vercel
 
@@ -361,15 +365,15 @@ page
 
 **Strength:** default
 
-**Question:** A record page has an aside slot for what supports the record rather than describing it. An expense record puts its history there, which is the right use. A record with no supporting content leaves the slot empty.
+**Question:** What belongs in the aside slot beside a record. The aside is the narrow column beside the main sections, and it holds what supports the record rather than describing it: an expense record puts its history there, which is the right use. A record with no supporting content leaves the slot empty.
 
 **Default:** `history-in-the-aside-sections-in-the-main-column`
 
-**Compact:** Below the `md` breakpoint the aside stacks as sections under the header, with history first.
+**Compact:** Below the `md` breakpoint the aside stacks as sections under the header, history first and the record sections after it.
 
-**Rationale:** Give the pick to history in the aside. History supports the expense without describing it, which is exactly what the aside slot is for. The runner-up is the decision panel. It is the better choice on records that wait for someone, such as a dispute with a deadline. Prefer the people and labels aside on records a team hands between shifts. Never ship an empty aside by accident: an expense with nothing pending and no history reads as a rendering fault.
+**Rationale:** The default gives the aside to history. History supports the expense without describing it, which is exactly what the aside slot is for. The decision panel is the runner-up, and the better choice on records that await a decision, such as a dispute with a deadline. Prefer the people and labels aside on records a team hands over between shifts. Never ship an empty aside by accident: an expense with nothing pending and no history looks like a rendering fault.
 
-**Reviewed for:** Which built side column differs from the wireframe its catalog entry chose? Open the built decision panels and ownership rails beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built side column match the wireframe its catalog entry chose? Open the built decision panels and ownership rails beside the catalog entry recording the chosen option and its reason.
 
 #### `history-in-the-aside-sections-in-the-main-column`: History in the Aside, Sections in the Main Column
 
@@ -412,9 +416,9 @@ page
     fact "Paid" "EUR 125.00"
 ```
 
-**Rationale:** History supports the expense without describing it, and it reads top to bottom beside the facts. On a wide screen it is a narrow column; below that it stacks under the sections.
+**Rationale:** History supports the expense without describing it, and it reads from top to bottom beside the facts. On a wide screen it is a narrow column; below that it stacks under the header, history first.
 
-**Cost:** Below about 1000 pixels the aside stacks under everything, so the history a reader most wants lands after the sections they came to use.
+**Cost:** Below about 1000 pixels the aside stacks under the header ahead of the sections, so the history appears before the sections the reader came to use.
 
 #### `aside-for-what-needs-a-decision`: Aside for What Needs a Decision
 
@@ -441,9 +445,9 @@ page
           item: text "Receipt attached" · text muted "14 Mar 2026, 10:41" · text muted "Ava"
 ```
 
-**Rationale:** The aside holds the things that need the reader: a pending decision, a clock, and a mismatch. History moves into a tab, because a list of past activity is rarely the reason to open a record.
+**Rationale:** The aside holds what needs the reader's attention: a pending decision, a clock, and a mismatch. The recall window and the two ways to settle it read beside the money, while history moves into a tab, because a list of past activity is rarely the reason to open a record.
 
-**Cost:** The aside becomes a work panel, which changes what the page is. An expense with nothing pending has an empty aside, which is its own awkward state.
+**Cost:** The aside becomes a work panel, which changes the page's purpose. An expense with nothing pending is left with an empty aside, which is an awkward state of its own.
 
 #### `people-and-labels-in-the-aside-history-below`: People and Labels in the Aside, History Below
 
@@ -470,9 +474,9 @@ page
           item: text "Receipt attached" · text muted "14 Mar 2026, 10:41" · text muted "Ava"
 ```
 
-**Rationale:** Linear puts assignee, state, labels, and dates in the issue sidebar, because a record a team hands between shifts needs its ownership beside its facts. Cara sees at a glance that this expense waits for Ben under the label `receipt-check`, and the history still reads below the handover.
+**Rationale:** Linear puts assignee, state, labels, and dates in the issue sidebar, because a record a team hands over between shifts needs its ownership beside its facts. Cara sees at a glance that Ben owns this expense under the label `receipt-check`, with the follow-up date, and the history still reads below the ownership section.
 
-**Cost:** Ownership fields need data that tracks them, and on records one person owns end to end they repeat what the team already knows. The aside also grows long once labels, dates, and watchers all claim a row.
+**Cost:** Ownership fields need data behind them to track assignee, labels, and dates. On records one person owns end to end they repeat what the team already knows, and the aside grows long once labels, dates, and watchers each need a row.
 
 **Reference:** Linear
 
@@ -482,15 +486,15 @@ page
 
 **Strength:** default
 
-**Question:** What happened to one record. Entries read newest first. Every entry carries a timestamp and a byline, because the reader asks who did this and when.
+**Question:** What happened to one record. The timeline is the ordered list of events on the record, and its entries read newest first. Every entry carries a timestamp and a byline, because the reader asks who did this and when.
 
 **Default:** `newest-first-with-actor-and-timestamp`
 
-**Compact:** The recommended option reflows: the timeline keeps its newest-first entries with actor and timestamp on each line.
+**Compact:** The default option reflows: the timeline stays newest first, with actor and timestamp on each line.
 
-**Rationale:** Keep the newest-first timeline with actor and timestamp. It answers who and when on every line. The runner-up is the filtered timeline. It is the better choice once a record carries dozens of entries across kinds. Prefer the table option only where the history is the record rather than context. Never group the main history by actor: it destroys the chronological order a timeline exists to give.
+**Rationale:** The default keeps the newest-first timeline with actor and timestamp, since it answers who and when on every line. The filtered timeline is the runner-up, and the better choice once a record holds dozens of entries of different kinds. Prefer the table option only where the history is the record rather than context. Never group the main history by actor: it destroys the chronological order the timeline exists to give.
 
-**Reviewed for:** Which built event feed differs from the wireframe its catalog entry chose? Open the built filters and history tables beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built event feed match the wireframe its catalog entry chose? Open the built filters and history tables beside the catalog entry recording the chosen option and its reason.
 
 #### `newest-first-with-actor-and-timestamp`: Newest First with Actor and Timestamp
 
@@ -506,9 +510,9 @@ page
       item: text "Paid by bank transfer" · text muted "8 Oct 2026, 09:34" · text muted "Claimwick"
 ```
 
-**Rationale:** Newest first, each entry a plain-verb title with a byline and a timestamp, one deep link at most: the shape Maersk and Paste both describe.
+**Rationale:** Entries run newest first, each with a plain-verb title, a byline, and a timestamp, and at most one deep link. Paid by bank transfer reads with its time and actor on one line, in the shape Maersk and Paste both describe.
 
-**Cost:** A long history has to be paginated or collapsed. Maersk collapses descriptions behind a toggle, which this does not.
+**Cost:** A long history must be paginated or collapsed. Maersk collapses descriptions behind a toggle, which this option leaves out.
 
 **Reference:** Maersk, Paste
 
@@ -532,9 +536,9 @@ page
       item: text "Receipt resent at the spender request" · text muted "8 Oct 2026, 11:20" · text muted "Eli"
 ```
 
-**Rationale:** GitHub lets a reader filter an issue timeline to comments, commits, or references, because a long record mixes kinds and the reader usually wants one. The filters sit above the timeline and the count beside each says what choosing it keeps.
+**Rationale:** GitHub lets a reader filter an issue timeline to comments, commits, or references, because a long record mixes entry kinds and the reader usually wants one. The filters sit above the timeline, and the count beside each says how many entries it keeps: two payments, two receipts, two messages, one edit.
 
-**Cost:** A filtered timeline hides entries without saying which, so a reader can miss the one line that mattered. The filter state also needs a reset that is always visible, or the hiding looks like absence.
+**Cost:** A filtered timeline hides entries without naming which, so a reader can miss the one line that mattered. The filter state needs a reset control that stays visible, or filtered-out entries look like entries that never happened.
 
 **Reference:** GitHub
 
@@ -552,9 +556,9 @@ page
       item: text "8 Oct, 09:34" · text "Paid by bank transfer" · text "Claimwick" · text "EUR 125.00"
 ```
 
-**Rationale:** When the history is the record rather than context, a table is denser and sortable: when, who, and what, with an amount column when money moved.
+**Rationale:** When the history is the record rather than context, a table is denser and sortable: when, who, and what, with an amount column when money moved. Each payout of EXP-1042 reads as one row with its time, actor, and amount.
 
-**Cost:** It gives up the shape of a sequence for a grid of facts. A reader asking 'what happened in order' has to read down a table, which is slower than a timeline.
+**Cost:** The table gives up the shape of a sequence for a grid of facts. A reader asking what happened in order reads down a table, which is slower than scanning a timeline.
 
 ### Related Records
 
@@ -562,15 +566,15 @@ page
 
 **Strength:** default
 
-**Question:** An expense belongs to a trip, a spender, and a cost centre. A trip belongs to a client and a schedule. A common failure states the parent in prose in the description rather than linking to it.
+**Question:** How a record names the records it belongs to. An expense belongs to a trip, a spender, and a cost centre, and a trip belongs to a client and a schedule. The common failure states the parent in prose in the description rather than linking to it.
 
 **Default:** `each-relation-is-a-link-with-its-state`
 
-**Compact:** The recommended option reflows: each relation keeps its link with its state in one stacked list.
+**Compact:** The default option reflows: the relations stack in one list, each link keeping its state.
 
-**Rationale:** Ship the link with state list. Each relation is a link carrying its own state, so a reader can jump and knows what they will find. The runner-up is the preview card option. It is the better choice where the parent facts decide the next step, such as a receipt read against its trip. Prefer the editable table only where the relation itself is the work, such as the exceptions to a policy. Never ship a cross-reference line in the description: it cannot carry the parent state and it hides where a reader does not look.
+**Rationale:** The default keeps each relation as a link carrying its own state, so a reader can jump to it and knows what they will find. The preview card is the runner-up, and the better choice where the parent facts decide the next step, such as a receipt read against its trip. Prefer the editable table only where the relation itself is the work, such as the exceptions to a policy. Never ship a cross-reference line in the description: it cannot carry the parent state, and it sits where a reader does not look.
 
-**Reviewed for:** Which built relation link differs from the wireframe its catalog entry chose? Open the built previews and editable tables beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built relation link match the wireframe its catalog entry chose? Open the built previews and editable tables beside the catalog entry recording the chosen option and its reason.
 
 #### `each-relation-is-a-link-with-its-state`: Each Relation Is a Link with Its State
 
@@ -587,9 +591,9 @@ page
       item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026" · text muted "Rotterdam client site" · status "Scheduled" info · action "Open trip"
 ```
 
-**Rationale:** The trip, the spender, and the cost centre appear as links carrying their own state, so a reader can jump and knows what they will find. Nothing here is prose.
+**Rationale:** The trip, the spender, and the cost centre appear as links carrying their own state, so a reader can jump to them and knows what they will find. The Rotterdam client visit reads as Scheduled beside its date and site, and no relation is stated in prose.
 
-**Cost:** Three links is a small nav of its own, and it competes with the record's own commands for the reader's attention.
+**Cost:** Three links are a small navigation of their own, and they compete with the record's own commands for the reader's attention. On a record with many parents the list reads as a second header.
 
 #### `links-with-a-preview-of-the-parent`: Links with a Preview of the Parent
 
@@ -615,9 +619,9 @@ page
     fact "Attached" "8 Oct 2026, 09:34"
 ```
 
-**Rationale:** Notion shows a preview of a linked page on hover, because the reader usually wants one fact from the parent rather than the parent itself. The trip row expands to its date, place, and state inline, so a reader checking a receipt learns the travel window without navigating.
+**Rationale:** Notion shows a preview of a linked page on hover, because the reader usually wants one fact from the parent rather than the parent itself. The trip row expands inline to show its travel window, budget, and company, so a reader checking receipt RC-0C893968A2 learns the travel window without navigating.
 
-**Cost:** A preview is a second rendering of the parent to keep true. Only one row can be open at a time before the section doubles in height. It also answers nothing about children, which still need the list.
+**Cost:** A preview is a second rendering of the parent to keep consistent, and only one row can stay open at a time before the section doubles in height. It also says nothing about children, which still need their own list.
 
 **Reference:** Notion
 
@@ -637,9 +641,9 @@ page
     text muted "Every exception to this policy. The ceilings are the company data."
 ```
 
-**Rationale:** Airtable draws linked records as rows that can be added and removed in place, because the relation itself is the work. The exceptions to a policy gain a row each with their ceiling and use count. The section holds the Add control rather than sending the reader elsewhere.
+**Rationale:** Airtable draws linked records as rows that can be added and removed in place, because the relation itself is the work. Each exception to the travel policy gets a row with its ceiling and use count, and the section holds the Add control rather than sending the reader to another page.
 
-**Cost:** Editing inside a section blurs reading and writing: every row needs its own validation and refusal states. It also fits only children with few columns; a wide child still wants its own page.
+**Cost:** Editing inside a section blurs reading and writing: every row needs its own validation and refusal states. It also fits only children with few columns, and a wide child still wants its own page.
 
 **Reference:** Airtable
 
@@ -649,15 +653,15 @@ page
 
 **Strength:** default
 
-**Question:** Some records refuse some roles. A page a role cannot use shows the refusal with the reason and the grant that helps. The question is whether the refusal covers the whole page or a part of one.
+**Question:** What a reader sees on a record they may partly or wholly not use. Some records refuse some roles: a page a role cannot use shows the refusal with the reason and the grant that helps. The question is whether the refusal covers the whole page or only part of one.
 
 **Default:** `the-commands-are-refused-the-record-is-not`
 
-**Compact:** The recommended option reflows: the refusal reason stays beside each refused command above the readable facts.
+**Compact:** The default option reflows: each refused command keeps its reason beside it, above the readable facts.
 
-**Rationale:** Keep the refused commands on a readable record. Auditors can read an expense and cannot reimburse it, and each refusal names the grant that would allow it. The runner-up is the ask for access option. It is the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader's reach: it names the grant, and it costs the reader every fact on the page. Never ship a role switcher on production: acting as somebody is a development capability, and the button would be a security hole with a label on it.
+**Rationale:** The default keeps the refused commands on a readable record. Auditors can read an expense and cannot reverse it, and each refusal names the grant that would allow it. The ask for access option is the runner-up, and the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader's reach: it names the grant, and it hides every fact on the page from the reader. Never ship a role switcher in production: acting as somebody is a development capability, and the button would be a security hole.
 
-**Reviewed for:** Which built locked record differs from the wireframe its catalog entry chose? Open the built access requests and whole-page refusals beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built locked record match the wireframe its catalog entry chose? Open the built access requests and whole-page refusals beside the catalog entry recording the chosen option and its reason.
 
 #### `the-commands-are-refused-the-record-is-not`: The Commands Are Refused, the Record Is Not
 
@@ -679,9 +683,9 @@ page
     fact "Email" "ava@harbor-pine.example"
 ```
 
-**Rationale:** Auditors can read an expense and cannot reverse it. The page shows everything and refuses only the commands, naming the grant that would allow each one. This is an explained action: a disabled button with its reason beside it.
+**Rationale:** Auditors can read an expense and cannot reverse it. The page shows everything and refuses only the commands, naming the grant that would allow each one. Each refusal is an explained action: a disabled button with its reason beside it, such as reversals moving money, which only the finance role can perform.
 
-**Cost:** A page full of refused commands is a page that looks broken to someone who does not know what their role is.
+**Cost:** A page full of refused commands looks broken to someone who does not know what their role is.
 
 #### `ask-for-access-from-the-refused-command`: Ask for Access from the Refused Command
 
@@ -702,9 +706,9 @@ page
     fact "Email" "ava@harbor-pine.example"
 ```
 
-**Rationale:** Google Drive turns a refusal into a request: the reader asks, an owner decides, and the decision arrives as a message. An auditor who needs to resend the receipt asks from the refusal itself instead of finding an owner in a corridor.
+**Rationale:** Google Drive turns a refusal into a request: the reader asks, an owner decides, and the decision arrives as a message. An auditor who needs to reverse the payout asks from the refusal itself instead of tracking down an owner.
 
-**Cost:** Every request needs an owner who answers it, and a queue of access requests is a new surface to build and watch. On records where access is never granted it promises a decision that never comes.
+**Cost:** Every request needs an owner who answers it, and a queue of access requests is a new surface to build and watch. On records where access is never granted, the button promises a decision that never comes.
 
 **Reference:** Google Drive
 
@@ -721,9 +725,9 @@ page
     action "Open the trip record instead"
 ```
 
-**Rationale:** The record itself is out of the reader's reach, not only its commands. A refused state replaces the page body and names the grant.
+**Rationale:** The record itself is out of the reader's reach, not only its commands. A refused state replaces the page body, names the grant, and points to the trip record as the way around.
 
-**Cost:** Nothing is shown, so an auditor cannot read a spender's name to answer a question on the phone. That is a real cost on the surface where names matter most.
+**Cost:** Nothing is shown, so an auditor cannot read a spender's name to answer a question on the phone. Hiding the facts is a real cost on the screen where names matter most.
 
 ### Record Change History
 
@@ -731,17 +735,17 @@ page
 
 **Strength:** default
 
-**Question:** Several people touch one expense before the week ends. The spender corrects an email. The approver answers. Finance adds a note.
+**Question:** How a record answers for its own past. Several people touch one expense before the week ends: the spender corrects an email, the approver answers, and finance adds a note.
 
-When the spender disputes what happened, the company answers from the record itself. It names who did what and when. The audit trail is that answer. It reads beside the facts it explains.
+When the spender disputes what happened, the company answers from the record itself, naming who did what and when. The audit trail is that answer: a newest-first list of changes that reads beside the facts it explains.
 
 **Default:** `history-as-a-tab-on-the-record`
 
-**Compact:** The recommended option reflows: the History tab keeps its timeline newest first under the record header.
+**Compact:** The default option reflows: the History tab stays under the record header with its timeline newest first.
 
-**Rationale:** Keep the history tab on the record. It keeps one route. The tab state stays in the URL. A reader checking a claim opens History without losing the expense. The runner-up is the per-field history. It fits disputes about one value such as the email that carried the receipt. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit: the edits that explain the money are missing there.
+**Rationale:** The default keeps the history tab on the record. It keeps one route, and the tab state stays in the URL. A reader checking a claim opens History without leaving the expense. The per-field history is the runner-up, and it fits disputes about one value such as the email that carried the receipt. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit: it leaves out the edits that explain the money.
 
-**Reviewed for:** Which built audit trail differs from the wireframe its catalog entry chose? Open the built per-field histories and full-page logs beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built audit trail match the wireframe its catalog entry chose? Open the built per-field histories and full-page logs beside the catalog entry recording the chosen option and its reason.
 
 #### `history-as-a-tab-on-the-record`: History as a Tab on the Record
 
@@ -761,9 +765,9 @@ page
         item: text "Payout note added" · text muted "Cara · 8 Oct 2026, 09:34"
 ```
 
-**Rationale:** The audit sits beside Details and Payment as one more facet. The record keeps one route and the tab state stays in the URL the way record tabs do. A reader checking a claim opens History without losing the expense.
+**Rationale:** The audit sits beside Details and Payment as one more facet. The record keeps one route, and the tab state stays in the URL the way record tabs do. A reader checking a claim opens History without leaving the expense, and the timeline reads newest first, with Cara's payout note on top.
 
-**Cost:** The trail is hidden until its tab opens, and facts cannot be compared against the trail without switching back and forth.
+**Cost:** The trail hides until its tab opens, and facts cannot be compared against the trail without switching back and forth.
 
 #### `per-field-history-beside-the-facts`: Per-Field History Beside the Facts
 
@@ -787,9 +791,9 @@ page
     text muted "Settled by bank transfer, 8 Oct 2026, 09:34."
 ```
 
-**Rationale:** Google Sheets shows the edit history of one cell, because a dispute is usually about one value rather than the whole record. Each fact carries its own changed-by line, so the email row says Ava corrected it at 10:51 without opening a trail.
+**Rationale:** Google Sheets shows the edit history of one cell, since a dispute is usually about one value rather than the whole record. Each fact carries its own changed-by line beside its current value, so the email row says Ava corrected it at 10:51 with no trail to open.
 
-**Cost:** Every fact doubles in height, so a long summary becomes a long read. Fields that never change carry a line saying so, which is honest but heavy.
+**Cost:** Every fact doubles in height, so a long summary becomes a long read. Fields that never change carry a line saying so, which is accurate but heavy.
 
 **Reference:** Google Sheets
 
@@ -812,9 +816,9 @@ page
     text muted "1 to 6 of 6"
 ```
 
-**Rationale:** Every change on one scrolling page with actor and kind filters, which suits a long-lived trip whose trail outgrows a tab. Filters answer whose changes these are without reading them all.
+**Rationale:** Every change sits on one scrolling page with actor and kind filters, which suits a long-lived trip whose trail outgrows a tab. History of EXP-1042 reads newest first with a search box, and the filters show whose changes these are without reading them all.
 
-**Cost:** The trail leaves the record it explains, so the reader holds the facts in memory. The filters need data support for actor and kind.
+**Cost:** The trail leaves the record it explains, so the reader holds the facts in memory. The filters also need actor and kind data behind them.
 
 ### Record Notes
 
@@ -822,15 +826,15 @@ page
 
 **Strength:** default
 
-**Question:** Finance thinks on the record, not beside it. They record why the receipt was resent. They record what the spender was told. They record what still waits. A note is staff writing with a byline and a time. The reader must always know whether the spender can see it.
+**Question:** Where staff thinking lives. Finance thinks on the record, not beside it: they record why the receipt was resent, what the spender was told, and what still waits. A note is staff writing with a byline and a time, and every note must show whether the spender can see it.
 
 **Default:** `a-notes-section-with-the-composer-on-top`
 
-**Compact:** The recommended option reflows: the composer stays above the notes with the newest note first.
+**Compact:** The default option reflows: the composer stays above the notes, and the notes keep their newest-first order.
 
-**Rationale:** Keep the notes section with the composer on top. The newest note reads first. Internal scope is the default. It cannot leak. The runner-up is the internal-or-spender composer. It fits records where staff write to the spender from the same box. Prefer notes mixed into the timeline only where what the team wrote explains what the system did next. Never ship notes without a scope marker: a reader who cannot tell internal from spender-visible will write the wrong one.
+**Rationale:** The default keeps the notes section with the composer on top. The newest note reads first, and internal scope is the default, so nothing leaks to the spender. The internal-or-spender composer is the runner-up, and it fits records where staff write to the spender from the same composer. Prefer notes mixed into the timeline only where what the team wrote explains what the system did next. Never ship notes without a scope marker: a reader who cannot tell internal from spender-visible will use the wrong scope.
 
-**Reviewed for:** Which built annotation feed differs from the wireframe its catalog entry chose? Open the built scope toggles and mixed feeds beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built annotation feed match the wireframe its catalog entry chose? Open the built scope toggles and mixed feeds beside the catalog entry recording the chosen option and its reason.
 
 #### `a-notes-section-with-the-composer-on-top`: A Notes Section with the Composer on Top
 
@@ -850,9 +854,9 @@ page
       item: avatar "E" · text "Eli" · text muted "8 Oct 2026, 11:18" · text "The mail provider held the message for two hours."
 ```
 
-**Rationale:** Shopify draws order notes as a timeline with the composer at the top, newest first. The writer sees what was already said before adding to it, and every note carries its writer and time.
+**Rationale:** Shopify draws order notes as a timeline with the composer at the top, newest first. The writer sees what was already said before adding to it, and every note carries its writer and time. The section marks the notes as for the team only.
 
-**Cost:** The composer takes the top of the section even when nobody writes. A long note history pushes the record's own sections down the page.
+**Cost:** The composer takes the top of the section even when nobody writes, and a long note history pushes the record's own sections down the page.
 
 **Reference:** Shopify
 
@@ -873,9 +877,9 @@ page
       item: avatar "E" · text "Eli" · text muted "8 Oct 2026, 11:25" · status "Spender can see" info
 ```
 
-**Rationale:** Zendesk splits its composer into internal note and public reply. Staff write both from the same record and the wrong scope is a real failure. The scope toggle sits on the composer and every note keeps its marker.
+**Rationale:** Zendesk splits its composer into internal note and public reply. Staff write both from the same record, and choosing the wrong scope is a real failure, so the scope toggle sits on the composer and every note keeps its marker. A note the spender can see carries its marker beside the byline.
 
-**Cost:** Two scopes double the reading of every note, and a spender-visible note needs the message pipeline behind it rather than a plain save. The toggle is also one more control to misread in a hurry.
+**Cost:** Two scopes double the reading load of every note, and a spender-visible note needs the message pipeline behind it rather than a plain save. The toggle is also one more control a hurried writer can misread.
 
 **Reference:** Zendesk
 
@@ -898,9 +902,9 @@ page
       item: text "Email corrected by the spender" · text muted "Ava · 8 Oct 2026, 10:51"
 ```
 
-**Rationale:** Zendesk draws agent notes inside the expense feed, because what the team wrote explains what the system did next. The resend at 11:20 reads directly under the note that caused it.
+**Rationale:** Zendesk draws agent notes inside the feed, because what the team wrote explains what the system did next. The resend at 11:20 reads directly under Eli's note about the held message that caused it.
 
-**Cost:** Notes and system entries compete for attention in one feed, so a reader who wants only the facts has to skip the team's words. Long notes also stretch a feed meant for short lines.
+**Cost:** Notes and system entries compete for attention in one feed, so a reader who wants only the facts must skip the team's words. Long notes also stretch a feed built for short lines.
 
 **Reference:** Zendesk
 
@@ -910,15 +914,15 @@ page
 
 **Strength:** default
 
-**Question:** A dispute needs its evidence, a trip needs its receipts, and a policy needs its versions. An attachment is a file the company put on the record, with who added it and when. The reader must know what each file is before opening it.
+**Question:** How a record carries its files. A dispute needs its evidence, a trip needs its receipts, and a policy needs its versions. An attachment is a file the company put on the record, shown with who added it and when, and the reader must know what each file is before opening it.
 
 **Default:** `a-file-list-with-a-drop-zone`
 
-**Compact:** The recommended option reflows: the file rows stack with the drop zone beneath them.
+**Compact:** The default option reflows: the file rows stack in one column with the drop zone beneath them.
 
-**Rationale:** Keep the file list with a drop zone. Each row names the file and its kind. It names who added it and its size. The drop zone invites the next file. The runner-up is the evidence-grouped option. It fits a dispute: Ben asks for kinds there rather than files. Prefer the thumbnail option only where images dominate, such as receipt photos. Never ship a section that is only a drop zone: a record whose files hide behind an upload control reads as empty.
+**Rationale:** The default keeps the file list with a drop zone. Each row names the file and its kind, who added it, and its size, and the drop zone accepts the next file. The evidence-grouped option is the runner-up, and it fits a dispute, where Ben asks for kinds rather than files. Prefer the thumbnail option only where images dominate, such as receipt photos. Never ship a section that is only a drop zone: a record whose files hide behind an upload control looks empty.
 
-**Reviewed for:** Which built file section differs from the wireframe its catalog entry chose? Open the built evidence groups and thumbnail grids beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built file section match the wireframe its catalog entry chose? Open the built evidence groups and thumbnail grids beside the catalog entry recording the chosen option and its reason.
 
 #### `a-file-list-with-a-drop-zone`: A File List with a Drop Zone
 
@@ -937,9 +941,9 @@ page
     field "Add a file" file
 ```
 
-**Rationale:** Linear draws issue attachments as rows with a drop zone beneath, because the list answers what is here and the zone answers how to add. Each row carries the file kind, who added it, when, and the size.
+**Rationale:** Linear draws issue attachments as rows with a drop zone beneath, because the list shows what is here and the zone shows how to add. Each row carries the file kind, who added it, when, and the size, so the sale terms read as Cara's file from 3 Oct at 182 KB.
 
-**Cost:** Rows give every file equal weight, so a ten-file record reads long. Large files also need an upload state per row, which this option does not draw.
+**Cost:** Rows give every file equal weight, so a ten-file record reads as a long list. Large files also need an upload state per row, which this option does not include, so the team must design the waiting state itself.
 
 **Reference:** Linear
 
@@ -965,9 +969,9 @@ page
       field "Add proof of the trip" file
 ```
 
-**Rationale:** Stripe asks for dispute evidence by category, because the approver checks kinds rather than files: the receipt, the terms, and the proof of the trip. Each group says whether it is filled, so Cara sees what is still missing before she answers.
+**Rationale:** Stripe asks for dispute evidence in categories, because the approver checks kinds rather than files: the receipt, the terms, and the proof of the trip. Each group says whether it is filled, so Cara sees two of three groups filled and knows what is still missing before she answers.
 
-**Cost:** The categories belong to expense disputes, so the shape fits nothing else without renaming. A file that proves two things also has to sit in two groups or one group has to stay empty.
+**Cost:** The categories belong to expense disputes, so the shape fits nothing else without renaming. A file that proves two things must sit in two groups, or one group must stay empty.
 
 **Reference:** Stripe
 
@@ -988,9 +992,9 @@ page
       item: icon "file" · text "trip-approval-2026.pdf" · text muted "Dana · 12 Dec 2025 · 1.1 MB" · action quiet "Open"
 ```
 
-**Rationale:** Zendesk draws attached images as thumbnails and documents as rows, because a reader checks a photo by looking and a contract by opening. The thumbnails answer at a glance; the rows answer on click.
+**Rationale:** Zendesk draws attached images as thumbnails and documents as rows, because a reader checks a photo by looking and a contract by opening. The receipt thumbnails read at a glance, while the approval rows need a click to read.
 
-**Cost:** Two shapes in one section, so the section needs a rule for what is an image and what is not. Thumbnails also cost a render per file that rows never pay.
+**Cost:** Two shapes share one section, so the section needs a rule for what is an image and what is not. Thumbnails also need one render per file, which rows never need.
 
 **Reference:** Zendesk
 
@@ -1000,15 +1004,15 @@ page
 
 **Strength:** default
 
-**Question:** Support reads a reference out on the phone and pastes an identifier into a dispute. A property list is a set of labeled values where the identifiers copy with one click. The reader must know the copy landed.
+**Question:** How identifiers read and copy. Support reads a reference out on the phone and pastes an identifier into a dispute. A property list is a set of labeled values where the identifiers copy with one click, and the reader must know the copy landed.
 
 **Default:** `every-identifier-copies`
 
-**Compact:** Below the `sm` breakpoint each row stacks: the label above its value, the copy button beside the value.
+**Compact:** Below the `sm` breakpoint each row stacks: the label above its value, with the copy button beside the value.
 
-**Rationale:** Keep the always-visible copy button on each identifier. Support reaches for it without hunting. The runner-up is the in-place confirmation option. It fits records where a miscopied reference causes real mistakes. Prefer the grouped card only where identifiers are quoted together, such as a reference pasted into a dispute. Where the same copy control repeats in every row of a table, it shows on hover and on keyboard focus and stays visible on a touch screen, and a repeated click restarts its confirmation instead of being ignored. Hover-only copy fits nowhere: touch screens have no hover and the button would never appear. Never ship a property list whose long values clip without a way to expand them.
+**Rationale:** The default keeps the always-visible copy button on each identifier, so support reaches for it without searching for it. The in-place confirmation is the runner-up, and it fits records where a miscopied reference causes real mistakes. Prefer the grouped card only where identifiers are quoted together, such as a reference pasted into a dispute. Where the same copy control repeats in every row of a table, it shows on hover and on keyboard focus, stays visible on a touch screen, and a repeated click restarts its confirmation instead of being ignored. Hover-only copy fits nowhere: touch screens have no hover, and the button would never appear. Never ship a property list whose long values clip without a way to expand them.
 
-**Reviewed for:** Which built copyable fact differs from the wireframe its catalog entry chose? Open the built confirmations and identifier cards beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built copyable fact match the wireframe its catalog entry chose? Open the built confirmations and identifier cards beside the catalog entry recording the chosen option and its reason.
 
 #### `every-identifier-copies`: Every Identifier Copies
 
@@ -1047,9 +1051,9 @@ page
       action quiet "Copy"
 ```
 
-**Rationale:** Stripe puts a copy button beside every identifier on a charge, because support quotes references all day. Expense number, payment reference, spender email, and receipt codes each copy with one click; human facts stay plain.
+**Rationale:** Stripe puts a copy button beside every identifier on a charge, because support quotes references all day. Expense number, payment reference, spender email, and receipt codes each copy with one click, while descriptive facts stay plain. The section heading says these are what finance quotes, so the spender's own view shows none of this.
 
-**Cost:** A button per row is noise on records nobody quotes, and each button needs its copied confirmation to be honest. The list also grows long once every identifier claims a row.
+**Cost:** A button per row is noise on records nobody quotes, and each button needs a copied confirmation beside it. The list also grows long once every identifier needs a row.
 
 **Reference:** Stripe
 
@@ -1068,9 +1072,9 @@ page
   toast "Expense number copied." positive
 ```
 
-**Rationale:** Railway confirms a copy inside the row that was copied. A toast at the edge of the screen is easy to miss while reading a reference aloud. The button turns into a check beside the value for two seconds.
+**Rationale:** Railway confirms a copy inside the row that was copied. A toast at the edge of the screen is easy to miss while reading a reference aloud, so the button turns into a check beside the value for two seconds.
 
-**Cost:** The row changes shape for two seconds, which shifts the rows below it unless the confirmation holds the button's width. It also confirms only the click, not that the paste landed where it should.
+**Cost:** The row changes shape for two seconds, which shifts the rows below it unless the confirmation holds the button's width. It also confirms only the click, not that the value pasted correctly elsewhere.
 
 **Reference:** Railway
 
@@ -1095,9 +1099,9 @@ page
       item: text "Expense" · text "EXP-1042" · action quiet "Copy"
 ```
 
-**Rationale:** Vercel groups a deployment's identifiers in one card apart from its facts, because identifiers are quoted together. The id, the reference, and the address leave in one message. One card holds all three with their copy buttons.
+**Rationale:** Vercel groups a deployment's identifiers in one card apart from its facts, because identifiers are quoted together. The id, the reference, and the address are quoted together in one message: one card holds all three with their copy buttons.
 
-**Cost:** The identifiers leave the facts they belong to. The reader jumps between the summary and the card to connect a value with its meaning. A second card is also a second heading for the same record.
+**Cost:** The identifiers sit apart from the facts they belong to, so the reader jumps between the summary and the card to connect a value with its meaning. The extra card is also a second heading for the same record.
 
 **Reference:** Vercel
 
@@ -1107,15 +1111,15 @@ page
 
 **Strength:** default
 
-**Question:** Finance works a queue, not a record. The next expense in the list waits. The next dispute waits for an answer. Moving on must be one step that keeps the list order. The reader never returns to the list merely to open its neighbor.
+**Question:** How a reader moves to the next record without returning to the list. Finance works a queue, not a record: the next expense waits in the list, and the next dispute waits for an answer. Moving on must be one step that keeps the list order. The reader never returns to the list merely to open its neighbor.
 
 **Default:** `chevrons-beside-the-breadcrumb`
 
-**Compact:** The recommended option reflows: the chevrons keep the position between them above the record header.
+**Compact:** The default option reflows: the chevrons keep their shape, with the position still reading between them above the record header.
 
-**Rationale:** Keep the chevrons beside the breadcrumb. They keep the list order. They cost almost no space. The runner-up is the jump-by-search option. It fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position: chevrons that never say 4 of 268 leave the reader lost in the queue.
+**Rationale:** The default keeps the chevrons beside the breadcrumb. They keep the list order and cost almost no space. The jump-by-search option is the runner-up, and it fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position: chevrons that never show 4 of 268 leave the reader lost in the queue.
 
-**Reviewed for:** Which built neighbor step differs from the wireframe its catalog entry chose? Open the built jump searches and list drawers beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built neighbor step match the wireframe its catalog entry chose? Open the built jump searches and list drawers beside the catalog entry recording the chosen option and its reason.
 
 #### `chevrons-beside-the-breadcrumb`: Chevrons Beside the Breadcrumb
 
@@ -1139,9 +1143,9 @@ page
     fact "Breakfast" "EUR 25.00"
 ```
 
-**Rationale:** Gmail puts newer and older arrows above a message, because triage is neighbor to neighbor and the list order is the queue. The position reads between the chevrons, so the reader knows where they are.
+**Rationale:** Gmail puts newer and older arrows above a message, because triage moves neighbor to neighbor and the list order is the queue. The position shows between the chevrons, so the reader knows they are on 4 of 268.
 
-**Cost:** Chevrons move one step at a time, so jumping ten records ahead is ten clicks. They also need the list order behind them, which fails when the record was opened from a search.
+**Cost:** Chevrons move one step at a time, so jumping ten records ahead is ten clicks. They also need the list order behind them, which is missing when the record was opened from a search rather than the queue.
 
 **Reference:** Gmail
 
@@ -1164,9 +1168,9 @@ page
       item: text "EXP-1031" · text muted "Eli · EUR 40.45 · Awaiting"
 ```
 
-**Rationale:** Linear jumps to any issue from its command menu, because a reader who knows the number should not walk the queue to reach it. The expense number, spender name, or email lands on the record in one step.
+**Rationale:** Linear jumps to any issue from its command menu, because a reader who knows the number should not step through the queue to reach it. Typing EXP-10 lists the matching expenses with spender, amount, and state, and one step opens the record.
 
-**Cost:** Search answers only the record the reader already knows, so it never helps triage an unknown queue. It also needs the menu everywhere, which is a frame behavior rather than a record pattern.
+**Cost:** Search finds only the record the reader already knows, so it never helps triage an unknown queue. It also needs the jump menu on every screen, which is a frame behavior rather than a record pattern.
 
 **Reference:** Linear
 
@@ -1191,9 +1195,9 @@ page
         fact "Breakfast" "EUR 25.00"
 ```
 
-**Rationale:** Intercom draws the queue beside the conversation, because triage reads the list and the record together. The drawer lists the queue's expenses with their state and money; the record reads to its right.
+**Rationale:** Intercom draws the queue beside the conversation, because triage reads the list and the record together. The drawer lists the queue's expenses with their state and money, and the record shows to its right.
 
-**Cost:** The drawer takes a third of the width at desktop and the whole width on a phone, where it has to become a sheet. It also duplicates the expenses list page, so two lists of expenses have to stay true.
+**Cost:** The drawer takes a third of the width at desktop and the whole width on a phone, where it must become a sheet. It also duplicates the expenses list page, so two lists of expenses must stay consistent.
 
 **Reference:** Intercom
 
@@ -1203,15 +1207,15 @@ page
 
 **Strength:** default
 
-**Question:** One record screen has to order what the other patterns on this page hold: the header, the summary, the sections, and the history. The worked example is the expense, the record finance opens most: Ava submitted EXP-1042, totaling EUR 125.00 for two fares, a booking fee, and breakfast. It must state its lines, its payments, and its reversals in one reading. The money adds up. Every reversal reads against the payment it reverses.
+**Question:** How one record screen orders what the other patterns on this page hold: the header, the summary, the sections, and the history. The worked example is the expense, the record finance opens most. Ava submitted EXP-1042, totaling EUR 125.00 for two fares, a booking fee, and breakfast. The screen states its lines, its payments, and its reversals in one reading: the money adds up, and every reversal reads against the payment it reverses.
 
 **Default:** `summary-three-sections-history-in-the-aside`
 
-**Compact:** On a phone the record stacks in the order the questions are asked on the road: state and spender first, then receipts, then money.
+**Compact:** On a phone the record stacks in the order a reader asks for it on the road: state and spender first, then receipts, then money.
 
-**Rationale:** Keep the record-page shape with a summary, three sections, and history in the aside. Spender, lines, and money each keep their own section. The runner-up is the money-first layout. It fits finance readers who reconcile payments against reversals. Prefer the tabbed layout only once a record outgrows three sections. Never ship the phone layout as the desktop page: stacked sections waste most of the width there.
+**Rationale:** The default keeps the record-page shape with a summary, three sections, and history in the aside. Spender, lines, and money each keep their own section. The money-first layout is the runner-up, and it fits finance readers who reconcile payments against reversals. Prefer the tabbed layout only once a record outgrows three sections. Never ship the phone layout as the desktop page: stacked sections waste most of the width there.
 
-**Reviewed for:** Which built record page orders its parts differently from the wireframe its catalog entry chose? Open the built summary, money-first, and tabbed screens beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built record page order its parts as the wireframe its catalog entry chose? Open the built summary, money-first, and tabbed screens beside the catalog entry recording the chosen option and its reason.
 
 #### `summary-three-sections-history-in-the-aside`: Summary, Three Sections, History in the Aside
 
@@ -1256,9 +1260,9 @@ page
     fact "Reversed" "EUR 0.00"
 ```
 
-**Rationale:** A summary of the expense with the spender, the lines, and the money beside a history aside. Each facet of EXP-1042 has one home and the money adds up top to bottom in its own section.
+**Rationale:** The screen shows a summary of the expense with the spender, the lines, and the money beside a history aside. Each facet of EXP-1042 has one place: the spender and trip in one section, the lines with their receipts below, and the paid and reversed totals adding up top to bottom in the money section.
 
-**Cost:** Three sections is a ceiling, so the fourth facet waits for a tab or a second page. The aside also stacks below everything under 900 px, which buries the history on a phone.
+**Cost:** Three sections is a ceiling, so the fourth facet needs a tab or a second page. The aside also stacks below everything under 900 px, which pushes the history to the bottom on a phone.
 
 #### `money-first`: Money First
 
@@ -1283,9 +1287,9 @@ page
     fact "Email" "ava@harbor-pine.example"
 ```
 
-**Rationale:** Xero opens an invoice on its money, because finance asks what moved before asking who moved it. Payments and reversals sit directly under the header with the statement adding up, and the spender and lines follow below.
+**Rationale:** Xero opens an invoice with the money first, because finance asks what moved before asking who moved it. Payments and reversals sit directly under the header with the statement adding up from two fares, a booking fee, and breakfast to EUR 125.00 claimed, and the spender follows below.
 
-**Cost:** Support reads the spender first, so money-first puts their answer second on every call. The money section also repeats the lines it totals, which is the same figure stated twice.
+**Cost:** Support reads the spender first, so money-first puts their answer second on every call. The money section also repeats the lines it totals, which states the same figure twice.
 
 **Reference:** Xero
 
@@ -1305,8 +1309,8 @@ page
         item: text "Train fare" · text muted "one receipt · RC-0C893968A2" · status "Attached" neutral
 ```
 
-**Rationale:** Shopify draws an order as tabs for timeline, lines, and payments, because an expense with messages, notes, and reversals outgrows three sections. The spender summary stays above the tabs so the record is always identified.
+**Rationale:** Shopify draws an order as tabs for timeline, lines, and payments, because an expense with messages, notes, and reversals outgrows three sections. The spender summary stays above the tabs, so EXP-1042 stays identified whatever facet is open.
 
-**Cost:** Lines and payments can no longer be read together, so checking a reversal against its line means switching tabs. The tab state also has to live in the URL to stay shareable.
+**Cost:** Lines and payments can no longer be read together, so checking a reversal against its line means switching tabs. The tab state also must live in the URL to stay shareable.
 
 **Reference:** Shopify

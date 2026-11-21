@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the identifier-title check: every page record takes its identifier name from its title words in title order, and names its record file for it, at tier G.</summary>
+/// <summary>Proves the identifier-title check: every page record takes its identifier name from its title words in title order and names its record file for it, and every flow step takes its act from its title words, at tier A.</summary>
 public sealed class IdentifierTitleTests
 {
     /// <summary>Name Words Inside Title Words Pass.</summary>
@@ -30,7 +30,7 @@ public sealed class IdentifierTitleTests
             TestModel.Record("requirement", "requirement/approval.no-self-approval", Path.Combine(temp.Path, ".litespec", "intent", "no-self-approval.yaml"), """{"title": "Nobody Approves Their Own Expense"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
-        Assert.Equal("G", finding.Tier);
+        Assert.Equal("A", finding.Tier);
         Assert.Equal("Nobody Approves Their Own Expense 'requirement/approval.no-self-approval' carries an identifier name that is not a word subsequence of its title.", finding.Message);
         Assert.Equal("requirement/approval.no-self-approval", finding.Subject);
     }
@@ -46,7 +46,7 @@ public sealed class IdentifierTitleTests
             TestModel.Record("requirement", "requirement/tax.vat-return-by-hand", Path.Combine(temp.Path, ".litespec", "intent", "vat-return-by-hand.yaml"), """{"title": "VAT Returns Miss Amounts or Use Wrong Boxes"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
-        Assert.Equal("G", finding.Tier);
+        Assert.Equal("A", finding.Tier);
         Assert.Equal("VAT Returns Miss Amounts or Use Wrong Boxes 'requirement/tax.vat-return-by-hand' carries an identifier name that is not a word subsequence of its title.", finding.Message);
         Assert.Equal("requirement/tax.vat-return-by-hand", finding.Subject);
     }
@@ -88,7 +88,7 @@ public sealed class IdentifierTitleTests
             TestModel.Record("requirement", "requirement/borrowing.hold-pickup-window", Path.Combine(temp.Path, ".litespec", "intent", "holds.yaml"), """{"title": "Hold Pickup Window"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
-        Assert.Equal("G", finding.Tier);
+        Assert.Equal("A", finding.Tier);
         Assert.Equal("Hold Pickup Window 'requirement/borrowing.hold-pickup-window' sits in file 'holds.yaml' but its identifier names 'hold-pickup-window'.", finding.Message);
         Assert.Equal("requirement/borrowing.hold-pickup-window", finding.Subject);
     }
@@ -104,5 +104,34 @@ public sealed class IdentifierTitleTests
             TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "barcodes.yaml"), 4, """{"title": "Nothing Shared Here"}""", isEntry: true));
 
         Assert.DoesNotContain("identifier-title-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Step Act Inside Title Words Passes.</summary>
+    /// <proves>litespec/core/model#name-each-identifier-from-its-title</proves>
+    [Fact]
+    public void StepActInsideTitleWordsPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"title": "Borrow and Return", "actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy."}]}""")]);
+
+        Assert.DoesNotContain("identifier-title-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Step Act Outside Title Words Reports.</summary>
+    /// <proves>litespec/core/model#name-each-identifier-from-its-title</proves>
+    [Fact]
+    public void StepActOutsideTitleWordsReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            [.. TestModel.Records("flow", "flow/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"title": "Borrow and Return", "actor": "actor/reader", "serves": ["goal/faster-pickup"], "steps": [{"id": "step/borrow-and-return.borrow-copy", "title": "Renew Loan", "statement": "The reader borrows the copy."}]}""")]);
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-title-invalid");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Step 'step/borrow-and-return.borrow-copy' carries an act that is not a word subsequence of its title.", finding.Message);
+        Assert.Equal("step/borrow-and-return.borrow-copy", finding.Subject);
     }
 }

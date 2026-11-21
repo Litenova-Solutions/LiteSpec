@@ -9,7 +9,7 @@ sealed record CodeBrowserTest(
     string File,
     int Line,
     IReadOnlyList<string> Proves,
-    string? Journey,
+    string? Flow,
     IReadOnlyList<string> Gotos,
     IReadOnlyList<string> Codes,
     IReadOnlyList<string> Texts,

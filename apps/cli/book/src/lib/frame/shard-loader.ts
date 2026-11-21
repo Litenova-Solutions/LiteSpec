@@ -1,16 +1,21 @@
 // Every shard arrives as data/<key>.js calling BookData.put once. The book opens
 // from file://, where fetch is blocked, so shards load through script elements.
+// A rebuild forgets every shard and asks for the new ones under a version query,
+// so the browser never runs an old script again.
 type Resolve = (value: unknown) => void;
 
 export interface ShardLoader {
   put(key: string, value: unknown): void;
   get(key: string): unknown;
   load(key: string): Promise<unknown>;
+  /** Forgets every shard put so far and sets the version the next script requests carry. */
+  reset(version: string): void;
 }
 
 export function createShardLoader(doc: Document, dir = "data/"): ShardLoader {
-  const data = new Map<string, unknown>();
-  const pending = new Map<string, Resolve[]>();
+  let data = new Map<string, unknown>();
+  let pending = new Map<string, Resolve[]>();
+  let version = "";
   return {
     put(key, value) {
       data.set(key, value);
@@ -30,9 +35,12 @@ export function createShardLoader(doc: Document, dir = "data/"): ShardLoader {
           return;
         }
         pending.set(key, [resolve]);
+        for (const old of doc.querySelectorAll<HTMLScriptElement>("script[data-shard]")) {
+          if (old.dataset.shard === key) old.remove();
+        }
         const script = doc.createElement("script");
         script.dataset.shard = key;
-        script.src = dir + key + ".js";
+        script.src = dir + key + ".js" + (version ? "?v=" + encodeURIComponent(version) : "");
         script.async = true;
         script.onerror = () => {
           pending.delete(key);
@@ -40,6 +48,11 @@ export function createShardLoader(doc: Document, dir = "data/"): ShardLoader {
         };
         doc.head.appendChild(script);
       });
+    },
+    reset(next: string) {
+      data = new Map<string, unknown>();
+      pending = new Map<string, Resolve[]>();
+      version = next;
     },
   };
 }

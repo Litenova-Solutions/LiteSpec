@@ -1,0 +1,24 @@
+type: decision
+id: decision/0005-flows-serve-a-goal
+title: Flows Serve a Goal
+context: "Every other Intent record with a goal links to a goal record. A flow does not. It states its goal in a sentence, in the field `goal`, and no link connects it to a goal record."
+options:
+  - name: A flow serves one goal record
+    pros: The flow is the only Intent record that states its goal in prose. Both story mapping and impact mapping make the spine a link the book can follow.
+    cons: Every flow sentence must be mapped by hand to a goal record, because no mechanical mapping exists.
+  - name: Keep the goal a sentence only
+    pros: A founder accepts a flow chapter with no field names and no other page to open.
+    cons: The book cannot group steps under a goal, so the top-down edge stays missing by design.
+  - name: Replace the sentence with the link
+    pros: One field holds the whole goal fact with nothing to keep in sync.
+    cons: It demotes the sentence the founder accepts, and a goal link carries less information than the sentences it would replace.
+  - name: Allow several goals per flow
+    pros: A walk can serve a staff outcome and a system promise in one flow.
+    cons: Both story mapping and impact mapping hold one spine, and the singular shape states the rule instead of hiding it in a one-element list.
+choice: A flow serves one goal record
+consequences: "`litespec/core/intent#lead-each-flow-toward-the-record-it-exists-for` states the sentence beside the link. Use cases serve flow steps rather than goals. A flow sits under the product and names exactly one reason: `serves` names one `goal/` identifier, or `answers` names one `problem/` or `constraint/` identifier, each a list of exactly one identifier, as `decision/0066-name-the-record-a-flow-exists-for` states."
+reopenedWhen: A flow kind appears whose reason is neither a goal it moves nor a problem or constraint it answers.
+basedOn:
+  - research/intent-hierarchy-evidence
+  - research/cross-layer-trace-evidence
+  - research/established-traceability-practice

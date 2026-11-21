@@ -14,7 +14,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 ///     validates each record file and each document's frontmatter against the record schema,
 ///     and checks the explanation and document sections, headings, and the Example word bound.
 /// </summary>
-/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</follows>
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
 static class PageChecks
 {
@@ -133,7 +133,7 @@ static class PageChecks
 
         // The record is validated through the shared schema module against the
         // record schema, so the schema is the one statement of every record shape.
-        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, ReleaseText.Read))
+        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, ReleaseText.Read, run.Verbose))
         {
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
@@ -145,20 +145,8 @@ static class PageChecks
             add(new Finding("page-invalid", $"type '{type}' names a document; documents live in '.md' files", file, 1, subject));
         }
 
-        if (type is not null && RecordFile.ArticleTypes.Contains(type))
-        {
-            var explanation = RecordFile.ExplanationPathOf(file);
-
-            if (!File.Exists(explanation))
-            {
-                add(new Finding(
-                    "page-invalid",
-                    $"type '{type}' requires an explanation file '{Path.GetFileName(explanation)}' beside the record file",
-                    file,
-                    1,
-                    subject));
-            }
-        }
+        // The explanation file is required only on a layer the project lists in
+        // explanations.layers; no record type requires one on its own. (Model checks cover it.)
 
         return true;
     }
@@ -233,7 +221,7 @@ static class PageChecks
         var meta = JsonNode.Parse(parsed.Root.GetRawText());
         var subject = JsonValues.PropString(meta as JsonObject, "id");
 
-        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, ReleaseText.Read))
+        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, ReleaseText.Read, run.Verbose))
         {
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }

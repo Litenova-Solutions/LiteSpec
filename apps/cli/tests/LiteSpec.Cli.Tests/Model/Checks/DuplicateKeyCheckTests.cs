@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the duplicate key checks: no two entries of one record share a source key, step id, operation name or field name, at tier G.</summary>
+/// <summary>Proves the duplicate key checks: no two entries of one record share a source name, branch path, operation name or field name, at tier G.</summary>
 public sealed class DuplicateKeyCheckTests
 {
     /// <summary>Each key kind that repeats within one record reports once, naming the kind and the key.</summary>
@@ -16,27 +16,27 @@ public sealed class DuplicateKeyCheckTests
     [InlineData(
         "research",
         "research/loan-period-benchmarks",
-        """{"sources": [{"key": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"key": "benchmark-report", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
-        "Record 'research/loan-period-benchmarks' names source key 'benchmark-report' twice.")]
+        """{"sources": [{"name": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"name": "benchmark-report", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+        "Record 'research/loan-period-benchmarks' names source name 'benchmark-report' twice.")]
     [InlineData(
         "constraint",
         "constraint/library-privacy-law",
-        """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/a", "readOn": "2026-01-10"}, {"key": "ordinance", "url": "https://example.com/b", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
-        "Record 'constraint/library-privacy-law' names source key 'ordinance' twice.")]
+        """{"authority": "City ordinance.", "sources": [{"name": "ordinance", "url": "https://example.com/a", "readOn": "2026-01-10"}, {"name": "ordinance", "url": "https://example.com/b", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
+        "Record 'constraint/library-privacy-law' names source name 'ordinance' twice.")]
     [InlineData(
-        "journey",
-        "journey/loan-desk",
-        """{"actor": "actor/librarian", "steps": [{"id": "scan-copy", "statement": "Scan the copy."}, {"id": "scan-copy", "statement": "Scan it again."}]}""",
-        "Record 'journey/loan-desk' names step id 'scan-copy' twice.")]
+        "flow",
+        "flow/loan-desk",
+        """{"actor": "actor/librarian", "steps": [{"id": "step/loan-desk.scan-copy", "title": "Scan Copy", "statement": "Scan the copy.", "branches": [{"when": "The copy is damaged.", "then": "step/loan-desk.shelve-copy"}, {"when": "The copy is on hold.", "then": "step/loan-desk.shelve-copy"}]}]}""",
+        "Record 'flow/loan-desk' names the branch 'step/loan-desk.scan-copy to step/loan-desk.shelve-copy' twice.")]
     [InlineData(
-        "journey",
-        "journey/loan-desk",
-        """{"actor": "actor/librarian", "steps": [{"id": "s1", "statement": "Scan the copy."}, {"id": "s2", "statement": "Shelve the copy."}], "branches": [{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is damaged again.", "nextStep": "end"}]}""",
-        "Record 'journey/loan-desk' names the branch 's1 to end' twice.")]
+        "flow",
+        "flow/loan-desk",
+        """{"actor": "actor/librarian", "steps": [{"id": "step/loan-desk.scan-copy", "title": "Scan Copy", "statement": "Scan the copy.", "branches": [{"when": "The copy is damaged.", "ends": "The copy is retired."}, {"when": "The copy is lost.", "ends": "The copy is written off."}]}]}""",
+        "Record 'flow/loan-desk' names the branch 'step/loan-desk.scan-copy to end' twice.")]
     [InlineData(
         "external-system",
         "external-system/card-gateway",
-        """{"operations": [{"name": "charge-card", "direction": "out"}, {"name": "charge-card", "direction": "out"}]}""",
+        """{"operations": [{"name": "charge-card", "action": "send"}, {"name": "charge-card", "action": "send"}]}""",
         "Record 'external-system/card-gateway' names operation name 'charge-card' twice.")]
     [InlineData(
         "integration-event",
@@ -63,7 +63,7 @@ public sealed class DuplicateKeyCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record(type, id, Path.Combine(temp.Path, ".litespec", "record.yaml"), json));
+            [.. TestModel.Records(type, id, Path.Combine(temp.Path, ".litespec", "record.yaml"), json)]);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-key-duplicate");
         Assert.Equal("G", finding.Tier);
@@ -72,23 +72,23 @@ public sealed class DuplicateKeyCheckTests
     }
 
     /// <summary>Two branches that leave one step for different steps pass, since one step may hold several paths.</summary>
-    /// <proves>litespec/core/intent#branch-a-journey-only-between-its-steps</proves>
+    /// <proves>litespec/core/intent#branch-a-flow-only-between-its-steps</proves>
     [Fact]
     public void BranchesFromOneStepToDifferentStepsPass()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record(
-                "journey",
-                "journey/loan-desk",
+            [.. TestModel.Records(
+                "flow",
+                "flow/loan-desk",
                 Path.Combine(temp.Path, ".litespec", "record.yaml"),
-                """{"actor": "actor/librarian", "steps": [{"id": "s1", "statement": "Scan the copy."}, {"id": "s2", "statement": "Shelve the copy."}], "branches": [{"step": "s1", "condition": "The copy is damaged.", "nextStep": "end"}, {"step": "s1", "condition": "The copy is on hold.", "nextStep": "s2"}]}"""));
+                """{"actor": "actor/librarian", "steps": [{"id": "step/loan-desk.scan-copy", "title": "Scan Copy", "statement": "Scan the copy.", "branches": [{"when": "The copy is damaged.", "ends": "The copy is retired."}, {"when": "The copy is on hold.", "then": "step/loan-desk.shelve-copy"}]}, {"id": "step/loan-desk.shelve-copy", "title": "Shelve Copy", "statement": "Shelve the copy."}]}""")]);
 
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }
 
-    /// <summary>Distinct source keys in one record pass.</summary>
+    /// <summary>Distinct source names in one record pass.</summary>
     /// <proves>litespec/core/model#keep-shape-rules-in-the-schema</proves>
     [Fact]
     public void DistinctSourceKeysPass()
@@ -100,7 +100,7 @@ public sealed class DuplicateKeyCheckTests
                 "research",
                 "research/loan-period-benchmarks",
                 Path.Combine(temp.Path, ".litespec", "record.yaml"),
-                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"key": "lending-survey", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
+                """{"sources": [{"name": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"name": "lending-survey", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }

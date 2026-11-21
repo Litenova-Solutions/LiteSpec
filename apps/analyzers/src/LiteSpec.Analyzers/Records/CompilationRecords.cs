@@ -18,30 +18,25 @@ namespace LiteSpec.Analyzers.Records;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class CompilationRecords
 {
-    /// <summary>Guards the shared store cache against concurrent access.</summary>
+    /// <summary>Guards the shared records cache against concurrent access.</summary>
     private static readonly object CacheLock = new object();
-    /// <summary>Stores the cache used by the containing code.</summary>
+    /// <summary>Holds the cache used by the containing code.</summary>
     private static readonly Dictionary<string, CompilationRecords?> Cache =
         new Dictionary<string, CompilationRecords?>(StringComparer.Ordinal);
 
     /// <summary>Holds the use case by home collected for this operation, keyed or ordered as the type states.</summary>
     private readonly Dictionary<string, string> useCaseByHome;
-    /// <summary>Holds the record roots the project file declares, in declaration order.</summary>
-    private readonly IReadOnlyList<string> docsRoots;
-
     /// <summary>Initializes a new instance of the <see cref="CompilationRecords"/> class.</summary>
     /// <param name="settings">The project settings parsed from the project file.</param>
     /// <param name="index">The record index that resolves identifiers to records.</param>
     /// <param name="root">The syntax root of the tree being searched.</param>
     /// <param name="projectFile">The project file path, as the host reported it.</param>
-    /// <param name="docsRoots">The docs roots resolved from the project file, in declaration order.</param>
-    private CompilationRecords(ProjectSettings settings, RecordIndex index, string root, string projectFile, IReadOnlyList<string> docsRoots)
+    private CompilationRecords(ProjectSettings settings, RecordIndex index, string root, string projectFile)
     {
         Settings = settings;
         Index = index;
         Root = root;
         ProjectFile = projectFile;
-        this.docsRoots = docsRoots;
         useCaseByHome = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (var record in index.Records)
@@ -69,12 +64,12 @@ public sealed class CompilationRecords
     public string ProjectFile { get; }
 
     /// <summary>
-    ///     Loads the store from an analyzer's additional files: the project file
+    ///     Loads the records from an analyzer's additional files: the project file
     ///     plus every record file. Returns null when the rules must stay silent.
     /// </summary>
     /// <param name="options">The analyzer options carrying the additional files.</param>
     /// <param name="cancellationToken">The analysis cancellation token.</param>
-    /// <returns>The store, or null when the rules stay silent.</returns>
+    /// <returns>The records, or null when the rules stay silent.</returns>
     internal static CompilationRecords? Load(AnalyzerOptions options, CancellationToken cancellationToken)
     {
         var files = new List<RecordFile>();
@@ -94,13 +89,13 @@ public sealed class CompilationRecords
     }
 
     /// <summary>
-    ///     Loads the store from file paths and texts, consulting the checksum
+    ///     Loads the records from file paths and texts, consulting the checksum
     ///     cache first. Returns null when the rules must stay silent: no project
     ///     file, a project file that does not read, or no record page under the
     ///     docs roots.
     /// </summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
-    /// <returns>The store, or null when the rules stay silent.</returns>
+    /// <returns>The records, or null when the rules stay silent.</returns>
     public static CompilationRecords? Load(IReadOnlyList<RecordFile> files)
     {
         var key = Checksum(files);
@@ -113,7 +108,7 @@ public sealed class CompilationRecords
             }
         }
 
-        var store = LoadUncached(files);
+        var records = LoadUncached(files);
 
         lock (CacheLock)
         {
@@ -122,16 +117,16 @@ public sealed class CompilationRecords
                 Cache.Clear();
             }
 
-            Cache[key] = store;
+            Cache[key] = records;
         }
 
-        return store;
+        return records;
     }
 
     /// <summary>
-    ///     Whether a live departure covers the finding, as
+    ///     Whether a live waiver covers the finding, as
     ///     <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
-    ///     A departure is live when it is present and unexpired, or lasting.
+    ///     A waiver is live when it is present and unexpired, or lasting.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>
@@ -149,29 +144,9 @@ public sealed class CompilationRecords
     public string? UseCaseOfHome(string home) =>
         useCaseByHome.TryGetValue(home, out var id) ? id : null;
 
-    /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
-    /// <param name="file">The record file path, as the host reported it.</param>
-    /// <returns>True when the file is a technical decision page.</returns>
-    public bool UnderImplementationDecisions(string file)
-    {
-        var candidate = file.Replace('\\', '/');
-
-        foreach (var docs in docsRoots)
-        {
-            var prefix = docs.TrimEnd('/') + "/implementation/decisions/";
-
-            if (candidate.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Returns the store read from the project file and the record files, or null when none applies.</summary>
+    /// <summary>Returns the records read from the project file and the record files, or null when none applies.</summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
-    /// <returns>The store, or null when the project file does not read or no record page sits under its roots.</returns>
+    /// <returns>The records, or null when the project file does not read or no record page sits under its roots.</returns>
     private static CompilationRecords? LoadUncached(IReadOnlyList<RecordFile> files)
     {
         var project = ProjectFileOf(files);
@@ -196,7 +171,7 @@ public sealed class CompilationRecords
             return null;
         }
 
-        return new CompilationRecords(paths.Settings, new RecordIndex(records), paths.RepositoryRoot, project.Path, paths.DocsRoots);
+        return new CompilationRecords(paths.Settings, new RecordIndex(records), paths.RepositoryRoot, project.Path);
     }
 
     /// <summary>Returns the project file among the files, the first by path when several hold one.</summary>

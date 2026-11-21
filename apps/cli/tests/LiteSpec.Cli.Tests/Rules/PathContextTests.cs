@@ -27,30 +27,62 @@ public sealed class PathContextTests
     public void RulesRepositoryFileDerivesRepositoryArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs", "sealed class InvoiceRepository;\n");
+            "apps/api/src/Demo/Billing/Domain/Invoicing/InvoiceRepository.cs", "sealed class InvoiceRepository;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs");
+            "apps/api/src/Demo/Billing/Domain/Invoicing/InvoiceRepository.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: domain, artifact: repository", result.Output);
     }
 
-    /// <summary>A port file under a Ports folder derives the port artifact.</summary>
+    /// <summary>A public query message in a nested Contracts folder derives the use-case artifact.</summary>
     /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void RulesPortFileDerivesPortArtifact()
+    public void RulesContractsQueryFileDerivesUseCaseArtifact()
     {
         using var root = CopyFixtureWithFile(
-            "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs", "interface IPayoutBank;\n");
+            "apps/api/src/Demo/Billing/Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", "sealed record ReadInvoiceQuery;\n");
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs");
+            "apps/api/src/Demo/Billing/Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("concern: application, artifact: port", result.Output);
+        Assert.Contains("concern: application, artifact: use-case", result.Output);
+    }
+
+    /// <summary>A public query message in a sibling Contracts project derives the application concern with the use-case artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact]
+    public void RulesSiblingContractsQueryFileDerivesUseCaseArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Modules/Demo.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs", "sealed record ReadInvoiceQuery;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Modules/Demo.Billing.Contracts/Invoices/ReadInvoice/ReadInvoiceQuery.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: use-case", result.Output);
+    }
+
+    /// <summary>A port file in a module Ports folder derives the ports concern with the port artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact]
+    public void RulesModulePortFileDerivesPortsConcern()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Modules/Demo.Billing/Ports/PayoutBank/IPayoutBank.cs", "interface IPayoutBank;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Modules/Demo.Billing/Ports/PayoutBank/IPayoutBank.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: ports, artifact: port", result.Output);
     }
 
     /// <summary>A command message file keeps the use-case artifact.</summary>
@@ -68,6 +100,55 @@ public sealed class PathContextTests
         Assert.Equal(0, result.Status);
         Assert.Contains("concern: application, artifact: use-case", result.Output);
     }
+
+    /// <summary>A reaction handler in the Application folder of the use case it runs derives the reaction artifact.</summary>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
+    [Fact]
+    public void RulesReactionInUseCaseApplicationFolderDerivesReactionArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Demo/Billing/Application/SendInvoice/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Application/SendInvoice/NotifyOnInvoiceSentHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: reaction", result.Output);
+    }
+
+    /// <summary>A reaction handler in a Notifications folder derives the reaction artifact.</summary>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
+    [Fact]
+    public void RulesReactionInNotificationsFolderDerivesReactionArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Demo/Billing/Application/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Application/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: reaction", result.Output);
+    }
+
+    /// <summary>A job file in a use case Application folder derives the job artifact.</summary>
+    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    [Fact]
+    public void RulesJobInUseCaseApplicationFolderDerivesJobArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Demo/Billing/Application/SendReminders/SendRemindersJob.cs", "sealed class SendRemindersJob;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Application/SendReminders/SendRemindersJob.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: job", result.Output);
+    }
+
 
     /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>
     /// <param name="relative">The added file path, with forward-slash segments.</param>

@@ -105,12 +105,13 @@ sealed class DotnetBackendReader : IBackendReader
 
         model.Handlers.AddRange(merged.Handlers
             .OrderBy(handler => handler.UseCaseId, StringComparer.Ordinal));
-        model.Elements.AddRange(ElementKindCorrection.MergeTechnicalPartials(merged.Elements
-            .OrderBy(element => element.File, StringComparer.Ordinal)
-            .ThenBy(element => element.Line)
-            .ThenBy(element => element.Class, StringComparer.Ordinal)
-            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
-            .ToList()));
+        model.Elements.AddRange(ElementKindCorrection.MergeTechnicalPartials(
+            ElementKindCorrection.MergeAggregateRootPartials(merged.Elements
+                .OrderBy(element => element.File, StringComparer.Ordinal)
+                .ThenBy(element => element.Line)
+                .ThenBy(element => element.Class, StringComparer.Ordinal)
+                .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+                .ToList(), config)));
         model.StrayMarks.AddRange(merged.StrayMarks
             .OrderBy(stray => stray.File, StringComparer.Ordinal)
             .ThenBy(stray => stray.Line)
@@ -193,12 +194,16 @@ sealed class DotnetBackendReader : IBackendReader
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
-        var readElements = MarkedElementReader.Read(tree, context, SourceRoots.ProjectOf(config, file), SourceRoots.LayerOf(config, file));
+        var project = SourceRoots.ProjectOf(config, file);
+        var layer = SourceRoots.LayerOf(config, file);
+        var readElements = MarkedElementReader.Read(tree, context, project, layer);
+        // A C# 14 extension block is a type declaration with no name, so it has no identifier to key on.
         var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
+            .Where(static type => !type.Identifier.IsMissing && type.Identifier.Span.Length > 0)
             .ToDictionary(type => type.Identifier.Span, type => type);
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
             .ToDictionary(method => method.Identifier.Span, method => method);
-        var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified);
+        var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified, project, layer);
 
         ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified);
         AggregateMethodReader.ReadAggregateMethods(file, tree, elements, types, model);

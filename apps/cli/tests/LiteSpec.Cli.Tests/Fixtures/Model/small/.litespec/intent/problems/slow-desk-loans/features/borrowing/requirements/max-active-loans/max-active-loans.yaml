@@ -6,3 +6,5 @@ statement: A reader holds at most five active loans.
 rationale: Readers borrow enough for a term without starving holds.
 cites:
 - decision/0001-loan-period
+basedOn:
+- decision/0001-loan-period

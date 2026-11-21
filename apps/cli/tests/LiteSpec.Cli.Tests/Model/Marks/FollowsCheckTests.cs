@@ -146,7 +146,7 @@ public sealed class FollowsCheckTests
             MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanIndexer.cs");
 
-        Assert.Contains("which matches no decision or departure.", finding.Message);
+        Assert.Contains("which matches no decision or waiver.", finding.Message);
     }
 
     /// <summary>No other mark-unknown fires in the follows fixture.</summary>
@@ -159,20 +159,6 @@ public sealed class FollowsCheckTests
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.Equal(4, unresolved.Count);
-    }
-
-    /// <summary>A technical class naming one decision twice reports mark-count-invalid.</summary>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "A technical class naming one decision twice reports mark-count-invalid")]
-    public void DuplicateFollowsReportsMarkCount()
-    {
-        using var temp = MarksFixture.Prepare("follows");
-
-        var counts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-count-invalid");
-
-        var finding = Assert.Single(counts);
-        Assert.Contains("names 'decision/0002-store-loans-as-documents' twice.", finding.Message);
-        Assert.Equal("LoanCounter.cs", FileName(finding));
     }
 
     /// <summary>A technical decision no code follows reports decision-unimplemented.</summary>
@@ -188,17 +174,17 @@ public sealed class FollowsCheckTests
         Assert.Equal("Decision 'decision/0003-loan-cache-region' is followed by no code element.", finding.Message);
     }
 
-    /// <summary>A product decision with no decides reports decision-decides-missing.</summary>
+    /// <summary>A product decision named by no settled record reports decision-decides-missing.</summary>
     /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
-    [Fact(DisplayName = "A product decision with no decides reports decision-decides-missing")]
-    public void ProductDecisionWithoutDecidesReportsDecidesNothing()
+    [Fact(DisplayName = "A product decision named by no settled record reports decision-decides-missing")]
+    public void ProductDecisionNamedByNothingReportsDecidesMissing()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var empty = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "decision-decides-missing");
 
         var finding = Assert.Single(empty);
-        Assert.Equal("Decision 'decision/0001-loan-threshold' names nothing it decides.", finding.Message);
+        Assert.Equal("Decision 'decision/0001-loan-threshold' is named by no rule or requirement in basedOn.", finding.Message);
     }
 
     /// <summary>Excluded shapes report nothing.</summary>
@@ -242,7 +228,6 @@ public sealed class FollowsCheckTests
         Assert.Equal(MarkStyle.Attribute, mark.Style);
         Assert.Empty(MarksFixture.WithCode(findings, "mark-missing"));
         Assert.Empty(MarksFixture.WithCode(findings, "mark-unknown"));
-        Assert.Empty(MarksFixture.WithCode(findings, "mark-style-invalid"));
         Assert.Empty(MarksFixture.WithCode(findings, "decision-unimplemented"));
     }
 
@@ -254,32 +239,32 @@ public sealed class FollowsCheckTests
         {
             Write(temp.Path, ".litespec/project.yaml", """
                 {"project": {"name": "Marks Follows Attribute Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"}, "reviewedLiteSpecVersion": "6.0.0", "owners": ["lending-team"],
+                  "stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"}, "reviewedLiteSpecVersion": "7.0.0", "owners": ["lending-team"],
                   "marks": "attribute",
                   "frontends": [], "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": []},
-                  "stackConfig": {"dotnet": {"modules": "apps/api/src/Library.Application"}}}
+                  "stackConfig": {"dotnet": {"modules": "apps/api/src/Modules/Library.Lending"}}}
                 """);
             Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, ".litespec/implementation/decisions/0002-store-loans-as-documents.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/implementation/decisions/0002-keep-loans-as-documents.yaml", """
                 {
                   "type": "decision",
-                  "id": "decision/0002-store-loans-as-documents",
-                  "title": "Store loans as documents",
+                  "id": "decision/0002-keep-loans-as-documents",
+                  "title": "Keep loans as documents",
                   "owner": "lending-team",
                   "status": "draft",
                   "decider": "lending-team",
                   "decideBy": "2030-01-31",
                   "options": [{"name": "Documents", "pros": "Reads stay simple", "cons": "Queries need an index"}],
-                  "consequences": "The document store owns loan persistence.",
+                  "consequences": "Loan documents own loan persistence.",
                   "reopenedWhen": "Queries pass one hundred a day"
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/implementation/decisions/0002-store-loans-as-documents.md", """
-                # Store loans as documents
+            TestRecords.Explain(temp.Path, ".litespec/implementation/decisions/0002-keep-loans-as-documents.md", """
+                # Keep loans as documents
 
                 ## Context
 
@@ -287,12 +272,12 @@ public sealed class FollowsCheckTests
 
                 ## Decision
 
-                Store each loan as one document.
+                Keep each loan as one document.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/CommitStep.cs", """
-                namespace Library.Application.Lending.Technical;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/CommitStep.cs", """
+                namespace Library.Lending.Application.Loans.BorrowCopy;
 
-                [Follows("decision/0002-store-loans-as-documents")]
+                [Follows("decision/0002-keep-loans-as-documents")]
                 internal sealed class CommitStep
                 {
                     public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -1,17 +1,15 @@
 # Add an Android Frontend
 
-## Purpose
-
-A product that serves its interface from Android declares a mobile solution with screens organized by module and hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack, the mobile solution tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Add an Android frontend to a consumer: the stack entry, the mobile solution tree, and the screen layout. Screens live in a mobile solution organized by module, all hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
 Start with:
 
-- A consumer project that declares the `android` stack. A product with a server adds `android` beside its backend stack, and a product with no server starts from the `android-client` preset on the [initialize command](../tools/init.md) page.
+- A consumer project. A product with a server adds `android` beside its backend stack, and a product with no server starts from the `android-client` preset on the [initialize command](../tools/init.md) page.
 - The .NET SDK and Android API level pinned in `litespec.manifest.yaml` under `stack.dotnet` and `stack.android`, with the Android workload installed through `dotnet workload install android`.
 
-Read the [mobile structure](../frontend/mobile/structure.md), the [mobile screens and navigation](../frontend/mobile/screens.md), and the [Android stack](../frontend/mobile/android/stack.md) pages before this guide: they state the obligations, and this guide shows one compliant way to meet them.
+Read the [mobile structure](../frontend/mobile/structure.md), the [mobile screens and navigation](../frontend/mobile/screens.md), and the [Android stack](../frontend/mobile/android/stack.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 
@@ -33,11 +31,11 @@ Host every screen in one activity with one navigation controller. This satisfies
 
 ### Record the Minimum Android Version
 
-Use the Android API level pinned in `litespec.manifest.yaml` for the minimum version the app declares. This satisfies `litespec/core/stacks#use-manifest-version-pins`.
+Use the Android API level pinned in `litespec.manifest.yaml` for the minimum version the app declares. This satisfies `litespec/core/principles#locate-package-versions-in-the-manifest`.
 
 ## Check
 
 Confirm the result by build and publish:
 
-- The mobile solution builds with no error and no analyzer finding outside a recorded departure.
+- The mobile solution builds with no error and no analyzer finding outside a recorded waiver.
 - `dotnet publish apps/mobile/src/{ProjectName}.Android -c Release` produces an AAB.
