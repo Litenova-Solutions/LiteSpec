@@ -95,7 +95,7 @@ While it builds the model from records, code, routes, tests, and test runs, the 
       src/
       tests/
     {frontend}/
-    apphost/                            when one host runs more than one application
+  deploy/                               how the applications run together: the AppHost and the deployment files
   packages/
   AGENTS.md
   <toolchain pin file>

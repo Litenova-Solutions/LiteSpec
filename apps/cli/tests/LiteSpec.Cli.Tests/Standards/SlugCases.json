@@ -4848,8 +4848,8 @@
         "slug":  "place-a-type-at-the-lowest-folder-that-holds-its-consumers"
     },
     {
-        "heading":  "Place a Workspace AppHost Beside the Applications It Runs",
-        "slug":  "place-a-workspace-apphost-beside-the-applications-it-runs"
+        "heading":  "Keep the AppHost in the Deploy Folder",
+        "slug":  "keep-the-apphost-in-the-deploy-folder"
     },
     {
         "heading":  "Place the ID Under Every Provision Heading",
@@ -7792,8 +7792,8 @@
         "slug":  "the-analyzers"
     },
     {
-        "heading":  "The AppHost Placement",
-        "slug":  "the-apphost-placement"
+        "heading":  "Where the AppHost Lives",
+        "slug":  "where-the-apphost-lives"
     },
     {
         "heading":  "The Approach",

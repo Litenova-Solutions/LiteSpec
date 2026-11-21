@@ -425,6 +425,13 @@ The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-fram
 - `scenario-result-unknown` (level G) reports a scenario ending in a result id its use case declares neither as a written result nor as a derived refusal, under `litespec/core/use-cases#declare-the-result-a-scenario-ends-in`.
 - The frontend reader skips the client generator's bundled runtime under `client/` and `core/` when discovering operations, so a screen that builds its client with `createClient` or calls `buildUrl` is no longer reported as an unrecorded operation.
 
+### Part AT: The AppHost in the Deploy Folder
+
+- An AppHost lives at `deploy/{Product}.AppHost/` at the workspace root, whatever it runs. `apps/` holds only the applications that ship, and the AppHost, which models how they run together locally and in the deployment files it publishes, sits beside the rest of the deployment description.
+- The workspace tree gains `deploy/` and loses `apps/apphost/`.
+
+The new rule is `litespec/backend/dotnet/workspace#keep-the-apphost-in-the-deploy-folder`, which replaces `litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs`.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -447,7 +454,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (240):
+Added (249):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
@@ -505,6 +512,7 @@ Added (240):
 - `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock`
 - `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`
 - `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests`
+- `litespec/backend/dotnet/workspace#keep-the-apphost-in-the-deploy-folder`
 - `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`
 - `litespec/core/access#authorize-every-use-case-through-a-declared-grant`
 - `litespec/core/access#describe-every-served-content-entry-with-its-serving-fields`
@@ -521,6 +529,7 @@ Added (240):
 - `litespec/core/automation#declare-the-outcomes-of-each-reaction-and-job`
 - `litespec/core/automation#end-reaction-and-job-scenarios-in-the-run-result`
 - `litespec/core/automation#erase-a-read-model-personal-field-with-its-owner`
+- `litespec/core/automation#keep-failure-handling-on-the-reaction-or-job`
 - `litespec/core/automation#keep-validity-apart-from-storage`
 - `litespec/core/automation#move-a-state-by-time-with-a-timed-transition`
 - `litespec/core/automation#name-the-step-a-compensating-reaction-undoes`
@@ -528,7 +537,9 @@ Added (240):
 - `litespec/core/automation#raise-completion-only-when-every-module-is-done`
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
 - `litespec/core/automation#run-each-effect-on-its-own`
+- `litespec/core/automation#subscribe-to-every-module-event`
 - `litespec/core/behavior#group-module-rules-by-theme`
+- `litespec/core/domain-model#bind-a-reference-data-table-to-an-external-pack`
 - `litespec/core/domain-model#date-every-reference-data-row`
 - `litespec/core/domain-model#keep-reference-data-rows-from-overlapping`
 - `litespec/core/domain-model#keep-technical-state-out-of-behavior`
@@ -574,6 +585,7 @@ Added (240):
 - `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
 - `litespec/core/language#read-each-field-name-in-its-record-type`
 - `litespec/core/model#cite-reference-data-instead-of-literal-values`
+- `litespec/core/model#declare-cross-module-references-in-depends-on`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`
 - `litespec/core/model#keep-the-whole-specification-in-the-records`
 - `litespec/core/model#name-records-in-prose-by-their-identifiers`
@@ -586,18 +598,22 @@ Added (240):
 - `litespec/core/principles#add-new-machinery-only-for-a-current-requirement`
 - `litespec/core/principles#confine-atomic-consistency-to-one-use-case`
 - `litespec/core/principles#share-no-transaction-across-an-edge`
+- `litespec/core/privacy#enforce-a-data-class-through-its-aggregate`
 - `litespec/core/privacy#pause-deletion-while-a-hold-stands`
 - `litespec/core/privacy#round-an-event-start-to-a-calendar-end`
 - `litespec/core/release#verify-connected-flows`
 - `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`
 - `litespec/core/stacks#name-every-provision-a-replacement-replaces`
 - `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element`
+- `litespec/core/use-cases#carry-every-key-placeholder`
 - `litespec/core/use-cases#change-one-aggregate-in-each-command`
 - `litespec/core/use-cases#cite-the-invariants-most-writers-cite`
 - `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`
 - `litespec/core/use-cases#declare-each-aggregates-refusals-once`
 - `litespec/core/use-cases#declare-each-modules-refusals-once`
+- `litespec/core/use-cases#declare-the-result-a-scenario-ends-in`
 - `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
+- `litespec/core/use-cases#give-every-tenant-setting-a-change-use-case`
 - `litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit`
 - `litespec/core/use-cases#keep-each-scenario-inside-its-operation`
 - `litespec/core/use-cases#list-the-consumer-modules-of-a-public-query`
@@ -690,7 +706,7 @@ Added (240):
 - `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (218):
+Removed (219):
 
 - `litespec/backend/application#declare-a-port-where-its-consumers-meet`
 - `litespec/backend/application#emit-declared-integration-events-after-commit`
@@ -728,6 +744,7 @@ Removed (218):
 - `litespec/backend/dotnet/naming#check-repository-variable-names`
 - `litespec/backend/dotnet/naming#check-result-part-names`
 - `litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout`
+- `litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs`
 - `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
 - `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
 - `litespec/core/access#grant-every-use-case-through-a-declared-grant`
