@@ -69,6 +69,7 @@ describe("pageOrder", () => {
         "language.md",
         "writing.md",
         "maintaining.md",
+        "designing.md",
         "release.md",
       ],
     );

@@ -201,7 +201,7 @@ public sealed class RecordFolderLayoutTests
             TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
             TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
-            TestModel.Record("domain-event", "domain-event/fine.paid", fines, """{"meaning": "A fine was paid."}"""),
+            TestModel.Record("domain-event", "domain-event/fine.paid", Path.Combine(Path.GetDirectoryName(fines)!, "domain-events", "paid", "paid.yaml"), """{"meaning": "A fine was paid."}"""),
             TestModel.Record("module-event", "module-event/books.fine-paid", file, """{"translates": "domain-event/fine.paid"}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
@@ -228,7 +228,7 @@ public sealed class RecordFolderLayoutTests
             TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
             TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
-            TestModel.Record("domain-event", "domain-event/fine.paid", fines, """{"meaning": "A fine was paid."}"""),
+            TestModel.Record("domain-event", "domain-event/fine.paid", Path.Combine(Path.GetDirectoryName(fines)!, "domain-events", "paid", "paid.yaml"), """{"meaning": "A fine was paid."}"""),
             TestModel.Record("integration-event", "integration-event/fine-paid", file, """{"translates": "domain-event/fine.paid"}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
@@ -257,7 +257,7 @@ public sealed class RecordFolderLayoutTests
             TestModel.Record("module", "module/finance", financeModule, """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", lendingLoans, "{}"),
             TestModel.Record("aggregate", "aggregate/finance.loan", financeLoans, "{}"),
-            TestModel.Record("domain-event", "domain-event/loan.fine-paid", financeLoans, """{"meaning": "A fine was paid."}"""),
+            TestModel.Record("domain-event", "domain-event/loan.fine-paid", Path.Combine(Path.GetDirectoryName(financeLoans)!, "domain-events", "fine-paid", "fine-paid.yaml"), """{"meaning": "A fine was paid."}"""),
             TestModel.Record("integration-event", "integration-event/fine-paid", file, """{"translates": "domain-event/loan.fine-paid"}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
@@ -281,7 +281,7 @@ public sealed class RecordFolderLayoutTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/books.entry", entries, "{}"),
-            TestModel.Record("domain-event", "domain-event/entry.posted", entries, """{"meaning": "An entry was posted."}"""),
+            TestModel.Record("domain-event", "domain-event/entry.posted", Path.Combine(Path.GetDirectoryName(entries)!, "domain-events", "posted", "posted.yaml"), """{"meaning": "An entry was posted."}"""),
             TestModel.Record("module-event", "module-event/books.entry-posted", file, """{"translates": "domain-event/entry.posted"}"""));
 
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
