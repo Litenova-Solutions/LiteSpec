@@ -1269,6 +1269,111 @@
       "links": {}
     },
     {
+      "type": "cast",
+      "id": "cast/riverside",
+      "title": "Riverside Cast",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/cast.yaml",
+      "line": 1,
+      "fields": {
+        "type": "cast",
+        "id": "cast/riverside",
+        "title": "Riverside Cast",
+        "today": "2026-03-12"
+      },
+      "links": {}
+    },
+    {
+      "type": "party",
+      "id": "party/riverside-branch",
+      "title": "Riverside Branch",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/cast.yaml",
+      "line": 4,
+      "fields": {
+        "type": "party",
+        "id": "party/riverside-branch",
+        "name": "Riverside Branch",
+        "uses": "product",
+        "description": "One branch that lends copies to members."
+      },
+      "links": {}
+    },
+    {
+      "type": "person",
+      "id": "person/mara",
+      "title": "Mara",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/cast.yaml",
+      "line": 9,
+      "fields": {
+        "type": "person",
+        "id": "person/mara",
+        "name": "Mara",
+        "actor": "actor/member",
+        "partyOf": "party/riverside-branch",
+        "does": "Borrows a copy and returns it on time."
+      },
+      "links": {}
+    },
+    {
+      "type": "occasion",
+      "id": "occasion/late-return",
+      "title": "A late return",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/cast.yaml",
+      "line": 14,
+      "fields": {
+        "type": "occasion",
+        "id": "occasion/late-return",
+        "title": "A late return",
+        "on": "2026-03-10",
+        "involves": [
+          "person/mara"
+        ],
+        "scene": "Mara returns a copy a week late."
+      },
+      "links": {}
+    },
+    {
+      "type": "figure",
+      "id": "figure/loan-days",
+      "title": "Loan period",
+      "owner": "lending-team",
+      "status": "approved",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/cast.yaml",
+      "line": 19,
+      "fields": {
+        "type": "figure",
+        "id": "figure/loan-days",
+        "title": "Loan period",
+        "term": "term/loan",
+        "value": {
+          "count": 28
+        }
+      },
+      "links": {}
+    },
+    {
       "type": "job",
       "id": "job/lending.send-overdue-notices",
       "title": "Send Overdue Notices",

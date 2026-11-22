@@ -83,7 +83,7 @@ public sealed class BookEnrichTests
         {
             var layer = Str(pair.Value, "layer");
             Assert.True(
-                layer is null || layer is "intent" or "behavior" or "implementation" or "proof" or "governance" or "glossary" or "root",
+                layer is null || layer is "intent" or "behavior" or "implementation" or "proof" or "governance" or "glossary" or "cast" or "root",
                 $"Unexpected layer {layer} for {pair.Key}.");
         }
     }

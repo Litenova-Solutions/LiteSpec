@@ -26,7 +26,6 @@ static class PageChecks
     /// <summary>The H2 sections each document page style requires.</summary>
     static readonly Dictionary<string, string[]> DocumentSections = new(StringComparer.Ordinal)
     {
-        ["example-cast"] = ["The Organization", "The People", "The Occasion", "The Amounts", "Recurring Situations"],
         ["tutorial"] = ["Purpose", "Prerequisites", "Lesson", "What You Built"],
         ["how-to"] = ["Purpose", "Procedure", "Check"],
         ["reference"] = ["Intent", "Reference"],
@@ -36,7 +35,7 @@ static class PageChecks
 
     /// <summary>The page styles a document carries. Every other named type lives in a record file.</summary>
     static readonly HashSet<string> DocumentStyles = new(
-        ["index", "tutorial", "how-to", "reference", "command", "configuration", "glossary", "example-cast"],
+        ["index", "tutorial", "how-to", "reference", "command", "configuration", "glossary"],
         StringComparer.Ordinal);
 
     /// <summary>An H2 heading line.</summary>

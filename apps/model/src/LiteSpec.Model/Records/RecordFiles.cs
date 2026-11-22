@@ -13,6 +13,15 @@ public static class RecordFiles
     /// <summary>The record file extension.</summary>
     public const string Extension = ".yaml";
 
+    /// <summary>The entry lists of a cast page, each with the entry type it holds.</summary>
+    public static readonly IReadOnlyList<(string Field, string EntryType)> CastLists =
+    [
+        (RecordFields.Parties, RecordTypes.Party),
+        (RecordFields.People, RecordTypes.Person),
+        (RecordFields.Occasions, RecordTypes.Occasion),
+        (RecordFields.Figures, RecordTypes.Figure),
+    ];
+
     /// <summary>Whether the path names a record file: a <c>.yaml</c> file, in any letter case.</summary>
     /// <param name="path">The file path.</param>
     /// <returns>True for a <c>.yaml</c> file; otherwise false.</returns>
@@ -131,6 +140,32 @@ public static class RecordFiles
                 }
 
                 records.Add(new IndexRecord(entry, path, entry.Line, true, pageId));
+            }
+        }
+
+        // A cast holds its entries in four named lists, one per entry type. An entry that
+        // states another type is left to the schema, which names the list it breaks.
+        if (root.Kind == JsonKind.Object && type == RecordTypes.Cast)
+        {
+            foreach (var (field, entryType) in CastLists)
+            {
+                if (!root.TryGetProperty(field, out var list) || list.Kind != JsonKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (var entry in list.Items)
+                {
+                    if (entry.Kind != JsonKind.Object || StringOf(entry, RecordFields.Type) != entryType)
+                    {
+                        continue;
+                    }
+
+                    // A party or person is titled by its name; an occasion or figure by its title.
+                    var title = StringOf(entry, RecordFields.Title) ?? StringOf(entry, RecordFields.Name);
+
+                    records.Add(new IndexRecord(entry, path, entry.Line, true, pageId, null, title));
+                }
             }
         }
 

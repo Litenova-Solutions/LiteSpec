@@ -36,7 +36,7 @@ namespace LiteSpec.Cli.Book.Outline;
 static class BookOutline
 {
     /// <summary>The layer keys in outline order.</summary>
-    public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
+    public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary", "cast"];
 
     /// <summary>The record types that top the intent layer under their type groups, in display order.</summary>
     static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
@@ -573,6 +573,7 @@ static class BookOutline
         {
             "product" => "root",
             "waiver" => "governance",
+            "cast" or "party" or "person" or "occasion" or "figure" => "cast",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "runbook" => "implementation",
             "term" => IsBehaviorTerm(record) ? "behavior" : "intent",
@@ -634,6 +635,7 @@ static class BookOutline
             "proof" => "Proof",
             "governance" => "Governance",
             "glossary" => "Glossary",
+            "cast" => "Cast",
             _ => key,
         };
 

@@ -271,7 +271,7 @@ public sealed class FindingCodesTests
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
         "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
-        "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked", "ungrouped",
+        "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked", "ungrouped", "unreserved",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

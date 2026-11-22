@@ -72,6 +72,11 @@ A record type is one kind of statement a project can write, and each type answer
 | `runbook` | implementation | How is it run or recovered? |
 | `waiver` | governance | Which provision, page or finding code is set aside, why, and until when? |
 | `term` | intent, behavior | Which word means what? |
+| `cast` | root | Which people, parties, occasions, and amounts do the examples share? |
+| `party` | root | Which organization appears in the examples? |
+| `person` | root | Which person in the examples plays which actor? |
+| `occasion` | root | Which occasion do the examples share? |
+| `figure` | root | Which typed value do the examples share? |
 
 The [intent page](intent.md) states the Intent records, the [behavior page](behavior.md) states the Behavior records, and the [access page](access.md) states the access records.
 
@@ -111,7 +116,7 @@ Four words keep the placement facts apart:
 - **Storage** is the file and typed folder that hold it.
 - **Book grouping** is presentation, which follows containment except where this page says otherwise.
 
-Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml` and `glossary.yaml`), the list files, and the entries (results and scenarios) keep the places the table gives.
+Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml`, `glossary.yaml` and `cast.yaml`), the list files, and the entries (results and scenarios) keep the places the table gives.
 
 Each parent with child records holds them in a folder named for the child type in the plural, inside the parent's own folder. A child stored as its own file sits in its own folder inside that typed folder, as `<typed folder>/<name>/<name>.yaml`. A child stored as an entry, such as a result, scenario, domain-event entry, permission, refusal code, flow step, or source, stays in its parent's file. The table gives each child type's folder. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
@@ -132,6 +137,11 @@ Each parent with child records holds them in a folder named for the child type i
 | `role` | Intent | product | `intent/roles/<name>/<name>.yaml` | product | `role/<name>` |
 | `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
+| `cast` | Root | product | `cast.yaml`, with `cast.md` beside it | product | `cast/<name>` |
+| `party` | Root | product | `cast.yaml`, in the cast's `parties` list | cast | `party/<name>` |
+| `person` | Root | product | `cast.yaml`, in the cast's `people` list | cast | `person/<name>` |
+| `occasion` | Root | product | `cast.yaml`, in the cast's `occasions` list | cast | `occasion/<name>` |
+| `figure` | Root | product | `cast.yaml`, in the cast's `figures` list | cast | `figure/<name>` |
 | `aggregate` | Behavior | module | `behavior/modules/<m>/aggregates/<aggregates>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
 | `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregates>/use-cases/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
 | `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` |
@@ -218,7 +228,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 A named record lives in its record file `<name>.yaml` inside its own folder `<name>/`, and an explanation file `<name>.md` may sit in that folder beside it. A document holds no record. The folder name equals the file stem, so the folder and the file form one pair that the tools find together.
 
-The product record (`.litespec/product.yaml`) stands at the top of `.litespec/`, above the record layers. The glossary (`.litespec/glossary.yaml`) and the example cast stay at the top of `.litespec/` beside it, because every record layer uses them.
+The product record (`.litespec/product.yaml`) stands at the top of `.litespec/`, above the record layers. The glossary (`.litespec/glossary.yaml`) and the cast (`.litespec/cast.yaml`, with its optional explanation `.litespec/cast.md`) stay at the top of `.litespec/` beside it, because every record layer uses them. The cast holds the people, parties, occasions, and amounts every example draws from; [The Cast](#the-cast) states its shape.
 
 Proof holds no authored records. Tests are code, placed by the rule the Where Code and Tests Sit section states, and the model computes completion from their marks and results.
 
@@ -231,6 +241,23 @@ A requirement is a page record in its own folder, and it holds no entries. Terms
 Container pages (`permission-set`, `entry-point-set`, `setting-set`, `rule-set`, `refusal-set`) are record files: they hold entries.
 
 The decision type spans two layers: a product decision lives under Intent, and a technical decision lives under Implementation. Both share one number sequence, so a number still names one decision wherever it sits. A technical decision carries `kind`, one of the six kinds the [decision records page](../reference/decision-records.md) names; a product decision takes none.
+
+### The Cast
+
+The cast is the one set of people, parties, occasions, and amounts that the project's examples and every `Example` section draw from. It is one record, `.litespec/cast.yaml`, with the identifier `cast/<name>`, and it is optional: a project with no cast has no cast finding. Its explanation, `.litespec/cast.md`, tells the cast's story for people and adds no fact.
+
+The cast page holds four optional lists, and each entry states the type its list names:
+
+- `parties` holds party entries. A party has a `name`, a `uses` of `product` (the organization the product serves) or `appears-in-data` (an organization that appears only in data), a `description`, and optional `facts`, each naming a glossary term and the value it states.
+- `people` holds person entries. A person has a `name`, the `actor` it plays (required), an optional `partyOf` party it belongs to, an optional `email` on a reserved test domain, and what it `does`.
+- `occasions` holds occasion entries. An occasion has a `title`, a `scene`, and optional `on` (an ISO date), `place`, and `involves` (the people and parties it involves).
+- `figures` holds figure entries. A figure has a `title` and exactly one typed `value`: `money` (a decimal `amount` and a three-letter ISO `currency`), `quantity` (a decimal `amount` and a `unit`), `percentage` (a decimal string), `date`, `count` (a non-negative whole number), or `text`. An optional `term` names the glossary term the figure states.
+
+The cast page may also hold `today`, the ISO date every example shares as now, and `timeZone`, the IANA time zone the cast's dates belong to.
+
+Each identifier takes the grammar `party/<name>`, `person/<name>`, `occasion/<name>`, `figure/<name>`, or `cast/<name>`, where the name is lowercase words joined by hyphens. The links are `actor`, `partyOf`, `involves`, and `term`, and the Links table reads each one's phrase from the record schema.
+
+The model checks the cast in four ways. A malformed cast is a `record-invalid` finding. A person's `email` on a domain that no reserved test domain covers is a `cast-identity-unreserved` finding, at level G. A cast entry that no record field, explanation file, or seeds mark cites, by its identifier or, for a person or party, by its exact name, is a `cast-entry-unused` finding, at level A. A seeds mark that names no cast entry is a `mark-unknown` finding. The [book](#the-book) lists each entry with the records, explanation files, and code marks that cite it, computed from those citations.
 
 ### Record Files
 
@@ -255,7 +282,7 @@ Inside Intent and Behavior records, a generated region derives from other record
 
 ### Documents
 
-A document is a `.md` file under a record root with no `.yaml` of the same name beside it. It is Markdown with an optional YAML frontmatter block between `---` lines, holding only a document page style in `type` and its common fields. The document page styles are `index`, `tutorial`, `how-to`, `reference`, `command`, `configuration`, `glossary`, and `example-cast`. A document holds no record type and no entries.
+A document is a `.md` file under a record root with no `.yaml` of the same name beside it. It is Markdown with an optional YAML frontmatter block between `---` lines, holding only a document page style in `type` and its common fields. The document page styles are `index`, `tutorial`, `how-to`, `reference`, `command`, `configuration`, and `glossary`. A document holds no record type and no entries.
 
 A `.md` file with no frontmatter and no record file beside it is an orphaned explanation, except a file named `README.md`, which is a document. Document pages may sit at a layer root.
 
@@ -332,6 +359,11 @@ An identifier is the one name every link and citation uses for a record. It name
 | `runbook` | `runbook/<name>` | `runbook/clear-stuck-reimbursements` |
 | `waiver` | `waiver/<name>` | `waiver/export-expenses-unimplemented` |
 | `term` | `term/<name>` | `term/expense` |
+| `cast` | `cast/<name>` | `cast/claimwick` |
+| `party` | `party/<name>` | `party/harbor-and-pine` |
+| `person` | `person/<name>` | `person/ava` |
+| `occasion` | `occasion/<name>` | `occasion/client-visit` |
+| `figure` | `figure/<name>` | `figure/train-fare` |
 
 The home segment stays short because names are unique where it matters. A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name.
 
@@ -463,6 +495,11 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `leadsTo` | screen | screen | leads to | is reached from |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 | `records.terms` | refusal set | term | uses | is used by |
+| `facts.term` | party | term | instantiates | is instantiated by |
+| `actor` | person | actor | plays | is played by |
+| `partyOf` | person | party | belongs to | has member |
+| `involves` | occasion | person, party | involves | takes part in |
+| `term` | figure | term | instantiates | is instantiated by |
 <!-- /generated:links -->
 
 Every link points up: from the lower or later record to the higher or earlier one. Intent links point up: `serves`, `answers`, `fulfills`, `cites`, `advances`, `grantedTo`, `basedOn` and `represents` connect Behavior to Intent or Intent to the promise above it. A flow names no use case, and a requirement names no rule.
@@ -556,6 +593,8 @@ Mark style belongs to the language. C# marks use the one style the project decla
 One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports.
 
 A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
+
+A development seed or fixture names each cast entry it uses with a `seeds` mark: `<seeds>person/ava</seeds>` in a C# documentation tag, or `// litespec: seeds person/ava` in a TypeScript line comment. A seeds mark stands on no code element of a kind, so the element readers leave it out and the cast checks read it. `mark-unknown` reports a seeds mark that names no party, person, occasion, or figure. The [writing page](writing.md) states where cast names may appear.
 
 ### Where Code and Tests Sit
 

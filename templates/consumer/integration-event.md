@@ -12,4 +12,4 @@ Explains `compatibility`. Say how the contract stays stable when the event chang
 
 ## Example
 
-Write one concrete payload for the example cast, with the real values filled in.
+Write one concrete payload for the cast, with the real values filled in.

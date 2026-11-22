@@ -27,7 +27,7 @@ static class RecordPages
     public static readonly HashSet<string> DocumentStyles = new(StringComparer.Ordinal)
     {
         "index", "tutorial", "how-to", "reference", "command",
-        "configuration", "glossary", "example-cast",
+        "configuration", "glossary",
     };
 
     /// <summary>Where an entry type lives, for the refusal message.</summary>
@@ -44,6 +44,10 @@ static class RecordPages
         ["permission"] = ".litespec/behavior/modules/<m>/permissions.yaml",
         ["entry-point"] = ".litespec/behavior/entry-points/<entry-point>/entry-point.yaml",
         ["term"] = "the glossary",
+        ["party"] = "the cast, .litespec/cast.yaml",
+        ["person"] = "the cast, .litespec/cast.yaml",
+        ["occasion"] = "the cast, .litespec/cast.yaml",
+        ["figure"] = "the cast, .litespec/cast.yaml",
     };
 
     /// <summary>The file kinds that cite record identifiers: files, data, and the code that anchors to records.</summary>
@@ -100,7 +104,6 @@ static class RecordPages
             "command" => Path.Combine(docs, "tools", $"{name}.md"),
             "configuration" => Path.Combine(docs, "tools", $"{name}.md"),
             "glossary" => Path.Combine(behavior, $"{name}.md"),
-            "example-cast" => Path.Combine(docs, $"{name}.md"),
 
             _ => throw new ArgumentOutOfRangeException(nameof(style), $"Style '{style}' owns no document."),
         };

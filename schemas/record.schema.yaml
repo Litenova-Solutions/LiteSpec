@@ -43,7 +43,7 @@ oneOf:
 - $ref: '#/$defs/commandPage'
 - $ref: '#/$defs/configurationPage'
 - $ref: '#/$defs/glossaryPage'
-- $ref: '#/$defs/exampleCastPage'
+- $ref: '#/$defs/castPage'
 $defs:
   productId:
     type: string
@@ -163,6 +163,21 @@ $defs:
   termId:
     type: string
     pattern: '^term/[a-z0-9][a-z0-9-]*$'
+  castId:
+    type: string
+    pattern: '^cast/[a-z0-9][a-z0-9-]*$'
+  partyId:
+    type: string
+    pattern: '^party/[a-z0-9][a-z0-9-]*$'
+  personId:
+    type: string
+    pattern: '^person/[a-z0-9][a-z0-9-]*$'
+  occasionId:
+    type: string
+    pattern: '^occasion/[a-z0-9][a-z0-9-]*$'
+  figureId:
+    type: string
+    pattern: '^figure/[a-z0-9][a-z0-9-]*$'
   refusalId:
     type: string
     pattern: '^refusal/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
@@ -4551,23 +4566,216 @@ $defs:
         x-read-back-as: is used by
       records:
         $ref: '#/$defs/recordsArray'
-  exampleCastPage:
+  castPage:
+    description: 'The cast of the project: the parties, people, occasions and figures every example draws from.'
     type: object
     additionalProperties: false
     required:
     - type
+    - id
+    - title
     properties:
       type:
-        const: example-cast
+        const: cast
       id:
-        $ref: '#/$defs/nonEmptyString'
+        $ref: '#/$defs/castId'
       title:
         $ref: '#/$defs/nonEmptyString'
       summary:
         $ref: '#/$defs/nonEmptyString'
-      terms:
-        $ref: '#/$defs/termIdArray'
-        x-reads-as: uses
-        x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
+      today:
+        $ref: '#/$defs/isoDate'
+      timeZone:
+        $ref: '#/$defs/timeZoneName'
+      parties:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/partyEntry'
+      people:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/personEntry'
+      occasions:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/occasionEntry'
+      figures:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/figureEntry'
+  partyEntry:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - name
+    - uses
+    - description
+    properties:
+      type:
+        const: party
+      id:
+        $ref: '#/$defs/partyId'
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      uses:
+        enum:
+        - product
+        - appears-in-data
+      description:
+        $ref: '#/$defs/nonEmptyString'
+      facts:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/partyFact'
+  partyFact:
+    type: object
+    additionalProperties: false
+    required:
+    - term
+    - value
+    properties:
+      term:
+        $ref: '#/$defs/termId'
+        x-reads-as: instantiates
+        x-read-back-as: is instantiated by
+      value:
+        $ref: '#/$defs/nonEmptyString'
+  personEntry:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - name
+    - actor
+    - does
+    properties:
+      type:
+        const: person
+      id:
+        $ref: '#/$defs/personId'
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      actor:
+        $ref: '#/$defs/actorId'
+        x-reads-as: plays
+        x-read-back-as: is played by
+      partyOf:
+        $ref: '#/$defs/partyId'
+        x-reads-as: belongs to
+        x-read-back-as: has member
+      email:
+        type: string
+        pattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+      does:
+        $ref: '#/$defs/nonEmptyString'
+  occasionEntry:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - scene
+    properties:
+      type:
+        const: occasion
+      id:
+        $ref: '#/$defs/occasionId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      on:
+        $ref: '#/$defs/isoDate'
+      place:
+        $ref: '#/$defs/nonEmptyString'
+      involves:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          anyOf:
+          - $ref: '#/$defs/personId'
+          - $ref: '#/$defs/partyId'
+        x-reads-as: involves
+        x-read-back-as: takes part in
+      scene:
+        $ref: '#/$defs/nonEmptyString'
+  figureEntry:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - value
+    properties:
+      type:
+        const: figure
+      id:
+        $ref: '#/$defs/figureId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      term:
+        $ref: '#/$defs/termId'
+        x-reads-as: instantiates
+        x-read-back-as: is instantiated by
+      value:
+        $ref: '#/$defs/figureValue'
+  figureValue:
+    description: One typed value; a figure holds exactly one of these keys.
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    maxProperties: 1
+    properties:
+      money:
+        $ref: '#/$defs/castMoney'
+      quantity:
+        $ref: '#/$defs/castQuantity'
+      percentage:
+        $ref: '#/$defs/decimalString'
+      date:
+        $ref: '#/$defs/isoDate'
+      count:
+        type: integer
+        minimum: 0
+      text:
+        $ref: '#/$defs/nonEmptyString'
+  castMoney:
+    type: object
+    additionalProperties: false
+    required:
+    - amount
+    - currency
+    properties:
+      amount:
+        $ref: '#/$defs/decimalString'
+      currency:
+        $ref: '#/$defs/currencyCode'
+  castQuantity:
+    type: object
+    additionalProperties: false
+    required:
+    - amount
+    - unit
+    properties:
+      amount:
+        $ref: '#/$defs/decimalString'
+      unit:
+        $ref: '#/$defs/nonEmptyString'
+  decimalString:
+    type: string
+    pattern: '^-?[0-9]+(\.[0-9]+)?$'
+  currencyCode:
+    type: string
+    pattern: '^[A-Z]{3}$'
+  timeZoneName:
+    type: string
+    pattern: '^(UTC|[A-Za-z]+(/[A-Za-z0-9_+-]+)+)$'

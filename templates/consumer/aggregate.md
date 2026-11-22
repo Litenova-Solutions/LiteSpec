@@ -12,7 +12,7 @@ Explains `data`, `dataClasses`. Say what data the aggregate keeps, how sensitive
 
 ## Example
 
-Optional. One concrete case from the example cast that passes through the states, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
+Optional. One concrete case from the cast that passes through the states, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
 
 ## Excludes
 

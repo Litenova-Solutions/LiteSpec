@@ -333,19 +333,26 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path, "--all"), "requires an H2");
     }
 
-    /// <summary>Example cast that omits its people.</summary>
-    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "example cast that omits its people")]
-    public void ExampleCastThatOmitsItsPeople()
+    /// <summary>A cast person that names no actor fails the record schema.</summary>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
+    [Fact(DisplayName = "cast person without an actor fails the record schema")]
+    public void CastPersonWithoutAnActorFailsTheSchema()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            ".litespec/example-cast.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"example-cast","id":"example-cast","title":"Example Cast"}"""),
-                "# Example Cast\n\n## The Organization\n\nThe shop sells printed books.\n\n## The Occasion\n\nAlex orders on Monday morning.\n\n## The Amounts\n\nEvery order carries one fee.\n\n## Recurring Situations\n\nShipments leave each weekday.\n"));
-        AssertAdvisory(folder.Path, "requires an H2 'The People'");
+            ".litespec/cast.yaml",
+            """
+            type: cast
+            id: cast/shop
+            title: Shop Cast
+            people:
+            - type: person
+              id: person/alex
+              name: Alex
+              does: Orders printed books.
+            """);
+        AssertProblem(RunConsumer(folder.Path), "actor");
     }
 
     /// <summary>Tutorial that omits what the reader built.</summary>

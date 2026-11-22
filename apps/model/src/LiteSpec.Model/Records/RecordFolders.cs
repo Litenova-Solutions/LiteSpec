@@ -60,6 +60,11 @@ public static class RecordFolders
         Scaffold("role", "intent/roles/{name}", "{name}.yaml"),
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
         At("term", "", "glossary.yaml"),
+        At("cast", "", "cast.yaml"),
+        At("party", "", "cast.yaml"),
+        At("person", "", "cast.yaml"),
+        At("occasion", "", "cast.yaml"),
+        At("figure", "", "cast.yaml"),
         Scaffold("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
         At("use-case", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         Scaffold("use-case", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
@@ -196,6 +201,7 @@ public static class RecordFolders
         var subject = type switch
         {
             "product" => "the product",
+            "party" => "parties",
             _ when Uncountable.Contains(type) => type,
             _ => type.Replace('-', ' ') + "s",
         };

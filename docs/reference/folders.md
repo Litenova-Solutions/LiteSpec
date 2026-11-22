@@ -24,6 +24,11 @@ Use this generated page to find the folder and file each record type lives in, r
 | `role` | `intent/roles/{name}` | `{name}.yaml` |
 | `module` | `behavior/modules/{name}` | `module.yaml` |
 | `term` | `` | `glossary.yaml` |
+| `cast` | `` | `cast.yaml` |
+| `party` | `` | `cast.yaml` |
+| `person` | `` | `cast.yaml` |
+| `occasion` | `` | `cast.yaml` |
+| `figure` | `` | `cast.yaml` |
 | `aggregate` | `behavior/modules/{module}/aggregates/{aggregate}` | `aggregate.yaml` |
 | `use-case` | `behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}` | `{name}.yaml` |
 | `use-case` | `behavior/modules/{module}/use-cases/{name}` | `{name}.yaml` |

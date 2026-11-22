@@ -40,7 +40,7 @@ The analyzers read the layer from the file's top folder in the module, as the [A
 
 #### Check the Record Layer Claims
 
-The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
+The package also follows the record layers the project claims. A project that claims the record model alone gets no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5014`, so a project can mark its code in its own layout before taking on the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing `.litespec/project.yaml`, set the property in that project's file:
 
 ```xml
 <PropertyGroup>

@@ -128,6 +128,7 @@ static class Checker
         GraphChecks.RunReferenceDataPack,
         ParentChecks.Run,
         IntentChecks.Run,
+        CastChecks.Run,
         GraphChecks.RunStepUnserved,
         EffectLoopChecks.Run,
         ReadModelChecks.Run,

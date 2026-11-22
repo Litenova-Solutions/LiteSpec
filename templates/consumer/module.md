@@ -12,4 +12,4 @@ Explains `excludes`. Say what the module leaves to other modules, and why that s
 
 ## Example
 
-Optional. One concrete case through the module with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
+Optional. One concrete case through the module with the cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

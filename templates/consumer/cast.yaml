@@ -1,0 +1,41 @@
+type: cast
+id: cast/<name>
+title: <Title in Title Case>
+summary: <who the cast stands for and which examples it serves, in one sentence>
+today: <YYYY-MM-DD, the date every example shares as now>
+timeZone: <IANA time zone, such as Europe/Amsterdam>
+parties:
+- type: party
+  id: party/<name>
+  name: <party name as the examples write it>
+  uses: <product, or appears-in-data>
+  description: <what the party is, in one sentence>
+  facts:
+  - term: term/<name, or remove this line>
+    value: <the value the party states for the term>
+people:
+- type: person
+  id: person/<name>
+  name: <first name as the examples write it>
+  actor: actor/<name>
+  partyOf: party/<name, or remove this line>
+  email: <name>@example.com, or remove this line
+  does: <what the person does with the product, in one sentence>
+occasions:
+- type: occasion
+  id: occasion/<name>
+  title: <occasion title in Title Case>
+  on: <YYYY-MM-DD, or remove this line>
+  place: <place, or remove this line>
+  involves:
+  - person/<name>
+  scene: <what happens on the occasion, in one sentence>
+figures:
+- type: figure
+  id: figure/<name>
+  title: <figure title in Title Case>
+  term: term/<name, or remove this line>
+  value:
+    money:
+      amount: '<decimal amount>'
+      currency: <ISO 4217 code>

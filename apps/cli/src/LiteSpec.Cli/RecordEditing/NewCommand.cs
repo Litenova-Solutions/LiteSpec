@@ -75,7 +75,7 @@ static class NewCommand
         new <document-style> writes the .md document from its template: a tutorial
         or how-to under guide/, a command or configuration under tools/, a reference
         under reference/, an index as the README.md of its section folder,
-        a glossary or example cast under behavior/.
+        a glossary under behavior/.
         The title follows <name>. The command refuses a name whose file already exists.
 
         new result and new scenario append one entry to a use-case file's

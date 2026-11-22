@@ -35,6 +35,11 @@ static class BookParents
             ["decision"] = new("decision", ["product", "module"], "product or module"),
             ["actor"] = new("actor", ["product"], "product"),
             ["term"] = new("term", ["product"], "product"),
+            ["cast"] = new("cast", ["product"], "product"),
+            ["party"] = new("party", ["cast"], "cast"),
+            ["person"] = new("person", ["cast"], "cast"),
+            ["occasion"] = new("occasion", ["cast"], "cast"),
+            ["figure"] = new("figure", ["cast"], "cast"),
             ["module"] = new("module", ["product"], "product"),
             ["role"] = new("role", ["product"], "product"),
             ["flow"] = new("flow", ["product"], "product"),
@@ -95,6 +100,9 @@ static class BookParents
         public Dictionary<string, JsonObject> ById { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets or sets the identifier of the product record, or null when the model holds no product.</summary>
         public string? ProductId { get; set; }
+
+        /// <summary>Gets or sets the identifier of the cast record, or null when the model holds no cast.</summary>
+        public string? CastId { get; set; }
         /// <summary>Gets the use-case identifier for each use-case name segment, first record winning.</summary>
         public Dictionary<string, string> UseCasesByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the reaction identifier for each reaction name segment, first record winning.</summary>
@@ -140,6 +148,11 @@ static class BookParents
             if (index.ProductId is null && string.Equals(StrProp(entry, "type"), "product", StringComparison.Ordinal))
             {
                 index.ProductId = id;
+            }
+
+            if (index.CastId is null && string.Equals(StrProp(entry, "type"), "cast", StringComparison.Ordinal))
+            {
+                index.CastId = id;
             }
         }
 
@@ -218,7 +231,8 @@ static class BookParents
             "product" => null,
             "goal" or "problem" or "constraint" or "research" => index.ProductId,
             "decision" or "runbook" or "waiver" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
-            "direction" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" => index.ProductId,
+            "direction" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" or "cast" => index.ProductId,
+            "party" or "person" or "occasion" or "figure" => index.CastId,
             "feature" => ProblemFromFile(record),
             "permission" => ModuleFromFile(index, record),
             "module-event" or "integration-event" => AggregateFromFile(index, record),

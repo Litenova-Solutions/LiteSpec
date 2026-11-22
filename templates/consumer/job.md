@@ -12,4 +12,4 @@ Say what happens when a run fails, and who learns about it.
 
 ## Example
 
-Optional. One concrete run of the job with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
+Optional. One concrete run of the job with the cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

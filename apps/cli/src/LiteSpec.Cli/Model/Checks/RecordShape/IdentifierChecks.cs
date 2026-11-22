@@ -49,6 +49,7 @@ internal static class IdentifierChecks
         "entry-point.yaml",
         "permissions.yaml",
         "glossary.yaml",
+        "cast.yaml",
     };
 
     /// <summary>Acts that only number or order a step, which a verb phrase names instead.</summary>

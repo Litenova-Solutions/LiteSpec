@@ -69,7 +69,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 ### Part H: Flows
 
 - The Intent record `journey` is now `flow`: identifiers `flow/<name>`, the folder `intent/flows/`, and the template `templates/consumer/flow.yaml`.
-- Each step has a named identifier `step/<flow>.<act>`, the act a verb phrase in kebab case (`step/book-a-forwarded-invoice.confirm-proposal`), and a `title` in Title Case whose words the act repeats. List order is the main path; no position lives in an id. A step id is a real identifier: `model query`, search and every link check resolve it, and a screen or use case serves `step/<flow>.<act>`.
+- Each step has a named identifier `step/<flow>.<act>`, the act a verb phrase in kebab case (`step/submit-and-reimburse.approve-expense`), and a `title` in Title Case whose words the act repeats. List order is the main path; no position lives in an id. A step id is a real identifier: `model query`, search and every link check resolve it, and a screen or use case serves `step/<flow>.<act>`.
 - Branches live on the step they leave, in its `branches` list: each has one `when` condition (two conditions are two branches), exactly one of `then` (a step of the same flow) or `ends` (the outcome sentence), and an optional `instead` with its own `carries`. The flow-level `branches` list is removed.
 - `model check` reports a step no path reaches (`step-unreached`), a branch with both or neither of `then` and `ends` or a `when` joining two conditions with "or" (`record-invalid`), a `then` naming no step (`reference-unknown`), an act that is no word subsequence of its title (`identifier-title-invalid`), and a step whose serving use cases have no implementing code (`step-implementation-missing`). `model query step/<flow>.<act>` traces the step to the screens and use cases that serve it, the requirements it carries, and the code and tests behind them; the book shows each step with its title, its branches under it, and its trace.
 - A flow carries exactly one reason: `serves` names one goal, or `answers` names one problem or constraint. Only `serves` moves a goal.
@@ -432,6 +432,24 @@ The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-fram
 
 The new rule is `litespec/backend/dotnet/workspace#keep-the-apphost-in-the-deploy-folder`, which replaces `litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs`.
 
+### Part AU: The Cast as a Record
+
+- The example cast is a record: `.litespec/cast.yaml` (`type: cast`) with typed `parties`, `people`, `occasions` and `figures`, and an optional `cast.md`. A figure's value is one of `money`, `quantity`, `percentage`, `date`, `count` or `text`. People name the actor they play, and facts name glossary terms; both links are checked.
+- The `example-cast` document style, `example-cast.md`, and its page-sections check are removed. `litespec init` writes `cast.yaml`.
+- `cast-identity-unreserved` (level G) reports a cast email outside the reserved test domains; `cast-entry-unused` (level A) reports an entry nothing cites.
+- Seed and fixture code marks the cast entries it uses with `<seeds>` (C#) or `// litespec: seeds` (TypeScript); an unknown id is `mark-unknown`.
+- Cast names and values may appear in development seed data, demo data, fixtures and tests, never in production code paths or production data.
+
+The new rule is `litespec/core/writing#keep-the-cast-out-of-production-code`. Decision 0112, Cast as a Record, records why.
+
+### Part AV: Local Development and Development Shortcuts
+
+- A new page, Local Development (`docs/quality/development.md`), holds `start-the-stack-with-one-local-command`, moved from Operations.
+- A development shortcut (a sign-in shortcut, a fake external system, a seed or reset command, a relaxed guard) is excluded from release builds at compile time, refuses to run outside development, and carries the development-shortcut mark. On .NET it lives in a project referenced only in Debug, registers behind `#if DEBUG`, and carries `<development-shortcut>`; analyzer LS5014 reports one compiled without `DEBUG`.
+- Five defaults: authenticate as a cast person through the product's own sign-in use case; seed from the cast through public use cases; provide seed and reset from the local orchestrator; keep the real identity provider one launch profile away; give each external system a stand-in that answers its declared operations.
+
+The new rules are `litespec/quality/development#keep-development-shortcuts-out-of-release-builds` and `litespec/backend/dotnet/workspace#exclude-development-shortcuts-from-release-builds`. Decision 0113, Shortcuts Stay Out of Release Builds, records why.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -454,7 +472,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (249):
+Added (258):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
@@ -512,6 +530,7 @@ Added (249):
 - `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock`
 - `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`
 - `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests`
+- `litespec/backend/dotnet/workspace#exclude-development-shortcuts-from-release-builds`
 - `litespec/backend/dotnet/workspace#keep-the-apphost-in-the-deploy-folder`
 - `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`
 - `litespec/core/access#authorize-every-use-case-through-a-declared-grant`
@@ -637,6 +656,7 @@ Added (249):
 - `litespec/core/waivers#record-accepted-gaps-as-waivers`
 - `litespec/core/waivers#state-the-kind-of-every-waiver`
 - `litespec/core/writing#explain-the-same-specification-the-records-state`
+- `litespec/core/writing#keep-the-cast-out-of-production-code`
 - `litespec/core/writing#update-a-record-and-its-explanation-together`
 - `litespec/core/writing#use-one-mechanical-form-for-each-fact`
 - `litespec/ext/audit#chain-records-to-expose-tampering`
@@ -698,6 +718,13 @@ Added (249):
 - `litespec/frontend/web/testing#keep-web-test-mocks-to-the-stack-libraries`
 - `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`
 - `litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file`
+- `litespec/quality/development#authenticate-as-a-cast-person`
+- `litespec/quality/development#give-each-external-system-a-stand-in-that-answers-its-declared-operations`
+- `litespec/quality/development#keep-development-shortcuts-out-of-release-builds`
+- `litespec/quality/development#keep-the-real-identity-provider-one-launch-profile-away`
+- `litespec/quality/development#provide-seed-and-reset-from-the-local-orchestrator`
+- `litespec/quality/development#seed-from-the-cast-through-public-use-cases`
+- `litespec/quality/development#start-the-stack-with-one-local-command`
 - `litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class`
 - `litespec/workspace/design#give-each-class-one-responsibility`
 - `litespec/workspace/design#implement-one-capability-per-class`
@@ -706,7 +733,7 @@ Added (249):
 - `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (219):
+Removed (220):
 
 - `litespec/backend/application#declare-a-port-where-its-consumers-meet`
 - `litespec/backend/application#emit-declared-integration-events-after-commit`
@@ -926,6 +953,7 @@ Removed (219):
 - `litespec/frontend/web/svelte/stack#use-named-attributes-for-class-and-style-bindings`
 - `litespec/frontend/web/svelte/stack#use-the-shared-package-form-creator`
 - `litespec/frontend/web/svelte/stack#use-the-svelte-extension-on-shared-files`
+- `litespec/quality/operations#start-the-stack-with-one-local-command`
 - `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
 Renamed (161):

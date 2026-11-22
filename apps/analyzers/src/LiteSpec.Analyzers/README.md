@@ -86,6 +86,7 @@ A file the rules cannot place stays quiet.
 | LS5009 | Domain, Application, Infrastructure, WebApi | Two permission records generating one constant name | [Generate runtime values from the records](https://litespec.dev/7.0.0/backend/dotnet/stack/#generate-runtime-values-from-the-records) |
 | LS5011 | Every layer | A message two marked handlers serve with different use cases | [Point code and tests up to records](https://litespec.dev/7.0.0/core/system/#point-code-and-tests-up-to-records) |
 | LS5012 | Domain, Application, Infrastructure, WebApi | A permission granting a role no record declares | [Generate the registry, permissions, and roles from the records](https://litespec.dev/7.0.0/backend/dotnet/stack/#generate-the-registry-permissions-and-roles-from-the-records) |
+| LS5014 | Every layer | A development shortcut compiled into a build without DEBUG, or tagged with no reason | [Keep development shortcuts out of release builds](https://litespec.dev/7.0.0/quality/development/#keep-development-shortcuts-out-of-release-builds) |
 | LS5013 | Domain | A marked exception inheriting a non-virtual `Code` | [Define the shared Domain contracts once](https://litespec.dev/7.0.0/backend/dotnet/domain/#define-the-shared-domain-contracts-once) |
 
 ### Change a Rule's Severity

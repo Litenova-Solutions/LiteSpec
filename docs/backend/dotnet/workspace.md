@@ -4,7 +4,7 @@
 
 **Concern:** workspace
 
-This page defines how the shared [Workspace Structure](../../workspace/structure.md) rules apply to .NET. It covers where the solutions sit for a backend under `apps/api/` and where the AppHost lives.
+This page defines how the shared [Workspace Structure](../../workspace/structure.md) rules apply to .NET. It covers where the solutions sit for a backend under `apps/api/`, where the AppHost lives, and how a development shortcut stays out of release builds.
 
 ## Concepts
 
@@ -66,6 +66,52 @@ deploy/
 A root solution, where `litespec/backend/dotnet/workspace#list-every-deployable-unit-in-the-root-solution` asks for one, lists the AppHost, and the API solution lists it too when a test project references it.
 
 **Reviewed for:** Does every AppHost sit at `deploy/{Product}.AppHost/`, with none under `apps/`? Look at each AppHost project path from the workspace root.
+
+### Exclude Development Shortcuts from Release Builds
+
+**ID:** `litespec/backend/dotnet/workspace#exclude-development-shortcuts-from-release-builds`
+
+**Strength:** required
+
+**Statement:** A .NET project that holds a development shortcut MUST be referenced only in Debug builds, MUST register the shortcut only behind `#if DEBUG`, MUST tag each shortcut type with `/// <development-shortcut>reason</development-shortcut>`, and MUST refuse to start outside the Development environment.
+
+**Rationale:** A project referenced in every build puts its shortcut into the release artifact, where no deployment setting can remove it. A `ProjectReference` with `Condition="'$(Configuration)' == 'Debug'"` keeps the project out of release builds, and the `#if DEBUG` registration keeps the host from naming a type that a release build does not have. The types themselves stay outside the directive. The compiler drops a disabled region from the compilation, so `LS5014` could not report a shortcut that a release build compiles. The tag gives `LS5014` one way to find each shortcut, and the environment check stops a Debug build on a shared host from running the shortcut. This provision binds `litespec/quality/development#keep-development-shortcuts-out-of-release-builds` for .NET.
+
+**Example:** Claimwick's development sign-in is a project that the WebApi host references only in Debug builds:
+
+```xml
+<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+  <ProjectReference Include="..\..\Claimwick.DevelopmentSignIn\Claimwick.DevelopmentSignIn.csproj" />
+</ItemGroup>
+```
+
+The project's type carries the tag and refuses to run outside Development, and `Program.cs` registers it only in Debug builds:
+
+```csharp
+/// <development-shortcut>Sign in as Ava locally, without the identity provider.</development-shortcut>
+public static class DevelopmentSignInRegistration
+{
+    public static IServiceCollection AddDevelopmentSignIn(this IServiceCollection services, IHostEnvironment environment)
+    {
+        if (!environment.IsDevelopment())
+        {
+            throw new InvalidOperationException("The development sign-in runs only in the Development environment.");
+        }
+
+        return services;
+    }
+}
+```
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+#if DEBUG
+builder.Services.AddDevelopmentSignIn(builder.Environment);
+#endif
+```
+
+**Checked by:** `dotnet build` reports `LS5014` for a tagged type that a compilation without `DEBUG` declares, in every project that holds a shortcut. Review the host project file for the Debug-only `ProjectReference`, and `Program.cs` for the `#if DEBUG` registration, since no rule reads the project file.
 
 ## Conventions
 

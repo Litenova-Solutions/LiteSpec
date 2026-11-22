@@ -30,4 +30,4 @@ Proof           Acceptance tests, the waivers that cover the gaps, the model che
 - [The Claimwick Screen](the-screen.md): the expenses screen, the generated client it reads, the shared UI package it composes, and the pattern catalog, with the model check over the screen.
 - [The Model and Its Checks](model-and-checks.md): the full model check, the findings that waivers cover, a waiver record, and a query of one record.
 
-The cast of people, dates and amounts that the examples share is in `examples/claimwick/.litespec/example-cast.md`.
+The cast of people, dates and amounts that the examples share is in `examples/claimwick/.litespec/cast.yaml`, with its explanation in `cast.md` beside it.

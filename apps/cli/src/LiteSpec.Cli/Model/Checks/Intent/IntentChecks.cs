@@ -249,16 +249,8 @@ internal static class IntentChecks
             }
         }
 
-        // The example cast names people, businesses and products that examples reuse; they are cast, not terms.
-        foreach (var cast in model.Bodies.Where(body => Path.GetFileName(body.File).Equals("example-cast.md", StringComparison.OrdinalIgnoreCase)))
-        {
-            foreach (var phrase in PhrasesOf(cast.Body))
-            {
-                defined.Add(phrase);
-            }
-        }
-
-        foreach (var cast in model.Records.Where(record => record.Type == RecordTypes.ExampleCast))
+        // The cast names people, businesses and products that examples reuse; they are cast, not terms.
+        foreach (var cast in model.Records.Where(record => RecordTypes.CastTypes.Contains(record.Type)))
         {
             foreach (var text in TextsOf(cast))
             {
@@ -435,7 +427,7 @@ internal static class IntentChecks
     /// <summary>One word token inside prose.</summary>
     private static readonly Regex WordToken = new(@"[A-Za-z][a-zA-Z]*", RegexOptions.Compiled);
 
-    /// <summary>One code-formatted name inside the example cast, without its backticks.</summary>
+    /// <summary>One code-formatted name inside the cast, without its backticks.</summary>
     private static readonly Regex CastCodeName = new(@"`(?<name>[^`]+)`", RegexOptions.Compiled);
 
     /// <summary>Every explanation section name of every record type, which reads as a heading, not a term.</summary>
@@ -612,28 +604,27 @@ internal static class IntentChecks
         return false;
     }
 
-    /// <summary>Every name the project's example cast lists: each code-formatted name and each table value.</summary>
-    /// <param name="model">The loaded project model that holds every body and record.</param>
+    /// <summary>Every name the project's cast lists: each entry's name or title, and each code-formatted name and table value of the cast explanation.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The cast names, without placeholders.</returns>
     private static HashSet<string> CastNamesOf(ProjectModel model)
     {
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var cast in model.Bodies.Where(body => Path.GetFileName(body.File).Equals("example-cast.md", StringComparison.OrdinalIgnoreCase)))
+        foreach (var entry in model.Records.Where(record => RecordTypes.CastTypes.Contains(record.Type)))
         {
-            foreach (var name in CastNamesInText(cast.Body))
+            var name = entry.Field(RecordFields.Name) ?? entry.Title;
+
+            if (name.Length > 0)
             {
                 names.Add(name);
             }
-        }
 
-        foreach (var cast in model.Records.Where(record => record.Type == RecordTypes.ExampleCast))
-        {
-            if (cast.Explanation is { } explanation)
+            if (entry.Type == RecordTypes.Cast && entry.Explanation is { } explanation)
             {
-                foreach (var name in CastNamesInText(explanation))
+                foreach (var text in CastNamesInText(explanation))
                 {
-                    names.Add(name);
+                    names.Add(text);
                 }
             }
         }
@@ -643,8 +634,8 @@ internal static class IntentChecks
         return names;
     }
 
-    /// <summary>The code-formatted names and table values of one example cast text.</summary>
-    /// <param name="text">The example cast Markdown.</param>
+    /// <summary>The code-formatted names and table values of one cast explanation text.</summary>
+    /// <param name="text">The cast explanation Markdown.</param>
     /// <returns>Each code name and table value, trimmed.</returns>
     private static List<string> CastNamesInText(string text)
     {
@@ -666,7 +657,7 @@ internal static class IntentChecks
     }
 
     /// <summary>The data values of every Markdown table in the text, without the header and separator rows.</summary>
-    /// <param name="text">The example cast Markdown.</param>
+    /// <param name="text">The cast Markdown.</param>
     /// <returns>Each non-empty data cell, with surrounding backticks stripped.</returns>
     private static List<string> TableValuesOf(string text)
     {

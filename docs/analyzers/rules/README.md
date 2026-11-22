@@ -1,6 +1,6 @@
 # Overview
 
-When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 56 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
+When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 59 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
 
 ## Domain Rules
 
@@ -74,7 +74,7 @@ Rule `LS4001` runs in test projects only.
 
 ## Traceability Rules
 
-Rules `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013` run across layers, as each page states.
+Rules `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5014` run across layers, as each page states.
 
 - [LS5003: Code Element Carries the Wrong Number of Marks](ls5003.md): reports an element whose mark count differs from what its kind takes.
 - [LS5004: Mark Uses the Undeclared Style](ls5004.md): reports a mark in the style the project did not declare.
@@ -84,3 +84,4 @@ Rules `LS5003` to `LS5006`, `LS5009`, and `LS5011` to `LS5013` run across layers
 - [LS5011: One Message Maps to Two Use Cases](ls5011.md): reports one message mapped to two use cases.
 - [LS5012: Permission Grants an Undeclared Role](ls5012.md): reports a permission granting a role no record declares.
 - [LS5013: Base Declares a Non-Virtual Code](ls5013.md): reports a marked exception inheriting a non-virtual `Code`.
+- [LS5014: Development Shortcut Compiled Without DEBUG](ls5014.md): reports a development shortcut compiled into a build without `DEBUG`, or tagged with no reason.

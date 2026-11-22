@@ -757,6 +757,18 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls5014.md",
+      "path": "analyzers/rules/ls5014",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS5014: Development Shortcut Compiled Without DEBUG",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/backend/README.md",
       "path": "backend/README",
       "style": "index",
@@ -4052,6 +4064,36 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0112-cast-as-a-record/0112-cast-as-a-record.md",
+      "path": "intent/decisions/0112-cast-as-a-record/0112-cast-as-a-record",
+      "style": "decision",
+      "area": "intent",
+      "title": "Cast as a Record",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0113-shortcuts-stay-out-of-release-builds/0113-shortcuts-stay-out-of-release-builds.md",
+      "path": "intent/decisions/0113-shortcuts-stay-out-of-release-builds/0113-shortcuts-stay-out-of-release-builds",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Development Shortcuts Out of Release Builds",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4488,6 +4530,20 @@
       "style": "standard",
       "area": "quality",
       "title": "Continuous Integration",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/quality/development.md",
+      "path": "quality/development",
+      "style": "standard",
+      "area": "quality",
+      "title": "Local Development",
       "intent": "",
       "sections": [
         "Concepts",
@@ -5094,6 +5150,7 @@
         "docs/workspace/naming.md",
         "docs/workspace/structure.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md"
@@ -5445,6 +5502,7 @@
         "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -5533,6 +5591,7 @@
         "docs/frontend/web/testing.md",
         "docs/frontend/web/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -5624,6 +5683,7 @@
         "docs/frontend/web/testing.md",
         "docs/frontend/web/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -5708,6 +5768,7 @@
         "docs/frontend/testing.md",
         "docs/frontend/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -5796,6 +5857,7 @@
         "docs/frontend/testing.md",
         "docs/frontend/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -5872,6 +5934,7 @@
         "docs/frontend/web/testing.md",
         "docs/frontend/web/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -5947,6 +6010,7 @@
         "docs/frontend/web/testing.md",
         "docs/frontend/web/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -6015,6 +6079,7 @@
         "docs/frontend/testing.md",
         "docs/frontend/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",
@@ -6087,6 +6152,7 @@
         "docs/frontend/testing.md",
         "docs/frontend/ui.md",
         "docs/quality/ci.md",
+        "docs/quality/development.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
         "docs/quality/testing.md",

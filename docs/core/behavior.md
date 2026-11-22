@@ -124,7 +124,7 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 **Applies to:** artifact: record:use-case, record:module, record:aggregate
 
-**Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no case adds to the records.
+**Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the cast, removed where no case adds to the records.
 
 **Replacement:** A project names the records that carry an Example section in its documentation.
 

@@ -162,9 +162,9 @@ public sealed class InitCommandTests
         Assert.Contains("apps/api/src/Team Expenses.Kernel", text, StringComparison.Ordinal);
     }
 
-    /// <summary>Init copies the agent context, glossary, and example cast beside the project file.</summary>
+    /// <summary>Init copies the agent context, glossary, and cast beside the project file.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
-    [Fact(DisplayName = "init copies the agent context, glossary, and example cast beside the project file")]
+    [Fact(DisplayName = "init copies the agent context, glossary, and cast beside the project file")]
     public void CopiesScaffoldFilesBesideTheProjectFile()
     {
         using var consumer = TestCli.Temp("init-scaffold");
@@ -174,10 +174,10 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var agents = Path.Combine(consumer.Path, "AGENTS.md");
         var glossary = Path.Combine(consumer.Path, ".litespec", "glossary.yaml");
-        var cast = Path.Combine(consumer.Path, ".litespec", "example-cast.md");
+        var cast = Path.Combine(consumer.Path, ".litespec", "cast.yaml");
         Assert.Contains(".litespec/project.yaml", File.ReadAllText(agents), StringComparison.Ordinal);
         Assert.Contains("glossary.schema.yaml", File.ReadAllText(glossary), StringComparison.Ordinal);
-        Assert.Contains("type: example-cast", File.ReadAllText(cast), StringComparison.Ordinal);
+        Assert.Contains("type: cast", File.ReadAllText(cast), StringComparison.Ordinal);
         Assert.Contains($"Wrote {agents}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {glossary}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {cast}.", result.Stdout, StringComparison.Ordinal);
@@ -705,7 +705,7 @@ public sealed class InitCommandTests
 
         if (scaffold)
         {
-            foreach (var name in new[] { "project-agents.md", "glossary.yaml", "example-cast.md" })
+            foreach (var name in new[] { "project-agents.md", "glossary.yaml", "cast.yaml" })
             {
                 File.Copy(
                     Path.Combine(TestCli.Repository, "templates", "consumer", name),

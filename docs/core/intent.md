@@ -544,7 +544,7 @@ A problem page is complete when a reader arriving cold can understand the proble
 
 **Statement:** A feature MUST state in `successCriteria` only outcomes that the feature brings about on its own and a tester can check.
 
-**Rationale:** A criterion the feature cannot guarantee sets a test nobody can pass: importing a bank statement does not make the book balance equal the statement balance, because an entry can be missing or wrong and a later entry moves the balance again. A criterion the feature controls, such as showing both balances for the same date, can be built and checked. An outcome depending on people or on other features belongs to the goal the feature advances.
+**Rationale:** A criterion the feature cannot guarantee sets a test nobody can pass: submitting an expense does not make the employee reimbursed by Friday, because the manager may not decide in time and finance runs reimbursements on its own schedule. A criterion the feature controls, such as showing the expense as waiting for approval the moment it is submitted, can be built and checked. An outcome depending on people or on other features belongs to the goal the feature advances.
 
 **Example:** The library feature for due dates states that a reader sees the due date of every copy they hold, not that no reader pays a late fee, which depends on the reader returning the copy in time.
 

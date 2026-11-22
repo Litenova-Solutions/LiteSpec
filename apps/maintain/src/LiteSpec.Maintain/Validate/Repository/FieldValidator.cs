@@ -29,7 +29,7 @@ internal sealed class FieldValidator
     // different shapes on different record types. Only three guards stay.
     // (litespec/core/language#read-each-field-name-in-its-record-type)
     /// <summary>Gets the fields excepted from the ISO date name rule.</summary>
-    private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);
+    private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn", "today"], StringComparer.Ordinal);
 
     // The word-class names the schemas carry: a link verb holds links, a
     // closed-set noun holds an enum, and a prose noun holds text. A name
@@ -235,12 +235,13 @@ internal sealed class FieldValidator
                     }
                 }
 
-                // A plural type noun holds links to that type, like the singular.
+                // A plural type noun holds links to that type, like the singular; a list of entries
+                // of that type, such as a cast's occasions, holds the entries themselves.
                 // (litespec/core/language#read-each-field-name-in-its-record-type)
                 if (field.Length > 1 && field.EndsWith('s') && nouns.Contains(field[..^1]))
                 {
                     var pluralNoun = field[..^1];
-                    if (!ReachesTypeId(node, TypeIdsFor(pluralNoun, idDefs), defs, []))
+                    if (!ReachesTypeId(node, TypeIdsFor(pluralNoun, idDefs), defs, []) && !HoldsEntriesOf(node, pluralNoun, defs))
                     {
                         add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds no links to `{pluralNoun}`; use another name for prose");
                     }
@@ -495,6 +496,26 @@ internal sealed class FieldValidator
     /// <returns>The identifier definitions of the record type.</returns>
     private static HashSet<string> TypeIdsFor(string noun, HashSet<string> idDefs) =>
         idDefs.Where(name => name.EndsWith(noun + "Id", StringComparison.OrdinalIgnoreCase)).ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>Reports whether a field is a list whose items are entries of one record type: its items schema fixes the type constant to the noun.</summary>
+    /// <param name="node">The field schema.</param>
+    /// <param name="noun">The record type noun the field name plurals, such as occasion.</param>
+    /// <param name="defs">The schema definitions.</param>
+    /// <returns>True when the field is an array whose items state the noun as their type; otherwise false.</returns>
+    private static bool HoldsEntriesOf(JsonNode? node, string noun, JsonObject defs)
+    {
+        if (node is not JsonObject obj || JsonString(obj["type"]) != "array" || obj["items"] is not JsonObject items)
+        {
+            return false;
+        }
+
+        var target = FieldRefTarget(items);
+        var entry = target is not null ? defs[target] as JsonObject : items;
+
+        return entry?["properties"]?["type"]?["const"] is JsonValue constant
+            && constant.TryGetValue<string>(out var type)
+            && type == noun;
+    }
 
     /// <summary>Reports whether a field schema reaches one of a record type's identifier definitions.</summary>
     /// <param name="node">The field schema.</param>

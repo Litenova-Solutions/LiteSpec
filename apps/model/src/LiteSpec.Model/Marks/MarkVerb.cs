@@ -18,4 +18,11 @@ public enum MarkVerb
     ///     provision, decision, or exception that shapes the code.
     /// </summary>
     Follows = 2,
+
+    /// <summary>
+    ///     The element seeds a cast entry: a development seed or fixture that uses the
+    ///     entry's values. Only a documentation tag or a TypeScript comment carries it;
+    ///     it marks no code element, so element readers leave it out.
+    /// </summary>
+    Seeds = 3,
 }

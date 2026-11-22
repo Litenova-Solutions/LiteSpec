@@ -41,6 +41,8 @@ internal static class Descriptors
     private static readonly Provision DomainDocumentation = Provision.Of("backend/dotnet/domain", "document-every-public-domain-contract");
     /// <summary>The provision the related descriptors enforce: use strongly typed version 7 identifiers (litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers).</summary>
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
+    /// <summary>The provision the development shortcut descriptor enforces: keep development shortcuts out of release builds (litespec/quality/development#keep-development-shortcuts-out-of-release-builds).</summary>
+    private static readonly Provision DevelopmentShortcuts = Provision.Of("quality/development", "keep-development-shortcuts-out-of-release-builds");
     /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
     private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
     /// <summary>The provision the related descriptors enforce: follow layer direction in every file (litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file).</summary>
@@ -447,6 +449,20 @@ internal static class Descriptors
         "Message maps to two use cases",
         "Message '{0}' is handled by both '{1}' and '{2}' with different use cases",
         "One message maps to one use case, so the pipeline reads the permission and the audit identity from the message; a message two handlers serve with different use cases maps to neither.");
+
+    /// <summary>The message fragment LS5014 uses for a development shortcut compiled into a build without DEBUG.</summary>
+    public static readonly string DevelopmentShortcutWithoutDebug =
+        "compiled into a build without DEBUG; reference its project only in Debug builds and register it behind #if DEBUG (" + DevelopmentShortcuts.HelpLink + ")";
+
+    /// <summary>The message fragment LS5014 uses for a development shortcut whose tag states no reason.</summary>
+    public static readonly string DevelopmentShortcutWithoutReason =
+        "with no reason in its development-shortcut tag; state why the shortcut exists there (" + DevelopmentShortcuts.HelpLink + ")";
+
+    /// <summary>The LS5014 descriptor: Development shortcut compiled without DEBUG, or with no reason.</summary>
+    public static readonly DiagnosticDescriptor LS5014 = Create("LS5014", TraceabilityCategory, DevelopmentShortcuts,
+        "Development shortcut compiled into a build without DEBUG",
+        "'{0}' is a development shortcut {1}",
+        "A type tagged as a development shortcut compiles only into builds that define DEBUG, and its development-shortcut tag states the reason it exists.");
 
     /// <summary>Creates a diagnostic descriptor.</summary>
     /// <param name="id">The diagnostic identifier, such as LS1001.</param>

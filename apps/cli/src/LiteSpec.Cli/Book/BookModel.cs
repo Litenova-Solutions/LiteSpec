@@ -24,6 +24,7 @@ static class BookModel
         new("Running It", ["runbook"]),
         new("How We Build", ["waiver"]),
         new("Terms", ["term"]),
+        new("The Cast", ["cast", "party", "person", "occasion", "figure"]),
     ];
 
     /// <summary>Gets the display label of every record type, singular and plural.</summary>
@@ -64,6 +65,11 @@ static class BookModel
             ["runbook"] = ("Runbook", "Runbooks"),
             ["waiver"] = ("Waiver", "Waivers"),
             ["term"] = ("Term", "Terms"),
+            ["cast"] = ("Cast", "Casts"),
+            ["party"] = ("Party", "Parties"),
+            ["person"] = ("Person", "People"),
+            ["occasion"] = ("Occasion", "Occasions"),
+            ["figure"] = ("Figure", "Figures"),
         };
 
     /// <summary>The record types in precedence order.</summary>

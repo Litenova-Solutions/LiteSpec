@@ -103,7 +103,7 @@ public sealed class BookOutlineTests
         }
 
         Assert.Equal(
-            new[] { "intent", "behavior", "implementation", "proof", "governance", "glossary" },
+            new[] { "intent", "behavior", "implementation", "proof", "governance", "glossary", "cast" },
             outline.Layers.Select(layer => layer.Id).ToArray());
     }
 

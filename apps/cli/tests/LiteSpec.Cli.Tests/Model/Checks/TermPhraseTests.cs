@@ -269,21 +269,40 @@ public sealed class TermPhraseTests
         Assert.Contains("'Public Lending Charter'", result.Output);
     }
 
-    /// <summary>A phrase holding a code-formatted cast name is no recurring phrase.</summary>
+    /// <summary>A phrase holding a code-formatted name in the cast explanation is no recurring phrase.</summary>
     /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
     [Fact]
-    public void CastCodeNamePhraseIsNotReported()
+    public void CastExplanationCodeNamePhraseIsNotReported()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        WriteCast(fixture.Path, FixtureCast, "The team uses `Marina` for expenses.\n");
+        ExplainShared(fixture.Path, """
+            # Record
+
+            The team reviews Marina Archive Review each quarter.
+            """);
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.DoesNotContain("'Marina Archive Review'", result.Output);
+    }
+
+    /// <summary>A phrase holding the name of a cast person is no recurring phrase.</summary>
+    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
+    [Fact]
+    public void CastPersonNamePhraseIsNotReported()
     {
         using var fixture = ModelFixture.Prepare("large");
         WriteCast(fixture.Path, """
-            ---
-            type: example-cast
-            title: Example Cast
-            ---
-
-            # Example Cast
-
-            The team uses `Marina` for expenses.
+            type: cast
+            id: cast/fixture
+            title: Fixture Cast
+            people:
+            - type: person
+              id: person/marina
+              name: Marina
+              actor: actor/librarian
+              does: Files expenses.
             """);
         ExplainShared(fixture.Path, """
             # Record
@@ -296,50 +315,22 @@ public sealed class TermPhraseTests
         Assert.DoesNotContain("'Marina Archive Review'", result.Output);
     }
 
-    /// <summary>A phrase holding a table cast name is no recurring phrase.</summary>
+    /// <summary>A phrase holding a two-word cast party name inside a longer phrase is no recurring phrase.</summary>
     /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
     [Fact]
-    public void CastTableValuePhraseIsNotReported()
+    public void CastPartyNameInsideLongerPhraseIsNotReported()
     {
         using var fixture = ModelFixture.Prepare("large");
         WriteCast(fixture.Path, """
-            ---
-            type: example-cast
-            title: Example Cast
-            ---
-
-            # Example Cast
-
-            | Person | Actor | What they do here |
-            |:---|:---|:---|
-            | Marina | actor/marina | Files expenses. |
-            """);
-        ExplainShared(fixture.Path, """
-            # Record
-
-            The team reviews Marina Archive Review each quarter.
-            """);
-
-        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-
-        Assert.DoesNotContain("'Marina Archive Review'", result.Output);
-    }
-
-    /// <summary>A phrase holding a two-word cast name inside a longer phrase is no recurring phrase.</summary>
-    /// <proves>litespec/core/intent#define-each-recurring-capitalized-phrase</proves>
-    [Fact]
-    public void CastNameInsideLongerPhraseIsNotReported()
-    {
-        using var fixture = ModelFixture.Prepare("large");
-        WriteCast(fixture.Path, """
-            ---
-            type: example-cast
-            title: Example Cast
-            ---
-
-            # Example Cast
-
-            The team uses `Harbor Pine` for expenses.
+            type: cast
+            id: cast/fixture
+            title: Fixture Cast
+            parties:
+            - type: party
+              id: party/harbor-pine
+              name: Harbor Pine
+              uses: product
+              description: A small consultancy.
             """);
         ExplainShared(fixture.Path, """
             # Record
@@ -401,13 +392,26 @@ public sealed class TermPhraseTests
         TestRecords.Explain(root, ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.md", markdown);
     }
 
-    /// <summary>Writes the example cast file the term check reads for cast names.</summary>
+    /// <summary>A cast with no entries, which the cast explanation tests use.</summary>
+    const string FixtureCast = """
+        type: cast
+        id: cast/fixture
+        title: Fixture Cast
+        """;
+
+    /// <summary>Writes the cast record the term check reads for cast names, and its explanation when one is given.</summary>
     /// <param name="root">The prepared fixture folder.</param>
-    /// <param name="markdown">The example cast Markdown.</param>
-    static void WriteCast(string root, string markdown)
+    /// <param name="yaml">The cast record YAML.</param>
+    /// <param name="explanation">The cast explanation Markdown, or null for none.</param>
+    static void WriteCast(string root, string yaml, string? explanation = null)
     {
-        var path = Path.Combine(root, ".litespec", "example-cast.md");
+        var path = Path.Combine(root, ".litespec", "cast.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, markdown);
+        File.WriteAllText(path, yaml);
+
+        if (explanation is not null)
+        {
+            File.WriteAllText(Path.ChangeExtension(path, ".md"), explanation);
+        }
     }
 }

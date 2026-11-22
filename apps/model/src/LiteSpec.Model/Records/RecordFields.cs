@@ -999,4 +999,61 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `rowShape` field.</summary>
     public const string RowShape = "rowShape";
+
+    /// <summary>Gets the name of the `parties` field: the party entries of a cast.</summary>
+    public const string Parties = "parties";
+
+    /// <summary>Gets the name of the `people` field: the person entries of a cast.</summary>
+    public const string People = "people";
+
+    /// <summary>Gets the name of the `occasions` field: the occasion entries of a cast.</summary>
+    public const string Occasions = "occasions";
+
+    /// <summary>Gets the name of the `figures` field: the figure entries of a cast.</summary>
+    public const string Figures = "figures";
+
+    /// <summary>Gets the name of the `facts` field: the glossary-term facts a party states.</summary>
+    public const string Facts = "facts";
+
+    /// <summary>Gets the name of the `today` field: the date every example of a cast shares as now.</summary>
+    public const string Today = "today";
+
+    /// <summary>Gets the name of the `partyOf` field: the party a person belongs to.</summary>
+    public const string PartyOf = "partyOf";
+
+    /// <summary>Gets the name of the `involves` field: the people and parties an occasion involves.</summary>
+    public const string Involves = "involves";
+
+    /// <summary>Gets the name of the `uses` field: how a party appears, in the product or in data.</summary>
+    public const string Uses = "uses";
+
+    /// <summary>Gets the name of the `does` field: what a person does in the cast.</summary>
+    public const string Does = "does";
+
+    /// <summary>Gets the name of the `email` field: a person's address, on a reserved test domain.</summary>
+    public const string Email = "email";
+
+    /// <summary>Gets the name of the `scene` field: what happens in an occasion.</summary>
+    public const string Scene = "scene";
+
+    /// <summary>Gets the name of the `place` field: where an occasion happens.</summary>
+    public const string Place = "place";
+
+    /// <summary>Gets the name of the `money` figure value field.</summary>
+    public const string Money = "money";
+
+    /// <summary>Gets the name of the `quantity` figure value field.</summary>
+    public const string Quantity = "quantity";
+
+    /// <summary>Gets the name of the `percentage` figure value field.</summary>
+    public const string Percentage = "percentage";
+
+    /// <summary>Gets the name of the `count` figure value field.</summary>
+    public const string Count = "count";
+
+    /// <summary>Gets the name of the `text` figure value field.</summary>
+    public const string Text = "text";
+
+    /// <summary>Gets the name of the `date` figure value field.</summary>
+    public const string Date = "date";
 }

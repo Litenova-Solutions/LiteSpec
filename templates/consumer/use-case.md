@@ -8,7 +8,7 @@ Explains `steps`. Describe what happens, in order, and say why each step is ther
 
 ## Example
 
-Optional. One concrete run with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
+Optional. One concrete run with the cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
 
 ## Edge Cases
 

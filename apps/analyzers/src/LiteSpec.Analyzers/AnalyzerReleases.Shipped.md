@@ -77,3 +77,4 @@ LS3002 | LiteSpec.Style | Error | Descriptors
 LS3003 | LiteSpec.Style | Error | Descriptors
 LS3005 | LiteSpec.Style | Info | Descriptors
 LS5013 | LiteSpec.Traceability | Error | GeneratorDiagnostics
+LS5014 | LiteSpec.Traceability | Error | Descriptors

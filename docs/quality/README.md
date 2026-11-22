@@ -6,7 +6,7 @@ A page applies when the project claims the record layer its rules govern, as the
 
 ## How the Pages Fit Together
 
-[Security](security.md) answers who acts, what each operation touches, and what it keeps. [Operations](operations.md) states how the product runs after release. [Continuous Integration](ci.md) states the gates each pull request runs for its changed areas, and [Testing](testing.md) states the cross-stack rules that prove each scenario. Read them in that order when setting up a new consumer: the product boundary first, then its operation, then the checks and proofs that guard both.
+[Security](security.md) answers who acts, what each operation touches, and what it keeps. [Operations](operations.md) states how the product runs after release. [Local Development](development.md) states how a developer starts the stack locally and keeps development shortcuts out of release builds. [Continuous Integration](ci.md) states the gates each pull request runs for its changed areas, and [Testing](testing.md) states the cross-stack rules that prove each scenario. Read them in that order when setting up a new consumer: the product boundary first, then its operation, then local development, then the checks and proofs that guard both.
 
 ## Layer Claims
 
@@ -16,6 +16,7 @@ Every Quality page assigns each of its rules to a record layer. A rule applies w
 |:---|:---|:---|
 | [Security](security.md) | Implementation, with access rules as Behavior and the ASVS target as Intent | `implementation`, `behavior`, `intent` |
 | [Operations](operations.md) | Implementation | `implementation` |
+| [Local Development](development.md) | Implementation | `implementation` |
 | [Continuous Integration](ci.md) | Implementation | `implementation` |
 | [Testing](testing.md) | Proof | `proof` |
 
@@ -25,6 +26,7 @@ A project that claims a layer as `own` does not apply the LiteSpec rules for tha
 
 - [Security](security.md): identity, permissions, data classification, and trust boundaries.
 - [Operations](operations.md): observability, diagnostics, and support by one maintainer.
+- [Local Development](development.md): one-command startup, cast seed data and shortcuts that stay out of release builds.
 - [Continuous Integration](ci.md): the gates each pull request runs for its changed areas.
 - [Testing](testing.md): the cross-stack rules that prove each scenario through the public boundary, the one mock rule, and the test projects each size requires.
 - [Delivery](../ext/delivery.md): the opt-in production regime of release readiness, deployment and rollback, backup and restore, alerting, and the supply-chain gate.

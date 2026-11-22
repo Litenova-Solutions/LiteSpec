@@ -11,7 +11,7 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `project.yaml` | `.litespec/project.yaml` | Sets the size, shape, stacks, reviewed LiteSpec release, paths, and selected extensions. |
 | `project-agents.md` | `AGENTS.md` | Provides the short consumer agent entry point: the generated `agent-protocol` region above the project-owned `## Project Commands` section. |
 | `glossary.yaml` | `.litespec/glossary.yaml` | Holds the Term entries that prose is checked against, with layers, aliases, rejected words, and mannered terms. |
-| `example-cast.md` | `.litespec/example-cast.md` | Sets the people, place, dates, and amounts every `Example` section draws from. |
+| `cast.yaml` | `.litespec/cast.yaml` | Sets the people, parties, occasions, and amounts every `Example` section draws from. |
 
 ## Page Records
 

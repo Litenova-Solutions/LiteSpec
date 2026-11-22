@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Init;
 /// <summary>
 ///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
 ///     from one of the ready-made presets in <c>templates/presets/</c>, copies the
-///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>,
+///     starting agent context, glossary, and cast from <c>templates/consumer/</c>,
 ///     writes the UI quality requirements from <c>templates/consumer/requirements/</c>
 ///     as product-level requirements, and inserts the agent-protocol region into an
 ///     existing <c>AGENTS.md</c> that holds none.
@@ -40,7 +40,7 @@ static class InitCommand
     [
         ("project-agents.md", "AGENTS.md"),
         ("glossary.yaml", ".litespec/glossary.yaml"),
-        ("example-cast.md", ".litespec/example-cast.md"),
+        ("cast.yaml", ".litespec/cast.yaml"),
     ];
 
     /// <summary>The UI quality requirements <c>litespec init</c> writes as product-level requirements, by file stem.</summary>
@@ -56,7 +56,7 @@ static class InitCommand
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
-        glossary, and example cast into .litespec/ beside it. It writes the UI quality
+        glossary, and cast into .litespec/ beside it. It writes the UI quality
         requirements from templates/consumer/requirements/ as product-level requirements
         under .litespec/intent/requirements/, leaving existing files alone. A fresh AGENTS.md carries the
         agent-protocol region filled with the release, size, shape, stacks, layers,

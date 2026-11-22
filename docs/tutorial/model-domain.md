@@ -24,7 +24,7 @@ Intent records say what the product promises; Behavior records say how the produ
 
     Rejected words stop a later contributor from writing `voucher` beside `expense`. Claimwick needs no aliases for these four terms; where synonyms exist, aliases let industry readers find your word under the name they already know. Rejected words and aliases together tell an agent which plausible names are wrong for this domain and which are accepted synonyms.
 
-2. Set the scene before writing rules. Pick one occasion the module exists for, and name who acts, what surrounds them, and what they use today instead. Record it in the module's explanation file under Example, then reuse its people and figures in every record beneath it. Keep the shared cast on the example cast page. This satisfies `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`.
+2. Set the scene before writing rules. Pick one occasion the module exists for, and name who acts, what surrounds them, and what they use today instead. Record it in the module's explanation file under Example, then reuse its people and figures in every record beneath it. Keep the shared cast in the cast record. This satisfies `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`.
 
     Month end brings every team's expenses at once: employees paid work costs from their own pockets and wait weeks for a decision, chasing managers by email. Without an expense record, finance reconstructs who spent what from forwarded receipts and memory.
 

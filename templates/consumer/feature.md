@@ -16,4 +16,4 @@ Explains `excludes`. Say what the feature leaves to other features, which featur
 
 ## Example
 
-Optional. One concrete case of the feature with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
+Optional. One concrete case of the feature with the cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

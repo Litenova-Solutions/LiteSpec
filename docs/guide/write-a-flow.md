@@ -115,7 +115,7 @@ Give each branch one condition. Two conditions joined by "or" are two branches.
 
 | Instead of | Write |
 |:---|:---|
-| On the decide step, one branch with `when: the document is not an invoice or the owner refuses it` | On the decide step, one branch per condition, each with its own `then` or `ends` |
+| On the decide step, one branch with `when: the receipt is missing or the manager refuses the expense` | On the decide step, one branch per condition, each with its own `then` or `ends` |
 | On the decide step, `when: the manager rejects the expense` with both `then` and `ends` | On the decide step, `when: the manager rejects the expense` with `ends` stating that the expense is rejected and no payout is made |
 
 The weak versions pack two paths into one branch, so a reader cannot tell where each path goes. The strong versions give each path its own branch with its own ending. This satisfies `litespec/core/intent#branch-a-flow-only-between-its-steps`.
@@ -150,7 +150,7 @@ The weak version names no actor and no end. The strong version states who takes 
 
 ### Write the Example from the Start to the End
 
-Under Example, describe one concrete run from `startedWhen` to `finishedWhen`. Take every step in order, skipping none. Use only the names, dates, and numbers the case needs, each taken from the example cast or from a record a step cites.
+Under Example, describe one concrete run from `startedWhen` to `finishedWhen`. Take every step in order, skipping none. Use only the names, dates, and numbers the case needs, each taken from the cast or from a record a step cites.
 
 | Instead of | Write |
 |:---|:---|

@@ -829,7 +829,7 @@ public sealed class BookViewsTests
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
             or "waiver" or "term" or "goal" or "direction" or "problem" or "feature"
             or "requirement" or "constraint" or "decision" or "research" or "flow"
-            or "actor" or "rule";
+            or "actor" or "rule" or "cast";
 
     /// <summary>The result a scenario shows, from its outgoing result edge, or null when it shows none.</summary>
     /// <param name="detail">The scenario detail whose outgoing edges are read.</param>

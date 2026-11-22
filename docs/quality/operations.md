@@ -35,20 +35,6 @@ The sub-processor list answers the question every customer asks: which providers
 
 ## Standards
 
-### Start the Stack with One Local Command
-
-**ID:** `litespec/quality/operations#start-the-stack-with-one-local-command`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A workspace MUST start WebApi, PostgreSQL, configured frontends, and its Worker where one exists, with one local command named in the consumer `AGENTS.md`.
-
-**Rationale:** A stack that needs several terminals and a wiki page starts differently for every developer, and the differences become bug reports nobody can reproduce. One named command brings WebApi, PostgreSQL, the frontends, and the background Worker up together, so every developer and every agent starts from the same running system. The baseline command is the Aspire `AppHost`, with `ServiceDefaults` supplying the shared discovery, health, resilience, and telemetry defaults its resources rely on. A workspace that orchestrates the same set another way satisfies this rule with its own command: the obligation is one command that brings the stack up, not one tool that does it.
-
-**Reviewed for:** Does one command named in the consumer `AGENTS.md` start WebApi, PostgreSQL, the frontends, and the Worker? Look at `AGENTS.md` and the AppHost project.
-
 ### Emit Correlated Diagnostics
 
 **ID:** `litespec/quality/operations#emit-correlated-diagnostics`

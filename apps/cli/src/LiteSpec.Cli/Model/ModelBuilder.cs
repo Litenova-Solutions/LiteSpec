@@ -7,6 +7,7 @@ using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Model.Readers;
 using LiteSpec.Cli.Model.Readers.Measures;
+using LiteSpec.Cli.Model.Readers.Seeds;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Cli.Model.Screens;
@@ -83,6 +84,7 @@ static partial class ModelBuilder
             model.Tests.AddRange(tests.Scenarios);
             model.Code.Elements.AddRange(tests.Elements);
             model.Code.StrayMarks.AddRange(tests.StrayMarks);
+            model.Code.Seeds.AddRange(SeedMarkReader.Read(config));
             model.StepCalls = tests.StepCalls;
             model.StepFacts = tests.StepFacts;
             model.ProbeRoutes = tests.ProbeRoutes;

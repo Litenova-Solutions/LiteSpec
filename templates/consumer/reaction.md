@@ -12,4 +12,4 @@ Say what happens when the reaction fails. Where it retries, say what a retry, a 
 
 ## Example
 
-Optional. One concrete event through the reaction with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
+Optional. One concrete event through the reaction with the cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

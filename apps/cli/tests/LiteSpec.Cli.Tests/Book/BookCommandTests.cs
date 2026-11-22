@@ -95,7 +95,7 @@ public sealed class BookCommandTests
 
         var layers = manifest["layers"]!.AsArray();
         Assert.Equal(
-            new[] { "intent", "behavior", "implementation", "proof", "governance", "glossary" },
+            new[] { "intent", "behavior", "implementation", "proof", "governance", "glossary", "cast" },
             layers.Select(node => node!.AsObject()["key"]!.GetValue<string>()).ToList());
         foreach (var layer in layers)
         {

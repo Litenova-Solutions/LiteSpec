@@ -35,8 +35,20 @@ public static class RecordTypes
     /// <summary>Gets the `domain-event` record type name.</summary>
     public const string DomainEvent = "domain-event";
 
-    /// <summary>Gets the `example-cast` record type name.</summary>
-    public const string ExampleCast = "example-cast";
+    /// <summary>Gets the `cast` record type name: the cast of the project.</summary>
+    public const string Cast = "cast";
+
+    /// <summary>Gets the `party` record type name: an organization or group in the cast.</summary>
+    public const string Party = "party";
+
+    /// <summary>Gets the `person` record type name: a person in the cast, who plays an actor.</summary>
+    public const string Person = "person";
+
+    /// <summary>Gets the `occasion` record type name: one occasion in the cast.</summary>
+    public const string Occasion = "occasion";
+
+    /// <summary>Gets the `figure` record type name: one typed value in the cast.</summary>
+    public const string Figure = "figure";
 
     /// <summary>Gets the `read-model` record type name.</summary>
     public const string ReadModel = "read-model";
@@ -161,6 +173,13 @@ public static class RecordTypes
         "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model", "reference-data",
         "entry-point", "screen", "external-system", "runbook", "waiver", "term",
+        "cast", "party", "person", "occasion", "figure",
+    };
+
+    /// <summary>The record types of the cast: the cast page and its four entry types.</summary>
+    public static readonly HashSet<string> CastTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        Cast, Party, Person, Occasion, Figure,
     };
 
     /// <summary>
@@ -183,6 +202,7 @@ public static class RecordTypes
             ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
             ["waiver"] = "governance",
+            ["cast"] = "root", ["party"] = "root", ["person"] = "root", ["occasion"] = "root", ["figure"] = "root",
         };
 
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
@@ -190,7 +210,7 @@ public static class RecordTypes
     {
         "permission-set", "entry-point-set", "setting-set", "refusal-set",
         "rule-set", "index", "tutorial", "how-to", "reference", "command",
-        "configuration", "glossary", "example-cast",
+        "configuration", "glossary",
     };
 
     /// <summary>Container page styles: record files that hold entries without a record of their own.</summary>
@@ -287,6 +307,9 @@ public static class RecordTypes
             ["leadsTo"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
             ["appliesTo"] = new HashSet<string>(),
+            ["partyOf"] = new HashSet<string> { "party" },
+            ["involves"] = new HashSet<string> { "person", "party" },
+            ["term"] = new HashSet<string> { "term" },
             ["values"] = new HashSet<string>(),
         };
 

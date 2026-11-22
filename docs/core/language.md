@@ -171,6 +171,7 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `unexercised` | a rule is shown by no scenario that should show it | `scenario-rule-unexercised` |
 | `unhandled` | a declared trigger is answered by no handler | `reaction-trigger-unhandled` |
 | `unbacked` | a fixed section whose backing fields are all empty or absent | `explanation-section-unbacked` |
+| `unreserved` | a cast person's email sits on a domain no reserved test domain covers | `cast-identity-unreserved` |
 | `vague` | a statement uses a word that names no act | `statement-word-vague` |
 | `wide` | a record sits higher than every record that uses it | `external-system-placement-wide` |
 | `written` | a thing the model derives is written by hand | `refusal-generic-written` |

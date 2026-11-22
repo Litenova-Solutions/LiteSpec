@@ -337,13 +337,29 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Applies to:** artifact: any
 
-**Statement:** Every name, date and number in an `Example` section MUST come from the example cast or from a record the explained record cites, each appears only where it shows something about that record, and the `Example` states no rule of its own.
+**Statement:** Every name, date and number in an `Example` section MUST come from the cast record, `.litespec/cast.yaml`, or from a record the explained record cites, each appears only where it shows something about that record, and the `Example` states no rule of its own.
 
-**Rationale:** An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. A fixed cast is shared across every Example, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record's statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
+**Rationale:** An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. The cast record is shared across every Example, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record's statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
 
-**Example:** A Claimwick module example uses the 48.90 EUR fare and the 25 EUR receipt threshold, both as the example cast and the policy record state them, and adds no third amount.
+**Example:** A Claimwick module example uses the 48.90 EUR fare and the 25 EUR receipt threshold, both as the cast record and the policy record state them, and adds no third amount.
 
-**Reviewed for:** Does every name, date, and number in each Example come from the cast or a cited record, with no rule of its own? Check the Example sections the change adds against the cast.
+**Reviewed for:** Does every name, date, and number in each Example come from the cast record or a cited record, with no rule of its own? Check the Example sections the change adds against `.litespec/cast.yaml`.
+
+### Keep the Cast Out of Production Code
+
+**ID:** `litespec/core/writing#keep-the-cast-out-of-production-code`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Names and values from the cast record MAY appear in development seed data, demo data, fixtures and tests, and MUST NOT appear in production code paths or production data.
+
+**Rationale:** The cast's people, parties, occasions and amounts are examples. A production path that carries one ships example data to real users, and a test that reads the cast passes on the example rather than on the rule. A seed or fixture that uses a cast entry marks it with `<seeds>party/harbor-and-pine</seeds>` in C# or `// litespec: seeds party/harbor-and-pine` in TypeScript, so the model reads which entries each seed uses and reports a mark that names none. Proposed by [decision/0112-cast-as-a-record](../intent/decisions/0112-cast-as-a-record/0112-cast-as-a-record.md).
+
+**Example:** A seed that writes Ava's train fare into the development database carries `<seeds>person/ava</seeds>` and `<seeds>figure/train-fare</seeds>`, and the production expense handler carries no name or amount from the cast.
+
+**Reviewed for:** Does each cast name or value that appears in code sit in a seed, demo, fixture or test file, with a seeds mark naming its entry? No check reads this yet; review the changed files against `.litespec/cast.yaml`.
 
 ### Keep Release Phases and Plans Out of Records
 

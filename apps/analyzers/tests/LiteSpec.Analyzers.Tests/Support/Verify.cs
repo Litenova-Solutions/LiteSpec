@@ -47,14 +47,16 @@ internal static partial class Verify
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
         string assemblyName = "Shop.Spending",
         bool documentationFile = true,
-        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
+        IReadOnlyList<string>? preprocessorSymbols = null)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, documentationFile, null, outputKind);
+        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, documentationFile, null, outputKind, preprocessorSymbols);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans with the additional files
@@ -68,6 +70,7 @@ internal static partial class Verify
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task AnalyzerWithRecordsAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
@@ -75,7 +78,8 @@ internal static partial class Verify
         string assemblyName = "Shop.Spending",
         bool documentationFile = true,
         string? editorconfig = null,
-        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
+        IReadOnlyList<string>? preprocessorSymbols = null)
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var expected = new List<string>();
@@ -85,7 +89,9 @@ internal static partial class Verify
         {
             var (text, spans) = ParseMarkup(marked);
             var parseOptions = new CSharpParseOptions(
-                LanguageVersion.Latest, documentationFile ? DocumentationMode.Parse : DocumentationMode.None);
+                LanguageVersion.Latest,
+                documentationFile ? DocumentationMode.Parse : DocumentationMode.None,
+                preprocessorSymbols: preprocessorSymbols);
             var tree = CSharpSyntaxTree.ParseText(SourceText.From(text, Encoding.UTF8), parseOptions, path);
             trees.Add(tree);
             expected.AddRange(spans.Select(span => Describe(span.Id, span.Severity, tree.GetLineSpan(span.Span), withSeverity)));

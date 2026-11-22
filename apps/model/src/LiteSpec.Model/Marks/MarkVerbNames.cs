@@ -20,6 +20,8 @@ public static class MarkVerbNames
                 return "proves";
             case MarkVerb.Follows:
                 return "follows";
+            case MarkVerb.Seeds:
+                return "seeds";
             default:
                 throw new ArgumentOutOfRangeException(nameof(verb), verb, "Unknown mark verb.");
         }
@@ -39,6 +41,8 @@ public static class MarkVerbNames
                 return "Proves";
             case MarkVerb.Follows:
                 return "Follows";
+            case MarkVerb.Seeds:
+                return "Seeds";
             default:
                 throw new ArgumentOutOfRangeException(nameof(verb), verb, "Unknown mark verb.");
         }
@@ -68,6 +72,12 @@ public static class MarkVerbNames
         if (string.Equals(name, "follows", StringComparison.Ordinal))
         {
             verb = MarkVerb.Follows;
+            return true;
+        }
+
+        if (string.Equals(name, "seeds", StringComparison.Ordinal))
+        {
+            verb = MarkVerb.Seeds;
             return true;
         }
 

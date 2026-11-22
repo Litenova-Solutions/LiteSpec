@@ -12,4 +12,4 @@ Say how stale a reader may see a row, and why that age is acceptable.
 
 ## Example
 
-Write one row with the real values filled in, for the example cast.
+Write one row with the real values filled in, for the cast.

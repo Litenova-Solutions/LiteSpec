@@ -30,7 +30,7 @@ Five presets ship with the release:
 
 The `records` preset claims `intent` and `behavior` in `layers` and names no stacks and no frontends. Every other preset keeps the layers of the template, which claims all four. Every written project file validates against `schemas/litespec-project.schema.yaml`.
 
-Beyond the project file, the command copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the example cast at `.litespec/example-cast.md`, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. Files that already exist are left alone.
+Beyond the project file, the command copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the cast at `.litespec/cast.yaml`, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. Files that already exist are left alone.
 
 For a preset that writes the consumer scaffold, it also writes the six UI quality requirements of the consumer preset, one folder each under `.litespec/intent/requirements/<name>/`: `ui-text-contrast`, `ui-control-boundary`, `ui-focus-indicator`, `ui-chart-series`, `ui-reflow`, and `ui-target-size`. Each names a constraint or goal the project cites, with the measure and target its check proves.
 
@@ -111,6 +111,6 @@ litespec init --preset dotnet-react --size small --root ./shop --skill agents --
 
 ## Underneath
 
-The command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. The scaffold files come from `templates/consumer/`: the glossary as `.litespec/glossary.yaml` and the example cast as `.litespec/example-cast.md`. The command writes `.litespec/.gitignore` with literal content listing the generated `model/` and `book/` folders. A tool install adds `.config/dotnet-tools.json`. The `agent-protocol` region comes from `templates/consumer/project-agents.md`.
+The command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. The scaffold files come from `templates/consumer/`: the glossary as `.litespec/glossary.yaml` and the cast as `.litespec/cast.yaml`. The command writes `.litespec/.gitignore` with literal content listing the generated `model/` and `book/` folders. A tool install adds `.config/dotnet-tools.json`. The `agent-protocol` region comes from `templates/consumer/project-agents.md`.
 
 With `--skill`, the skill copies come from `templates/skill/litespec/` in the same way the [Skill](skill.md) page states, and `LITESPEC_SKILL_HOME` points the global scope at another home folder. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.

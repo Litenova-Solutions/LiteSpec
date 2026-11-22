@@ -59,7 +59,7 @@ Stacks are required when you claim Implementation or Proof, because the stack se
 
 Every LiteSpec record, document, explanation file, and generated file in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. No record, document, explanation file, or generated file sits at the repository root. Application code, tests, contracts, and `AGENTS.md` keep their own homes: code, tests, and contracts keep the places their stack pages name, and `AGENTS.md` stays at the repository root.
 
-Inside `.litespec/`, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own. The files `project.yaml` and `glossary.yaml` and the example cast sit at its top level. Proof holds no authored records. Structured LiteSpec data is YAML; explanation files are Markdown.
+Inside `.litespec/`, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own. The files `project.yaml`, `glossary.yaml`, and `cast.yaml` sit at its top level, with the cast's explanation `cast.md` beside it. Proof holds no authored records. Structured LiteSpec data is YAML; explanation files are Markdown.
 
 The tool builds its model in memory, keeps its working files in `model/`, and writes its book to `book/` under `.litespec/`. A `.gitignore` there keeps those two generated folders out of source control, so a checkout never mixes committed records with built files.
 
@@ -277,7 +277,7 @@ paths:
 
 **Rationale:** When LiteSpec material scatters across the repository, readers and tools hunt the tree for it. One folder with one name in every consumer makes the material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting, and keeps it apart from application code, tests, contracts, and `AGENTS.md`, which keep their own homes. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.yaml` stays relative to the repository root, so moving the folder never rewrites the paths inside it. A command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.yaml`.
 
-**Example:** Claimwick holds its project file, glossary, example cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code, tests, contracts, and `AGENTS.md`, which keep their own homes. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
+**Example:** Claimwick holds its project file, glossary, cast, and its Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code, tests, contracts, and `AGENTS.md`, which keep their own homes. An agent asked to read the contract opens that one folder, instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
 
 **Reviewed for:** Does any LiteSpec record, document, explanation file, or generated file sit outside `.litespec/` or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
 

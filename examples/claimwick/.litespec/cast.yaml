@@ -1,0 +1,57 @@
+type: cast
+id: cast/claimwick
+title: Claimwick Cast
+summary: A small consultancy whose employees travel to clients and file the cost.
+parties:
+- type: party
+  id: party/harbor-and-pine
+  name: Harbor and Pine
+  uses: product
+  description: A small consultancy of forty people whose employees travel to clients and file the cost.
+people:
+- type: person
+  id: person/ava
+  name: Ava
+  actor: actor/employee
+  partyOf: party/harbor-and-pine
+  email: ava@harbor-and-pine.example
+  does: Travels to clients and submits her expenses with the receipt attached.
+- type: person
+  id: person/ben
+  name: Ben
+  actor: actor/manager
+  partyOf: party/harbor-and-pine
+  email: ben@harbor-and-pine.example
+  does: Is Ava's manager, and approves her expenses within days.
+- type: person
+  id: person/cara
+  name: Cara
+  actor: actor/finance
+  partyOf: party/harbor-and-pine
+  email: cara@harbor-and-pine.example
+  does: Works in finance, and reimburses the approved expenses on Fridays.
+occasions:
+- type: occasion
+  id: occasion/client-visit
+  title: A client visit in another city
+  involves:
+  - person/ava
+  - party/harbor-and-pine
+  scene: Ava takes a train to the client, stays one night and eats out for the meals.
+figures:
+- type: figure
+  id: figure/train-fare
+  title: Train fare
+  term: term/expense
+  value:
+    money:
+      amount: "48.90"
+      currency: EUR
+- type: figure
+  id: figure/receipt-threshold
+  title: Receipt threshold
+  term: term/policy
+  value:
+    money:
+      amount: "25"
+      currency: EUR
