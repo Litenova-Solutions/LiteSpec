@@ -54,7 +54,7 @@ internal sealed partial class TemplateValidator
     // hold entries, not documents.
     /// <summary>Gets the container page styles held in record files.</summary>
     private static readonly HashSet<string> ContainerPageStyles = new(
-        ["permission-set", "entry-point-set", "setting-set", "rule-set", "refusal-set"],
+        ["permission-set", "entry-point-set", "refusal-set"],
         StringComparer.Ordinal);
 
     /// <summary>Replaces the placeholder identifiers of an authoring template with valid ones.</summary>

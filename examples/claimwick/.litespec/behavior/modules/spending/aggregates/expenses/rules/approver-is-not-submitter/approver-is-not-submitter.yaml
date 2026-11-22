@@ -1,0 +1,13 @@
+type: rule
+id: rule/expense.approver-is-not-submitter
+title: Approver Is Not Submitter
+kind: precondition
+statement: An approver is not the submitter.
+governs:
+- use-case/spending.approve-expense
+- aggregate/spending.expense
+refusal: refusal/spending.own-expense
+basedOn: []
+fulfills:
+- requirement/approval.nobody-approves-own-expense
+rationale: A second person checks each expense before it is paid, and a spender who approves their own expense removes that check.

@@ -27,6 +27,33 @@ LiteSpec is clean, plain, straightforward and, above all, consistent. Every chan
 9. **Guidance states its strength.** Every provision says whether it is required, a default or advisory, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
 10. **Tools stay small.** A command, check, generated file or package exists because the owner approved it, and is removed when nothing uses it.
 
+## Designing LiteSpec
+
+Read the [design rules](docs/core/designing.md) before you add or change a record type, a field, a folder, an explanation section, a check or a command. They come from the decisions under `docs/intent/decisions/`; each is a provision you cite and answer like any other.
+
+1. **One thing per record.** A record holds one condition, one commitment, one failure case, one event or one choice. A second thing with its own refusal, value, dates or proof is a second record. (`litespec/core/designing#hold-one-thing-in-each-record`)
+2. **A record with its own reasoning gets its own folder.** When a record carries a rationale, sources, an example or limits, it lives at `<name>/<name>.yaml` with `<name>.md` beside it. Only closed lists with no reasoning per entry stay as entries: permissions, refusals, entry points, results, scenarios and cast entries. (`litespec/core/designing#give-a-record-with-its-own-reasoning-its-own-folder`)
+3. **Shape a type for its next field.** Adding a field or a section changes one record's file, never a whole set. (`litespec/core/designing#shape-each-record-type-for-its-next-field`)
+4. **One home for each fact.** Every other appearance is computed, or a copy held to its source by a check. Facts a reader or tool needs are fields, never prose, and an explanation restates its record and adds no fact. (`litespec/core/principles#keep-one-authored-source`, `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`, `litespec/core/model#keep-the-whole-specification-in-the-records`)
+5. **One parent, one reason.** The folder comes from the record's content and the link field from its reason. Links sit on the record that points, and the model computes the inverse. (`litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`, `litespec/core/model#write-links-on-the-record-that-points`)
+6. **Values that vary live in data.** Rates, thresholds and deadlines go in dated reference data that rules cite. (`litespec/core/domain-model#cite-varying-values-from-reference-data`)
+7. **Every type, field and value has a reader.** That reader is a check, the book, a command or a citing record. Never add a second shape for a concept an existing one carries, and remove a shape when its last reader goes. (`litespec/core/designing#give-every-type-field-and-value-a-reader`)
+8. **Checks match their certainty.**
+   - The schema holds shape and the model check holds the graph.
+   - Add a check only where it is cheap and sure; otherwise the provision is reviewed.
+   - Broken links and contracts block; heuristics and prose advise.
+   (`litespec/core/model#keep-shape-rules-in-the-schema`, `litespec/core/model#mark-every-check-with-its-level`)
+9. **Ship a record type complete.** In the same change, add:
+   - the schema definition, its home and its explanation sections;
+   - its link phrases and field-table rows;
+   - a template copied from Claimwick, and a Claimwick instance;
+   - its book placement, the checks that read it, and the pages that teach it.
+   (`litespec/core/designing#deliver-each-record-type-complete`)
+10. **Change a shape everywhere at once.** Change the tools, templates, Claimwick, fixtures and pages in one change, with no compatibility path. Add a validator so the old shape cannot return. (`litespec/core/designing#change-every-instance-of-a-shape-in-one-change`, `litespec/core/authoring#exclude-cross-release-compatibility-work`)
+11. **A consumer's request is evidence of a need, not a design.** Check the rule against products unlike that consumer. (`litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`)
+
+Treat each rule as binding at its stated strength, not as a veto on judgment. When a task needs a departure, state it in the decision record, naming the provision and the reason (`litespec/core/designing#state-each-deviation-from-a-design-rule`). When the same rule has been set aside twice, propose an amendment to the design page instead of a third exception (`litespec/core/designing#update-a-design-rule-that-keeps-bending`). Propose the amendment in the same change as the work that shows the rule no longer fits.
+
 ## Serving Many Consumers
 
 LiteSpec serves many projects, so never name a consumer project in it. Keep every consumer's domain vocabulary, records, flows, figures, people, and products out of every page, provision, example, test fixture, template, decision, changelog entry, and tool message, and draw examples only from the Claimwick expense product or the library product. When one consumer's need prompts a change, state the general need behind it, design and check the rule against products unlike that consumer, and apply it only where it makes sense across them. A need that holds for one consumer alone stays in that consumer as a project convention or waiver, not in LiteSpec.

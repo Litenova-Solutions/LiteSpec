@@ -1,0 +1,11 @@
+type: domain-event
+id: domain-event/receipt.attached
+title: Receipt Attached
+meaning: A receipt was attached.
+carries:
+- name: receiptId
+  type: id
+  identifies: aggregate/spending.receipt
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense

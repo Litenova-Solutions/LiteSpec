@@ -1,0 +1,17 @@
+type: rule
+id: rule/receipt.attaches-before-decision
+title: Attaches Before Decision
+kind: precondition
+statement: A receipt attaches before the expense is decided.
+governs:
+- use-case/spending.attach-receipt
+- aggregate/spending.expense
+- aggregate/spending.receipt
+binds:
+- aggregate/spending.expense
+- aggregate/spending.receipt
+refusal: refusal/spending.expense-decided
+basedOn: []
+fulfills:
+- requirement/approval.above-threshold-receipt
+rationale: Once a manager decides, the expense no longer waits for proof, and a receipt added later would change what was decided on.

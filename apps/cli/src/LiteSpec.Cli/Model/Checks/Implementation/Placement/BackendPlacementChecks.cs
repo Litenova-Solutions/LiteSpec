@@ -208,7 +208,7 @@ internal static class BackendPlacementChecks
             return false;
         }
 
-        // A rule lives in its rule-set folder, but its exception lives with the
+        // A rule lives in its own folder, but its exception lives with the
         // aggregate that enforces it, which the rule names in governs or binds.
         if (record.Type == RecordTypes.Rule
             && ruleHomes is not null

@@ -56,7 +56,6 @@ internal sealed record PathContext(
         ["term"] = "term",
         ["module"] = "module",
         ["rule"] = "rule",
-        ["rule-set"] = "rule-set",
         ["requirement"] = "requirement",
         ["result"] = "result",
         ["scenario"] = "scenario",

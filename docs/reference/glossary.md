@@ -1304,16 +1304,6 @@ Home: docs/core/use-cases.md
 
 Source: the Business Rules Group.
 
-### Rule Set
-
-One page holding one module's or aggregate's rules, with each rule's condition and refusal.
-
-Layer: Behavior.
-
-Home: docs/core/use-cases.md
-
-Source: LiteSpec.
-
 ### Runbook
 
 The steps for running or recovering the product.
@@ -1385,16 +1375,6 @@ Source: LiteSpec.
 ### Setting
 
 One operator configuration value the running system reads, such as a provider timeout or a delay the operator tunes. A value the business changes while the system runs is aggregate data instead. The use case, reaction, or job reading it names it in `reads`.
-
-Layer: Behavior.
-
-Home: docs/core/use-cases.md
-
-Source: LiteSpec.
-
-### Setting Set
-
-One page holding one module's settings, with each setting's bound or default.
 
 Layer: Behavior.
 

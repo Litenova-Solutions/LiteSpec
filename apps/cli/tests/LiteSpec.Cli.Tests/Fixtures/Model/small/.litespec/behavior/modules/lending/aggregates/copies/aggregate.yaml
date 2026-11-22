@@ -19,20 +19,3 @@ transitions:
 - from: Available
   to: Retired
   movedBy: use-case/lending.retire-copy
-records:
-- type: domain-event
-  id: domain-event/copy.copy-registered
-  title: Copy registered
-  meaning: A copy was registered.
-  carries:
-  - name: copyId
-    type: text
-  - name: shelf
-    type: text
-- type: domain-event
-  id: domain-event/copy.copy-retired
-  title: Copy retired
-  meaning: A copy was retired.
-  carries:
-  - name: copyId
-    type: text

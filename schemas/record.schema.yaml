@@ -32,8 +32,8 @@ oneOf:
 - $ref: '#/$defs/entryPointSetPage'
 - $ref: '#/$defs/screenPage'
 - $ref: '#/$defs/settingPage'
-- $ref: '#/$defs/settingSetPage'
-- $ref: '#/$defs/ruleSetPage'
+- $ref: '#/$defs/rulePage'
+- $ref: '#/$defs/domainEventPage'
 - $ref: '#/$defs/referenceDataPage'
 - $ref: '#/$defs/refusalSetPage'
 - $ref: '#/$defs/indexPage'
@@ -2030,12 +2030,9 @@ $defs:
     items:
       oneOf:
       - $ref: '#/$defs/permissionEntry'
-      - $ref: '#/$defs/ruleEntry'
       - $ref: '#/$defs/resultEntry'
       - $ref: '#/$defs/scenarioEntry'
-      - $ref: '#/$defs/domainEventEntry'
       - $ref: '#/$defs/entryPointEntry'
-      - $ref: '#/$defs/settingEntry'
   refusalRecordsArray:
     type: array
     minItems: 1
@@ -2189,7 +2186,7 @@ $defs:
         minItems: 1
         x-reads-as: is granted to
         x-read-back-as: grants
-  ruleEntry:
+  rulePage:
     type: object
     additionalProperties: false
     required:
@@ -2406,7 +2403,7 @@ $defs:
         type: array
         items:
           type: object
-  domainEventEntry:
+  domainEventPage:
     type: object
     additionalProperties: false
     required:
@@ -2556,67 +2553,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       failureBehavior:
         $ref: '#/$defs/nonEmptyString'
-  settingEntry:
-    type: object
-    additionalProperties: false
-    required:
-    - type
-    - id
-    - title
-    - valueType
-    - setBy
-    properties:
-      type:
-        const: setting
-      id:
-        $ref: '#/$defs/settingId'
-      title:
-        $ref: '#/$defs/nonEmptyString'
-      terms:
-        $ref: '#/$defs/termIdArray'
-        x-reads-as: uses
-        x-read-back-as: is used by
-      valueType:
-        enum:
-        - integer
-        - duration
-        - money
-        - boolean
-        - text
-        - choice
-      default:
-        $ref: '#/$defs/settingValue'
-      choices:
-        $ref: '#/$defs/contractFieldChoices'
-      dated:
-        description: True when each value applies from a date and never changes a posted record.
-        type: boolean
-      range:
-        $ref: '#/$defs/nonEmptyString'
-      unit:
-        $ref: '#/$defs/nonEmptyString'
-      setBy:
-        enum:
-        - product
-        - operator
-        - tenant
-      configurationPath:
-        $ref: '#/$defs/configurationKey'
-      meaning:
-        $ref: '#/$defs/nonEmptyString'
-      outOfRange:
-        enum:
-        - refuse
-        - truncate
-        - degrade
-      secret:
-        type: boolean
-      fulfills:
-        $ref: '#/$defs/requirementIdArray'
-        x-reads-as: fulfills
-        x-read-back-as: is fulfilled by
-    allOf:
-    - $ref: '#/$defs/settingDefaultRules'
   productPage:
     type: object
     additionalProperties: false
@@ -4308,47 +4244,6 @@ $defs:
         x-read-back-as: is fulfilled by
     allOf:
     - $ref: '#/$defs/settingDefaultRules'
-  settingSetPage:
-    type: object
-    additionalProperties: false
-    required:
-    - type
-    properties:
-      type:
-        const: setting-set
-      summary:
-        $ref: '#/$defs/nonEmptyString'
-      id:
-        $ref: '#/$defs/nonEmptyString'
-      title:
-        $ref: '#/$defs/nonEmptyString'
-      terms:
-        $ref: '#/$defs/termIdArray'
-        x-reads-as: uses
-        x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
-  ruleSetPage:
-    type: object
-    additionalProperties: false
-    required:
-    - type
-    - summary
-    properties:
-      type:
-        const: rule-set
-      summary:
-        $ref: '#/$defs/nonEmptyString'
-      id:
-        $ref: '#/$defs/nonEmptyString'
-      title:
-        $ref: '#/$defs/nonEmptyString'
-      terms:
-        $ref: '#/$defs/termIdArray'
-        x-reads-as: uses
-        x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   referenceDataRow:
     type: object
     additionalProperties: false

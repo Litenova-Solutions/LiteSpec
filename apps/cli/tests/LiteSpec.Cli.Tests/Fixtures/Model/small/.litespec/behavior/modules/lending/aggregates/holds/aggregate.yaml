@@ -20,22 +20,3 @@ transitions:
 - from: Ready
   to: Canceled
   movedBy: use-case/lending.cancel-hold
-records:
-- type: domain-event
-  id: domain-event/hold.hold-placed
-  title: Hold placed
-  meaning: A hold was placed.
-  carries:
-  - name: holdId
-    type: text
-  - name: copyId
-    type: text
-  - name: readerId
-    type: text
-- type: domain-event
-  id: domain-event/hold.hold-canceled
-  title: Hold canceled
-  meaning: A hold was canceled.
-  carries:
-  - name: holdId
-    type: text

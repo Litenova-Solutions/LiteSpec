@@ -115,7 +115,8 @@ public sealed class NewExplanationTests
         { "flow", ["Example", "Branches"] },
         { "aggregate", ["Lifecycle", "Data and Retention", "Example", "Excludes"] },
         { "use-case", ["Flow", "Example", "Edge Cases"] },
-        { "rule-set", ["Rationale", "Example"] },
+        { "rule", ["Rationale", "Example", "Limits"] },
+        { "domain-event", ["Example"] },
         { "reaction", ["Trigger and Effect", "Failure Handling", "Example"] },
         { "job", ["Invocation", "Failure Handling", "Example"] },
         { "notification", ["Content", "Delivery", "Example"] },
@@ -124,7 +125,7 @@ public sealed class NewExplanationTests
         { "entry-point", ["Audience", "Authentication", "Excludes"] },
         { "screen", ["Task", "States", "Example"] },
         { "permission-set", ["Risk", "Boundaries"] },
-        { "setting-set", ["Defaults", "Changes"] },
+        { "setting", ["Defaults", "Changes"] },
         { "runbook", ["Prerequisites", "Steps", "Verification", "Recovery"] },
         { "waiver", ["Provision", "Reason", "Risk", "Expiry"] },
     };

@@ -1,0 +1,15 @@
+type: domain-event
+id: domain-event/expense.submitted
+title: Expense Submitted
+meaning: An expense was submitted.
+carries:
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense
+- name: amount
+  type: decimal
+- name: currency
+  type: text
+- name: employeeId
+  type: id
+  identifies: actor/employee

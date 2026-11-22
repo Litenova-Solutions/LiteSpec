@@ -13,7 +13,7 @@ An aggregate is one thing the module keeps true, and Spending has four of them, 
 | Policy | `policies/aggregate.yaml` | Active |
 | Reminder preference | `reminder-preferences/aggregate.yaml` | Active |
 
-The Expense aggregate file shows the pattern every aggregate follows. It holds its states, its transitions with the use case that moves each one, its data with a classification, its data classes with their retention, and its domain events:
+The Expense aggregate file shows the pattern every aggregate follows. It holds its states, its transitions with the use case that moves each one, its data with a classification, and its data classes with their retention:
 
 ```yaml
 type: aggregate
@@ -44,37 +44,37 @@ The `dataClasses` list of the same file gives each piece of data its retention. 
 
 The `expense-ledger` class holds the amount, receipt, and state, is kept for seven years from the same event under `constraint/tax-receipt-retention`, and is retained, so the bare business facts stay for the tax file.
 
-The aggregate raises five domain events: `domain-event/expense.submitted`, `domain-event/expense.approved`, `domain-event/expense.refused`, `domain-event/expense.reimbursed`, and `domain-event/expense.personal-data-erased`. The receipt aggregate raises `domain-event/receipt.attached`.
+The aggregate raises five domain events: `domain-event/expense.submitted`, `domain-event/expense.approved`, `domain-event/expense.refused`, `domain-event/expense.reimbursed`, and `domain-event/expense.personal-data-erased`. The receipt aggregate raises `domain-event/receipt.attached`. Each event is its own record file under `expenses/domain-events/<name>/<name>.yaml`, with its explanation file beside it.
 
 The fourth aggregate is the reminder preference in `reminder-preferences/aggregate.yaml`: one per manager, with the single state `Active`. Its `preference-owner` class holds the manager and is personal, and its `preference-record` class holds the reason and the update time. Both classes erase when the manager asks for reminders again, enforced by the use case that changes the preference.
 
 ## The Rules
 
-A rule states one condition the module enforces, and the Spending module has thirteen of them, in five rule-set files:
+A rule states one condition the module enforces, and the Spending module has thirteen of them, each in its own folder under `rules/`. The expense aggregate's rules sit at `expenses/rules/<name>/<name>.yaml`, such as `expenses/rules/reimbursed-once/reimbursed-once.yaml`:
 
-| Rule-set file | Rules |
+| Home | Rules |
 |:---|:---|
-| `expenses/rules/expense-rules.yaml` | 7 |
-| `receipts/rules/receipt-rules.yaml` | 1 |
-| `rules/spending-rules.yaml` | 3 |
-| `policies/rules/policy-rules.yaml` | 1 |
-| `reminder-preferences/rules/reminder-preference-rules.yaml` | 1 |
+| `expenses/rules/` | 7 |
+| `receipts/rules/` | 1 |
+| `rules/` (module level) | 3 |
+| `policies/rules/` | 1 |
+| `reminder-preferences/rules/` | 1 |
 
-The first rule in the expense file shows the shape. It names its kind, the use case and aggregate it governs, the refusal id it returns, and the requirement it fulfills:
+The rule in `expenses/rules/receipt-required-above-threshold/receipt-required-above-threshold.yaml` shows the shape. It names its kind, the use case and aggregate it governs, the refusal id it returns, and the requirement it fulfills:
 
 ```yaml
-- type: rule
-  id: rule/expense.receipt-required-above-threshold
-  title: Receipt Required Above Threshold
-  kind: precondition
-  statement: An expense above the policy threshold needs a receipt.
-  governs:
-  - use-case/spending.submit-expense
-  - aggregate/spending.expense
-  refusal: refusal/spending.receipt-missing
-  basedOn: []
-  fulfills:
-  - requirement/approval.above-threshold-receipt
+type: rule
+id: rule/expense.receipt-required-above-threshold
+title: Receipt Required Above Threshold
+kind: precondition
+statement: An expense above the policy threshold needs a receipt.
+governs:
+- use-case/spending.submit-expense
+- aggregate/spending.expense
+refusal: refusal/spending.receipt-missing
+basedOn: []
+fulfills:
+- requirement/approval.above-threshold-receipt
 ```
 
 The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, that an export carries only approved expenses, and that personal data is erased after its retention.
@@ -139,7 +139,7 @@ Four records act outside a single request:
 - The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` answers `domain-event/expense.submitted`: a submitted expense that waits past the reminder delay without a decision earns one reminder to its approver. The reaction declares its outcomes, its failure handling, and its idempotency, and it carries no `compensates`, because it undoes no committed step.
 - The notification `notification/spending.approval-reminder` is the reminder itself. It names the manager as its audience, email as its channel, the external system that delivers it, and the rule that governs consent, once per expense.
 - The job `job/spending.erase-expired-personal-data` runs every day in the Europe/Amsterdam timezone and erases the personal data of decided expenses past their retention. It declares its outcomes, its failure handling, and its idempotency, and it runs `use-case/spending.erase-personal-data` once for each selected expense, asynchronously.
-- The settings file holds one value: `setting/spending.approval-reminder-delay` defaults to 72 hours, ranges from 1 to 120 hours, and the operator sets it through the configuration path `Spending:ApprovalReminderDelay`. The receipt threshold is not a setting: the policy aggregate holds it, and a manager changes it with Change receipt threshold.
+- The setting `setting/spending.approval-reminder-delay` lives in `settings/approval-reminder-delay/approval-reminder-delay.yaml`: it defaults to 72 hours, ranges from 1 to 120 hours, and the operator sets it through the configuration path `Spending:ApprovalReminderDelay`. The receipt threshold is not a setting: the policy aggregate holds it, and a manager changes it with Change receipt threshold.
 
 ## The Permissions and the Access Chain
 

@@ -298,10 +298,9 @@ static class BookParents
             return null;
         }
 
-        // An event sits beside aggregate.yaml or in events/, and a rule sits in rules/, so the
-        // parent folder holds the aggregate.
-        // The folders match, never their names, so a plural folder still holds
-        // the aggregate its aggregate.yaml names.
+        // An event or rule sits in a typed folder under its aggregate, so walking up from the
+        // file's folder reaches the aggregate folder. The folders match, never their names,
+        // so a plural folder still holds the aggregate its aggregate.yaml names.
         var dir = DirOf(file);
         if (dir is not null && index.AggregatesByDir.TryGetValue(dir, out var same))
         {
@@ -566,9 +565,9 @@ static class BookParents
     /// <returns>The folder node identifier, else the aggregate or module identifier for the home, else the product, or null when neither the folder nor the home places it.</returns>
     static string? RuleParent(ParentIndex index, JsonObject record, string id)
     {
-        // The folder node wins, so the entries of a rule-set file take the
-        // file's node; a rule under behavior but in no module or aggregate
-        // folder is a product-level invariant. The home is the fallback.
+        // The folder node wins: a rule in its own folder under an aggregate or a module takes
+        // that node; a rule under behavior but in no module or aggregate folder is a
+        // product-level invariant. The home is the fallback.
         if (AggregateFromFile(index, record) is { } aggregate)
         {
             return aggregate;

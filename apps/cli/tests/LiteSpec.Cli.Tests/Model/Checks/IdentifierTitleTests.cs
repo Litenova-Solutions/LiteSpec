@@ -93,15 +93,15 @@ public sealed class IdentifierTitleTests
         Assert.Equal("requirement/borrowing.hold-pickup-window", finding.Subject);
     }
 
-    /// <summary>Entry Inside List File Stays Silent.</summary>
+    /// <summary>Entry With An Unmatched Identifier Name Stays Silent.</summary>
     /// <proves>litespec/core/model#name-each-identifier-from-its-title</proves>
     [Fact]
-    public void EntryInsideListFileStaysSilent()
+    public void EntryWithAnUnmatchedIdentifierNameStaysSilent()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "barcodes.yaml"), 4, """{"title": "Nothing Shared Here"}""", isEntry: true));
+            TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "rules", "copy-barcode-unique", "copy-barcode-unique.yaml"), 4, """{"title": "Nothing Shared Here"}""", isEntry: true));
 
         Assert.DoesNotContain("identifier-title-invalid", TestModel.Codes(model));
     }

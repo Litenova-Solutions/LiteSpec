@@ -1,0 +1,17 @@
+type: rule
+id: rule/spending.receipt-attached-atomically
+title: Receipt Attached Atomically
+kind: atomicity
+statement: Attaching a receipt stores the receipt and its expense link together.
+governs:
+- use-case/spending.attach-receipt
+- aggregate/spending.expense
+- aggregate/spending.receipt
+binds:
+- aggregate/spending.expense
+- aggregate/spending.receipt
+basedOn:
+- decision/0002-attach-receipt-writes-two-aggregates
+fulfills:
+- requirement/approval.above-threshold-receipt
+rationale: A receipt means nothing without the expense it proves, so a split write would leave a receipt no expense names or an expense naming a receipt that never landed.

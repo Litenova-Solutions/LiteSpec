@@ -196,7 +196,7 @@ public sealed class ModuleEventCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/spending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/payouts", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "payouts", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "aggregate.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
+            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "approved", "approved.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
             TestModel.Record("module-event", "module-event/spending.expense-approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events", "expense-approved", "expense-approved.yaml"), """{"summary": "An expense was approved.", "translates": "domain-event/expense.approved", "fields": ["expenseId"]}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "use-cases", "approve-expense", "approve-expense.yaml"), """{"kind": "command", "raises": ["domain-event/expense.approved"]}"""),
             TestModel.Record("use-case", "use-case/payouts.settle-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "payouts", "use-cases", "settle-expense", "settle-expense.yaml"), """{"kind": "command", "raises": ["domain-event/expense.approved"]}"""));
@@ -214,7 +214,7 @@ public sealed class ModuleEventCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/spending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/payouts", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "payouts", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "aggregate.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
+            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "approved", "approved.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
             TestModel.Record("module-event", "module-event/spending.expense-approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events", "expense-approved", "expense-approved.yaml"), """{"summary": "An expense was approved.", "translates": "domain-event/expense.approved", "fields": ["expenseId"]}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "use-cases", "approve-expense", "approve-expense.yaml"), """{"kind": "command", "raises": ["domain-event/expense.approved"]}"""));
 
@@ -231,7 +231,7 @@ public sealed class ModuleEventCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/spending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/payouts", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "payouts", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "aggregate.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
+            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "approved", "approved.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
             TestModel.Record("module-event", "module-event/spending.expense-approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events", "expense-approved", "expense-approved.yaml"), """{"summary": "An expense was approved.", "translates": "domain-event/expense.approved", "fields": ["expenseId"]}"""),
             TestModel.Record("use-case", "use-case/payouts.settle-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "payouts", "use-cases", "settle-expense", "settle-expense.yaml"), """{"kind": "command", "raises": ["domain-event/expense.approved"]}"""));
 
@@ -247,7 +247,7 @@ public sealed class ModuleEventCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/spending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "aggregate.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
+            TestModel.Record("domain-event", "domain-event/expense.approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "approved", "approved.yaml"), """{"carries": [{"name": "expenseId", "type": "text"}]}"""),
             TestModel.Record("module-event", "module-event/spending.expense-approved", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events", "expense-approved", "expense-approved.yaml"), """{"summary": "An expense was approved.", "translates": "domain-event/expense.approved", "fields": ["expenseId"]}"""));
 
         Assert.DoesNotContain("event-publisher-invalid", TestModel.Codes(model));
@@ -333,7 +333,7 @@ public sealed class ModuleEventCheckTests
     static Record ApprovedDomainEvent(string root) => TestModel.Record(
         "domain-event",
         "domain-event/expense.approved",
-        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "domain-events", "expense-approved", "expense-approved.yaml"),
+        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "approved", "approved.yaml"),
         """{"meaning": "An expense was approved.", "carries": [{"name": "employeeId", "type": "id"}, {"name": "amount", "type": "money"}]}""");
 
     /// <summary>The spending aggregate the read model is keyed by.</summary>

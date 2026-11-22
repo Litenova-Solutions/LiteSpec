@@ -1,0 +1,6 @@
+type: domain-event
+id: domain-event/loan.loan-renewed
+title: Loan renewed
+meaning: A loan was renewed.
+carries:
+  - loanId

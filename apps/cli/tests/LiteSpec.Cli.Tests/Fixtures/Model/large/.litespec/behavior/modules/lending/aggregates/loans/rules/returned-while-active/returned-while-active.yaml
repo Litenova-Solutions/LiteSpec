@@ -1,0 +1,11 @@
+type: rule
+id: rule/loan.returned-while-active
+title: Returned while active
+kind: precondition
+statement: A loan returns only while active.
+governs:
+- use-case/lending.return-copy
+refusal: refusal/lending.loan-not-active
+basedOn: []
+fulfills:
+- requirement/borrowing.loan-period-days

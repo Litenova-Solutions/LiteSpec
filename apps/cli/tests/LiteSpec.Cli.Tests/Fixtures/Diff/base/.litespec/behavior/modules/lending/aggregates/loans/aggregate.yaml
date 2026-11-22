@@ -19,32 +19,23 @@ data:
     meaning: When the copy is due.
     classification: internal
 records:
-  - type: rule
-    id: rule/loan.has-one-borrower
-    title: Has one borrower
-    kind: invariant
-    statement: A loan has one borrower.
-    governs:
-      - use-case/lending.borrow-copy
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.max-active-loans
-  - type: rule
-    id: rule/loan.scan-before-leaving
-    title: Scan before leaving
-    kind: precondition
-    statement: A borrowed copy never leaves unscanned.
-    governs:
-      - use-case/lending.borrow-copy
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.loan-period-days
-  - type: domain-event
-    id: domain-event/loan.loan-borrowed
-    title: Loan borrowed
-    meaning: A copy was lent.
-    carries:
-      - loanId
-      - copyId
-      - readerId
-      - dueDate
+- type: rule
+  id: rule/loan.has-one-borrower
+  title: Has one borrower
+  kind: invariant
+  statement: A loan has one borrower.
+  governs:
+    - use-case/lending.borrow-copy
+  basedOn: []
+  fulfills:
+    - requirement/borrowing.max-active-loans
+- type: rule
+  id: rule/loan.scan-before-leaving
+  title: Scan before leaving
+  kind: precondition
+  statement: A borrowed copy never leaves unscanned.
+  governs:
+    - use-case/lending.borrow-copy
+  basedOn: []
+  fulfills:
+    - requirement/borrowing.loan-period-days

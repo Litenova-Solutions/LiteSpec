@@ -125,7 +125,7 @@ static class BookLexiconSchema
             var name = target[DefsPrefix.Length..];
             if (defs[name] is { } referenced && active.Add(name))
             {
-                // A typed entry, such as a rule in a rule set, is the record that writes its own fields, so its field names start at the record.
+                // A typed entry, such as a rule, is the record that writes its own fields, so its field names start at the record.
                 var typed = TypedCarrier(referenced);
                 Collect(referenced, typed is null ? prefix : "", typed ?? carrier, defs, active, found);
                 active.Remove(name);

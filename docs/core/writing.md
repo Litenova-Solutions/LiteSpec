@@ -63,7 +63,8 @@ A section marked optional is removed when it has nothing to say; every other sec
 | module | Covers, Boundaries, Example (optional) | Covers: covers; Boundaries: excludes; Example: none, illustration only |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Excludes (optional) | Lifecycle: states, transitions; Data and Retention: data, dataClasses; Example: none, illustration only; Excludes: excludes |
 | use-case | Flow, Example (optional), Edge Cases (optional) | Flow: steps; Example: none, illustration only; Edge Cases: edgeCases |
-| rule-set | Rationale, Example (optional) | Rationale: each rule's rationale; Example: none, illustration only |
+| rule | Rationale, Example (optional), Limits (optional) | Rationale: rationale, basedOn, cites; Example: none, illustration only; Limits: none, illustration only |
+| domain-event | Example (optional) | Example: none, illustration only |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) | Trigger and Effect: triggeredBy, effects, outcomes; Failure Handling: onFailure; Example: none, illustration only |
 | job | Invocation, Failure Handling, Example (optional) | Invocation: kind, schedule, runsWhen; Failure Handling: onFailure; Example: none, illustration only |
 | read-model | Sources, Freshness, Example (optional) | Sources: fields, keyedBy; Freshness: freshness; Example: none, illustration only |
@@ -74,7 +75,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | entry-point | Audience, Authentication, Excludes (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Excludes: excludes |
 | screen | Task, States, Example | Task: task; States: displayStates; Example: none, illustration only |
 | permission-set | Risk, Boundaries (optional) | Risk: the risk of each permission; Boundaries: excludes |
-| setting-set | Defaults, Changes (optional) | Defaults: each setting's default, range, unit; Changes: each setting's setBy |
+| setting | Defaults, Changes (optional) | Defaults: default, range, unit; Changes: setBy |
 | runbook | Prerequisites, Steps, Verification, Recovery | Prerequisites: prerequisites; Steps: procedure; Verification: verification; Recovery: recovery |
 | waiver | Provision, Reason, Risk, Expiry | Provision: waives; Reason: reason; Risk: consequences; Expiry: expiresOn, exitWhen |
 

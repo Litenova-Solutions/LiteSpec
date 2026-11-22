@@ -95,19 +95,19 @@ public sealed class FactoryActTests
                       "name": "Placed",
                       "meaning": "The order is placed."
                     }
-                  ],
-                  "records": [
-                    {
-                      "type": "domain-event",
-                      "id": "domain-event/order.order-submitted",
-                      "title": "Order submitted",
-                      "owner": "lending-team",
-                      "status": "reviewed",
-                      "meaning": "An order was submitted.",
-                      "carries": [
-                        "orderId"
-                      ]
-                    }
+                  ]
+                }
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/domain-events/order-submitted/order-submitted.yaml", """
+                {
+                  "type": "domain-event",
+                  "id": "domain-event/order.order-submitted",
+                  "title": "Order submitted",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "meaning": "An order was submitted.",
+                  "carries": [
+                    "orderId"
                   ]
                 }
                 """);

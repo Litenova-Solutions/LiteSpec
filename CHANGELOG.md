@@ -476,6 +476,32 @@ The new rules are `litespec/core/maintaining#keep-consumers-out-of-litespec` and
 
 The new rules are `litespec/core/domain-model#state-one-condition-per-rule`, `litespec/core/domain-model#keep-each-rule-statement-short` and `litespec/core/domain-model#cite-varying-values-from-reference-data`. Decision 0114, State One Condition per Rule, records why.
 
+### Part AZ: One Folder per Rule, Setting and Domain Event, and the Design Rules
+
+- Each rule is a record file in its own folder: `rules/<name>/<name>.yaml` under its aggregate, under its module, or under `behavior/` for a product invariant, with its explanation `<name>.md` beside it. The `rule-set` page style is gone.
+- Each setting is a record file at `behavior/modules/<m>/settings/<name>/<name>.yaml`. The `setting-set` page style is gone.
+- Each domain event is a record file at `behavior/modules/<m>/aggregates/<aggregates>/domain-events/<name>/<name>.yaml`. An aggregate file holds no domain events.
+- A rule, a setting and a domain event carry no `summary`: a rule opens with its statement, the others with their meaning.
+- A rule's explanation holds Rationale, then an optional Example and an optional Limits. A setting's holds Defaults and an optional Changes. A domain event's holds an optional Example.
+- `litespec new rule`, `litespec new setting` and `litespec new domain-event` write the folder and its files. `litespec new entry` takes permissions only.
+- `litespec/core/model#hold-module-rules-in-rule-sets` is now `litespec/core/model#hold-module-rules-in-rule-folders`.
+- The page Designing the Standard states the design rules for LiteSpec itself, and the agent protocol summarizes them. The page lists the design provisions other pages own. Its new provisions are:
+  - `litespec/core/designing#hold-one-thing-in-each-record`
+  - `litespec/core/designing#give-a-record-with-its-own-reasoning-its-own-folder`
+  - `litespec/core/designing#shape-each-record-type-for-its-next-field`
+  - `litespec/core/designing#give-every-type-field-and-value-a-reader`
+  - `litespec/core/designing#deliver-each-record-type-complete`
+  - `litespec/core/designing#change-every-instance-of-a-shape-in-one-change`
+  - `litespec/core/designing#state-each-deviation-from-a-design-rule`
+  - `litespec/core/designing#update-a-design-rule-that-keeps-bending`
+
+Upgrade: move each rule, setting and domain event into its own folder.
+1. For each entry under `records:` in a rule-set or setting-set file, and each domain-event entry in an `aggregate.yaml`, write the entry's fields at the top level of `<name>/<name>.yaml`. The name is the last part of the identifier.
+2. Move each rule's section of the old set explanation into that rule's `<name>.md`, under `## Rationale`.
+3. Delete the set files.
+
+Decision 0115, Give Reasoned Records Their Own Folder, and decision 0116, Write the Design Rules Down, record why.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:

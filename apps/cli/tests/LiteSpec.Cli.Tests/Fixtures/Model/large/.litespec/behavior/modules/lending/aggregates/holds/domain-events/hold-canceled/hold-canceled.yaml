@@ -1,0 +1,7 @@
+type: domain-event
+id: domain-event/hold.hold-canceled
+title: Hold canceled
+meaning: A hold was canceled.
+carries:
+- name: holdId
+  type: text

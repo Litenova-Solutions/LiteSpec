@@ -43,11 +43,11 @@ static class TestModel
     /// <param name="type">The record type.</param>
     /// <param name="id">The record id.</param>
     /// <param name="file">The file the record sits in.</param>
-    /// <param name="line">The line the record starts on. An entry is written under a rule set, so its line is the one the reader gives it.</param>
+    /// <param name="line">The line the record starts on, with its type on that line and its id on the next.</param>
     /// <param name="json">The record fields as a JSON object.</param>
     /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
     /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
-    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
+    /// <param name="isEntry">Whether the check sees the record as an entry, which some checks leave out.</param>
     /// <returns>The record the file reader yields, at the given position.</returns>
     /// <exception cref="InvalidOperationException">The reader refused the text or did not yield exactly the one record.</exception>
     public static Record Record(string type, string id, string file, int line, string json, string? explanationFile = null, string? explanation = null, bool isEntry = false)
@@ -75,7 +75,7 @@ static class TestModel
     /// <param name="json">The record fields as a JSON object.</param>
     /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
     /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
-    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
+    /// <param name="isEntry">Whether the check sees the record as an entry, which some checks leave out.</param>
     /// <returns>The records the file reader yields, the page first.</returns>
     /// <exception cref="InvalidOperationException">The reader refused the text.</exception>
     public static IReadOnlyList<Record> Records(string type, string id, string file, int line, string json, string? explanationFile = null, string? explanation = null, bool isEntry = false)
@@ -99,7 +99,7 @@ static class TestModel
         }
 
         var body = YamlWriter.Write(JsonText.ObjectOf(properties)).TrimEnd('\n');
-        var text = isEntry ? EntryText(body, line) : new string('\n', line - 1) + body;
+        var text = new string('\n', line - 1) + body;
         var scan = RecordFiles.Scan(file, text);
 
         if (scan.Problems.Count > 0 || scan.Records.Count == 0)
@@ -118,27 +118,10 @@ static class TestModel
             Line = indexed.Line,
             ExplanationFile = at == 0 ? explanationFile : null,
             Explanation = at == 0 ? explanation : null,
-            IsEntry = indexed.IsEntry,
+            IsEntry = isEntry || indexed.IsEntry,
             PageId = indexed.PageId,
             Raw = RecordFile.ElementOf(indexed.Tree),
         }).ToList();
-    }
-
-    /// <summary>
-    ///     The file text of one entry: a rule set holding the entry in its records list, with the
-    ///     padding that puts the entry on the given line.
-    /// </summary>
-    /// <param name="body">The entry as YAML block text.</param>
-    /// <param name="line">The line the entry starts on.</param>
-    /// <returns>The file text.</returns>
-    static string EntryText(string body, int line)
-    {
-        var lines = body.Split('\n').Select((text, index) => index == 0 ? "  - " + text : "    " + text);
-
-        return new string('\n', line - 3)
-            + $"{RecordFields.Type}: {RecordTypes.RuleSet}\n{RecordFields.Records}:\n"
-            + string.Join("\n", lines)
-            + "\n";
     }
 
     /// <summary>A model holding the records, with empty code, screens and tests.</summary>

@@ -83,7 +83,7 @@ public sealed class UseCaseModuleReferenceCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), "{\"dependsOn\": [" + depends + "]}"),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/finance.overdue-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "aggregates", "fines", "aggregate.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/finance.fine-is-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "rules", "finance-rules.yaml"), """{"kind": "invariant", "statement": "A fine is due.", "governs": []}"""),
+            TestModel.Record("rule", "rule/finance.fine-is-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "rules", "fine-is-due", "fine-is-due.yaml"), """{"kind": "invariant", "statement": "A fine is due.", "governs": []}"""),
             TestModel.Record("use-case", "use-case/lending.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "record-repayment", "record-repayment.yaml"), useCase));
     }
 

@@ -1,0 +1,11 @@
+type: rule
+id: rule/hold.names-one-copy
+title: Names one copy
+kind: invariant
+statement: A hold names one copy.
+governs:
+- use-case/lending.place-hold
+refusal: refusal/lending.hold-already-waiting
+basedOn: []
+fulfills:
+- requirement/borrowing.hold-pickup-window

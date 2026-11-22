@@ -1,0 +1,13 @@
+type: domain-event
+id: domain-event/expense.approved
+title: Expense Approved
+meaning: An expense was approved.
+carries:
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense
+- name: approvedBy
+  type: id
+  identifies: actor/manager
+- name: decidedAt
+  type: date-time

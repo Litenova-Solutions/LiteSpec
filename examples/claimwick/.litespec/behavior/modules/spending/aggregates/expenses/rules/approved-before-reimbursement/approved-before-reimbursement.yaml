@@ -1,0 +1,13 @@
+type: rule
+id: rule/expense.approved-before-reimbursement
+title: Approved Before Reimbursement
+kind: precondition
+statement: An expense is reimbursed only after approval.
+governs:
+- use-case/spending.reimburse-expense
+- aggregate/spending.expense
+refusal: refusal/spending.not-approved
+basedOn: []
+fulfills:
+- requirement/approval.expense-reimbursed-at-most-once
+rationale: A payment made before approval sends an out-of-policy cost to the spender, and money that has left the company is hard to take back.

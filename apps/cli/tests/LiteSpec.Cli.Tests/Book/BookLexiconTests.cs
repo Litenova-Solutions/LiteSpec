@@ -196,12 +196,12 @@ public sealed class BookLexiconTests
         Assert.Equal(
             new List<string>
             {
-                "requirement", "product", "permission", "rule", "result", "scenario", "domain-event",
-                "entry-point", "setting", "goal", "direction", "constraint", "research", "decision",
+                "requirement", "rule", "domain-event", "product", "permission", "result", "scenario",
+                "entry-point", "goal", "direction", "constraint", "research", "decision",
                 "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
                 "reaction", "job", "notification", "external-system", "module-event", "integration-event",
                 "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
-                "setting-set", "rule-set", "reference-data", "refusal-set", "index", "tutorial", "how-to", "reference",
+                "setting", "reference-data", "refusal-set", "index", "tutorial", "how-to", "reference",
                 "command", "configuration", "glossary",
             },
             terms.Carriers.ToList());

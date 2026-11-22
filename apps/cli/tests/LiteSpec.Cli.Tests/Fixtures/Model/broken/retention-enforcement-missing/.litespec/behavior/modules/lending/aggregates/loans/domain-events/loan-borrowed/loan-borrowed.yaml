@@ -1,0 +1,13 @@
+type: domain-event
+id: domain-event/loan.loan-borrowed
+title: Loan borrowed
+meaning: A copy was lent.
+carries:
+  - name: loanId
+    type: text
+  - name: copyId
+    type: text
+  - name: readerId
+    type: text
+  - name: dueDate
+    type: text

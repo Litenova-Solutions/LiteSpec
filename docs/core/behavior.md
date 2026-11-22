@@ -132,22 +132,6 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 **Reviewed for:** Does every module, aggregate, and use-case explanation file carry an Example section from the cast where a case would add to the records? Check the Example sections against the record files, or against the recorded project convention.
 
-### Group Module Rules by Theme
-
-**ID:** `litespec/core/behavior#group-module-rules-by-theme`
-
-**Strength:** default
-
-**Applies to:** artifact: record:rule-set
-
-**Default:** Each rule-set record file holds the module rules of one theme, named in its `summary`.
-
-**Replacement:** A project names its rule-page grouping in its documentation.
-
-**Rationale:** Module rules share no aggregate to gather them, so an ungrouped rule set becomes a list of unrelated checks. One theme per rule set, stated in its `summary`, keeps each rule set reviewable as one decision about what holds across the domain.
-
-**Reviewed for:** Does every rule set state its theme in `summary`? Check the `summary` of each rule-set record file, or the recorded project convention.
-
 ## Reference Example
 
 This informative example demonstrates `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/model#connect-every-behavior-record-to-intent`, `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`, `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`, `litespec/core/use-cases#bound-every-caller-supplied-input-value`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/use-cases#name-the-idempotency-of-every-command`, `litespec/core/use-cases#state-the-audit-position-of-every-command`, `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, `litespec/core/use-cases#name-the-result-each-scenario-ends-in`, `litespec/core/use-cases#prove-every-written-result-with-a-scenario`, `litespec/core/use-cases#write-every-scenario-in-given-when-then`, `litespec/core/use-cases#exercise-rules-from-scenarios`, `litespec/core/use-cases#share-scenario-setup-in-background`, `litespec/core/use-cases#record-attempts-behind-recorded-refusals`, `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`, `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`, `litespec/core/access#authorize-every-use-case-through-a-declared-grant`, `litespec/core/access#scope-every-grant-to-its-tenant-reach`, `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`, `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`, `litespec/core/edges#give-each-entry-point-a-kind`, `litespec/core/edges#give-every-screen-a-route-or-a-host`, and `litespec/core/edges#match-a-screens-offers-to-its-calls`.

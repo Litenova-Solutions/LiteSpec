@@ -35,7 +35,7 @@ public sealed class ParseCascadeTests
         var moduleFile = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "rules", "barcodes.yaml"), """{"kind": "invariant", "statement": "A copy barcode is unique.", "governs": ["aggregate/lending.loan"]}"""));
+            TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "rules", "copy-barcode-unique", "copy-barcode-unique.yaml"), """{"kind": "invariant", "statement": "A copy barcode is unique.", "governs": ["aggregate/lending.loan"]}"""));
         var scan = RecordFiles.Scan(moduleFile, "type: module\ntitle: Lending: renewals\ndependsOn: []\n");
         Assert.NotEmpty(scan.Problems);
         model.Problems.AddRange(scan.Problems);

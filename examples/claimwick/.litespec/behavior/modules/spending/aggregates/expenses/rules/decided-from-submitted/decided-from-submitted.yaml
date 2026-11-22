@@ -1,0 +1,14 @@
+type: rule
+id: rule/expense.decided-from-submitted
+title: Decided from Submitted
+kind: precondition
+statement: An expense is decided only from Submitted.
+governs:
+- use-case/spending.approve-expense
+- use-case/spending.refuse-expense
+- aggregate/spending.expense
+refusal: refusal/spending.not-submitted
+basedOn: []
+fulfills:
+- requirement/approval.decided-within-five-days
+rationale: A decision moves the expense out of Submitted, so a second decision would overturn the first without anyone deciding again.

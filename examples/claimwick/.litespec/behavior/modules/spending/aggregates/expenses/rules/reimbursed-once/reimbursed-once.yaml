@@ -1,0 +1,13 @@
+type: rule
+id: rule/expense.reimbursed-once
+title: Reimbursed Once
+kind: invariant
+statement: An expense is reimbursed at most once.
+governs:
+- use-case/spending.reimburse-expense
+- aggregate/spending.expense
+refusal: refusal/spending.already-reimbursed
+basedOn: []
+fulfills:
+- requirement/approval.expense-reimbursed-at-most-once
+rationale: A payment that has left the company is hard to take back, so a double payment costs more to undo than to prevent.

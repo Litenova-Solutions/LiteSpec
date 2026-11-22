@@ -2,7 +2,7 @@
 
 These files are starting points for consumer records. `litespec init` copies the project setup files to their targets, writes the six interface quality requirements from `requirements/` to `intent/requirements/`, and writes the local tool manifest, while `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every `<placeholder>` with the project's own before committing, and delete any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves behind, while `litespec model check` rejects a project file still holding one. Each record template shows every field of its type with a placeholder value, and `litespec model check` reports `template-value-unchanged` for any scaffold that keeps one.
 
-A record file holds its record in YAML, with the entries under `records`. A named record gets its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits beside the record file in that folder. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each feature requirement is a named record in its own folder inside its feature's requirements folder, and each product requirement is a named record in its own folder under `intent/requirements/`. Rules and domain events live on an aggregate file, results live on a use-case file, and scenarios live on their use-case, reaction, or job file. Permissions live on their module's permissions file, refusals on their aggregate's refusals file, and settings on a setting-set file. A refusal no aggregate raises lives on the module's refusals file instead. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Terms live in the glossary at `.litespec/glossary.yaml` rather than on a file.
+A record file holds its record in YAML, with the entries under `records`. A named record gets its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits beside the record file in that folder. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each feature requirement is a named record in its own folder inside its feature's requirements folder, and each product requirement is a named record in its own folder under `intent/requirements/`. Rules live in their own folders under their aggregate, their module or `behavior/`. Settings live in their own folders under their module, and domain events under their aggregate. Results live on a use-case file, and scenarios live on their use-case, reaction, or job file. Permissions live on their module's permissions file and refusals on their aggregate's refusals file. A refusal no aggregate raises lives on the module's refusals file instead. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Terms live in the glossary at `.litespec/glossary.yaml` rather than on a file.
 
 ## Project Setup
 
@@ -50,8 +50,14 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `flow.md` | `.litespec/intent/flows/<name>/<name>.md` | Explains the flow beside its record file. |
 | `module.yaml` | `.litespec/behavior/modules/<module>/module.yaml` | Declares one product area; Behavior folders follow it. |
 | `module.md` | `.litespec/behavior/modules/<module>/module.md` | Explains the module beside its module file. |
-| `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its states, data classes, and its rule and domain-event entries. |
+| `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its states, data classes and retention rules. |
 | `aggregate.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.md` | Explains the aggregate beside its aggregate file. |
+| `rule.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/rules/<name>/<name>.yaml` | Records one rule that keeps an aggregate true, with its kind, statement and links. A module rule sits under `.litespec/behavior/modules/<module>/rules/<name>/<name>.yaml`, and a product rule under `.litespec/behavior/rules/<name>/<name>.yaml`. |
+| `rule.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/rules/<name>/<name>.md` | Explains the rule beside its record file. |
+| `domain-event.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/domain-events/<name>/<name>.yaml` | Records one fact the aggregate raises, with what it carries. |
+| `domain-event.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/domain-events/<name>/<name>.md` | Explains the domain event beside its record file. |
+| `setting.yaml` | `.litespec/behavior/modules/<module>/settings/<name>/<name>.yaml` | Records one operator setting the module runs with, with its default and range. |
+| `setting.md` | `.litespec/behavior/modules/<module>/settings/<name>/<name>.md` | Explains the setting beside its record file. |
 | `use-case-command.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one command that changes data, with its input, writes, consistency, idempotency, result and scenario entries. |
 | `use-case-query.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one query that returns data, with its output, freshness, paging and scenario entries. |
 | `use-case.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.md` | Explains the use case beside its record file, a command or a query. |
@@ -85,12 +91,8 @@ A record file holds its record in YAML, with the entries under `records`. A name
 |:---|:---|:---|
 | `permission-set.yaml` | `.litespec/behavior/modules/<module>/permissions.yaml` | Holds the permission entries of one module, each naming the roles that hold it. |
 | `permission-set.md` | `.litespec/behavior/modules/<module>/permissions.md` | Explains the permission set beside its file. |
-| `setting-set.yaml` | `.litespec/behavior/modules/<module>/settings/<name>.yaml` | Holds the setting entries a module runs with. |
-| `setting-set.md` | `.litespec/behavior/modules/<module>/settings/<name>.md` | Explains the setting set beside its file. |
 | `refusals.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/refusals.yaml` | Declares each refusal of one aggregate once, with its meaning. A refusal no aggregate raises lives at `.litespec/behavior/modules/<module>/refusals.yaml` instead. |
 | `refusals.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/refusals.md` | Explains the refusal set beside its file. |
-| `rule-set.yaml` | `.litespec/behavior/modules/<module>/rules/<name>.yaml` | Holds rule entries that sit together outside one aggregate. |
-| `rule-set.md` | `.litespec/behavior/modules/<module>/rules/<name>.md` | Explains the rule set beside its file. |
 | `convention.md` | `.litespec/governance/conventions/<name>.md` | States one project convention in provision shape, with ID, strength, and scope. |
 | `glossary.md` | `.litespec/behavior/<name>.md` | Renders the Term entries of `.litespec/glossary.yaml`; `litespec new glossary <name>` names the page. |
 | `index.md` | `.litespec/<section>/README.md` | Lists what one directory holds and what lives elsewhere. |
@@ -121,7 +123,8 @@ An explanation file lives in the record's folder beside its record file, sharing
 | flow | Example, Branches (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Excludes (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
-| rule-set | Rationale, Example (optional) |
+| rule | Rationale, Example (optional), Limits (optional) |
+| domain-event | Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
 | job | Invocation, Failure Handling, Example (optional) |
 | notification | Content, Delivery, Example |
@@ -133,7 +136,7 @@ An explanation file lives in the record's folder beside its record file, sharing
 | entry-point | Audience, Authentication, Excludes (optional) |
 | screen | Task, States, Example |
 | permission-set | Risk, Boundaries (optional) |
-| setting-set | Defaults, Changes (optional) |
+| setting | Defaults, Changes (optional) |
 | refusal-set | Meaning, Mapping |
 | runbook | Prerequisites, Steps, Verification, Recovery |
 | waiver | Provision, Reason, Risk, Expiry |

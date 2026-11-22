@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec new` scaffolds a record file, including a requirement's folder, and reserves its identifier. It also appends a result or scenario entry to a use-case file, or appends a rule, permission, or setting entry to its owning list file.
+`litespec new` scaffolds a record file, including a requirement's folder, and reserves its identifier. It also appends a result or scenario entry to a use-case file, or a permission entry to its module's permission file.
 
 ## Synopsis
 
@@ -11,6 +11,9 @@ litespec new <type> <id> [--root <path>] [--help]
 litespec new <document-style> <name> [--root <path>]
 litespec new requirement <feature>.<name> [--root <path>]
 litespec new requirement <name> [--root <path>]
+litespec new rule <home>.<name> [--root <path>]
+litespec new setting <module>.<name> [--root <path>]
+litespec new domain-event <aggregate>.<name> [--root <path>]
 litespec new feature <problem>.<name> [--root <path>]
 litespec new decision <name> [--root <path>]
 litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
@@ -33,6 +36,8 @@ The templates scaffold records only. A new consumer copies the Claimwick example
 
 A module is declared only in Behavior, so its file is `.litespec/behavior/modules/<module>/module.yaml`; an aggregate file is `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml`. A use-case folder starts under `.litespec/behavior/modules/<module>/use-cases/<name>/`; move it under its aggregate's `use-cases/` folder once the use case names one. An identifier a record already carries is refused.
 
+A rule, a setting and a domain event each get their own folder. `new rule <home>.<name>` writes `.litespec/behavior/modules/<module>/aggregates/<aggregates>/rules/<name>/<name>.yaml` when the home names an aggregate, `.litespec/behavior/modules/<module>/rules/<name>/<name>.yaml` when it names a module, and `.litespec/behavior/rules/<name>/<name>.yaml` when it names neither. `new setting <module>.<name>` writes `.litespec/behavior/modules/<module>/settings/<name>/<name>.yaml`. `new domain-event <aggregate>.<name>` writes `.litespec/behavior/modules/<module>/aggregates/<aggregates>/domain-events/<name>/<name>.yaml`. Write the aggregate or module record first so the tool can find its folder. Each form writes `<name>.md` beside the record when the project lists the record's layer in `explanations.layers`.
+
 Record and explanation share one Title Case title, such as `Decided Within Five Days`, written to the record's YAML `title` and to the H1 of its explanation file. The explanation file comes from the explanation template for its type, `templates/consumer/<type>.md`, with the title filled in, and is written for an article type (research or decision) or for a type on a layer the project lists in `explanations.layers`. For a document style, the command writes the `.md` document from its template.
 
 A requirement under a feature is scaffolded with `new requirement <feature>.<name>`: its own named record in the feature's `requirements/` folder, `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml`, from `templates/consumer/requirement.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. The feature segment names the feature whose folder holds the requirement, so the feature record must exist first.
@@ -49,9 +54,9 @@ Before writing, the command prints the provisions whose statement matches the na
 
 The entry id builds from the use case's own name as `result/<use-case>.<name>` or `scenario/<use-case>.<name>`. `<use-case-id>` is the use-case identifier, with or without the `use-case/` prefix. `--code` carries `<module>.<reason>`; it is required for a refusal, and on a success it becomes the first of `codes`. `--result` names the scenario's result, written or derived. A duplicate id and an unknown use case are both refused.
 
-`new entry` appends one entry to a list file's `records` instead of scaffolding a file. `<page-id>` is the file's consumer-relative path, since list files carry no record identifier. The type must belong on the file: a rule on a rule-set file, a permission on the permission set, a setting on a setting set.
+`new entry` appends one permission entry to a permission file's `records` instead of scaffolding a file. `<page-id>` is the file's consumer-relative path, since permission files carry no record identifier. The file must be a permission set; another file is refused. A rule, a setting and a domain event are pages of their own, written with `new rule`, `new setting` and `new domain-event`.
 
-The entry id builds from the file's home as `<type>/<home>.<name>`, or `permission/<name>`. The home is the file's existing entries' home; when the file holds no entries yet, it is the file stem for a rule and the parent modules folder for a setting. The entry lands last with every required field filled from its template, and the file is written back in canonical form. A duplicate id and an unknown file are both refused.
+The entry id is `permission/<name>`. The entry lands last with every required field filled from its template, and the file is written back in canonical form. A duplicate id and an unknown file are both refused.
 
 A requirement is no list entry: `new entry` takes no `requirement`, and each requirement is scaffolded as its own record with `new requirement`.
 
@@ -148,10 +153,28 @@ Scaffold a product-level requirement:
 litespec new requirement monthly-close-checklist
 ```
 
-Append a rule under the page's home:
+Scaffold a rule under its aggregate:
 
 ```bash
-litespec new entry .litespec/behavior/rules/spending-rules.yaml rule receipt-filed-once
+litespec new rule expense.reimbursed-once
+```
+
+Scaffold a module rule:
+
+```bash
+litespec new rule spending.receipt-filed-once
+```
+
+Scaffold a setting under its module:
+
+```bash
+litespec new setting spending.receipt-threshold
+```
+
+Scaffold a domain event under its aggregate:
+
+```bash
+litespec new domain-event expense.reimbursed
 ```
 
 Append a permission to the permission set:
@@ -160,16 +183,10 @@ Append a permission to the permission set:
 litespec new entry .litespec/behavior/modules/spending/permissions.yaml permission approve-expense
 ```
 
-Append a setting under its module:
-
-```bash
-litespec new entry .litespec/behavior/modules/spending/settings/receipt-settings.yaml setting receipt-threshold
-```
-
 ## Underneath
 
 The record file comes from `templates/consumer/<type>.yaml` in the release the tool carries; a use case reads `use-case-command.yaml` or `use-case-query.yaml` by its `--kind`. It opens with a marker line naming its template, and `model check` reports `template-value-unchanged` for a scaffold that keeps a placeholder the template shipped. The explanation file beside the record comes from `templates/consumer/<type>.md`, and for a document style the document comes from `templates/consumer/<type>.md`. A requirement writes its record file in its feature's `requirements/` folder or at product level, with its explanation beside it on a project listing `intent`.
 
 The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes; it splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular, and prints nothing when no statement matches or the carried release cannot be read.
 
-The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`, and the `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.
+The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`, and the `entry` path reads the permission file at `<page-id>` instead and writes one permission entry last into its `records`. The `rule` and `domain-event` paths find the aggregate or module record that gives the folder, as `requirement` finds its feature. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.

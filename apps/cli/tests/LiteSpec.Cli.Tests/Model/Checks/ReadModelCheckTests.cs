@@ -258,7 +258,7 @@ public sealed class ReadModelCheckTests
     static Record ReimbursedDomainEvent(string root) => TestModel.Record(
         "domain-event",
         "domain-event/spending.expense-reimbursed",
-        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "domain-events", "expense-reimbursed", "expense-reimbursed.yaml"),
+        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "expense-reimbursed", "expense-reimbursed.yaml"),
         """{"meaning": "An expense was reimbursed.", "carries": [{"name": "employeeId", "type": "id"}, {"name": "amount", "type": "money"}]}""");
 
     /// <summary>The domain event the erased integration event translates, carrying the erased expense.</summary>
@@ -267,7 +267,7 @@ public sealed class ReadModelCheckTests
     static Record ErasedDomainEvent(string root) => TestModel.Record(
         "domain-event",
         "domain-event/spending.expense-erased",
-        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "domain-events", "expense-erased", "expense-erased.yaml"),
+        Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "expense-erased", "expense-erased.yaml"),
         """{"meaning": "An expense was erased.", "carries": [{"name": "expenseId", "type": "id"}]}""");
 
     /// <summary>The spending aggregate the read model is keyed by.</summary>

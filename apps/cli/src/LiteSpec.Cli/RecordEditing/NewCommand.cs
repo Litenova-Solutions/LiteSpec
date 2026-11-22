@@ -25,6 +25,9 @@ static class NewCommand
                litespec new feature <problem>.<name> [--root <path>]
                litespec new requirement <feature>.<name> [--root <path>]
                litespec new requirement <name> [--root <path>]
+               litespec new rule <home>.<name> [--root <path>]
+               litespec new setting <module>.<name> [--root <path>]
+               litespec new domain-event <aggregate>.<name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new use-case <id> --kind command|query [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
@@ -63,6 +66,13 @@ static class NewCommand
         On a project listing intent in explanations.layers, a new requirement
         gets <name>.md beside its record file from templates/consumer/requirement.md.
 
+        new rule writes one folder at the home its identifier names: under its aggregate's
+        rules/ folder when the home names an aggregate, under its module's rules/ folder when the
+        home names a module, and under behavior/rules/ when it names neither. new setting writes
+        behavior/modules/<module>/settings/<name>/. new domain-event writes
+        behavior/modules/<module>/aggregates/<aggregates>/domain-events/<name>/ under the aggregate
+        its home names. Write the aggregate or module record first so the tool can find its folder.
+
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
         <name> is the kebab-case name without the number, such as
@@ -88,14 +98,13 @@ static class NewCommand
         on a success it becomes the first of codes. The command refuses a duplicate
         id and an unknown use case.
 
-        new entry appends one rule, permission, or setting entry to its owning list file's records
-        instead of scaffolding a file. <page-id> is the file's consumer-relative path, because list
-        files carry no record identifier. The type must belong on the file: a rule on a rule-set file,
-        a permission on the permission list, a setting on a setting set. A requirement is a page of
-        its own: write it with new requirement. The entry id is <type>/<home>.<name> from the file's
-        home, or permission/<name>; the home is the file's existing entries' home, else the file stem
-        for a rule and the parent modules folder for a setting. The entry lands last with every required field filled
-        with its template example value; the file is written back in canonical
+        new entry appends one permission entry to its permission file's records
+        instead of scaffolding a file. <page-id> is the file's consumer-relative path, because the
+        permission file carries no record identifier. The file must be a permission set; the command
+        refuses another file. A rule, a setting and a domain event are pages of their own: write them
+        with new rule, new setting and new domain-event. A requirement is a page of its own: write it
+        with new requirement. The entry id is permission/<name>. The entry lands last with every
+        required field filled with its template example value; the file is written back in canonical
         form. The command refuses a duplicate id and an unknown file.
 
           --root    The consumer repository to write into. Defaults to the working directory.
@@ -366,11 +375,14 @@ static class NewCommand
             explanation = FillTitle(explanationTemplate, title);
         }
 
-        var target = type == RecordTypes.Requirement && homeName is null
-            ? Path.Combine(RecordPages.DocsRoot(config), "intent", "requirements", name, name + RecordFiles.Extension)
-            : requirementFolder is null
-                ? RecordPages.PagePath(config, type, homeName, name)
-                : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
+        var scopedFolder = ScopedFolder(config, records, type, homeName);
+        var target = scopedFolder is not null
+            ? RecordPages.PlaceIn(scopedFolder, name, RecordFiles.Extension)
+            : type == RecordTypes.Requirement && homeName is null
+                ? Path.Combine(RecordPages.DocsRoot(config), "intent", "requirements", name, name + RecordFiles.Extension)
+                : requirementFolder is null
+                    ? RecordPages.PagePath(config, type, homeName, name)
+                    : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
 
         if (File.Exists(target))
         {
@@ -415,6 +427,49 @@ static class NewCommand
         }
 
         return 0;
+    }
+
+    /// <summary>
+    ///     The folder a scoped record starts in. A domain event sits under the aggregate its home
+    ///     names; a rule sits under that aggregate, under its module when the home names one, or
+    ///     under behavior/rules/ when the home names neither. Every other type uses the home table.
+    /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="records">Every record the model read, which finds the aggregate and module folders.</param>
+    /// <param name="type">The record type being scaffolded.</param>
+    /// <param name="home">The identifier home segment, such as the aggregate or module name.</param>
+    /// <returns>The folder that holds the record's own folder, or null when the type has no scoped home.</returns>
+    static string? ScopedFolder(ConsumerConfig config, IReadOnlyList<Record> records, string type, string? home)
+    {
+        if (home is null || type is not (RecordTypes.Rule or RecordTypes.DomainEvent))
+        {
+            return null;
+        }
+
+        var aggregate = records.FirstOrDefault(record =>
+            record.Type == RecordTypes.Aggregate
+            && !record.Derived
+            && Identifiers.TrySplit(record.Id, out _, out _, out var aggregateName)
+            && string.Equals(aggregateName, home, StringComparison.Ordinal));
+
+        if (aggregate is not null)
+        {
+            return Path.Combine(
+                Path.GetDirectoryName(aggregate.File)!,
+                type == RecordTypes.Rule ? "rules" : "domain-events");
+        }
+
+        if (type == RecordTypes.Rule)
+        {
+            var module = records.Any(record =>
+                record.Type == RecordTypes.Module
+                && !record.Derived
+                && string.Equals(record.Id, $"module/{home}", StringComparison.Ordinal));
+
+            return Path.Combine(config.BehaviorDocs, module ? Path.Combine("modules", home, "rules") : "rules");
+        }
+
+        return null;
     }
 
     /// <summary>Scaffolds one document from the template for its style, with the title following the name.</summary>

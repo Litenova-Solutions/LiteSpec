@@ -683,19 +683,15 @@ public sealed partial class RefundAllocationRequiredException : DomainException
 
 From the refusal result the rule names, the generator writes `public override string Code => "refunds.allocation-required";`.
 
-A named record that is absent refuses the same way from every module, so the product holds one product rule in `behavior/rules/`:
+A named record that is absent refuses the same way from every module, so the product holds one product rule in `behavior/rules/unknown-record/unknown-record.yaml`:
 
 ```yaml
-type: rule-set
-title: Claimwick Rules
-summary: A named record that is absent is refused the same way from every module.
-records:
-- type: rule
-  id: rule/claimwick.unknown-record
-  title: Unknown Record Refused
-  kind: precondition
-  statement: A lookup for a named record that is absent is refused.
-  refusal: claimwick.unknown-record
+type: rule
+id: rule/claimwick.unknown-record
+title: Unknown Record Refused
+kind: precondition
+statement: A lookup for a named record that is absent is refused.
+refusal: claimwick.unknown-record
 ```
 
 and the Kernel holds its one exception:

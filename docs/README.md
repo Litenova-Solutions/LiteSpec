@@ -41,6 +41,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Record Language](core/language.md): the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
 - [Writing](core/writing.md): the prose standard for every record value, title, explanation file, documentation page, comment, changelog, and decision record a project writes.
 - [Maintaining the Standards](core/maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
+- [Designing the Standard](core/designing.md): the design rules for LiteSpec itself: one thing per record, a folder for a record with its own reasoning, a reader for every shape, and a shape changed everywhere at once.
 - [Product Release](core/release.md): which checks each boundary runs, completion computed from proof, and what the release record and verification report list.
 
 ### Workspace

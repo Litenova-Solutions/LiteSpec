@@ -44,7 +44,8 @@ public static class ExplanationSections
             [RecordTypes.Module] = Of(("Covers", false, new[] { "covers" }), ("Boundaries", false, new[] { "excludes" }), ("Example", true, [])),
             [RecordTypes.Aggregate] = Of(("Lifecycle", false, new[] { "states", "transitions" }), ("Data and Retention", false, new[] { "data", "dataClasses" }), ("Example", true, []), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.UseCase] = Of(("Flow", false, new[] { "steps" }), ("Example", true, []), ("Edge Cases", true, new[] { "edgeCases" })),
-            [RecordTypes.RuleSet] = Of(("Rationale", false, new[] { "rationale" }), ("Example", true, [])),
+            [RecordTypes.Rule] = Of(("Rationale", false, new[] { "rationale", "basedOn", "cites" }), ("Example", true, []), ("Limits", true, [])),
+            [RecordTypes.DomainEvent] = Of(("Example", true, [])),
             [RecordTypes.Reaction] = Of(("Trigger and Effect", false, new[] { "triggeredBy", "effects", "outcomes" }), ("Failure Handling", false, new[] { "onFailure" }), ("Example", true, [])),
             [RecordTypes.Job] = Of(("Invocation", false, new[] { "kind", "schedule", "runsWhen" }), ("Failure Handling", false, new[] { "onFailure" }), ("Example", true, [])),
             [RecordTypes.Notification] = Of(("Content", false, new[] { "template", "parameters", "locale" }), ("Delivery", false, new[] { "channel", "deliveredThrough", "frequency" }), ("Example", false, [])),
@@ -56,7 +57,7 @@ public static class ExplanationSections
             [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticationTriggers" }), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.Screen] = Of(("Task", false, new[] { "task" }), ("States", false, new[] { "displayStates" }), ("Example", false, [])),
             [RecordTypes.PermissionSet] = Of(("Risk", false, new[] { "risk" }), ("Boundaries", true, new[] { "excludes" })),
-            [RecordTypes.SettingSet] = Of(("Defaults", false, new[] { "default", "range", "unit" }), ("Changes", true, new[] { "setBy" })),
+            [RecordTypes.Setting] = Of(("Defaults", false, new[] { "default", "range", "unit" }), ("Changes", true, new[] { "setBy" })),
 
             // Implementation and Governance
             [RecordTypes.Runbook] = Of(("Prerequisites", false, new[] { "prerequisites" }), ("Steps", false, new[] { "procedure" }), ("Verification", false, new[] { "verification" }), ("Recovery", false, new[] { "recovery" })),

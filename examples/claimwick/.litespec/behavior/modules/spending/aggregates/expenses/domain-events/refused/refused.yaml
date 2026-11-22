@@ -1,0 +1,13 @@
+type: domain-event
+id: domain-event/expense.refused
+title: Expense Refused
+meaning: An expense was refused.
+carries:
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense
+- name: refusedBy
+  type: id
+  identifies: actor/manager
+- name: decidedAt
+  type: date-time

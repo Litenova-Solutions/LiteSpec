@@ -1,0 +1,12 @@
+type: domain-event
+id: domain-event/<aggregate>.<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+meaning: <the completed fact, in one sentence>
+carries:
+- name: <field name>
+  type: id
+  identifies: <identified record id>
+- name: <field name>
+  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>

@@ -1,0 +1,11 @@
+type: rule
+id: rule/loan.extended-before-due
+title: Extended before due
+kind: precondition
+statement: A loan extends only before its due date.
+governs:
+- use-case/lending.extend-loan
+refusal: refusal/lending.extension-refused
+basedOn: []
+fulfills:
+- requirement/borrowing.loan-period-days

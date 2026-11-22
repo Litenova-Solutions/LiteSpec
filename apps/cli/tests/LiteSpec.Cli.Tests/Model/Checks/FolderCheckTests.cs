@@ -603,7 +603,7 @@ public sealed class FolderCheckTests
     }
 
     /// <summary>Rule In Module Yaml Reports.</summary>
-    /// <proves>litespec/core/model#hold-module-rules-in-rule-sets</proves>
+    /// <proves>litespec/core/model#hold-module-rules-in-rule-folders</proves>
     [Fact]
     public void RuleInModuleYamlReports()
     {
@@ -616,14 +616,14 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Rule 'rule/loan.stray' sits in '.litespec/behavior/modules/lending/module.yaml', but module rules live in rule-set files under 'behavior/modules/<m>/rules/'.", finding.Message);
+        Assert.Equal("Rule 'rule/loan.stray' sits in '.litespec/behavior/modules/lending/module.yaml', but module rules live in their own folders under 'behavior/modules/<m>/rules/'.", finding.Message);
         Assert.Equal(moduleFile, finding.Path);
         Assert.Equal(10, finding.Line);
         Assert.Equal("rule/loan.stray", finding.Subject);
     }
 
     /// <summary>Module Holding Rules Field Reports.</summary>
-    /// <proves>litespec/core/model#hold-module-rules-in-rule-sets</proves>
+    /// <proves>litespec/core/model#hold-module-rules-in-rule-folders</proves>
     [Fact]
     public void ModuleHoldingRulesFieldReports()
     {
@@ -635,10 +635,47 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Module 'module/lending' holds rules in '.litespec/behavior/modules/lending/module.yaml'; module rules live in rule-set files under 'behavior/modules/<m>/rules/'.", finding.Message);
+        Assert.Equal("Module 'module/lending' holds rules in '.litespec/behavior/modules/lending/module.yaml'; module rules live in their own folders under 'behavior/modules/<m>/rules/'.", finding.Message);
         Assert.Equal(moduleFile, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("module/lending", finding.Subject);
+    }
+
+    /// <summary>Rule File Directly In Rules Folder Reports.</summary>
+    /// <proves>litespec/core/model#hold-module-rules-in-rule-folders</proves>
+    [Fact]
+    public void RuleFileDirectlyInRulesFolderReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "rules", "stray.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("rule", "rule/lending.stray", file, """{"kind": "invariant", "statement": "A loan lasts 21 days."}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Contains("rule/lending.stray", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("behavior/modules/lending/rules", finding.Message, StringComparison.Ordinal);
+        Assert.Equal(file, finding.Path);
+        Assert.Equal("rule/lending.stray", finding.Subject);
+    }
+
+    /// <summary>Rule In Its Own Folder Passes.</summary>
+    /// <proves>litespec/core/model#hold-module-rules-in-rule-folders</proves>
+    [Fact]
+    public void RuleInItsOwnFolderPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "rules", "stray", "stray.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("rule", "rule/lending.stray", file, """{"kind": "invariant", "statement": "A loan lasts 21 days."}"""));
+
+        Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
     }
 
     /// <summary>Module Placed Passes.</summary>
@@ -792,15 +829,15 @@ public sealed class FolderCheckTests
             TestModel.Record("use-case", "use-case/lending.list-loans", PathAt(root, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans", "list-loans.yaml"), """{}"""),
             TestModel.Record("result", "result/borrow-copy.borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{}"""),
             TestModel.Record("scenario", "scenario/borrow-copy.borrowing-succeeds", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", aggregate, """{}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-returned", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-returned.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/loan.loan-period", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "rules", "loan-period.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/lending.max-renewals", PathAt(root, ".litespec", "behavior", "modules", "lending", "rules", "max-renewals.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/pricing.rounding", PathAt(root, ".litespec", "behavior", "rules", "pricing-rounding.yaml"), """{}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml"), """{}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-returned", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-returned", "loan-returned.yaml"), """{}"""),
+            TestModel.Record("rule", "rule/loan.loan-period", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "rules", "loan-period", "loan-period.yaml"), """{}"""),
+            TestModel.Record("rule", "rule/lending.max-renewals", PathAt(root, ".litespec", "behavior", "modules", "lending", "rules", "max-renewals", "max-renewals.yaml"), """{}"""),
+            TestModel.Record("rule", "rule/pricing.rounding", PathAt(root, ".litespec", "behavior", "rules", "rounding", "rounding.yaml"), """{}"""),
             TestModel.Record("reaction", "reaction/lending.send-due-notice", PathAt(root, ".litespec", "behavior", "modules", "lending", "reactions", "send-due-notice", "send-due-notice.yaml"), """{}"""),
             TestModel.Record("job", "job/lending.scan-due", PathAt(root, ".litespec", "behavior", "modules", "lending", "jobs", "scan-due", "scan-due.yaml"), """{}"""),
             TestModel.Record("notification", "notification/lending.loan-due", PathAt(root, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due", "loan-due.yaml"), """{}"""),
-            TestModel.Record("setting", "setting/lending.max-renewals", PathAt(root, ".litespec", "behavior", "modules", "lending", "settings", "library.yaml"), """{}"""),
+            TestModel.Record("setting", "setting/lending.max-renewals", PathAt(root, ".litespec", "behavior", "modules", "lending", "settings", "max-renewals", "max-renewals.yaml"), """{}"""),
             TestModel.Record("module-event", "module-event/lending.loan-borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "module-events", "loan-borrowed", "loan-borrowed.yaml"), """{}"""),
             TestModel.Record("integration-event", "integration-event/loan-borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "integration-events", "loan-borrowed", "loan-borrowed.yaml"), """{}"""),
             TestModel.Record("permission", "permission/borrow-copy", PathAt(root, ".litespec", "behavior", "modules", "lending", "permissions.yaml"), """{}"""),

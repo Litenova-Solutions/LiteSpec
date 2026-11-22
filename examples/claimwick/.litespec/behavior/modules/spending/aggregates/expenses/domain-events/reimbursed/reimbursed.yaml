@@ -1,0 +1,17 @@
+type: domain-event
+id: domain-event/expense.reimbursed
+title: Expense Reimbursed
+meaning: An expense was reimbursed.
+carries:
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense
+- name: employeeId
+  type: id
+  identifies: actor/employee
+- name: amount
+  type: decimal
+- name: currency
+  type: text
+- name: reimbursedAt
+  type: date-time

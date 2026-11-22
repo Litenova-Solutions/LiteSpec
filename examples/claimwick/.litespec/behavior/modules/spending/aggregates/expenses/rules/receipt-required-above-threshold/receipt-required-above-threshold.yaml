@@ -1,0 +1,17 @@
+type: rule
+id: rule/expense.receipt-required-above-threshold
+title: Receipt Required Above Threshold
+kind: precondition
+statement: An expense above the policy threshold needs a receipt.
+governs:
+- use-case/spending.submit-expense
+- aggregate/spending.expense
+- aggregate/spending.policy
+binds:
+- aggregate/spending.expense
+- aggregate/spending.policy
+refusal: refusal/spending.receipt-missing
+basedOn: []
+fulfills:
+- requirement/approval.above-threshold-receipt
+rationale: A receipt keeps the tax file defensible for larger expenses, while small expenses stay light to submit.

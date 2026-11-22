@@ -186,19 +186,19 @@ public sealed class OneActTests
                       "name": "Active",
                       "meaning": "The loan is open."
                     }
-                  ],
-                  "records": [
-                    {
-                      "type": "domain-event",
-                      "id": "domain-event/loan.loan-borrowed",
-                      "title": "Loan borrowed",
-                      "owner": "lending-team",
-                      "status": "reviewed",
-                      "meaning": "A copy was lent.",
-                      "carries": [
-                        "loanId"
-                      ]
-                    }
+                  ]
+                }
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/domain-events/loan-borrowed/loan-borrowed.yaml", """
+                {
+                  "type": "domain-event",
+                  "id": "domain-event/loan.loan-borrowed",
+                  "title": "Loan borrowed",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "meaning": "A copy was lent.",
+                  "carries": [
+                    "loanId"
                   ]
                 }
                 """);

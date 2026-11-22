@@ -80,7 +80,7 @@ A record type is one kind of statement a project can write, and each type answer
 
 The [intent page](intent.md) states the Intent records, the [behavior page](behavior.md) states the Behavior records, and the [access page](access.md) states the access records.
 
-Each record file holds the fields the record schema names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, a permission set per module holds permissions, and a refusal set per aggregate holds the codes that aggregate's rules raise, with the module's set holding only the codes no aggregate raises.
+Each record file holds the fields the record schema names for its type. List records hold many entries: a permission set per module holds permissions, and a refusal set per aggregate holds the codes that aggregate's rules raise, with the module's set holding only the codes no aggregate raises.
 
 The book renders the retention schedule from the data classes.
 
@@ -118,7 +118,7 @@ Four words keep the placement facts apart:
 
 Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml`, `glossary.yaml` and `cast.yaml`), the list files, and the entries (results and scenarios) keep the places the table gives.
 
-Each parent with child records holds them in a folder named for the child type in the plural, inside the parent's own folder. A child stored as its own file sits in its own folder inside that typed folder, as `<typed folder>/<name>/<name>.yaml`. A child stored as an entry, such as a result, scenario, domain-event entry, permission, refusal code, flow step, or source, stays in its parent's file. The table gives each child type's folder. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
+Each parent with child records holds them in a folder named for the child type in the plural, inside the parent's own folder. A child stored as its own file sits in its own folder inside that typed folder, as `<typed folder>/<name>/<name>.yaml`. A child stored as an entry, such as a result, scenario, permission, refusal code, flow step, or source, stays in its parent's file. The table gives each child type's folder. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
 | Type | Layer | Scope | Storage | Containment | Identifier |
 |:--|:--|:--|:--|:--|:--|
@@ -146,13 +146,13 @@ Each parent with child records holds them in a folder named for the child type i
 | `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/aggregates/<aggregates>/use-cases/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
 | `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` |
 | `scenario` | Behavior | entry | in the file of its use case, reaction or job | that record | `scenario/<parent>.<name>` |
-| `domain-event` | Behavior | aggregate | in `aggregate.yaml` or in `aggregates/<aggregates>/domain-events/` | aggregate | `domain-event/<aggregate>.<name>` |
-| `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/aggregates/<aggregates>/rules/`, `behavior/modules/<m>/rules/`, `behavior/rules/` | its scope node | `rule/<home>.<name>` |
+| `domain-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/domain-events/<name>/<name>.yaml` | aggregate | `domain-event/<aggregate>.<name>` |
+| `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/aggregates/<aggregates>/rules/<name>/<name>.yaml`, `behavior/modules/<m>/rules/<name>/<name>.yaml`, `behavior/rules/<name>/<name>.yaml` | its scope node | `rule/<home>.<name>` |
 | `reaction` | Behavior | module | `behavior/modules/<m>/reactions/<name>/<name>.yaml` | module | `reaction/<module>.<name>` |
 | `job` | Behavior | module | `behavior/modules/<m>/jobs/<name>/<name>.yaml` | module | `job/<module>.<name>` |
 | `read-model` | Behavior | module | `behavior/modules/<m>/read-models/<name>/<name>.yaml` | module | `read-model/<module>.<name>` |
 | `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
-| `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` |
+| `setting` | Behavior | module | `behavior/modules/<m>/settings/<name>/<name>.yaml` | module | `setting/<module>.<name>` |
 | `reference-data` | Behavior | module | `behavior/modules/<m>/reference-data/<name>/<name>.yaml` | module | `reference-data/<module>.<name>` |
 | `module-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/module-events/<name>/<name>.yaml` | aggregate | `module-event/<module>.<name>` |
 | `integration-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/integration-events/<name>/<name>.yaml` | aggregate | `integration-event/<name>` |
@@ -172,11 +172,11 @@ A module, an aggregate, and an entry point are scope nodes, and the folder path 
 
 A rule home is an aggregate name or a module name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
-Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in `behavior/modules/<m>/rules/` rule-set files; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
+Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in their own folders under `behavior/modules/<m>/rules/`; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
 
 An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. An integration event sits under the aggregate whose domain event it translates, in its publishing module, or under the aggregate of its receiving module whose use case it runs when inbound. A module event has exactly one publishing module, its own module. A second publishing module is an `event-publisher-invalid` finding. A module event sits under the aggregate whose domain event it translates. A module-level `module-events/` folder is a `record-placement-invalid` finding.
 
-List records (rule sets, setting sets, the permission set per module and the refusal sets per aggregate and module) are files whose entries take the file's scope node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
+List records (the permission set per module and the refusal sets per aggregate and module) are files whose entries take the file's scope node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
 
 An external system sits at the lowest scope node holding every record that calls it. A product-level external system called from one module only is an `external-system-placement-wide` finding.
 
@@ -238,7 +238,9 @@ A page record is one record file `<name>.yaml` holding one YAML mapping: the pag
 
 A requirement is a page record in its own folder, and it holds no entries. Terms are the exception: each term is an entry in the glossary. The Placement Table above names each type's home.
 
-Container pages (`permission-set`, `entry-point-set`, `setting-set`, `rule-set`, `refusal-set`) are record files: they hold entries.
+A record with reasoning of its own gets its own folder and explanation: a rationale, sources, an example, or limits give a record enough to say on its own. Rules, settings, and domain events take this form. Only closed lists whose entries carry no reasoning of their own stay as entries in a set or their parent's file: permissions, refusals, entry points, results, scenarios, and cast entries.
+
+Container pages (`permission-set`, `entry-point-set`, `refusal-set`) are record files: they hold entries.
 
 The decision type spans two layers: a product decision lives under Intent, and a technical decision lives under Implementation. Both share one number sequence, so a number still names one decision wherever it sits. A technical decision carries `kind`, one of the six kinds the [decision records page](../reference/decision-records.md) names; a product decision takes none.
 
@@ -410,17 +412,10 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 |:---|:---|:---|:---|:---|
 | `terms` | any record | term | uses | is used by |
 | `grantedTo` | permission | role | is granted to | grants |
-| `governs` | rule | aggregate, use case | governs | is governed by |
-| `binds` | rule | aggregate | binds | is bound by |
-| `refusal` | rule, result | refusal | is refused as | is the refusal for |
-| `basedOn` | rule, requirement | constraint, research, decision | is based on | is a basis for |
-| `cites` | rule | constraint, research | cites | is cited by |
-| `fulfills` | rule, setting, use case, reaction, job, notification, screen | requirement | fulfills | is fulfilled by |
-| `releasedBy` | rule | use case | is released by | releases |
+| `refusal` | result, rule | refusal | is refused as | is the refusal for |
 | `result` | scenario | result, derived result | ends in | is shown by |
 | `exercises` | scenario | rule | exercises | is exercised by |
 | `competesWith` | scenario | use case | competes with | is competed with by |
-| `carries.identifies` | domain event | generic record | identifies | is identified by |
 | `audience` | entry point | actor | is used by | uses |
 | `servedContent.fulfills` | entry point | requirement | fulfills | is fulfilled by |
 | `users` | product | actor | is used by | uses |
@@ -431,6 +426,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `evidence.source` | problem | research | cites as evidence | is cited as evidence by |
 | `advances` | feature | goal | advances | is advanced by |
 | `cites` | requirement | goal, direction, problem, feature, constraint, research, decision | cites | is cited by |
+| `basedOn` | requirement, rule | constraint, research, decision | is based on | is a basis for |
 | `except.fallback` | requirement | requirement | falls back to | is the fallback for |
 | `holds` | actor | role | holds | is held by |
 | `actor` | flow | actor | is taken by | takes |
@@ -447,6 +443,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
 | `access.recentSignInLimit` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
+| `fulfills` | use case, reaction, job, notification, screen, setting, rule | requirement | fulfills | is fulfilled by |
 | `computedBy` | use case | rule | is computed by | computes |
 | `reachedThrough` | use case | entry point, module | is reached through | reaches |
 | `raises` | use case | domain event | raises | is raised by |
@@ -493,6 +490,11 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `host` | screen | screen | opens on | hosts |
 | `offers` | screen | use case | offers | is offered by |
 | `leadsTo` | screen | screen | leads to | is reached from |
+| `governs` | rule | aggregate, use case | governs | is governed by |
+| `binds` | rule | aggregate | binds | is bound by |
+| `cites` | rule | constraint, research | cites | is cited by |
+| `releasedBy` | rule | use case | is released by | releases |
+| `carries.identifies` | domain event | generic record | identifies | is identified by |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 | `records.terms` | refusal set | term | uses | is used by |
 | `facts.term` | party | term | instantiates | is instantiated by |
@@ -1164,19 +1166,19 @@ Three findings cover the three gaps: `step-use-case-missing` names a step no use
 
 **Checked by:** `litespec model check` reports `event-publisher-invalid` for an integration event with a second publishing module.
 
-### Hold Module Rules in Rule Sets
+### Hold Module Rules in Rule Folders
 
-**ID:** `litespec/core/model#hold-module-rules-in-rule-sets`
+**ID:** `litespec/core/model#hold-module-rules-in-rule-folders`
 
 **Strength:** required
 
 **Applies to:** artifact: record:rule
 
-**Statement:** A module-level rule MUST live in a rule-set file under `behavior/modules/<m>/rules/`, never in `module.yaml`.
+**Statement:** A module-level rule MUST live in its own folder under `behavior/modules/<m>/rules/<name>/`, never in `module.yaml`.
 
 **Rationale:** The module record declares the module; rules are behavior and live with Behavior. A rule written into `module.yaml` hides behavior in a declaration no rule check scans.
 
-**Example:** A spending rule lives in a rule-set file under `behavior/modules/spending/rules/`; the same rule written into `module.yaml` is reported.
+**Example:** A spending rule lives in its own folder under `behavior/modules/spending/rules/`, as `reimbursed-once/reimbursed-once.yaml`; the same rule written into `module.yaml` is reported.
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` for a rule in `module.yaml`.
 

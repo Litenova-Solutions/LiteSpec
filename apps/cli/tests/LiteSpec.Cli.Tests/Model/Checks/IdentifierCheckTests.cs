@@ -102,7 +102,7 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var name = id[(id.IndexOf('.') + 1)..];
         var file = type == "setting"
-            ? Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "settings", $"{name}.yaml")
+            ? Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "settings", name, $"{name}.yaml")
             : Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", $"{type}s", name, $"{name}.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -128,7 +128,7 @@ public sealed class IdentifierCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/archive", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
-            TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "rules", "barcodes.yaml"), """{"kind": "invariant", "statement": "A copy barcode is unique.", "governs": ["aggregate/lending.loan"]}"""));
+            TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "archive", "rules", "copy-barcode-unique", "copy-barcode-unique.yaml"), """{"kind": "invariant", "statement": "A copy barcode is unique.", "governs": ["aggregate/lending.loan"]}"""));
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }

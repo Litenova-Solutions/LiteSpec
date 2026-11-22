@@ -9,39 +9,23 @@ states:
   - name: Retired
     meaning: The copy left lending.
 records:
-  - type: rule
-    id: rule/copy.has-one-home-shelf
-    title: Has one home shelf
-    kind: invariant
-    statement: A copy has one home shelf.
-    governs:
-      - use-case/lending.register-copy
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.copy-shelf-home
-  - type: domain-event
-    id: domain-event/copy.copy-registered
-    title: Copy registered
-    meaning: A copy was registered.
-    carries:
-      - name: copyId
-        type: text
-      - name: shelf
-        type: text
-  - type: domain-event
-    id: domain-event/copy.copy-retired
-    title: Copy retired
-    meaning: A copy was retired.
-    carries:
-      - name: copyId
-        type: text
-  - type: rule
-    id: rule/copy.hold-reservation
-    title: Hold reservation
-    kind: reservation
-    statement: A placed hold reserves its copy.
-    governs:
-      - use-case/lending.place-hold
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.hold-pickup-window
+- type: rule
+  id: rule/copy.has-one-home-shelf
+  title: Has one home shelf
+  kind: invariant
+  statement: A copy has one home shelf.
+  governs:
+    - use-case/lending.register-copy
+  basedOn: []
+  fulfills:
+    - requirement/borrowing.copy-shelf-home
+- type: rule
+  id: rule/copy.hold-reservation
+  title: Hold reservation
+  kind: reservation
+  statement: A placed hold reserves its copy.
+  governs:
+    - use-case/lending.place-hold
+  basedOn: []
+  fulfills:
+    - requirement/borrowing.hold-pickup-window

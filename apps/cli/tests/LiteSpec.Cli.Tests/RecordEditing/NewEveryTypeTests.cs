@@ -86,6 +86,8 @@ public sealed class NewEveryTypeTests
         yield return ["role", "approver", "intent/roles/approver/approver.yaml", "Approver", "role/approver"];
         yield return ["module", "spending", "behavior/modules/spending/module.yaml", "Spending", "module/spending"];
         yield return ["aggregate", "spending.expense", "behavior/modules/spending/aggregates/expenses/aggregate.yaml", "Expense", "aggregate/spending.expense"];
+        yield return ["rule", "expense.reimbursed-once", "behavior/rules/reimbursed-once/reimbursed-once.yaml", "Reimbursed Once", "rule/expense.reimbursed-once"];
+        yield return ["setting", "spending.receipt-threshold", "behavior/modules/spending/settings/receipt-threshold/receipt-threshold.yaml", "Receipt Threshold", "setting/spending.receipt-threshold"];
         yield return ["use-case", "spending.submit-expense", "behavior/modules/spending/use-cases/submit-expense/submit-expense.yaml", "Submit Expense", "use-case/spending.submit-expense"];
         yield return ["reaction", "spending.send-reminder", "behavior/modules/spending/reactions/send-reminder/send-reminder.yaml", "Send Reminder", "reaction/spending.send-reminder"];
         yield return ["job", "spending.erase-data", "behavior/modules/spending/jobs/erase-data/erase-data.yaml", "Erase Data", "job/spending.erase-data"];

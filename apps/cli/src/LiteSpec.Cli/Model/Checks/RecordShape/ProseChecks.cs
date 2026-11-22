@@ -38,8 +38,8 @@ internal static class ProseChecks
             .Where(record => !record.Derived)
             .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            // A requirement page carries no summary: its statement is its lead. A direction summary stays optional.
-            if (!record.IsEntry && record.Type != RecordTypes.Requirement && record.Type != RecordTypes.Direction && record.Field(RecordFields.Summary) is not { Length: > 0 })
+            // A requirement and a rule carry no summary: the statement is the lead. A domain event and a setting open with their meaning. A direction summary stays optional.
+            if (!record.IsEntry && record.Type is not (RecordTypes.Requirement or RecordTypes.Rule or RecordTypes.DomainEvent or RecordTypes.Setting or RecordTypes.Direction) && record.Field(RecordFields.Summary) is not { Length: > 0 })
             {
                 findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no summary field.", record.File, record.Line, SubjectOf(record)));
             }

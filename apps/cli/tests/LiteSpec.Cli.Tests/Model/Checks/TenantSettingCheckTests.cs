@@ -62,7 +62,7 @@ public sealed class TenantSettingCheckTests
         var settingRecord = TestModel.Record(
             "setting",
             "setting/lending.max-renewals",
-            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "settings", "max-renewals.yaml"),
+            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "settings", "max-renewals", "max-renewals.yaml"),
             setting);
 
         if (useCase is null)

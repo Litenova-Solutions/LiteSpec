@@ -38,7 +38,7 @@ public sealed class GuardModuleForeignCheckTests
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{}"""),
             TestModel.Record("aggregate", "aggregate/finance.refund", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "aggregates", "refunds", "aggregate.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/finance.refund-needs-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "rules", "finance-rules.yaml"), """{"kind": "precondition", "statement": "A refund needs its loan.", "governs": ["aggregate/lending.loan"]}"""),
+            TestModel.Record("rule", "rule/finance.refund-needs-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "rules", "refund-needs-loan", "refund-needs-loan.yaml"), """{"kind": "precondition", "statement": "A refund needs its loan.", "governs": ["aggregate/lending.loan"]}"""),
             TestModel.Record("use-case", "use-case/finance.refund-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "use-cases", "refund-fine.yaml"), """{"kind": "command", "writes": ["aggregate/finance.refund"], "reads": ["aggregate/lending.loan"], "consistency": {"mode": "atomic", "boundBy": ["rule/finance.refund-needs-loan"]}}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "guard-module-foreign");
@@ -87,7 +87,7 @@ public sealed class GuardModuleForeignCheckTests
             TestModel.Record("module", "module/spending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "aggregate.yaml"), """{}"""),
             TestModel.Record("aggregate", "aggregate/spending.policy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "policies", "aggregate.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "rules", "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.policy"]}"""),
+            TestModel.Record("rule", "rule/expense.receipt-required-above-threshold", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "rules", "receipt-required-above-threshold", "receipt-required-above-threshold.yaml"), """{"kind": "precondition", "statement": "An expense above the policy threshold needs a receipt.", "governs": ["aggregate/spending.policy"]}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "use-cases", "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "reads": ["aggregate/spending.policy"], "consistency": {"mode": "atomic", "boundBy": ["rule/expense.receipt-required-above-threshold"]}}"""));
 
         Assert.Single(Checker.Check(model).Findings, found => found.Code == "guard-undeclared");

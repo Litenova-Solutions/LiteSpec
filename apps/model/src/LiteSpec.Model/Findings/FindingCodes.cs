@@ -421,7 +421,7 @@ public static class FindingCodes
             "A message has no definition class for a pipeline position its use case record declares.",
             "Write the missing definition in the use case Application folder."),
         new("prose-missing", "A", RecordLayer.Any, trace: false,
-            "A record other than a direction holds no `summary` field, or a goal, direction, problem, requirement, or rule holds no `statement` field.",
+            "A record other than a requirement, rule, domain event, setting, or direction holds no `summary` field, or a goal, direction, problem, requirement, or rule holds no `statement` field.",
             "Write the missing `summary` or `statement` field."),
         new("explanation-orphaned", "G", RecordLayer.Any, trace: false,
             "A `.md` file under a record root has no frontmatter and no record file beside it, and it is not `README.md`.",

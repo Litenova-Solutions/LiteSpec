@@ -151,14 +151,19 @@ static class ConsumerFixture
             {"type":"refusal-set","summary":"The refusals the orders module returns.","records":[{"id":"refusal/orders.cancel-refused","title":"Cancel Refused","meaning":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
-        new(".litespec/behavior/modules/orders/aggregates/order-claims/rules/order-claim-rules.yaml",
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/rules/cancel-before-shipment-only/cancel-before-shipment-only.yaml",
             """
-            {"type":"rule-set","title":"Order claim rules","summary":"A customer cancels an order claim only before its shipment leaves.","records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order","aggregate/orders.order-claim"],"refusal":"refusal/orders.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]}]}
+            {"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order","aggregate/orders.order-claim"],"refusal":"refusal/orders.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]}
+            """,
+            null),
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/domain-events/order-canceled/order-canceled.yaml",
+            """
+            {"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":[{"name":"orderId","type":"text"}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
             """
-            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"-","to":"Draft"},{"from":"Draft","to":"Canceled","movedBy":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":[{"name":"orderId","type":"text"}]}]}
+            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"-","to":"Draft"},{"from":"Draft","to":"Canceled","movedBy":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}]}
             """,
             """
             # Order Claim

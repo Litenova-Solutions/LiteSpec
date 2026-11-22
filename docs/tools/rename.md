@@ -20,6 +20,8 @@ Without `--move`, the record keeps its level and its owner's folder. A named rec
 
 Use cases under an aggregate stay in that aggregate's `use-cases/` folder, an aggregate stays in its module's `aggregates/` folder with its use cases, and a requirement stays in its feature's `requirements/` folder. A feature folder moves whole with its requirement folders, and every requirement identifier of the feature takes the new feature name. Renaming a problem carries its `features/` folder with it, so each feature moves with the problem it answers.
 
+A rule, a setting and a domain event are pages now. A rename moves the record's own folder to the new name with its explanation, like any other named record, and leaves it under the aggregate or module that holds it.
+
 A new identifier that names another owner, such as a use case under a different module or a requirement under a different feature, is refused without `--move`. With `--move`, the record moves to the folder that owner holds. An aggregate carries the use cases in its folder with it, while a use case moves alone into its new owner's `use-cases/` folder and leaves its old aggregate behind.
 
 Every destination is checked before anything moves, and the command refuses when a folder or file already exists. When a move fails part way, the error is reported and nothing is rolled back.
@@ -61,6 +63,12 @@ Move a use case to the module that now owns it:
 
 ```bash
 litespec rename use-case/lending.borrow-copy use-case/billing.borrow-copy --move
+```
+
+Rename a rule and rewrite every citation together:
+
+```bash
+litespec rename rule/expense.reimbursed-once rule/expense.reimbursed-at-most-once
 ```
 
 ## Underneath

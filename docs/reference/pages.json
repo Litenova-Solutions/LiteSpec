@@ -1116,6 +1116,20 @@
       ]
     },
     {
+      "file": "docs/core/designing.md",
+      "path": "core/designing",
+      "style": "standard",
+      "area": "core",
+      "title": "Designing the Standard",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
       "file": "docs/core/domain-model.md",
       "path": "core/domain-model",
       "style": "standard",
@@ -4109,6 +4123,36 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0115-give-reasoned-records-their-own-folder/0115-give-reasoned-records-their-own-folder.md",
+      "path": "intent/decisions/0115-give-reasoned-records-their-own-folder/0115-give-reasoned-records-their-own-folder",
+      "style": "decision",
+      "area": "intent",
+      "title": "Give Reasoned Records Their Own Folder",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0116-write-the-design-rules-down/0116-write-the-design-rules-down.md",
+      "path": "intent/decisions/0116-write-the-design-rules-down/0116-write-the-design-rules-down",
+      "style": "decision",
+      "area": "intent",
+      "title": "Write the Design Rules Down",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4836,7 +4880,7 @@
       "style": "command",
       "area": "tools",
       "title": "Scaffold Record",
-      "intent": "\u0060litespec new\u0060 scaffolds a record file, including a requirement\u0027s folder, and reserves its identifier. It also appends a result or scenario entry to a use-case file, or appends a rule, permission, or setting entry to its owning list file.",
+      "intent": "\u0060litespec new\u0060 scaffolds a record file, including a requirement\u0027s folder, and reserves its identifier. It also appends a result or scenario entry to a use-case file, or a permission entry to its module\u0027s permission file.",
       "sections": [
         "Name",
         "Synopsis",
@@ -5142,6 +5186,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5499,6 +5544,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5563,6 +5609,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5655,6 +5702,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5747,6 +5795,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5831,6 +5880,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5906,6 +5956,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5982,6 +6033,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -6058,6 +6110,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -6126,6 +6179,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",

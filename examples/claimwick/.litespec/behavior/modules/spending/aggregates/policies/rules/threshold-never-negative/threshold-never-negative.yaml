@@ -1,0 +1,13 @@
+type: rule
+id: rule/policy.threshold-never-negative
+title: Threshold Never Negative
+kind: invariant
+statement: A threshold is never negative.
+governs:
+- use-case/spending.change-receipt-threshold
+- aggregate/spending.policy
+refusal: refusal/spending.negative-threshold
+basedOn: []
+fulfills:
+- requirement/approval.above-threshold-receipt
+rationale: A negative threshold cannot be compared with an amount in a meaningful way, so every expense would need a receipt or none would.

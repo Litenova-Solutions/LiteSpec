@@ -143,7 +143,7 @@ public sealed class ModelQueryLinkedByTests
             "decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan-period.yaml"),
             """{"title": "Loan period", "choice": "21 days"}"""));
         model.Records.Add(Rec(
-            "rule", "rule/loan.extended-before-due", Path.Combine(temp.Path, "loan-rules.yaml"),
+            "rule", "rule/loan.extended-before-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "rules", "extended-before-due", "extended-before-due.yaml"),
             """{"title": "Extended before due", "kind": "precondition", "statement": "A loan extends only before its due date.", "basedOn": ["decision/0001-loan-period"]}"""));
 
         var output = RecordQuery.Query(model, "decision/0001-loan-period");

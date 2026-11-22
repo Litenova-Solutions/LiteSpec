@@ -9,31 +9,13 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 public sealed class NewEntryTests
 {
     const string RequirementPage = ".litespec/intent/problems/waiting-for-money/features/approval/approval.yaml";
-    const string RulePage = ".litespec/behavior/rules/spending-rules.yaml";
     const string PermissionPage = ".litespec/behavior/access/permissions.yaml";
-    const string SettingPage = ".litespec/behavior/modules/spending/settings.yaml";
 
     const string FeatureJson = """
         {
           "type": "feature",
           "id": "feature/approval",
           "title": "Approval"
-        }
-        """;
-
-    const string RuleJson = """
-        {
-          "type": "rule-set",
-          "title": "Spending Rules",
-          "records": [
-            {
-              "type": "rule",
-              "id": "rule/spending.receipt-filed-once",
-              "title": "Receipt filed once",
-              "kind": "cross-aggregate",
-              "statement": "A receipt file supports one expense across spending."
-            }
-          ]
         }
         """;
 
@@ -48,22 +30,6 @@ public sealed class NewEntryTests
               "title": "Submit expense",
               "meaning": "Submit an expense and attach receipts.",
               "scope": "self"
-            }
-          ]
-        }
-        """;
-
-    const string SettingJson = """
-        {
-          "type": "setting-set",
-          "title": "Settings",
-          "records": [
-            {
-              "type": "setting",
-              "id": "setting/spending.receipt-threshold",
-              "title": "Receipt Threshold",
-              "valueType": "money",
-              "setBy": "product"
             }
           ]
         }
@@ -87,26 +53,19 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(page));
     }
 
-    /// <summary>New entry appends a rule under the page's existing home.</summary>
+    /// <summary>New entry points a rule to the scaffolding command instead of appending it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry appends a rule under the page's existing home")]
-    public void AppendsRuleUnderExistingHome()
+    [Fact(DisplayName = "new entry points a rule to new rule")]
+    public void EntryPointsToNewRule()
     {
         using var consumer = Consumer();
-        var page = Path.Combine(consumer.Path, RulePage);
-        var before = File.ReadAllText(page);
 
         var result = TestCli.Run(
-            "new", "entry", RulePage, "rule", "receipt-kept-seven-years",
+            "new", "entry", PermissionPage, "rule", "receipt-filed-once",
             "--root", consumer.Path);
 
-        Assert.Equal(0, result.Status);
-        Assert.Contains("Appended rule/spending.receipt-kept-seven-years to ", result.Stdout);
-
-        var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "id: rule/spending.receipt-kept-seven-years");
-        Assert.Contains("kind: invariant", inserted);
-        Assert.Contains("statement: The records keep this rule.", inserted);
+        Assert.Equal(2, result.Status);
+        Assert.Contains("use litespec new rule <home>.receipt-filed-once", result.Output);
     }
 
     /// <summary>New entry appends a permission without a home.</summary>
@@ -132,46 +91,6 @@ public sealed class NewEntryTests
         Assert.DoesNotContain("scope:", inserted);
     }
 
-    /// <summary>New entry appends a setting under its module.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry appends a setting under its module")]
-    public void AppendsSettingUnderModule()
-    {
-        using var consumer = Consumer();
-        var page = Path.Combine(consumer.Path, SettingPage);
-        var before = File.ReadAllText(page);
-
-        var result = TestCli.Run(
-            "new", "entry", SettingPage, "setting", "approval-reminder-delay",
-            "--root", consumer.Path);
-
-        Assert.Equal(0, result.Status);
-        Assert.Contains("Appended setting/spending.approval-reminder-delay to ", result.Stdout);
-
-        var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "id: setting/spending.approval-reminder-delay");
-        Assert.Contains("valueType: integer", inserted);
-        Assert.Contains("setBy: product", inserted);
-    }
-
-    /// <summary>New entry refuses a taken rule id and leaves the page alone.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry refuses a taken rule id and leaves the page alone")]
-    public void RefusesTakenRuleId()
-    {
-        using var consumer = Consumer();
-        var page = Path.Combine(consumer.Path, RulePage);
-        var before = File.ReadAllText(page);
-
-        var result = TestCli.Run(
-            "new", "entry", RulePage, "rule", "receipt-filed-once",
-            "--root", consumer.Path);
-
-        Assert.Equal(2, result.Status);
-        Assert.Contains("already taken", result.Output);
-        Assert.Equal(before, File.ReadAllText(page));
-    }
-
     /// <summary>New entry refuses a taken permission id and leaves the page alone.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken permission id and leaves the page alone")]
@@ -190,80 +109,6 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(page));
     }
 
-    /// <summary>New entry refuses a taken setting id and leaves the page alone.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry refuses a taken setting id and leaves the page alone")]
-    public void RefusesTakenSettingId()
-    {
-        using var consumer = Consumer();
-        var page = Path.Combine(consumer.Path, SettingPage);
-        var before = File.ReadAllText(page);
-
-        var result = TestCli.Run(
-            "new", "entry", SettingPage, "setting", "receipt-threshold",
-            "--root", consumer.Path);
-
-        Assert.Equal(2, result.Status);
-        Assert.Contains("already taken", result.Output);
-        Assert.Equal(before, File.ReadAllText(page));
-    }
-
-    /// <summary>New entry takes the setting home from the parent modules folder.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry takes the setting home from the parent modules folder")]
-    public void DerivesSettingModuleFromPath()
-    {
-        using var consumer = Consumer();
-        const string relative = ".litespec/behavior/modules/billing/settings.yaml";
-        WritePage(consumer.Path, relative, "setting-set", "Settings");
-
-        var result = TestCli.Run(
-            "new", "entry", relative, "setting", "grace-days",
-            "--root", consumer.Path);
-
-        Assert.Equal(0, result.Status);
-        Assert.Contains("Appended setting/billing.grace-days to ", result.Stdout);
-        Assert.Contains(
-            "id: setting/billing.grace-days",
-            File.ReadAllText(Path.Combine(consumer.Path, relative)));
-    }
-
-    /// <summary>New entry refuses a setting page outside a modules folder with no settings.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry refuses a setting page outside a modules folder with no settings")]
-    public void RefusesSettingWithoutAModule()
-    {
-        using var consumer = Consumer();
-        const string relative = ".litespec/behavior/settings.yaml";
-        WritePage(consumer.Path, relative, "setting-set", "Settings");
-        var before = File.ReadAllText(Path.Combine(consumer.Path, relative));
-
-        var result = TestCli.Run(
-            "new", "entry", relative, "setting", "grace-days",
-            "--root", consumer.Path);
-
-        Assert.Equal(2, result.Status);
-        Assert.Contains("outside a modules folder", result.Output);
-        Assert.Equal(before, File.ReadAllText(Path.Combine(consumer.Path, relative)));
-    }
-
-    /// <summary>New entry refuses a type the page does not own.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry refuses a type the page does not own")]
-    public void RefusesTypeThePageDoesNotOwn()
-    {
-        using var consumer = Consumer();
-        var before = File.ReadAllText(Path.Combine(consumer.Path, RequirementPage));
-
-        var result = TestCli.Run(
-            "new", "entry", RequirementPage, "rule", "receipt-filed-once",
-            "--root", consumer.Path);
-
-        Assert.Equal(2, result.Status);
-        Assert.Contains("belongs on a rule-set file", result.Output);
-        Assert.Equal(before, File.ReadAllText(Path.Combine(consumer.Path, RequirementPage)));
-    }
-
     /// <summary>New help documents the entry form.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new help documents the entry form")]
@@ -277,19 +122,18 @@ public sealed class NewEntryTests
 
     public static TheoryData<string[]> RejectedArgs() => new()
     {
-        { ["entry", RequirementPage, "result", "ordered"] },
-        { ["entry", RequirementPage, "requirement", "Bad_Name"] },
-        { ["entry", RequirementPage, "requirement", "123"] },
-        { ["entry", RequirementPage, "rule", "receipt-filed-once"] },
-        { ["entry", RulePage, "requirement", "decided-within-five-days"] },
-        { ["entry", SettingPage, "permission", "approve-expense"] },
+        { ["entry", PermissionPage, "result", "ordered"] },
+        { ["entry", PermissionPage, "requirement", "Bad_Name"] },
+        { ["entry", PermissionPage, "requirement", "123"] },
+        { ["entry", PermissionPage, "rule", "receipt-filed-once"] },
         { ["entry", PermissionPage, "setting", "grace-days"] },
-        { ["entry", ".litespec/intent/problems/waiting-for-money/features/no-such-page.yaml", "requirement", "decided-within-five-days"] },
-        { ["entry", RequirementPage, "requirement"] },
-        { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--code", "spending.x"] },
-        { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--outcome", "success"] },
-        { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--result", "result/x.y"] },
-        { ["entry", RequirementPage, "requirement", "nobody-approves-own-expense"] },
+        { ["entry", PermissionPage, "domain-event", "reimbursed"] },
+        { ["entry", RequirementPage, "permission", "approve-expense"] },
+        { ["entry", ".litespec/intent/problems/waiting-for-money/features/no-such-page.yaml", "permission", "approve-expense"] },
+        { ["entry", PermissionPage, "permission"] },
+        { ["entry", PermissionPage, "permission", "approve-expense", "--code", "spending.x"] },
+        { ["entry", PermissionPage, "permission", "approve-expense", "--outcome", "success"] },
+        { ["entry", PermissionPage, "permission", "approve-expense", "--result", "result/x.y"] },
         { ["entry", PermissionPage, "permission", "submit-expense"] },
     };
 
@@ -375,26 +219,8 @@ public sealed class NewEntryTests
               "rationale": "Self approval invites fraud."
             }
             """);
-        TestRecords.Write(temp.Path, RulePage, RuleJson);
         TestRecords.Write(temp.Path, PermissionPage, PermissionJson);
-        TestRecords.Write(temp.Path, SettingPage, SettingJson);
         return temp;
-    }
-
-    /// <summary>Writes one list record file with an empty records array.</summary>
-    /// <param name="root">The consumer root folder.</param>
-    /// <param name="relative">The record file path under the root.</param>
-    /// <param name="type">The record type the file lists.</param>
-    /// <param name="title">The page heading text.</param>
-    static void WritePage(string root, string relative, string type, string title)
-    {
-        TestRecords.Write(root, relative, $$"""
-            {
-              "type": "{{type}}",
-              "title": "{{title}}",
-              "records": []
-            }
-            """);
     }
 
     /// <summary>Runs the entry path in process against the consumer.</summary>
@@ -418,9 +244,7 @@ public sealed class NewEntryTests
     static List<string> AllPages(string root) =>
     [
         File.ReadAllText(Path.Combine(root, RequirementPage)),
-        File.ReadAllText(Path.Combine(root, RulePage)),
         File.ReadAllText(Path.Combine(root, PermissionPage)),
-        File.ReadAllText(Path.Combine(root, SettingPage)),
     ];
 
     /// <summary>Proves the page grew by one contiguous insertion holding the new entry.</summary>

@@ -15,7 +15,7 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"]}"""),
+            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "reimbursed-once", "reimbursed-once.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"]}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending approves the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending reimburses the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.refuse-expense", Path.Combine(temp.Path, "refuse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending refuses the expense."}]}"""));
@@ -35,7 +35,7 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"]}"""),
+            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "reimbursed-once", "reimbursed-once.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"]}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending approves the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending reimburses the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""));
 
@@ -51,7 +51,7 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"]}"""),
+            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "reimbursed-once", "reimbursed-once.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"]}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending stores the expense."}]}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending approves the expense."}]}"""),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending reimburses the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""));
@@ -68,7 +68,7 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.decided-from-submitted", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "precondition", "statement": "An expense is decided only from Submitted.", "governs": ["aggregate/spending.expense"]}"""),
+            TestModel.Record("rule", "rule/expense.decided-from-submitted", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "decided-from-submitted", "decided-from-submitted.yaml"), """{"kind": "precondition", "statement": "An expense is decided only from Submitted.", "governs": ["aggregate/spending.expense"]}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending approves the expense.", "cites": ["rule/expense.decided-from-submitted"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.refuse-expense", Path.Combine(temp.Path, "refuse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending refuses the expense.", "cites": ["rule/expense.decided-from-submitted"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending stores the expense."}]}"""));
@@ -85,7 +85,7 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.policy", Path.Combine(temp.Path, "policy.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/policy.threshold-never-negative", Path.Combine(temp.Path, "policy-rules.yaml"), """{"kind": "invariant", "statement": "A threshold is never negative.", "governs": ["aggregate/spending.policy"]}"""),
+            TestModel.Record("rule", "rule/policy.threshold-never-negative", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "policies", "rules", "threshold-never-negative", "threshold-never-negative.yaml"), """{"kind": "invariant", "statement": "A threshold is never negative.", "governs": ["aggregate/spending.policy"]}"""),
             TestModel.Record("use-case", "use-case/spending.change-receipt-threshold", Path.Combine(temp.Path, "change-receipt-threshold.yaml"), """{"kind": "command", "writes": ["aggregate/spending.policy"], "steps": [{"statement": "Spending sets the threshold."}]}"""));
 
         Assert.DoesNotContain("rule-sibling-uncited", TestModel.Codes(model));
@@ -100,7 +100,7 @@ public sealed class SiblingRuleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/spending.expense", Path.Combine(temp.Path, "expense.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, "expense-rules.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.already-reimbursed"}"""),
+            TestModel.Record("rule", "rule/expense.reimbursed-once", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "reimbursed-once", "reimbursed-once.yaml"), """{"kind": "invariant", "statement": "An expense is reimbursed at most once.", "governs": ["aggregate/spending.expense"], "refusal": "refusal/spending.already-reimbursed"}"""),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending approves the expense.", "cites": ["rule/expense.reimbursed-once"]}]}"""),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "writes": ["aggregate/spending.expense"], "steps": [{"statement": "Spending reimburses the expense."}]}"""),
             TestModel.Record("result", "result/reimburse-expense.already-reimbursed", Path.Combine(temp.Path, "reimburse-expense.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.already-reimbursed"}"""),

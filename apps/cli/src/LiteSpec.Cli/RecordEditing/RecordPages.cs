@@ -19,6 +19,7 @@ static class RecordPages
     {
         "product", "goal", "direction", "problem", "feature", "requirement", "constraint", "research",
         "decision", "flow", "actor", "module", "aggregate", "use-case",
+        "rule", "setting", "domain-event",
         "reaction", "job", "notification", "role", "external-system",
         "runbook", "waiver", "screen", "read-model", "reference-data",
     };
@@ -33,14 +34,11 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a rule that binds several aggregates",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
         ["step"] = "its flow file",
-        ["domain-event"] = "its aggregate file",
         ["refusal-set"] = ".litespec/behavior/modules/<m>/aggregates/<aggregate>/refusals.yaml, or .litespec/behavior/modules/<m>/refusals.yaml for a refusal no aggregate raises",
         ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/aggregates/<aggregate>/integration-events/",
-        ["setting"] = "a setting-set file under .litespec/behavior/modules/<m>/settings/",
         ["permission"] = ".litespec/behavior/modules/<m>/permissions.yaml",
         ["entry-point"] = ".litespec/behavior/entry-points/<entry-point>/entry-point.yaml",
         ["term"] = "the glossary",

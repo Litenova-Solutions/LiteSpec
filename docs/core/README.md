@@ -25,4 +25,5 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.
 - [Writing](writing.md): the prose standard for every record value, title, explanation file, documentation page, comment, changelog, and decision record a project writes.
 - [Maintaining](maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
+- [Designing](designing.md): the design rules for LiteSpec itself: one thing per record, a folder for a record with its own reasoning, a reader for every shape, and a shape changed everywhere at once.
 - [Release](release.md): what a release ships and what its evidence shows.

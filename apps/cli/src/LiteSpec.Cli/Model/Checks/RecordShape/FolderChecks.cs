@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <summary>The folder checks: every folder is one of the closed set of its layer and level, every module folder names a declared module, and every record sits in the folder and level its type allows.</summary>
 /// <follows>litespec/core/model#write-every-record-in-its-home</follows>
 /// <follows>litespec/core/model#give-every-record-one-parent</follows>
-/// <follows>litespec/core/model#hold-module-rules-in-rule-sets</follows>
+/// <follows>litespec/core/model#hold-module-rules-in-rule-folders</follows>
 internal static class FolderChecks
 {
     /// <summary>Type folders directly under <c>intent/</c>.</summary>
@@ -483,7 +483,7 @@ internal static class FolderChecks
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"Rule '{record.Id}' sits in '{PathText.Relative(model.Config.Root, record.File)}', but module rules live in rule-set files under 'behavior/modules/<m>/rules/'.",
+                $"Rule '{record.Id}' sits in '{PathText.Relative(model.Config.Root, record.File)}', but module rules live in their own folders under 'behavior/modules/<m>/rules/'.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -492,7 +492,7 @@ internal static class FolderChecks
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"Module '{record.Id}' holds rules in '{PathText.Relative(model.Config.Root, record.File)}'; module rules live in rule-set files under 'behavior/modules/<m>/rules/'.",
+                $"Module '{record.Id}' holds rules in '{PathText.Relative(model.Config.Root, record.File)}'; module rules live in their own folders under 'behavior/modules/<m>/rules/'.",
                 record.File, record.Line, SubjectOf(record)));
         }
 

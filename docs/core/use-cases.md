@@ -156,7 +156,7 @@ A setting is one operator configuration value with its type, range, unit, setter
 
 A business value a person changes through their work is aggregate data, not a setting: a threshold a manager sets on an expense, or a fee. Its range is a rule with a refusal, and its change is a use case with access and audit. A value a tenant administrator changes for the whole tenant is a setting with `setBy: tenant`, changed by a `change-*` use case, as [Give Every Tenant Setting a Change Use Case](#give-every-tenant-setting-a-change-use-case) states; it carries no configuration path. A value the product fixes or the operator tunes is a setting with `setBy: product` or `setBy: operator`. A model invariant is a rule instead. A setting several modules read is owned by one module, and the other modules read it across their declared dependency.
 
-The `setting-set` page style holds many settings. A setting set carries `summary`, and its explanation file holds Notes.
+A setting is one record file in `behavior/modules/<m>/settings/<name>/<name>.yaml`, with its explanation file beside it. It opens with its `meaning` and carries no `summary`; its explanation holds Defaults and, optionally, Changes.
 
 A use case, reaction, or job names the settings it reads in `reads`.
 

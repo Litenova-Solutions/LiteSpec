@@ -7,19 +7,11 @@ states:
   - name: Returned
     meaning: The copy came back.
 records:
-  - type: rule
-    id: rule/loan.copy-available
-    title: Copy available
-    kind: precondition
-    statement: A borrowed copy is available.
-    governs:
-      - use-case/lending.borrow-copy
-    refusal: lending.copy-not-available
-  - type: domain-event
-    id: domain-event/loan.loan-borrowed
-    title: Loan borrowed
-    meaning: A copy was lent.
-    carries:
-      - loanId
-      - readerId
-      - dueDate
+- type: rule
+  id: rule/loan.copy-available
+  title: Copy available
+  kind: precondition
+  statement: A borrowed copy is available.
+  governs:
+    - use-case/lending.borrow-copy
+  refusal: lending.copy-not-available

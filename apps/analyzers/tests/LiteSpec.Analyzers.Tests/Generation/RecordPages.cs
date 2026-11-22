@@ -46,16 +46,16 @@ internal static class RecordPages
     public static string DomainEventPage(string id) =>
         Page("{\"type\": \"domain-event\", \"id\": \"" + id + "\", \"title\": \"Expense submitted\"}");
 
-    /// <summary>Builds a rule-set page holding the entries.</summary>
-    /// <param name="entries">The entry objects.</param>
-    /// <returns>The page text.</returns>
-    public static string RuleSetPage(params string[] entries) =>
-        Page("{\"type\": \"rule-set\", \"records\": [" + string.Join(", ", entries) + "]}");
-
-    /// <summary>Builds a rule entry.</summary>
+    /// <summary>Builds one rule record file at the top level.</summary>
     /// <param name="id">The rule identifier.</param>
     /// <param name="refusal">The refusal identifier, or null for no refusal.</param>
-    /// <returns>The entry object.</returns>
+    /// <returns>The rule page text.</returns>
+    public static string RulePage(string id, string? refusal) => Page(RuleEntry(id, refusal));
+
+    /// <summary>Builds the fields of one rule record.</summary>
+    /// <param name="id">The rule identifier.</param>
+    /// <param name="refusal">The refusal identifier, or null for no refusal.</param>
+    /// <returns>The rule fields as one JSON object.</returns>
     public static string RuleEntry(string id, string? refusal) =>
         "{\"type\": \"rule\", \"id\": \"" + id + "\", \"title\": \"A receipt is required\", \"kind\": \"precondition\", \"statement\": \"An expense carries a receipt.\""
         + (refusal is null ? string.Empty : ", \"refusal\": \"" + refusal + "\"")

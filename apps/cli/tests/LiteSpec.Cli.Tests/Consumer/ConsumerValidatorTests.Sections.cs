@@ -19,6 +19,8 @@ public sealed partial class ConsumerValidatorTests
     const string ReferencePage = ".litespec/implementation/ports.md";
     const string ConfigurationPage = ".litespec/implementation/configuration.md";
     const string UseCasePage = ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml";
+    const string RulePage = ".litespec/behavior/modules/orders/aggregates/order-claims/rules/cancel-before-shipment-only/cancel-before-shipment-only.yaml";
+    const string RuleExplanation = ".litespec/behavior/modules/orders/aggregates/order-claims/rules/cancel-before-shipment-only/cancel-before-shipment-only.md";
     const string AggregateExplanation = ".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.md";
     const string ModuleExplanation = ".litespec/behavior/modules/orders/module.md";
 
@@ -252,17 +254,18 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'startedWhen'");
     }
 
-    /// <summary>Rule set that omits its summary.</summary>
+    /// <summary>Rule explanation that omits its rationale.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "rule set that omits its summary")]
-    public void RuleSetThatOmitsItsSummary()
+    [Fact(DisplayName = "rule explanation that omits its rationale")]
+    public void RuleExplanationThatOmitsItsRationale()
     {
         using var folder = ConsumerFixture.Create();
-        TestRecords.Write(
+        ConsumerFixture.MutateMeta(folder.Path, RulePage, meta => meta["rationale"] = "The rule keeps every cancel inside the shipment window.");
+        TestRecords.Explain(
             folder.Path,
-            ".litespec/behavior/rules/spending-standards.yaml",
-            """{"type":"rule-set","id":"spending-standards","title":"Spending Standards"}""");
-        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
+            RuleExplanation,
+            "# Cancel Before Shipment Only\n\nA customer cancels an order claim only before its shipment leaves.\n\n## Example\n\nAlex cancels an order while the shipment still waits at the shop.\n");
+        Assert.Contains("holds no Rationale section in its explanation", RunConsumer(folder.Path, "--all").Output, StringComparison.Ordinal);
     }
 
     /// <summary>External system that omits its summary.</summary>

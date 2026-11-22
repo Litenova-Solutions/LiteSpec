@@ -51,7 +51,7 @@ While it builds the model from records, code, routes, tests, and test runs, the 
         {requirement}/
           {requirement}.yaml
     behavior/
-      rules/                            cross-module invariants only
+      rules/{rule}/{rule}.yaml          one cross-module invariant, in its own folder
       external-systems/                 create with the first product-level external system
       entry-points/
         {entry-point}/
@@ -62,7 +62,9 @@ While it builds the model from records, code, routes, tests, and test runs, the 
         {module}/
           permissions.yaml
           refusals.yaml                       refusals no aggregate raises
-          stores/ use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ external-systems/
+          stores/ use-cases/ reactions/ jobs/ read-models/ notifications/ external-systems/
+          rules/{rule}/{rule}.yaml            one module rule, in its own folder
+          settings/{setting}/{setting}.yaml   one setting, in its own folder
           aggregates/
             {aggregate}/
               aggregate.yaml
@@ -70,7 +72,9 @@ While it builds the model from records, code, routes, tests, and test runs, the 
               use-cases/
                 {use-case}/
                   {use-case}.yaml   results and scenarios as entries
-              domain-events/ module-events/ integration-events/ rules/
+              module-events/ integration-events/
+              domain-events/{event}/{event}.yaml   one event, in its own folder
+              rules/{rule}/{rule}.yaml        one aggregate rule, in its own folder
     implementation/
       decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/
       operations/
@@ -110,7 +114,7 @@ Neither the backend application nor a frontend application sits at the workspace
 
 A named record lives in its own folder as `<name>/<name>.yaml`, with its explanation `<name>.md` beside it. Each record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside the folder of its feature.
 
-An entry lives in its home file: permissions in the permissions file of their module, refusals in the refusals file of their aggregate or, when no aggregate raises them, of their module, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
+An entry lives in its home file: permissions in the permissions file of their module, refusals in the refusals file of their aggregate or, when no aggregate raises them, of their module, and results and scenarios in their use case file. A rule, a setting, and a domain event each live in their own folder under their type's folder. Each entry point is one record in its own folder, with its screens beside it.
 
 **Reviewed for:** Does the workspace tree match the canonical tree in this section, with each record at its type's home under `.litespec/`? Walk the tree from the workspace root.
 

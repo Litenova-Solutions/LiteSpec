@@ -70,7 +70,7 @@ public sealed class RefusalOwnershipTests
         model.Records.Add(TestModel.Record(
             "rule",
             "rule/expense.receipt-required",
-            Path.Combine(temp.Path, "expense-rules.yaml"),
+            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "receipt-required", "receipt-required.yaml"),
             4,
             """{"title": "Receipt Required", "kind": "invariant", "statement": "An expense above the threshold carries a receipt.", "refusal": "refusal/spending.receipt-missing"}""",
             isEntry: true));
@@ -97,14 +97,14 @@ public sealed class RefusalOwnershipTests
         model.Records.Add(TestModel.Record(
             "rule",
             "rule/expense.receipt-required",
-            Path.Combine(temp.Path, "expense-rules.yaml"),
+            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "rules", "receipt-required", "receipt-required.yaml"),
             4,
             """{"title": "Receipt Required", "kind": "invariant", "statement": "An expense above the threshold carries a receipt.", "refusal": "refusal/spending.receipt-missing"}""",
             isEntry: true));
         model.Records.Add(TestModel.Record(
             "rule",
             "rule/receipt.kept-readable",
-            Path.Combine(temp.Path, "receipt-rules.yaml"),
+            Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "aggregates", "receipts", "rules", "kept-readable", "kept-readable.yaml"),
             4,
             """{"title": "Kept Readable", "kind": "invariant", "statement": "A kept receipt stays readable.", "refusal": "refusal/spending.receipt-unreadable"}""",
             isEntry: true));

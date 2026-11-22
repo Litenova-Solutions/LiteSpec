@@ -13,7 +13,7 @@ public sealed class SettingsCheckTests
     public void OperatorSettingWithoutKeyReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", null));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -29,7 +29,7 @@ public sealed class SettingsCheckTests
     public void OperatorSettingWithKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -43,7 +43,7 @@ public sealed class SettingsCheckTests
     public void ProductSettingWithoutKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "product", null));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -57,7 +57,7 @@ public sealed class SettingsCheckTests
     public void KeyedSettingWithoutOptionsClassReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -73,7 +73,7 @@ public sealed class SettingsCheckTests
     public void KeyedSettingWithMarkedOptionsClassPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
@@ -90,7 +90,7 @@ public sealed class SettingsCheckTests
     public void OptionsClassWithWrongSectionReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Loans", "MaxRenewals"));
@@ -108,7 +108,7 @@ public sealed class SettingsCheckTests
     public void OptionsClassWithMissingPropertyReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxLoans"));
@@ -126,7 +126,7 @@ public sealed class SettingsCheckTests
     public void OptionsClassSpellingKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
@@ -142,7 +142,7 @@ public sealed class SettingsCheckTests
     public void NestedSectionSpellingKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:Loans:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending:Loans", "MaxRenewals"));
@@ -159,7 +159,7 @@ public sealed class SettingsCheckTests
     public void MethodlessOptionsClassWithSettingMarkIsAccepted()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));

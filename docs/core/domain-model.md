@@ -67,9 +67,9 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 
 A rule states what holds, with its `kind` and its `statement`. It names what it constrains in `governs`, the refusal its breach produces in `refusal` by the refusal's id, the requirements it carries in `fulfills`, and the constraints, research, and decisions behind it in `basedOn`. It states whether it restates the law, a contract, or a product choice in `source`, and a rule restating the law names the restated constraint or research record in `cites`. Its optional `rationale` states why the rule holds. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule.
 
-A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in `behavior/modules/<m>/rules/`, while `module.yaml` holds no rules.
+A rule's scope comes from its home. An invariant an aggregate enforces lives under its aggregate or its module, and a module-level rule over several aggregates names them in `binds`. A module rule lives in its own folder under `behavior/modules/<m>/rules/<name>/`, while `module.yaml` holds no rules.
 
-A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
+A rule carries no `summary`: its `statement` is its lead. Its explanation file holds a Rationale, with an Example and Limits when they add something. No rule restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
 State one rule per condition: one rule states one condition and names its refusal from its aggregate's refusal set, and every use case that can break it lists the refusal result citing that refusal. The first sentence of a statement states the condition, and any further sentence only narrows it. A case with its own refusal, derived value, dates, or scenario is a rule of its own, and a value that varies by date or jurisdiction comes from the reference data the rule cites. For example, Claimwick's reimbursed-once rule states one condition with its refusal, and every reimbursement lists the refusal result citing that refusal.
 
@@ -100,7 +100,7 @@ A table can take its values from an external pack file, such as a country pack, 
 
 ### Domain Events
 
-A domain event is an immutable statement that a business fact completed. It is named in the past tense, with its `meaning` and the facts it `carries`. Each event is raised through the root of its aggregate, and each event stays inside the product: a fact crossing the boundary is an integration event, not a domain event. Claimwick's expense aggregate raises `domain-event/expense.submitted` when a submission completes.
+A domain event is an immutable statement that a business fact completed. It is named in the past tense, with its `meaning` and the facts it `carries`. Each event is its own record file in `behavior/modules/<m>/aggregates/<aggregates>/domain-events/<name>/<name>.yaml`, with its explanation file beside it. It opens with its `meaning` and carries no `summary`; its explanation may hold an Example. Each event is raised through the root of its aggregate, and each event stays inside the product: a fact crossing the boundary is an integration event, not a domain event. Claimwick's expense aggregate raises `domain-event/expense.submitted` when a submission completes.
 
 | Field | Meaning |
 |:---|:---|
@@ -201,7 +201,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Example:** Claimwick's invariant `rule/expense.reimbursed-once` states "an expense is reimbursed at most once", and every reimbursement checks it.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a rule entry without `kind` or `statement`.
+**Checked by:** `litespec model check` reports `record-invalid` for a rule record without `kind` or `statement`.
 
 ### State What Each Rule Governs
 
@@ -331,7 +331,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** A guarded rule without a named refusal leaves the ending unnamed, and callers branch on a refusal the records never predicted. Naming the refusal from its aggregate's refusal set ties the rule to every result citing that refusal, so the breach and the ending stay one fact. The [Use Cases page](use-cases.md) states the refusal set.
 
-**Reviewed for:** Does every guarded rule name its refusal in `refusal`? Check the rule entries beside the results citing their refusal.
+**Reviewed for:** Does every guarded rule name its refusal in `refusal`? Check the rule records beside the results citing their refusal.
 
 ### State Each Rule's Source
 
@@ -349,7 +349,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Example:** Claimwick's erased-after-retention rule states `law` and cites the tax constraint. A rule making a product choice states `product-choice` with no `cites`.
 
-**Reviewed for:** Does each rule that restates an outside rule or makes a product choice state its source? Check `source` on the rule entries.
+**Reviewed for:** Does each rule that restates an outside rule or makes a product choice state its source? Check `source` on the rule records.
 
 ### Name the Record Each Law Rule Restates
 
@@ -435,7 +435,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** An event without a meaning is a name every reaction interprets alone, while facts without a carries list are reconstructed from code at each reaction. Stating the meaning with the typed `carries` fields lets each reaction trust what happened and what arrived with it. An integration event publishes only fields its translated domain event carries.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an event entry without `meaning` or `carries`, and `event-field-uncarried` for an integration-event payload field its translated domain event does not carry.
+**Checked by:** `litespec model check` reports `record-invalid` for an event record without `meaning` or `carries`, and `event-field-uncarried` for an integration-event payload field its translated domain event does not carry.
 
 ### Name Every Event in the Past Tense
 
@@ -451,7 +451,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Example:** Claimwick's expense aggregate raises `domain-event/expense.submitted` for a completed submission.
 
-**Reviewed for:** Does every event name read as a completed fact rather than an order? Check the event entries beside their raising acts.
+**Reviewed for:** Does every event name read as a completed fact rather than an order? Check the event records beside their raising acts.
 
 ### Raise Every Event Through Its Aggregate Root
 
@@ -465,7 +465,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** The root is the one type through which outside behavior changes the aggregate, so it sees every change worth announcing. Raising each event there keeps the fact and its announcement in one step, and no event is announced for a change the aggregate never made.
 
-**Reviewed for:** Is every event raised through the root of its aggregate? Check the aggregate code beside the event entries.
+**Reviewed for:** Is every event raised through the root of its aggregate? Check the aggregate code beside the event records.
 
 ### Keep Model Invariants in Rules
 
@@ -479,7 +479,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** A setting tunes and a rule holds. An invariant filed as a setting reads as tunable, and a later operator tunes away what the model guaranteed. Keeping invariants in rules keeps what holds apart from what varies.
 
-**Reviewed for:** Does any setting page hold a model invariant? Check the settings beside the rules.
+**Reviewed for:** Does any setting hold a model invariant? Check the settings beside the rules.
 
 ### Date Every Reference-Data Row
 

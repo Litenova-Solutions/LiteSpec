@@ -48,7 +48,7 @@ public sealed class LinkExportTests
     public void UseCaseReadsSettingIsExportedAsALink()
     {
         using var temp = ModelFixture.Prepare("large");
-        TestRecords.Write(temp.Path, ".litespec/operations/reading.yaml", SettingJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/loan-days/loan-days.yaml", SettingJson);
         PatchRecord(
             temp.Path,
             ".litespec/behavior/modules/lending/aggregates/loans/use-cases/borrow-copy/borrow-copy.yaml",
@@ -185,20 +185,14 @@ public sealed class LinkExportTests
 
     const string SettingJson = """
         {
-          "type": "setting-set",
-          "title": "Reading Settings",
-          "records": [
-            {
-              "type": "setting",
-              "id": "setting/lending.loan-days",
-              "title": "Loan Days",
-              "valueType": "integer",
-              "default": 21,
-              "range": "7..60",
-              "unit": "days",
-              "setBy": "product"
-            }
-          ]
+          "type": "setting",
+          "id": "setting/lending.loan-days",
+          "title": "Loan Days",
+          "valueType": "integer",
+          "default": 21,
+          "range": "7..60",
+          "unit": "days",
+          "setBy": "product"
         }
         """;
 }

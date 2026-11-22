@@ -47,17 +47,3 @@ dataClasses:
     liftedOn: <date the hold ends, or remove this line>
 excludes:
 - <one thing the aggregate does not hold, in one sentence, or remove this line>
-records:
-- type: domain-event
-  id: domain-event/<aggregate>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  meaning: <the completed fact, in one sentence>
-  carries:
-  - name: <field name>
-    type: id
-    identifies: <identified record id>
-  - name: <field name>
-    type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
-  # A choice field carries choices, and a file field carries contentTypes and maxSize.

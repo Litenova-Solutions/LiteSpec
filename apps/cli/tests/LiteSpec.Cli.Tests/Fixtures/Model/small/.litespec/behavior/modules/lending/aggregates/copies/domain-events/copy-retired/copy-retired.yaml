@@ -1,0 +1,7 @@
+type: domain-event
+id: domain-event/copy.copy-retired
+title: Copy retired
+meaning: A copy was retired.
+carries:
+- name: copyId
+  type: text

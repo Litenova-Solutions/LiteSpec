@@ -23,55 +23,24 @@ dataClasses:
     purpose: Send overdue notices to readers.
     period: P30D
 records:
-  - type: rule
-    id: rule/loan.has-one-borrower
-    title: Has one borrower
-    kind: invariant
-    statement: A loan has one borrower.
-    governs:
-      - use-case/lending.borrow-copy
-    refusal: lending.copy-not-available
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.max-active-loans
-  - type: rule
-    id: rule/loan.borrowed-copy-never-leaves-unscanned
-    title: Borrowed copy never leaves unscanned
-    kind: precondition
-    statement: A borrowed copy never leaves unscanned.
-    governs:
-      - use-case/lending.borrow-copy
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.loan-period-days
-  - type: domain-event
-    id: domain-event/loan.loan-borrowed
-    title: Loan borrowed
-    meaning: A copy was lent.
-    carries:
-      - name: loanId
-        type: text
-      - name: copyId
-        type: text
-      - name: readerId
-        type: text
-      - name: dueDate
-        type: text
-  - type: domain-event
-    id: domain-event/loan.loan-returned
-    title: Loan returned
-    meaning: A copy was returned.
-    carries:
-      - name: loanId
-        type: text
-      - name: returnedAt
-        type: text
-  - type: domain-event
-    id: domain-event/loan.loan-extended
-    title: Loan extended
-    meaning: A loan was extended.
-    carries:
-      - name: loanId
-        type: text
-      - name: newDueDate
-        type: text
+- type: rule
+  id: rule/loan.has-one-borrower
+  title: Has one borrower
+  kind: invariant
+  statement: A loan has one borrower.
+  governs:
+    - use-case/lending.borrow-copy
+  refusal: lending.copy-not-available
+  basedOn: []
+  fulfills:
+    - requirement/borrowing.max-active-loans
+- type: rule
+  id: rule/loan.borrowed-copy-never-leaves-unscanned
+  title: Borrowed copy never leaves unscanned
+  kind: precondition
+  statement: A borrowed copy never leaves unscanned.
+  governs:
+    - use-case/lending.borrow-copy
+  basedOn: []
+  fulfills:
+    - requirement/borrowing.loan-period-days

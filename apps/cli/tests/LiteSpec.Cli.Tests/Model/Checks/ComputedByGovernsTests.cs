@@ -51,7 +51,7 @@ public sealed class ComputedByGovernsTests
             TestModel.Record(
                 "rule",
                 "rule/spending.approval-days",
-                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "rules", "approval-days.yaml"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "rules", "approval-days", "approval-days.yaml"),
                 """{"kind": "calculation", "statement": "Approval days count business days from submission.", "governs": ["use-case/spending.show-approval-days"]}"""),
             TestModel.Record(
                 "use-case",

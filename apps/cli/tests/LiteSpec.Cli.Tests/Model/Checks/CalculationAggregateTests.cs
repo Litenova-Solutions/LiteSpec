@@ -16,7 +16,7 @@ public sealed class CalculationAggregateTests
         var useCaseFolder = Path.Combine(aggregateFolder, "use-cases", "borrow-copy");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Rule(Path.Combine(aggregateFolder, "rules", "late-fee-totals.md")),
+            Rule(Path.Combine(aggregateFolder, "rules", "late-fee-totals", "late-fee-totals.md")),
             Aggregate(aggregateFolder),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(useCaseFolder, "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
@@ -38,7 +38,7 @@ public sealed class CalculationAggregateTests
         var useCaseFolder = Path.Combine(aggregateFolder, "use-cases", "borrow-copy");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Rule(Path.Combine(aggregateFolder, "rules", "late-fee-totals.md")),
+            Rule(Path.Combine(aggregateFolder, "rules", "late-fee-totals", "late-fee-totals.md")),
             Aggregate(aggregateFolder),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(useCaseFolder, "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
@@ -60,7 +60,7 @@ public sealed class CalculationAggregateTests
         var useCaseFolder = Path.Combine(temp.Path, "behavior", "modules", "lending", "use-cases", "borrow-copy");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Rule(Path.Combine(aggregateFolder, "rules", "late-fee-totals.md")),
+            Rule(Path.Combine(aggregateFolder, "rules", "late-fee-totals", "late-fee-totals.md")),
             Aggregate(aggregateFolder),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(useCaseFolder, "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record(

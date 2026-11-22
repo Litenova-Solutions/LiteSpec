@@ -1,0 +1,12 @@
+type: rule
+id: rule/expense.export-carries-approved
+title: Export Carries Approved
+kind: precondition
+statement: An export carries an approved expense.
+governs:
+- use-case/spending.export-expenses
+refusal: refusal/spending.nothing-approved
+basedOn: []
+fulfills:
+- requirement/approval.decided-within-five-days
+rationale: The export is the payout file, so a file carrying anything other than approved expenses pays the wrong expenses.

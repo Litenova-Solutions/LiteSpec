@@ -135,9 +135,6 @@ public static class RecordTypes
     /// <summary>Gets the `rule` record type name.</summary>
     public const string Rule = "rule";
 
-    /// <summary>Gets the `rule-set` record type name.</summary>
-    public const string RuleSet = "rule-set";
-
     /// <summary>Gets the `runbook` record type name.</summary>
     public const string Runbook = "runbook";
 
@@ -152,9 +149,6 @@ public static class RecordTypes
 
     /// <summary>Gets the `setting` record type name.</summary>
     public const string Setting = "setting";
-
-    /// <summary>Gets the `setting-set` record type name.</summary>
-    public const string SettingSet = "setting-set";
 
     /// <summary>Gets the `term` record type name.</summary>
     public const string Term = "term";
@@ -208,15 +202,15 @@ public static class RecordTypes
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
     public static readonly HashSet<string> PageStyles = new HashSet<string>(StringComparer.Ordinal)
     {
-        "permission-set", "entry-point-set", "setting-set", "refusal-set",
-        "rule-set", "index", "tutorial", "how-to", "reference", "command",
+        "permission-set", "entry-point-set", "refusal-set",
+        "index", "tutorial", "how-to", "reference", "command",
         "configuration", "glossary",
     };
 
     /// <summary>Container page styles: record files that hold entries without a record of their own.</summary>
     public static readonly HashSet<string> ContainerStyles = new HashSet<string>(StringComparer.Ordinal)
     {
-        PermissionSet, EntryPointSet, SettingSet, RuleSet, RefusalSet,
+        PermissionSet, EntryPointSet, RefusalSet,
     };
 
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>

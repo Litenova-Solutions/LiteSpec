@@ -1,0 +1,10 @@
+type: domain-event
+id: domain-event/loan.loan-returned
+title: Loan returned
+meaning: A copy was returned.
+carries:
+- name: loanId
+  type: id
+  identifies: aggregate/lending.loan
+- name: returnedAt
+  type: date-time

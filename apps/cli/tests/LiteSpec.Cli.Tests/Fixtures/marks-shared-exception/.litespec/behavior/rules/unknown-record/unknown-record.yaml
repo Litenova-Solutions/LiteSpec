@@ -1,0 +1,6 @@
+type: rule
+id: rule/library.unknown-record
+title: Unknown Record Refused
+kind: precondition
+statement: A lookup for a named record that is absent is refused.
+refusal: library.unknown-record

@@ -9,11 +9,10 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.RecordEditing;
 
 /// <summary>
-///     The <c>litespec new entry</c> append path: one rule, permission, or
-///     setting entry goes onto its owning list file's records,
-///     last, and the file is written back in canonical form. List files carry
-///     no record identifier, so the file argument is the file's
-///     consumer-relative path.
+///     The <c>litespec new entry</c> append path: one permission entry goes onto its
+///     permission file's records, last, and the file is written back in canonical
+///     form. Permission files carry no record identifier, so the file argument is
+///     the file's consumer-relative path.
 /// </summary>
 /// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
 static class AppendListEntry
@@ -43,9 +42,15 @@ static class AppendListEntry
             return 2;
         }
 
-        if (OwnerOf(entryType) is null)
+        if (entryType is "rule" or "setting" or "domain-event")
         {
-            CliHost.Error.WriteLine($"Unknown entry type '{entryType}'. Use rule, permission, or setting.");
+            CliHost.Error.WriteLine($"A {entryType} is a page of its own, not an entry: use litespec new {entryType} <home>.{name}.");
+            return 2;
+        }
+
+        if (entryType != RecordTypes.Permission)
+        {
+            CliHost.Error.WriteLine($"Unknown entry type '{entryType}'. Use permission.");
             return 2;
         }
 
@@ -101,28 +106,16 @@ static class AppendListEntry
                 ? style.GetString()
                 : null;
 
-        if (pageType != PageOf(entryType))
+        if (pageType != RecordTypes.PermissionSet)
         {
             var actual = pageType is null ? "a file without a type" : $"'{pageType}'";
-            CliHost.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{PathText.Relative(config.Root, pageFile)}' is {actual}.");
+            CliHost.Error.WriteLine($"Type '{entryType}' belongs on the permission list; '{PathText.Relative(config.Root, pageFile)}' is {actual}.");
             return 2;
         }
 
-        var home = entryType == "permission" ? null : HomeOf(parsedRoot, entryType, pageFile);
+        var entryId = $"{entryType}/{name}";
 
-        if (home is null && entryType != "permission")
-        {
-            CliHost.Error.WriteLine(entryType switch
-            {
-                "setting" => $"The file '{PathText.Relative(config.Root, pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
-                _ => $"The file '{PathText.Relative(config.Root, pageFile)}' holds no rule to take the home from.",
-            });
-            return 2;
-        }
-
-        var entryId = entryType == "permission" ? $"{entryType}/{name}" : $"{entryType}/{home}.{name}";
-
-        if (RecordPages.GrammarError(entryType, home, name, entryId) is { } grammar)
+        if (RecordPages.GrammarError(entryType, null, name, entryId) is { } grammar)
         {
             CliHost.Error.WriteLine(grammar);
             return 2;
@@ -136,7 +129,16 @@ static class AppendListEntry
             return 2;
         }
 
-        var entry = EntryFields(entryType, entryId, AppendEntry.TitleFrom(name));
+        var entry = new JsonObject
+        {
+            ["type"] = "permission",
+            ["id"] = entryId,
+            ["title"] = AppendEntry.TitleFrom(name),
+            ["meaning"] = "This permission allows the action.",
+            // Every link points up: the permission names the roles it is granted to. The
+            // placeholder role draws reference-unknown until the author names a real one.
+            ["grantedTo"] = new JsonArray("role/owner"),
+        };
         var updated = AppendEntry.Insert(text, AppendEntry.Placement.Entry, entry, out var error);
 
         if (updated is null)
@@ -158,154 +160,4 @@ static class AppendListEntry
         CliHost.Out.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, pageFile)}.");
         return 0;
     }
-
-    /// <summary>The page style owning the entry type, or null for an unknown type.</summary>
-    /// <param name="entryType">The entry type name from the command line, such as rule or permission.</param>
-    /// <returns>The page style that owns the entry type, or null when the type is unknown.</returns>
-    static string? PageOf(string entryType) => entryType switch
-    {
-        "rule" => "rule-set",
-        "permission" => "permission-set",
-        "setting" => "setting-set",
-        _ => null,
-    };
-
-    /// <summary>Where the entry type belongs, for the refusal message, or null for an unknown type.</summary>
-    /// <param name="entryType">The entry type name from the command line, such as rule or permission.</param>
-    /// <returns>The description of where the entry type belongs for the refusal message, or null when the type is unknown.</returns>
-    static string? OwnerOf(string entryType) => entryType switch
-    {
-        "rule" => "a rule-set file",
-        "permission" => "the permission list",
-        "setting" => "a setting set",
-        _ => null,
-    };
-
-    /// <summary>
-    ///     The new entry's home: the uniform home of the file's existing entries
-    ///     of the same type, else the file stem for a rule,
-    ///     else the parent modules folder for a setting.
-    /// </summary>
-    /// <param name="root">The parsed record object of the list file.</param>
-    /// <param name="entryType">The entry type name whose home is sought.</param>
-    /// <param name="pageFile">The full path of the list file, used when the entries give no home.</param>
-    /// <returns>The home segment for the entry identifier, or null when neither the entries nor the location gives one.</returns>
-    static string? HomeOf(JsonElement root, string entryType, string pageFile) =>
-        UniformHome(root, entryType) ?? LocationHome(entryType, pageFile);
-
-    /// <summary>
-    ///     The home every existing entry of the type shares, or null when the
-    ///     file holds none or mixes homes.
-    /// </summary>
-    /// <param name="root">The parsed record object of the list file.</param>
-    /// <param name="entryType">The entry type name whose existing entries are examined.</param>
-    /// <returns>The home shared by every existing entry of the type, or null when the file holds none or mixes homes.</returns>
-    static string? UniformHome(JsonElement root, string entryType)
-    {
-        if (root.ValueKind != JsonValueKind.Object
-            || !root.TryGetProperty("records", out var entries)
-            || entries.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        string? home = null;
-
-        foreach (var entry in entries.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object
-                || !entry.TryGetProperty("type", out var kind)
-                || kind.ValueKind != JsonValueKind.String
-                || kind.GetString() != entryType
-                || !entry.TryGetProperty("id", out var id)
-                || id.ValueKind != JsonValueKind.String
-                || id.GetString() is not { } text
-                || !Identifiers.TrySplit(text, out _, out var splitHome, out _)
-                || splitHome is null)
-            {
-                continue;
-            }
-
-            if (home is null)
-            {
-                home = splitHome;
-            }
-            else if (!string.Equals(home, splitHome, StringComparison.Ordinal))
-            {
-                return null;
-            }
-        }
-
-        return home;
-    }
-
-    /// <summary>The home the file's place gives: the file stem, or the parent modules folder for a setting.</summary>
-    /// <param name="entryType">The entry type name whose home is sought.</param>
-    /// <param name="pageFile">The full path of the list file.</param>
-    /// <returns>For a setting, the module folder name; otherwise the file stem, or null when the stem is empty.</returns>
-    static string? LocationHome(string entryType, string pageFile)
-    {
-        if (entryType == "setting")
-        {
-            return ModuleOf(pageFile);
-        }
-
-        var stem = Path.GetFileNameWithoutExtension(pageFile);
-
-        return stem.Length > 0 ? stem : null;
-    }
-
-    /// <summary>The parent modules folder's child holding the file, or null outside one.</summary>
-    /// <param name="pageFile">The full path of the list file.</param>
-    /// <returns>The name of the folder directly under a modules folder that holds the file, or null when the file sits outside one.</returns>
-    static string? ModuleOf(string pageFile)
-    {
-        var parts = Path.GetFullPath(pageFile)
-            .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
-
-        for (var index = 0; index + 2 < parts.Length; index++)
-        {
-            if (parts[index].Equals("modules", StringComparison.OrdinalIgnoreCase))
-            {
-                return parts[index + 1];
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>The new entry with every required field filled.</summary>
-    /// <param name="entryType">The entry type name, which selects the field template.</param>
-    /// <param name="id">The full identifier of the entry.</param>
-    /// <param name="title">The display title of the entry.</param>
-    /// <returns>The entry object for its type, with every required field filled.</returns>
-    static JsonObject EntryFields(string entryType, string id, string title) => entryType switch
-    {
-        "rule" => new JsonObject
-        {
-            ["type"] = "rule",
-            ["id"] = id,
-            ["title"] = title,
-            ["kind"] = "invariant",
-            ["statement"] = "The records keep this rule.",
-        },
-        "permission" => new JsonObject
-        {
-            ["type"] = "permission",
-            ["id"] = id,
-            ["title"] = title,
-            ["meaning"] = "This permission allows the action.",
-            // Every link points up: the permission names the roles it is granted to. The
-            // placeholder role draws reference-unknown until the author names a real one.
-            ["grantedTo"] = new JsonArray("role/owner"),
-        },
-        _ => new JsonObject
-        {
-            ["type"] = "setting",
-            ["id"] = id,
-            ["title"] = title,
-            ["valueType"] = "integer",
-            ["setBy"] = "product",
-        },
-    };
 }
