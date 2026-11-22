@@ -4306,6 +4306,24 @@
       "example": "The expense document enables the check on its own type:\n\n\u0060\u0060\u0060csharp\noptions.Schema.For\u003CExpense\u003E().UseOptimisticConcurrency(true);\n\u0060\u0060\u0060"
     },
     {
+      "id": "litespec/backend/dotnet/persistence#apply-schema-changes-in-a-migration-step",
+      "heading": "Apply Schema Changes in a Migration Step",
+      "page": "docs/backend/dotnet/persistence.md",
+      "anchor": "apply-schema-changes-in-a-migration-step",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does any hosted schema change run from application startup or through \u0060AutoCreate.All\u0060, or does any host open its store with a schema-changing \u0060AutoCreate\u0060 value? Look at the migration step and the host store configuration.",
+      "stack": "dotnet",
+      "concern": "infrastructure",
+      "artifact": "migration",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Outside development, schema objects MUST change only in a migration step that runs before the hosts start and applies the difference with \u0060CreateOrUpdate\u0060, never \u0060AutoCreate.All\u0060, while the hosts run with \u0060AutoCreate.None\u0060.",
+      "rationale": "A schema change that runs from a starting replica races every other replica, and \u0060AutoCreate.All\u0060 drops and recreates tables that do not match the model, so it would destroy the data in a database that holds it. A migration step applies the difference once with \u0060ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate)\u0060 before any host starts, and each host opens its store with \u0060AutoCreate.None\u0060 so startup never alters the schema. Development and disposable integration databases may still create schema automatically, as the shared rule allows. This provision binds \u0060litespec/backend/persistence#control-production-schema-changes\u0060 for .NET.",
+      "example": "In the Claimwick product, a release adds an index over submitted expenses. A deployment step applies the difference with \u0060AutoCreate.CreateOrUpdate\u0060 before the Claimwick WebApi and Worker hosts start, and both hosts configure the store with \u0060AutoCreate.None\u0060, so neither changes the schema at startup. No host carries \u0060AutoCreate.All\u0060."
+    },
+    {
       "id": "litespec/backend/dotnet/persistence#claim-cross-record-keys-with-a-claims-document",
       "heading": "Claim Cross-Record Keys with a Claims Document",
       "page": "docs/backend/dotnet/persistence.md",
@@ -4358,6 +4376,24 @@
       "statement": "Each Marten aggregate document MUST enforce its uniqueness rules through a unique index over the stored value or an identity derived from its owner.",
       "rationale": "A unique index makes the store arbitrate the race at commit, where every concurrent write is visible. The index is declared with \u0060options.Schema.For\u003CT\u003E().UniqueIndex\u0060, or as a computed index carrying \u0060IsUnique\u0060. The index name follows \u0060litespec/backend/persistence#use-database-naming-conventions\u0060. A record that exists at most once per owner takes a document id equal to the owner id instead, so a second record for the same owner collides on identity. This provision binds \u0060litespec/backend/persistence#enforce-uniqueness-in-the-store\u0060 for .NET.",
       "example": "The payout number is unique per spending owner:\n\n\u0060\u0060\u0060csharp\noptions.Schema.For\u003CPayout\u003E().UniqueIndex(\n    UniqueIndexType.Computed,\n    \u0022uq_payout_owner_number\u0022,\n    x =\u003E x.PayoutNumber);\n\u0060\u0060\u0060\n\nA payout exists at most once per expense, so its document id is the expense id:\n\n\u0060\u0060\u0060csharp\n// The payout document id equals the expense id: one payout per expense.\nvar payout = Payout.Issue(expense.Id, payoutNumber);\nsession.Store(payout);\n\u0060\u0060\u0060"
+    },
+    {
+      "id": "litespec/backend/dotnet/persistence#evolve-stored-documents-when-they-are-read",
+      "heading": "Evolve Stored Documents When They Are Read",
+      "page": "docs/backend/dotnet/persistence.md",
+      "anchor": "evolve-stored-documents-when-they-are-read",
+      "kind": "convention",
+      "mark": "guidance",
+      "evidence": "Is any stored document missing a contract version, any contract change missing a registered upgrade step, any stored form rewritten outside the next save without an approved deploy rewrite for a query or index, or any broken upgrade chain accepted at composition? Look at the document contract versions, the registered upgrade steps, and the store configuration.",
+      "stack": "dotnet",
+      "concern": "infrastructure",
+      "artifact": "aggregate",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "default",
+      "statement": "Each stored document carries its contract version, a registered upgrade step for each version runs on the JSON before deserializing, the stored form is rewritten only when the aggregate is saved again, composition refuses a broken chain of steps, and a rewrite at deploy is reserved for documents that may change and only when a query or index needs the new shape.",
+      "rationale": "Marten upcasts only events, never documents, so a stored document keeps the JSON an earlier version wrote. Chaining one step per version and refusing a broken chain keeps a document at any old version readable. Because the upgrade runs on read and rewrites only on the next save, an append-only record or a hash-chained audit record keeps its stored form: the upgrade shapes the in-memory object without changing the bytes on disk. A deploy-time rewrite would touch those records, so it stays limited to documents whose form may change and only when a query or index cannot work with the old shape. This is how a .NET consumer meets \u0060litespec/backend/persistence#evolve-stored-document-contracts-explicitly\u0060.",
+      "example": "In the Claimwick product, version 1 of an expense document stores the submitter under \u0060submittedBy\u0060. Version 2 renames that member to \u0060employeeId\u0060. A registered step from version 1 to version 2 rewrites the JSON on read before deserializing, so both old and new documents load as the current aggregate, and the old document\u0027s stored form changes only the next time that expense is saved. For an append-only approval record, the same read step produces the current in-memory shape but never rewrites the stored document."
     },
     {
       "id": "litespec/backend/dotnet/persistence#implement-the-unit-of-work-boundary",
@@ -4430,6 +4466,24 @@
       "statement": "A classifier MUST translate Marten\u0027s \u0060ConcurrencyException\u0060 into the use case conflict refusal.",
       "rationale": "A \u0060ConcurrencyException\u0060 names a provider type that Application does not expose. The registered classifier translates it into the use case named conflict refusal, following \u0060litespec/backend/application#refuse-a-lost-race-as-a-conflict\u0060. A version race and a uniqueness race then reach the caller through the same refusal path. This provision binds \u0060litespec/backend/application#refuse-a-lost-race-as-a-conflict\u0060 for .NET.",
       "example": "Two approvers race on one submitted expense; the loser throws \u0060ConcurrencyException\u0060 at commit, and the classifier returns the approve conflict refusal so the caller re-reads the expense before deciding again."
+    },
+    {
+      "id": "litespec/backend/dotnet/persistence#plan-each-schema-change-before-applying-it",
+      "heading": "Plan Each Schema Change Before Applying It",
+      "page": "docs/backend/dotnet/persistence.md",
+      "anchor": "plan-each-schema-change-before-applying-it",
+      "kind": "convention",
+      "mark": "guidance",
+      "evidence": "Does any migration step apply SQL it has not printed, pass a destructive statement without an explicit allowance, or leave the ledger without this build\u0027s schema fingerprint at readiness? Look at the migration step output, the allowance, and the ledger.",
+      "stack": "dotnet",
+      "concern": "infrastructure",
+      "artifact": "migration",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "default",
+      "statement": "The migration step prints the SQL that \u0060CreateMigrationAsync()\u0060 plans, marks every destructive statement, refuses those statements without an explicit allowance, records each applied run in a ledger with the build\u0027s schema fingerprint, and requires the ledger to hold this build\u0027s fingerprint before the release is ready.",
+      "rationale": "\u0060CreateMigrationAsync()\u0060 computes the difference without applying it and \u0060ToDatabaseScript()\u0060 gives the full creation script, so the step can show what it will run and stop on a drop no one approved. \u0060AssertDatabaseMatchesConfigurationAsync()\u0060 and Weasel\u0027s \u0060db-assert\u0060 report drift on demand. A ledger keyed by schema fingerprint tells the readiness check which schema a database already holds, so a build is not applied twice or applied to a database at a different schema.",
+      "example": "In the Claimwick product, the migration step prints the planned SQL for a new index over expenses and flags a statement that would drop an old column; the release stops until an owner allows that drop. After the step applies, it writes the build\u0027s schema fingerprint to the migration ledger, and the readiness job checks that ledger entry before opening traffic to the Claimwick hosts."
     },
     {
       "id": "litespec/backend/dotnet/persistence#query-through-iquerysession",

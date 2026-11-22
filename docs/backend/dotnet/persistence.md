@@ -26,6 +26,14 @@ Events leave through the LiteBus outbox in process: the staging step commits eac
 
 A query handler never loads aggregates. It queries the aggregate type through the read session, `IQuerySession`, which filters, orders, pages, and shapes records. The handler applies filter, scope, ordering, and limit before materialization.
 
+### How the Schema and Stored Documents Change
+
+A release changes two different things in the store: the schema objects (tables, columns, and indexes) and the JSON inside documents already on disk. Schema objects are rebuilt or altered by statements against the database. Document JSON is not, because a code change does not reshape the bytes a previous version wrote. Treating the two as one problem either drops data or leaves old documents unreadable.
+
+Marten keeps the two separate. `IDocumentStore.Storage.CreateMigrationAsync()` computes the schema difference between the configured model and the database without applying it, and `ToDatabaseScript()` returns the full creation script. `ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate)` applies the difference, adding and altering objects to match the model. `AutoCreate.All` goes further: it drops and recreates tables that do not match the model, so it must never run against a database that holds data. `AssertDatabaseMatchesConfigurationAsync()` reports drift between the model and the database without changing either. Weasel, the schema tool behind Marten, also has a command line with `db-apply`, `db-assert`, `db-patch`, `db-dump`, and `db-list` for the same jobs outside application code.
+
+For documents, Marten upcasts only events, never documents. An old document keeps the JSON an earlier version wrote until the code that reads it upgrades that JSON in memory. The project registers an upgrade step for each stored contract version; a read runs the steps on the JSON before deserializing, and the stored form is rewritten only when the aggregate is saved again. This protects an append-only record or a hash-chained audit record, whose stored form must never change: the upgrade shapes the in-memory object on read, and no step rewrites the bytes on disk.
+
 ## Standards
 
 ### Stage Aggregate Writes Through Repositories
@@ -298,6 +306,22 @@ options.Schema.For<Expense>().UseOptimisticConcurrency(true);
 
 **Reviewed for:** Does the project's unit of work implement `IUnitOfWorkBoundary` with `BeginAsync` and `RollbackAsync`? Look at the unit-of-work type beside the pipeline composition.
 
+### Apply Schema Changes in a Migration Step
+
+**ID:** `litespec/backend/dotnet/persistence#apply-schema-changes-in-a-migration-step`
+
+**Strength:** required
+
+**Applies to:** artifact: migration
+
+**Statement:** Outside development, schema objects MUST change only in a migration step that runs before the hosts start and applies the difference with `CreateOrUpdate`, never `AutoCreate.All`, while the hosts run with `AutoCreate.None`.
+
+**Rationale:** A schema change that runs from a starting replica races every other replica, and `AutoCreate.All` drops and recreates tables that do not match the model, so it would destroy the data in a database that holds it. A migration step applies the difference once with `ApplyAllConfiguredChangesToDatabaseAsync(AutoCreate.CreateOrUpdate)` before any host starts, and each host opens its store with `AutoCreate.None` so startup never alters the schema. Development and disposable integration databases may still create schema automatically, as the shared rule allows. This provision binds `litespec/backend/persistence#control-production-schema-changes` for .NET.
+
+**Example:** In the Claimwick product, a release adds an index over submitted expenses. A deployment step applies the difference with `AutoCreate.CreateOrUpdate` before the Claimwick WebApi and Worker hosts start, and both hosts configure the store with `AutoCreate.None`, so neither changes the schema at startup. No host carries `AutoCreate.All`.
+
+**Reviewed for:** Does any hosted schema change run from application startup or through `AutoCreate.All`, or does any host open its store with a schema-changing `AutoCreate` value? Look at the migration step and the host store configuration.
+
 ## Conventions
 
 ### Register One Scoped Session
@@ -315,6 +339,42 @@ options.Schema.For<Expense>().UseOptimisticConcurrency(true);
 **Rationale:** One session per WebApi request or Worker operation means the repositories and the commit handler in one command resolve the same instance. Two sessions would stage and commit separately, splitting one command across two units of work. This provision binds `litespec/backend/persistence#use-one-session-per-command` for .NET.
 
 **Reviewed for:** Does the service registration wire `IDocumentSession` once per WebApi request or Worker operation scope? Look at the service registration.
+
+### Plan Each Schema Change Before Applying It
+
+**ID:** `litespec/backend/dotnet/persistence#plan-each-schema-change-before-applying-it`
+
+**Strength:** default
+
+**Applies to:** artifact: migration
+
+**Default:** The migration step prints the SQL that `CreateMigrationAsync()` plans, marks every destructive statement, refuses those statements without an explicit allowance, records each applied run in a ledger with the build's schema fingerprint, and requires the ledger to hold this build's fingerprint before the release is ready.
+
+**Replacement:** A project names its own migration planning and ledger convention in its backend documentation.
+
+**Rationale:** `CreateMigrationAsync()` computes the difference without applying it and `ToDatabaseScript()` gives the full creation script, so the step can show what it will run and stop on a drop no one approved. `AssertDatabaseMatchesConfigurationAsync()` and Weasel's `db-assert` report drift on demand. A ledger keyed by schema fingerprint tells the readiness check which schema a database already holds, so a build is not applied twice or applied to a database at a different schema.
+
+**Example:** In the Claimwick product, the migration step prints the planned SQL for a new index over expenses and flags a statement that would drop an old column; the release stops until an owner allows that drop. After the step applies, it writes the build's schema fingerprint to the migration ledger, and the readiness job checks that ledger entry before opening traffic to the Claimwick hosts.
+
+**Reviewed for:** Does any migration step apply SQL it has not printed, pass a destructive statement without an explicit allowance, or leave the ledger without this build's schema fingerprint at readiness? Look at the migration step output, the allowance, and the ledger.
+
+### Evolve Stored Documents When They Are Read
+
+**ID:** `litespec/backend/dotnet/persistence#evolve-stored-documents-when-they-are-read`
+
+**Strength:** default
+
+**Applies to:** artifact: aggregate
+
+**Default:** Each stored document carries its contract version, a registered upgrade step for each version runs on the JSON before deserializing, the stored form is rewritten only when the aggregate is saved again, composition refuses a broken chain of steps, and a rewrite at deploy is reserved for documents that may change and only when a query or index needs the new shape.
+
+**Replacement:** A project names its own document upgrade convention in its backend documentation.
+
+**Rationale:** Marten upcasts only events, never documents, so a stored document keeps the JSON an earlier version wrote. Chaining one step per version and refusing a broken chain keeps a document at any old version readable. Because the upgrade runs on read and rewrites only on the next save, an append-only record or a hash-chained audit record keeps its stored form: the upgrade shapes the in-memory object without changing the bytes on disk. A deploy-time rewrite would touch those records, so it stays limited to documents whose form may change and only when a query or index cannot work with the old shape. This is how a .NET consumer meets `litespec/backend/persistence#evolve-stored-document-contracts-explicitly`.
+
+**Example:** In the Claimwick product, version 1 of an expense document stores the submitter under `submittedBy`. Version 2 renames that member to `employeeId`. A registered step from version 1 to version 2 rewrites the JSON on read before deserializing, so both old and new documents load as the current aggregate, and the old document's stored form changes only the next time that expense is saved. For an append-only approval record, the same read step produces the current in-memory shape but never rewrites the stored document.
+
+**Reviewed for:** Is any stored document missing a contract version, any contract change missing a registered upgrade step, any stored form rewritten outside the next save without an approved deploy rewrite for a query or index, or any broken upgrade chain accepted at composition? Look at the document contract versions, the registered upgrade steps, and the store configuration.
 
 ## Reference Example
 

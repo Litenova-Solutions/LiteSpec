@@ -450,6 +450,14 @@ The new rule is `litespec/core/writing#keep-the-cast-out-of-production-code`. De
 
 The new rules are `litespec/quality/development#keep-development-shortcuts-out-of-release-builds` and `litespec/backend/dotnet/workspace#exclude-development-shortcuts-from-release-builds`. Decision 0113, Shortcuts Stay Out of Release Builds, records why.
 
+### Part AW: Schema and Stored-Document Changes on Marten
+
+- Outside development, schema objects change only in a migration step that runs before the hosts start and applies the difference with `CreateOrUpdate`; `AutoCreate.All`, which drops and recreates tables, never runs against a database holding data, and the hosts run with `AutoCreate.None`.
+- By default the migration step prints the planned SQL, refuses destructive statements without an explicit allowance, records each run in a ledger with the build's schema fingerprint, and readiness requires that fingerprint.
+- By default each stored document carries its contract version and upgrade steps run on the JSON when it is read, so an append-only or hash-chained record is never rewritten on disk.
+
+The new rules are `litespec/backend/dotnet/persistence#apply-schema-changes-in-a-migration-step`, `litespec/backend/dotnet/persistence#plan-each-schema-change-before-applying-it` and `litespec/backend/dotnet/persistence#evolve-stored-documents-when-they-are-read`.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -472,7 +480,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (258):
+Added (261):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
@@ -526,7 +534,10 @@ Added (258):
 - `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`
 - `litespec/backend/dotnet/naming#name-every-event-type-by-its-kind`
 - `litespec/backend/dotnet/naming#put-the-cancellation-token-last`
+- `litespec/backend/dotnet/persistence#apply-schema-changes-in-a-migration-step`
+- `litespec/backend/dotnet/persistence#evolve-stored-documents-when-they-are-read`
 - `litespec/backend/dotnet/persistence#implement-the-unit-of-work-boundary`
+- `litespec/backend/dotnet/persistence#plan-each-schema-change-before-applying-it`
 - `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock`
 - `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`
 - `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests`
