@@ -458,6 +458,14 @@ The new rules are `litespec/quality/development#keep-development-shortcuts-out-o
 
 The new rules are `litespec/backend/dotnet/persistence#apply-schema-changes-in-a-migration-step`, `litespec/backend/dotnet/persistence#plan-each-schema-change-before-applying-it` and `litespec/backend/dotnet/persistence#evolve-stored-documents-when-they-are-read`.
 
+### Part AX: Consumers Stay Out of LiteSpec
+
+- LiteSpec names no consumer project and carries no consumer's domain vocabulary, records, flows, figures, people or products in any page, provision, example, fixture, template, decision, changelog entry or tool message; examples come from Claimwick or the library product.
+- A change prompted by one consumer states the general need behind it and is designed and checked against products unlike that consumer; a need that holds for one consumer alone stays in that consumer as a project convention or waiver.
+-  gains a Serving Many Consumers section stating both.
+
+The new rules are  and .
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -480,7 +488,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (261):
+Added (263):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
@@ -614,6 +622,8 @@ Added (261):
 - `litespec/core/intent#summarize-every-flow-before-its-steps`
 - `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
 - `litespec/core/language#read-each-field-name-in-its-record-type`
+- `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`
+- `litespec/core/maintaining#keep-consumers-out-of-litespec`
 - `litespec/core/model#cite-reference-data-instead-of-literal-values`
 - `litespec/core/model#declare-cross-module-references-in-depends-on`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`

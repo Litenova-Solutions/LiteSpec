@@ -170,6 +170,34 @@ The checks below report a manifest or schema defect that blocks the release, so 
 
 **Checked by:** `litespec-maintain validate` emits no `RECORD_SCHEMA`, `RECORD_ID_MISMATCH`, `RECORD_SOURCE`, `RECORD_UNKNOWN_REFERENCE`, or `RECORD_DECISION_UNCITED` diagnostic.
 
+### Keep Consumers Out of LiteSpec
+
+**ID:** `litespec/core/maintaining#keep-consumers-out-of-litespec`
+
+**Strength:** required
+
+**Statement:** Every page, provision, example, test fixture, template, decision, changelog entry, and tool message in LiteSpec MUST name no consumer project and carry no consumer domain vocabulary, records, flows, figures, people, or products, drawing examples only from the Claimwick expense product or the library product.
+
+**Rationale:** LiteSpec serves many projects in unrelated business areas. A reader who meets one consumer's name or domain vocabulary has to learn a world they do not work in, and a rule shaped around that domain misfits every product that does not share it. Claimwick and the library product are the shared examples, so every reader meets the same expenses and library holdings whatever product they build.
+
+**Example:** A page that explains a rule shows a Claimwick expense submitted by Ava for Harbor or Pine, or a library patron borrowing a book, rather than an example lifted from a consumer's records.
+
+**Reviewed for:** Does the change name a consumer project or carry a consumer's domain vocabulary? Grep the change for consumer names and for vocabulary of a consumer's domain.
+
+### Derive a General Rule from a Consumer Need
+
+**ID:** `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`
+
+**Strength:** required
+
+**Statement:** A change prompted by one consumer's need MUST state the general need behind it, design and check the rule against products unlike that consumer, apply the rule only where it makes sense across them, and leave a need that holds for one consumer alone in that consumer as a project convention or waiver rather than in LiteSpec.
+
+**Rationale:** LiteSpec is a contract many unrelated products adopt. A rule shaped around one product's domain misfits every other product and teaches their readers a world they do not have. Check the rule against an expense product, a library product, a consumer app with no organization, and a client-only app with no hosted sign-in, where the provision could apply, so the rule holds for each.
+
+**Example:** A consumer asks for development seed data. LiteSpec adds a cast-based seeding default that works for an expense product and a library product alike, not a rule about one product's records, and a need that only that consumer has stays in its project as a convention or waiver.
+
+**Reviewed for:** Does a change prompted by one consumer name the general need and check the rule against products unlike that consumer? Check the change's wording, the products it tests, and any need left in the consumer as a convention or waiver.
+
 ## Conventions
 
 None.

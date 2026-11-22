@@ -4,7 +4,7 @@ Each provision ID resolves here to its heading, owning page, scope, record layer
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1733 provisions in 4 groups across 6 areas.
+The active release states 1735 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -38,7 +38,7 @@ The active release states 1733 provisions in 4 groups across 6 areas.
 | [core/intent](../core/intent.md) | 58 | 33 | 57% |
 | [core/language](../core/language.md) | 23 | 7 | 30% |
 | [core/layers](../core/layers.md) | 7 | 4 | 57% |
-| [core/maintaining](../core/maintaining.md) | 8 | 5 | 62% |
+| [core/maintaining](../core/maintaining.md) | 10 | 5 | 50% |
 | [core/model](../core/model.md) | 58 | 42 | 72% |
 | [core/principles](../core/principles.md) | 22 | 4 | 18% |
 | [core/privacy](../core/privacy.md) | 17 | 3 | 18% |
@@ -682,6 +682,8 @@ The active release states 1733 provisions in 4 groups across 6 areas.
 | litespec/core/layers#prove-each-scenario-through-the-public-boundary | [Prove Each Scenario Through the Public Boundary](../core/layers.md#prove-each-scenario-through-the-public-boundary) | rule | any | records | record:scenario | proof | yes | required | checkable | `litespec model check` emits no `use-case-scenario-missing` or `proves-unreached` finding across scenarios and tests. |
 | litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items | [Raise Open Needs as Owner Questions or Backlog Items](../core/layers.md#raise-open-needs-as-owner-questions-or-backlog-items) | rule | any | records | any | any | no | required | guidance | Does every need the upper layer neither states nor implies have a question to the owner with a recommendation or a backlog item? Check the added records from a lower record layer beside the owner questions and the backlog. |
 | litespec/core/layers#write-each-layer-from-the-layer-above-it | [Write Each Layer from the Layer Above It](../core/layers.md#write-each-layer-from-the-layer-above-it) | rule | any | records | any | any | no | required | checkable | `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal or a screen that calls no endpoint, and reports `mark-missing` for a code element that carries no mark. |
+| litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need | [Derive a General Rule from a Consumer Need](../core/maintaining.md#derive-a-general-rule-from-a-consumer-need) | rule | any | workspace | - | any | no | required | guidance | Does a change prompted by one consumer name the general need and check the rule against products unlike that consumer? Check the change's wording, the products it tests, and any need left in the consumer as a convention or waiver. |
+| litespec/core/maintaining#keep-consumers-out-of-litespec | [Keep Consumers Out of LiteSpec](../core/maintaining.md#keep-consumers-out-of-litespec) | rule | any | workspace | - | any | no | required | guidance | Does the change name a consumer project or carry a consumer's domain vocabulary? Grep the change for consumer names and for vocabulary of a consumer's domain. |
 | litespec/core/maintaining#keep-provision-identifiers-stable-within-a-major-version | [Keep Provision Identifiers Stable Within a Major Version](../core/maintaining.md#keep-provision-identifiers-stable-within-a-major-version) | rule | any | workspace | - | any | no | required | guidance | Did a minor release remove or rename any provision identifier? Compare the provision index at the previous tag with the provision index of the release, beside the changelog entry that lists the generated diff. |
 | litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest | [List Every Stack, Shape, and Extension in the Manifest](../core/maintaining.md#list-every-stack-shape-and-extension-in-the-manifest) | rule | any | workspace | - | any | no | required | checkable | `litespec-maintain validate` emits `EXTENSION_UNLISTED` for an extension page no manifest entry lists, `LAYER_UNREACHABLE` for a page no stack selection reaches, and `MANIFEST_ANALYZER_PIN` for an analyzer pin that differs from the analyzer project version. |
 | litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow | [Mark the Tools with the Provisions They Follow](../core/maintaining.md#mark-the-tools-with-the-provisions-they-follow) | rule | any | workspace | - | any | no | required | checkable | `litespec-maintain validate` emits `MARK_MISSING` for a class with a method and no `follows` mark in a source project under `apps/`, and `MARK_UNRESOLVED` for a `follows` or `proves` mark in a .NET project under `apps/`, outside its `Fixtures` folders, that names no provision in `docs/reference/provisions.md`. |

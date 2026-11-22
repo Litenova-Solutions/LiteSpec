@@ -27,7 +27,11 @@ LiteSpec is clean, plain, straightforward and, above all, consistent. Every chan
 9. **Guidance states its strength.** Every provision says whether it is required, a default or advisory, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
 10. **Tools stay small.** A command, check, generated file or package exists because the owner approved it, and is removed when nothing uses it.
 
-LiteSpec serves many projects. Never name a consumer project in it.
+## Serving Many Consumers
+
+LiteSpec serves many projects, so never name a consumer project in it. Keep every consumer's domain vocabulary, records, flows, figures, people, and products out of every page, provision, example, test fixture, template, decision, changelog entry, and tool message, and draw examples only from the Claimwick expense product or the library product. When one consumer's need prompts a change, state the general need behind it, design and check the rule against products unlike that consumer, and apply it only where it makes sense across them. A need that holds for one consumer alone stays in that consumer as a project convention or waiver, not in LiteSpec.
+
+Sources: `litespec/core/maintaining#keep-consumers-out-of-litespec`, `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`.
 
 ## Which Repository You Are In
 
