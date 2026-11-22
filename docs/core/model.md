@@ -250,7 +250,7 @@ The cast page holds four optional lists, and each entry states the type its list
 
 - `parties` holds party entries. A party has a `name`, a `uses` of `product` (the organization the product serves) or `appears-in-data` (an organization that appears only in data), a `description`, and optional `facts`, each naming a glossary term and the value it states.
 - `people` holds person entries. A person has a `name`, the `actor` it plays (required), an optional `partyOf` party it belongs to, an optional `email` on a reserved test domain, and what it `does`.
-- `occasions` holds occasion entries. An occasion has a `title`, a `scene`, and optional `on` (an ISO date), `place`, and `involves` (the people and parties it involves).
+- `occasions` holds occasion entries. An occasion has a `title`, a `scene`, and optional `date` (an ISO date), `place`, and `involves` (the people and parties it involves).
 - `figures` holds figure entries. A figure has a `title` and exactly one typed `value`: `money` (a decimal `amount` and a three-letter ISO `currency`), `quantity` (a decimal `amount` and a `unit`), `percentage` (a decimal string), `date`, `count` (a non-negative whole number), or `text`. An optional `term` names the glossary term the figure states.
 
 The cast page may also hold `today`, the ISO date every example shares as now, and `timeZone`, the IANA time zone the cast's dates belong to.

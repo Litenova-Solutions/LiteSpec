@@ -900,11 +900,11 @@ $defs:
     type: object
     additionalProperties: false
     required:
-    - on
+    - subject
     - winner
     - refusal
     properties:
-      on:
+      subject:
         $ref: '#/$defs/nonEmptyString'
       winner:
         enum:
@@ -2860,6 +2860,8 @@ $defs:
         - boundary
         - topology
         - replacement
+      context:
+        $ref: '#/$defs/nonEmptyString'
       options:
         type: array
         minItems: 1
@@ -2884,8 +2886,6 @@ $defs:
         $ref: '#/$defs/decisionIdArray'
         x-reads-as: supersedes
         x-read-back-as: is superseded by
-      context:
-        $ref: '#/$defs/nonEmptyString'
   problemPage:
     type: object
     additionalProperties: false
@@ -4691,7 +4691,7 @@ $defs:
         $ref: '#/$defs/occasionId'
       title:
         $ref: '#/$defs/nonEmptyString'
-      on:
+      date:
         $ref: '#/$defs/isoDate'
       place:
         $ref: '#/$defs/nonEmptyString'

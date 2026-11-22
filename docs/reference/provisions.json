@@ -7673,6 +7673,24 @@
       "example": "The library\u0027s hold rule binds the hold and the copy aggregates, so a hold without its copy never stands."
     },
     {
+      "id": "litespec/core/domain-model#cite-varying-values-from-reference-data",
+      "heading": "Cite Varying Values from Reference Data",
+      "page": "docs/core/domain-model.md",
+      "anchor": "cite-varying-values-from-reference-data",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does a rule statement write a rate, threshold, deadline, or other value that varies by date, jurisdiction, or tenant? Check that it cites the reference-data table holding the value, or scopes the value to where it holds when no table exists yet.",
+      "stack": "any",
+      "concern": "domain",
+      "artifact": "record:rule",
+      "layer": "any",
+      "trace": false,
+      "strength": "advisory",
+      "statement": "A rule SHOULD cite the reference-data table that holds a value varying by date, jurisdiction, or tenant, such as a rate, threshold, or deadline, instead of writing the value into its statement.",
+      "rationale": "A value written into a statement is true only until its law, contract, or tenant changes it, and then the rule, its scenarios, and its code drift apart with no dated row to show when the value changed. A cited table holds each value with its effective dates and source, so the rule states the condition once and stays true across every period and jurisdiction the table covers. A value with no table yet stays in the statement, scoped to where it holds.",
+      "example": "Claimwick\u0027s receipt rule says \u0022an expense above the policy threshold needs a receipt\u0022 and leaves the amount to the policy, so a new threshold changes a row, not the rule."
+    },
+    {
       "id": "litespec/core/domain-model#compute-shared-values-from-one-calculation-rule",
       "heading": "Compute Shared Values from One Calculation Rule",
       "page": "docs/core/domain-model.md",
@@ -7743,6 +7761,24 @@
       "statement": "Each term a Behavior record names MUST have a glossary entry stating its meaning.",
       "rationale": "Records and code share one language only when each word is defined once. A term used without an entry means whatever each reader guesses, while the entry fixes the meaning, the rejected synonyms, and the wider and narrower terms, so reviewers and checks read the same word the same way.",
       "example": "Claimwick\u0027s glossary defines \u0060receipt\u0060 as \u0022proof of payment accepted for an expense\u0022, so every record naming a receipt means that proof."
+    },
+    {
+      "id": "litespec/core/domain-model#keep-each-rule-statement-short",
+      "heading": "Keep Each Rule Statement Short",
+      "page": "docs/core/domain-model.md",
+      "anchor": "keep-each-rule-statement-short",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060rule-statement-wide\u0060 (level A) for a rule whose statement is longer than 600 characters.",
+      "stack": "any",
+      "concern": "domain",
+      "artifact": "record:rule",
+      "layer": "any",
+      "trace": false,
+      "strength": "advisory",
+      "statement": "A rule statement SHOULD stay within 600 characters.",
+      "rationale": "A statement past a few sentences almost always holds several conditions, or a list of values that a reference-data table or a calculation\u0027s examples hold better. The length is only the signal: a long statement that does state one condition, such as one calculation over a closed list of cases, stays whole, and the finding never blocks.",
+      "example": "A Claimwick rule that stated the receipt duty, the approval chain, and the reimbursement limit of every expense category in one statement would report \u0060rule-statement-wide\u0060; as one rule per category and duty, each statement stays within a sentence or two."
     },
     {
       "id": "litespec/core/domain-model#keep-model-invariants-in-rules",
@@ -8049,6 +8085,24 @@
       "statement": "Each rule SHOULD state in \u0060source\u0060 whether it restates the law, a contract, or a product choice.",
       "rationale": "A product simplification later gets mistaken for law: a future maintainer reads a rule that claims legal backing and will not change it, even when the product owner could, or changes a real legal rule believing it is a product choice. Stating the source keeps each kind changeable on its own terms: the law changes with the statute, and a product choice changes with the owner. Settled by [decision/0099-rule-sources](decision/0099-rule-sources).",
       "example": "Claimwick\u0027s erased-after-retention rule states \u0060law\u0060 and cites the tax constraint. A rule making a product choice states \u0060product-choice\u0060 with no \u0060cites\u0060."
+    },
+    {
+      "id": "litespec/core/domain-model#state-one-condition-per-rule",
+      "heading": "State One Condition per Rule",
+      "page": "docs/core/domain-model.md",
+      "anchor": "state-one-condition-per-rule",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Does each rule statement hold one condition? Read each sentence after the first and check that it narrows the first; a sentence that holds a case with its own refusal, derived value, dates, or scenario belongs in a rule of its own, cited by the records that rest on it.",
+      "stack": "any",
+      "concern": "domain",
+      "artifact": "record:rule",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each rule MUST state one condition: one thing that holds, guards, or is derived, whose first sentence states it and whose further sentences only narrow its scope, its unit, or an exception without a refusal of its own.",
+      "rationale": "A rule is what refusals, scenario steps, and code marks cite. A rule that holds several conditions makes each of those citations vague: a scenario step that cites it does not say which condition it proves, a code mark does not say which branch it carries, and a change to one condition reopens every record that cites the others. A case with its own refusal, its own derived value, its own dates, or its own scenario is a condition of its own, and one rule for it lets each citation name exactly what it rests on. Proposed by [decision/0114-one-condition-per-rule](../intent/decisions/0114-one-condition-per-rule/0114-one-condition-per-rule.md).",
+      "example": "Claimwick states \u0060rule/expense.reimbursed-once\u0060 (\u0022an expense is reimbursed at most once\u0022) and \u0060rule/expense.approved-before-reimbursement\u0060 (\u0022an expense is reimbursed only after approval\u0022) as two rules with two refusals, not as one paragraph about reimbursement."
     },
     {
       "id": "litespec/core/domain-model#state-what-each-rule-governs",
@@ -16478,16 +16532,16 @@
       "anchor": "document-write-conflict-behavior",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060field-extension-unselected\u0060 for a \u0060conflicts\u0060 entry written when \u0060concurrency\u0060 is not selected, and \u0060record-invalid\u0060 for a \u0060conflicts\u0060 entry that names no \u0060on\u0060, no \u0060winner\u0060, or no \u0060refusal\u0060, or a \u0060winner\u0060 outside \u0060first-write\u0060, \u0060last-write\u0060, and \u0060merge\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060field-extension-unselected\u0060 for a \u0060conflicts\u0060 entry written when \u0060concurrency\u0060 is not selected, and \u0060record-invalid\u0060 for a \u0060conflicts\u0060 entry that names no \u0060subject\u0060, no \u0060winner\u0060, or no \u0060refusal\u0060, or a \u0060winner\u0060 outside \u0060first-write\u0060, \u0060last-write\u0060, and \u0060merge\u0060.",
       "stack": "any",
       "concern": "application",
       "artifact": "record:use-case",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "In a project selecting \u0060concurrency\u0060, a command that can conflict with another accepted write MUST state \u0060conflicts\u0060 naming what conflicts in \u0060on\u0060, which write wins in \u0060winner\u0060, and the refusal id the loser gets in \u0060refusal\u0060.",
-      "rationale": "Version coordination exists to protect one invariant. The \u0060on\u0060 entry names the conflicting operations and the invalid combined result they would leave, so an implementation distinguishes a conflict it rejects from contention it absorbs. The \u0060winner\u0060 entry names which write wins: \u0060first-write\u0060 keeps the accepted change and refuses the late write, \u0060last-write\u0060 lets the late write replace the accepted change, and \u0060merge\u0060 combines both writes. The \u0060refusal\u0060 entry names the refusal id the loser gets from its aggregate\u0027s refusal set, or from the module\u0027s set for a refusal no aggregate raises, so the caller learns the loss as a declared refusal with its stable code. The \u0060conflicts\u0060 field belongs to this extension: a project that selects \u0060concurrency\u0060 writes it on every command whose writes can conflict, and a project that does not select it leaves the field out.",
-      "example": "Claimwick\u0027s approve-expense command states \u0060conflicts\u0060 with \u0060on\u0060 naming a second approval of the same expense, \u0060winner: first-write\u0060, and \u0060refusal\u0060 naming the refusal id the late approval gets."
+      "statement": "In a project selecting \u0060concurrency\u0060, a command that can conflict with another accepted write MUST state \u0060conflicts\u0060 naming what conflicts in \u0060subject\u0060, which write wins in \u0060winner\u0060, and the refusal id the loser gets in \u0060refusal\u0060.",
+      "rationale": "Version coordination exists to protect one invariant. The \u0060subject\u0060 entry names the conflicting operations and the invalid combined result they would leave, so an implementation distinguishes a conflict it rejects from contention it absorbs. The \u0060winner\u0060 entry names which write wins: \u0060first-write\u0060 keeps the accepted change and refuses the late write, \u0060last-write\u0060 lets the late write replace the accepted change, and \u0060merge\u0060 combines both writes. The \u0060refusal\u0060 entry names the refusal id the loser gets from its aggregate\u0027s refusal set, or from the module\u0027s set for a refusal no aggregate raises, so the caller learns the loss as a declared refusal with its stable code. The \u0060conflicts\u0060 field belongs to this extension: a project that selects \u0060concurrency\u0060 writes it on every command whose writes can conflict, and a project that does not select it leaves the field out.",
+      "example": "Claimwick\u0027s approve-expense command states \u0060conflicts\u0060 with \u0060subject\u0060 naming a second approval of the same expense, \u0060winner: first-write\u0060, and \u0060refusal\u0060 naming the refusal id the late approval gets."
     },
     {
       "id": "litespec/ext/concurrency#enforce-key-uniqueness",

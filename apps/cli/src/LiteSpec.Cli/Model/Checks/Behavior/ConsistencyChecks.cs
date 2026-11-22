@@ -120,10 +120,10 @@ internal static class ConsistencyChecks
         foreach (var entry in conflicts.EnumerateArray())
         {
             if (entry.ValueKind != JsonValueKind.Object
-                || Str(entry, RecordFields.On) is not { Length: > 0 }
+                || Str(entry, RecordFields.Subject) is not { Length: > 0 }
                 || Str(entry, RecordFields.Refusal) is not { Length: > 0 })
             {
-                findings.Add(new Finding("record-invalid", $"Command '{useCase.Id}' holds a conflict with no on or no refusal.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("record-invalid", $"Command '{useCase.Id}' holds a conflict with no subject or no refusal.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 continue;
             }
 

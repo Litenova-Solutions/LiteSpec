@@ -1,0 +1,17 @@
+type: decision
+id: decision/0114-one-condition-per-rule
+title: State One Condition per Rule
+context: "The domain-model page said to state one rule per condition, but only in its concepts text, so no review asked for it and no check signalled a breach. Rules grew into paragraphs: one rule held a dozen cases, each with its own dates or refusal, and every scenario step, refusal and code mark that cited it cited all of them at once. Nothing told a consumer how much one rule should hold, or where a value that changes by date or jurisdiction belongs."
+options:
+  - name: "A required one-condition provision, an advisory length signal, and advisory guidance on varying values"
+    pros: "Review judges the real criterion, one condition, while a cheap advisory check points at the statements most likely to break it, and never blocks a statement that is long for a good reason. Values that vary move toward dated reference data."
+    cons: "Existing projects split their long rules and re-point the citations, and the length threshold is a heuristic."
+  - name: "A required length limit checked by the model"
+    pros: "Fully mechanical, with no review needed."
+    cons: "Length is not the criterion: a short statement can hold two conditions, and a long calculation over a closed list holds one. A blocking limit would force splits that make the model worse."
+  - name: "No guidance, leaving rule size to each project"
+    pros: "No change for consumers."
+    cons: "Citations stay vague, so a scenario or a code mark cannot say which condition it rests on, and a change to one condition reopens every record that cites the rest."
+choice: "Add the required provision litespec/core/domain-model#state-one-condition-per-rule, reviewed by reading each sentence after the first; the advisory provision litespec/core/domain-model#keep-each-rule-statement-short, checked by the level A finding rule-statement-wide for a statement over 600 characters; and the advisory provision litespec/core/domain-model#cite-varying-values-from-reference-data."
+consequences: "Projects split rules that hold several conditions, keep the original identifier for the first condition, and re-point each citation to the rule it rests on. The model check reports rule-statement-wide without blocking. The domain-model concepts text states the same three points."
+reopenedWhen: "The length signal flags mostly statements that hold one condition, or projects need a rule kind that holds several conditions by design."

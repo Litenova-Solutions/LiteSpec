@@ -75,7 +75,7 @@ consistency:
   - aggregate/<module>.<name, or remove this line>
 # conflicts applies only when the project selects the concurrency extension.
 conflicts:
-  on: <what overlaps>
+  subject: <what overlaps>
   winner: <first-write|last-write|merge>
   refusal: refusal/<module>.<name>
 effects:

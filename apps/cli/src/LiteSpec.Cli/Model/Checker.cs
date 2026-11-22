@@ -60,6 +60,7 @@ static class Checker
         CitationChecks.Run,
         ProseReferenceChecks.Run,
         GateChecks.Run,
+        RuleStatementChecks.Run,
         WaiverChecks.Run,
         ProofChecks.Run,
         ProofChecks.RunStepUnimplemented,

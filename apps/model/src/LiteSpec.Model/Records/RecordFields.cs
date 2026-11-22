@@ -461,9 +461,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `offset` field.</summary>
     public const string Offset = "offset";
 
-    /// <summary>Gets the name of the `on` field.</summary>
-    public const string On = "on";
-
     /// <summary>Gets the name of the `onErasure` field.</summary>
     public const string OnErasure = "onErasure";
 

@@ -2,6 +2,7 @@ type: decision
 id: decision/0001-receipt-threshold
 title: Receipt Threshold
 summary: Small expenses need no proof, large ones do.
+context: Small expenses needed no proof and large expenses did. Finance kept the tax file defensible with a receipt as proof.
 options:
 - name: 0 EUR
   pros: Every expense carries proof.
@@ -15,4 +16,3 @@ options:
 choice: 25 EUR
 consequences: Small expenses stay light to submit. Finance stands behind 25 EUR.
 reopenedWhen: Finance sees abuse or friction.
-context: Small expenses needed no proof and large expenses did. Finance kept the tax file defensible with a receipt as proof.

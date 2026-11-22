@@ -71,7 +71,7 @@ A rule's scope comes from its home. An invariant an aggregate enforces lives und
 
 A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
-State one rule per condition: one rule states one condition and names its refusal from its aggregate's refusal set, and every use case that can break it lists the refusal result citing that refusal. For example, Claimwick's reimbursed-once rule states one condition with its refusal, and every reimbursement lists the refusal result citing that refusal.
+State one rule per condition: one rule states one condition and names its refusal from its aggregate's refusal set, and every use case that can break it lists the refusal result citing that refusal. The first sentence of a statement states the condition, and any further sentence only narrows it. A case with its own refusal, derived value, dates, or scenario is a rule of its own, and a value that varies by date or jurisdiction comes from the reference data the rule cites. For example, Claimwick's reimbursed-once rule states one condition with its refusal, and every reimbursement lists the refusal result citing that refusal.
 
 | Kind | Meaning |
 |:---|:---|
@@ -218,6 +218,58 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Example:** The reimbursed-once rule governs the expense aggregate and the reimburse-expense command, matching the refusal results that cite its refusal.
 
 **Checked by:** `litespec model check` reports `rule-governs-drift` for `governs` disagreeing with the links that name the rule, counting a use case's `computedBy` as a calculation link that reaches the rule.
+
+### State One Condition per Rule
+
+**ID:** `litespec/core/domain-model#state-one-condition-per-rule`
+
+**Strength:** required
+
+**Applies to:** artifact: record:rule
+
+**Statement:** Each rule MUST state one condition: one thing that holds, guards, or is derived, whose first sentence states it and whose further sentences only narrow its scope, its unit, or an exception without a refusal of its own.
+
+**Rationale:** A rule is what refusals, scenario steps, and code marks cite. A rule that holds several conditions makes each of those citations vague: a scenario step that cites it does not say which condition it proves, a code mark does not say which branch it carries, and a change to one condition reopens every record that cites the others. A case with its own refusal, its own derived value, its own dates, or its own scenario is a condition of its own, and one rule for it lets each citation name exactly what it rests on. Proposed by [decision/0114-one-condition-per-rule](../intent/decisions/0114-one-condition-per-rule/0114-one-condition-per-rule.md).
+
+**Example:** Claimwick states `rule/expense.reimbursed-once` ("an expense is reimbursed at most once") and `rule/expense.approved-before-reimbursement` ("an expense is reimbursed only after approval") as two rules with two refusals, not as one paragraph about reimbursement.
+
+**Reviewed for:** Does each rule statement hold one condition? Read each sentence after the first and check that it narrows the first; a sentence that holds a case with its own refusal, derived value, dates, or scenario belongs in a rule of its own, cited by the records that rest on it.
+
+### Keep Each Rule Statement Short
+
+**ID:** `litespec/core/domain-model#keep-each-rule-statement-short`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:rule
+
+**Statement:** A rule statement SHOULD stay within 600 characters.
+
+**Deviation:** A statement that states one condition over a closed list of cases, such as one calculation, stays whole past 600 characters.
+
+**Rationale:** A statement past a few sentences almost always holds several conditions, or a list of values that a reference-data table or a calculation's examples hold better. The length is only the signal: a long statement that does state one condition, such as one calculation over a closed list of cases, stays whole, and the finding never blocks.
+
+**Example:** A Claimwick rule that stated the receipt duty, the approval chain, and the reimbursement limit of every expense category in one statement would report `rule-statement-wide`; as one rule per category and duty, each statement stays within a sentence or two.
+
+**Checked by:** `litespec model check` reports `rule-statement-wide` (level A) for a rule whose statement is longer than 600 characters.
+
+### Cite Varying Values from Reference Data
+
+**ID:** `litespec/core/domain-model#cite-varying-values-from-reference-data`
+
+**Strength:** advisory
+
+**Applies to:** artifact: record:rule
+
+**Statement:** A rule SHOULD cite the reference-data table that holds a value varying by date, jurisdiction, or tenant, such as a rate, threshold, or deadline, instead of writing the value into its statement.
+
+**Deviation:** A value that no reference-data table holds yet stays in the statement, scoped to the date, jurisdiction, or tenant where it holds.
+
+**Rationale:** A value written into a statement is true only until its law, contract, or tenant changes it, and then the rule, its scenarios, and its code drift apart with no dated row to show when the value changed. A cited table holds each value with its effective dates and source, so the rule states the condition once and stays true across every period and jurisdiction the table covers. A value with no table yet stays in the statement, scoped to where it holds.
+
+**Example:** Claimwick's receipt rule says "an expense above the policy threshold needs a receipt" and leaves the amount to the policy, so a new threshold changes a row, not the rule.
+
+**Reviewed for:** Does a rule statement write a rate, threshold, deadline, or other value that varies by date, jurisdiction, or tenant? Check that it cites the reference-data table holding the value, or scopes the value to where it holds when no table exists yet.
 
 ### Bind Every Atomic Write Group in Its Rule
 

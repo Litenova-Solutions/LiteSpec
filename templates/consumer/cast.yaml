@@ -25,7 +25,7 @@ occasions:
 - type: occasion
   id: occasion/<name>
   title: <occasion title in Title Case>
-  on: <YYYY-MM-DD, or remove this line>
+  date: <YYYY-MM-DD, or remove this line>
   place: <place, or remove this line>
   involves:
   - person/<name>

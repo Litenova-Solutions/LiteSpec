@@ -466,6 +466,16 @@ The new rules are `litespec/backend/dotnet/persistence#apply-schema-changes-in-a
 
 The new rules are `litespec/core/maintaining#keep-consumers-out-of-litespec` and `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`.
 
+### Part AY: One Condition per Rule and Record Field Order
+
+- Each rule states one condition. Its first sentence states the condition, and further sentences only narrow it. A case with its own refusal, derived value, dates, or scenario is a rule of its own.
+- A rule statement stays within 600 characters. `litespec model check` reports `rule-statement-wide` at level A past that length, without blocking.
+- A rule cites the reference-data table that holds a rate, threshold, or deadline that varies by date, jurisdiction, or tenant, rather than writing the value into its statement.
+- A decision's `context` comes right after `kind`, before `options`, so `litespec model format` writes decisions in the order they are read.
+- A cast occasion's date is `date`, and a conflict's subject is `subject`; the field `on`, which YAML 1.1 readers take for a boolean, is gone from both.
+
+The new rules are `litespec/core/domain-model#state-one-condition-per-rule`, `litespec/core/domain-model#keep-each-rule-statement-short` and `litespec/core/domain-model#cite-varying-values-from-reference-data`. Decision 0114, State One Condition per Rule, records why.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:

@@ -103,6 +103,7 @@ public sealed class FindingCodesTests
     [Theory]
     [InlineData("explanation-missing")]
     [InlineData("format-drift")]
+    [InlineData("rule-statement-wide")]
     [InlineData("source-link-bare")]
     public void NewYamlCodesAreAdvisory(string code)
     {

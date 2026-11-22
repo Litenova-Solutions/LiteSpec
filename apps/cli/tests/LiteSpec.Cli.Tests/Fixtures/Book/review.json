@@ -1343,7 +1343,7 @@
         "type": "occasion",
         "id": "occasion/late-return",
         "title": "A late return",
-        "on": "2026-03-10",
+        "date": "2026-03-10",
         "involves": [
           "person/mara"
         ],

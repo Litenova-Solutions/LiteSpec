@@ -31,6 +31,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `use-case-verb-invalid` | A | any | no | - | A use case opens with a verb of the wrong kind: a query opens with a command verb, or a command opens with a query verb. | Open the use case with a verb of its own kind, or with a verb of kind either. |
 | `calculation-table-missing` | G | any | no | - | A calculation rule declares no scenario examples. | Add scenario examples to the rule. |
 | `rule-name-invalid` | A | any | no | - | A rule statement contains a negation that its name does not repeat. | Repeat the negation word in the rule name. |
+| `rule-statement-wide` | A | any | no | - | A rule statement is longer than 600 characters. | Split the rule into one rule per condition, or cite the reference data that holds its values. |
 | `waiver-expired` | G | any | no | - | A waiver is still in force past its `expiresOn` date. | Fix the finding, or extend the waiver with a new `expiresOn` date. |
 | `waiver-invalid` | G | any | no | - | A waiver names a finding code that no check emits, a provision or page that the installed release does not ship, or a code that the model needs in order to load. | Name a finding code that a check emits, or a provision or page of the installed release, and never a code that the model needs in order to load. |
 | `waiver-duplicate` | G | any | no | - | Two live waivers cover the same finding code, provision, or page on the same subject record or the same path. | Keep one waiver on the finding and remove the other. |

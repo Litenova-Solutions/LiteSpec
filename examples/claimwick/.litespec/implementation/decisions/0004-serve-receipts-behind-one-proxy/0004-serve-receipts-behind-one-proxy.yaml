@@ -3,6 +3,7 @@ id: decision/0004-serve-receipts-behind-one-proxy
 title: Serve Receipts Behind One Proxy
 summary: Receipts need one hardened entry point before the pilot.
 kind: topology
+context: Receipts needed one hardened entry point before the pilot started.
 options:
 - name: One Caddy proxy
   pros: Receipts share one hardened entry point.
@@ -15,4 +16,3 @@ consequences: Receipt traffic shares one entry point with one set of security he
 reopenedWhen: Receipt traffic outgrows one proxy.
 basedOn:
 - requirement/approval-reminders.month-end-submission
-context: Receipts needed one hardened entry point before the pilot started.
