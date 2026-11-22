@@ -462,9 +462,9 @@ The new rules are `litespec/backend/dotnet/persistence#apply-schema-changes-in-a
 
 - LiteSpec names no consumer project and carries no consumer's domain vocabulary, records, flows, figures, people or products in any page, provision, example, fixture, template, decision, changelog entry or tool message; examples come from Claimwick or the library product.
 - A change prompted by one consumer states the general need behind it and is designed and checked against products unlike that consumer; a need that holds for one consumer alone stays in that consumer as a project convention or waiver.
--  gains a Serving Many Consumers section stating both.
+- `AGENTS.md` gains a Serving Many Consumers section stating both.
 
-The new rules are  and .
+The new rules are `litespec/core/maintaining#keep-consumers-out-of-litespec` and `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`.
 
 ### Part U: Provision Changes Since v6.0.0
 
