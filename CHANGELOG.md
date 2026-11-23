@@ -534,7 +534,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (263):
+Added (289):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
@@ -622,15 +622,25 @@ Added (263):
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
 - `litespec/core/automation#run-each-effect-on-its-own`
 - `litespec/core/automation#subscribe-to-every-module-event`
-- `litespec/core/behavior#group-module-rules-by-theme`
+- `litespec/core/designing#change-every-instance-of-a-shape-in-one-change`
+- `litespec/core/designing#deliver-each-record-type-complete`
+- `litespec/core/designing#give-a-record-with-its-own-reasoning-its-own-folder`
+- `litespec/core/designing#give-every-type-field-and-value-a-reader`
+- `litespec/core/designing#hold-one-thing-in-each-record`
+- `litespec/core/designing#shape-each-record-type-for-its-next-field`
+- `litespec/core/designing#state-each-deviation-from-a-design-rule`
+- `litespec/core/designing#update-a-design-rule-that-keeps-bending`
 - `litespec/core/domain-model#bind-a-reference-data-table-to-an-external-pack`
+- `litespec/core/domain-model#cite-varying-values-from-reference-data`
 - `litespec/core/domain-model#date-every-reference-data-row`
+- `litespec/core/domain-model#keep-each-rule-statement-short`
 - `litespec/core/domain-model#keep-reference-data-rows-from-overlapping`
 - `litespec/core/domain-model#keep-technical-state-out-of-behavior`
 - `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`
 - `litespec/core/domain-model#name-the-record-each-law-rule-restates`
 - `litespec/core/domain-model#record-when-each-frozen-value-freezes-and-where-it-lives`
 - `litespec/core/domain-model#state-each-rules-source`
+- `litespec/core/domain-model#state-one-condition-per-rule`
 - `litespec/core/domain-model#state-what-each-rule-governs`
 - `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`
 - `litespec/core/edges#give-every-screen-a-route-or-a-host`
@@ -672,6 +682,7 @@ Added (263):
 - `litespec/core/maintaining#keep-consumers-out-of-litespec`
 - `litespec/core/model#cite-reference-data-instead-of-literal-values`
 - `litespec/core/model#declare-cross-module-references-in-depends-on`
+- `litespec/core/model#hold-module-rules-in-rule-folders`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`
 - `litespec/core/model#keep-the-whole-specification-in-the-records`
 - `litespec/core/model#name-records-in-prose-by-their-identifiers`
@@ -766,11 +777,26 @@ Added (263):
 - `litespec/frontend/patterns/feedback-and-states#route-loading-frame`
 - `litespec/frontend/patterns/page-frames#entry-page`
 - `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
+- `litespec/frontend/ui#align-numbers-to-the-end`
+- `litespec/frontend/ui#draw-each-role-with-one-composite`
+- `litespec/frontend/ui#draw-every-field-on-a-surface`
+- `litespec/frontend/ui#group-a-long-form`
+- `litespec/frontend/ui#keep-one-action-group-to-one-size`
 - `litespec/frontend/ui#keep-token-values-in-one-token-file`
+- `litespec/frontend/ui#limit-a-page-to-three-stacked-sections`
 - `litespec/frontend/ui#link-each-screen-to-its-next-screens`
 - `litespec/frontend/ui#map-each-page-frame-to-its-floorplan`
+- `litespec/frontend/ui#mark-every-destructive-command-alike`
+- `litespec/frontend/ui#match-each-field-width-to-its-value`
 - `litespec/frontend/ui#meet-the-limits-of-every-token-role`
 - `litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point`
+- `litespec/frontend/ui#name-the-page-frame-on-every-screen`
+- `litespec/frontend/ui#place-no-surface-inside-another`
+- `litespec/frontend/ui#review-each-screen-at-three-widths`
+- `litespec/frontend/ui#route-a-busy-screen-through-a-hub-frame`
+- `litespec/frontend/ui#show-names-never-codes`
+- `litespec/frontend/ui#show-one-primary-action-per-view`
+- `litespec/frontend/ui#use-tabs-only-for-peer-views`
 - `litespec/frontend/web/components#name-visual-files-with-the-stack-suffix`
 - `litespec/frontend/web/components#render-raw-html-through-the-stack-sink`
 - `litespec/frontend/web/components#use-the-stack-class-and-style-bindings`
@@ -800,7 +826,7 @@ Added (263):
 - `litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs`
 - `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (220):
+Removed (221):
 
 - `litespec/backend/application#declare-a-port-where-its-consumers-meet`
 - `litespec/backend/application#emit-declared-integration-events-after-commit`
@@ -904,6 +930,7 @@ Removed (220):
 - `litespec/core/layers#record-changed-provider-behavior-as-observed-research`
 - `litespec/core/layers#send-commercial-and-observable-figures-to-the-owner`
 - `litespec/core/model#author-one-slice-at-a-time`
+- `litespec/core/model#hold-module-rules-in-rule-sets`
 - `litespec/core/model#keep-each-name-unique-in-the-product`
 - `litespec/core/model#require-an-explanation-file-for-article-types`
 - `litespec/core/model#serve-every-journey-step`
