@@ -521,6 +521,44 @@ public sealed class UiBlueprintCheckTests
         Assert.Empty(WithCode(model, "wireframe-group-missing"));
     }
 
+    /// <summary>Two dialogs of four fields each are two forms and report no wireframe-group-missing.</summary>
+    /// <proves>litespec/frontend/ui#group-a-long-form</proves>
+    [Fact]
+    public void FieldsInSeparateDialogsCountAsSeparateForms()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loan", "/loans/settings", ["use-case/lending.list-loans"],
+            """
+            # Loan settings
+
+            ```wireframe
+            page
+              header
+                heading "Loan settings"
+              region "Loans"
+                fact "Loan period" "21 days"
+              dialog
+                heading small "Loan period"
+                field "Days" number
+                field "Renewals" number
+                field "Grace days" number
+                field "Note" textarea
+                action primary "Save"
+              dialog
+                heading small "Fines"
+                field "Fine per day" number
+                field "Cap" number
+                field "Currency" select
+                field "Note" textarea
+                action primary "Save"
+            ```
+            """));
+
+        Assert.Empty(WithCode(model, "wireframe-group-missing"));
+    }
+
     /// <summary>Six fields in one section report no wireframe-group-missing.</summary>
     /// <proves>litespec/frontend/ui#group-a-long-form</proves>
     [Fact]

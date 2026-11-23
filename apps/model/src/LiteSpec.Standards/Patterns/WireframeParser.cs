@@ -410,12 +410,20 @@ public static class WireframeParser
                 WireframeProblemKind.Tabs));
         }
 
-        var formFields = fields
+        // Each dialog or drawer holds its own form; the fields outside every overlay form the page's form.
+        var forms = fields
             .Where(entry => !entry.Ancestors.Any(ancestor => ancestor.Part is "toolbar" or "popover" or "header" or "table" or "item"))
-            .ToList();
+            .GroupBy(entry => entry.Ancestors.LastOrDefault(ancestor => OverlayParts.Contains(ancestor.Part)));
 
-        if (formFields.Count > fieldLimit)
+        foreach (var form in forms)
         {
+            var formFields = form.ToList();
+
+            if (formFields.Count <= fieldLimit)
+            {
+                continue;
+            }
+
             var regions = new HashSet<WireframeNode>();
 
             foreach (var (_, ancestors) in formFields)
