@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec ui audit --base-url <url> [--root <folder>] [--routes <file>] [--widths <list>] [--schemes <list>] [--storage-state <file>] [--out <dir>] [--fail-on blocking|none] [--primary-selector <css>]
+litespec ui audit --base-url <url> [--root <folder>] [--routes <file>] [--widths <list>] [--schemes <list>] [--storage-state <file>] [--out <dir>] [--fail-on blocking|none] [--primary-selector <css>] [--browser <path>]
 ```
 
 ## Description
@@ -64,6 +64,7 @@ None.
 | `--out <dir>` | `ui-audit` in the working directory | The folder receiving the screenshots and `audit.json`. |
 | `--fail-on <mode>` | `blocking` | One of `blocking` or `none`: exit 1 on any finding, or always pass. |
 | `--primary-selector <css>` | `[data-variant=primary]` | The CSS selector marking the primary action. |
+| `--browser <path>` | the installed browser | The browser executable to audit with. Without it, the audit uses the installed Chrome, then Edge, then Chromium. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
@@ -96,4 +97,4 @@ litespec ui audit --root ../consumer --base-url http://localhost:4173 --storage-
 
 ## Underneath
 
-The command launches the installed Chrome and falls back to the bundled Chromium, reporting when neither is available. Install the Playwright browsers with `pwsh <tool folder>/playwright.ps1 install`, or install Google Chrome. Each page loads to network idle in a fresh context with its viewport and emulated scheme, the embedded audit script reads the computed styles and text back as findings, and a full-page screenshot lands in the output folder. The report merges identical findings across widths and writes `audit.json` beside the screenshots. Nothing beneath this command is separately runnable.
+The command finds the browser as Chrome, then Edge, then Chromium, or takes the `--browser` executable, reporting when none is available. Install Google Chrome, Microsoft Edge, or Chromium, or pass `--browser <path>`. On Windows the search covers Program Files and LocalAppData, on macOS /Applications, and on Linux the PATH. Each page loads in a fresh target with its viewport and emulated scheme until the load event plus a quiet network, the embedded audit script reads the computed styles and text back as findings, and a full-page screenshot lands in the output folder. The report merges identical findings across widths and writes `audit.json` beside the screenshots. Nothing beneath this command is separately runnable.

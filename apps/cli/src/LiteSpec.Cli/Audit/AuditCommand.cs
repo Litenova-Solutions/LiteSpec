@@ -17,7 +17,7 @@ static class AuditCommand
         var parsed = CliArgs.Parse(
             args,
             [],
-            ["--root", "--base-url", "--routes", "--widths", "--schemes", "--storage-state", "--out", "--fail-on", "--primary-selector"],
+            ["--root", "--base-url", "--routes", "--widths", "--schemes", "--storage-state", "--out", "--fail-on", "--primary-selector", "--browser"],
             maxPositionals: 0);
 
         if (parsed.Help)
@@ -70,6 +70,18 @@ static class AuditCommand
             }
         }
 
+        string? browserFull = null;
+
+        if (options.Browser is { } browserOption)
+        {
+            browserFull = FullPath(browserOption);
+
+            if (!File.Exists(browserFull))
+            {
+                return CommandFailure.UsageError($"Browser '{browserOption}' does not exist.", UiCommand.Usage, json: false);
+            }
+        }
+
         var outDir = FullPath(options.Out);
 
         try
@@ -96,7 +108,7 @@ static class AuditCommand
 
         try
         {
-            run = AuditBrowser.RunAsync(options with { StorageState = storageFull }, routes, script, outDir).GetAwaiter().GetResult();
+            run = AuditBrowser.RunAsync(options with { StorageState = storageFull, Browser = browserFull }, routes, script, outDir).GetAwaiter().GetResult();
         }
         catch (InvalidOperationException exception)
         {
@@ -106,7 +118,7 @@ static class AuditCommand
         if (run is null)
         {
             return CommandFailure.Fail(
-                "No browser is available. Install Google Chrome, or install the Playwright browsers, and run the audit again.",
+                "No browser is available. Install Google Chrome, Microsoft Edge, or Chromium, or pass --browser <path>, and run the audit again.",
                 json: false,
                 code: 1);
         }

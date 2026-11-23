@@ -119,16 +119,16 @@ public sealed class UiBlueprintCheckTests
     {
         using var temp = TestCli.Temp("ui-blueprint");
         var model = BaseModel(temp.Path);
-        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold");
+        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold", "cancel-hold");
         model.Records.Add(Screen(
             "screen/app.loans", "/loans",
-            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold"],
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold", "use-case/lending.cancel-hold"],
             [], pageFramePattern: "report-page"));
 
         var findings = WithCode(model, "screen-pageframe-invalid");
 
         Assert.Single(findings);
-        Assert.Contains("5 use cases", findings[0].Message, StringComparison.Ordinal);
+        Assert.Contains("5 commands", findings[0].Message, StringComparison.Ordinal);
         Assert.Contains("'report-page'", findings[0].Message, StringComparison.Ordinal);
     }
 
@@ -144,27 +144,27 @@ public sealed class UiBlueprintCheckTests
     {
         using var temp = TestCli.Temp("ui-blueprint");
         var model = BaseModel(temp.Path);
-        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold");
+        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold", "cancel-hold");
         model.Records.Add(Screen(
             "screen/app.loans", "/loans",
-            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold"],
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold", "use-case/lending.cancel-hold"],
             [], pageFramePattern: pattern));
 
         Assert.Empty(WithCode(model, "screen-pageframe-invalid"));
     }
 
-    /// <summary>A screen offering exactly the offer limit outside a hub frame reports no screen-pageframe-invalid.</summary>
+    /// <summary>A screen offering exactly the offer limit of commands outside a hub frame, beside the query it reads, reports no screen-pageframe-invalid.</summary>
     /// <proves>litespec/frontend/ui#route-a-busy-screen-through-a-hub-frame</proves>
     [Fact]
     public void ScreenAtOfferLimitOutsideHubFrameReportsNothing()
     {
         using var temp = TestCli.Temp("ui-blueprint");
         var model = BaseModel(temp.Path);
-        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy");
+        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold");
         model.Records.Add(Screen(
             "screen/app.loans", "/loans",
-            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy"],
-            [], pageFramePattern: "record-page"));
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold"],
+            [], pageFramePattern: "report-page"));
 
         Assert.Empty(WithCode(model, "screen-pageframe-invalid"));
     }
@@ -177,11 +177,11 @@ public sealed class UiBlueprintCheckTests
         using var temp = TestCli.Temp("ui-blueprint");
         WriteProjectWithLimits(temp.Path, "\"offers\": 5");
         var model = BaseModel(temp.Path);
-        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold");
+        AddUseCases(model, temp.Path, "borrow-copy", "extend-loan", "return-copy", "place-hold", "cancel-hold");
         model.Records.Add(Screen(
             "screen/app.loans", "/loans",
-            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold"],
-            [], pageFramePattern: "record-page"));
+            ["use-case/lending.list-loans", "use-case/lending.borrow-copy", "use-case/lending.extend-loan", "use-case/lending.return-copy", "use-case/lending.place-hold", "use-case/lending.cancel-hold"],
+            [], pageFramePattern: "report-page"));
 
         Assert.Empty(WithCode(model, "screen-pageframe-invalid"));
     }
@@ -939,7 +939,7 @@ public sealed class UiBlueprintCheckTests
     {
         foreach (var name in names)
         {
-            model.Records.Add(Rec("use-case", $"use-case/lending.{name}", """{"kind":"query","reachedThrough":["entry-point/app"]}""", root));
+            model.Records.Add(Rec("use-case", $"use-case/lending.{name}", """{"kind":"command","reachedThrough":["entry-point/app"]}""", root));
         }
     }
 

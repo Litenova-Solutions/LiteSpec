@@ -1,4 +1,4 @@
-// One audit pass over the rendered page. Playwright evaluates this function with the
+// One audit pass over the rendered page. The browser evaluates this function with the
 // primary selector and reads back a JSON array of { code, selector, message } findings.
 // Each detector below names one audit code; the C# side attaches the route, width and
 // scheme and merges identical findings across widths.

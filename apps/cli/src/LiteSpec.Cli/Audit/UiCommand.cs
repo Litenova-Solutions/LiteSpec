@@ -6,7 +6,7 @@ static class UiCommand
 {
     /// <summary>The usage text for the ui command, printed on help and on usage errors.</summary>
     public const string Usage = """
-        Usage: litespec ui audit --base-url <url> [--root <folder>] [--routes <file>] [--widths <list>] [--schemes <list>] [--storage-state <file>] [--out <dir>] [--fail-on blocking|none] [--primary-selector <css>] [--help]
+        Usage: litespec ui audit --base-url <url> [--root <folder>] [--routes <file>] [--widths <list>] [--schemes <list>] [--storage-state <file>] [--out <dir>] [--fail-on blocking|none] [--primary-selector <css>] [--browser <path>] [--help]
                litespec ui --help
 
         Audits the rendered pages in a browser: visits each route at each
@@ -23,6 +23,7 @@ static class UiCommand
           --out               The folder receiving the screenshots and audit.json. Defaults to ui-audit in the working directory.
           --fail-on           One of blocking or none. Defaults to blocking: exit 1 on any finding.
           --primary-selector  The CSS selector marking the primary action. Defaults to [data-variant=primary].
+          --browser           The browser to audit with. Defaults to the installed Chrome, Edge, or Chromium, in that order.
           --help              Print this text and exit.
 
         Exit codes: 0 no finding, or --fail-on none, 1 a finding with --fail-on blocking, no browser, or an unreadable page, 2 the options are invalid or the project file is missing.

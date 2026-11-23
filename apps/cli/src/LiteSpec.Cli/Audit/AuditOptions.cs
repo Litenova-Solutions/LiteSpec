@@ -12,6 +12,7 @@ namespace LiteSpec.Cli.Audit;
 /// <param name="Out">The folder receiving the screenshots and the JSON report.</param>
 /// <param name="FailOn">When the audit exits 1: blocking for any finding, none to always pass.</param>
 /// <param name="PrimarySelector">The CSS selector marking the primary action.</param>
+/// <param name="Browser">The browser executable, or null for the installed Chrome, Edge, or Chromium.</param>
 /// <param name="Root">The --root value, or null for the working directory.</param>
 sealed record AuditOptions(
     string BaseUrl,
@@ -22,6 +23,7 @@ sealed record AuditOptions(
     string Out,
     string FailOn,
     string PrimarySelector,
+    string? Browser,
     string? Root)
 {
     /// <summary>The viewport widths the audit uses when --widths is absent: phone, laptop and wide.</summary>
@@ -99,6 +101,13 @@ sealed record AuditOptions(
             return (null, "Option --primary-selector needs a value.");
         }
 
+        var browser = parsed.Value("--browser");
+
+        if (browser is not null && browser.Length == 0)
+        {
+            return (null, "Option --browser needs a value.");
+        }
+
         return (new AuditOptions(
             baseUrl.TrimEnd('/'),
             routesFile,
@@ -108,6 +117,7 @@ sealed record AuditOptions(
             parsed.Value("--out") ?? DefaultOut,
             failOn,
             primarySelector,
+            browser,
             parsed.Value("--root")), null);
     }
 

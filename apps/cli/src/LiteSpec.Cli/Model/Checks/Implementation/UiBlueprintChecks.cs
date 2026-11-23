@@ -394,13 +394,15 @@ internal static class UiBlueprintChecks
                 continue;
             }
 
-            var offers = screen.Ids(RecordFields.Offers).Count;
+            // A query an offered select or table reads is not a starting point, so only commands count.
+            var offers = screen.Ids(RecordFields.Offers)
+                .Count(id => !model.ById.TryGetValue(Identifiers.BaseId(id), out var offered) || offered.Field(RecordFields.Kind) != "query");
 
             if (offers > model.Config.UiLimits.Offers && !HubFrames.Contains(pattern) && !RecordFrames.Contains(pattern))
             {
                 findings.Add(new Finding(
                     "screen-pageframe-invalid",
-                    $"Screen '{screen.Id}' offers {offers} use cases, past the {model.Config.UiLimits.Offers} a screen offers outside a hub frame, and follows '{pattern}' instead of a hub frame.",
+                    $"Screen '{screen.Id}' offers {offers} commands, past the {model.Config.UiLimits.Offers} a screen offers outside a hub frame, and follows '{pattern}' instead of a hub frame.",
                     screen.File, screen.Line, SubjectOf(screen)));
             }
         }

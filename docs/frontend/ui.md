@@ -432,9 +432,9 @@ pageFrames:
 
 **Applies to:** artifact: route
 
-**Statement:** A screen other than a record page that offers more use cases than the project's offer limit (default four) MUST use a hub frame: home, settings home, queue or list.
+**Statement:** A screen other than a record page that offers more commands than the project's offer limit (default four) MUST use a hub frame: home, settings home, queue or list.
 
-**Rationale:** A screen offering many use cases as stacked sections becomes one long page with a card per command: every command is visible and none is findable. A hub frame is built for many starting points, so the screen routes through a home, settings home, queue or list page instead of stacking. A record page is the exception: it offers the commands its states permit, one primary at a time, and the section and form-grouping limits keep it from stacking a form per command. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+**Rationale:** A screen offering many commands as stacked sections becomes one long page with a card per command. The queries a screen reads to fill its tables and selects are not starting points, so only commands count: every command is visible and none is findable. A hub frame is built for many starting points, so the screen routes through a home, settings home, queue or list page instead of stacking. A record page is the exception: it offers the commands its states permit, one primary at a time, and the section and form-grouping limits keep it from stacking a form per command. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
 
 **Example:** The Claimwick settings area offers thirty routes, so its screen names the settings-home frame and groups the areas as links instead of stacking a card per area.
 
