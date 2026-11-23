@@ -32,6 +32,7 @@ records:
   title: Copy unavailable
   outcome: refusal
   refusal: refusal/lending.copy-not-available
+  sentence: This copy is not available, so it cannot be lent now.
 - type: scenario
   id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
   title: Borrowing an available copy succeeds

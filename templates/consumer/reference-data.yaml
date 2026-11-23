@@ -5,8 +5,15 @@ terms:
 - <term id, or remove this line>
 summary: <what values the table holds and who reads them>
 unit: <the unit of each value, such as EUR, or remove this line>
+choices:
+- <an allowed value, or remove this line>
+requiredRoles:
+- <a role the citing rules read, or remove this line>
 rows:
 - value: <the value in force>
+  key: <the stable key of the row, or remove this line>
+  role: <the role the row plays, or remove this line>
+  refersTo: <the reference-data/module.table#key the row reads, or remove this line>
   effectiveFrom: <date the value takes effect, such as 2026-01-01>
   effectiveTo: <date the value stops applying, or remove this line>
   source: <constraint, research or decision id behind the value>

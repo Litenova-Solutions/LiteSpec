@@ -7,6 +7,7 @@ kind: command
 access:
   grant: permission/remove-personal-data
   tenant: own
+  runsAs: system
 fulfills:
 - requirement/approval.erased-after-retention
 reachedThrough:

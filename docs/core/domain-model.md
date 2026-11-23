@@ -92,20 +92,33 @@ Rules cite the table instead of stating its values: a use case names it in `read
 
 A table can take its values from an external pack file, such as a country pack, instead of writing each row by hand. The `pack` field names a file relative to the consumer root, such as `data/country-pack.csv`; the file must exist, and its rows still carry their effective dates and their sources.
 
+A table holds one value column: the `value` each row carries, which behavior reads. That column is the table's meaning column. A table whose meaning column changes behavior lists every allowed value in `choices`, so a value outside the list is reported instead of interpreted by each caller. A table whose values are open counts or amounts carries no `choices`.
+
+A table lists in `requiredRoles` the roles its citing rules read, and each row names the role it plays in `role`. A row carries a stable `key` within its table, and a row reads a row of another table in `refersTo` as `reference-data/<module>.<table>#<key>`. Callers ask the table for a role; the table says which row plays it.
+
+The rows of a table cover every date the product reads: consecutive rows leave no date without a row in force, and where the cast declares `today`, a row covers it. A released row is never edited: a new value arrives as a new row, and the old row takes an end date.
+
 | Field | Meaning |
 |:---|:---|
 | `summary`, `unit` | What values the table holds and who reads them, and the unit of each value, such as EUR. |
+| `choices`, `requiredRoles` | The closed set of allowed row values, and the roles the citing rules read, each played by a row. Both optional. |
 | `pack` | The path of an external file whose values this table copies, relative to the consumer root. Optional; the named file must exist. |
 | `rows` | One entry per dated value, each with its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. |
+| `key`, `role`, `refersTo` | Row fields: the stable key of the row, the role the row plays, and the row of another table the row reads. |
+
+### Amount Signs
+
+An amount field whose sign carries meaning states its convention in `sign`: `money-in-positive` when positive reads as money in, and `money-out-positive` when positive reads as money out. Use-case input and output fields of type money or decimal carry it. Every consumer of the field reads the convention from the record instead of assuming it, and the model advises when the use cases computing one value through one calculation rule state differing conventions or none.
 
 ### Domain Events
 
-A domain event is an immutable statement that a business fact completed. It is named in the past tense, with its `meaning` and the facts it `carries`. Each event is its own record file in `behavior/modules/<m>/aggregates/<aggregates>/domain-events/<name>/<name>.yaml`, with its explanation file beside it. It opens with its `meaning` and carries no `summary`; its explanation may hold an Example. Each event is raised through the root of its aggregate, and each event stays inside the product: a fact crossing the boundary is an integration event, not a domain event. Claimwick's expense aggregate raises `domain-event/expense.submitted` when a submission completes.
+A domain event is an immutable statement that a business fact completed. It is named in the past tense, with its `meaning` and the facts it `carries`. Each event is its own record file in `behavior/modules/<m>/aggregates/<aggregates>/domain-events/<name>/<name>.yaml`, with its explanation file beside it. It opens with its `meaning` and carries no `summary`; its explanation may hold an Example. Each event is raised through the root of its aggregate, and each event stays inside the product: a fact crossing the boundary is an integration event, not a domain event. An event nothing answers states `ignored: true`, so its outcome is decided on the record. Claimwick's expense aggregate raises `domain-event/expense.submitted` when a submission completes.
 
 | Field | Meaning |
 |:---|:---|
 | `meaning` | What happened, in one sentence. |
 | `carries` | The typed fields arriving with the event, each with `name` and `type` from the input value types. An integration event publishes only fields its translated domain event carries. |
+| `ignored` | True when no reaction answers the event and no module or integration event translates it, left out otherwise. |
 
 ## Standards
 
@@ -528,6 +541,134 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Example:** A second decision-target row starting 2027-01-01 needs the first row to end with `effectiveTo: 2026-12-31`.
 
 **Checked by:** `litespec model check` reports `reference-data-period-invalid` for rows whose validity periods overlap, or whose `effectiveTo` is no later than `effectiveFrom`.
+
+### Model Reference Data as Domain Values
+
+**ID:** `litespec/core/domain-model#model-reference-data-as-domain-values`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data table MUST be read through domain values that carry the behavior its values decide, with infrastructure only loading the rows.
+
+**Rationale:** A row of free strings means whatever each caller guesses: one value reads two ways in two callers, and a new caller adds a third reading. A domain value types what the table holds and carries the behavior each reading needs, so every caller decides the same way. Infrastructure loads rows and parses them into those values, and decides nothing from them.
+
+**Example:** Claimwick's decision target is read through a domain value carrying days: the approval rules interpret the days, and the loader that reads the table's rows interprets nothing.
+
+**Reviewed for:** Does any caller interpret reference-data rows outside the domain values, or does infrastructure decide behavior from them? Check the readers of each reference-data table beside the domain values.
+
+### Close the Value Set of Every Meaning Column
+
+**ID:** `litespec/core/domain-model#close-the-value-set-of-every-meaning-column`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data table whose meaning column changes behavior MUST list every allowed value in `choices`.
+
+**Rationale:** A free string compared in code compiles against any spelling, so a value goes unhandled or means two things in two rows. The closed set in `choices` names every spelling the product handles, the `reference-data-value-invalid` check reports a row outside it, and code enumerates the set instead of comparing strings.
+
+**Example:** The library's membership table lists `choices: [child, adult, senior]`, and a row holding `guest` is reported.
+
+**Checked by:** `litespec model check` reports `reference-data-value-invalid` (level G) for a row whose value is outside the table's `choices`.
+
+### Name a Role Not a Row
+
+**ID:** `litespec/core/domain-model#name-a-role-not-a-row`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data table MUST list in `requiredRoles` the roles its citing rules read, with each role played by a row in `role`.
+
+**Rationale:** A data key names one row of one data set, so code naming the key breaks when another data set keys its rows differently or not at all. A role names what the product needs, such as the standard target, and each data set says which row plays it. The `reference-data-role-missing` check reports a required role no row plays, and code asks for the role instead of the key.
+
+**Example:** Claimwick's `reference-data/spending.decision-target` lists `requiredRoles: [standard]`, and both its rows play `standard`, so the approval rules read the standard target without naming a row.
+
+**Checked by:** `litespec model check` reports `reference-data-role-missing` (level G) for a required role played by no row.
+
+### Validate Reference Data Before Serving
+
+**ID:** `litespec/core/domain-model#validate-reference-data-before-serving`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data table MUST hold only rows that resolve their cross-references, stay within its closed set where one is listed, and play its required roles.
+
+**Rationale:** A broken cross-reference, an unlisted value, or a missing role each fails at read time, far from the row that caused it. Validating the whole table before serving it moves each failure to startup, naming the file and row. The record checks report `reference-data-key-unknown`, `reference-data-value-invalid`, and `reference-data-role-missing`, and the host refuses to start until the tables it loads validate.
+
+**Example:** A Claimwick row referring to `reference-data/spending.decision-target#target-2030` is reported, naming the file and row, before the product serves the table.
+
+**Checked by:** `litespec model check` reports `reference-data-key-unknown`, `reference-data-value-invalid`, and `reference-data-role-missing` (level G) for a cross-reference to a missing key, a value outside `choices`, and a required role played by no row.
+
+### Cover Every Date in Use
+
+**ID:** `litespec/core/domain-model#cover-every-date-in-use`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data table MUST cover every date the product reads with a row in force, at least the date the cast declares as `today`.
+
+**Rationale:** A read past the covered dates finds no row, and without a rule it crashes or silently takes a default. Full coverage leaves no such read: every date the product reads has a row in force. The `reference-data-coverage-missing` check reports dates between rows with no row in force and a cast `today` no row covers, and a read past the covered dates stays a refusal with a reason.
+
+**Example:** Claimwick's decision-target rows run from 2026-01-01 to 2026-12-31 and from 2027-01-01 on, leaving no date without a target.
+
+**Checked by:** `litespec model check` reports `reference-data-coverage-missing` (level G) for dates between rows with no row in force and for a cast `today` no row covers.
+
+### Append Released Reference Rows
+
+**ID:** `litespec/core/domain-model#append-released-reference-rows`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** A released reference-data row MUST stay unchanged, with a new value arriving as a new row and the old row taking an end date.
+
+**Rationale:** A row is released once the product reads it. Stored records keep the rule version they were made with: an expense decided under the five-day target still points at that row after the target moves to three days. Editing the released row rewrites what those records decided under. The old row keeps its dates and takes its end date, and the new row carries the new value from its start date.
+
+**Example:** Claimwick's five-day row keeps 2026-01-01 to 2026-12-31 while the three-day row starts 2027-01-01.
+
+**Reviewed for:** Does any released row carry an edited value? Check each row's value beside its git history: a new value arrives as a new row with the old row end-dated.
+
+### Use an Aggregate for Edited Reference Data Only
+
+**ID:** `litespec/core/domain-model#use-an-aggregate-for-edited-reference-data-only`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Reference data MUST live as an aggregate only when people edit it at runtime, on the owner who edits it rather than the published table.
+
+**Rationale:** A published table changes by release: its rows are written with the product and read as written. An aggregate changes by use case: it guards each change with rules, refusals, and access. Making a published table an aggregate promises guarding nothing performs, and leaving runtime-edited values in a table leaves their changes unguarded. The aggregate sits on the owner who edits the values, such as a tenant's own overrides, rather than on the published table.
+
+**Example:** Claimwick's receipt threshold lives on the policy aggregate because managers change it through `use-case/spending.change-receipt-threshold`, while the decision target stays a reference table nobody edits at runtime.
+
+**Reviewed for:** Does any reference-data table take edits at runtime, or does any aggregate hold a published table nobody edits? Check each table beside the use cases that write it.
+
+### State the Sign of Every Amount
+
+**ID:** `litespec/core/domain-model#state-the-sign-of-every-amount`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each use-case amount field whose sign carries meaning MUST state its convention in `sign`.
+
+**Rationale:** A bare amount reads two ways: positive as money in or money out, and each consumer assumes one. The convention in `sign` fixes the reading on the field, so every consumer reads it from the record. The `amount-sign-drift` check advises where the use cases computing one value through one calculation rule state differing conventions or none; a field no second use case computes is judged by review.
+
+**Example:** The library computes its fine total through one calculation rule: the payment command and the payout report both state `money-in-positive` on it, and a report stating `money-out-positive` is reported.
+
+**Checked by:** `litespec model check` reports `amount-sign-drift` (level A) for amount fields one calculation rule computes that state differing conventions or none.
 
 ## Conventions
 

@@ -605,6 +605,22 @@ WebApi and Worker are the only composition roots. Domain contains no registratio
 
 **Reviewed for:** Is any host composing its process without calling the shared entry points, or building a second provider mid-registration? Look at each host entry point.
 
+### Carry Cross-Module Text References as Contract Types
+
+**ID:** `litespec/backend/architecture#carry-cross-module-text-references-as-contract-types`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An identifier or reference that crosses modules as text MUST be a contract type with one parser and one formatter in the publishing module's Contracts folder.
+
+**Rationale:** Two modules that each build and parse one reference with string interpolation hold two copies of its shape. One module writes a segment the other reads differently, and the reference then points nowhere. One contract type in the publishing module's Contracts folder holds the one parser and the one formatter, so every module builds and reads the reference through the same code.
+
+**Example:** In the Claimwick product, a payout reference travels from spending to reporting as text. Spending publishes the reference as a contract type with one parser and one formatter, and reporting builds and reads it only through that type. No module interpolates or splits the reference text on its own.
+
+**Reviewed for:** Is any cross-module identifier or reference built or parsed outside the one contract type in its publishing module's Contracts folder? Look at each text reference beside the publishing module's Contracts folder.
+
 ## Conventions
 
 ### Keep Service Registration in Hosts

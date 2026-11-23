@@ -322,6 +322,91 @@ options.Schema.For<Expense>().UseOptimisticConcurrency(true);
 
 **Reviewed for:** Does any hosted schema change run from application startup or through `AutoCreate.All`, or does any host open its store with a schema-changing `AutoCreate` value? Look at the migration step and the host store configuration.
 
+### Share One Serializer Configuration Across Marten and the Outbox
+
+**ID:** `litespec/backend/dotnet/persistence#share-one-serializer-configuration-across-marten-and-the-outbox`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Marten, the outbox store, and any scheduled-job store MUST share one serializer configuration built by one factory method.
+
+**Rationale:** This provision binds `litespec/backend/persistence#serialize-every-persisted-payload-with-one-configuration` for .NET: one factory method builds the `JsonSerializerOptions` with the converters and discriminator registrations, and each store takes its options from that method. A converter added in one place then reaches every store, and a typed identifier with a validating constructor and a get-only value round-trips identically through each one.
+
+**Example:**
+
+```csharp
+internal static class ClaimwickJson
+{
+    public static JsonSerializerOptions CreateOptions()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        options.Converters.Add(new MoneyJsonConverter());
+        options.Converters.Add(new StronglyTypedIdJsonConverterFactory());
+        return options;
+    }
+}
+```
+
+Marten takes its serializer from `ClaimwickJson.CreateOptions()`, and the outbox and job stores take theirs from the same method.
+
+**Reviewed for:** Does every store build its serializer options from the one factory method, with no store carrying its own converters? Look at the Marten, outbox, and job store registrations beside the factory method.
+
+### Compare Typed Identifiers by Their Underlying Values in Queries
+
+**ID:** `litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries`
+
+**Strength:** required
+
+**Applies to:** artifact: query-handler
+
+**Statement:** A query MUST compare typed identifiers by their underlying values instead of passing a list of typed identifiers as a query parameter.
+
+**Rationale:** The database driver binds a list parameter by the element type it knows. A list of typed identifiers reaches the driver as a list of an unknown structured type, and the comparison then fails or matches nothing at the database. Comparing the underlying values keeps the parameter a list of values the driver binds. Each identifier still travels as its typed form in code and crosses into its underlying value only at the query.
+
+**Example:** In the library product, the list-loans query takes a list of reader identifiers and compares `reader_id` against the underlying values:
+
+```csharp
+var ids = query.ReaderIds.Select(id => id.Value).ToList();
+```
+
+The query passes `ids` as its parameter, so the database compares values it binds.
+
+**Checked by:** `dotnet build` reports `LS2032` for a query passing a list of typed identifiers as a database parameter. It reports `LS2037` for a query reading the document's own identity value inside a queryable expression.
+
+### Load Documents Keyed by Typed Identifiers One at a Time
+
+**ID:** `litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time`
+
+**Strength:** required
+
+**Applies to:** artifact: repository
+
+**Statement:** A repository MUST load documents keyed by a typed identifier one at a time instead of batching them in one load call.
+
+**Rationale:** A batch load call keys its lookup by the identifier form the store understands. A batch of typed identifiers reaches the store in a form its key comparison does not match, so the call returns nothing or the wrong documents. Loading each document by its typed identifier through the single-document load keeps every lookup on the path the typed-identifier mapping defines.
+
+**Example:** In the Claimwick product, a repository method that needs several expenses loops over the single-document load:
+
+```csharp
+public async Task<IReadOnlyList<Expense>> GetByIdsAsync(
+    IReadOnlyList<ExpenseId> ids,
+    CancellationToken cancellationToken)
+{
+    var expenses = new List<Expense>(ids.Count);
+    foreach (var id in ids)
+    {
+        expenses.Add(await GetByIdAsync(id, cancellationToken));
+    }
+    return expenses;
+}
+```
+
+Each lookup follows the typed-identifier mapping instead of batching the identifiers in one call.
+
+**Checked by:** `dotnet build` reports `LS2033` for a batch document load keyed by typed identifiers.
+
 ## Conventions
 
 ### Register One Scoped Session

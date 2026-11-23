@@ -19,7 +19,7 @@ static class BookLexiconFieldLabels
             ["options"] = "Options", ["choice"] = "Choice", ["pros"] = "Pros", ["cons"] = "Cons", ["reopenedWhen"] = "Reopened when", ["supersedes"] = "Supersedes",
             ["kind"] = "Kind", ["statement"] = "Statement", ["rationale"] = "Rationale", ["problemType"] = "Problem type",
             ["measure"] = "Measure", ["target"] = "Target", ["targetKind"] = "Target kind", ["dueBy"] = "Due by", ["values"] = "Values", ["effectiveFrom"] = "Effective from",
-            ["conditions"] = "Conditions", ["check"] = "Check", ["runsOn"] = "Runs on", ["evidence"] = "Evidence",
+            ["conditions"] = "Conditions", ["check"] = "Check", ["runsOn"] = "Runs on", ["runsAs"] = "Runs as", ["fieldSources"] = "Field sources", ["settles"] = "Settles", ["ignored"] = "Ignored", ["evidence"] = "Evidence",
             ["except"] = "Except", ["condition"] = "Condition", ["fallback"] = "Fallback", ["setBy"] = "Set by", ["risk"] = "Risk",
             ["scope"] = "Scope", ["selection"] = "Selection", ["code"] = "Code", ["codes"] = "Codes", ["meaning"] = "Meaning", ["recorded"] = "Recorded",
             ["startedWhen"] = "Started when", ["finishedWhen"] = "Finished when", ["actor"] = "Actor", ["dependsOn"] = "Depends on", ["branches"] = "Branches",

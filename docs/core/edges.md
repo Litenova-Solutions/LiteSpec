@@ -401,7 +401,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** Claimwick's expense form offers `use-case/spending.submit-expense`, whose `spending.receipt-missing` refusal result carries "Attach the receipt for this expense, then submit again." in `sentence`.
 
-**Checked by:** `litespec model check` reports `refusal-sentence-missing` (level A) for a refusal result of a use case a screen offers that carries no `sentence`.
+**Checked by:** `litespec model check` reports `refusal-sentence-missing` for a refusal result of a use case a screen offers that carries no `sentence`.
 
 ### Serve Static Files as Served Content
 

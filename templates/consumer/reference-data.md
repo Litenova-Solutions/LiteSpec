@@ -4,7 +4,7 @@ Say what values this table holds, who reads them, and what changes when a new ro
 
 ## Values
 
-Say what each row holds, when it takes effect, and where its value comes from.
+Say what each row holds, when it takes effect, and where its value comes from. Name the roles the rows play and the values the table allows, where the record states them.
 
 ## Example
 

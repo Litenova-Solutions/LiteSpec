@@ -5,6 +5,17 @@ summary: An employee sees their own expenses, newest first, with the amount and 
 route: /expenses
 offers:
 - use-case/spending.list-expenses
+fieldSources:
+- field: expenseId
+  from: use-case/spending.list-expenses
+- field: amount
+  from: use-case/spending.list-expenses
+- field: currency
+  from: use-case/spending.list-expenses
+- field: state
+  from: use-case/spending.list-expenses
+- field: submittedAt
+  from: use-case/spending.list-expenses
 serves:
 - step/submit-and-reimburse.watch-expenses
 fulfills:

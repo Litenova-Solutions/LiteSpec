@@ -166,6 +166,22 @@ internal sealed class MoneyJsonConverter : JsonConverter<Money>
 
 **Reviewed for:** Does every `Money` value on the wire pass through the platform converter, with a string amount and a three-letter code in both directions? Look at the converters registered for the host and the monetary fields in the contract.
 
+### Map Failures to Statuses in the Global Exception Handler
+
+**ID:** `litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** The one `IExceptionHandler` MUST map each failure to the status the exception-to-status map declares for it.
+
+**Rationale:** This provision binds `litespec/backend/api#map-every-failure-to-its-declared-status` for .NET: the one `IExceptionHandler` registered through `AddExceptionHandler` carries the whole map, so each failure reaches the client through the one map. The 500 problem detail names the exception type and message only when the host runs in the Development environment; a hosted environment answers the stable code with no exception detail.
+
+**Example:** The global handler answers an unknown expense with 404 and its problem detail, a malformed expense identifier with 400, and a fault no refusal covers with 500. That 500 carries the exception type and message when the host runs in Development, and the stable `internal_error` code with no exception detail in any other environment.
+
+**Checked by:** `dotnet build` reports `LS2035` for an exception type the global handler leaves outside the status map.
+
 ## Conventions
 
 ### Compose the Host in Program.cs

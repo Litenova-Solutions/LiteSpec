@@ -5,3 +5,4 @@ meaning: A hold was canceled.
 carries:
 - name: holdId
   type: text
+ignored: true

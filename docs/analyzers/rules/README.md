@@ -1,10 +1,10 @@
 # Overview
 
-When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 59 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
+When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 66 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
 
 ## Domain Rules
 
-Rules `LS1001` to `LS1016` check Domain modeling. `LS1014` runs in every production layer; the rest run in Domain only.
+Rules `LS1001` to `LS1017` check Domain modeling. `LS1014` runs in every production layer; the rest run in Domain only.
 
 - [LS1001: Domain References an Outer-Layer Concern](ls1001.md): reports a Domain use of an outer-layer namespace.
 - [LS1002: Domain Declares an Enum](ls1002.md): reports any enum declared in Domain.
@@ -22,10 +22,11 @@ Rules `LS1001` to `LS1016` check Domain modeling. `LS1014` runs in every product
 - [LS1014: Aggregate Part Constructed Outside Its Domain Folder](ls1014.md): reports construction of an aggregate part outside its `Domain/` folder.
 - [LS1015: Non-Root Type Exposes Public Mutation](ls1015.md): reports a public setter, constructor, or mutable collection on a non-root aggregate type.
 - [LS1016: Aggregate References Another Aggregate by Object](ls1016.md): reports an aggregate property typed as another aggregate's root or entity.
+- [LS1017: Validated Value Type Offers No Non-Throwing Parse](ls1017.md): reports a throwing constructor with no `TryParse` beside it.
 
 ## Outer-Layer Rules
 
-Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2031` run across layers, as each page states.
+Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2037` run across layers, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type visible outside its assembly or open to extension.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports a class derived from `ControllerBase` or carrying `ApiController`.
@@ -55,6 +56,12 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2031` run across layers
 - [LS2029: File Names a Contract Type Outside Its Layer](ls2029.md): reports another module's public query or result named outside a handler, reaction, or job, a public command named outside a reaction or a job, and a module identifier named in the Platform.
 - [LS2030: Contracts Project Declares an Interface](ls2030.md): reports an interface in a Contracts project, which publishes data only.
 - [LS2031: Event Name Lacks Its Kind Suffix](ls2031.md): reports an event type whose name does not end in its kind suffix.
+- [LS2032: Queryable Contains over Typed Identifiers](ls2032.md): reports a `Contains` over typed identifiers inside a queryable expression.
+- [LS2033: LoadMany on a Typed-Identifier Document](ls2033.md): reports a multi-load of documents identified by a typed identifier.
+- [LS2034: Mediator Call Without Explicit Mediation Settings](ls2034.md): reports a mediator call in an event handler that names no identity.
+- [LS2035: Unknown Record Thrown as a Generic Exception](ls2035.md): reports a generic throw for a null check after a repository or session load.
+- [LS2036: Production Code Reads the Clock Directly](ls2036.md): reports a static clock read outside Domain.
+- [LS2037: Identity Value Read in a Queryable Expression](ls2037.md): reports a read of the document identity value inside a queryable expression.
 
 ## Naming and Style Rules
 

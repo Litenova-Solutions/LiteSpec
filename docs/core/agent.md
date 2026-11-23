@@ -143,6 +143,22 @@ The release template plus the project file regenerate the region and the project
 
 **Checked by:** `litespec model check` reports `agent-protocol-drift` (level S) when the region differs from what `render` would write, `agent-protocol-missing` (level S) when `AGENTS.md` holds no region, and `skill-drift` (level S) when a project-scope skill copy differs from what the carried release generates.
 
+### Write Only Rules You Have Seen Hold
+
+**ID:** `litespec/core/agent#write-only-rules-you-have-seen-hold`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An agent MUST write a rule into the project's agent file only after seeing that rule hold, and a rule about a library's behavior only after running the library.
+
+**Rationale:** A rule in the agent file reads as decided guidance on every later task, so a guess about how a library behaves becomes an instruction every later agent follows. Running the behavior first gives the rule evidence the agent can name, and leaving an unverified rule out keeps the file to what the project knows.
+
+**Example:** Before adding a line to Claimwick's `AGENTS.md` about how its orchestrator starts the stack, an agent runs the start command and sees the hosts come up. It leaves out a line about a library's behavior until it has run that library and seen the result.
+
+**Reviewed for:** Does every rule the agent added to the agent file name the run or observation that showed it hold, with none written from assumption? Look at the added lines beside the session log.
+
 ### Apply Guidance Precedence
 
 **ID:** `litespec/core/agent#apply-guidance-precedence`
@@ -280,6 +296,22 @@ The money risk is the risk on the permission guarding the use case. Settled by [
 **Example:** The implementing agent writes a discount calculation from its rule and scenario; a CI check runs the withheld rows from `proof/withheld/` against the result.
 
 **Reviewed for:** Does the check log show money-risk refusal and calculation rows written by a different author, withheld during implementation, and run after? Check the log beside the withheld rows.
+
+### Exercise Changed Use Cases Through the Running Stack
+
+**ID:** `litespec/core/agent#exercise-changed-use-cases-through-the-running-stack`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Before reporting done, an agent MUST exercise each use case the change affects through the running stack, by the seed, the API walker or a direct call, and state in the completion report what it ran and what it saw, reporting a change verified only by build as unexercised.
+
+**Rationale:** A build and a passing test show that code compiles and a chosen case passes, not that the endpoint, the handler and the screen agree at runtime. A change can leave an event with no handler, a command needing an id no read returns, or a screen reading less than it shows, and none of those fails a build. Running the changed use case on the seeded stack puts the whole path under the report's evidence, and saying what ran and what was seen lets the owner tell an exercised change from a build-only one.
+
+**Example:** After changing Claimwick's submit-expense use case, an agent seeds the client-visit scenario, calls the endpoint with Ava's 48.90 EUR fare and reads the approval list back, then reports the request and the returned expense in its completion report. An agent that only ran `dotnet build` reports the change as unexercised.
+
+**Reviewed for:** Does the completion report name the seed, walker or direct call for each changed use case and what it showed, and does it call a build-only change unexercised? Look at the report beside the changed use cases.
 
 ### Protect Proofs from Implementation Edits
 

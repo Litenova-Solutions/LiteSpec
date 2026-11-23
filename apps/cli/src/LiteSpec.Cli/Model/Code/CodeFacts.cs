@@ -15,6 +15,9 @@ sealed class CodeFacts
     /// <summary>Gets every domain event class the backend read found, in read order.</summary>
     public List<CodeDomainEvent> Events { get; } = [];
 
+    /// <summary>Gets every outbox decision the backend read found, in read order.</summary>
+    public List<CodeOutboxDecision> OutboxDecisions { get; } = [];
+
     /// <summary>Gets every refusal code literal the backend read found, in read order.</summary>
     public List<CodeLiteral> Literals { get; } = [];
 

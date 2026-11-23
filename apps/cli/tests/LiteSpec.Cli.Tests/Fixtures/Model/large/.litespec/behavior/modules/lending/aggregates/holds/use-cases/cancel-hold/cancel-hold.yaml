@@ -30,6 +30,7 @@ records:
   title: Hold ended
   outcome: refusal
   refusal: refusal/lending.hold-not-waiting
+  sentence: This hold has already left the queue, so there is nothing to cancel.
 - type: scenario
   id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
   title: Canceling a waiting hold succeeds

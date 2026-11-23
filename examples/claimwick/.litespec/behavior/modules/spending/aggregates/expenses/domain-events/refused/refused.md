@@ -1,6 +1,6 @@
 # Expense Refused
 
-The product raises Expense Refused when a manager turns down a submitted expense. The event carries the expense, the manager who refused it and the time of the decision. The employee sees the reason the manager gave, and the expense keeps its Refused state.
+The product raises Expense Refused when a manager turns down a submitted expense. The event carries the expense, the manager who refused it and the time of the decision. Nothing answers the event: the employee reads the refusal from the expense, which keeps its Refused state.
 
 ## Example
 

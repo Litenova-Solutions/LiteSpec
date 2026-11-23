@@ -5,3 +5,4 @@ meaning: A copy was retired.
 carries:
 - name: copyId
   type: text
+ignored: true

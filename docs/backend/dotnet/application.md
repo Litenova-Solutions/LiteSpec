@@ -244,7 +244,7 @@ internal sealed class EraseExpiredPersonalDataHost
 - Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.AuthorizationGuard<TMessage>`, which reads the declaration through `DeclarationGuard<TMessage, TValue>`. The guard reads the declaration from the message's `{Message}AuthorizationDefinition`, which implements `IAuthorizationDefinition<TMessage>` beside the message under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. The project's `AuthorizeAsync(policy, message, cancellationToken)` answers whether the caller holds the declared policy; LiteBus carries the policy and never evaluates it.
 - Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in the message's `{Message}AuditDefinition`, which implements `IAuditDefinition<TCommand>` from `LiteBus.Messaging.Abstractions.Auditing`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
 - The audit chain runs through `AddAuditing(auditing => auditing.UseMartenStore().UseHashChain(chain => ...))`, with `UseMartenStore` from `LiteBus.Auditing.Storage.Marten`. The chain writes its records in the Marten session of the business unit of work, so a captured record commits or rolls back with the change. `StoreAs<TDocument, TMapper>()` names the stored document and its `IAuditRecordMapper<TDocument>`, `SegmentBy<TSegmenter>()` the `IAuditSegmenter<TDocument>`, `SignCheckpointsWith<TSigner>()` the `ICheckpointSigner`, `CheckpointWhen(...)` the `ICheckpointPolicy`, `PublishCheckpointsTo<TPublisher>()` the `ICheckpointPublisher`, and `VerifyAgainst<TSource>()` the `ICheckpointSource`. The Marten store registers its `IAuditCanonicalizer<TDocument>` as a replaceable default.
-- Idempotency runs through the message's `{Message}IdempotencyDefinition`, which implements `IIdempotencyDefinition<TMessage>`, declaring the message's idempotency beside the message. A record of mode `key` keys the message with its key template. A record of mode `state` or `none` declares an exemption: a state command recognizes the repeat by the state its `recognizedBy` names, and a pipeline key would outlive that state, so a grant, a revoke and a second grant would replay the first answer.
+- Idempotency runs through the message's `{Message}IdempotencyDefinition`, which implements `IIdempotencyDefinition<TMessage>`, declaring the message's idempotency beside the message. A record of mode `key` keys the message with its key template. A record of mode `key` with `replay: returns-first-result` declares `replayResult: true`, so a repeat returns the first result; with `replay: refuses` or `replay: acts-again` it declares `replayResult: false`, so a repeat brings no stored result. A keyed declaration that omits the flag replays nothing, so `model check` reports `idempotency-replay-drift` when its record states `returns-first-result`. A record of mode `state` or `none` declares an exemption: a state command recognizes the repeat by the state its `recognizedBy` names, and a pipeline key would outlive that state, so a grant, a revoke and a second grant would replay the first answer.
 - Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
 - Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately, one envelope per subscribed handler so one failing handler retries alone, under `litespec/ext/outbox#give-each-handler-its-own-delivery`.
 - Event staging runs through `outbox.StageCollectedEvents()`, which drains the facts `IDomainEventCollector` holds and stages them in the same commit as the aggregate change. Harvesting moves the domain events an aggregate raised into that collector before the drain, so a handler does not call `Collect` for them:
@@ -275,6 +275,47 @@ outbox.StageCollectedEvents();
 Claimwick's reimburse-expense command carries `ReimburseExpenseCommandAuthorizationDefinition`, `ReimburseExpenseCommandAuditDefinition`, and `ReimburseExpenseCommandIdempotencyDefinition` in its use case `Application/` folder, each implementing its one definition interface.
 
 **Reviewed for:** Does every pipeline position use its pinned LiteBus API? Check the command pipeline composition.
+
+### Verify Durable Contracts, Event Decisions, and Reference Data at Startup
+
+**ID:** `litespec/backend/dotnet/application#verify-durable-contracts-event-decisions-and-reference-data-at-startup`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** The host MUST verify every durable message contract, every staged domain event decision, and the loaded reference data when it composes, failing startup with a message that names the contract or row.
+
+**Rationale:** A durable message contract that fails a round trip, a staged domain event with no handler and no explicit ignore, and a reference row that fails validation each surface at runtime as a failed delivery, a dropped fact, or a wrong answer. Composition-time verification moves each one to startup: (a) every durable message contract survives a serialize-and-deserialize round trip with its identifiers intact; (b) every domain event the outbox may stage has a handler or an explicit ignore; (c) the reference data the product loads validates fully under `litespec/core/domain-model#validate-reference-data-before-serving` and covers every date in use under `litespec/core/domain-model#cover-every-date-in-use`. The verification runs with the host composition and carries no dedicated tests, because startup itself runs it on every boot. A startup failure names the contract or row, so the breakage points at its fix.
+
+**Example:** In the Claimwick product, composition builds one instance of each durable contract, serializes and deserializes it, and compares the identifiers; it lists every domain event the outbox may stage and confirms each one has a handler or an explicit ignore; and it loads the reference data and validates each row. When the expense-reimbursed envelope loses its expense identifier in the round trip, startup fails with a message naming that contract.
+
+**Reviewed for:** Does every host composition verify its durable contracts, event decisions, and reference data, failing startup with the contract or row it names? Look at the composition code beside the durable contracts, the event decisions, and the reference data load.
+
+### Pass Explicit Mediation Settings to Nested Use Cases
+
+**ID:** `litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases`
+
+**Strength:** required
+
+**Applies to:** artifact: reaction
+
+**Statement:** An event handler that runs a nested use case MUST pass explicit mediation settings carrying the identity the nested use case runs as.
+
+**Rationale:** A nested command sent with ambient settings runs as whoever the outer pipeline authorized, or as no identity at all. The nested use case then passes an access check meant for another caller or fails one it was meant to pass. Explicit mediation settings state the identity on the send, so the nested pipeline authorizes the identity the handler names.
+
+**Example:** In the library product, the handler that answers `domain-event/loan.loan-borrowed` runs the mark-book-lent use case with explicit settings carrying the system identity:
+
+```csharp
+await _commandMediator.SendAsync(
+    new MarkBookLentCommand(@event.BookId, @event.LoanId),
+    mediationSettings,
+    cancellationToken);
+```
+
+The settings carry the identity the nested command runs as, so its access check authorizes that identity.
+
+**Checked by:** `dotnet build` reports `LS2034` for an event handler running a nested use case without explicit mediation settings.
 
 ## Conventions
 

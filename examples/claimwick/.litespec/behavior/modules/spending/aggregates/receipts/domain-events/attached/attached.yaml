@@ -9,3 +9,4 @@ carries:
 - name: expenseId
   type: id
   identifies: aggregate/spending.expense
+ignored: true

@@ -1,6 +1,6 @@
 # Receipt Attached
 
-The product raises Receipt Attached when an employee adds proof of payment to a submitted expense. The event carries the receipt and the expense it supports. The expense keeps its Submitted state, so a manager can still decide it.
+The product raises Receipt Attached when an employee adds proof of payment to a submitted expense. The event carries the receipt and the expense it supports. Nothing answers the event: the expense keeps its Submitted state, so a manager can still decide it.
 
 ## Example
 

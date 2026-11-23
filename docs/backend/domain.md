@@ -553,6 +553,22 @@ Application obtains each value through an owned port and passes it in. A method 
 
 **Reviewed for:** Is any public Domain type or member missing documentation of its business constraint, result, or refusal, or documented with a restated name? Look at the documentation on each public member.
 
+### Store Each State the Reader Sees
+
+**ID:** `litespec/backend/domain#store-each-state-the-reader-sees`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** An aggregate MUST store each state a reader sees instead of inferring it from the absence of another record.
+
+**Rationale:** A state inferred from absence reads two stores to answer one question: the aggregate and the record whose absence means the state. The two disagree under concurrent writes, and a reader that checks only the aggregate reads the wrong state. Storing the state on the aggregate keeps the answer in one place. The automation rule `litespec/core/automation#settle-every-async-outcome-in-visible-states` states how pending, done, and refused read apart; this provision states the domain side: the state lives on the aggregate.
+
+**Example:** In the library product, a loan that charged its overdue fee records that fact on the loan. A reader sees the charged state on the loan itself instead of inferring it from the absence of a pending charge record. In the Claimwick product, a reimbursed expense carries the reimbursed state with its time; no reader infers reimbursement from the absence of an outstanding payout.
+
+**Reviewed for:** Is any state a reader sees inferred from the absence of another record instead of stored on its aggregate? Look at each displayed state beside its aggregate.
+
 ## Conventions
 
 ### Organize a Module by Aggregate and Concept

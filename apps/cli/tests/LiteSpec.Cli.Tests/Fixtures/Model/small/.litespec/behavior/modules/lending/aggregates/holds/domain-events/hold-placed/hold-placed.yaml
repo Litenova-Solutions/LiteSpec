@@ -9,3 +9,4 @@ carries:
   type: text
 - name: readerId
   type: text
+ignored: true

@@ -13,3 +13,4 @@ carries:
   identifies: actor/reader
 - name: dueDate
   type: date
+ignored: true

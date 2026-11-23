@@ -30,6 +30,7 @@ records:
   title: Hold already waiting
   outcome: refusal
   refusal: refusal/lending.hold-already-waiting
+  sentence: You already have a hold waiting for this copy.
 - type: scenario
   id: scenario/place-hold.placing-a-hold-succeeds
   title: Placing a hold succeeds

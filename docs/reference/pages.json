@@ -253,6 +253,18 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls1017.md",
+      "path": "analyzers/rules/ls1017",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS1017: Validated Value Type Offers No Non-Throwing Parse",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls2001.md",
       "path": "analyzers/rules/ls2001",
       "style": "reference",
@@ -582,6 +594,78 @@
       "style": "reference",
       "area": "analyzers",
       "title": "LS2031: Event Name Lacks Its Kind Suffix",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2032.md",
+      "path": "analyzers/rules/ls2032",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2032: Queryable Contains over Typed Identifiers",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2033.md",
+      "path": "analyzers/rules/ls2033",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2033: LoadMany on a Typed-Identifier Document",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2034.md",
+      "path": "analyzers/rules/ls2034",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2034: Mediator Call Without Explicit Mediation Settings",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2035.md",
+      "path": "analyzers/rules/ls2035",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2035: Unknown Record Thrown as a Generic Exception",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2036.md",
+      "path": "analyzers/rules/ls2036",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2036: Production Code Reads the Clock Directly",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2037.md",
+      "path": "analyzers/rules/ls2037",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2037: Identity Value Read in a Queryable Expression",
       "intent": "",
       "sections": [
         "Reference",
@@ -4845,6 +4929,24 @@
         "Install the CLI",
         "Run the CLI",
         "Consumer Repository"
+      ]
+    },
+    {
+      "file": "docs/tools/api-explore.md",
+      "path": "tools/api-explore",
+      "style": "command",
+      "area": "tools",
+      "title": "API Explore",
+      "intent": "\u0060litespec api explore\u0060 walks a running API from its OpenAPI document and reports server faults.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
       ]
     },
     {

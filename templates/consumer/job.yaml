@@ -66,6 +66,12 @@ idempotency:
   reason: <why this job needs no idempotency, or remove this line>
 reads:
 - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
+# settles names the visible states of the aggregate the run use case writes, and is removed when the job runs no use case writing an aggregate.
+settles:
+  aggregate: aggregate/<module>.<name>
+  pending: <state the run leaves>
+  done: <state the run enters>
+  refused: <state a terminal refusal enters, or remove this line when another attempt returns the run to pending>
 records:
 - type: scenario
   id: scenario/<job>.<name>

@@ -490,6 +490,22 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **Checked by:** `dotnet build` reports `LS1016` for a property of one aggregate whose type is another aggregate's root or entity.
 
+### Offer a Non-Throwing Parse on Validated Value Types
+
+**ID:** `litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types`
+
+**Strength:** required
+
+**Applies to:** artifact: value-object
+
+**Statement:** A typed identifier or value type whose constructor throws on invalid input MUST offer a static `TryParse` that returns false instead of throwing.
+
+**Rationale:** A serializer and an API boundary meet invalid input as a normal case: a malformed identifier in a route, an empty value in a stored payload. When the only way in is a constructor that throws, the boundary answers a server fault for a caller's mistake, and a serializer that cannot call the constructor rebuilds the value empty without saying so. A `TryParse` lets the boundary refuse with 400 and lets a converter fail loudly on a value it cannot read.
+
+**Example:** In the Claimwick product, `ExpenseId` throws on an empty `Guid` and offers `ExpenseId.TryParse(string? text, out ExpenseId id)`. The route binding calls `TryParse` and answers 400 for `/expenses/not-an-id`; the JSON converter calls it and fails the read for a stored empty value.
+
+**Checked by:** `dotnet build` reports `LS1017` for a Domain struct whose constructor throws and which declares no non-throwing parse.
+
 ### Keep Clock Reads and Random Values Out of Domain
 
 **ID:** `litespec/backend/dotnet/domain#keep-clock-reads-and-random-values-out-of-domain`

@@ -365,6 +365,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `idempotency` field.</summary>
     public const string Idempotency = "idempotency";
 
+    /// <summary>Gets the name of the `ignored` field.</summary>
+    public const string Ignored = "ignored";
+
     /// <summary>Gets the name of the `impact` field.</summary>
     public const string Impact = "impact";
 

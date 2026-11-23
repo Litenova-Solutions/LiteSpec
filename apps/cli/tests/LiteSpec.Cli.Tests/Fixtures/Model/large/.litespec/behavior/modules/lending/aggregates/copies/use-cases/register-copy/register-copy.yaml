@@ -30,6 +30,7 @@ records:
   title: Copy already registered
   outcome: refusal
   refusal: refusal/lending.copy-already-registered
+  sentence: This copy is already registered, so it cannot be registered again.
 - type: scenario
   id: scenario/register-copy.registering-a-new-copy-succeeds
   title: Registering a new copy succeeds

@@ -28,3 +28,4 @@ Every command accepts `--help`. `model check` also accepts `--format json`, whic
 - [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
 - [Skill](skill.md): installs or removes the litespec skill.
 - [Context](context.md): writes the specification as one plain-text file for an AI chat.
+- [Api Explore](api-explore.md): walks a running API from its OpenAPI document and reports server faults.

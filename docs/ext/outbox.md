@@ -36,6 +36,22 @@ It switches on no optional record type: integration events, module events, setti
 
 **Reviewed for:** Does every raised domain event and translated module and integration event stage in the transaction of its aggregate changes, through the one global step? Check the pipeline's staging step and the outbox writes beside it.
 
+### Decide Every Domain Event Outcome
+
+**ID:** `litespec/ext/outbox#decide-every-domain-event-outcome`
+
+**Strength:** required
+
+**Applies to:** artifact: domain-event
+
+**Statement:** Each domain event MUST reach exactly one decided outcome in the records: a reaction or a translating module or integration event consumes it, or its record states `ignored: true`, and the code's outbox decision matches that outcome where the project selects the outbox extension.
+
+**Rationale:** A staged event with no handler fails every command that raises it at commit time, while an event the code drops although the records consume it silently skips its reaction. Deciding each event once in the records, and matching that decision in code, keeps the staging and the handling one fact.
+
+**Example:** Claimwick's `domain-event/expense.submitted` is answered by the approver-reminder reaction and translated by the expense-submitted integration event, so it states no `ignored`; `domain-event/expense.approved` states `ignored: true` because nothing answers it. A project selecting the outbox extension translates the submitted event and ignores the approved event in its outbox registration.
+
+**Checked by:** `litespec model check` reports `domain-event-outcome-missing` (level G) for a domain event no reaction or translating event consumes that states no `ignored`, `domain-event-outcome-drift` (level G) for a domain event stating `ignored` that a reaction or translation consumes, and, where the project selects the outbox extension, `outbox-decision-drift` (level S) for a code decision contradicting the records and `outbox-decision-missing` (level S) for a domain event type with no outbox decision.
+
 ### Deliver Module Facts in Process Without a Broker
 
 **ID:** `litespec/ext/outbox#deliver-module-facts-in-process-without-a-broker`

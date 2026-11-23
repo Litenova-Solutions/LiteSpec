@@ -7,6 +7,13 @@ offers:
 - use-case/spending.submit-expense
 - use-case/spending.list-expenses
 primaryAction: use-case/spending.submit-expense
+fieldSources:
+- field: amount
+  from: use-case/spending.submit-expense
+- field: currency
+  from: use-case/spending.submit-expense
+- field: receipt
+  from: use-case/spending.submit-expense
 serves:
 - step/submit-and-reimburse.submit-expense
 fulfills:

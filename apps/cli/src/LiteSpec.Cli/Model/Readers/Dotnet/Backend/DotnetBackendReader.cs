@@ -90,6 +90,7 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.Reactions.AddRange(local.Reactions);
                     merged.Jobs.AddRange(local.Jobs);
                     merged.Events.AddRange(local.Events);
+                    merged.OutboxDecisions.AddRange(local.OutboxDecisions);
                     merged.Elements.AddRange(local.Elements);
                     merged.StrayMarks.AddRange(local.StrayMarks);
                     merged.Literals.AddRange(local.Literals);
@@ -129,6 +130,10 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(domainEvent => domainEvent.File, StringComparer.Ordinal)
             .ThenBy(domainEvent => domainEvent.Line)
             .ThenBy(domainEvent => domainEvent.Class, StringComparer.Ordinal));
+        model.OutboxDecisions.AddRange(merged.OutboxDecisions
+            .OrderBy(decision => decision.File, StringComparer.Ordinal)
+            .ThenBy(decision => decision.Line)
+            .ThenBy(decision => decision.EventType, StringComparer.Ordinal));
         model.Literals.AddRange(merged.Literals
             .OrderBy(literal => literal.File, StringComparer.Ordinal)
             .ThenBy(literal => literal.Line)
@@ -206,6 +211,7 @@ sealed class DotnetBackendReader : IBackendReader
         var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified, project, layer);
 
         ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified);
+        OutboxDecisionReader.ReadOutboxDecisions(file, tree, model);
         AggregateMethodReader.ReadAggregateMethods(file, tree, elements, types, model);
         AuditActionReader.ReadAuditActions(file, tree, classes, model);
         DomainTypeReader.ReadDomainTypes(config, file, tree, model);

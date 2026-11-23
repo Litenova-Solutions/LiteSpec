@@ -15,7 +15,7 @@ Each use case links back to the Intent it carries, as `litespec/core/model#conne
 
 | Field | Meaning |
 |:---|:---|
-| `access` | `{ grant, tenant }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `authentication`, as [Access](access.md) states. |
+| `access` | `{ grant, tenant, runsAs }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. `runsAs: system` states that a reaction or job also runs the use case beside the person grant. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `authentication`, as [Access](access.md) states. |
 | `input` | Entries of `{ name, meaning, type, identifies, rowShape, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `identifies` field names the record an `id` refers to, and `rowShape` names the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `rowShape` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
 | `writes`, `reads` | The id of the one aggregate written, and the ids of aggregates, read models, and settings read. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. A command whose `writes` names more than one aggregate is allowed only when its consistency `boundBy` rule states the invariant needing both in one transaction and names its decision in `basedOn`. A command changing no aggregate declares `writes: []`. |
 | `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and the rule names in `basedOn` the decision recording why the invariant needs one transaction. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
@@ -375,6 +375,22 @@ A type on each field lets the builder compare the records with the generated con
 
 **Checked by:** `litespec model check` reports `input-claim-unverified` for a claim-shaped input with `origin: caller` on an entry point that authenticates through a provider.
 
+### Return Every Caller-Supplied Identifier from a Reachable Query
+
+**ID:** `litespec/core/use-cases#return-every-caller-supplied-identifier-from-a-reachable-query`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each required input with `origin: caller` and type `id` that names no idempotency key placeholder MUST be returned as an `id` field identifying the same record by a query through the same entry point, or by a query of its module when no entry point reaches the use case.
+
+**Rationale:** A command that needs an identifier no read hands to its caller can never be called correctly: the screen offers the act, the caller has no value to send, and the failure surfaces only at runtime. Comparing the `identifies` links keeps the check exact, because names differ while the identified record does not. The entry point bounds the caller's reach, because an identifier travels between the screens of one entry point through navigation, and holding each screen to only the reads it offers would repeat one list query on every record screen. An optional input needs no read, because the caller can call without it, and an idempotency key needs none, because the caller mints it for an identifier that does not exist yet. A use case no entry point reaches answers to its module instead, where the caller may pass through an identifier of its own, so the module scope advises rather than blocks.
+
+**Example:** Claimwick's approve-expense command takes `expense` identifying `aggregate/spending.expense` from the caller. The list-expenses query through the same entry point returns `expenseId` identifying the same aggregate, so the manager picks the expense from the list and approves it. A command taking an identifier no query through its entry point returns is reported.
+
+**Checked by:** `litespec model check` reports `caller-identifier-unreachable` for a required caller-supplied identifier on a use case an entry point reaches that no query through the same entry point returns, and `module-identifier-unreachable` (level A) for one on a use case no entry point reaches that no query of its module returns.
+
 ### Name Every Aggregate a Use Case Writes or Reads
 
 **ID:** `litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads`
@@ -563,7 +579,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Example:** The reimburse-expense command replays with `returns-first-result`. A retried payout returns the first reimbursement instead of posting again.
 
-**Checked by:** `litespec model check` reports `idempotency-replay-missing` for a command `idempotency` without `replay`, or mode `state` without `recognizedBy`.
+**Checked by:** `litespec model check` reports `idempotency-replay-missing` for a command `idempotency` without `replay`, or mode `state` without `recognizedBy`, and `idempotency-replay-drift` (level S) for a keyed command whose idempotency declaration replays the first result differently than its `replay` states.
 
 ### State the Audit Position of Every Command
 
@@ -577,7 +593,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level with its target kind, or the exemption with its justification, states the audit beside the change. The level is `required`, `optional`, or `none`, and the exemption carries its justification in `exemptBecause`. A level of `none` is not audited, and async work audits at request time. The `audit` extension owns the field, as `litespec/ext/audit#declare-which-commands-are-audited` states, so a command in a project without that extension declares no `audit`.
 
-**Checked by:** `litespec model check` reports `audit-missing` for a command without an audit level and target kind or an exemption with its justification when the project selects the `audit` extension, and `field-extension-unselected` (level A) for `audit` written while the extension is not selected.
+**Checked by:** `litespec model check` reports `audit-missing` for a command without an audit level and target kind or an exemption with its justification when the project selects the `audit` extension, and `field-extension-unselected` for `audit` written while the extension is not selected.
 
 ### Declare Every Query Output
 
@@ -1063,7 +1079,7 @@ A setting holds configuration read by the running system. A business value a per
 
 **Example:** The retry backoff declares `unit: seconds`. A timeout with `valueType: duration` and no unit is reported.
 
-**Checked by:** `litespec model check` reports `setting-unit-missing` (level A) for a numeric or duration setting declaring no `unit`.
+**Checked by:** `litespec model check` reports `setting-unit-missing` for a numeric or duration setting declaring no `unit`.
 
 ## Conventions
 

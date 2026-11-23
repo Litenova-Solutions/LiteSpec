@@ -30,6 +30,7 @@ records:
   title: Copy on loan
   outcome: refusal
   refusal: refusal/lending.copy-on-loan
+  sentence: This copy is on loan, so it cannot be retired until it is returned.
 - type: scenario
   id: scenario/retire-copy.retiring-an-available-copy-succeeds
   title: Retiring an available copy succeeds

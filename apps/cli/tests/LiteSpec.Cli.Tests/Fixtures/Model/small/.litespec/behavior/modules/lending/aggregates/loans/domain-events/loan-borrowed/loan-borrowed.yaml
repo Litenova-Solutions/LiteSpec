@@ -11,3 +11,4 @@ carries:
   type: text
 - name: dueDate
   type: text
+ignored: true

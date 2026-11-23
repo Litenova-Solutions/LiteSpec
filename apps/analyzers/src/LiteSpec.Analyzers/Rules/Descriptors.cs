@@ -41,6 +41,8 @@ internal static class Descriptors
     private static readonly Provision DomainDocumentation = Provision.Of("backend/dotnet/domain", "document-every-public-domain-contract");
     /// <summary>The provision the related descriptors enforce: use strongly typed version 7 identifiers (litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers).</summary>
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
+    /// <summary>The provision the related descriptors enforce: offer a non-throwing parse on validated value types (litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types).</summary>
+    private static readonly Provision NonThrowingParse = Provision.Of("backend/dotnet/domain", "offer-a-non-throwing-parse-on-validated-value-types");
     /// <summary>The provision the development shortcut descriptor enforces: keep development shortcuts out of release builds (litespec/quality/development#keep-development-shortcuts-out-of-release-builds).</summary>
     private static readonly Provision DevelopmentShortcuts = Provision.Of("quality/development", "keep-development-shortcuts-out-of-release-builds");
     /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
@@ -85,12 +87,24 @@ internal static class Descriptors
     private static readonly Provision PerRecordWork = Provision.Of("backend/application", "issue-per-record-work-from-a-job");
     /// <summary>The provision the related descriptors enforce: keep uniqueness out of handlers (litespec/backend/persistence#keep-uniqueness-out-of-handlers).</summary>
     private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
+    /// <summary>The provision the related descriptors enforce: compare typed identifiers by their value in queries (litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
+    private static readonly Provision TypedIdentifierQueryValues = Provision.Of("backend/dotnet/persistence", "compare-typed-identifiers-by-their-value-in-queries");
+    /// <summary>The provision the related descriptors enforce: compare typed identifiers by their underlying values in queries (litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
+    private static readonly Provision TypedIdentifierUnderlyingValues = Provision.Of("backend/dotnet/persistence", "compare-typed-identifiers-by-their-underlying-values-in-queries");
+    /// <summary>The provision the related descriptors enforce: load typed identifier documents one at a time (litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time).</summary>
+    private static readonly Provision TypedIdentifierDocumentLoads = Provision.Of("backend/dotnet/persistence", "load-typed-identifier-documents-one-at-a-time");
     /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/quality/testing#prove-each-scenario-through-the-public-boundary).</summary>
     private static readonly Provision ScenarioProof = Provision.Of("quality/testing", "prove-each-scenario-through-the-public-boundary");
     /// <summary>The provision the related descriptors enforce: keep command handlers to load, call and stage (litespec/backend/application#keep-command-handlers-to-load-call-and-stage).</summary>
     private static readonly Provision CommandHandlerStages = Provision.Of("backend/application", "keep-command-handlers-to-load-call-and-stage");
     /// <summary>The provision the related descriptors enforce: emit declared integration events after commit (litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit).</summary>
     private static readonly Provision EmitAfterCommit = Provision.Of("backend/application", "stage-declared-module-and-integration-events-in-the-commit");
+    /// <summary>The provision the related descriptors enforce: pass explicit mediation settings from event handlers (litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases).</summary>
+    private static readonly Provision HandlerMediationSettings = Provision.Of("backend/dotnet/application", "pass-explicit-mediation-settings-from-event-handlers");
+    /// <summary>The provision the related descriptors enforce: refuse an unknown record as not found (litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler).</summary>
+    private static readonly Provision UnknownRecordRefusals = Provision.Of("backend/dotnet/application", "refuse-an-unknown-record-as-not-found");
+    /// <summary>The provision the related descriptors enforce: read no clock outside the scoped clock (litespec/backend/application#read-time-from-the-scoped-clock).</summary>
+    private static readonly Provision ProductionClockReads = Provision.Of("backend/dotnet/application", "read-no-clock-outside-the-scoped-clock");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
     /// <summary>The provision the related descriptors enforce: construct aggregate parts only inside the root (litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root).</summary>
@@ -212,6 +226,12 @@ internal static class Descriptors
         "Aggregate references another aggregate by object",
         "'{0}' is typed as '{1}' of the '{2}' aggregate; reference it by its typed id",
         "An aggregate references another aggregate by its typed id only, never by object reference.");
+
+    /// <summary>The LS1017 descriptor: Validated value type offers no non-throwing parse.</summary>
+    public static readonly DiagnosticDescriptor LS1017 = Create("LS1017", DomainCategory, NonThrowingParse,
+        "Validated value type offers no non-throwing parse",
+        "'{0}' validates in its constructor and offers no non-throwing parse; add a TryParse the serializer and the API boundary can call",
+        "A typed identifier or value type whose constructor throws on invalid input offers a non-throwing parse, so the serializer and the API boundary read invalid input without throwing.");
 
     /// <summary>The LS2001 descriptor: Implementation type is not internal sealed.</summary>
     public static readonly DiagnosticDescriptor LS2001 = Create("LS2001", LayersCategory, InternalImplementations,
@@ -381,6 +401,42 @@ internal static class Descriptors
         "Event name lacks its kind suffix",
         "'{0}' is a {1} and must end in '{2}'",
         "A domain event ends in DomainEvent, a module event in ModuleEvent, and an integration event in IntegrationEvent, so the name states which contract the type carries.");
+
+    /// <summary>The LS2032 descriptor: Queryable Contains over typed identifiers.</summary>
+    public static readonly DiagnosticDescriptor LS2032 = Create("LS2032", LayersCategory, TypedIdentifierQueryValues,
+        "Queryable Contains over typed identifiers",
+        "'{0}' is a collection of typed identifier '{1}'; compare the underlying value in the query instead",
+        "A Contains inside a queryable expression compares the underlying value of each typed identifier, never the identifier itself, because the database driver cannot send a typed identifier collection as a parameter.");
+
+    /// <summary>The LS2033 descriptor: LoadMany on a typed-identifier document.</summary>
+    public static readonly DiagnosticDescriptor LS2033 = Create("LS2033", LayersCategory, TypedIdentifierDocumentLoads,
+        "LoadMany on a typed-identifier document",
+        "'{0}' cannot load many '{1}' documents identified by a typed identifier; load one at a time or query by the underlying value",
+        "Marten refuses a multi-load of documents whose id member is a typed identifier, so the read loads one document at a time or queries by the underlying value.");
+
+    /// <summary>The LS2034 descriptor: Mediator call without explicit mediation settings.</summary>
+    public static readonly DiagnosticDescriptor LS2034 = Create("LS2034", LayersCategory, HandlerMediationSettings,
+        "Mediator call without explicit mediation settings",
+        "'{0}' calls '{1}' with no explicit mediation settings; the handler runs with no caller, so name the identity the nested use case runs under",
+        "An event handler runs with no caller, so each command or query it dispatches names the mediation settings carrying the identity the nested use case runs under.");
+
+    /// <summary>The LS2035 descriptor: Unknown record thrown as a generic exception.</summary>
+    public static readonly DiagnosticDescriptor LS2035 = Create("LS2035", LayersCategory, UnknownRecordRefusals,
+        "Unknown record thrown as a generic exception",
+        "'{0}' returned no record; refuse the unknown record instead of throwing '{1}'",
+        "A null check on a value returned by a load, find or lookup call on a repository or session refuses the unknown record with its not-found refusal, never with a generic exception.");
+
+    /// <summary>The LS2036 descriptor: Production code reads the clock directly.</summary>
+    public static readonly DiagnosticDescriptor LS2036 = Create("LS2036", LayersCategory, ProductionClockReads,
+        "Production code reads the clock directly",
+        "'{0}' reads the clock directly; read the pipeline timestamp instead",
+        "Production code outside Domain reads time from the pipeline timestamp or an injected clock, never from the static clock, so one message answers to one time.");
+
+    /// <summary>The LS2037 descriptor: Identity value read in a queryable expression.</summary>
+    public static readonly DiagnosticDescriptor LS2037 = Create("LS2037", LayersCategory, TypedIdentifierUnderlyingValues,
+        "Identity value read in a queryable expression",
+        "'{0}' reads its identity '{1}' by value inside a queryable expression; compare the identifier itself or page in memory",
+        "A queryable expression never reads the underlying value of the document's own typed identifier, because the document store cannot translate the member chain on its identity member.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

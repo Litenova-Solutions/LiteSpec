@@ -10,6 +10,7 @@ access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
   recentSignInLimit: setting/<module>.<name, or remove this line>
+  runsAs: <system, when a reaction or job runs this use case beside its person grant, or remove this line>
 serves:
 - step/<flow>.<act>
 fulfills:

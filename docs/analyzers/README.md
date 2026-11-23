@@ -1,6 +1,6 @@
 # Overview
 
-The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 59 rules, each with its own reference page.
+The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 66 rules, each with its own reference page.
 
 ## How the Pages Fit Together
 
@@ -28,7 +28,8 @@ Each rule runs only in the layers its provision covers:
 
 - Domain rules run on Domain files, except `LS1014`, which runs in every production layer.
 - `LS2001` runs on Application, Infrastructure, WebApi, and Worker files.
-- `LS2004`, `LS2005`, `LS2007`, and `LS2009` to `LS2016` run on Application, Infrastructure, and Worker files.
+- `LS2004`, `LS2005`, `LS2007`, `LS2009` to `LS2016`, `LS2032` to `LS2034`, and `LS2037` run on Application, Infrastructure, and Worker files.
+- `LS2035` runs on Application and Infrastructure files. `LS2036` runs on Application, Ports, Infrastructure, WebApi, and Worker files.
 - `LS2003` and `LS2006` run on WebApi files.
 - `LS2018` runs on Application, Ports, and WebApi files.
 - `LS2019` and `LS2020` run on every layer except Test.

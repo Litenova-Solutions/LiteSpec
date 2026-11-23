@@ -524,6 +524,24 @@ The new rules are `litespec/frontend/ui#place-no-surface-inside-another`, `lites
 
 The new rule is `litespec/quality/development#seed-only-development-and-test-environments`.
 
+### Part BC: Checks for What Only Fails at Runtime
+
+Two parts that are each correct alone and wrong together now meet in a check before anything runs.
+
+- A domain event nothing answers states `ignored: true`. `domain-event-outcome-missing` reports an event with no reaction, no translation and no `ignored`, and `domain-event-outcome-drift` an ignored event something consumes. With the outbox extension, `outbox-decision-missing` reports a domain event type with no outbox decision in code, and `outbox-decision-drift` a code decision that contradicts the records.
+- A use case that a reaction or job runs admits the system identity: its grant is `system` or `anonymous`, or its access states `runsAs: system` beside the person grant. `system-access-missing` reports one that does not.
+- `caller-identifier-unreachable` reports a required caller-supplied identifier that no query through the same entry point returns, and `module-identifier-unreachable` advises the same for a use case no entry point reaches.
+- A screen names each field it shows in `fieldSources`, with the offered use case it comes from. `screen-shows-unknown` reports a field no offered use case outputs or accepts, and `screen-shows-drift` one that matches only by name.
+- A reaction or job that runs a use case writing an aggregate names the pending, done and refused states in `settles`. `async-pending-missing` and `async-refused-unrecorded` report a run whose outcome a reader cannot tell apart from not done yet.
+- `idempotency-replay-drift` reports a keyed command whose idempotency declaration replays differently from its record; a keyed declaration that omits the flag replays nothing.
+- A finding whose neglect fails at runtime blocks. `idempotency-replay-missing`, `refusal-sentence-missing`, `sentence-language-missing`, `setting-unit-missing`, `template-value-unchanged` and `field-extension-unselected` move from level A to level G.
+- Reference data is domain. A table lists the closed values of a meaning column in `choices`, the roles its rules read in `requiredRoles`, and per row a `key`, a `role` and a `refersTo` cross-reference. `reference-data-value-invalid`, `reference-data-key-unknown`, `reference-data-role-missing` and `reference-data-coverage-missing` report a value outside its set, a dangling reference, a role no row plays and dates no row covers. An amount field states its `sign`, and `amount-sign-drift` advises when two use cases computing one value disagree.
+- Seven analyzer rules report what a build cannot see and a running store refuses: LS2032 a typed-identifier collection in a queryable `Contains`, LS2033 `LoadManyAsync` on a document keyed by a typed identifier, LS2037 a document's own `Id.Value` read inside a query, LS2034 a mediator call in an event handler without explicit mediation settings, LS2035 a generic exception thrown after a load finds nothing, LS2036 the system clock read outside Domain, and LS1017 a validated value type with no non-throwing parse.
+- `litespec api explore` walks a running API from its OpenAPI document with a fixed seed, reuses the identifiers earlier answers return, and reports every 5xx, every refusal that is not a problem detail, and every timeout. It refuses a host that is not loopback unless `--allow-remote` is given.
+- Backend pages gain one serializer configuration for every persisted payload, startup checks for durable contracts, outbox decisions and reference data, one exception-to-status map, cross-module references as contract types, and stored states the reader sees. Development pages gain seed read-back against the cast, the API walker after every boundary change, and failure causes shown in development. The agent page requires exercising each changed use case through the running stack before reporting done, and writing only rules the agent has seen hold.
+
+The new rules are `litespec/ext/outbox#decide-every-domain-event-outcome`, `litespec/core/access#admit-the-system-identity-on-every-system-run-use-case`, `litespec/core/use-cases#return-every-caller-supplied-identifier-from-a-reachable-query`, `litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts`, `litespec/frontend/ui#cover-each-screen-scope-with-its-read`, `litespec/core/automation#settle-every-async-outcome-in-visible-states`, `litespec/core/model#block-every-finding-that-predicts-a-runtime-failure`, the eight reference-data rules on `litespec/core/domain-model`, `litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types`, and the backend, development and agent rules named above.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:

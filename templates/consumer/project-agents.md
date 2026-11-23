@@ -19,6 +19,16 @@ Run `__LITESPEC_COMMAND__ rules <path>` before editing a file. (litespec/core/ag
 
 Answer each judgment provision `__LITESPEC_COMMAND__ rules --since <base>` lists before reporting done. (litespec/core/agent#load-applicable-provisions-before-editing)
 
+Before reporting done, exercise each changed use case through the running stack with the seed, the API walker or a direct call, and state in the completion report what you ran and what you saw; report a change verified only by build as unexercised. (litespec/core/agent#exercise-changed-use-cases-through-the-running-stack)
+
+Write a rule into the project agent file only after seeing it hold; write a rule about a library's behavior only after running it. (litespec/core/agent#write-only-rules-you-have-seen-hold)
+
+After a seed scenario, read back what it seeded and compare each total, count and state with the figures the cast states, reporting every difference; a project whose proofs do not run yet checks calculated results this way. (litespec/quality/development#check-seeded-figures-against-the-cast)
+
+After a change to an API boundary, run `__LITESPEC_COMMAND__ api explore` from a fixed seed against the seeded local stack. (litespec/quality/development#run-the-api-walker-after-api-boundary-changes)
+
+In development, name a server failure's cause in the problem detail with its exception type and message, and keep every host's logs readable from a terminal without a browser dashboard. (litespec/quality/development#show-failure-causes-in-development)
+
 Write each record from a record in the layer above it, and never compute a record from code. (litespec/core/layers#write-each-layer-from-the-layer-above-it, litespec/core/model#keep-code-out-of-intent-and-behavior-fields)
 
 Build only what the specification states, and take anything missing to the owner. (litespec/core/layers#implement-only-declared-behavior, litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items)

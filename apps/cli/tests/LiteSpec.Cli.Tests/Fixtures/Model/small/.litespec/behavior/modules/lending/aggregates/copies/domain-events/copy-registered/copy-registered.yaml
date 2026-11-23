@@ -7,3 +7,4 @@ carries:
   type: text
 - name: shelf
   type: text
+ignored: true

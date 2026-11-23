@@ -11,3 +11,4 @@ carries:
   identifies: actor/manager
 - name: decidedAt
   type: date-time
+ignored: true

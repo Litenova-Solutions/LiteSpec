@@ -465,6 +465,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `effects.commands` | reaction, job | use case | commands | is commanded by |
 | `onFailure.surfacesIn` | reaction, job | entry point | surfaces in | surfaces |
 | `onFailure.runbook` | reaction, job | runbook | is answered by | answers |
+| `settles.aggregate` | reaction, job | aggregate | settles | is settled by |
 | `schedule.timezone.setting` | job | setting | takes its time zone from | is the time zone of |
 | `schedule.timezone.field` | job | aggregate field | takes its time zone from | is the time zone of |
 | `runbook` | job | runbook | is answered by | answers |
@@ -490,12 +491,14 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `host` | screen | screen | opens on | hosts |
 | `offers` | screen | use case | offers | is offered by |
 | `primaryAction` | screen | use case | runs as its primary action | is the primary action of |
+| `fieldSources.from` | screen | use case | shows fields from | provides fields to |
 | `leadsTo` | screen | screen | leads to | is reached from |
 | `governs` | rule | aggregate, use case | governs | is governed by |
 | `binds` | rule | aggregate | binds | is bound by |
 | `cites` | rule | constraint, research | cites | is cited by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `carries.identifies` | domain event | generic record | identifies | is identified by |
+| `rows.refersTo` | reference data | reference data row | refers to | is referred to by |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 | `records.terms` | refusal set | term | uses | is used by |
 | `facts.term` | party | term | instantiates | is instantiated by |
@@ -1378,6 +1381,22 @@ Nothing above Implementation is computed from code: derivation from code into an
 **Rationale:** The level tells a reader what a finding rests on: G rests on records only, S rests on code read through a stack reader, and A rests on prose, names, or proof state. Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. `litespec model check` prints the level beside each finding, so a reader tells what each finding rests on at a glance. A missing required link is level G.
 
 **Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line when any reader was missing with one clause per frontend, and exits with code 3 when no finding blocks but the inspection was incomplete. `litespec model check --release` blocks on `reader-missing` for a claimed layer.
+
+### Block Every Finding That Predicts a Runtime Failure
+
+**ID:** `litespec/core/model#block-every-finding-that-predicts-a-runtime-failure`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A check MUST block when ignoring its finding fails at runtime, leaving level A to findings whose neglect only weakens documentation.
+
+**Rationale:** Level A findings report without failing the run outside the release gate, so a team reads them once and moves on. When a finding predicts a refused call, a crash, or a wrong result, moving on ships the failure: a command whose idempotency states no replay ignores its advisory, and a repeat then fails instead of returning the first result. Blocking the finding holds the run until the record or the code answers what the repeat brings. Level A stays for prose, names, and proof state no caller meets at runtime.
+
+**Example:** Claimwick's reimburse-expense command states `replay: refuses` with the state it checks in `recognizedBy`. A command stating no replay is reported and blocks until the replay is stated.
+
+**Reviewed for:** Does every check block when ignoring its finding fails at runtime, and does level A hold only documentation quality? Read each finding code's meaning in `FindingCodes.cs` against the runtime-failure test: a refused call, a crash, or a wrong result.
 
 ### Declare One Mark Style
 

@@ -1,6 +1,7 @@
 using LiteSpec.Cli.Audit;
 using LiteSpec.Cli.Book;
 using LiteSpec.Cli.Context;
+using LiteSpec.Cli.Explore;
 using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.RecordEditing;
@@ -28,6 +29,7 @@ static class CliEntry
           rules         List the provisions that govern a path or record.
           skill         Install or remove the litespec skill.
           ui            Audit the rendered pages in a browser.
+          api           Walk a running API from its OpenAPI document and report server faults.
 
         Run 'litespec <command> --help' for a command's options.
         'litespec --version' prints the LiteSpec release this tool ships in.
@@ -60,6 +62,7 @@ static class CliEntry
                 "rules" => RulesCommand.Run(rest),
                 "skill" => SkillCommand.Run(rest),
                 "ui" => UiCommand.Run(rest),
+                "api" => ApiCommand.Run(rest),
                 _ => Unknown(args[0]),
             },
             args);

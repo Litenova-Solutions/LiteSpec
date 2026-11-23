@@ -144,6 +144,9 @@ $defs:
   referenceDataId:
     type: string
     pattern: '^reference-data/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+  referenceDataRowRef:
+    type: string
+    pattern: '^reference-data/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*#[a-z0-9][a-z0-9-]*$'
   integrationEventId:
     type: string
     pattern: '^integration-event/[a-z0-9][a-z0-9-]*$'
@@ -269,6 +272,22 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       shows:
         $ref: '#/$defs/nonEmptyString'
+  screenShowsEntry:
+    description: One use-case field a screen shows, naming the offered use case that outputs or accepts it.
+    type: object
+    additionalProperties: false
+    required:
+    - field
+    - from
+    properties:
+      field:
+        description: The field as the use case spells it in its input or output.
+        $ref: '#/$defs/nonEmptyString'
+      from:
+        description: The offered use case that outputs or accepts the field.
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: shows fields from
+        x-read-back-as: provides fields to
   sessionPolicy:
     description: How long a session on this entry point lasts.
     type: object
@@ -465,6 +484,24 @@ $defs:
     minItems: 1
     items:
       $ref: '#/$defs/outcomeEntry'
+  settlesObject:
+    type: object
+    additionalProperties: false
+    required:
+    - aggregate
+    - pending
+    - done
+    properties:
+      aggregate:
+        $ref: '#/$defs/aggregateId'
+        x-reads-as: settles
+        x-read-back-as: is settled by
+      pending:
+        $ref: '#/$defs/nonEmptyString'
+      done:
+        $ref: '#/$defs/nonEmptyString'
+      refused:
+        $ref: '#/$defs/nonEmptyString'
   settingValue:
     anyOf:
     - type: string
@@ -511,6 +548,30 @@ $defs:
         $ref: '#/$defs/settingId'
         x-reads-as: is limited by
         x-read-back-as: limits
+      runsAs:
+        enum:
+        - system
+    allOf:
+    - if:
+        required:
+        - grant
+        properties:
+          grant:
+            const: system
+      then:
+        not:
+          required:
+          - runsAs
+    - if:
+        required:
+        - grant
+        properties:
+          grant:
+            const: anonymous
+      then:
+        not:
+          required:
+          - runsAs
   freshnessValue:
     type: object
     additionalProperties: false
@@ -754,6 +815,11 @@ $defs:
       currency:
         type: string
         pattern: '^[A-Z]{3}$'
+  amountSign:
+    description: "The sign convention of an amount field, naming which direction reads positive."
+    enum:
+    - money-in-positive
+    - money-out-positive
   outputField:
     type: object
     additionalProperties: false
@@ -785,8 +851,22 @@ $defs:
       many:
         description: True when the field holds a list of values of its type.
         type: boolean
+      sign:
+        $ref: '#/$defs/amountSign'
     allOf:
     - $ref: '#/$defs/contractValueRules'
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            enum:
+            - money
+            - decimal
+      else:
+        not:
+          required:
+          - sign
   outputGroup:
     type: object
     additionalProperties: false
@@ -1929,6 +2009,8 @@ $defs:
         x-read-back-as: verifies
       classification:
         $ref: '#/$defs/classification'
+      sign:
+        $ref: '#/$defs/amountSign'
     allOf:
     - $ref: '#/$defs/contractValueRules'
     - if:
@@ -1944,6 +2026,18 @@ $defs:
         not:
           required:
           - verifiedBy
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            enum:
+            - money
+            - decimal
+      else:
+        not:
+          required:
+          - sign
   densityValue:
     enum:
     - public-light
@@ -2430,6 +2524,8 @@ $defs:
         uniqueItems: true
         items:
           $ref: '#/$defs/domainEventCarry'
+      ignored:
+        type: boolean
   entryPointEntry:
     type: object
     additionalProperties: false
@@ -3344,6 +3440,8 @@ $defs:
         $ref: '#/$defs/readsArray'
         x-reads-as: reads
         x-read-back-as: is read by
+      settles:
+        $ref: '#/$defs/settlesObject'
   jobPage:
     type: object
     additionalProperties: false
@@ -3418,6 +3516,8 @@ $defs:
         $ref: '#/$defs/readsArray'
         x-reads-as: reads
         x-read-back-as: is read by
+      settles:
+        $ref: '#/$defs/settlesObject'
     allOf:
     - if:
         required:
@@ -4149,6 +4249,11 @@ $defs:
         $ref: '#/$defs/useCaseId'
         x-reads-as: runs as its primary action
         x-read-back-as: is the primary action of
+      fieldSources:
+        description: The use-case fields the screen shows, each naming the offered use case that outputs or accepts it.
+        type: array
+        items:
+          $ref: '#/$defs/screenShowsEntry'
       serves:
         $ref: '#/$defs/flowStepIdArray'
         x-reads-as: serves
@@ -4269,6 +4374,19 @@ $defs:
         - $ref: '#/$defs/nonEmptyString'
         - type: number
         - type: boolean
+      key:
+        description: The stable key of the row within its table, which rows of other tables name in `refersTo`.
+        type: string
+        pattern: '^[a-z0-9][a-z0-9-]*$'
+      role:
+        description: The role the row plays from the roles the table requires.
+        type: string
+        pattern: '^[a-z0-9][a-z0-9-]*$'
+      refersTo:
+        description: 'The row of another table this row reads, as `reference-data/<module>.<table>#<key>`.'
+        $ref: '#/$defs/referenceDataRowRef'
+        x-reads-as: refers to
+        x-read-back-as: is referred to by
       effectiveFrom:
         $ref: '#/$defs/isoDate'
       effectiveTo:
@@ -4303,6 +4421,24 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       unit:
         $ref: '#/$defs/nonEmptyString'
+      choices:
+        description: The closed set of values the rows may hold; a row value outside it is invalid.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          anyOf:
+          - $ref: '#/$defs/nonEmptyString'
+          - type: number
+          - type: boolean
+      requiredRoles:
+        description: The roles the citing rules read, each played by at least one row in `role`.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          pattern: '^[a-z0-9][a-z0-9-]*$'
       pack:
         description: 'The path of an external pack file, relative to the consumer root, whose values this table copies. The file must exist.'
         $ref: '#/$defs/nonEmptyString'

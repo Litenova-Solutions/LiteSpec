@@ -53,7 +53,7 @@ A floorplan exposes its name on its frame. A reviewer and the route suite read t
 
 ### The Screen Blueprint
 
-A screen record is the Behavior record that describes one screen. Its blueprint is the part of the record that says how the screen is built and where it leads. The `pageFrame` field names the page-frame pattern the screen follows and the option the product catalog chose, and it is required on every screen with a route. The `primaryAction` field names the use case the view shows as its primary action. The `leadsTo` field names the screens a person reaches from this screen in one step. The `task` field states what a person does on the screen. The `displayStates` field lists each screen state with its `name` and `shows` stating what the screen shows in it.
+A screen record is the Behavior record that describes one screen. Its blueprint is the part of the record that says how the screen is built and where it leads. The `pageFrame` field names the page-frame pattern the screen follows and the option the product catalog chose, and it is required on every screen with a route. The `primaryAction` field names the use case the view shows as its primary action. The `fieldSources` field lists each use-case field the screen shows, with `from` naming the offered use case that outputs or accepts it. The `leadsTo` field names the screens a person reaches from this screen in one step. The `task` field states what a person does on the screen. The `displayStates` field lists each screen state with its `name` and `shows` stating what the screen shows in it.
 
 | Field | Meaning |
 |:---|:---|
@@ -61,6 +61,7 @@ A screen record is the Behavior record that describes one screen. Its blueprint 
 | `displayStates` | Each screen state with `name` in sentence case and `shows` stating what the screen shows, required. |
 | `pageFrame` | The page-frame pattern and option the screen follows, required with a route. |
 | `primaryAction` | The offered use case the view shows as its primary action, named in `offers`. |
+| `fieldSources` | Each use-case field the screen shows, with `from` naming the offered use case that outputs or accepts it. |
 | `leadsTo` | The screens a person reaches from this screen in one step. |
 
 The `task` names the same work the screen's pattern and wireframe show, and the `displayStates` name the screen states the pattern's states and the wireframe's states show. The `primaryAction` names the offered use case the wireframe marks primary. The explanation restates Task from `task` and States from `displayStates`.
@@ -583,6 +584,38 @@ pageFrames:
 **Example:** The Claimwick expense list names the expense record and the new expense form in `leadsTo`. A reader on the list reaches the record to act on one expense, or the form to start a new one, each in one step.
 
 **Checked by:** `litespec model check` reports `screen-unreachable` for a screen no other screen leads to that is not its entry point's start, and `screen-dead-end` for a screen that leads nowhere and offers no use case. Run it at the consumer root.
+
+### Show Only Fields an Offered Use Case Outputs or Accepts
+
+**ID:** `litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts`
+
+**Strength:** required
+
+**Applies to:** artifact: record:screen
+
+**Statement:** A screen's `fieldSources` MUST name only fields that a use case the screen offers outputs or accepts, naming that use case in `from`.
+
+**Rationale:** A screen and its reads are written apart: the screen names what it shows, and each use case names what it outputs and accepts. When the two differ, the page shows a field no read returns or a filter no read accepts, and each side looks correct alone. Holding every `fieldSources` entry to an offered use case's inputs and outputs catches the split before anything runs. The entry names the use case in `from` because two offered reads can carry same-named fields, and the screen says which read it shows.
+
+**Example:** The Claimwick expense list names `state` from `use-case/spending.list-expenses` in `fieldSources`, which outputs it. A `fieldSources` entry naming `balance` from that query is reported, because the query outputs no `balance`.
+
+**Checked by:** `litespec model check` reports `screen-shows-unknown` for a `fieldSources` entry naming a field its `from` use case neither outputs nor accepts that no offered use case carries, or naming a use case the screen does not offer, and `screen-shows-drift` for a `fieldSources` entry matching an offered use-case field only by name. Run it at the consumer root.
+
+### Cover Each Screen Scope with Its Read
+
+**ID:** `litespec/frontend/ui#cover-each-screen-scope-with-its-read`
+
+**Strength:** required
+
+**Applies to:** artifact: record:screen
+
+**Statement:** Each read a screen shows MUST return the whole population the screen lists.
+
+**Rationale:** A list and its read can each be correct alone and wrong together: the screen lists every line while the read returns only the open ones, so the rest vanish with no error. The read's tenant, its required inputs, and what it filters decide which records come back. Comparing them against what the screen lists catches the narrowing before the page ships.
+
+**Example:** The Claimwick expense list shows the employee's own expenses, and `use-case/spending.list-expenses` returns that employee's own expenses. A screen that listed every expense in the company would read a query returning every expense instead.
+
+**Reviewed for:** Does each read return every record the screen lists, with no narrowing past what the screen shows? Compare each `fieldSources` entry's `from` read, with its tenant and required inputs, against what the screen lists.
 
 ### Name Money and Moment Formats on Each Entry Point
 

@@ -8,3 +8,4 @@ carries:
   identifies: aggregate/lending.loan
 - name: returnedAt
   type: date-time
+ignored: true

@@ -30,6 +30,7 @@ records:
   title: Extension refused
   outcome: refusal
   refusal: refusal/lending.extension-refused
+  sentence: This loan is past its due date, so it cannot be extended.
 - type: scenario
   id: scenario/extend-loan.extending-an-active-loan-succeeds
   title: Extending an active loan succeeds

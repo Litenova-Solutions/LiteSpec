@@ -559,6 +559,22 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Reviewed for:** Does every message type, operation id, and audit action carry its use case name? Look at each use case's message type, operation id, and audit action.
 
+### Map Every Failure to Its Declared Status
+
+**ID:** `litespec/backend/api#map-every-failure-to-its-declared-status`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** The one global error handler MUST map an unknown record to 404 with a problem detail, a malformed identifier or value to 400, each domain refusal to its declared status, and only an unexpected fault to 500, with the exception type and message in a 500 problem detail only when the host runs in the Development environment.
+
+**Rationale:** A caller-caused failure answered as 500 reads as a broken server: alerts fire, retries repeat a request that was never going to work, and the caller learns nothing. The map keeps each cause on its status: an unknown record answers 404 with a problem detail carrying the stable code, a malformed identifier or value answers 400, and each domain refusal answers the status its record declares. Only an unexpected fault answers 500, so a 500 always means the server failed.
+
+**Example:** In the Claimwick product, reading an expense that does not exist answers 404 with a problem detail carrying the missing-resource code; submitting an expense with a malformed identifier answers 400; reimbursing an expense that is not approved answers 409 under `result/reimburse-expense.not-approved`; and only a fault no refusal covers answers 500.
+
+**Reviewed for:** Does every caller-caused failure answer below 500 with its declared status, with only an unexpected fault answering 500? Look at the global handler map beside the refusal records.
+
 ## Conventions
 
 ### Use This Endpoint Layout

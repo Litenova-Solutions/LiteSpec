@@ -62,6 +62,7 @@ Rule ID | Category | Severity | Notes
 LS1014 | LiteSpec.Domain | Error | Descriptors
 LS1015 | LiteSpec.Domain | Error | Descriptors
 LS1016 | LiteSpec.Domain | Error | Descriptors
+LS1017 | LiteSpec.Domain | Error | Descriptors
 LS2021 | LiteSpec.Layers | Error | Descriptors
 LS2022 | LiteSpec.Layers | Error | Descriptors
 LS2023 | LiteSpec.Layers | Error | Descriptors
@@ -73,6 +74,12 @@ LS2028 | LiteSpec.Layers | Error | Descriptors
 LS2029 | LiteSpec.Layers | Error | Descriptors
 LS2030 | LiteSpec.Layers | Error | Descriptors
 LS2031 | LiteSpec.Layers | Error | Descriptors
+LS2032 | LiteSpec.Layers | Error | Descriptors
+LS2033 | LiteSpec.Layers | Error | Descriptors
+LS2034 | LiteSpec.Layers | Error | Descriptors
+LS2035 | LiteSpec.Layers | Error | Descriptors
+LS2036 | LiteSpec.Layers | Error | Descriptors
+LS2037 | LiteSpec.Layers | Error | Descriptors
 LS3002 | LiteSpec.Style | Error | Descriptors
 LS3003 | LiteSpec.Style | Error | Descriptors
 LS3005 | LiteSpec.Style | Info | Descriptors

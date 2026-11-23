@@ -38,6 +38,10 @@ idempotency:
   recognizedBy: the Erased state and the missing row, so a rerun selects only what remains
 reads:
 - aggregate/spending.expense
+settles:
+  aggregate: aggregate/spending.expense
+  pending: Reimbursed
+  done: Erased
 records:
 - type: scenario
   id: scenario/erase-expired-personal-data.expired-expenses-are-erased

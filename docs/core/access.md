@@ -41,7 +41,7 @@ A permission allows exactly the use cases whose `access` grant names it. No perm
 
 ### What the Access Field Declares
 
-Each use case declares `access` in three parts: the grant the call must satisfy, the tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignInLimit`. The entry point the call arrives through declares `authentication`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
+Each use case declares `access` in three parts: the grant the call must satisfy, the tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignInLimit`. A use case that system triggers run beside person callers states the identity it runs as in `runsAs`. The entry point the call arrives through declares `authentication`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
 
 The `authentication` list on an entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`.
 
@@ -54,6 +54,8 @@ The `grant` on a use case takes one of five forms:
 - `system`, for work an internal trigger runs with no outside caller.
 
 The `recentSignInLimit` field names a `setting/` identifier holding the sign-in window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use cases](use-cases.md) page states the use-case fields around access.
+
+A use case that person callers and system triggers both run states `runsAs: system` beside its person grant: the grant covers the people, and `runsAs` admits the system identity beside them. A use case granted `system` or `anonymous` already admits the system, so it states no `runsAs`.
 
 ### Refusals That Need No Written Result
 
@@ -250,6 +252,22 @@ System never authorizes an outside request, and a call with no authentication wh
 **Example:** `permission/manage-copies` guards staff work, `self(permission/read-loans)` lets a reader read their own loans, `signed-in` opens a workspace to any signed-in person with no permission, `anonymous` opens a public catalog, and `system` covers an archive use case only its retention job runs.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a grant outside permission, self, signed-in, anonymous, and system, and `reference-unknown` for a permission no record defines.
+
+### Admit the System Identity on Every System-Run Use Case
+
+**ID:** `litespec/core/access#admit-the-system-identity-on-every-system-run-use-case`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case, record:reaction, record:job
+
+**Statement:** A use case that a reaction or a job runs, commands, or queries MUST admit the system identity: its grant is `system` or `anonymous`, or it states `runsAs: system` beside its grant for person callers.
+
+**Rationale:** A reaction or a job runs with no person behind it, so the call it sends carries the system identity. The guard authorizes every call from the use case's access, and a permission, self, or signed-in grant admits only people, so every system run of such a use case is refused at runtime. Stating `runsAs: system` beside the person grant admits the system identity too, and a use case that only system triggers run takes the `system` grant with no `runsAs`.
+
+**Example:** Claimwick's erase-personal-data use case grants `permission/remove-personal-data` to finance staff and states `runsAs: system`, so the nightly erase job runs it beside them. Without `runsAs`, every nightly run is refused.
+
+**Checked by:** `litespec model check` reports `system-access-missing` for a reaction or job that runs, commands, or queries a use case whose access admits no system identity, and `record-invalid` for `runsAs` beside a `system` or `anonymous` grant.
 
 ### Limit the Age of a Sign-In by a Setting
 

@@ -354,6 +354,22 @@ A tool that alters the schema from application startup is no reviewed step, whic
 
 **Reviewed for:** Is any stored aggregate committed without a compared version, or any stale write escaping the use case conflict refusal? Look at each stored aggregate beside its commit.
 
+### Serialize Every Persisted Payload with One Configuration
+
+**ID:** `litespec/backend/persistence#serialize-every-persisted-payload-with-one-configuration`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** The document store, the outbox, and any scheduled-job store MUST serialize every persisted payload through one shared serializer configuration.
+
+**Rationale:** A typed identifier or money value that serializes one way in the document store and another way in the outbox arrives in a different shape than the store wrote. Two configurations drift with the first converter added to one and not the other: an identifier that survives the store arrives empty through the outbox. One shared configuration with the same converters keeps every persisted payload round-tripping the same everywhere.
+
+**Example:** In the Claimwick product, the expense document, the expense-reimbursed outbox envelope, and the erase-expired-data job payload each carry the expense identifier and money amounts. All three serialize through the one product serializer configuration, so the identifier and the amounts read back identically from each store.
+
+**Reviewed for:** Does any persisted payload serialize outside the one shared configuration, or any store carry converters the others lack? Look at the document store, the outbox store, and the scheduled-job store beside the shared configuration.
+
 ## Conventions
 
 ### Use One Persistence Folder
