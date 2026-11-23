@@ -299,13 +299,13 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Applies to:** artifact: record:reaction, record:job
 
-**Statement:** Each reaction and each job that runs a use case writing an aggregate MUST name in `settles` the aggregate with its pending state and its done state, and its refused state except where another attempt returns the run to pending.
+**Statement:** Each reaction and each job whose outcome a reader waits on MUST name in `settles` the aggregate it writes with its pending state and its done state, and its refused state except where another attempt returns the run to pending.
 
 **Rationale:** A result produced after the commit arrives later: the command commits, and a reaction or job settles the outcome afterwards. A reader that meets the record meanwhile sees neither done nor refused, and reads the absence as whichever ending fits the screen: a payout still travelling reads as refused, or a refused payout reads as still travelling. Naming the pending state the run leaves, the done state it enters, and the refused state a terminal refusal enters keeps the three endings apart on the written aggregate. Where every failure earns another attempt, the run returns to pending instead, and the declared retry states that no terminal refusal exists. A run writing no aggregate settles nothing, and a run writing several is reviewed with its atomicity rule. A query reading the settled aggregate returns its state, so the reader sees which of the three holds.
 
 **Example:** Claimwick's erase job runs the erase-personal-data command over decided expenses past retention. It settles the expense from pending Reimbursed to done Erased, and names no refused state: its retry returns each failed expense to Reimbursed for the next nightly run.
 
-**Checked by:** `litespec model check` reports `async-pending-missing` (level G) for a run writing an aggregate with no `settles`, with a pending or done state that names no state or names one state twice, or with a pending state that no earlier transition reaches, `async-refused-unrecorded` (level G) for a run with no refused state and no declared retry, or a refused state that repeats pending or done, and `reference-unknown` (level G) for a `settles` naming no written aggregate or state. A reviewer confirms each query reading the settled aggregate returns its state.
+**Checked by:** `litespec model check` reports `async-settles-missing` (level A) for a run writing an aggregate with no `settles`, because the model cannot tell whether a reader waits on it, `async-pending-missing` (level G) for a `settles` with a pending or done state that names no state or names one state twice, or with a pending state that no earlier transition reaches, `async-refused-unrecorded` (level G) for a run with no refused state and no declared retry, or a refused state that repeats pending or done, and `reference-unknown` (level G) for a `settles` naming no written aggregate or state. A reviewer confirms each query reading the settled aggregate returns its state.
 
 ### Declare Each Read Model Field from a Published Field
 

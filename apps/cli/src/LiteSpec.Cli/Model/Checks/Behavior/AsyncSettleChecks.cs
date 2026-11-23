@@ -84,7 +84,7 @@ internal static class AsyncSettleChecks
             || settles.ValueKind != JsonValueKind.Object)
         {
             findings.Add(new Finding(
-                "async-pending-missing",
+                "async-settles-missing",
                 $"{Label(holder.Type)} '{holder.Id}' runs '{runId}' writing '{aggregateId}' but names no settles; name the pending, done and refused states the run settles.",
                 holder.File, holder.Line, SubjectOf(holder)));
             return;
