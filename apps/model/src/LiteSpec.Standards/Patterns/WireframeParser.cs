@@ -9,10 +9,12 @@ public static class WireframeParser
     /// <summary>The separator between inline children.</summary>
     const string InlineSeparator = " · ";
 
-    /// <summary>Parses the block text and checks it against the rules of the language.</summary>
+    /// <summary>Parses the block text and checks it against the rules of the language and the composition rules.</summary>
     /// <param name="text">The block text.</param>
+    /// <param name="sectionLimit">The most stacked sections a page holds before it divides behind tabs or navigation.</param>
+    /// <param name="fieldLimit">The most fields a form holds before it groups them into sections.</param>
     /// <returns>The parsed wireframe, with every error found.</returns>
-    public static Wireframe Parse(string text)
+    public static Wireframe Parse(string text, int sectionLimit = 3, int fieldLimit = 6)
     {
         var errors = new List<WireframeError>();
         var roots = new List<WireframeNode>();
@@ -97,6 +99,7 @@ public static class WireframeParser
         if (roots.Count == 1 && roots[0].Part == "page")
         {
             CheckPage(roots[0], errors);
+            CheckComposition(roots[0], errors, sectionLimit, fieldLimit);
         }
 
         errors.Sort((left, right) => left.Line.CompareTo(right.Line));
@@ -292,16 +295,6 @@ public static class WireframeParser
             errors.Add(new(node.Line, "'page' is only the top part"));
         }
 
-        if (node.Part is "header" or "footer" or "toolbar" || WireframeParts.Overlays.Contains(node.Part))
-        {
-            var primaries = node.Descendants().Count(child => child.Part == "action" && child.Has("primary"));
-
-            if (primaries > 1)
-            {
-                errors.Add(new(node.Line, $"a {node.Part} holds at most one primary action, and this one holds {primaries}"));
-            }
-        }
-
         foreach (var child in node.Children)
         {
             Check(child, node, errors);
@@ -360,7 +353,7 @@ public static class WireframeParser
         }
     }
 
-    /// <summary>Checks the page node's children: overlays come last.</summary>
+    /// <summary>Checks the page node: overlays come last, and the whole view holds at most one primary action.</summary>
     /// <param name="page">The page node.</param>
     /// <param name="errors">The errors to append to.</param>
     static void CheckPage(WireframeNode page, List<WireframeError> errors)
@@ -377,6 +370,114 @@ public static class WireframeParser
             }
 
             seenOverlay |= overlay;
+        }
+
+        var primaries = page.Descendants(stopAt: OverlayParts).Where(child => child.Part == "action" && child.Has("primary")).ToList();
+
+        if (primaries.Count > 1)
+        {
+            errors.Add(new(primaries[1].Line, $"the view holds at most one primary action, and this one holds {primaries.Count}"));
+        }
+    }
+
+    /// <summary>Checks the page node against the composition rules: no nested surfaces, every field on a surface, a divided page past the section limit, and a grouped form past the field limit.</summary>
+    /// <param name="page">The page node.</param>
+    /// <param name="errors">The errors to append to.</param>
+    /// <param name="sectionLimit">The most stacked sections a page holds before it divides behind tabs or navigation.</param>
+    /// <param name="fieldLimit">The most fields a form holds before it groups them into sections.</param>
+    static void CheckComposition(WireframeNode page, List<WireframeError> errors, int sectionLimit, int fieldLimit)
+    {
+        CheckNesting(page, errors);
+
+        var fields = new List<(WireframeNode Field, List<WireframeNode> Ancestors)>();
+        CollectFields(page, [], fields);
+
+        foreach (var (field, ancestors) in fields)
+        {
+            if (!ancestors.Any(ancestor => SurfaceParts.Contains(ancestor.Part)))
+            {
+                errors.Add(new(field.Line, "a field sits on a surface: a region, card, dialog, drawer, popover, toolbar, header, aside or table", WireframeProblemKind.Surface));
+            }
+        }
+
+        var sections = page.Children.Where(child => child.Part is "region" or "card").ToList();
+
+        if (sections.Count > sectionLimit && !page.Children.Any(child => child.Part is "tabs" or "nav"))
+        {
+            errors.Add(new(
+                sections[sectionLimit].Line,
+                $"the page holds at most {sectionLimit} sections, and this one stacks {sections.Count} with no tabs or navigation",
+                WireframeProblemKind.Tabs));
+        }
+
+        var formFields = fields
+            .Where(entry => !entry.Ancestors.Any(ancestor => ancestor.Part is "toolbar" or "popover" or "header" or "table" or "item"))
+            .ToList();
+
+        if (formFields.Count > fieldLimit)
+        {
+            var regions = new HashSet<WireframeNode>();
+
+            foreach (var (_, ancestors) in formFields)
+            {
+                foreach (var ancestor in ancestors.Where(ancestor => ancestor.Part == "region"))
+                {
+                    regions.Add(ancestor);
+                }
+            }
+
+            if (regions.Count < 2)
+            {
+                errors.Add(new(
+                    formFields[fieldLimit].Field.Line,
+                    $"a form of {formFields.Count} fields groups them into at least two regions",
+                    WireframeProblemKind.Group));
+            }
+        }
+    }
+
+    /// <summary>The parts that give a field a surface: anything but the page itself and the layout parts that only arrange their children.</summary>
+    static readonly HashSet<string> SurfaceParts = ["region", "card", "dialog", "drawer", "popover", "toolbar", "header", "aside", "table", "item", "nav"];
+
+    /// <summary>The parts that open a view of their own over the page, each holding its own primary action.</summary>
+    static readonly HashSet<string> OverlayParts = [.. WireframeParts.Overlays];
+
+    /// <summary>Reports each card holding a card or a region, and each region holding a card.</summary>
+    /// <param name="node">The node whose children are judged.</param>
+    /// <param name="errors">The errors to append to.</param>
+    static void CheckNesting(WireframeNode node, List<WireframeError> errors)
+    {
+        foreach (var child in node.Children)
+        {
+            if (node.Part == "card" && child.Part is "card" or "region")
+            {
+                errors.Add(new(child.Line, $"a card holds no {child.Part}", WireframeProblemKind.Nesting));
+            }
+            else if (node.Part == "region" && child.Part == "card")
+            {
+                errors.Add(new(child.Line, "a region holds no card", WireframeProblemKind.Nesting));
+            }
+
+            CheckNesting(child, errors);
+        }
+    }
+
+    /// <summary>Collects every field below the node with its ancestors, outermost first.</summary>
+    /// <param name="node">The node whose subtree is searched.</param>
+    /// <param name="ancestors">The ancestors above the node, outermost first.</param>
+    /// <param name="fields">The fields found so far, appended in place.</param>
+    static void CollectFields(WireframeNode node, List<WireframeNode> ancestors, List<(WireframeNode Field, List<WireframeNode> Ancestors)> fields)
+    {
+        foreach (var child in node.Children)
+        {
+            var below = new List<WireframeNode>(ancestors) { node };
+
+            if (child.Part == "field")
+            {
+                fields.Add((child, below));
+            }
+
+            CollectFields(child, below, fields);
         }
     }
 

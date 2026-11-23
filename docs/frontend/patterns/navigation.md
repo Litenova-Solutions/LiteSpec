@@ -613,10 +613,11 @@ Never ship with no language switch: one language is a commercial decision about 
 
 ```wireframe
 page
-  toolbar
-    text "Expenses"
-    field "Language" select = "English"
-    field "Theme" select = "Light"
+  region "Top bar"
+    toolbar
+      text "Expenses"
+      field "Language" select = "English"
+      field "Theme" select = "Light"
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
@@ -663,10 +664,11 @@ page
 
 ```wireframe
 page
-  toolbar
-    text "Expenses"
-    field "Language" select = "English"
-    action "Account: Alex Morgan"
+  region "Top bar"
+    toolbar
+      text "Expenses"
+      field "Language" select = "English"
+      action "Account: Alex Morgan"
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
@@ -1042,9 +1044,9 @@ page
   header
     heading "Help"
     text "Guides for the expenses you hold, and the people who answer the rest."
-  toolbar
-    field "Search the guides" search
   region "Guides"
+    toolbar
+      field "Search the guides" search
     list 4
       item: text "Filing expenses" · text muted "Trips, receipts, amounts and the expense list" · action "Open"
   region "Talk to support"

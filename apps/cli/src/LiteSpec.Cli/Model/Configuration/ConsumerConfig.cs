@@ -114,6 +114,9 @@ sealed class ConsumerConfig
     /// <summary>Gets the shared UI package root, from <c>ui.package.path</c>; empty when the project declares none.</summary>
     public string SharedUiPackageRoot { get; private set; } = "";
 
+    /// <summary>Gets the screen composition limits the checks read, from <c>ui.limits</c> or their defaults.</summary>
+    public UiLimits UiLimits { get; private set; } = UiLimits.Defaults;
+
     /// <summary>Gets where test result files live.</summary>
     public string TestResultsDir { get; private set; } = "";
 
@@ -342,6 +345,8 @@ sealed class ConsumerConfig
         {
             config.SharedUiPackageRoot = Combine(config.Root, packagePath);
         }
+
+        config.UiLimits = UiLimits.Read(document);
         config.TestResultsDir = Combine(config.Root, ReadString(paths, "testResults", "TestResults"));
         config.ContractPath = ReadString(paths, "contract", "") is { Length: > 0 } contract ? Combine(config.Root, contract) : null;
 

@@ -140,11 +140,11 @@ page
   header
     heading "Expenses"
     text "Every expense across your spenders, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "State" select = "Any state"
-    action "Export"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "State" select = "Any state"
+      action "Export"
     table 6 "Expense" "Spender" "Filed" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
     text muted "1 to 25 of 268"
@@ -162,8 +162,9 @@ page
   header
     heading "Expenses"
     text "Every expense across your spenders, newest first."
-  toolbar
-    field "Expense number, name or email" search
+  region "Find"
+    toolbar
+      field "Expense number, name or email" search
   tabs "All 268" "Paid 214" "Awaiting 31" "Reversed 18" "Disputed 5"
     region "Expenses"
       table 6 "Expense" "Spender" "Filed" "State" "Paid"
@@ -183,10 +184,10 @@ page
   header
     heading "Expenses"
     text "Every expense across your spenders, newest first."
-  toolbar
-    field "Filter by state, spender or trip" search = "state:paid"
-    action "Export"
   region "Expenses"
+    toolbar
+      field "Filter by state, spender or trip" search = "state:paid"
+      action "Export"
     text muted "214 of 268 expenses"
     action quiet "Save this view"
     table 6 "Expense" "Spender" "Filed" "State" "Paid"
@@ -224,11 +225,11 @@ page
   header
     heading "Reversals"
     text "31 expenses waiting for a decision."
-  toolbar
-    field "Search by expense or spender" search
-    field "Age" select = "Any age"
-    action "Columns"
   region "Reversals"
+    toolbar
+      field "Search by expense or spender" search
+      field "Age" select = "Any age"
+      action "Columns"
     message "All 25 reversals on this page are selected. 6 more are on the next page." info
     action "Select all 31"
     action quiet "Clear"
@@ -361,7 +362,7 @@ page
       fact "Expenses" "32 of 40"
       action quiet "Copy"
       field "Name" text = "Rotterdam client visit"
-      action primary "Save"
+      action "Save"
 ```
 
 **Rationale:** When a record has more facets than three sections allow, tabs divide it. The Rotterdam trip splits into expenses, budget, reversals, and details, and the active tab sits in the URL, so a link carries the facet with it.
@@ -456,7 +457,6 @@ page
   region "Budget"
     text muted "Which cost centre holds it."
     field "Cost centre" select = "Amsterdam sales"
-  region "Submit"
     action "Cancel"
     action primary "Create expense"
 ```
@@ -512,9 +512,9 @@ page
     text "Every euro of the month, by expense kind."
     action quiet "Previous month"
     action quiet "Next month"
-    field "Month" select = "September 2026"
     action "Download"
   region "Paid out"
+    field "Month" select = "September 2026"
     fact "Expenses paid" "EUR 54,180.00"
     fact "Booking fees" "EUR 6,020.00"
     fact "Total paid out" "EUR 60,200.00"
@@ -528,7 +528,7 @@ page
 
 **Rationale:** The period is the page heading, with an unambiguous chevron on each side to step through consecutive months and a select to jump across them. September 2026 reads as the heading with Previous month and Next month beside it, so a reader cannot mistake a chevron for a tab.
 
-**Cost:** Walking months one at a time is slow when comparing a quarter, which is why the month select stays beside the chevrons for the longer jump.
+**Cost:** Walking months one at a time is slow when comparing a quarter, which is why the month select stays on the page for the longer jump.
 
 #### `dropdown-with-presets-beside-a-typeable-range`: Dropdown with Presets Beside a Typeable Range
 
@@ -654,10 +654,10 @@ page
   header
     heading "Settings"
     text "Every setting Harbor and Pine holds. Search by what it is called."
-  toolbar
-    field "Search settings" search
-    text muted "30 settings"
   region "All settings"
+    toolbar
+      field "Search settings" search
+      text muted "30 settings"
     list 10
       item: text "Cost centres" · text muted "Settings, Cost centres, Budgets and spenders." · action "Open"
 ```
@@ -1040,8 +1040,7 @@ page
   header
     heading "Set up Harbor and Pine"
     text "Three steps between a company and its first payout."
-  region "Before you can take money"
-    text muted "1 of 3 steps done."
+    text "1 of 3 steps done."
   region "Create a company"
     status "Done" positive
     text "Harbor and Pine, Amsterdam."

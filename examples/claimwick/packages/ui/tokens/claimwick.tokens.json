@@ -4,15 +4,23 @@
       "$value": "#f1f5f9",
       "$type": "color"
     },
-    "card": {
+    "layer-1": {
       "$value": "#ffffff",
+      "$type": "color"
+    },
+    "layer-2": {
+      "$value": "#f1f5f9",
+      "$type": "color"
+    },
+    "layer-accent": {
+      "$value": "#e2e8f0",
       "$type": "color"
     },
     "separator": {
       "$value": "#e2e8f0",
       "$type": "color"
     },
-    "card-edge": {
+    "layer-edge": {
       "$value": "#cbd5e1",
       "$type": "color"
     },
@@ -154,15 +162,23 @@
       "$value": "#0f172a",
       "$type": "color"
     },
-    "card": {
+    "layer-1": {
       "$value": "#1e293b",
+      "$type": "color"
+    },
+    "layer-2": {
+      "$value": "#334155",
+      "$type": "color"
+    },
+    "layer-accent": {
+      "$value": "#475569",
       "$type": "color"
     },
     "separator": {
       "$value": "#334155",
       "$type": "color"
     },
-    "card-edge": {
+    "layer-edge": {
       "$value": "#475569",
       "$type": "color"
     },

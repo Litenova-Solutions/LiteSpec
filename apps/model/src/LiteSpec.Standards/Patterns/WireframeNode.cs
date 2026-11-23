@@ -44,13 +44,23 @@ public sealed class WireframeNode
 
     /// <summary>Every node below this one, depth first.</summary>
     /// <returns>Every descendant node, depth first.</returns>
-    public IEnumerable<WireframeNode> Descendants()
+    public IEnumerable<WireframeNode> Descendants() => Descendants(stopAt: null);
+
+    /// <summary>Every node below this one, depth first, without descending into a part named in <paramref name="stopAt"/>.</summary>
+    /// <param name="stopAt">The parts whose subtrees are skipped, or null to skip none.</param>
+    /// <returns>The descendant nodes, depth first.</returns>
+    public IEnumerable<WireframeNode> Descendants(IReadOnlySet<string>? stopAt)
     {
         foreach (var child in Children)
         {
+            if (stopAt is not null && stopAt.Contains(child.Part))
+            {
+                continue;
+            }
+
             yield return child;
 
-            foreach (var below in child.Descendants())
+            foreach (var below in child.Descendants(stopAt))
             {
                 yield return below;
             }

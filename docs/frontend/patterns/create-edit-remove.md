@@ -255,8 +255,9 @@ page
     heading "Trips"
     text "93 scheduled, 4 archived."
     action "New trip"
-  toolbar
-    field "Search trips" search
+  region "Find"
+    toolbar
+      field "Search trips" search
   region "Scheduled"
     list 3
       item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
@@ -282,8 +283,9 @@ page
     heading "Trips"
     text "93 scheduled, 3 in the trash."
     action destructive "Empty the trash"
-  toolbar
-    field "Search trips" search
+  region "Find"
+    toolbar
+      field "Search trips" search
   region "Notice"
     message "The trash empties itself after 30 days. Filed expenses are never in it." info
   region "Trash"
@@ -604,9 +606,9 @@ page
     heading "Trips"
     text "93 scheduled."
     action "New trip"
-  toolbar
-    field "Search trips" search
   region "Trips"
+    toolbar
+      field "Search trips" search
     list 1
       item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026 · Rotterdam client site" · status "Draft" neutral · text "0 of 40 receipts" · action "Open"
   dialog
@@ -784,9 +786,9 @@ page
     heading "Trips"
     text "93 scheduled, 4 archived."
     action "New trip"
-  toolbar
-    field "Search trips" search
   region "Archived"
+    toolbar
+      field "Search trips" search
     list 3
       item: text "Okafor Office visit" · text muted "28 Feb 2026 · archived 2 Oct" · text "Returns as Scheduled" · action "Restore"
     text "A restore returns the record to the state it held. Nothing goes back live by itself."
@@ -829,9 +831,9 @@ page
     heading "Trips"
     text "93 scheduled, 4 archived."
     action "New trip"
-  toolbar
-    field "Search trips" search
   region "Trips"
+    toolbar
+      field "Search trips" search
     list 2
       item: text "Rotterdam client visit" · text muted "9 Oct 2026 · Rotterdam client site" · status "Scheduled" info · text "1 of 40 receipts"
     text "Okafor Office visit left this list a moment ago. Undo is fastest where the archive happened."
@@ -962,7 +964,7 @@ page
     heading "Travel policy"
     status "Draft" neutral
     text "EUR 45.00 · 500 lines."
-    action primary "Publish"
+    action "Publish"
   region "Budget codes"
     list 1
       item: text "Standard" · text muted "EUR 45.00 · 500 lines" · status "Priced" positive

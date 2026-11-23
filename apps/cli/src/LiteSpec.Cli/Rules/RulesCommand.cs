@@ -101,7 +101,7 @@ static class RulesCommand
             var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context);
             IReadOnlyList<RulesDecided.DecidedDecision> decided = context.IsCodePath ? RulesDecided.LoadDecisions(config, context) : [];
 
-            Print(context, results, parsed.Has("--full"), config.Layers, decided);
+            Print(config, home, context, results, parsed.Has("--full"), config.Layers, decided);
             return 0;
         }
 
@@ -261,20 +261,23 @@ static class RulesCommand
 
     /// <summary>
     ///     Prints the retrieved provisions. On a code path the followed decisions and
-    ///     covering waivers print first under Decided. Without full, the provisions
-    ///     that need judgment and match the file kind print as statements grouped by
-    ///     strength, the provisions matched only through a marked record collapse into
-    ///     one line per record, the checked provisions print as one line each with their
-    ///     finding codes and analyzer IDs, and the layer-wide provisions print by
-    ///     identifier under their own heading. With full, every provision prints as
-    ///     a statement with its rationale and example, with collapsed records after.
+    ///     covering waivers print first under Decided, then the Page frame block on a
+    ///     route file. Without full, the provisions that need judgment and match the
+    ///     file kind print as statements grouped by strength, the provisions matched
+    ///     only through a marked record collapse into one line per record, the checked
+    ///     provisions print as one line each with their finding codes and analyzer IDs,
+    ///     and the layer-wide provisions print by identifier under their own heading.
+    ///     With full, every provision prints as a statement with its rationale and
+    ///     example, with collapsed records after.
     /// </summary>
+    /// <param name="config">The consumer configuration holding the record roots and frontends.</param>
+    /// <param name="home">The carried LiteSpec release root holding the pattern pages.</param>
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="decided">The decisions the target marks, in marked order; empty for a record target.</param>
-    static void Print(PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
+    static void Print(ConsumerConfig config, string home, PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
     {
         var parts = new List<string>();
 
@@ -301,6 +304,8 @@ static class RulesCommand
         {
             RulesDecided.Print(decided, results);
         }
+
+        RulesPageFrame.Print(config, home, context);
 
         var collapsed = context.IsCodePath
             ? results.Where(result => result.MatchesOnlyThroughMarkedRecord).ToList()

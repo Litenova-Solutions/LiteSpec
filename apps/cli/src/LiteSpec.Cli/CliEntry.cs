@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Audit;
 using LiteSpec.Cli.Book;
 using LiteSpec.Cli.Context;
 using LiteSpec.Cli.Init;
@@ -26,6 +27,7 @@ static class CliEntry
           context       Write the specification as one compact text file.
           rules         List the provisions that govern a path or record.
           skill         Install or remove the litespec skill.
+          ui            Audit the rendered pages in a browser.
 
         Run 'litespec <command> --help' for a command's options.
         'litespec --version' prints the LiteSpec release this tool ships in.
@@ -57,6 +59,7 @@ static class CliEntry
                 "context" => ContextCommand.Run(rest),
                 "rules" => RulesCommand.Run(rest),
                 "skill" => SkillCommand.Run(rest),
+                "ui" => UiCommand.Run(rest),
                 _ => Unknown(args[0]),
             },
             args);

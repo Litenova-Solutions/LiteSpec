@@ -15,6 +15,7 @@ fulfills:
 pageFrame:
   pattern: <page frame pattern, such as list-page>
   option: <chosen option>
+primaryAction: <use-case id shown as the primary action, or remove this line>
 task: <the job the person does here, in one to three sentences>
 displayStates:
 - name: <State, such as Empty or Loading>

@@ -116,9 +116,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: field "Select EXP-1042" checkbox · text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -133,10 +133,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Sort" select = "Newest first"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Sort" select = "Newest first"
     list 6
       item: link "EXP-1042" · text "EUR 125.00" · text muted "Ava, 8 Oct 09:32" · status "Paid" positive
 ```
@@ -153,10 +153,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    action "Columns"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      action "Columns"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -189,9 +189,10 @@ page
   header
     heading "Expenses"
     text "Finance view: what was paid, how, and what went back."
-  toolbar
-    field "Search expenses" search
-    field "Date" select = "This month"
+  region "Find"
+    toolbar
+      field "Search expenses" search
+      field "Date" select = "This month"
   tabs "All expenses" "Finance" "Payout run"
     region "Finance"
       table 5 "Expense" "Submitted" "Method" "Paid" "Reversed"
@@ -234,9 +235,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 5 "Expense ^v" "Spender" "Submitted v" "State ^v" "Paid ^v"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -259,10 +260,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    field "Sort" select = "Newest first"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "Sort" select = "Newest first"
     table 5 "Expense ^v" "Spender" "Submitted v" "State ^v" "Paid ^v"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -277,10 +278,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    field "Sort" select = "Newest first"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "Sort" select = "Newest first"
     list 6
       item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · 8 Oct 09:32" · status "Paid" positive
 ```
@@ -299,11 +300,11 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-    field "Sort" select = "Newest first"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Any state"
+      field "Sort" select = "Newest first"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -344,13 +345,13 @@ page
   header
     heading "Expenses"
     text "268 expenses across 40 trips."
-  toolbar
-    field "Search expenses" search
-    field "Trip" select = "Any trip"
-    field "State" select = "Any state"
-    field "Date" select = "Any date"
-    field "Cost centre" select = "Any cost centre"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "Trip" select = "Any trip"
+      field "State" select = "Any state"
+      field "Date" select = "Any date"
+      field "Cost centre" select = "Any cost centre"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -371,13 +372,13 @@ page
   header
     heading "Expenses"
     text "58 of 268 expenses match."
-  toolbar
-    field "Search expenses" search
-    action "State: Paid, Awaiting payment"
-    action "Trip: Rotterdam client visit"
-    action "Cost centre"
-    action quiet "Clear 3"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      action "State: Paid, Awaiting payment"
+      action "Trip: Rotterdam client visit"
+      action "Cost centre"
+      action quiet "Clear 3"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -408,11 +409,12 @@ page
     text "268 expenses across 40 trips."
   split 1:3
     aside "Filter"
-      field "Search" text
-      field "Trip" select = "Any trip"
-      field "State" select = "Any state"
-      field "Cost centre" select = "Any cost centre"
-      field "Only reversals" checkbox
+      region "Narrow the expenses"
+        field "Search" text
+        field "Trip" select = "Any trip"
+        field "State" select = "Any state"
+        field "Cost centre" select = "Any cost centre"
+        field "Only reversals" checkbox
       action primary "Apply"
       action quiet "Clear"
     region "Expenses"
@@ -456,9 +458,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -481,10 +483,10 @@ page
   header
     heading "Reversals"
     text "31 payouts to decide. Sorted by how long you have left."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
   region "Reversals"
+    toolbar
+      field "Search reversals" search
+      field "Window" select = "Any window"
     table 5 "Expense ^" "Spender" "State" "Amount" "Time left"
       item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
   footer
@@ -507,10 +509,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Any state"
     list 5
       item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · ava@harbor-pine.example" · status "Paid" positive · action "Open"
   footer
@@ -549,9 +551,10 @@ page
   header
     heading "Reversals"
     text "31 payouts to decide."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
+  region "Find"
+    toolbar
+      field "Search reversals" search
+      field "Window" select = "Any window"
   region "Selected"
     text "3 selected"
     text muted "EUR 200.00 of payout money"
@@ -576,10 +579,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Any state"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -607,9 +610,10 @@ page
   header
     heading "Reversals"
     text "31 payouts to decide."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
+  region "Find"
+    toolbar
+      field "Search reversals" search
+      field "Window" select = "Any window"
   region "Selected"
     text "3 selected"
     text muted "EUR 200.00"
@@ -661,9 +665,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -689,9 +693,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -714,9 +718,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
@@ -755,9 +759,9 @@ page
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
     action "Export CSV"
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
 ```
@@ -768,9 +772,9 @@ page
   header
     heading "Expenses"
     text "268 expenses, one card each."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     grid 4
       card "EXP-1042, EUR 125.00"
         text "Ava, Rotterdam client visit"
@@ -793,9 +797,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   drawer right
@@ -822,9 +826,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first. Click an expense to open it."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     table 4 "Expense" "Spender" "Submitted" "State" "Paid"
       item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
@@ -857,7 +861,6 @@ page
   header
     heading "Trips"
     text "Six trips a month, from a EUR 2,000 client visit to a single fare."
-    action primary "New trip"
   region "Trips"
     message positive "No trips yet. A trip holds the dates, the client site, the budget and what is on it."
     action primary "New trip"
@@ -875,9 +878,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     message critical "These expenses could not be refreshed. What you see is from 2 minutes ago."
     action "Try again"
     table 4 "Expense" "Spender" "State" "Paid"
@@ -896,10 +899,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    action quiet "Stop"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      action quiet "Stop"
     message info "Reading 268 expenses. 6 s so far."
     table 4 "Expense" "Spender" "State" "Paid"
       item: text muted "Expense" · text muted "Spender" · text muted "State" · text muted "Paid"
@@ -935,9 +938,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     text muted "Disputed and Awaiting payment are toned. Paid is not."
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1039" · text "Eli" · text "8 Oct 06:22" · status "Awaiting payment" caution · text "EUR 45.00"
@@ -955,10 +958,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Scope" select = "Needs attention"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Scope" select = "Needs attention"
     table 4 "Expense" "Spender" "State" "Paid"
       item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text muted "Ben asked for evidence" · text "EUR 45.00"
 ```
@@ -977,9 +980,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
@@ -1014,9 +1017,9 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
@@ -1033,10 +1036,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Scope" select = "Any state"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Scope" select = "Any state"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text "EUR 45.00" · text muted "EUR 45.00 back from the spender"
 ```
@@ -1055,10 +1058,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Scope" select = "Any state"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Scope" select = "Any state"
     text muted "Reversed is the total that came back from the spender."
     table 6 "Expense" "Spender" "Submitted" "State" "Charged" "Reversed"
       item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · text "Reversed" · text "EUR 50.00" · text "EUR 50.00"
@@ -1092,10 +1095,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense for the Rotterdam client visit, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    action "Export CSV"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      action "Export CSV"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
@@ -1112,10 +1115,10 @@ page
   header
     heading "Expenses"
     text "Every paid expense for the Rotterdam client visit, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    action disabled "Exporting"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      action disabled "Exporting"
     message info "Preparing 9,412 expenses as CSV. The file arrives by email to finance@harbor-pine.example."
     text muted "34 percent done."
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
@@ -1173,9 +1176,9 @@ page
   header
     heading "Expenses"
     text "2 of 268 expenses match ava."
-  toolbar
-    field "Expense number, name or email" search = "ava"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search = "ava"
     table 4 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
@@ -1194,10 +1197,10 @@ page
   header
     heading "Expenses"
     text "Searching Rotterdam client visit for ava."
-  toolbar
-    field "Expense number, name or email" search = "ava"
-    field "Scope" select = "Rotterdam client visit"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search = "ava"
+      field "Scope" select = "Rotterdam client visit"
     text "1 match in Rotterdam client visit. 1 more in all trips."
     table 4 "Expense" "Spender" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "Paid" · text "EUR 125.00"
@@ -1217,10 +1220,10 @@ page
   header
     heading "Expenses"
     text "Searching for ava rotterdam visit."
-  toolbar
-    field "Expense number, name or email" search = "ava rotterdam visit"
-    action quiet "Stop"
   region "Expenses"
+    toolbar
+      field "Expense number, name or email" search = "ava rotterdam visit"
+      action quiet "Stop"
     message info "Searching 268 expenses for ava rotterdam visit."
 ```
 
@@ -1254,10 +1257,10 @@ page
   header
     heading "Expenses"
     text "Newest first, grouped by day."
-  toolbar
-    field "Expense number, name or email" search
-    field "Any state" select = "Any state"
   region "Today, 8 Oct 2026, 4 expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Any state" select = "Any state"
     fact "Subtotal" "EUR 270.00"
     table 4 "Expense" "Spender" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
@@ -1281,10 +1284,10 @@ page
   header
     heading "Expenses"
     text "Grouped by trip. Utrecht audit and Maastricht workshop are collapsed."
-  toolbar
-    field "Expense number, name or email" search
-    field "Group" select = "Trip"
   region "Rotterdam client visit, 3 expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Group" select = "Trip"
     fact "Subtotal" "EUR 225.00"
     action quiet "Collapse"
     table 4 "Expense" "Spender" "State" "Paid"
@@ -1311,11 +1314,12 @@ page
   header
     heading "Expenses"
     text "Sorted by trip, newest first inside each trip."
-  toolbar
-    field "Expense number, name or email" search
-    field "Sort" select = "Trip"
-  table 5 "Expense" "Trip" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+      field "Sort" select = "Trip"
+    table 5 "Expense" "Trip" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The table stays flat and the reader sorts by the would-be group field instead. Nothing hides, paging stays simple, and the reader groups adjacent equal values on their own.
@@ -1348,10 +1352,11 @@ page
   header
     heading "Expenses"
     text "Every paid expense, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   card "EXP-1042 lines"
     action quiet "Collapse"
     fact "Train fare, 2" "EUR 90.00"
@@ -1372,10 +1377,11 @@ page
   header
     heading "Decision list"
     text "Rotterdam client visit, today. What is decided and what is not."
-  toolbar
-    field "Spender name or expense number" search
-  table 3 "Expense" "Spender" "Decided"
-    item: text "EXP-1038" · text "Nina" · text "1 of 2"
+  region "Expenses"
+    toolbar
+      field "Spender name or expense number" search
+    table 3 "Expense" "Spender" "Decided"
+      item: text "EXP-1038" · text "Nina" · text "1 of 2"
   card "EXP-1038 lines"
     action quiet "Collapse"
     fact "Train fare L-1041, Ben" "09:41"
@@ -1394,10 +1400,11 @@ page
   header
     heading "Expenses"
     text "The expense number opens the record. Nothing expands in place."
-  toolbar
-    field "Expense number, name or email" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: link "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: link "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The expense number is a link and everything is on the record page: one pattern for detail everywhere, and the list stays a list.
@@ -1428,10 +1435,11 @@ page
   header
     heading "Expenses"
     text "The expense column stays while the rest scroll under it."
-  toolbar
-    field "Expense number, name or email" search
-  table 8 "Expense" "Trip" "Submitted" "Spender" "Cost centre" "State" "Method" "Paid"
-    item: text "EXP-1042" · text "Rotterdam client visit" · text "8 Oct 2026, 09:32" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+    table 8 "Expense" "Trip" "Submitted" "Spender" "Cost centre" "State" "Method" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "8 Oct 2026, 09:32" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
 ```
 
 **Rationale:** The expense column stays pinned while the other columns scroll under it. Nothing folds, so every fact keeps its own scannable column.
@@ -1448,10 +1456,11 @@ page
   header
     heading "Expenses"
     text "Expense stays left, Resend stays right."
-  toolbar
-    field "Expense number, name or email" search
-  table 7 "Expense" "Trip" "Spender" "Cost centre" "State" "Paid" "Action"
-    item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "EUR 125.00" · action "Resend"
+  region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+    table 7 "Expense" "Trip" "Spender" "Cost centre" "State" "Paid" "Action"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "EUR 125.00" · action "Resend"
 ```
 
 **Rationale:** The record name pins on the left and the row commands on the right, so both survive any scroll position and acting never requires scrolling back.
@@ -1468,10 +1477,11 @@ page
   header
     heading "Expenses"
     text "Every column scrolls together. Nothing stays."
-  toolbar
-    field "Expense number, name or email" search
-  table 7 "Expense" "Trip" "Spender" "Cost centre" "State" "Method" "Paid"
-    item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Expense number, name or email" search
+    table 7 "Expense" "Trip" "Spender" "Cost centre" "State" "Method" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
 ```
 
 **Rationale:** The table scrolls as one piece and every column leaves together: no sticky edges, no shadows, no special cases in the layout.
@@ -1505,15 +1515,16 @@ page
     heading "Trips"
     text "Four trips, three with a date still ahead."
     action primary "New trip"
-  toolbar
-    field "Search trips" search
-  grid 4
-    card "Rotterdam client visit"
-      image "Trip photo"
-      text "Fri 9 Oct 2026, Rotterdam client site"
-      status "Scheduled" info
-      fact "Claimed" "EUR 125.00 of EUR 400.00"
-      action "Open"
+  region "Trips"
+    toolbar
+      field "Search trips" search
+    grid 4
+      card "Rotterdam client visit"
+        image "Trip photo"
+        text "Fri 9 Oct 2026, Rotterdam client site"
+        status "Scheduled" info
+        fact "Claimed" "EUR 125.00 of EUR 400.00"
+        action "Open"
 ```
 
 **Rationale:** Each trip is a card with its dates, its client site, and how much of its budget is claimed. Four trips a month read as four trips, not four rows of a table.
@@ -1529,10 +1540,11 @@ page
     heading "Trips"
     text "Four trips, three with a date still ahead."
     action primary "New trip"
-  toolbar
-    field "Search trips" search
-  table 5 "Trip" "Date" "State" "Claimed" "Action"
-    item: text "Rotterdam client visit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 125.00 of EUR 400.00" · action "Open"
+  region "Trips"
+    toolbar
+      field "Search trips" search
+    table 5 "Trip" "Date" "State" "Claimed" "Action"
+      item: text "Rotterdam client visit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 125.00 of EUR 400.00" · action "Open"
 ```
 
 **Rationale:** The table stays and each row gains a budget bar, as in a product list. The trips stay sortable and comparable, and the bar still answers how much of the budget each one has claimed.
@@ -1550,8 +1562,9 @@ page
     heading "Trips"
     text "Four trips, three with a date still ahead."
     action primary "New trip"
-  toolbar
-    field "Search trips" search
+  region "Find"
+    toolbar
+      field "Search trips" search
   region "October 2026"
     list 2
       item: text "Rotterdam client visit" · text muted "Rotterdam client site, 08:00" · status "Scheduled" info · text "EUR 125.00 of EUR 400.00"

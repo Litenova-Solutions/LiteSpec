@@ -48,7 +48,7 @@ public sealed class RecordSchemaParityTests
         ["external-system"] = ("external-system/payments", """{"summary": "The payment provider.", "vendor": "Northwind Traders", "represents": "actor/clerk"}"""),
         ["runbook"] = ("runbook/restart-queue", """{"summary": "Restart the queue.", "trigger": "The queue stalls.", "impact": "Notices pause.", "prerequisites": "Access to the queue.", "procedure": "Restart the worker.", "verification": "Notices flow again.", "recovery": "Restart again.", "escalation": "Page the on-call."}"""),
         ["waiver"] = ("waiver/legacy-export", """{"summary": "A legacy export.", "kind": "gap", "reason": "The export predates the schema.", "waives": ["litespec/core/model#keep-each-name-unique-in-its-record-type"], "appliesTo": ["module/lending"], "exitWhen": "The export moves into the new pipeline.", "expiresOn": "2027-06-01", "closedBy": ["module/lending"]}"""),
-        ["screen"] = ("screen/lending.loan-list", """{"summary": "The loan list.", "route": "/loans", "task": "List the loans.", "displayStates": [{"name": "Empty", "shows": "No loans."}]}"""),
+        ["screen"] = ("screen/lending.loan-list", """{"summary": "The loan list.", "route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}, "task": "List the loans.", "displayStates": [{"name": "Empty", "shows": "No loans."}]}"""),
         ["entry-point"] = ("entry-point/library-app", """{"summary": "The library app.", "kind": "browser", "authentication": ["session"], "audience": ["actor/reader"]}"""),
     };
 

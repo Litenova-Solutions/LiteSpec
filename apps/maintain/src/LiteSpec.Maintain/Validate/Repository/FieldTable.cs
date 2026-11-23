@@ -233,6 +233,7 @@ internal static class FieldTable
         new("pack", "The external pack file a reference-data table copies its values from", "string", "referenceDataPage"),
         new("package", "The admitted package by ecosystem and name", "string", "admission"),
         new("pageFrame", "The page frame pattern a screen follows", "object", "screenPage"),
+        new("primaryAction", "The use case a screen runs as its one primary action", "string", "screenPage"),
         new("paging", "How a query pages its answer", "object", "useCasePage"),
         new("parameters", "The values a notification template takes", "array", "notificationPage"),
         new("parties", "The party entries of a cast", "array", "castPage"),

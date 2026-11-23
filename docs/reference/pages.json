@@ -4153,6 +4153,51 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0117-compose-screens-from-checked-structure/0117-compose-screens-from-checked-structure.md",
+      "path": "intent/decisions/0117-compose-screens-from-checked-structure/0117-compose-screens-from-checked-structure",
+      "style": "decision",
+      "area": "intent",
+      "title": "Compose Screens from Checked Structure",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0118-layer-surfaces-by-role/0118-layer-surfaces-by-role.md",
+      "path": "intent/decisions/0118-layer-surfaces-by-role/0118-layer-surfaces-by-role",
+      "style": "decision",
+      "area": "intent",
+      "title": "Layer Surfaces by Role",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0119-audit-the-rendered-page/0119-audit-the-rendered-page.md",
+      "path": "intent/decisions/0119-audit-the-rendered-page/0119-audit-the-rendered-page",
+      "style": "decision",
+      "area": "intent",
+      "title": "Audit the Rendered Page",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4935,6 +4980,24 @@
       "area": "tools",
       "title": "Skill",
       "intent": "\u0060litespec skill\u0060 installs or removes the litespec skill: the folder of guidance a coding agent loads when its description matches the task.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/ui-audit.md",
+      "path": "tools/ui-audit",
+      "style": "command",
+      "area": "tools",
+      "title": "UI Audit",
+      "intent": "\u0060litespec ui audit\u0060 visits each route of a running application in a browser and reports what the rendered pages show wrong.",
       "sections": [
         "Name",
         "Synopsis",

@@ -83,6 +83,11 @@
         "resolved": "1.2.0.556",
         "contentHash": "zvn9Mqs/ox/83cpYPignI8hJEM2A93s2HkHs8HYMOAQW0PkampyoErAiIyKxgTLqbbad29HX/shv/6LGSjPJNQ=="
       },
+      "System.ComponentModel.Annotations": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
+      },
       "System.Security.AccessControl": {
         "type": "Transitive",
         "resolved": "6.0.1",
@@ -164,7 +169,8 @@
           "LiteSpec.Model.Roslyn": "[1.0.0, )",
           "LiteSpec.Standards": "[1.0.0, )",
           "Microsoft.CodeAnalysis.CSharp": "[5.9.0, )",
-          "Microsoft.Extensions.FileSystemGlobbing": "[10.0.0, )"
+          "Microsoft.Extensions.FileSystemGlobbing": "[10.0.0, )",
+          "Microsoft.Playwright": "[1.65.1, )"
         }
       },
       "litespec.commandline": {
@@ -210,6 +216,16 @@
         "requested": "[10.0.0, )",
         "resolved": "10.0.0",
         "contentHash": "5hfVl/e+bx1px2UkN+1xXhd3hu7Ui6ENItBzckFaRDQXfr+SHT/7qrCDrlQekCF/PBtEu2vtk87U2+gDEF8EhQ=="
+      },
+      "Microsoft.Playwright": {
+        "type": "CentralTransitive",
+        "requested": "[1.65.1, )",
+        "resolved": "1.65.1",
+        "contentHash": "xJ9Imv5+05KULm2wQPS2w4gVAHg5eByo0P8KixryyE7XpVL8xmuQcvzCqQTYPpJoQLLgpRwe7LibfF1mIBHL1g==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
+          "System.ComponentModel.Annotations": "5.0.0"
+        }
       },
       "YamlDotNet": {
         "type": "CentralTransitive",

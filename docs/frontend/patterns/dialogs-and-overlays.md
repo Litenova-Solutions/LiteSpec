@@ -317,11 +317,12 @@ page
   header
     heading "Reversals"
     text "31 expenses to decide. Ade Okafor spent EUR 45.00."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
-  table 4 "Expense" "Spender" "Amount" "Command"
-    item: field "Reversal amount for EXP-1035" text = "45.00" · field "Route" select = "Deduction from the next payout" · action "Cancel" · action primary "Apply deduction"
+  region "Reversals"
+    toolbar
+      field "Search reversals" search
+      field "Window" select = "Any window"
+    table 4 "Expense" "Spender" "Amount" "Command"
+      item: field "Reversal amount for EXP-1035" text = "45.00" · field "Route" select = "Deduction from the next payout" · action "Cancel" · action primary "Apply deduction"
   region "The rest of the queue"
     list 4
       item: text "EXP-1037" · text muted "Elin Lindqvist" · status "No route" critical · text "EUR 45.00"
@@ -382,11 +383,12 @@ page
   header
     heading "Expenses"
     text "268 expenses. Select a row to read it here."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Any state"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer right "EXP-1042"
     status "Paid" positive
     fact "Spender" "Ava"
@@ -430,10 +432,11 @@ page
   header
     heading "Expenses"
     text "268 expenses. Select a row to read it here."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer right "EXP-1042"
     status "Paid" positive
     text "Ava of Harbor and Pine."
@@ -459,11 +462,12 @@ page
   header
     heading "Expenses"
     text "12 expenses match. 2 filters applied."
-  toolbar
-    field "Search expenses" search
-    action "Filters"
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+      action "Filters"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer right "Filters"
     text "2 applied. 12 expenses match."
     field "Search" text = "fare"
@@ -506,11 +510,12 @@ page
   header
     heading "Expenses"
     text "268 expenses. 3 receipts resent."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Any state"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   toast "Receipts resent to 3 spenders." positive
 ```
 
@@ -590,10 +595,11 @@ page
   header
     heading "Expenses"
     text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00" · action "Resend"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00" · action "Resend"
   menu "Row commands"
     action "Open the record"
     action "Resend the receipt"
@@ -636,10 +642,11 @@ page
   header
     heading "Expenses"
     text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   menu "Row commands"
     action "Open the record"
     action "Resend the receipt"
@@ -660,10 +667,11 @@ page
   header
     heading "Expenses"
     text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1034" · text "Ade Okafor" · status "Disputed" critical · text "EUR 45.00"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1034" · text "Ade Okafor" · status "Disputed" critical · text "EUR 45.00"
   menu "Row commands"
     action destructive "Withdraw the dispute"
   popover "Withdraw the dispute"
@@ -727,10 +735,11 @@ page
   header
     heading "Expenses"
     text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "Receipt"
-    item: text "EXP-1042" · text "Ava" · text "RC-0C893968A2"
+  region "Expenses"
+    toolbar
+      field "Search expenses" search
+    table 3 "Expense" "Spender" "Receipt"
+      item: text "EXP-1042" · text "Ava" · text "RC-0C893968A2"
   popover "RC-0C893968A2"
     text "Train fare, 2 fares in expense EXP-1042."
     fact "For" "Ava"
@@ -750,10 +759,11 @@ page
   header
     heading "Reversals"
     text "31 expenses. 12 outside the recall window."
-  toolbar
-    field "Search reversals" search
-  table 3 "Expense" "Spender" "Asked"
-    item: text "EXP-1037" · text "Elin Lindqvist" · text muted "214 days ago"
+  region "Reversals"
+    toolbar
+      field "Search reversals" search
+    table 3 "Expense" "Spender" "Asked"
+      item: text "EXP-1037" · text "Elin Lindqvist" · text muted "214 days ago"
   menu "Row commands"
     action "Apply deduction"
     action "Record a bank transfer"

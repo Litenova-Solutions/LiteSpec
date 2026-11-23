@@ -201,7 +201,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans"}"""),
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}}"""),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser"}"""));
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
@@ -215,7 +215,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);

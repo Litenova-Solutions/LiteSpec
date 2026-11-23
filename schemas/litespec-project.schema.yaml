@@ -242,6 +242,20 @@ properties:
       package:
         description: 'The workspace''s one shared UI package: the registry configuration, the copied primitive source, the token stylesheet, the source lock, and the design contract. A workspace with no controlled web frontend omits it.'
         $ref: '#/$defs/uiPackage'
+      limits:
+        description: 'The screen composition limits the checks read: sections is the most stacked sections a page holds (default 3), formFields is the most fields a form holds ungrouped (default 6), and offers is the most use cases a screen offers outside a hub frame (default 4).'
+        type: object
+        additionalProperties: false
+        properties:
+          sections:
+            type: integer
+            minimum: 1
+          formFields:
+            type: integer
+            minimum: 1
+          offers:
+            type: integer
+            minimum: 1
   proof:
     description: How the model builder confirms proof claims for this project.
     type: object

@@ -26,7 +26,7 @@ internal sealed partial class ProvisionValidator
 
     /// <summary>Gets the shipped litespec command names.</summary>
     private static readonly HashSet<string> LiteSpecCommands = new(
-        ["model", "book", "init", "new", "rename", "rules"],
+        ["model", "book", "init", "new", "rename", "rules", "ui"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the shipped litespec-maintain command names.</summary>

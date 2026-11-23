@@ -580,7 +580,7 @@ public sealed class FolderCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
-            TestModel.Record("screen", "screen/library-app.loans", file, """{"route": "/loans"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", file, """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -597,7 +597,7 @@ public sealed class FolderCheckTests
         var file = PathAt(temp.Path, ".litespec", "behavior", "entry-points", "library-app", "screens", "library-app.loans", "library-app.loans.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", file, """{"route": "/loans"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", file, """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}}"""));
 
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
     }

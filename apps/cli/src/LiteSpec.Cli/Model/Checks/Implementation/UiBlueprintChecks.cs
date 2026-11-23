@@ -10,11 +10,13 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>
-///     The screen blueprint checks: a screen's wireframe block parses in the wireframe language, its
-///     actions, states and refusals name what the screen reaches, every screen is led to or starts its
-///     entry point, no screen ends with nothing done, interface text uses glossary terms rather than
-///     their aliases, every refusal a screen can reach carries its sentence, and every written refusal
-///     carries its sentence in each language its entry points declare beside the default.
+///     The screen blueprint checks: a screen's wireframe block parses in the wireframe language and keeps
+///     its composition rules, its actions, states and refusals name what the screen reaches, every screen
+///     with a route names its page frame and a busy screen follows a hub frame, the primary action names
+///     an offered use case, every screen is led to or starts its entry point, no screen ends with nothing
+///     done, interface text uses glossary terms rather than their aliases, every refusal a screen can
+///     reach carries its sentence, and every written refusal carries its sentence in each language its
+///     entry points declare beside the default.
 /// </summary>
 /// <follows>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</follows>
 /// <follows>litespec/frontend/ui#link-each-screen-to-its-next-screens</follows>
@@ -37,13 +39,27 @@ internal static class UiBlueprintChecks
     /// <summary>A quoted string in a wireframe block, with backslash escapes.</summary>
     private static readonly Regex QuotedCopy = new("\"(?<copy>(?:[^\"\\\\]|\\\\.)*)\"", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>Reports wireframe-invalid, reference-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
+    /// <summary>The page-frame patterns a busy screen follows: home, settings home, queue or list.</summary>
+    private static readonly HashSet<string> HubFrames = new(StringComparer.Ordinal)
+    {
+        "home-page", "settings-home", "queue", "list-page",
+    };
+
+    /// <summary>The page frames exempt from the offer limit: a record page offers the commands its states permit, one primary at a time, and the wireframe rules keep it from stacking a form per command.</summary>
+    private static readonly HashSet<string> RecordFrames = new(StringComparer.Ordinal)
+    {
+        "record-page",
+    };
+
+    /// <summary>Reports wireframe-invalid, the wireframe composition codes, reference-unknown, screen-pageframe-missing, screen-pageframe-invalid, screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckWireframes(model, findings);
         CheckWireframeReferences(model, findings);
+        CheckScreenFrames(model, findings);
+        CheckPrimaryActions(model, findings);
         CheckUnreachable(model, findings);
         CheckDeadEnd(model, findings);
         CheckWordingAliases(model, findings);
@@ -93,16 +109,30 @@ internal static class UiBlueprintChecks
                     continue;
                 }
 
-                foreach (var error in block.Parsed.Errors)
+                var parsed = WireframeParser.Parse(block.Text, model.Config.UiLimits.Sections, model.Config.UiLimits.FormFields);
+
+                foreach (var error in parsed.Errors)
                 {
                     findings.Add(new Finding(
-                        "wireframe-invalid",
+                        CodeOf(error.Kind),
                         $"Screen '{screen.Id}' carries a wireframe block the wireframe language rejects: {error.Message}.",
                         screen.ExplanationFile, block.Line + error.Line, SubjectOf(screen)));
                 }
             }
         }
     }
+
+    /// <summary>The finding code one wireframe problem kind reports: the composition kinds report their own code, and the language itself reports wireframe-invalid.</summary>
+    /// <param name="kind">The problem kind the parser named.</param>
+    /// <returns>The finding code the check reports.</returns>
+    private static string CodeOf(WireframeProblemKind kind) => kind switch
+    {
+        WireframeProblemKind.Nesting => "wireframe-nesting-invalid",
+        WireframeProblemKind.Surface => "wireframe-surface-missing",
+        WireframeProblemKind.Tabs => "wireframe-tabs-missing",
+        WireframeProblemKind.Group => "wireframe-group-missing",
+        _ => "wireframe-invalid",
+    };
 
     /// <summary>Every wireframe fenced block of an explanation, in file order, with whether a closing fence ends it.</summary>
     /// <param name="explanation">The explanation file text.</param>
@@ -163,7 +193,14 @@ internal static class UiBlueprintChecks
 
             var blocks = WireframeBlocksOf(screen.Explanation);
 
-            if (blocks.Count != 1 || !blocks[0].Closed || blocks[0].Block.Parsed.Page is not { } page)
+            if (blocks.Count != 1 || !blocks[0].Closed)
+            {
+                continue;
+            }
+
+            var parsed = WireframeParser.Parse(blocks[0].Block.Text, model.Config.UiLimits.Sections, model.Config.UiLimits.FormFields);
+
+            if (parsed.Page is not { } page)
             {
                 continue;
             }
@@ -329,6 +366,81 @@ internal static class UiBlueprintChecks
                 findings.Add(new Finding(
                     "screen-dead-end",
                     $"Screen '{screen.Id}' leads nowhere and offers no use case.",
+                    screen.File, screen.Line, SubjectOf(screen)));
+            }
+        }
+    }
+
+    /// <summary>Reports each screen with a route that names no page frame, and each screen offering past the offer limit that follows no hub frame.</summary>
+    /// <param name="model">The loaded project model that holds every screen and the composition limits.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckScreenFrames(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
+        {
+            if (screen.Field(RecordFields.Route) is not { Length: > 0 })
+            {
+                continue;
+            }
+
+            var pattern = PageFramePatternOf(screen);
+
+            if (pattern is null)
+            {
+                findings.Add(new Finding(
+                    "screen-pageframe-missing",
+                    $"Screen '{screen.Id}' has a route and names no page frame in `pageFrame`.",
+                    screen.File, screen.Line, SubjectOf(screen)));
+                continue;
+            }
+
+            var offers = screen.Ids(RecordFields.Offers).Count;
+
+            if (offers > model.Config.UiLimits.Offers && !HubFrames.Contains(pattern) && !RecordFrames.Contains(pattern))
+            {
+                findings.Add(new Finding(
+                    "screen-pageframe-invalid",
+                    $"Screen '{screen.Id}' offers {offers} use cases, past the {model.Config.UiLimits.Offers} a screen offers outside a hub frame, and follows '{pattern}' instead of a hub frame.",
+                    screen.File, screen.Line, SubjectOf(screen)));
+            }
+        }
+    }
+
+    /// <summary>The page-frame pattern a screen follows, or null when it names none.</summary>
+    /// <param name="screen">The screen record whose page frame is read.</param>
+    /// <returns>The pattern slug, or null when the screen names no page frame or no pattern.</returns>
+    private static string? PageFramePatternOf(Record screen)
+    {
+        if (screen.Raw.ValueKind != JsonValueKind.Object
+            || !screen.Raw.TryGetProperty(RecordFields.PageFrame, out var frame)
+            || frame.ValueKind != JsonValueKind.Object
+            || !frame.TryGetProperty(RecordFields.Pattern, out var pattern)
+            || pattern.ValueKind != JsonValueKind.String
+            || pattern.GetString() is not { Length: > 0 } name)
+        {
+            return null;
+        }
+
+        return name;
+    }
+
+    /// <summary>Reports each screen whose primary action names no use case the screen offers.</summary>
+    /// <param name="model">The loaded project model that holds every screen.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckPrimaryActions(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
+        {
+            if (screen.Field(RecordFields.PrimaryAction) is not { Length: > 0 } primary)
+            {
+                continue;
+            }
+
+            if (!screen.Ids(RecordFields.Offers).Contains(primary, StringComparer.Ordinal))
+            {
+                findings.Add(new Finding(
+                    "screen-primary-action-unknown",
+                    $"Screen '{screen.Id}' names '{primary}' as its primary action, which matches no use case it offers.",
                     screen.File, screen.Line, SubjectOf(screen)));
             }
         }

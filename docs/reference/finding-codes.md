@@ -228,9 +228,26 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `audit-missing` | G | behavior | no | audit | A command declares no audit position while the audit extension is selected. | Declare the audit position of the command in `audit`. |
 | `field-extension-unselected` | A | behavior | no | - | A record writes a field its extension owns while the project does not select that extension. | Remove the field, or select the extension that owns it. |
 | `design-token-limit-failed` | G | implementation | no | - | A token role misses its limit in a declared scheme. | Bring the role's value within its limit in every declared scheme. |
+| `surface-nesting-invalid` | G | implementation | no | - | A rendered surface sits inside another surface. | Remove the inner surface; let the composite join the surface around it. |
+| `surface-contrast-failed` | G | implementation | no | - | A rendered surface has the same fill as the surface it sits on and no edge. | Give the surface the next layer token, or an edge. |
+| `field-surface-missing` | G | implementation | no | - | A rendered field stands on the page background. | Place the field inside a section, dialog or side sheet. |
+| `field-width-invalid` | G | implementation | no | - | A rendered short field spans its form. | Give the field the width of its value kind. |
+| `action-group-invalid` | G | implementation | no | - | A rendered action group mixes button sizes or leaves one button alone on a wrapped row. | Give the group one size and one row, or stack it whole on a phone. |
+| `primary-action-duplicate` | G | implementation | no | - | A rendered view shows more than one primary action. | Keep one primary action and make the others secondary. |
+| `column-alignment-invalid` | G | implementation | no | - | A rendered number column aligns to the start. | Align the column to the end with tabular figures. |
+| `text-code-invalid` | G | implementation | no | - | A rendered page shows a raw identifier, code, message key or null. | Show the name the reader knows. |
+| `tab-label-invalid` | G | implementation | no | - | A rendered tab label wraps, or the tab row wraps to a second row. | Shorten the labels, or move the views to their own routes. |
+| `table-clip-invalid` | G | implementation | no | - | A rendered table is cut off at a phone width with no scroll region. | Stack the rows on a phone, or let the table scroll in its own region. |
 | `wireframe-invalid` | A | behavior | no | - | A screen's wireframe block breaks the rules of the wireframe language. | Redraw the wireframe in the wireframe language. |
 | `screen-unreachable` | G | behavior | no | - | A screen is reached from no other screen and is not its entry point's start. | Lead to the screen from another screen, or make it the entry point's start. |
 | `screen-dead-end` | G | behavior | no | - | A screen leads to no next screen and offers no use case. | Lead the screen to a next screen, or offer a use case from it. |
+| `screen-pageframe-missing` | G | behavior | no | - | A screen with a route names no page frame in `pageFrame`. | Name the page-frame pattern the screen follows in `pageFrame`. |
+| `screen-pageframe-invalid` | G | behavior | no | - | A screen offering more use cases than the project's offer limit follows no hub frame. | Follow a hub frame from the screen: home, settings home, queue or list. |
+| `screen-primary-action-unknown` | G | behavior | no | - | A screen's `primaryAction` names no use case the screen offers. | Name in `primaryAction` a use case the screen offers. |
+| `wireframe-nesting-invalid` | G | behavior | no | - | A wireframe draws a card or a region inside a card, or a card inside a region. | Draw the inner surface beside the outer one instead of inside it. |
+| `wireframe-surface-missing` | G | behavior | no | - | A wireframe field sits outside every section, dialog and side sheet. | Move the field inside a region, card, dialog or drawer. |
+| `wireframe-tabs-missing` | G | behavior | no | - | A wireframe page stacks more sections than the project's section limit with no tabs or navigation. | Divide the page behind tabs, a side navigation, a sheet or its own route. |
+| `wireframe-group-missing` | G | behavior | no | - | A wireframe form holds more fields than the project's field limit in fewer than two sections. | Group the fields into at least two labelled sections. |
 | `wording-alias` | A | behavior | no | - | A wireframe, result sentence, or label uses a glossary alias where the term exists. | Use the glossary term instead of its alias. |
 | `sentence-language-missing` | A | behavior | no | - | A written refusal result has no sentence for a language its use case's entry points declare. | Write the sentence in `sentences` for each language the entry points declare, beside the entry point's default. |
 | `freshness-decider-invalid` | G | behavior | no | - | A freshness `decidedBy` names a query, or a use case or aggregate outside the module that owns the figure's source. | Name the command that decides the figure, or its aggregate, in the module that owns the figure's source. |

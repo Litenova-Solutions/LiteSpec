@@ -430,6 +430,10 @@ public sealed class StackReaderTests
           "status": "reviewed",
           "entryPoint": "entry-point/library-app",
           "route": "/loans",
+          "pageFrame": {
+            "pattern": "list-page",
+            "option": "search-and-a-state-filter-only"
+          },
           "task": "The reader reviews their loans and opens one to read it.",
           "displayStates": [
             {

@@ -37,6 +37,11 @@ frontends:
     profile: application-balanced
     globalCss: apps/web/src/styles.css
 ui:
+  # limits tunes the screen-composition checks: sections caps stacked sections per page, formFields caps fields before a form groups, offers caps use cases before a screen takes a hub frame. Defaults are 3, 6 and 4.
+  # limits:
+  #   sections: 3
+  #   formFields: 6
+  #   offers: 4
   package:
     name: '@__PROJECT__/ui'
     path: packages/ui

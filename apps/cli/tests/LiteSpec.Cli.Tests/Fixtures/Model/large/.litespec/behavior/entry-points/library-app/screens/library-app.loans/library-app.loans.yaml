@@ -3,6 +3,9 @@ id: screen/library-app.loans
 title: Loans
 summary: A reader can register, borrow, extend, list, return and hold copies, and a librarian can retire a copy.
 route: /
+pageFrame:
+  pattern: home-page
+  option: work-first-tiles-second
 task: The reader borrows, extends, lists and returns copies and places holds, and the librarian registers and retires copies.
 displayStates:
 - name: Empty

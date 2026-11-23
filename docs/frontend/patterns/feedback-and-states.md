@@ -135,7 +135,6 @@ page
   header
     heading "Policies"
     text "Six kinds of claims, from a 12-line per diem to the train fare."
-    action primary "New policy"
   region "Policies"
     message "No policies yet. A policy holds a name, a code, a ceiling and what is claimed." neutral
     action primary "New policy"
@@ -177,9 +176,9 @@ page
     text "One sample below, so the page reads as it will."
     action primary "New policy"
   message "Travel policy is a sample. Open it, change it, or remove it before publishing it." info
-  toolbar
-    field "Search policies" search
   region "Policies"
+    toolbar
+      field "Search policies" search
     text muted "Samples are never paid and never appear in exports."
     list 2
       item: text "Travel policy" · text muted "Code TRAVEL-01 · EUR 45.00" · status "Sample" info · action "Open"
@@ -215,11 +214,11 @@ page
   header
     heading "Expenses"
     text "No expenses match this search."
-  toolbar
-    field "Search expenses" search = "ava prins"
-    field "Spender" select = "Harbor and Pine"
-    field "State" select = "Paid"
   region "Expenses"
+    toolbar
+      field "Search expenses" search = "ava prins"
+      field "Spender" select = "Harbor and Pine"
+      field "State" select = "Paid"
     message "Nothing matches ava prins. 268 expenses exist. None match this term with Harbor and Pine and Paid applied." neutral
     action "Clear the search"
     action quiet "Clear the filters too"
@@ -227,7 +226,7 @@ page
 
 **Rationale:** The title quotes the term that found nothing, and the line says how many records exist, so the reader knows the search failed rather than the data. Two actions separate clearing the search from clearing the filters.
 
-**Cost:** The guidance is one primary action, and this pattern uses two. The secondary one is a quiet action, which is the compromise.
+**Cost:** The message carries two actions and no primary, so the reader chooses the scope: the search alone or the filters too.
 
 **Reference:** Carbon
 
@@ -240,12 +239,12 @@ page
     heading "Expenses"
     text "268 expenses, newest first."
     action "Export"
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Reversed"
-    field "Channel" select = "Phone"
-    action quiet "Clear filters"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Reversed"
+      field "Channel" select = "Phone"
+      action quiet "Clear filters"
     table 5 "Expense" "Spender" "Filed" "State" "Paid"
       item: text "No reversed call expenses" · text muted "31 expenses were reversed, all of them filed by phone"
 ```
@@ -266,9 +265,10 @@ page
     text "Nothing matches."
   split 1:3
     aside "Filter"
-      field "Search" search = "cosmo"
-      field "Window" select = "Open now"
-      field "Channel" select = "Phone"
+      region "Narrow the reversals"
+        field "Search" search = "cosmo"
+        field "Window" select = "Open now"
+        field "Channel" select = "Phone"
       message "0 of 31 reversals match. The window and the channel are the narrowest." critical
       action quiet "Clear"
     region "Reversals"
@@ -304,9 +304,9 @@ page
   header
     heading "Expenses"
     text "Every expense, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     image "Seven skeleton rows shaped like expense rows"
   footer
     text "Reading 268 expenses"
@@ -327,11 +327,11 @@ page
     heading "Expenses"
     text "268 expenses, newest first."
     action "Export"
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Paid"
-    text muted "Reading"
   region "Expenses"
+    toolbar
+      field "Search expenses" search
+      field "State" select = "Paid"
+      text muted "Reading"
     message "Reading the latest expenses. The rows below are the last answer." neutral
     table 5 "Expense" "Spender" "Filed" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
@@ -355,9 +355,9 @@ page
   header
     heading "Expenses"
     text "Every expense, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     table 3 "Expense" "Spender" "Paid"
       item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   dialog "Reading 1,204 expenses"
@@ -392,9 +392,9 @@ page
   header
     heading "Expenses"
     text "Every expense, newest first."
-  toolbar
-    field "Search expenses" search
   region "Expenses"
+    toolbar
+      field "Search expenses" search
     image "Seven skeleton rows shaped like expense rows"
   footer
     text "Reading 268 expenses"
@@ -808,9 +808,9 @@ page
     heading "Expenses"
     text "268 expenses. Read 4 minutes ago."
     action "Export"
-  toolbar
-    field "Search" search = "EXP-1042"
   region "Expenses"
+    toolbar
+      field "Search" search = "EXP-1042"
     table 3 "Expense" "Spender" "Paid"
       item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
     action disabled "Open an expense"
@@ -829,9 +829,9 @@ page
   header
     heading "Expenses"
     text "Every expense, newest first."
-  toolbar
-    field "Search" search = "EXP-1042"
   region "Expenses"
+    toolbar
+      field "Search" search = "EXP-1042"
     heading small "The server could not be reached"
     text "Check the connection and try again."
     action primary "Try again"
@@ -997,13 +997,13 @@ page
     fact "Cara, saved 09:34" "08:00"
     row
       action "Keep mine"
-      action primary "Use hers"
+      action "Use hers"
   region "Notes"
     fact "Yours, not saved" "Arrival at 07:00, unloading by 11:00."
     fact "Cara, saved 09:34" "Arrival at 08:00, scanning by noon."
     row
       action "Keep mine"
-      action primary "Use hers"
+      action "Use hers"
 ```
 
 **Rationale:** A conflict resolves per field: each row shows both values and takes one. Nothing is reloaded wholesale, so nothing Ben typed is lost.

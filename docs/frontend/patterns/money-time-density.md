@@ -109,8 +109,8 @@ page
     heading "Expenses"
     text "268 expenses from 96 spenders."
     action "Download"
-  field "Expense number, name or email" search
   region "Expenses"
+    field "Expense number, name or email" search
     table 4 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
   region "Totals"
@@ -131,8 +131,8 @@ page
     heading "Expenses"
     text "268 expenses from 96 spenders."
     action "Download"
-  field "Language" select = "English"
   region "Expenses"
+    field "Language" select = "English"
     table 5 "Expense" "Spender" "Submitted" "State" "Amount"
       item: text "EXP-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Reversed" neutral · text "−EUR 50.00"
   region "Note"
@@ -154,8 +154,8 @@ page
     heading "Expenses"
     text "268 expenses from 96 spenders."
     action "Download"
-  field "Expense number, name or email" search
   region "Expenses"
+    field "Expense number, name or email" search
     table 4 "Expense" "Spender" "Submitted" "State" "Amount"
       item: text "EXP-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Reversed" neutral · status "−EUR 50.00" critical
 ```
@@ -289,8 +289,8 @@ page
     heading "Expenses"
     text "268 expenses from 96 spenders."
     action "Download"
-  field "Expense number, name or email" search
   region "Expenses"
+    field "Expense number, name or email" search
     table 4 "Expense" "Spender" "Submitted Europe/Amsterdam" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
@@ -328,8 +328,8 @@ page
     heading "Expenses"
     text "268 expenses from 3 offices in 3 time zones."
     action "Download"
-  field "Expense number, name or email" search
   region "Expenses"
+    field "Expense number, name or email" search
     table 4 "Expense" "Spender" "Submitted" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32 CEST" · text "EUR 125.00"
   region "Note"
@@ -366,8 +366,8 @@ page
     text "Every euro of the month under the kind it is."
     action quiet "‹ Previous"
     action quiet "Next ›"
-  field "Month" select = "September 2026"
   region "Spending"
+    field "Month" select = "September 2026"
     fact "Travel and lodging" "EUR 57,330.00"
     fact "Meals" "EUR 6,020.00"
     fact "Total claimed" "EUR 63,350.00"
@@ -415,8 +415,8 @@ page
   header
     heading "Expenses"
     text "268 expenses."
-  field "Expense number, name or email" search
   region "Filters"
+    field "Expense number, name or email" search
     status "Submitted in September 2026" neutral
     status "Paid" neutral
     action quiet "Clear both"
@@ -457,8 +457,8 @@ page
     heading "Expenses"
     text "268 expenses from 96 spenders."
     action "Download"
-  field "Expense number, name or email" search
   region "Expenses"
+    field "Expense number, name or email" search
     table 4 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
@@ -470,8 +470,8 @@ page
     heading "Expenses"
     text "268 expenses, newest first."
     action "Download"
-  field "Expense or spender" search
   region "Expenses"
+    field "Expense or spender" search
     list 4
       item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
@@ -489,8 +489,8 @@ page
     heading "Expenses"
     text "268 expenses, newest first."
     action "Download"
-  field "Expense or spender" search
   region "Expenses"
+    field "Expense or spender" search
     list 4
       item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
@@ -508,8 +508,8 @@ page
     heading "Expenses"
     text "268 expenses."
     action "Download"
-  field "Expense or spender" search
   region "Expenses"
+    field "Expense or spender" search
     table 6 "Expense" "Paid"
       item: text "EXP-1042" · text "EUR 125.00"
   region "Note"
@@ -1246,9 +1246,9 @@ page
   header
     heading "Expenses"
     text "268 expenses, newest first."
-  toolbar
-    field "Expense or spender" search
   region "Expenses"
+    toolbar
+      field "Expense or spender" search
     list 4
       item: text "EXP-1042, Ava" · text muted "Rotterdam client visit, 8 Oct 09:32, Paid" · text "EUR 125.00"
 ```
@@ -1312,19 +1312,18 @@ page
     status "Paid" positive
     text "Ava, Harbor and Pine."
     action primary "Message spender"
-  region "Codes to quote"
-    card "Expense number"
-      text "EXP-1042"
-      text muted "Quote it when you call about the expense."
-      action quiet "Copy"
-    card "Bank reference"
-      text "SH-88213"
-      text muted "For a support case with the bank."
-      action quiet "Copy"
-    card "Receipt codes"
-      text "RC-0C893968A2"
-      text muted "2 receipts, neither matched."
-      action quiet "Copy"
+  card "Expense number"
+    text "EXP-1042"
+    text muted "Quote it when you call about the expense."
+    action quiet "Copy"
+  card "Bank reference"
+    text "SH-88213"
+    text muted "For a support case with the bank."
+    action quiet "Copy"
+  card "Receipt codes"
+    text "RC-0C893968A2"
+    text muted "2 receipts, neither matched."
+    action quiet "Copy"
 ```
 
 **Rationale:** The shared code shape is monospaced, never wrapped, with a copy control. A code a person reads aloud on a support call is functional, not decorative.

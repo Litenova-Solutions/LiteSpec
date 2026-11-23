@@ -34,7 +34,7 @@ public sealed class ModelQueryStepTests
             """{"kind": "command", "serves": ["step/borrow-and-return.borrow-copy"], "fulfills": ["requirement/borrowing.max-active-loans"]}"""));
         model.Records.Add(Rec(
             "screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"),
-            """{"route": "/loans", "serves": ["step/borrow-and-return.borrow-copy"]}"""));
+            """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}, "serves": ["step/borrow-and-return.borrow-copy"]}"""));
         model.Records.Add(Rec(
             "requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "max-active-loans.yaml"),
             """{"statement": "A reader holds at most five active loans."}"""));

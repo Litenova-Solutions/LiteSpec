@@ -949,6 +949,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `pageFrame` field.</summary>
     public const string PageFrame = "pageFrame";
 
+    /// <summary>Gets the name of the `primaryAction` field.</summary>
+    public const string PrimaryAction = "primaryAction";
+
     /// <summary>Gets the name of the `pattern` field.</summary>
     public const string Pattern = "pattern";
 

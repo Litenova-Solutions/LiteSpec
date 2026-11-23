@@ -53,18 +53,19 @@ A floorplan exposes its name on its frame. A reviewer and the route suite read t
 
 ### The Screen Blueprint
 
-A screen record is the Behavior record that describes one screen. Its blueprint is the part of the record that says how the screen is built and where it leads. The `pageFrame` field names the page-frame pattern the screen follows and the option the product catalog chose. The `leadsTo` field names the screens a person reaches from this screen in one step. The `task` field states what a person does on the screen. The `displayStates` field lists each screen state with its `name` and `shows` stating what the screen shows in it.
+A screen record is the Behavior record that describes one screen. Its blueprint is the part of the record that says how the screen is built and where it leads. The `pageFrame` field names the page-frame pattern the screen follows and the option the product catalog chose, and it is required on every screen with a route. The `primaryAction` field names the use case the view shows as its primary action. The `leadsTo` field names the screens a person reaches from this screen in one step. The `task` field states what a person does on the screen. The `displayStates` field lists each screen state with its `name` and `shows` stating what the screen shows in it.
 
 | Field | Meaning |
 |:---|:---|
 | `task` | What a person does on the screen, in one to three sentences, required. |
 | `displayStates` | Each screen state with `name` in sentence case and `shows` stating what the screen shows, required. |
-| `pageFrame` | The page-frame pattern and option the screen follows. |
+| `pageFrame` | The page-frame pattern and option the screen follows, required with a route. |
+| `primaryAction` | The offered use case the view shows as its primary action, named in `offers`. |
 | `leadsTo` | The screens a person reaches from this screen in one step. |
 
-The `task` names the same work the screen's pattern and wireframe show, and the `displayStates` name the screen states the pattern's states and the wireframe's states show. The explanation restates Task from `task` and States from `displayStates`.
+The `task` names the same work the screen's pattern and wireframe show, and the `displayStates` name the screen states the pattern's states and the wireframe's states show. The `primaryAction` names the offered use case the wireframe marks primary. The explanation restates Task from `task` and States from `displayStates`.
 
-The explanation file beside the screen record holds one `wireframe` block, written in the wireframe language that [UI patterns](patterns.md) defines. Each action in that block names a use case the screen offers, each state names a glossary term for the record shown, and each refusal names a result of an offered use case.
+The explanation file beside the screen record holds one `wireframe` block, written in the wireframe language that [UI patterns](patterns.md) defines. Each action in that block names a use case the screen offers, each state names a glossary term for the record shown, and each refusal names a result of an offered use case. At most one action in the block carries the primary mark, and it names the `primaryAction` use case.
 
 For example, the Claimwick expense list names its page frame and lists the expense record and the new expense form in `leadsTo`. Its wireframe shows the list rows, the filter actions, and the states an expense can carry.
 
@@ -86,28 +87,44 @@ Each application keeps one table that maps its state codes to tones. Because the
 
 For example, Claimwick maps its paid state to `positive` once. Every screen that shows a paid expense draws the same fill, whether it is a list row or a record page.
 
+### Surfaces and Layers
+
+A screen is composed from surfaces on layers: the page is the ground, and each thing on it sits on the layer its role names. `page` is the ground itself. `layer-1` sits on the page and holds sections, cards, and dialogs. `layer-2` sits on `layer-1` and holds an inset where one is truly needed. `layer-accent` is the fill of a table header, a field, and a selected row on whichever layer holds them. Layers stack by role, not by depth: each layer differs from the surface it sits on, so the reader sees the stack instead of guessing it. The token table below states the limit each layer meets.
+
+A composite drawn inside a surface draws no surface of its own: a table, an empty state, a callout, or a disclosure sits on its parent's layer. A box inside a box reads as two containers for one thing, so one surface per level keeps the layer the reader sees equal to the structure the wireframe states. Settled by [decision/0118-layer-surfaces-by-role](decision/0118-layer-surfaces-by-role).
+
+For example, the Claimwick expenses table sits directly in its section with no card around it, and its header row takes the `layer-accent` fill on the section's layer.
+
 ### The Token Roles and Limits
 
 A token is a named visual value, such as a color or a border shade, that screens draw instead of writing raw values. A token role is the job that value does, such as page background or input boundary. LiteSpec names each role once. Your project supplies the values in one token file, written in the W3C Design Tokens format, version 2025.10. That file is JSON: each token carries `$value` and `$type`, and aliases use braces.
 
-Each role is judged by a limit instead of an exact color. The table states the limit each role meets, measured in WCAG 2 relative luminance. A color scheme is a top-level group named `light` or `dark`, and your project declares the schemes it ships. The manifest baseline values are defaults that pass every limit.
+Each role is judged by a limit instead of an exact color. The table states the limit each role meets, measured in WCAG 2 relative luminance. A color scheme is a top-level group named `light` or `dark`, and your project declares the schemes it ships. The manifest baseline values are defaults that pass every limit. Each layer limit holds in every declared scheme.
 
 | Role | Limit |
 |:---|:---|
-| `page`, `card` | The card reads as a separate surface on the page |
-| `card-edge` | Differs from `page` and `card`, at least 1.2:1 against the page |
-| `separator` | Contrast against `card` no greater than the card edge's |
-| `control-boundary` | Reaches 3:1 on `card` |
-| `text`, `muted-text` | Reach 4.5:1 on `page` and `card` |
-| `focus-ring` | Reaches 3:1 on `card` and `page` |
+| `page`, `layer-1` | `layer-1` differs from `page` by at least 1.06:1 |
+| `layer-2` | Differs from `layer-1` by at least 1.06:1 |
+| `layer-accent` | Differs from `layer-1` and from `layer-2` by at least 1.06:1 |
+| `layer-edge` | Differs from `page` and `layer-1`, at least 1.2:1 against the page |
+| `separator` | Contrast against `layer-1` no greater than the layer edge's |
+| `control-boundary` | Reaches 3:1 on `layer-1` |
+| `text`, `muted-text` | Reach 4.5:1 on `page` and `layer-1` |
+| `focus-ring` | Reaches 3:1 on `layer-1` and `page` |
 | `primary`, `primary-text` | `primary-text` reaches 4.5:1 on `primary` |
 | `tone.<name>` | Each tone's `text` reaches 4.5:1 on its `fill` |
-| `chart.1` to `chart.3` | Each reaches 3:1 on `card`, and every pair stays apart under protanopia and deuteranopia simulation |
+| `chart.1` to `chart.3` | Each reaches 3:1 on `layer-1`, and every pair stays apart under protanopia and deuteranopia simulation |
 | `magnitude` | Steps rise monotonically in lightness |
 
 Each tone from the Tone Set carries `text`, `fill`, and `edge`. Chart colors stay apart with a CIE76 delta E of at least 10 after Machado 2009 simulation at severity 1.0.
 
-For example, Claimwick ships `light` and `dark` schemes. Its card edge differs from the page by 1.2:1 in both, so cards read as separate surfaces while separators stay quieter. The values differ by scheme, but both meet the same limit.
+For example, Claimwick ships `light` and `dark` schemes. Its layer edge differs from the page by 1.2:1 in both, so layer-1 surfaces read as separate surfaces while separators stay quieter. Its layer-2 differs from layer-1, and its layer-accent from both layers, by 1.06:1 in both. The values differ by scheme, but both meet the same limits.
+
+### Project Limits
+
+Three numbers tune the composition rules to the product: the section limit caps the stacked sections a page holds before a further facet moves behind tabs, a side navigation, a sheet, or its own route; the field limit caps the fields a form holds before it groups into labeled sections; the offer limit caps the use cases a screen offers before it takes a hub frame. The project file carries them under `ui.limits` as `sections`, `formFields`, and `offers`. The defaults are three sections, six fields, and four offers. A product with evidence for other numbers sets them there, and the checks read them.
+
+For example, Claimwick keeps the defaults. An expense page holds three sections, a form groups past six fields, and a screen offering five use cases takes a hub frame.
 
 ### The Interface Quality Requirements
 
@@ -311,6 +328,246 @@ pageFrames:
 
 **Reviewed for:** Does every route name its page type reference, or its decision record for a freestyle route? Look in the route sources.
 
+### Place No Surface Inside Another
+
+**ID:** `litespec/frontend/ui#place-no-surface-inside-another`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A card, table, empty state, callout or disclosure inside a surface MUST draw no surface of its own.
+
+**Rationale:** A box inside a box reads as two containers for one thing: the reader parses borders instead of content, and each nested edge steals emphasis from the content it frames. One surface per level keeps the layer the reader sees equal to the structure the wireframe states. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick payout desk shows each reversal row as plain rows inside the reversals section. The rows draw no card of their own, so the section stays the one surface.
+
+**Checked by:** `litespec model check` reports `wireframe-nesting-invalid` for a card that holds a card or a region, or a region that holds a card. `litespec ui audit` reports `surface-nesting-invalid` for a rendered surface inside another surface. Run the model check at the consumer root and the audit against the running frontend.
+
+### Draw Every Field on a Surface
+
+**ID:** `litespec/frontend/ui#draw-every-field-on-a-surface`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** Every field MUST sit inside a section, dialog or side sheet.
+
+**Rationale:** A field standing directly on the page background has no group to belong to: the reader cannot tell which fields submit together, and the form reads as loose controls. A section, dialog or side sheet around the fields names the group and gives each refusal a place beside the field that caused it. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick new-expense form holds its name, category and amount fields inside the expense section, so the three fields read as one group.
+
+**Checked by:** `litespec model check` reports `wireframe-surface-missing` for a field with no region, card, dialog or drawer ancestor. `litespec ui audit` reports `field-surface-missing` for a rendered field outside a section, dialog or side sheet. Run the model check at the consumer root and the audit against the running frontend.
+
+### Limit a Page to Three Stacked Sections
+
+**ID:** `litespec/frontend/ui#limit-a-page-to-three-stacked-sections`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A page MUST hold at most the project's section limit (default three) of stacked sections; a further facet sits behind tabs, a side navigation, a sheet or its own route.
+
+**Rationale:** A fourth stacked section pushes the page past what a reader scans: each section below the fold may as well not exist, and the page grows a new section per facet until it reads as a log. Tabs, a side navigation, a sheet or a second route keep each facet one step away without lengthening the page. The limit lives in `ui.limits`, so a product with evidence sets its own number. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick trip record holds its expenses, budget and details as three stacked sections. When reversals join as a fourth facet, the page moves the facets behind tabs.
+
+**Checked by:** `litespec model check` reports `wireframe-tabs-missing` for a page with more top-level regions or cards than the section limit and no tabs or navigation child. Run it at the consumer root.
+
+### Use Tabs Only for Peer Views
+
+**ID:** `litespec/frontend/ui#use-tabs-only-for-peer-views`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** Tabs MUST switch peer views of one subject, keep each view's content inside its panel, never sequence steps, never split one form, and fit one row.
+
+**Rationale:** Tabs promise that each view is one face of the same thing. When one tab continues another, the reader must visit them in order but nothing says so, and a form split across tabs hides its errors on a tab the reader never opens. Peer views of one subject keep that promise, and one row keeps every view visible without scrolling the row itself. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The library catalog record keeps its copies, loans and history as three tabs of one record. The loan form stays whole on its own page instead of splitting across tabs.
+
+**Checked by:** `litespec ui audit` reports `tab-label-invalid` for a tab row that wraps past one row. Run it against the running frontend.
+
+### Group a Long Form
+
+**ID:** `litespec/frontend/ui#group-a-long-form`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A form with more fields than the project's field limit (default six) MUST group them into labeled sections.
+
+**Rationale:** Past a handful of fields, an ungrouped form reads as one undifferentiated list: the reader cannot skip to the group they came for, and a refusal names a field with no group to find it in. Labeled sections name each group, so the expense, the amounts and the budget each explain themselves. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick new-trip form groups its seven fields into the trip, when and where, and budget sections instead of one long list.
+
+**Checked by:** `litespec model check` reports `wireframe-group-missing` for a form-frame wireframe with more fields than the field limit under fewer than two regions. Run it at the consumer root.
+
+### Show One Primary Action per View
+
+**ID:** `litespec/frontend/ui#show-one-primary-action-per-view`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A view MUST show at most one primary action, and the screen names it in `primaryAction`.
+
+**Rationale:** Two primary actions make the reader compare labels on every visit, and a hurried click lands on the wrong command. One primary names the step readers most often take next, and naming it in `primaryAction` lets the model check hold the record and the wireframe to the same action. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick expense record shows Message spender as its one primary action and names it in `primaryAction`. Resending and reversing stay secondary beside it.
+
+**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe with more than one primary action in the whole view, and `screen-primary-action-unknown` for a `primaryAction` naming no use case the screen offers. `litespec ui audit` reports `primary-action-duplicate` for two primary actions on one rendered view. Run the model check at the consumer root and the audit against the running frontend.
+
+### Route a Busy Screen Through a Hub Frame
+
+**ID:** `litespec/frontend/ui#route-a-busy-screen-through-a-hub-frame`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A screen other than a record page that offers more use cases than the project's offer limit (default four) MUST use a hub frame: home, settings home, queue or list.
+
+**Rationale:** A screen offering many use cases as stacked sections becomes one long page with a card per command: every command is visible and none is findable. A hub frame is built for many starting points, so the screen routes through a home, settings home, queue or list page instead of stacking. A record page is the exception: it offers the commands its states permit, one primary at a time, and the section and form-grouping limits keep it from stacking a form per command. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick settings area offers thirty routes, so its screen names the settings-home frame and groups the areas as links instead of stacking a card per area.
+
+**Checked by:** `litespec model check` reports `screen-pageframe-invalid` for a screen whose offers pass the offer limit while its page frame sits outside the hub family. Run it at the consumer root.
+
+### Name the Page Frame on Every Screen
+
+**ID:** `litespec/frontend/ui#name-the-page-frame-on-every-screen`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** Each screen with a route MUST name its page frame in `pageFrame`.
+
+**Rationale:** The page frame is the reviewed shape the screen follows. Without it, each route invents its own layout, and two pages of one kind ship two designs. Naming the pattern and option in `pageFrame` routes every page through one reviewed frame and lets the checks hold the screen to it. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick expense list names the list-page frame in `pageFrame`, so its search, table and paging follow the reviewed list shape.
+
+**Checked by:** `litespec model check` reports `screen-pageframe-missing` for a screen with a route and no `pageFrame`. Run it at the consumer root.
+
+### Match Each Field Width to Its Value
+
+**ID:** `litespec/frontend/ui#match-each-field-width-to-its-value`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A field MUST take the width of its value kind (code, number, amount, date, short text, long text), and a short kind never spans the column.
+
+**Rationale:** A full-width field promises a long answer: a quantity stretched across the column reads as an essay box, and the reader second-guesses the value. Sizing each field to its value kind tells the reader how much to type before typing it. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** On the Claimwick expense form the expense code and the amount take short widths while the description spans the column, so each field shows the size of its answer.
+
+**Checked by:** `litespec ui audit` reports `field-width-invalid` for a short field spanning its column. Run it against the running frontend.
+
+### Keep One Action Group to One Size
+
+**ID:** `litespec/frontend/ui#keep-one-action-group-to-one-size`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** Actions in one group MUST share one size and sit in one row, with Cancel beside the submit action, and a wrap never leaves one action alone.
+
+**Rationale:** Mixed sizes in one group read as mixed importance: the reader hunts for the real action among lookalikes, and a lone wrapped action reads as a separate group. One size in one row, with Cancel beside the submit action, keeps the group one decision. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick new-expense form ends with Cancel beside Create expense in one size on one row. Neither wraps alone on a narrow screen.
+
+**Checked by:** `litespec ui audit` reports `action-group-invalid` for actions in one group at mixed sizes or split across rows with one left alone. Run it against the running frontend.
+
+### Draw Each Role with One Composite
+
+**ID:** `litespec/frontend/ui#draw-each-role-with-one-composite`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A route MUST draw each role (state, deadline, facts, filter, empty state, callout, disclosure, destructive command, required marker, numeric column) only through the one composite the design contract maps it to.
+
+**Rationale:** When each route draws its own empty state or deadline, the same role ships in as many drawings as routes, and no catalog records the difference. One composite per role, mapped in the design contract, gives every route the same drawing to compose. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** Every Claimwick screen draws an empty expense list through the shared empty-state composite, so the message and its next step read the same on the list, the trip record and the search page.
+
+**Reviewed for:** Does every built route draw each interface role through the composite the design contract maps it to? Open the states, deadlines, facts, filters, empty states, callouts, disclosures, destructive commands, required markers and numeric columns on built routes beside the contract's map.
+
+### Show Names, Never Codes
+
+**ID:** `litespec/frontend/ui#show-names-never-codes`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A screen MUST never show a raw identifier, enum code, message key or the word null where a name belongs.
+
+**Rationale:** A code on screen asks the reader to translate: an expense number means nothing until the name beside it says what it is, and a message key or null states a programmer's fact instead of the reader's answer. Names everywhere codes would leak keep the screen in the reader's words. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure), and checked on the rendered page as [decision/0119-audit-the-rendered-page](decision/0119-audit-the-rendered-page) sets out.
+
+**Example:** The Claimwick expense list shows Ava beside each expense instead of the spender identifier, and a missing value reads as words rather than null.
+
+**Checked by:** `litespec ui audit` reports `text-code-invalid` for a raw identifier, enum code, message key or null where a name belongs. Run it against the running frontend.
+
+### Align Numbers to the End
+
+**ID:** `litespec/frontend/ui#align-numbers-to-the-end`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A number or amount column MUST align to the end with tabular figures.
+
+**Rationale:** Start-aligned figures stagger by magnitude: hundreds sit under thousands and the column cannot be scanned or added. End alignment with tabular figures lines up each place, so the column reads down. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick expenses table aligns its paid column to the end in tabular figures, so EUR 125.00 and EUR 45.00 line up by place.
+
+**Checked by:** `litespec ui audit` reports `column-alignment-invalid` for a number or amount column not aligned to the end. Run it against the running frontend.
+
+### Mark Every Destructive Command Alike
+
+**ID:** `litespec/frontend/ui#mark-every-destructive-command-alike`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** Every command that removes data or access MUST use the destructive style and stand apart from safe actions.
+
+**Rationale:** A destructive command in safe styling is a trap: the reader presses Void with the confidence of Save, and the loss lands without warning. One destructive style, set apart from safe actions, makes the dangerous command recognizable before it is read. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick void-expense command uses the destructive style and stands apart from the message and resend actions on the expense record.
+
+**Reviewed for:** Does every built command that removes data or access use the destructive style apart from safe actions? Open the remove, void, revoke and disconnect commands on built routes.
+
+### Review Each Screen at Three Widths
+
+**ID:** `litespec/frontend/ui#review-each-screen-at-three-widths`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** Each screen MUST be reviewed from screenshots at phone, laptop and wide widths in each declared scheme before it is reported done.
+
+**Rationale:** Structure that holds at one width breaks at another: a tab row wraps, an action group splits, a table clips. Reviewing screenshots at phone, laptop and wide widths in each declared scheme catches the break before the screen ships, after the frame, sections and primary action are planned and built. Settled by [decision/0117-compose-screens-from-checked-structure](decision/0117-compose-screens-from-checked-structure).
+
+**Example:** The Claimwick expense list is reviewed at 390, 1440 and 2560 pixels in both schemes before it is reported done. The review catches the state filter wrapping alone at 390.
+
+**Reviewed for:** Was each built screen reviewed from screenshots at phone, laptop and wide widths in each declared scheme before it was reported done? Open the review evidence for each screen.
+
 ### Link Each Screen to Its Next Screens
 
 **ID:** `litespec/frontend/ui#link-each-screen-to-its-next-screens`
@@ -381,11 +638,11 @@ pageFrames:
 
 **Statement:** Every token value in each declared color scheme MUST meet the limit the Concepts table states for its role.
 
-**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while accepting a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.
+**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while accepting a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089; the layered surface roles are settled by [decision/0118-layer-surfaces-by-role](decision/0118-layer-surfaces-by-role).
 
-**Example:** Claimwick's card edge differs from the page by 1.2:1 in both schemes, so cards read as separate surfaces while separators stay quieter.
+**Example:** Claimwick's layer edge differs from the page by 1.2:1 in both schemes, so layer-1 surfaces read as separate surfaces while separators stay quieter.
 
-**Checked by:** `litespec model check` reports `design-token-limit-failed` for a token role that misses its limit in a declared scheme. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `design-token-limit-failed` for a token role that misses its limit in a declared scheme. `litespec ui audit` reports `surface-contrast-failed` for rendered layers that share one fill. Run the model check at the consumer root and the audit against the running frontend.
 
 ### Keep Token Values in One Token File
 
@@ -403,7 +660,7 @@ pageFrames:
 
 ```json
 {
-  "card": {
+  "layer-1": {
     "$value": "#ffffff",
     "$type": "color"
   }
@@ -424,7 +681,7 @@ pageFrames:
 
 **Rationale:** WCAG 1.4.11 covers non-text contrast. A reader with low vision finds a field by its edge, and a field drawn at the faint separator step disappears into the page. Its own boundary token keeps separators quiet and controls findable.
 
-**Example:** The amount field on the Claimwick expense form keeps a visible edge on the card behind it in both color schemes, so it stays findable where a separator would fade.
+**Example:** The amount field on the Claimwick expense form keeps a visible edge on the layer-1 surface behind it in both color schemes, so it stays findable where a separator would fade.
 
 **Reviewed for:** Does every input boundary reach 3:1 against its surface in each declared scheme? Look in the token definitions and the rendered form fields.
 

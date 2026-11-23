@@ -111,10 +111,16 @@ The validator holds each block to these rules.
 | A `row` holds at least two children | |
 | A `list`, `grid`, or `timeline` holds one template child and a count | `list 3` with one `item` |
 | A `table` names its columns and a count | `table 4 "Item" "Qty"` |
-| A `header`, `footer`, `toolbar`, or overlay holds at most one primary action | |
+| The whole view holds at most one primary action | Two primaries in one view fail validation, even in different headers |
+| A `card` holds no `card` and no `region`, and a `region` holds no `card` | A card inside a card fails validation |
+| Every `field` sits under a `region`, `card`, `dialog`, or `drawer` | A field in a toolbar outside any section fails validation |
+| A `page` with more top-level `region` or `card` children than the section limit carries `tabs` or `nav` | Four stacked sections with no tabs fail validation |
+| A form-frame wireframe with more fields than the field limit groups them into at least two `region` parts | Seven fields under one region fail validation |
 | An overlay is a child of `page`, after the page content | `dialog` last in `page` |
 | A `figure` takes a value, a label and a value, or a label, a value, and a note | `figure "Paid today" "EUR 1,240.00" "+12% on last week"` |
 | A `toast` holds only `action` children, such as `Undo` | |
+
+The section limit and the field limit come from `ui.limits` in `.litespec/project.yaml`, defaulting to three sections and six fields, as [Controlled UI Governance](ui.md) states.
 
 On a phone the drawing reflows unless a `wireframe compact` block says otherwise. A `row` or `split` stacks, an `aside` follows the main content, a table keeps its first two columns, and a drawer rises from the bottom.
 

@@ -81,6 +81,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
+        <PackageReference Include="Microsoft.Playwright" />
     </ItemGroup>
 
     <ItemGroup>
@@ -96,6 +97,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Book/Assets/book-shell.html" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" />
+        <EmbeddedResource Include="Audit/audit.js" LogicalName="LiteSpec.Audit.audit.js" />
         <!-- The book client, built by Vite in apps/cli/book into one classic script and one stylesheet. -->
         <EmbeddedResource Include="../../book/dist/book.js;../../book/dist/book.css" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" Condition="Exists('../../book/dist/book.js')" />
     </ItemGroup>

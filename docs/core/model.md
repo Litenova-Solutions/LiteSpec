@@ -489,6 +489,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `closedBy` | waiver | generic record, flow step | is closed by | closes |
 | `host` | screen | screen | opens on | hosts |
 | `offers` | screen | use case | offers | is offered by |
+| `primaryAction` | screen | use case | runs as its primary action | is the primary action of |
 | `leadsTo` | screen | screen | leads to | is reached from |
 | `governs` | rule | aggregate, use case | governs | is governed by |
 | `binds` | rule | aggregate | binds | is bound by |

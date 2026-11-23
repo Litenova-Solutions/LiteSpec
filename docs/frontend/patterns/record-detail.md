@@ -199,8 +199,8 @@ page
     heading "Travel spending"
     status "Active" positive
     action "Pause policy"
-  field "Facet" select = "Ceilings"
   region "Ceilings"
+    field "Facet" select = "Ceilings"
     fact "Standard ceiling" "EUR 45.00"
     text muted "412 expenses under this policy"
 ```
@@ -806,11 +806,11 @@ page
     heading "History of EXP-1042"
     text muted "Every change to this expense, newest first."
     action "Export"
-  toolbar
-    field "Search changes" search
-    field "Actor" select = "Everyone"
-    field "Kind" select = "All changes"
   region "Changes"
+    toolbar
+      field "Search changes" search
+      field "Actor" select = "Everyone"
+      field "Kind" select = "All changes"
     timeline 6
       item: text "Payout note added" · text muted "Cara · 8 Oct 2026, 09:34"
     text muted "1 to 6 of 6"
@@ -849,7 +849,7 @@ page
   region "Notes"
     text muted "For the team only. Two notes, newest first."
     field "Write a note for the team" textarea
-    action primary "Add note"
+    action "Add note"
     list 2
       item: avatar "E" · text "Eli" · text muted "8 Oct 2026, 11:18" · text "The mail provider held the message for two hours."
 ```
@@ -896,8 +896,8 @@ page
   region "What happened"
     timeline 1
       item: text "Receipt resent at the request" · text muted "Eli · 8 Oct 2026, 11:20"
-    card "Eli · 8 Oct 2026, 11:18 · Internal"
-      text "The mail provider held the message for two hours."
+    text muted "Eli · 8 Oct 2026, 11:18 · Internal"
+    text "The mail provider held the message for two hours."
     timeline 2
       item: text "Email corrected by the spender" · text muted "Ava · 8 Oct 2026, 10:51"
 ```
@@ -959,14 +959,14 @@ page
     action primary "Answer the approver"
   region "Evidence"
     text muted "Two of three groups are filled. Ben decides on 21 Oct."
-    card "Receipt"
-      fact "File" "expense-EXP-1019-receipt.pdf"
-      fact "Added" "Ava · 28 Sep 2026"
-    card "Terms"
-      fact "File" "sale-terms-march-2026.pdf"
-      fact "Added" "Cara · 3 Oct 2026"
-    card "Proof the trip was business"
-      field "Add proof of the trip" file
+    text "Receipt"
+    fact "File" "expense-EXP-1019-receipt.pdf"
+    fact "Added" "Ava · 28 Sep 2026"
+    text "Terms"
+    fact "File" "sale-terms-march-2026.pdf"
+    fact "Added" "Cara · 3 Oct 2026"
+    text "Proof the trip was business"
+    field "Add proof of the trip" file
 ```
 
 **Rationale:** Stripe asks for dispute evidence in categories, because the approver checks kinds rather than files: the receipt, the terms, and the proof of the trip. Each group says whether it is filled, so Cara sees two of three groups filled and knows what is still missing before she answers.

@@ -4144,6 +4144,11 @@ $defs:
         $ref: '#/$defs/useCaseIdArray'
         x-reads-as: offers
         x-read-back-as: is offered by
+      primaryAction:
+        description: The one use case the view's primary action runs, which offers holds.
+        $ref: '#/$defs/useCaseId'
+        x-reads-as: runs as its primary action
+        x-read-back-as: is the primary action of
       serves:
         $ref: '#/$defs/flowStepIdArray'
         x-reads-as: serves
@@ -4179,6 +4184,13 @@ $defs:
       not:
         required:
         - route
+    allOf:
+    - if:
+        required:
+        - route
+      then:
+        required:
+        - pageFrame
   settingPage:
     type: object
     additionalProperties: false

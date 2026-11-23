@@ -501,7 +501,8 @@ public sealed class ScreenCheckTests
             Raw = JsonDocument.Parse(
                 "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
-                + ",\"serves\":" + JsonSerializer.Serialize(serves) + "}").RootElement.Clone(),
+                + ",\"serves\":" + JsonSerializer.Serialize(serves)
+                + ",\"pageFrame\":{\"pattern\":\"list-page\",\"option\":\"search-and-a-state-filter-only\"}}").RootElement.Clone(),
         };
 
     /// <summary>Route Outside The Routes Root Reports Placement Drift.</summary>

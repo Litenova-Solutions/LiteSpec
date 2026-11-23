@@ -215,7 +215,7 @@ internal static class TokenLimitChecks
     {
         var roles = new List<string>
         {
-            "page", "card", "separator", "card-edge", "control-boundary", "text", "muted-text",
+            "page", "layer-1", "layer-2", "layer-accent", "separator", "layer-edge", "control-boundary", "text", "muted-text",
             "primary", "primary-text", "focus-ring",
         };
 
@@ -410,11 +410,11 @@ internal static class TokenLimitChecks
     private static void CheckContrastLimits(string tokensFile, string scheme, Dictionary<string, ResolvedColor> roles, List<Finding> findings)
     {
         CheckContrast(tokensFile, scheme, roles, "text", "page", 4.5, findings);
-        CheckContrast(tokensFile, scheme, roles, "text", "card", 4.5, findings);
+        CheckContrast(tokensFile, scheme, roles, "text", "layer-1", 4.5, findings);
         CheckContrast(tokensFile, scheme, roles, "muted-text", "page", 4.5, findings);
-        CheckContrast(tokensFile, scheme, roles, "muted-text", "card", 4.5, findings);
-        CheckContrast(tokensFile, scheme, roles, "control-boundary", "card", 3.0, findings);
-        CheckContrast(tokensFile, scheme, roles, "focus-ring", "card", 3.0, findings);
+        CheckContrast(tokensFile, scheme, roles, "muted-text", "layer-1", 4.5, findings);
+        CheckContrast(tokensFile, scheme, roles, "control-boundary", "layer-1", 3.0, findings);
+        CheckContrast(tokensFile, scheme, roles, "focus-ring", "layer-1", 3.0, findings);
         CheckContrast(tokensFile, scheme, roles, "focus-ring", "page", 3.0, findings);
         CheckContrast(tokensFile, scheme, roles, "primary-text", "primary", 4.5, findings);
     }
@@ -452,49 +452,38 @@ internal static class TokenLimitChecks
         }
     }
 
-    /// <summary>Checks the card against the page, the card edge against both, and the separator against the edge.</summary>
+    /// <summary>Checks each layer against the surface it sits on, the layer edge against both, and the separator against the edge.</summary>
     /// <param name="tokensFile">The absolute token file path.</param>
     /// <param name="scheme">The scheme name.</param>
     /// <param name="roles">The resolved roles by name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSurfaces(string tokensFile, string scheme, Dictionary<string, ResolvedColor> roles, List<Finding> findings)
     {
-        if (Ready(roles, "card", "page") && SameColor(roles["card"], roles["page"]))
-        {
-            var edged = roles["card-edge"].Problem is null
-                && !SameColor(roles["card-edge"], roles["page"])
-                && !SameColor(roles["card-edge"], roles["card"]);
+        CheckSeparation(tokensFile, scheme, roles, "layer-1", "page", 1.06, findings);
+        CheckSeparation(tokensFile, scheme, roles, "layer-2", "layer-1", 1.06, findings);
+        CheckSeparation(tokensFile, scheme, roles, "layer-accent", "layer-1", 1.06, findings);
+        CheckSeparation(tokensFile, scheme, roles, "layer-accent", "layer-2", 1.06, findings);
+        CheckContrast(tokensFile, scheme, roles, "layer-edge", "page", 1.2, findings);
 
-            if (!edged)
-            {
-                findings.Add(new Finding(
-                    "design-token-limit-failed",
-                    $"Token role 'card' matches 'page' in scheme '{scheme}' with no edge between them; the card reads as a separate surface.",
-                    tokensFile, roles["card"].Line, null));
-            }
-        }
-
-        CheckContrast(tokensFile, scheme, roles, "card-edge", "page", 1.2, findings);
-
-        if (Ready(roles, "card-edge", "card") && SameColor(roles["card-edge"], roles["card"]))
+        if (Ready(roles, "layer-edge", "layer-1") && SameColor(roles["layer-edge"], roles["layer-1"]))
         {
             findings.Add(new Finding(
                 "design-token-limit-failed",
-                $"Token role 'card-edge' equals 'card' in scheme '{scheme}'; the edge differs from 'page' and 'card'.",
-                tokensFile, roles["card-edge"].Line, null));
+                $"Token role 'layer-edge' equals 'layer-1' in scheme '{scheme}'; the edge differs from 'page' and 'layer-1'.",
+                tokensFile, roles["layer-edge"].Line, null));
         }
 
-        if (Ready(roles, "separator", "card") && Ready(roles, "card-edge", "card"))
+        if (Ready(roles, "separator", "layer-1") && Ready(roles, "layer-edge", "layer-1"))
         {
             var separator = roles["separator"];
-            var edge = roles["card-edge"];
-            var card = roles["card"];
+            var edge = roles["layer-edge"];
+            var layer = roles["layer-1"];
             var soft = ContrastOf(
                 LuminanceOf(separator.Red, separator.Green, separator.Blue),
-                LuminanceOf(card.Red, card.Green, card.Blue));
+                LuminanceOf(layer.Red, layer.Green, layer.Blue));
             var firm = ContrastOf(
                 LuminanceOf(edge.Red, edge.Green, edge.Blue),
-                LuminanceOf(card.Red, card.Green, card.Blue));
+                LuminanceOf(layer.Red, layer.Green, layer.Blue));
 
             if (soft > firm + Tolerance)
             {
@@ -503,9 +492,42 @@ internal static class TokenLimitChecks
 
                 findings.Add(new Finding(
                     "design-token-limit-failed",
-                    $"Token role 'separator' reaches {reached}:1 on 'card' in scheme '{scheme}', above the card edge's {held}:1.",
+                    $"Token role 'separator' reaches {reached}:1 on 'layer-1' in scheme '{scheme}', above the layer edge's {held}:1.",
                     tokensFile, separator.Line, null));
             }
+        }
+    }
+
+    /// <summary>Reports a layer below its separation limit on the surface it sits on, when both resolved.</summary>
+    /// <param name="tokensFile">The absolute token file path.</param>
+    /// <param name="scheme">The scheme name.</param>
+    /// <param name="roles">The resolved roles by name.</param>
+    /// <param name="role">The layer role name.</param>
+    /// <param name="surface">The surface role name it sits on.</param>
+    /// <param name="limit">The lowest passing ratio.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSeparation(string tokensFile, string scheme, Dictionary<string, ResolvedColor> roles, string role, string surface, double limit, List<Finding> findings)
+    {
+        if (!Ready(roles, role, surface))
+        {
+            return;
+        }
+
+        var layer = roles[role];
+        var ground = roles[surface];
+        var ratio = ContrastOf(
+            LuminanceOf(layer.Red, layer.Green, layer.Blue),
+            LuminanceOf(ground.Red, ground.Green, ground.Blue));
+
+        if (ratio < limit - Tolerance)
+        {
+            var reached = ratio.ToString("0.00", CultureInfo.InvariantCulture);
+            var lowest = limit.ToString("0.00", CultureInfo.InvariantCulture);
+
+            findings.Add(new Finding(
+                "design-token-limit-failed",
+                $"Token role '{role}' reaches {reached}:1 on '{surface}' in scheme '{scheme}', below the {lowest}:1 limit.",
+                tokensFile, layer.Line, null));
         }
     }
 
@@ -540,7 +562,7 @@ internal static class TokenLimitChecks
 
         foreach (var chart in charts)
         {
-            CheckContrast(tokensFile, scheme, roles, chart, "card", 3.0, findings);
+            CheckContrast(tokensFile, scheme, roles, chart, "layer-1", 3.0, findings);
         }
 
         (string First, string Second)[] pairs = [("chart.1", "chart.2"), ("chart.1", "chart.3"), ("chart.2", "chart.3")];
