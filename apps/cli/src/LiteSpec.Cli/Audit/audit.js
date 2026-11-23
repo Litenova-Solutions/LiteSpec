@@ -435,5 +435,21 @@
     }
   }
 
+  // A visible alert that holds text: the page settled into an error state.
+  for (const alert of document.querySelectorAll('[role="alert"]')) {
+    if (!visible(alert)) {
+      continue;
+    }
+
+    const shown = (alert.innerText || '').trim().replace(/\s+/g, ' ');
+
+    if (shown.length === 0) {
+      continue;
+    }
+
+    const excerpt = shown.length > 120 ? shown.slice(0, 117) + '...' : shown;
+    report('page-error-shown', selectorOf(alert), "The page shows an error: '" + excerpt + "'.");
+  }
+
   return JSON.stringify(findings);
 };

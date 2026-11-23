@@ -176,9 +176,10 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `wide` | a record sits higher than every record that uses it | `external-system-placement-wide` |
 | `written` | a thing the model derives is written by hand | `refusal-generic-written` |
 | `alias` | a retired name used where the glossary term exists | `wording-alias` |
-| `failed` | a limit the subject did not meet | `design-token-limit-failed` |
+| `failed` | a limit the subject did not meet, or a request it made that did not succeed | `design-token-limit-failed` |
 | `dead-end` | a screen that leads nowhere and offers no use case | `screen-dead-end` |
 | `unselected` | an extension the project does not select | `field-extension-unselected` |
+| `shown` | a state the reader should not meet is on screen | `page-error-shown` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do appears in the finding table on the [model command page](../tools/model.md), in its own column. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 

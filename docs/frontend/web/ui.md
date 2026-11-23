@@ -33,7 +33,7 @@ The browser suite discovers its routes from the generated route tree rather than
 | Motion | With `prefers-reduced-motion: reduce` emulated, `document.getAnimations()` holds no running transform, scale, or infinitely repeating animation once the route settles |
 | Announcements | One `role="status"` region and one `role="alert"` region exist when the route loads, and asynchronous status changes announce through them |
 
-The judgments a page-level assertion cannot make live in `litespec ui audit`, which opens each route in a browser and reads the rendered page. It reports eleven codes: `surface-nesting-invalid`, `surface-contrast-failed`, `field-surface-missing`, `field-width-invalid`, `action-group-invalid`, `primary-action-duplicate`, `column-alignment-invalid`, `text-code-invalid`, `tab-label-invalid`, `table-clip-invalid`, and `page-exception-unhandled`. The [UI audit command](../../tools/ui-audit.md) states how to run it.
+The judgments a page-level assertion cannot make live in `litespec ui audit`, which opens each route in a browser and reads the rendered page. It reports thirteen codes: `surface-nesting-invalid`, `surface-contrast-failed`, `field-surface-missing`, `field-width-invalid`, `action-group-invalid`, `primary-action-duplicate`, `column-alignment-invalid`, `text-code-invalid`, `tab-label-invalid`, `table-clip-invalid`, `page-exception-unhandled`, `page-request-failed`, and `page-error-shown`. The [UI audit command](../../tools/ui-audit.md) states how to run it.
 
 ### The Browser Support Target
 

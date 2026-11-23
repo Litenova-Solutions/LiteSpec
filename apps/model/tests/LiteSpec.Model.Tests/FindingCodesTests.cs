@@ -212,6 +212,21 @@ public sealed class FindingCodesTests
         Assert.Equal("S", FindingCodes.Of("mark-folder-drift").Level);
     }
 
+    /// <summary>Each rendered-page failure code blocks at level G on the implementation layer.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("page-request-failed")]
+    [InlineData("page-error-shown")]
+    public void RenderedPageFailureCodesBlock(string code)
+    {
+        var row = FindingCodes.Of(code);
+
+        Assert.Equal("G", row.Level);
+        Assert.Equal(RecordLayer.Implementation, row.Layer);
+        Assert.False(row.Trace);
+    }
+
     /// <summary>Every finding code reads subject-problem with one of the problem words.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]
@@ -273,6 +288,7 @@ public sealed class FindingCodesTests
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
         "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
         "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked", "ungrouped", "unreserved",
+        "shown",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

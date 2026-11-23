@@ -239,6 +239,8 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `tab-label-invalid` | G | implementation | no | - | A rendered tab label wraps, or the tab row wraps to a second row. | Shorten the labels, or move the views to their own routes. |
 | `page-exception-unhandled` | G | implementation | no | - | A rendered page throws an exception it never catches. | Fix the code that throws, or catch the failure and show its problem state. |
 | `table-clip-invalid` | G | implementation | no | - | A rendered table is cut off at a phone width with no scroll region. | Stack the rows on a phone, or let the table scroll in its own region. |
+| `page-request-failed` | G | implementation | no | - | A request the rendered page made answers with a 5xx status or fails at the network level. | Fix the endpoint the finding names, or catch the failure and show its problem state. |
+| `page-error-shown` | G | implementation | no | - | A rendered page shows an error in an alert once it settles. | Fix the failure the alert reports. |
 | `wireframe-invalid` | A | behavior | no | - | A screen's wireframe block breaks the rules of the wireframe language. | Redraw the wireframe in the wireframe language. |
 | `screen-unreachable` | G | behavior | no | - | A screen is reached from no other screen and is not its entry point's start. | Lead to the screen from another screen, or make it the entry point's start. |
 | `screen-dead-end` | G | behavior | no | - | A screen leads to no next screen and offers no use case. | Lead the screen to a next screen, or offer a use case from it. |

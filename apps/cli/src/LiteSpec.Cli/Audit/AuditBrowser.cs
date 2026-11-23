@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -111,24 +112,51 @@ static class AuditBrowser
             }
 
             // An exception the page throws and never catches breaks what the reader sees, so
-            // each one the page raises while it loads and settles becomes a finding.
+            // each one the page raises while it loads and settles becomes a finding. A data
+            // request the page made that answers 5xx or fails at the network level breaks it
+            // the same way, even when the page handles the failure and throws nothing.
             var thrown = new List<string>();
+            var failed = new List<string>();
+            var sent = new ConcurrentDictionary<string, (string Method, string Url)>(StringComparer.Ordinal);
             var listenFor = sessionId;
+            var baseOrigin = OriginOf(url) ?? string.Empty;
 
-            void OnThrown(AuditCdp.CdpEvent evt)
+            void OnEvent(AuditCdp.CdpEvent evt)
             {
-                if (evt.Method == "Runtime.exceptionThrown" && string.Equals(evt.SessionId, listenFor, StringComparison.Ordinal)
-                    && evt.Params?["exceptionDetails"] is JsonObject thrownDetails)
+                if (!string.Equals(evt.SessionId, listenFor, StringComparison.Ordinal) || evt.Params is null)
+                {
+                    return;
+                }
+
+                if (evt.Method == "Runtime.exceptionThrown" && evt.Params["exceptionDetails"] is JsonObject thrownDetails)
                 {
                     lock (thrown)
                     {
                         thrown.Add(ExceptionText(thrownDetails));
                     }
                 }
+                else if (evt.Method == "Network.requestWillBeSent" && SentRequest(evt.Params) is { } line)
+                {
+                    sent[line.RequestId] = (line.Method, line.Url);
+                }
+                else if (evt.Method == "Network.responseReceived" && FailedResponse(evt.Params, sent, baseOrigin) is { } responseFailure)
+                {
+                    lock (failed)
+                    {
+                        failed.Add(responseFailure);
+                    }
+                }
+                else if (evt.Method == "Network.loadingFailed" && FailedLoad(evt.Params, sent, baseOrigin) is { } loadFailure)
+                {
+                    lock (failed)
+                    {
+                        failed.Add(loadFailure);
+                    }
+                }
             }
 
-            Action<AuditCdp.CdpEvent> onThrown = OnThrown;
-            cdp.Received += onThrown;
+            Action<AuditCdp.CdpEvent> onEvent = OnEvent;
+            cdp.Received += onEvent;
             await cdp.SendAsync("Page.enable", null, sessionId, CommandTimeout, CancellationToken.None);
             await cdp.SendAsync("Network.enable", null, sessionId, CommandTimeout, CancellationToken.None);
             await cdp.SendAsync("Runtime.enable", null, sessionId, CommandTimeout, CancellationToken.None);
@@ -185,7 +213,7 @@ static class AuditBrowser
             }
 
             var findings = ReadScriptFindings(json, route.Path, scheme, width);
-            cdp.Received -= onThrown;
+            cdp.Received -= onEvent;
 
             lock (thrown)
             {
@@ -193,6 +221,15 @@ static class AuditBrowser
                 {
                     findings.Add(new AuditRawFinding(
                         "page-exception-unhandled", "page", $"The page throws an exception it never catches: {message}", route.Path, scheme, width));
+                }
+            }
+
+            lock (failed)
+            {
+                foreach (var message in failed.Distinct(StringComparer.Ordinal))
+                {
+                    findings.Add(new AuditRawFinding(
+                        "page-request-failed", "page", message, route.Path, scheme, width));
                 }
             }
             var file = AuditReport.FileName(route.Path, scheme, width);
@@ -591,6 +628,113 @@ static class AuditBrowser
         catch (Exception exception) when (exception is UriFormatException or ArgumentException)
         {
             return null;
+        }
+    }
+
+    /// <summary>The request a Network.requestWillBeSent event carries, kept so a later failure names its method.</summary>
+    /// <param name="parameters">The event parameters.</param>
+    /// <returns>The request id, method and address, or null when the event holds none.</returns>
+    internal static (string RequestId, string Method, string Url)? SentRequest(JsonObject parameters)
+    {
+        if (parameters["requestId"] is JsonValue id && id.TryGetValue<string>(out var requestId)
+            && parameters["request"] is JsonObject request
+            && request["method"] is JsonValue methodValue && methodValue.TryGetValue<string>(out var method)
+            && request["url"] is JsonValue urlValue && urlValue.TryGetValue<string>(out var url))
+        {
+            return (requestId, method, url);
+        }
+
+        return null;
+    }
+
+    /// <summary>The failure text of a Network.responseReceived event: a same-origin page request that answers 5xx.</summary>
+    /// <param name="parameters">The event parameters.</param>
+    /// <param name="sent">The page requests read from requestWillBeSent, by request id.</param>
+    /// <param name="baseOrigin">The origin of the audited base URL.</param>
+    /// <returns>The failure text, or null when the event is not a failed same-origin page request.</returns>
+    internal static string? FailedResponse(JsonObject parameters, IReadOnlyDictionary<string, (string Method, string Url)> sent, string baseOrigin)
+    {
+        if (!IsPageRequest(parameters))
+        {
+            return null;
+        }
+
+        if (parameters["response"] is not JsonObject response
+            || response["url"] is not JsonValue urlValue || !urlValue.TryGetValue<string>(out var url)
+            || response["status"] is not JsonValue statusValue || !statusValue.TryGetValue<int>(out var status)
+            || status < 500)
+        {
+            return null;
+        }
+
+        if (!string.Equals(OriginOf(url), baseOrigin, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (parameters["requestId"] is not JsonValue id || !id.TryGetValue<string>(out var requestId)
+            || !sent.TryGetValue(requestId, out var line))
+        {
+            return null;
+        }
+
+        return $"A request the page made fails: {line.Method} {PathOf(url)} answers {status}.";
+    }
+
+    /// <summary>The failure text of a Network.loadingFailed event: a same-origin page request that fails at the network level.</summary>
+    /// <param name="parameters">The event parameters.</param>
+    /// <param name="sent">The page requests read from requestWillBeSent, by request id.</param>
+    /// <param name="baseOrigin">The origin of the audited base URL.</param>
+    /// <returns>The failure text, or null when the event is not a failed same-origin page request.</returns>
+    internal static string? FailedLoad(JsonObject parameters, IReadOnlyDictionary<string, (string Method, string Url)> sent, string baseOrigin)
+    {
+        if (!IsPageRequest(parameters))
+        {
+            return null;
+        }
+
+        if (parameters["canceled"] is JsonValue canceled && canceled.TryGetValue<bool>(out var aborted) && aborted)
+        {
+            return null;
+        }
+
+        if (parameters["requestId"] is not JsonValue id || !id.TryGetValue<string>(out var requestId)
+            || !sent.TryGetValue(requestId, out var line)
+            || !string.Equals(OriginOf(line.Url), baseOrigin, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var reason = parameters["errorText"] is JsonValue error && error.TryGetValue<string>(out var text) && text.Length > 0
+            ? text
+            : "the network failed";
+
+        return $"A request the page made fails: {line.Method} {PathOf(line.Url)} never answers ({reason}).";
+    }
+
+    /// <summary>Whether a network event names a request the page itself made: fetch or XHR.</summary>
+    /// <param name="parameters">The event parameters.</param>
+    /// <returns>True for fetch and XHR requests.</returns>
+    static bool IsPageRequest(JsonObject parameters) =>
+        parameters["type"] is JsonValue type && type.TryGetValue<string>(out var name)
+        && (name == "Fetch" || name == "XHR");
+
+    /// <summary>The path of a request address without its query string, so no query secret reaches the report.</summary>
+    /// <param name="url">The request address.</param>
+    /// <returns>The path, or the address up to its query string when the address is not absolute.</returns>
+    internal static string PathOf(string url)
+    {
+        try
+        {
+            var path = new Uri(url, UriKind.Absolute).AbsolutePath;
+
+            return path.Length == 0 ? "/" : path;
+        }
+        catch (Exception exception) when (exception is UriFormatException or ArgumentException)
+        {
+            var query = url.IndexOfAny(['?', '#']);
+
+            return query < 0 ? url : url[..query];
         }
     }
 
