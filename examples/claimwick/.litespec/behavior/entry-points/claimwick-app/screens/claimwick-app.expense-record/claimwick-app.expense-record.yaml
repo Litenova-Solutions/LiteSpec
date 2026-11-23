@@ -9,6 +9,7 @@ offers:
 - use-case/spending.erase-personal-data
 - use-case/spending.refuse-expense
 - use-case/spending.reimburse-expense
+primaryAction: use-case/spending.approve-expense
 serves:
 - step/submit-and-reimburse.attach-receipt
 - step/submit-and-reimburse.decide-expense

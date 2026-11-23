@@ -6,6 +6,7 @@ route: /expenses/new
 offers:
 - use-case/spending.submit-expense
 - use-case/spending.list-expenses
+primaryAction: use-case/spending.submit-expense
 serves:
 - step/submit-and-reimburse.submit-expense
 fulfills:
