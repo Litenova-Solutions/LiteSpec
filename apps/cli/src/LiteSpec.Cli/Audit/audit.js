@@ -69,9 +69,15 @@
     && (radiusOf(element) > 0 || paddingOf(element) > 0);
 
   // Elements the nesting check never reads as a surface.
+  // A link or button styled as a button, a search box or a label is a control, not a surface.
   const nestingIgnored = (element) => element.matches(
-    'input,select,textarea,button,[role="button"],table,thead,tbody,tfoot,tr,td,th,script,style,noscript,template')
-    || (element.getBoundingClientRect().height < 32 && getComputedStyle(element).display.startsWith('inline'));
+    'input,select,textarea,button,a,label,[role="button"],[role="search"],[data-variant],table,thead,tbody,tfoot,tr,td,th,script,style,noscript,template')
+    // A badge, a step marker or a chip is too small to frame content.
+    || element.getBoundingClientRect().height < 32
+    // An inline element, such as a chip that wraps on a phone, flows with the text.
+    || getComputedStyle(element).display.startsWith('inline')
+    // A wrapper that draws the boundary of the field inside it is part of the control.
+    || element.matches(':has(> input, > select, > textarea)');
 
   const selectorOf = (element) => {
     if (!(element instanceof Element)) {
@@ -157,7 +163,17 @@
       continue;
     }
 
-    const own = hasBackground(element) ? backgroundOf(element) : behind;
+    // A header reads its fill from itself, its first row or its first cell; any other
+    // candidate without a fill of its own draws no surface and is skipped.
+    const filled = element.tagName === 'THEAD'
+      ? [element, element.querySelector('tr'), element.querySelector('th,td')].find((node) => node && hasBackground(node))
+      : (hasBackground(element) ? element : null);
+
+    if (!filled || element.matches('a,button,[role="button"],[data-variant]')) {
+      continue;
+    }
+
+    const own = backgroundOf(filled);
 
     if (own === behind && !hasBorder(element)) {
       report('surface-contrast-failed', selectorOf(element), 'A surface shares its fill with the surface behind it.');
@@ -174,6 +190,11 @@
 
     while (filled && !hasBackground(filled)) {
       filled = filled.parentElement;
+    }
+
+    // A control in the page header (a period switcher, a search box) belongs to the header.
+    if (field.closest('header,[role="search"],[role="toolbar"]')) {
+      continue;
     }
 
     if (filled && (filled.tagName === 'BODY' || filled.tagName === 'HTML' || filled.tagName === 'MAIN')) {
@@ -273,7 +294,10 @@
 
   // A column whose body cells mostly parse as numbers or money but aligns to the start.
   // Currency signs stay as escapes so this file holds ASCII only.
-  const money = /^\s*(?:[A-Z]{3}\s?|[$\u20AC\u00A3\u00A5\u20B9]\s?)?[-+]?[0-9][0-9.,\s\u00A0\u202F]*\s*(?:[A-Z]{3}|[%])?\s*$/;
+  const money = /^\s*(?:[A-Z]{3}\s?|[$\u20AC\u00A3\u00A5\u20B9]\s?)?[-+\u2212]?[0-9][0-9.,\s\u00A0\u202F]*\s*(?:[A-Z]{3}|[%])?\s*$/;
+  // An amount or a measured number carries a currency, a decimal part or a percent sign.
+  // A bare run of digits is an identifier (an account code, a year) and reads from the start.
+  const measured = (text) => money.test(text) && /[A-Z]{3}|[$\u20AC\u00A3\u00A5\u20B9%]|[.,][0-9]/.test(text);
 
   for (const table of document.querySelectorAll('table')) {
     if (!visible(table)) {
@@ -302,7 +326,7 @@
         continue;
       }
 
-      const numeric = cells.filter((cell) => money.test((cell.innerText || '').trim()));
+      const numeric = cells.filter((cell) => measured((cell.innerText || '').trim()));
 
       if (numeric.length > cells.length / 2) {
         const align = getComputedStyle(numeric[0]).textAlign;
@@ -340,8 +364,10 @@
     const shown = (text.nodeValue || '').trim();
     const excerpt = shown.length > 60 ? shown.slice(0, 57) + '...' : shown;
 
-    if (guid.test(shown) || messageKey.test(shown) || shown === 'null' || shown === 'undefined'
-      || shown === '(null)' || shown.includes('(null)')) {
+    const literal = literalParent.split(',').includes(text.parentElement.tagName);
+
+    if (guid.test(shown) || messageKey.test(shown) || (!literal && kebabCode.test(shown))
+      || shown === 'null' || shown === 'undefined' || shown === '(null)' || shown.includes('(null)')) {
       report('text-code-invalid', selectorOf(text.parentElement), "The page shows the code '" + excerpt + "'.");
     }
 

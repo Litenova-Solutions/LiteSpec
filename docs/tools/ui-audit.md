@@ -44,6 +44,7 @@ The audit codes are:
 | `text-code-invalid` | The page shows a raw identifier, a message key, `null`, `undefined`, or `(null)` where a name belongs. | Show the name the reader knows; never show the code. |
 | `tab-label-invalid` | A tab label wraps, or the tab list wraps to two rows. | Shorten the labels and keep the tab list to one row. |
 | `table-clip-invalid` | Below 600 pixels, a table is wider than its container and no ancestor up to `main` scrolls horizontally. | Let the table scroll inside its own region. |
+| `page-exception-unhandled` | The page throws an exception it never catches while it loads. | Fix the code that throws, or catch the failure and show its problem state. |
 
 The primary action is read with `--primary-selector`, which defaults to `[data-variant=primary]`. The command prints one line per finding, then the finding count and the report path. `audit.json` in the output folder holds the base URL, the routes, the widths, the schemes, every finding, and the screenshot file names. Screenshots follow the capture pattern `{route}--{scheme}--{width}.png`, with the route slugged and the root route named `home`, so `expenses-new--light--390.png` shows `/expenses/new` at phone width in the light scheme.
 

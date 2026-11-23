@@ -110,8 +110,28 @@ static class AuditBrowser
                 throw new InvalidOperationException("The browser attached to no target.");
             }
 
+            // An exception the page throws and never catches breaks what the reader sees, so
+            // each one the page raises while it loads and settles becomes a finding.
+            var thrown = new List<string>();
+            var listenFor = sessionId;
+
+            void OnThrown(AuditCdp.CdpEvent evt)
+            {
+                if (evt.Method == "Runtime.exceptionThrown" && string.Equals(evt.SessionId, listenFor, StringComparison.Ordinal)
+                    && evt.Params?["exceptionDetails"] is JsonObject thrownDetails)
+                {
+                    lock (thrown)
+                    {
+                        thrown.Add(ExceptionText(thrownDetails));
+                    }
+                }
+            }
+
+            Action<AuditCdp.CdpEvent> onThrown = OnThrown;
+            cdp.Received += onThrown;
             await cdp.SendAsync("Page.enable", null, sessionId, CommandTimeout, CancellationToken.None);
             await cdp.SendAsync("Network.enable", null, sessionId, CommandTimeout, CancellationToken.None);
+            await cdp.SendAsync("Runtime.enable", null, sessionId, CommandTimeout, CancellationToken.None);
             await cdp.SendAsync(
                 "Emulation.setDeviceMetricsOverride",
                 new JsonObject { ["width"] = width, ["height"] = ViewportHeight, ["deviceScaleFactor"] = 1, ["mobile"] = width < 600 },
@@ -145,7 +165,7 @@ static class AuditBrowser
             var selectorJson = JsonValue.Create(options.PrimarySelector)!.ToJsonString();
             var evaluated = await cdp.SendAsync(
                 "Runtime.evaluate",
-                new JsonObject { ["expression"] = $"({script})({selectorJson})", ["returnByValue"] = true },
+                new JsonObject { ["expression"] = $"({script.Trim().TrimEnd(';')})({selectorJson})", ["returnByValue"] = true },
                 sessionId,
                 CommandTimeout,
                 CancellationToken.None);
@@ -165,6 +185,16 @@ static class AuditBrowser
             }
 
             var findings = ReadScriptFindings(json, route.Path, scheme, width);
+            cdp.Received -= onThrown;
+
+            lock (thrown)
+            {
+                foreach (var message in thrown.Distinct(StringComparer.Ordinal))
+                {
+                    findings.Add(new AuditRawFinding(
+                        "page-exception-unhandled", "page", $"The page throws an exception it never catches: {message}", route.Path, scheme, width));
+                }
+            }
             var file = AuditReport.FileName(route.Path, scheme, width);
             await CaptureScreenshotAsync(cdp, sessionId, Path.Combine(outDir, file));
 
@@ -367,6 +397,7 @@ static class AuditBrowser
 
                 if (loaded && DateTimeOffset.UtcNow - last >= QuietWait)
                 {
+                    await WaitForQuietDocumentAsync(cdp, sessionId);
                     return;
                 }
 
@@ -377,6 +408,45 @@ static class AuditBrowser
         {
             cdp.Received -= handler;
         }
+    }
+
+    /// <summary>
+    /// Waits until the page stops changing: a client-rendered page fetches its data after the
+    /// load event, so the audit reads it only once no element is busy and the document has gone
+    /// unchanged for a moment, capped by the settle timeout.
+    /// </summary>
+    /// <param name="cdp">The connected protocol client.</param>
+    /// <param name="sessionId">The target session.</param>
+    /// <returns>A task that completes when the document is quiet or the cap passes.</returns>
+    static async Task WaitForQuietDocumentAsync(AuditCdp cdp, string sessionId)
+    {
+        const string Quiet = """
+            new Promise((resolve) => {
+              const quietFor = 700;
+              const cap = 10000;
+              const started = Date.now();
+              let last = Date.now();
+              const observer = new MutationObserver(() => { last = Date.now(); });
+              observer.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true });
+              const tick = () => {
+                const busy = document.querySelector('[aria-busy="true"]') !== null;
+                if ((!busy && Date.now() - last >= quietFor) || Date.now() - started >= cap) {
+                  observer.disconnect();
+                  resolve(true);
+                } else {
+                  setTimeout(tick, 100);
+                }
+              };
+              tick();
+            })
+            """;
+
+        await cdp.SendAsync(
+            "Runtime.evaluate",
+            new JsonObject { ["expression"] = Quiet, ["awaitPromise"] = true, ["returnByValue"] = true },
+            sessionId,
+            CommandTimeout,
+            CancellationToken.None);
     }
 
     /// <summary>Captures the full page into its screenshot file.</summary>

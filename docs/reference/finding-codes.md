@@ -237,6 +237,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `column-alignment-invalid` | G | implementation | no | - | A rendered number column aligns to the start. | Align the column to the end with tabular figures. |
 | `text-code-invalid` | G | implementation | no | - | A rendered page shows a raw identifier, code, message key or null. | Show the name the reader knows. |
 | `tab-label-invalid` | G | implementation | no | - | A rendered tab label wraps, or the tab row wraps to a second row. | Shorten the labels, or move the views to their own routes. |
+| `page-exception-unhandled` | G | implementation | no | - | A rendered page throws an exception it never catches. | Fix the code that throws, or catch the failure and show its problem state. |
 | `table-clip-invalid` | G | implementation | no | - | A rendered table is cut off at a phone width with no scroll region. | Stack the rows on a phone, or let the table scroll in its own region. |
 | `wireframe-invalid` | A | behavior | no | - | A screen's wireframe block breaks the rules of the wireframe language. | Redraw the wireframe in the wireframe language. |
 | `screen-unreachable` | G | behavior | no | - | A screen is reached from no other screen and is not its entry point's start. | Lead to the screen from another screen, or make it the entry point's start. |
