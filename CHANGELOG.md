@@ -512,6 +512,17 @@ Decision 0115, Give Reasoned Records Their Own Folder, and decision 0116, Write 
 
 The new rules are `litespec/frontend/ui#place-no-surface-inside-another`, `litespec/frontend/ui#draw-every-field-on-a-surface`, `litespec/frontend/ui#limit-a-page-to-three-stacked-sections`, `litespec/frontend/ui#use-tabs-only-for-peer-views`, `litespec/frontend/ui#group-a-long-form`, `litespec/frontend/ui#show-one-primary-action-per-view`, `litespec/frontend/ui#route-a-busy-screen-through-a-hub-frame`, `litespec/frontend/ui#name-the-page-frame-on-every-screen`, `litespec/frontend/ui#match-each-field-width-to-its-value`, `litespec/frontend/ui#keep-one-action-group-to-one-size`, `litespec/frontend/ui#draw-each-role-with-one-composite`, `litespec/frontend/ui#show-names-never-codes`, `litespec/frontend/ui#align-numbers-to-the-end`, `litespec/frontend/ui#mark-every-destructive-command-alike` and `litespec/frontend/ui#review-each-screen-at-three-widths`. Decisions 0117, Compose Screens from Checked Structure, 0118, Layer Surfaces by Role, and 0119, Audit the Rendered Page, record why.
 
+### Part BB: Seeding from Scenarios on the Cast Day
+
+- The local stack runs on the cast's `today`: the orchestrator sets a development clock, every host reads it through the scoped clock, and the frontend marks the displayed date as a development date. With no `today` in the cast, the real clock runs.
+- The seed is split into named scenarios: each names the cast occasion it brings about, the scenarios it depends on, and how it tells it already ran, and skips when it has. A baseline scenario sets up the parties, and the orchestrator offers each scenario and all of them.
+- A seed step that needs a value the cast lacks adds the fact to the cast and reads it from there; the seed invents no name, amount, or date.
+- Volume data for paging, search, and speed comes from a fixed random seed, lives in its own scenario, and is marked as generated, so it reads as load data rather than as an example the specification states.
+- The screen review and the rendered-page audit run on a stack seeded with every scenario, and every screen in the model is reached with data by at least one scenario.
+- Seed and reset commands refuse to run in production; production reference data (charts, rates, country data) arrives only through migrations or startup data that is part of the release.
+
+The new rule is `litespec/quality/development#seed-only-development-and-test-environments`.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -534,7 +545,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (289):
+Added (295):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
@@ -811,12 +822,18 @@ Added (289):
 - `litespec/frontend/web/testing#keep-web-test-mocks-to-the-stack-libraries`
 - `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`
 - `litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file`
+- `litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed`
 - `litespec/quality/development#authenticate-as-a-cast-person`
+- `litespec/quality/development#generate-volume-data-apart-from-the-cast`
 - `litespec/quality/development#give-each-external-system-a-stand-in-that-answers-its-declared-operations`
 - `litespec/quality/development#keep-development-shortcuts-out-of-release-builds`
 - `litespec/quality/development#keep-the-real-identity-provider-one-launch-profile-away`
 - `litespec/quality/development#provide-seed-and-reset-from-the-local-orchestrator`
+- `litespec/quality/development#review-screens-with-seeded-data`
+- `litespec/quality/development#run-the-local-stack-on-the-cast-day`
 - `litespec/quality/development#seed-from-the-cast-through-public-use-cases`
+- `litespec/quality/development#seed-only-development-and-test-environments`
+- `litespec/quality/development#split-the-seed-into-repeatable-scenarios`
 - `litespec/quality/development#start-the-stack-with-one-local-command`
 - `litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class`
 - `litespec/workspace/design#give-each-class-one-responsibility`
