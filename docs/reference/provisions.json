@@ -5194,16 +5194,16 @@
       "anchor": "keep-overrides-and-integration-catalogs-out-of-knowledge",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Is any tenant override held in a knowledge set, or any outside-system endpoint or file format held in a knowledge model? Look at the settings and adapter configuration beside the knowledge sets.",
+      "evidence": "Is any tenant override held in a knowledge set, any connection setting held in a knowledge model, or any provider fact a use case reads held only in an adapter? Look at the settings and adapter configuration beside the knowledge sets.",
       "stack": "any",
       "concern": "domain",
       "artifact": "knowledge-model, knowledge-set, record:aggregate",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A per-tenant override and an integration catalog MUST stay outside knowledge, living respectively as a setting on an operational aggregate and as adapter configuration.",
-      "rationale": "An override belongs to one tenant and changes through that tenant\u0027s use case, so it needs the aggregate\u0027s rules and access, not a released table. An integration catalog names the endpoints and file formats of outside systems; those are concerns of the adapter that calls them, and they change with the outside system rather than with business rules.",
-      "example": "A Claimwick tenant that pays a higher partial-day rate keeps that rate in its own policy aggregate through a use case. The list of endpoints and file formats Claimwick uses to import travel data stays in the import adapter\u0027s configuration."
+      "statement": "Per-tenant overrides and the settings an adapter needs to connect to an outside system MUST stay outside knowledge, as a setting on an operational aggregate and as adapter configuration; facts about outside providers that the product itself reasons about or shows are knowledge.",
+      "rationale": "An override belongs to one tenant and changes through that tenant\u0027s use case, so it needs the aggregate\u0027s rules and access, not a released table. An endpoint, a credential or the wire format an adapter parses concerns only the adapter that connects; it changes with the outside system, and no use case reads it. Which providers the product accepts or offers, and what it promises about them, is different: use cases read it, screens show it, and it varies like any other knowledge, so it belongs in a knowledge area read through its model.",
+      "example": "A Claimwick tenant that pays a higher partial-day rate keeps that rate in its own policy aggregate through a use case. The endpoint and file layout Claimwick\u0027s import adapter uses to fetch travel bookings stay in that adapter\u0027s configuration, while the travel agencies Claimwick accepts bookings from, which an employee picks on the expense form, live in a knowledge area."
     },
     {
       "id": "litespec/backend/knowledge#model-reference-data-as-domain-values",

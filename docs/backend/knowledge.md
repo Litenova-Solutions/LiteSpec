@@ -39,7 +39,7 @@ A template is a starting set of values, such as a starting chart or a default po
 
 ### What Is Not Knowledge
 
-A per-tenant override is a setting on an operational aggregate: it belongs to one tenant and changes through that tenant's use case. An integration catalog, with the endpoints and file formats of outside systems, is adapter configuration. Neither belongs in a knowledge model or a set.
+A per-tenant override is a setting on an operational aggregate: it belongs to one tenant and changes through that tenant's use case. The settings an adapter needs to connect to an outside system (endpoints, credentials, the wire format it parses) are adapter configuration. Neither belongs in a knowledge model or a set. Facts about outside providers that use cases read or screens show, such as which providers the product accepts and what it offers through them, are knowledge.
 
 ## Standards
 
@@ -227,13 +227,13 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Applies to:** artifact: knowledge-model, knowledge-set, record:aggregate
 
-**Statement:** A per-tenant override and an integration catalog MUST stay outside knowledge, living respectively as a setting on an operational aggregate and as adapter configuration.
+**Statement:** Per-tenant overrides and the settings an adapter needs to connect to an outside system MUST stay outside knowledge, as a setting on an operational aggregate and as adapter configuration; facts about outside providers that the product itself reasons about or shows are knowledge.
 
-**Rationale:** An override belongs to one tenant and changes through that tenant's use case, so it needs the aggregate's rules and access, not a released table. An integration catalog names the endpoints and file formats of outside systems; those are concerns of the adapter that calls them, and they change with the outside system rather than with business rules.
+**Rationale:** An override belongs to one tenant and changes through that tenant's use case, so it needs the aggregate's rules and access, not a released table. An endpoint, a credential or the wire format an adapter parses concerns only the adapter that connects; it changes with the outside system, and no use case reads it. Which providers the product accepts or offers, and what it promises about them, is different: use cases read it, screens show it, and it varies like any other knowledge, so it belongs in a knowledge area read through its model.
 
-**Example:** A Claimwick tenant that pays a higher partial-day rate keeps that rate in its own policy aggregate through a use case. The list of endpoints and file formats Claimwick uses to import travel data stays in the import adapter's configuration.
+**Example:** A Claimwick tenant that pays a higher partial-day rate keeps that rate in its own policy aggregate through a use case. The endpoint and file layout Claimwick's import adapter uses to fetch travel bookings stay in that adapter's configuration, while the travel agencies Claimwick accepts bookings from, which an employee picks on the expense form, live in a knowledge area.
 
-**Reviewed for:** Is any tenant override held in a knowledge set, or any outside-system endpoint or file format held in a knowledge model? Look at the settings and adapter configuration beside the knowledge sets.
+**Reviewed for:** Is any tenant override held in a knowledge set, any connection setting held in a knowledge model, or any provider fact a use case reads held only in an adapter? Look at the settings and adapter configuration beside the knowledge sets.
 
 ### Use an Aggregate for Edited Reference Data Only
 
