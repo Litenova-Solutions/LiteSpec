@@ -18,6 +18,7 @@ export type ScreenId =
 export type ProofTargetId =
   | "decision/0001-receipt-threshold"
   | "decision/0002-attach-receipt-writes-two-aggregates"
+  | "decision/0003-travel-rates"
   | "decision/0004-serve-receipts-behind-one-proxy"
   | "decision/0005-render-receipts-as-pdf"
   | "external-system/event-bus"
@@ -461,6 +462,7 @@ export type ProofTargetId =
   | "rule/expense.export-carries-approved"
   | "rule/expense.receipt-required-above-threshold"
   | "rule/expense.reimbursed-once"
+  | "rule/expense.travel-allowance-from-per-diem"
   | "rule/policy.threshold-never-negative"
   | "rule/receipt.attaches-before-decision"
   | "rule/reminder-preference.changed-by-owner-or-finance"

@@ -66,6 +66,9 @@ steps:
 - statement: Spending checks the receipt rule against the threshold.
   cites:
   - rule/expense.receipt-required-above-threshold
+- statement: Spending reads the travel allowance from the per-diem row in force for the travel date and country.
+  cites:
+  - rule/expense.travel-allowance-from-per-diem
 - statement: Spending refuses the submission with `spending.receipt-missing` when the receipt is missing.
   cites:
   - result/submit-expense.receipt-missing
@@ -100,6 +103,7 @@ records:
   result: result/submit-expense.submitted
   exercises:
   - rule/expense.receipt-required-above-threshold
+  - rule/expense.travel-allowance-from-per-diem
 - type: scenario
   id: scenario/submit-expense.submitting-without-a-receipt-is-refused
   title: Submitting Without a Receipt Is Refused

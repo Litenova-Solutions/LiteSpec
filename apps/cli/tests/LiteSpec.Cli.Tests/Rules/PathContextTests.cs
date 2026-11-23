@@ -150,6 +150,41 @@ public sealed class PathContextTests
     }
 
 
+    /// <summary>A C# file in a Product.Area project under Knowledge derives the knowledge-model artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact]
+    public void RulesKnowledgeModelFileDerivesKnowledgeModelArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Knowledge/Demo.Travel/PerDiem/PerDiemRate.cs", "sealed record PerDiemRate;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Knowledge/Demo.Travel/PerDiem/PerDiemRate.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: knowledge-model", result.Output);
+    }
+
+    /// <summary>A C# file in a Product.Area.Variant project whose model exists derives the knowledge-set artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact]
+    public void RulesKnowledgeSetFileDerivesKnowledgeSetArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Knowledge/Demo.Travel.Germany/Germany.cs", "sealed class Germany;\n");
+        var modelFile = Path.Combine(root.Path, "apps", "api", "src", "Knowledge", "Demo.Travel", "TravelRules.cs");
+        Directory.CreateDirectory(Path.GetDirectoryName(modelFile)!);
+        File.WriteAllText(modelFile, "sealed class TravelRules;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Knowledge/Demo.Travel.Germany/Germany.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: knowledge-set", result.Output);
+    }
+
     /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>
     /// <param name="relative">The added file path, with forward-slash segments.</param>
     /// <param name="contents">The added file contents.</param>

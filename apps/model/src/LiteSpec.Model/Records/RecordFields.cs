@@ -807,6 +807,15 @@ public static class RecordFields
     /// <summary>Gets the name of the `valueType` field.</summary>
     public const string ValueType = "valueType";
 
+    /// <summary>Gets the name of the `variant` field.</summary>
+    public const string Variant = "variant";
+
+    /// <summary>Gets the name of the `variants` field.</summary>
+    public const string Variants = "variants";
+
+    /// <summary>Gets the name of the `variation` field.</summary>
+    public const string Variation = "variation";
+
     /// <summary>Gets the name of the `vendor` field.</summary>
     public const string Vendor = "vendor";
 

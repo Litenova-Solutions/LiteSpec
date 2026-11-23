@@ -80,6 +80,9 @@ LS2034 | LiteSpec.Layers | Error | Descriptors
 LS2035 | LiteSpec.Layers | Error | Descriptors
 LS2036 | LiteSpec.Layers | Error | Descriptors
 LS2037 | LiteSpec.Layers | Error | Descriptors
+LS2038 | LiteSpec.Layers | Error | Descriptors
+LS2039 | LiteSpec.Layers | Error | Descriptors
+LS2040 | LiteSpec.Layers | Error | Descriptors
 LS3002 | LiteSpec.Style | Error | Descriptors
 LS3003 | LiteSpec.Style | Error | Descriptors
 LS3005 | LiteSpec.Style | Info | Descriptors

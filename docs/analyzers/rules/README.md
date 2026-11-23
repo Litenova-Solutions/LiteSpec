@@ -1,6 +1,6 @@
 # Overview
 
-When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 66 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
+When a build error names a rule ID, open the page with the same ID below. Each rule page names the provision the rule enforces, shows where the diagnostic sits, lists what the rule ignores, and explains the fix, with a failing example beside a passing one. The 69 rules are grouped by the layers they run in, with a one-line summary of what each rule reports.
 
 ## Domain Rules
 
@@ -26,7 +26,7 @@ Rules `LS1001` to `LS1017` check Domain modeling. `LS1014` runs in every product
 
 ## Outer-Layer Rules
 
-Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2037` run across layers, as each page states.
+Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2040` run across layers, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type visible outside its assembly or open to extension.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports a class derived from `ControllerBase` or carrying `ApiController`.
@@ -62,6 +62,9 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2037` run across layers
 - [LS2035: Unknown Record Thrown as a Generic Exception](ls2035.md): reports a generic throw for a null check after a repository or session load.
 - [LS2036: Production Code Reads the Clock Directly](ls2036.md): reports a static clock read outside Domain.
 - [LS2037: Identity Value Read in a Queryable Expression](ls2037.md): reports a read of the document identity value inside a queryable expression.
+- [LS2038: Module References a Knowledge Set](ls2038.md): reports a module naming a type of a knowledge set project.
+- [LS2039: Knowledge Set Declares Logic](ls2039.md): reports a branch, loop, switch, call, or throw in a knowledge set.
+- [LS2040: Knowledge Key Built from a String Literal](ls2040.md): reports a knowledge key built from a string literal outside a knowledge set.
 
 ## Naming and Style Rules
 

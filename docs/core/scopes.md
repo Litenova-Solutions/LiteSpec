@@ -62,6 +62,8 @@ The `artifact` field names the kind of thing a provision governs:
 | `state-record` | One named state of an aggregate and its data |
 | `value-object` | One immutable type defined by its values |
 | `domain-event` | One fact completed inside the bounded context |
+| `knowledge-model` | One knowledge model project: the row types, roles, keys, lookups and validation of one area |
+| `knowledge-set` | One knowledge set project: the dated rows of one variant of an area |
 | `use-case` | The message and result types of one use case |
 | `command-handler` | The execution path of one command use case |
 | `query-handler` | The execution path of one query use case |

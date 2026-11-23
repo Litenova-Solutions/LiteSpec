@@ -1,0 +1,7 @@
+type: knowledge-area
+id: knowledge-area/travel
+title: Travel
+meaning: The travel rates Claimwick looks up by country.
+variants:
+- germany
+- netherlands

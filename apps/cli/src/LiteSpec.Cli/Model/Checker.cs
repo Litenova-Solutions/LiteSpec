@@ -136,6 +136,8 @@ static class Checker
         ReferenceDataChecks.RunRolePlayed,
         ReferenceDataChecks.RunCoverage,
         ReferenceDataChecks.RunAmountSign,
+        KnowledgeChecks.RunVariationUndeclared,
+        KnowledgeChecks.RunSetMissing,
         ParentChecks.Run,
         IntentChecks.Run,
         CastChecks.Run,

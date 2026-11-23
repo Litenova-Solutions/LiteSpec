@@ -96,6 +96,9 @@ public static class RecordTypes
     /// <summary>Gets the `module` record type name.</summary>
     public const string Module = "module";
 
+    /// <summary>Gets the `knowledge-area` record type name.</summary>
+    public const string KnowledgeArea = "knowledge-area";
+
     /// <summary>Gets the `notification` record type name.</summary>
     public const string Notification = "notification";
 
@@ -163,7 +166,7 @@ public static class RecordTypes
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         "product", "goal", "direction", "constraint", "research", "decision", "requirement", "problem",
-        "feature", "actor", "role", "permission", "flow", "step", "module",
+        "feature", "actor", "role", "permission", "flow", "step", "module", "knowledge-area",
         "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "module-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model", "reference-data",
         "entry-point", "screen", "external-system", "runbook", "waiver", "term",
@@ -189,7 +192,7 @@ public static class RecordTypes
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
             ["actor"] = "intent", ["role"] = "intent", ["flow"] = "intent", ["step"] = "intent", ["term"] = "intent",
-            ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
+            ["module"] = "behavior", ["knowledge-area"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["domain-event"] = "behavior", ["module-event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior", ["reference-data"] = "behavior",

@@ -23,6 +23,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `actor` | `intent/actors/{name}` | `{name}.yaml` |
 | `role` | `intent/roles/{name}` | `{name}.yaml` |
 | `module` | `behavior/modules/{name}` | `module.yaml` |
+| `knowledge-area` | `behavior/knowledge/{name}` | `knowledge-area.yaml` |
 | `term` | `` | `glossary.yaml` |
 | `cast` | `` | `cast.yaml` |
 | `party` | `` | `cast.yaml` |
@@ -50,6 +51,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `integration-event` | `behavior/modules/{module}/aggregates/{aggregate}/integration-events/{name}` | `{name}.yaml` |
 | `read-model` | `behavior/modules/{module}/read-models/{name}` | `{name}.yaml` |
 | `reference-data` | `behavior/modules/{module}/reference-data/{name}` | `{name}.yaml` |
+| `reference-data` | `behavior/knowledge/{area}/reference-data/{name}` | `{name}.yaml` |
 | `permission` | `behavior/modules/{module}` | `permissions.yaml` |
 | `refusal-set` | `behavior/modules/{module}/aggregates/{aggregate}` | `refusals.yaml` |
 | `refusal-set` | `behavior/modules/{module}` | `refusals.yaml` |

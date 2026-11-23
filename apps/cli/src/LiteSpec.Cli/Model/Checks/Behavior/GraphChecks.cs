@@ -147,7 +147,7 @@ internal static class GraphChecks
         }
     }
 
-    /// <summary>Reports a reference-data table whose rows overlap in time or end no later than they start.</summary>
+    /// <summary>Reports a reference-data table whose rows of one variant and one key overlap in time or end no later than they start. Rows of different variants run on their own timelines, as do rows of different keys, or of different roles when rows carry no key, so they never overlap each other.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReferenceOverlap(ProjectModel model, List<Finding> findings)
@@ -163,14 +163,14 @@ internal static class GraphChecks
                 continue;
             }
 
-            var spans = new List<(string From, string? To, int Index)>();
+            var spans = new List<(string From, string? To, int Index, string? Variant, string? Key, string? Role)>();
             var index = 0;
 
             foreach (var row in rows.EnumerateArray())
             {
                 if (row.ValueKind == JsonValueKind.Object)
                 {
-                    spans.Add((Str(row, RecordFields.EffectiveFrom) ?? "", Str(row, RecordFields.EffectiveTo), index));
+                    spans.Add((Str(row, RecordFields.EffectiveFrom) ?? "", Str(row, RecordFields.EffectiveTo), index, Str(row, RecordFields.Variant), Str(row, RecordFields.Key), Str(row, RecordFields.Role)));
                 }
 
                 index++;
@@ -199,11 +199,27 @@ internal static class GraphChecks
                         continue;
                     }
 
+                    // Rows of different variants run on their own timelines.
+                    if (!string.Equals(spans[left].Variant, spans[right].Variant, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    // Rows of different keys run on their own timelines, as do rows of
+                    // different roles when rows carry no key: each key, or each role, is
+                    // looked up on its own dates.
+                    if (!string.Equals(RowIdentity(spans[left]), RowIdentity(spans[right]), StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
                     if (Overlap(spans[left], spans[right]))
                     {
+                        var whose = spans[left].Variant is { } variant ? $" of variant '{variant}'" : "";
+
                         findings.Add(new Finding(
                             "reference-data-period-invalid",
-                            $"Reference data '{table.Id}' holds rows {spans[left].Index} and {spans[right].Index} overlapping in time.",
+                            $"Reference data '{table.Id}' holds rows {spans[left].Index} and {spans[right].Index}{whose} overlapping in time.",
                             table.File,
                             table.Line,
                             SubjectOf(table)));
@@ -247,16 +263,22 @@ internal static class GraphChecks
     /// <summary>Whether a period ends no later than it starts: an end date on or before its start date.</summary>
     /// <param name="span">The period.</param>
     /// <returns>True when the period carries an end no later than its start.</returns>
-    private static bool Inverted((string From, string? To, int Index) span) =>
+    private static bool Inverted((string From, string? To, int Index, string? Variant, string? Key, string? Role) span) =>
         span.To is not null && string.Compare(span.To, span.From, StringComparison.Ordinal) <= 0;
 
     /// <summary>Whether two effective periods overlap: each starts before the other ends, with a missing end open. Dates compare as ISO text.</summary>
     /// <param name="left">The first period.</param>
     /// <param name="right">The second period.</param>
     /// <returns>True when the periods overlap.</returns>
-    private static bool Overlap((string From, string? To, int Index) left, (string From, string? To, int Index) right) =>
+    private static bool Overlap((string From, string? To, int Index, string? Variant, string? Key, string? Role) left, (string From, string? To, int Index, string? Variant, string? Key, string? Role) right) =>
         (right.To is null || string.Compare(left.From, right.To, StringComparison.Ordinal) < 0)
         && (left.To is null || string.Compare(right.From, left.To, StringComparison.Ordinal) < 0);
+
+    /// <summary>The timeline a row runs on: its key, or its role when the row carries no key.</summary>
+    /// <param name="span">The period.</param>
+    /// <returns>The row key, or the row role when the row carries no key.</returns>
+    private static string? RowIdentity((string From, string? To, int Index, string? Variant, string? Key, string? Role) span) =>
+        span.Key ?? span.Role;
 
     /// <summary>Reports a notification sent by no reaction, job or use case.</summary>
     /// <param name="model">The loaded project model that holds every notification and holder record.</param>

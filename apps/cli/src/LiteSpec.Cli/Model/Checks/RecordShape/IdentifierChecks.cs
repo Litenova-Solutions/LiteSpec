@@ -45,6 +45,7 @@ internal static class IdentifierChecks
     {
         "product.yaml",
         "module.yaml",
+        "knowledge-area.yaml",
         "aggregate.yaml",
         "entry-point.yaml",
         "permissions.yaml",

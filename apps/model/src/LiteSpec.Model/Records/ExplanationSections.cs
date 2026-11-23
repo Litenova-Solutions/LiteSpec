@@ -42,6 +42,7 @@ public static class ExplanationSections
 
             // Behavior
             [RecordTypes.Module] = Of(("Covers", false, new[] { "covers" }), ("Boundaries", false, new[] { "excludes" }), ("Example", true, [])),
+            [RecordTypes.KnowledgeArea] = Of(("Variants", false, new[] { "variants" }), ("Example", true, [])),
             [RecordTypes.Aggregate] = Of(("Lifecycle", false, new[] { "states", "transitions" }), ("Data and Retention", false, new[] { "data", "dataClasses" }), ("Example", true, []), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.UseCase] = Of(("Flow", false, new[] { "steps" }), ("Example", true, []), ("Edge Cases", true, new[] { "edgeCases" })),
             [RecordTypes.Rule] = Of(("Rationale", false, new[] { "rationale", "basedOn", "cites" }), ("Example", true, []), ("Limits", true, [])),

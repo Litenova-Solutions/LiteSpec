@@ -46,6 +46,7 @@ static class BookModel
             ["flow"] = ("Flow", "Flows"),
             ["step"] = ("Step", "Steps"),
             ["module"] = ("Module", "Modules"),
+            ["knowledge-area"] = ("Knowledge area", "Knowledge areas"),
             ["aggregate"] = ("Aggregate", "Aggregates"),
             ["rule"] = ("Rule", "Rules"),
             ["use-case"] = ("Use case", "Use cases"),

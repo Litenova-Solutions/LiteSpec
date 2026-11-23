@@ -40,6 +40,12 @@ internal static class BackendPlacementChecks
 
         foreach (var element in placed)
         {
+            // Knowledge projects follow the knowledge layout, not the module tree.
+            if (SourceRoots.IsUnderKnowledge(model.Config, element.File))
+            {
+                continue;
+            }
+
             foreach (var mark in element.Marks)
             {
                 if (mark.Verb == MarkVerb.Follows)

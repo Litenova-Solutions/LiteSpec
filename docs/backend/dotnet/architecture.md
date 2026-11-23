@@ -3,7 +3,7 @@
 **Stack:** dotnet
 **Concern:** application
 
-Business code in a .NET backend lives in the Kernel, the Platform, and one project per module, with hosts that compose and serve them. LiteSpec supports one architecture style: the only project choice is one project per module or one modules project. This page defines how the shared architecture rules apply to .NET: which projects exist, how modules, aggregates, and use cases fill one namespace tree, which folders each level allows, and where host-only endpoints live, so every type keeps one home and project references, folders, and marks hold the boundaries. The shared rules are stated on the [Backend Architecture](../architecture.md) page.
+Business code in a .NET backend lives in the Kernel, the Platform, one project per module, and one knowledge model project per knowledge area with its set projects, with hosts that compose and serve them. LiteSpec supports one architecture style: the only project choice is one project per module or one modules project. This page defines how the shared architecture rules apply to .NET: which projects exist, how modules, aggregates, and use cases fill one namespace tree, which folders each level allows, and where host-only endpoints live, so every type keeps one home and project references, folders, and marks hold the boundaries. The shared rules are stated on the [Backend Architecture](../architecture.md) page.
 
 ## Concepts
 
@@ -27,6 +27,12 @@ apps/api/src/
     Http/                              endpoint discovery, problem details, refusal mapping, JSON
     CountryPacks/                      pack loader and dated lookups
     Modules/                           IModule contract and AddModules(...)
+
+  Knowledge/
+    {Product}.Travel/                  one knowledge model project per area
+      PerDiem/  Mileage/               one folder per subject
+    {Product}.Travel.Germany/          one knowledge set project per variant
+    {Product}.Travel.Netherlands/
 
   Modules/
     {Product}.Spending/                one project per module
@@ -75,11 +81,23 @@ apps/api/src/
     {Product}.Worker/Program.cs        the same modules, jobs and outbox only
 ```
 
-`{Product}.Kernel` holds the business values every module speaks and references only the base class library. `{Product}.Platform` holds the technical capabilities with no business words and references the Kernel and its libraries, never a module. Each module project references the Kernel, the Platform, and the Contracts projects of the modules it reaches, and only its Contracts project and its `{Module}Module` entry type are public, so the compiler refuses any other cross-module reference. Each project takes its own name as its root namespace. Each module's contracts live in a sibling `{Product}.{Module}.Contracts` project beside the module project under `Modules/`, so module projects reference contracts projects and never each other. A Contracts project references the Kernel and the Contracts projects of the modules whose identifiers its public types name, and Contracts references never form a cycle. A project that keeps one modules project holding every module is an allowed deviation, with each module's contracts in a `Contracts/` folder inside its module folder; `LS2020` then enforces the Contracts boundary that project references otherwise enforce.
+`{Product}.Kernel` holds the business values every module speaks and references only the base class library. `{Product}.Platform` holds the technical capabilities with no business words and references the Kernel and its libraries, never a module. Each module project references the Kernel, the Platform, and the Contracts projects of the modules it reaches, and only its Contracts project and its `{Module}Module` entry type are public, so the compiler refuses any other cross-module reference. Each project takes its own name as its root namespace. Each module's contracts live in a sibling `{Product}.{Module}.Contracts` project beside the module project under `Modules/`, so module projects reference contracts projects and never each other. A Contracts project references the Kernel and the Contracts projects of the modules whose identifiers its public types name, and Contracts references never form a cycle. A project that keeps one modules project holding every module is an allowed deviation, with each module's contracts in a `Contracts/` folder inside its module folder; `LS2020` then enforces the Contracts boundary that project references otherwise enforce. Each knowledge area compiles as one `{Product}.{Area}` model project with one `{Product}.{Area}.{Variant}` set project per variant under `Knowledge/`: the model references the Kernel and its libraries, a set references its model and the Kernel, each module references the models of the areas it reads, and each host references the sets it registers.
 
 The WebApi host holds `Program.cs` composition, and the Worker host exists only when background work needs its own process. Each `Program.cs` decides which modules run in that host and in what order, and nothing else: it calls `AddPlatform()`, then `AddModules(...)` with the modules of that host, then maps the endpoints the platform discovered. Two hosts share wiring through the platform's `AddModules`, never through a folder beside the modules.
 
 The host also keeps the endpoints that have no use case folder to sit in: protocol endpoints such as sign-out and device callbacks, static assets such as scripts it serves, and development-only tooling. Each such endpoint still carries its mark.
+
+### Knowledge Models and Their Sets
+
+A knowledge area compiles as one model project with one set project per variant under `Knowledge/`, beside `Modules/`. The [Knowledge Level](../knowledge.md) page states what each holds: the model defines the row types, roles, keys, lookups, and validation of its area, and each set holds the dated rows of one variant. Claimwick's travel area is the `Claimwick.Travel` model with the `Claimwick.Travel.Germany` and `Claimwick.Travel.Netherlands` sets; the library product's loan area follows the same shape with one set per branch.
+
+Slice folders inside both are by subject, mirrored in each set, so the model's `PerDiem/` folder and each set's `PerDiem/` folder hold the same subject. Each host registers the sets it runs with the model at startup:
+
+```csharp
+services.AddTravel(x => x.Add<Germany>().Add<Netherlands>());
+```
+
+A module references the model of each area it reads and names no set project. A set references its model and the Kernel, and nothing else.
 
 ### Why the Names Kernel, Platform, and Port
 
@@ -211,6 +229,8 @@ A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-ca
 | Kernel project root | `Domain/`, `Values/`, `Auditing/`; no files |
 | Platform project root | `Persistence/`, `Messaging/`, `Access/`, `Http/`, `CountryPacks/`, `Modules/`; no files; inside a capability past 20 files, one folder per sub-area. `CountryPacks/` keeps its loader and registry at its root and groups pack types by pack area: `Vat/`, `Charts/`, `Banking/`, `Filing/`, `Documents/`, `Country/` and `Retention/` |
 | `Modules/` folder | one project folder per declared module, and one Contracts project folder per declared module |
+| `Knowledge/` folder | one model project folder per knowledge area and one set project folder per variant of a model the folder holds; no files |
+| Model or set project root | one folder per subject, mirrored in each set of the model |
 | Module project root | `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/`, and the entry type file |
 | One modules project root, when the project keeps it | one folder per declared module |
 | Contracts project root | one folder per aggregate with anything public, in the plural, and one folder per public module-level query; no files |
@@ -280,7 +300,7 @@ Modules/{Product}.Organizations.Contracts/
   ReadTeamDirectory/  (a public module-level query)
 ```
 
-**Checked by:** `litespec model check` reports `code-placement-drift` for a folder outside its closed set or naming no declared record, for a file directly at the Kernel or Platform root, for a file in the wrong layer folder of its use case, for a reaction or job outside the folder of what it runs, for an `{Aggregates}/` folder naming no declared aggregate, for a use case folder naming no use case of that aggregate, for a file directly in an `{Aggregates}/` folder, for a singular `Domain/{Aggregate}/` folder, for a Domain type directly in `Domain/` or a use case directly in `Application/` or `WebApi/` that belongs to an aggregate, for an exception file outside `Exceptions/` and a domain event file outside `Events/`, for a state file beside its aggregate root, for a second store interface of one aggregate, for a file directly in `Ports/`, for a port folder with no adapter folder in `Infrastructure/`, for an adapter folder with no port folder, for a type beside the adapter class outside `Models/` and `Parts/`, for a `Models/` or `Parts/` type no adapter file names, for a port or adapter folder naming a declared module, for a repository implementation outside its aggregate's `Persistence/` folder, for a use-case model or adapter file in `Persistence/`, for any other file directly in `Persistence/` outside the module store contribution, for an interface in a Contracts project, for a fact in a Contracts project outside its `{Aggregates}/On{Fact}/` folder, for an event file in an `On{Fact}/` folder that names no declared event or another fact, for a fact in an `On{Fact}/` folder outside the aggregate of the domain event it translates, for a command in a Contracts project outside the `{Aggregates}/{UseCase}/` folder of a public command, for a public use case message or result outside its `Contracts/{Aggregates}/{UseCase}/` path, for a test folder naming no declared record, and for a type whose namespace does not match its folder path through its layer segment, `folder-ungrouped` for a folder past 20 files that holds none of its allowed groupings, and `mark-folder-drift` for a marked element outside the folder its mark names.
+**Checked by:** `litespec model check` reports `code-placement-drift` for a folder outside its closed set or naming no declared record, for a file directly at the Kernel or Platform root, for a file in the wrong layer folder of its use case, for a reaction or job outside the folder of what it runs, for an `{Aggregates}/` folder naming no declared aggregate, for a use case folder naming no use case of that aggregate, for a file directly in an `{Aggregates}/` folder, for a singular `Domain/{Aggregate}/` folder, for a Domain type directly in `Domain/` or a use case directly in `Application/` or `WebApi/` that belongs to an aggregate, for an exception file outside `Exceptions/` and a domain event file outside `Events/`, for a state file beside its aggregate root, for a second store interface of one aggregate, for a file directly in `Ports/`, for a port folder with no adapter folder in `Infrastructure/`, for an adapter folder with no port folder, for a type beside the adapter class outside `Models/` and `Parts/`, for a `Models/` or `Parts/` type no adapter file names, for a port or adapter folder naming a declared module, for a repository implementation outside its aggregate's `Persistence/` folder, for a use-case model or adapter file in `Persistence/`, for any other file directly in `Persistence/` outside the module store contribution, for an interface in a Contracts project, for a fact in a Contracts project outside its `{Aggregates}/On{Fact}/` folder, for an event file in an `On{Fact}/` folder that names no declared event or another fact, for a fact in an `On{Fact}/` folder outside the aggregate of the domain event it translates, for a command in a Contracts project outside the `{Aggregates}/{UseCase}/` folder of a public command, for a public use case message or result outside its `Contracts/{Aggregates}/{UseCase}/` path, for a test folder naming no declared record, and for a type whose namespace does not match its folder path through its layer segment, for a folder under `Knowledge/` that is neither a model nor a set of a model the folder holds, for a file directly in the Knowledge root, `folder-ungrouped` for a folder past 20 files that holds none of its allowed groupings, and `mark-folder-drift` for a marked element outside the folder its mark names.
 
 ### Keep Business Values in the Kernel
 
@@ -497,14 +517,16 @@ Modules/Claimwick.Reporting/Application/ReadModels/ReimbursedExpenses/
 | Kernel | the base class library only | project references |
 | Platform | Kernel and its libraries; never a module | project references |
 | A module | Kernel, Platform, and other modules' Contracts projects | project references plus visibility: only the Contracts project and `{Module}Module` are `public`, everything else `internal` |
+| A knowledge model | Kernel and its libraries | project references |
+| A knowledge set | Its model and the Kernel | project references |
 | `Domain/` | Kernel and the module's own `Domain/`, and the identifiers in other modules' Contracts projects | analyzer (folder) |
 | `Ports/` | Kernel, the module's `Domain/` types, the identifiers in other modules' Contracts projects, Platform abstractions; never `Application/`, `Infrastructure/` or `WebApi/` | analyzer (folder) |
 | `Application/{Aggregates}/{UseCase}/` | `Domain/`, its own use case folder, `Ports/`, `Application/ReadModels/`, the identifiers in other modules' Contracts projects, the facts its reactions answer, another module's public queries and query results with a declared `queries` edge, Platform abstractions; never another use case folder, never `Infrastructure/` or `WebApi/`, never another module's public command | analyzer (folder) |
 | `Infrastructure/` | `Domain/`, `Ports/` (to implement them), Platform, libraries | analyzer (folder) |
 | `WebApi/{Aggregates}/{UseCase}/` | its own `Application/{Aggregates}/{UseCase}/` (message and result), Kernel values, typed identifiers, Platform `Http/` and `Access/`; never `Ports/`, `Domain/` types, repositories, `Infrastructure/`, another module's public query, public command or result, or another use case | analyzer (folder) |
-| Hosts | Platform and each module's entry type | project references |
+| Hosts | Platform, each module's entry type, and the knowledge sets it registers | project references |
 
-**Example:** Domain references no Application, Infrastructure, or WebApi type, and none of the persistence, web, mediator, logging, and injection namespaces. Ports references no Application, Infrastructure, or WebApi type. Application references no Infrastructure or WebApi type, no ASP.NET Core type, and no other module's public command. A handler, reaction, or job names another module's public query or query result only with a declared `queries` edge, and only a reaction or job names another module's public command or command result. WebApi references no Domain type outside typed identifiers and Kernel values, and no repository. An adapter in `Infrastructure/{Port}/` names no Domain type outside typed identifiers, shared-kernel values and the types the interfaces of the ports it implements name in their member signatures, and no WebApi type.
+**Example:** Domain references no Application, Infrastructure, or WebApi type, and none of the persistence, web, mediator, logging, and injection namespaces. Ports references no Application, Infrastructure, or WebApi type. Application references no Infrastructure or WebApi type, no ASP.NET Core type, and no other module's public command. A handler, reaction, or job names another module's public query or query result only with a declared `queries` edge, and only a reaction or job names another module's public command or command result. WebApi references no Domain type outside typed identifiers and Kernel values, and no repository. An adapter in `Infrastructure/{Port}/` names no Domain type outside typed identifiers, shared-kernel values and the types the interfaces of the ports it implements name in their member signatures, and no WebApi type. A knowledge set references its model and the Kernel, and a module references the model of each knowledge area it reads.
 
 **Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type, `LS2018` for an Application, Ports, or WebApi type naming a type outside its layer, `LS2025` for an adapter in `Infrastructure/{Port}/` naming a Domain type outside those or a WebApi type, and `LS2029` for another module's public query or query result named outside a handler, reaction, or job, and for another module's public command or command result named outside a reaction or job.
 
@@ -609,6 +631,52 @@ Modules/Claimwick.Spending.Contracts/
 
 **Reviewed for:** Does every cross-module reference name a module its owner declares in `dependsOn`, with no dependency cycle? Check the cross-module references beside the module records.
 
+### Compile Each Knowledge Area as a Model Project with Its Set Projects
+
+**ID:** `litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects`
+
+**Strength:** required
+
+**Applies to:** artifact: knowledge-model, knowledge-set
+
+**Statement:** Each knowledge area MUST compile as one `<Product>.<Area>/` model project with one `<Product>.<Area>.<Variant>/` set project per variant under `src/Knowledge/`, with slice folders by subject mirrored in each set and host composition through `services.Add<Area>(x => x.Add<Variant>())`.
+
+**Rationale:** One model project gives every module the same types and lookups for an area, and one set project per variant keeps the values of each country or branch apart without copying the types into each set. Slice folders by subject, mirrored in each set, put the same subject in the same folder in the model and in every set, so a reader moves from a row type to its rows by folder name. The host registers the sets it runs with the model at startup, so adding a variant touches the host and adds a set project, while each module keeps referencing the model. This provision binds `litespec/backend/knowledge#give-each-knowledge-area-one-model` for .NET.
+
+**Example:** Claimwick's travel area compiles as:
+
+```text
+src/Knowledge/Claimwick.Travel/                the model: row types, roles, keys, lookups, validation
+  PerDiem/  Mileage/                           one folder per subject
+src/Knowledge/Claimwick.Travel.Germany/        one set per variant
+  PerDiem/  Mileage/                           the same subjects
+src/Knowledge/Claimwick.Travel.Netherlands/
+```
+
+Each host registers the sets it runs:
+
+```csharp
+services.AddTravel(x => x.Add<Germany>().Add<Netherlands>());
+```
+
+**Checked by:** `litespec model check` reports `code-placement-drift` for a folder under `src/Knowledge/` that is neither a `<Product>.<Area>/` model project nor a `<Product>.<Area>.<Variant>/` set project of a model the folder holds, and for a file directly in the Knowledge root. Review each host `Program.cs` for the `Add<Area>` call registering the sets the host runs, and each set for slice folders mirroring its model.
+
+### Reference Knowledge Models from Modules and Sets from Hosts
+
+**ID:** `litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts`
+
+**Strength:** required
+
+**Applies to:** artifact: knowledge-model, knowledge-set, command-handler, query-handler, reaction, job
+
+**Statement:** Project references MUST run from modules to knowledge models, from knowledge sets to their model and the Kernel only, and from hosts to the sets they register.
+
+**Rationale:** A module that references a set binds itself to one country or branch, so a module references the model and leaves each set to the hosts that register it: the model gives modules one stable surface across every variant. A set that references anything but its model and the Kernel pulls operational or technical code into values that ship per variant. A host references the sets it runs because registration is composition, which lives in hosts. This provision binds `litespec/backend/knowledge#read-knowledge-through-its-model` for .NET.
+
+**Example:** Claimwick's spending module references `Claimwick.Travel` and names no country project. `Claimwick.Travel.Germany` references `Claimwick.Travel` and `Claimwick.Kernel`. The API host references both country sets to register them.
+
+**Checked by:** `litespec model check` reports `knowledge-reference-invalid` for a module project referencing a knowledge set project, for a knowledge set project referencing anything but its model and the Kernel, and for a knowledge model project referencing a module.
+
 ### Keep Host Endpoints in Hosts
 
 **ID:** `litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts`
@@ -633,11 +701,11 @@ Modules/Claimwick.Spending.Contracts/
 
 **Applies to:** artifact: any
 
-**Default:** Use a `{Product}.Kernel` project for the business values every module speaks, a `{Product}.Platform` project for the technical capabilities, one `{Product}.{Module}` project per module grouped under `Modules/`, and WebApi and optional Worker hosts grouped under `Hosts/`, at every size.
+**Default:** Use a `{Product}.Kernel` project for the business values every module speaks, a `{Product}.Platform` project for the technical capabilities, one `{Product}.{Module}` project per module grouped under `Modules/`, one `{Product}.{Area}` knowledge model project per knowledge area with one `{Product}.{Area}.{Variant}` set project per variant grouped under `Knowledge/`, and WebApi and optional Worker hosts grouped under `Hosts/`, at every size.
 
 **Replacement:** A project records its own project layout in its host documentation.
 
-**Rationale:** Each module project then holds one complete business capability: a reader opening it sees the module's domain, use cases, ports, adapters, and endpoints in the module's layer folders. The compiler enforces the boundaries: the Kernel references only the base class library, the Platform references no module, and each module exposes only its Contracts project and its entry type. Hosts stay separate projects, because two hosts can run the same modules. The names come from the Shared Kernel pattern of domain-driven design and the microservice chassis pattern, as "Why the Names Kernel and Platform" above explains.
+**Rationale:** Each module project then holds one complete business capability: a reader opening it sees the module's domain, use cases, ports, adapters, and endpoints in the module's layer folders. The compiler enforces the boundaries: the Kernel references only the base class library, the Platform references no module, and each module exposes only its Contracts project and its entry type. Each knowledge model exposes its lookups to the modules that read it, and each set is referenced only by the hosts that register it. Hosts stay separate projects, because two hosts can run the same modules. The names come from the Shared Kernel pattern of domain-driven design and the microservice chassis pattern, as "Why the Names Kernel and Platform" above explains.
 
 A project that keeps one modules project holding every module is an allowed deviation; `LS2020` then enforces the Contracts boundary that project references otherwise enforce. Settled by [decision/0107-kernel-platform-and-one-project-per-module](decision/0107-kernel-platform-and-one-project-per-module).
 
@@ -648,11 +716,13 @@ apps/api/src/{Product}.Kernel/
 apps/api/src/{Product}.Platform/
 apps/api/src/Modules/{Product}.{Module}/              one project per module
 apps/api/src/Modules/{Product}.{Module}.Contracts/    its sibling Contracts project
+apps/api/src/Knowledge/{Product}.{Area}/              one model project per knowledge area
+apps/api/src/Knowledge/{Product}.{Area}.{Variant}/    one set project per variant
 apps/api/src/Hosts/{Product}.WebApi/
 apps/api/src/Hosts/{Product}.Worker/     only when background work needs its own process
 ```
 
-**Reviewed for:** Does the solution hold only the Kernel, the Platform, one project per module, and their hosts, with the reference direction the dependency rules state? Check the solution file and the project references.
+**Reviewed for:** Does the solution hold only the Kernel, the Platform, one project per module, the knowledge models with their sets, and their hosts, with the reference direction the dependency rules state? Check the solution file and the project references.
 
 ### Keep Composition in Hosts
 

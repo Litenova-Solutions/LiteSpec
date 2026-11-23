@@ -42,6 +42,8 @@ static class BookOutline
     static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
     /// <summary>The record types under a module, in display order: aggregates with their use cases first, then the module's other records by type.</summary>
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "reaction", "job", "read-model", "reference-data", "notification", "setting", "permission"];
+    /// <summary>The record types under a knowledge area, in display order: its reference-data tables.</summary>
+    static readonly IReadOnlyList<string> KnowledgeAreaChildOrder = ["reference-data"];
     /// <summary>The record types under an aggregate, in display order.</summary>
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "domain-event", "module-event", "integration-event"];
     /// <summary>The list record types in the behavior layer, in display order: entry points with their screens, then external systems.</summary>
@@ -538,7 +540,7 @@ static class BookOutline
         BookOutlineNode node)
     {
         // A record whose parent is the product in another layer tops its own layer.
-        if (string.Equals(layer, "behavior", StringComparison.Ordinal) && string.Equals(type, "module", StringComparison.Ordinal))
+        if (string.Equals(layer, "behavior", StringComparison.Ordinal) && type is "module" or "knowledge-area")
         {
             layers["behavior"].Children.Add(node);
         }
@@ -578,7 +580,7 @@ static class BookOutline
             "runbook" => "implementation",
             "term" => IsBehaviorTerm(record) ? "behavior" : "intent",
             "goal" or "direction" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "step" or "actor" or "role" => "intent",
-            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
+            "module" or "knowledge-area" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
             _ => "intent",
         };
 
@@ -698,6 +700,7 @@ static class BookOutline
         var order = node.Type switch
         {
             "module" => ModuleChildOrder,
+            "knowledge-area" => KnowledgeAreaChildOrder,
             "aggregate" => AggregateChildOrder,
             _ => null,
         };
@@ -750,7 +753,7 @@ static class BookOutline
         return typed != 0 ? typed : CompareByLabel(left, right);
     }
 
-    /// <summary>Compares two behavior layer children, placing module records first and list groups next in their order.</summary>
+    /// <summary>Compares two behavior layer children, placing module and knowledge area records first and list groups next in their order.</summary>
     /// <param name="left">The first node to compare.</param>
     /// <param name="right">The second node to compare.</param>
     /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
@@ -779,10 +782,10 @@ static class BookOutline
 
     /// <summary>Ranks one behavior layer child for the layer order.</summary>
     /// <param name="node">The outline node to rank.</param>
-    /// <returns>0 for a module record, 1 for a list group in the behavior list order, and 2 for any other node.</returns>
+    /// <returns>0 for a module or knowledge area record, 1 for a list group in the behavior list order, and 2 for any other node.</returns>
     static int BehaviorRank(BookOutlineNode node)
     {
-        if (IsRecordOf(node, "module"))
+        if (IsRecordOf(node, "module") || IsRecordOf(node, "knowledge-area"))
         {
             return 0;
         }

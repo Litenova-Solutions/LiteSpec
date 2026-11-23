@@ -826,7 +826,7 @@ public sealed class BookViewsTests
     /// <param name="type">The record type to classify, or null when the node has no type.</param>
     /// <returns>True when the type starts its own outline layer. A feature naming solved problems nests under each problem instead.</returns>
     static bool TopsItsLayer(string? type) =>
-        type is "module" or "role" or "entry-point" or "external-system" or "runbook"
+        type is "module" or "knowledge-area" or "role" or "entry-point" or "external-system" or "runbook"
             or "waiver" or "term" or "goal" or "direction" or "problem" or "feature"
             or "requirement" or "constraint" or "decision" or "research" or "flow"
             or "actor" or "rule" or "cast";

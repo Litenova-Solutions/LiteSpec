@@ -55,8 +55,9 @@ internal static class FolderChecks
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var declared = DeclaredModules(model);
+        var areas = DeclaredKnowledgeAreas(model);
 
-        CheckFolders(model, declared, findings);
+        CheckFolders(model, declared, areas, findings);
         CheckRecords(model, findings);
     }
 
@@ -81,14 +82,37 @@ internal static class FolderChecks
         return declared;
     }
 
-    /// <summary>Reports each folder outside the closed set and each module folder naming no declared module.</summary>
+    /// <summary>The names of the declared knowledge areas.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <returns>Each knowledge area name the model declares, from its knowledge area records.</returns>
+    private static HashSet<string> DeclaredKnowledgeAreas(ProjectModel model)
+    {
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type == RecordTypes.KnowledgeArea
+                && Identifiers.TrySplit(record.Id, out var prefix, out var home, out var name)
+                && home is null
+                && prefix == RecordTypes.KnowledgeArea)
+            {
+                declared.Add(name);
+            }
+        }
+
+        return declared;
+    }
+
+    /// <summary>Reports each folder outside the closed set, each module folder naming no declared module, and each knowledge folder naming no declared knowledge area.</summary>
     /// <param name="model">The loaded project model that holds the project configuration.</param>
     /// <param name="declared">The names of the declared modules.</param>
+    /// <param name="areas">The names of the declared knowledge areas.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckFolders(ProjectModel model, HashSet<string> declared, List<Finding> findings)
+    private static void CheckFolders(ProjectModel model, HashSet<string> declared, HashSet<string> areas, List<Finding> findings)
     {
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var modules = new List<(string Directory, string Name)>();
+        var knowledge = new List<(string Directory, string Name)>();
 
         foreach (var root in model.Config.RecordRoots)
         {
@@ -120,6 +144,7 @@ internal static class FolderChecks
                 if (SkipSubtree(full))
                 {
                     CollectModule(full, directory, modules);
+                    CollectKnowledgeArea(full, directory, knowledge);
                     continue;
                 }
 
@@ -136,6 +161,17 @@ internal static class FolderChecks
                         continue;
                     }
 
+                    if (full is ["behavior", "knowledge", _, var area] && area != "reference-data")
+                    {
+                        findings.Add(new Finding(
+                            "record-placement-invalid",
+                            $"Folder '{PathText.Relative(model.Config.Root, directory)}' is no typed folder of its knowledge area; reference data lives in 'behavior/knowledge/<area>/reference-data/<name>/'.",
+                            directory,
+                            1,
+                            null));
+                        continue;
+                    }
+
                     findings.Add(new Finding(
                         "record-placement-invalid",
                         $"Folder '{PathText.Relative(model.Config.Root, directory)}' sits outside the closed folder set of its layer and level.",
@@ -146,6 +182,7 @@ internal static class FolderChecks
                 }
 
                 CollectModule(full, directory, modules);
+                CollectKnowledgeArea(full, directory, knowledge);
 
                 foreach (var child in Directory
                     .EnumerateDirectories(directory)
@@ -163,6 +200,19 @@ internal static class FolderChecks
                 findings.Add(new Finding(
                     "record-placement-invalid",
                     $"Module folder '{PathText.Relative(model.Config.Root, directory)}' names no declared module.",
+                    directory,
+                    1,
+                    null));
+            }
+        }
+
+        foreach (var (directory, name) in knowledge.OrderBy(entry => entry.Directory, StringComparer.Ordinal))
+        {
+            if (!areas.Contains(name))
+            {
+                findings.Add(new Finding(
+                    "record-placement-invalid",
+                    $"Knowledge area folder '{PathText.Relative(model.Config.Root, directory)}' names no declared knowledge area.",
                     directory,
                     1,
                     null));
@@ -318,6 +368,18 @@ internal static class FolderChecks
             return full.Length == 5 || (full.Length == 6 && RecordFolders.AggregateFolders.Contains(full[5]));
         }
 
+        if (full[1] == "knowledge")
+        {
+            if (full.Length <= 3)
+            {
+                return true;
+            }
+
+            // A knowledge area holds only its reference data. Each table is a named
+            // record folder inside it, which the record folder check accepts before this one.
+            return full.Length == 4 && full[3] == "reference-data";
+        }
+
         if (full[1] == "entry-points")
         {
             if (full.Length <= 3)
@@ -392,6 +454,18 @@ internal static class FolderChecks
             && (layer == "behavior" || layer == "implementation" || layer == "governance"))
         {
             modules.Add((directory, name));
+        }
+    }
+
+    /// <summary>Collects the knowledge area folder for the declaration check.</summary>
+    /// <param name="full">The directory segments anchored at the record layer.</param>
+    /// <param name="directory">The absolute directory path.</param>
+    /// <param name="knowledge">The knowledge area folders collected so far, appended in place.</param>
+    private static void CollectKnowledgeArea(string[] full, string directory, List<(string Directory, string Name)> knowledge)
+    {
+        if (full is ["behavior", "knowledge", var name])
+        {
+            knowledge.Add((directory, name));
         }
     }
 

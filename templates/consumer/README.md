@@ -50,6 +50,8 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `flow.md` | `.litespec/intent/flows/<name>/<name>.md` | Explains the flow beside its record file. |
 | `module.yaml` | `.litespec/behavior/modules/<module>/module.yaml` | Declares one product area; Behavior folders follow it. |
 | `module.md` | `.litespec/behavior/modules/<module>/module.md` | Explains the module beside its module file. |
+| `knowledge-area.yaml` | `.litespec/behavior/knowledge/<area>/knowledge-area.yaml` | Declares one knowledge area with the variants it has sets for. |
+| `knowledge-area.md` | `.litespec/behavior/knowledge/<area>/knowledge-area.md` | Explains the knowledge area beside its record file. |
 | `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its states, data classes and retention rules. |
 | `aggregate.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.md` | Explains the aggregate beside its aggregate file. |
 | `rule.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/rules/<name>/<name>.yaml` | Records one rule that keeps an aggregate true, with its kind, statement and links. A module rule sits under `.litespec/behavior/modules/<module>/rules/<name>/<name>.yaml`, and a product rule under `.litespec/behavior/rules/<name>/<name>.yaml`. |
@@ -73,7 +75,7 @@ A record file holds its record in YAML, with the entries under `records`. A name
 | `integration-event.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/integration-events/<name>/<name>.md` | Explains the integration event beside its record file. |
 | `read-model.yaml` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.yaml` | Defines one read model a module keeps from the events another module publishes, with its key, fields and freshness. |
 | `read-model.md` | `.litespec/behavior/modules/<module>/read-models/<name>/<name>.md` | Explains the read model beside its record file. |
-| `reference-data.yaml` | `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml` | Defines one table of dated business values a module looks up, with the dates each row takes effect and the record behind each value. |
+| `reference-data.yaml` | `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml` | Defines one table of dated business values a module looks up, with the dates each row takes effect and the record behind each value. A table of a knowledge area sits under `.litespec/behavior/knowledge/<area>/reference-data/<name>/<name>.yaml` instead. |
 | `reference-data.md` | `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.md` | Explains the reference data beside its record file. |
 | `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one entry point into the system: its kind, authentication, density, voice, and the content a browser entry point serves. |
 | `entry-point.md` | `.litespec/behavior/entry-points/<entry-point>/entry-point.md` | Explains the entry point beside its entry-point file. |
@@ -118,6 +120,7 @@ An explanation file lives in the record's folder beside its record file, sharing
 | research | Findings, Open Questions (optional), Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | module | Coverage, Boundaries, Example (optional) |
+| knowledge-area | Variants, Example (optional) |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
 | requirement | Example (optional) |
 | flow | Example, Branches (optional) |

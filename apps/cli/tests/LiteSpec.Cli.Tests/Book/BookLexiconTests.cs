@@ -198,7 +198,7 @@ public sealed class BookLexiconTests
             {
                 "requirement", "rule", "domain-event", "product", "permission", "result", "scenario",
                 "entry-point", "goal", "direction", "constraint", "research", "decision",
-                "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
+                "problem", "feature", "actor", "role", "flow", "module", "knowledge-area", "aggregate", "use-case",
                 "reaction", "job", "notification", "external-system", "module-event", "integration-event",
                 "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
                 "setting", "reference-data", "refusal-set", "index", "tutorial", "how-to", "reference",

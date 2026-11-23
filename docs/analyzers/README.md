@@ -1,6 +1,6 @@
 # Overview
 
-The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 66 rules, each with its own reference page.
+The `LiteSpec.Analyzers` package checks .NET server code against the LiteSpec standard while the compiler runs, and reports each break in the editor and the build. The package checks layer boundaries, modeling in Domain (the layer that holds business rules), naming across the Kernel, Platform, and module projects, and traceability from code to records in every layer, with one assertion rule for test projects. Every diagnostic links to the provision it enforces, and the [Analyzer rules overview](rules/README.md) lists all 69 rules, each with its own reference page.
 
 ## How the Pages Fit Together
 
@@ -22,6 +22,8 @@ The analyzers work out each file's layer from its top folder in the module. A fi
 
 Three assembly name suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` names no layer: each of its files takes its layer from its folder, as above.
 
+A knowledge model project under a `Knowledge/` folder named `<Product>.<Area>` reads as Domain, so its code answers the Domain rules. A knowledge set project named `<Product>.<Area>.<Variant>` holds data only and reads as no layer, so only `LS2039` checks its files.
+
 ### Rule Layers
 
 Each rule runs only in the layers its provision covers:
@@ -32,7 +34,8 @@ Each rule runs only in the layers its provision covers:
 - `LS2035` runs on Application and Infrastructure files. `LS2036` runs on Application, Ports, Infrastructure, WebApi, and Worker files.
 - `LS2003` and `LS2006` run on WebApi files.
 - `LS2018` runs on Application, Ports, and WebApi files.
-- `LS2019` and `LS2020` run on every layer except Test.
+- `LS2019`, `LS2020`, `LS2038`, and `LS2040` run on every layer except Test.
+- `LS2039` runs on knowledge set files.
 - `LS2021` runs on Domain, Application, and Infrastructure files of the modules project, and `LS2022` on every layer except Test.
 - `LS2023`, `LS2024`, and `LS2026` run on every layer except Test. `LS2025` runs on Infrastructure files inside a port adapter folder, and `LS2027` on Application files. `LS2028` runs in one-project-per-module compilations on every layer except Test. `LS2029` runs on every module layer except Test and on the Platform, and `LS2030` on Contracts projects. `LS2031` runs on Domain files and Contracts projects.
 - Style rules run in every production layer.
@@ -118,6 +121,8 @@ The other name-based checks work the same way:
 - A use-case result is any type whose name ends in `QueryResult` or `CommandResult`.
 - A repository variable is any parameter, field, or local typed as an interface named `I{Name}Repository`.
 - A session is any type named `IDocumentSession`, any type named `DbContext`, or any subclass of a type named `DbContext`.
+- A knowledge model is a project under a `Knowledge/` folder named `<Product>.<Area>`, and a knowledge set is one named `<Product>.<Area>.<Variant>`; a referenced assembly of the set shape counts when the compilation also references its model.
+- A knowledge key is any type implementing an interface whose name ends in `KnowledgeKey`, or any type named `*Key` in a knowledge model project.
 - A test is any method carrying an attribute named `Fact`, `Theory`, `Scenario`, `Test`, `TestCase`, `TestCaseSource`, `TestMethod`, or `DataTestMethod`. An assertion is any call to a member of a type named `Assert`, or to a method whose name starts with `Assert`.
 
 What each rule reports on a match is stated on its rule page: see the [Analyzer rules overview](rules/README.md).

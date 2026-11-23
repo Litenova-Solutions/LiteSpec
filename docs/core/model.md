@@ -17,7 +17,7 @@ Each layer answers one question, each layer is written from the layer above it a
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | goal, direction, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, reference-data, permission, refusal-set, refusal, entry-point, screen, external-system, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, knowledge-area, aggregate, rule, domain-event, module-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, reference-data, permission, refusal-set, refusal, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -49,6 +49,7 @@ A record type is one kind of statement a project can write, and each type answer
 | `actor` | intent | Who or what touches the product? |
 | `role` | intent | Which permission sets exist? |
 | `module` | behavior | Which product areas exist? |
+| `knowledge-area` | behavior | Which knowledge areas exist? |
 | `aggregate` | behavior | Which things stay consistent? |
 | `rule` | behavior | What holds? |
 | `use-case` | behavior | Which use cases does the product offer? |
@@ -95,8 +96,8 @@ Each project declares its size, its shape, and its stacks in `.litespec/project.
 Placement is the choice of where a record lives. Ten principles place every record, from the product root down to a test.
 
 - **One tree from the product.** The product is the root record, above the record layers. Every record has exactly one parent, and only the product has none. Every other link is a connection. An inverse link stays computed. When a reader needs it on the record, the record states it and a check holds it to its source.
-- **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate, or an entry point. No record writes an up-link that its location already states.
-- **Four kinds of scope node, and only four.** Product, module, aggregate, and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
+- **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, a knowledge area, an aggregate, or an entry point. No record writes an up-link that its location already states.
+- **Five kinds of scope node, and only five.** Product, module, knowledge area, aggregate, and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
 - **The lowest scope node that holds every user.** A record sits under the lowest scope node that holds every record linking to it within its layer. The author places it, and the tool validates it.
 - **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency, through a module event, through an integration event, through a queries edge to a public query that lists the consuming module, or through a commands edge to a public command that lists the sending module. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
 - **One identifier.** The identifier is short, unique in its record type, and what every link and citation uses. Placement shows as the folder path and the `module` field, never as a second name.
@@ -116,7 +117,7 @@ Four words keep the placement facts apart:
 - **Storage** is the file and typed folder that hold it.
 - **Book grouping** is presentation, which follows containment except where this page says otherwise.
 
-Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml`, `glossary.yaml` and `cast.yaml`), the list files, and the entries (results and scenarios) keep the places the table gives.
+Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `knowledge-area.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `refusals.yaml`, `glossary.yaml` and `cast.yaml`), the list files, and the entries (results and scenarios) keep the places the table gives.
 
 Each parent with child records holds them in a folder named for the child type in the plural, inside the parent's own folder. A child stored as its own file sits in its own folder inside that typed folder, as `<typed folder>/<name>/<name>.yaml`. A child stored as an entry, such as a result, scenario, permission, refusal code, flow step, or source, stays in its parent's file. The table gives each child type's folder. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
@@ -136,6 +137,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `actor` | Intent | product | `intent/actors/<name>/<name>.yaml` | product | `actor/<name>` |
 | `role` | Intent | product | `intent/roles/<name>/<name>.yaml` | product | `role/<name>` |
 | `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
+| `knowledge-area` | Behavior | product | `behavior/knowledge/<area>/knowledge-area.yaml` | product | `knowledge-area/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
 | `cast` | Root | product | `cast.yaml`, with `cast.md` beside it | product | `cast/<name>` |
 | `party` | Root | product | `cast.yaml`, in the cast's `parties` list | cast | `party/<name>` |
@@ -153,7 +155,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `read-model` | Behavior | module | `behavior/modules/<m>/read-models/<name>/<name>.yaml` | module | `read-model/<module>.<name>` |
 | `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
 | `setting` | Behavior | module | `behavior/modules/<m>/settings/<name>/<name>.yaml` | module | `setting/<module>.<name>` |
-| `reference-data` | Behavior | module | `behavior/modules/<m>/reference-data/<name>/<name>.yaml` | module | `reference-data/<module>.<name>` |
+| `reference-data` | Behavior | module, knowledge area | `behavior/modules/<m>/reference-data/<name>/<name>.yaml`, `behavior/knowledge/<area>/reference-data/<name>/<name>.yaml` | module or knowledge area | `reference-data/<home>.<name>` |
 | `module-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/module-events/<name>/<name>.yaml` | aggregate | `module-event/<module>.<name>` |
 | `integration-event` | Behavior | aggregate | `behavior/modules/<m>/aggregates/<aggregates>/integration-events/<name>/<name>.yaml` | aggregate | `integration-event/<name>` |
 | `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` |
@@ -164,13 +166,13 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `waiver` | Governance | product, module | `governance/waivers/<name>/<name>.yaml`, `governance/modules/<m>/waivers/<name>/<name>.yaml` | product or module | `waiver/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/`, `module-events/`, `integration-events/` and `rules/` folders with its `refusals.yaml` beside `aggregate.yaml`. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `read-models/`, `notifications/`, `settings/`, `reference-data/` and `external-systems/`. Inside `behavior/knowledge/<area>/`, the only subfolder is `reference-data/`. Each aggregate sits in `aggregates/<aggregates>/`, where `<aggregates>` is the plural of the aggregate name (`expenses` for `aggregate/spending.expense`), and holds its `use-cases/`, `domain-events/`, `module-events/`, `integration-events/` and `rules/` folders with its `refusals.yaml` beside `aggregate.yaml`. The record id stays singular. Any other subfolder of a module is a `record-placement-invalid` finding.
 
-A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A command use case at module level is a `record-placement-invalid` finding: every command belongs to the aggregate it changes, and module level keeps only module-wide reads. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
+A module is declared by its `behavior/modules/<m>/` folder, and a folder under `behavior/modules/` that names no declared module gets a `record-placement-invalid` finding. A knowledge area is declared by its `behavior/knowledge/<area>/` folder, and a folder under `behavior/knowledge/` that names no declared knowledge area gets a `record-placement-invalid` finding. A record of a type kept in the wrong folder, a record type outside its allowed scope, and a child record outside its typed folder, such as an aggregate directly in its module folder, are `record-placement-invalid` findings. A command use case at module level is a `record-placement-invalid` finding: every command belongs to the aggregate it changes, and module level keeps only module-wide reads. A named record whose folder name differs from its file stem is a `record-placement-invalid` finding.
 
-A module, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the module, never a second name. A feature answers the problem whose folder holds it, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
+A module, a knowledge area, an aggregate, and an entry point are scope nodes, and the folder path of each record under one names that node. Storage is the folder path and the home, never a second name. A feature answers the problem whose folder holds it, and a product-level requirement cites at least one constraint, goal, or problem in `cites`.
 
-A rule home is an aggregate name or a module name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move.
+A rule home is an aggregate name or a module name. A reference-data home is a module name or a knowledge-area name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
 Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in their own folders under `behavior/modules/<m>/rules/`; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
 
@@ -221,7 +223,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | Folder | Record layer | Holds |
 |:---|:---|:---|
 | `.litespec/intent/` | Intent | Goals, directions, problems with their features and requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
-| `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; entry points with their screens; external systems |
+| `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, module events, integration events, permissions and refusal sets; knowledge areas with their reference data; entry points with their screens; external systems |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, test runs, and operating logs. No person writes a fact here that a tool can compute |
 | `.litespec/governance/` | Governance | Waivers at product level or under modules, and project conventions under `conventions/` |
@@ -337,6 +339,7 @@ An identifier is the one name every link and citation uses for a record. It name
 | `flow` | `flow/<name>` | `flow/submit-and-reimburse` |
 | `step` | `step/<flow>.<act>` | `step/submit-and-reimburse.submit-expense` |
 | `module` | `module/<name>` | `module/spending` |
+| `knowledge-area` | `knowledge-area/<name>` | `knowledge-area/travel` |
 | `aggregate` | `aggregate/<module>.<name>` | `aggregate/spending.expense` |
 | `rule` | `rule/<home>.<name>` | `rule/expense.approver-is-not-submitter` |
 | `use-case` | `use-case/<module>.<name>` | `use-case/spending.submit-expense` |
@@ -350,7 +353,7 @@ An identifier is the one name every link and citation uses for a record. It name
 | `read-model` | `read-model/<module>.<name>` | `read-model/reporting.reimbursed-expense` |
 | `notification` | `notification/<module>.<name>` | `notification/spending.approval-reminder` |
 | `setting` | `setting/<module>.<name>` | `setting/spending.max-open-expenses` |
-| `reference-data` | `reference-data/<module>.<name>` | `reference-data/spending.decision-target` |
+| `reference-data` | `reference-data/<home>.<name>` | `reference-data/spending.decision-target` |
 | `actor` | `actor/<name>` | `actor/employee` |
 | `role` | `role/<name>` | `role/approver` |
 | `permission` | `permission/<name>` | `permission/approve-expense` |
@@ -367,7 +370,7 @@ An identifier is the one name every link and citation uses for a record. It name
 | `occasion` | `occasion/<name>` | `occasion/client-visit` |
 | `figure` | `figure/<name>` | `figure/train-fare` |
 
-The home segment stays short because names are unique where it matters. A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name.
+The home segment stays short because names are unique where it matters. A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name, and a reference-data home is a module name or a knowledge-area name.
 
 A use case name is unique among use cases, so a result cites only that name. Use case, reaction, and job names share one namespace, so a scenario cites only its parent name. An aggregate name is unique among aggregates. A flow name scopes its steps, so each step id carries its flow.
 

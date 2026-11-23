@@ -258,6 +258,101 @@ static class SourceRoots
             && folder[..^suffix.Length].Contains('.');
     }
 
+    /// <summary>The knowledge root holding the knowledge model and set projects: the Knowledge folder beside Modules, or empty when no source root sits beside one.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The absolute Knowledge folder, or an empty string when none exists.</returns>
+    /// <follows>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</follows>
+    public static string KnowledgeRoot(ConsumerConfig config)
+    {
+        foreach (var src in SrcDirs(config))
+        {
+            var knowledge = Path.Combine(src, "Knowledge");
+
+            if (Directory.Exists(knowledge))
+            {
+                return knowledge;
+            }
+        }
+
+        return "";
+    }
+
+    /// <summary>Whether the file sits under the knowledge root.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="file">The file path.</param>
+    /// <returns>True when the file sits under the Knowledge folder beside the modules.</returns>
+    public static bool IsUnderKnowledge(ConsumerConfig config, string file) =>
+        KnowledgeRoot(config) is { Length: > 0 } knowledge && IsUnder(knowledge, file);
+
+    /// <summary>Whether the project is a knowledge model: a Knowledge child named Product.Area, with exactly two segments.</summary>
+    /// <param name="project">The project root.</param>
+    /// <returns>True when the folder name holds exactly two dot-separated segments.</returns>
+    public static bool IsKnowledgeModel(string project) =>
+        IsKnowledgeModelName(FolderName(project));
+
+    /// <summary>Whether the folder names a knowledge model: exactly two non-empty dot-separated segments.</summary>
+    /// <param name="folder">The project folder name.</param>
+    /// <returns>True when the name reads Product.Area.</returns>
+    public static bool IsKnowledgeModelName(string folder)
+    {
+        var segments = folder.Split('.');
+
+        return segments.Length == 2 && segments[0].Length > 0 && segments[1].Length > 0;
+    }
+
+    /// <summary>The owning model of a knowledge set project: the first two segments of a name with three or more, or null.</summary>
+    /// <param name="project">The project root.</param>
+    /// <returns>The model folder name, or null when the folder names no set.</returns>
+    public static string? KnowledgeModelName(string project)
+    {
+        var segments = FolderName(project).Split('.');
+
+        return segments.Length >= 3 && segments[0].Length > 0 && segments[1].Length > 0
+            ? segments[0] + "." + segments[1]
+            : null;
+    }
+
+    /// <summary>The src folders the configured roots sit under: the parent of the Kernel and Platform roots, the folder above Modules for module projects, and the folder above Hosts for host projects.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>Each distinct src folder in read order.</returns>
+    static List<string> SrcDirs(ConsumerConfig config)
+    {
+        var found = new List<string>();
+
+        void Add(string? dir)
+        {
+            if (dir is { Length: > 0 } && !found.Contains(dir, StringComparer.OrdinalIgnoreCase))
+            {
+                found.Add(dir);
+            }
+        }
+
+        Add(ParentOf(config.KernelRoot));
+        Add(ParentOf(config.PlatformRoot));
+
+        foreach (var modules in config.ModulesRoots)
+        {
+            Add(IsSingleModulesProject(modules) ? ParentOf(modules) : ParentOf(ParentOf(modules)));
+        }
+
+        foreach (var host in config.WebApiRoots.Concat(config.WorkerRoots))
+        {
+            var parent = ParentOf(host);
+
+            Add(parent is not null && FolderName(parent).Equals("Hosts", StringComparison.OrdinalIgnoreCase)
+                ? ParentOf(parent)
+                : parent);
+        }
+
+        return found;
+    }
+
+    /// <summary>The parent folder of a root, or null when the root is empty or has none.</summary>
+    /// <param name="root">The source root.</param>
+    /// <returns>The parent folder, or null.</returns>
+    static string? ParentOf(string? root) =>
+        string.IsNullOrEmpty(root) ? null : Path.GetDirectoryName(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
     /// <summary>The product name: the Kernel, Platform, or module project folder without its suffix, or empty when no root is named.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <returns>The product name, or an empty string when no root names one.</returns>

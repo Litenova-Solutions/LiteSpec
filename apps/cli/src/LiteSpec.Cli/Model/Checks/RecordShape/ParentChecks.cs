@@ -280,7 +280,7 @@ internal static class ParentChecks
         return unreadable;
     }
 
-    /// <summary>Reports a module-homed record naming a module no record holds, unless the module file could not be read.</summary>
+    /// <summary>Reports a module-homed record naming a module no record holds, unless the module file could not be read. A reference-data home names a module or a knowledge area.</summary>
     /// <param name="model">The loaded project model that resolves the module named by the home.</param>
     /// <param name="record">The module-homed record whose home is inspected.</param>
     /// <param name="unreadableModules">The modules whose own record file the reader could not read.</param>
@@ -314,6 +314,11 @@ internal static class ParentChecks
             return;
         }
 
+        if (record.Type == RecordTypes.ReferenceData && model.ById.ContainsKey($"knowledge-area/{home}"))
+        {
+            return;
+        }
+
         // The module file carries the defect, so one defect draws one finding.
         if (unreadableModules.Contains(home))
         {
@@ -322,7 +327,9 @@ internal static class ParentChecks
 
         findings.Add(new Finding(
             "record-placement-invalid",
-            $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
+            record.Type == RecordTypes.ReferenceData
+                ? $"{label} '{record.Id}' has no parent and its home '{home}' names no module or knowledge area."
+                : $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
 

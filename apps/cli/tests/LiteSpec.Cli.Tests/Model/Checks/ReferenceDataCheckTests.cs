@@ -80,6 +80,22 @@ public sealed class ReferenceDataCheckTests
         Assert.Contains("row 0 ending '2026-02-01' no later than its start '2026-06-01'", finding.Message);
     }
 
+    /// <summary>Two overlapping rows of different roles in one variant pass: each role runs its own timeline.</summary>
+    /// <proves>litespec/core/domain-model#keep-reference-data-rows-from-overlapping</proves>
+    [Fact]
+    public void OverlappingRowsOfDifferentRolesInOneVariantPass()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            DecisionTarget(
+                temp.Path,
+                KeyedRow("28", "de-full-day-2026", "full-day", "germany", "2026-01-01", null),
+                KeyedRow("15", "de-partial-day-2026", "partial-day", "germany", "2026-01-01", null)));
+
+        Assert.Empty(PeriodFindings(model));
+    }
+
     /// <summary>The reference-data period findings of a model.</summary>
     /// <param name="model">The model under test.</param>
     /// <returns>The findings whose code is reference-data-period-invalid.</returns>
@@ -93,6 +109,20 @@ public sealed class ReferenceDataCheckTests
     /// <returns>The row entry as JSON.</returns>
     static string Row(string value, string from, string? to) =>
         "{\"value\": \"" + value + "\", \"effectiveFrom\": \"" + from + "\""
+        + (to is null ? "" : ", \"effectiveTo\": \"" + to + "\"")
+        + ", \"source\": \"research/approval-time-benchmarks\"}";
+
+    /// <summary>One reference-data row as JSON, with its key, role, variant, dates and source.</summary>
+    /// <param name="value">The row value.</param>
+    /// <param name="key">The row key.</param>
+    /// <param name="role">The role the row plays.</param>
+    /// <param name="variant">The variant the row belongs to.</param>
+    /// <param name="from">The date the value takes effect.</param>
+    /// <param name="to">The date the value stops applying, or null while it stays in force.</param>
+    /// <returns>The row entry as JSON.</returns>
+    static string KeyedRow(string value, string key, string role, string variant, string from, string? to) =>
+        "{\"value\": \"" + value + "\", \"key\": \"" + key + "\", \"role\": \"" + role + "\", \"variant\": \"" + variant
+        + "\", \"effectiveFrom\": \"" + from + "\""
         + (to is null ? "" : ", \"effectiveTo\": \"" + to + "\"")
         + ", \"source\": \"research/approval-time-benchmarks\"}";
 

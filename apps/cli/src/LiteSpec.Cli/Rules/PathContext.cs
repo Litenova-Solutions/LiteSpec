@@ -55,6 +55,7 @@ internal sealed record PathContext(
         ["role"] = "role",
         ["term"] = "term",
         ["module"] = "module",
+        ["knowledge-area"] = "knowledge-area",
         ["rule"] = "rule",
         ["requirement"] = "requirement",
         ["result"] = "result",
@@ -234,6 +235,13 @@ internal sealed record PathContext(
         {
             stack = backendStack;
             (layer, artifact) = BackendScope(segments, name, text);
+
+            // Knowledge membership wins over file-name kinds: a row type in a model
+            // project is read as knowledge, not as the aggregate its name suggests.
+            if (KnowledgeArtifact(config, segments) is { Length: > 0 } knowledge)
+            {
+                artifact = knowledge;
+            }
         }
 
         var marked = isFolder ? [] : ReadMarks(text);
@@ -516,6 +524,54 @@ internal sealed record PathContext(
             }
 
             return "value-object";
+        }
+
+        return "";
+    }
+
+    /// <summary>Derives the knowledge artifact of a backend path: knowledge-model for a file in a Product.Area project, knowledge-set for a file in a Product.Area.Variant project whose model project exists beside it.</summary>
+    /// <param name="config">The consumer configuration.</param>
+    /// <param name="segments">The root-relative path segments.</param>
+    /// <returns>The knowledge artifact, or empty when the path sits in no knowledge project.</returns>
+    static string KnowledgeArtifact(ConsumerConfig config, string[] segments)
+    {
+        for (var index = 0; index + 1 < segments.Length; index++)
+        {
+            if (!string.Equals(segments[index], "Knowledge", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var project = segments[index + 1];
+            var knowledge = config.Root;
+
+            foreach (var segment in segments[..(index + 1)])
+            {
+                knowledge = Path.Combine(knowledge, segment);
+            }
+
+            // A dotted file directly in the Knowledge root names no project.
+            if (!Directory.Exists(Path.Combine(knowledge, project)))
+            {
+                return "";
+            }
+
+            var parts = project.Split('.');
+
+            if (parts.Length == 2 && parts[0].Length > 0 && parts[1].Length > 0)
+            {
+                return "knowledge-model";
+            }
+
+            if (parts.Length >= 3
+                && parts[0].Length > 0
+                && parts[1].Length > 0
+                && Directory.Exists(Path.Combine(knowledge, parts[0] + "." + parts[1])))
+            {
+                return "knowledge-set";
+            }
+
+            return "";
         }
 
         return "";

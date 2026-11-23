@@ -8,13 +8,14 @@ A use case is one command or query with its access, results, and scenarios; a re
 
 ## How the Pages Fit Together
 
-The six principle pages directly in this folder hold for every backend. They state what each layer owns and which way references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its Kernel, Platform, and module projects with their hosts, its C# shapes, and its Marten persistence.
+The seven principle pages directly in this folder hold for every backend. They state what each layer owns and which way references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its Kernel, Platform, knowledge, and module projects with their hosts, its C# shapes, and its Marten persistence.
 
 When you add a use case, read the principle page for the layer it touches first, then the matching .NET page for the binding.
 
 ## Backend Principles
 
-- [Backend Architecture](architecture.md): the four layers, the direction references point, and the module tree that organizes every layer.
+- [Backend Architecture](architecture.md): the four layers, the knowledge layer beside modules, the direction references point, and the module tree that organizes every layer.
+- [Knowledge](knowledge.md): knowledge areas, models and sets, how operational code reads rules by role and date, and what is not knowledge.
 - [Domain Layer](domain.md): aggregates, lifecycles, closed value sets, and domain repositories, with the boundary that keeps technical concerns out of business rules.
 - [Application Layer](application.md): how use cases coordinate, and what pipeline stages, ports, reactions, jobs, and declared effects do.
 - [Persistence](persistence.md): domain repositories, the read session, the one commit per command, and the obligations on stored data.

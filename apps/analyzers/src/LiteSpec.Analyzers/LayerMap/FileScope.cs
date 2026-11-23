@@ -45,7 +45,7 @@ internal sealed class FileScope
     /// <returns>True when the rule applies to the symbol's first source file; otherwise false.</returns>
     public bool AppliesTo(ISymbol symbol) => Applies(LayerOf(symbol));
 
-    /// <summary>Returns the layer of the tree's file: Application for a Contracts file, otherwise the resolver's layer.</summary>
+    /// <summary>Returns the layer of the tree's file: Application for a Contracts file, Domain for a knowledge model file, None for a knowledge set file, otherwise the resolver's layer.</summary>
     /// <param name="tree">The syntax tree, or null when the element has none.</param>
     /// <returns>The layer.</returns>
     public ArchitectureLayer LayerOf(SyntaxTree? tree)
@@ -53,6 +53,16 @@ internal sealed class FileScope
         if (CodeMap.IsContracts(tree?.FilePath) || CodeMap.IsContractsAssembly(AssemblyName))
         {
             return ArchitectureLayer.Application;
+        }
+
+        if (Knowledge.IsModelFile(tree?.FilePath))
+        {
+            return ArchitectureLayer.Domain;
+        }
+
+        if (Knowledge.IsSetFile(tree?.FilePath))
+        {
+            return ArchitectureLayer.None;
         }
 
         return ArchitectureLayerResolver.FileLayer(tree?.FilePath, AssemblyName, declared: null);

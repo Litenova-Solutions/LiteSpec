@@ -41,6 +41,7 @@ static class BookParents
             ["occasion"] = new("occasion", ["cast"], "cast"),
             ["figure"] = new("figure", ["cast"], "cast"),
             ["module"] = new("module", ["product"], "product"),
+            ["knowledge-area"] = new("knowledge-area", ["product"], "product"),
             ["role"] = new("role", ["product"], "product"),
             ["flow"] = new("flow", ["product"], "product"),
             ["step"] = new("step", ["flow"], "flow"),
@@ -62,7 +63,7 @@ static class BookParents
             ["reaction"] = new("reaction", ["module"], "module"),
             ["job"] = new("job", ["module"], "module"),
             ["read-model"] = new("read-model", ["module"], "module"),
-            ["reference-data"] = new("reference-data", ["module"], "module"),
+            ["reference-data"] = new("reference-data", ["module", "knowledge-area"], "module or knowledge area"),
             ["notification"] = new("notification", ["module"], "module"),
             ["setting"] = new("setting", ["module"], "module"),
             ["screen"] = new("screen", ["entry-point"], "entry point"),
@@ -113,6 +114,8 @@ static class BookParents
         public Dictionary<string, string> AggregatesByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the module identifier for each module name segment, first record winning.</summary>
         public Dictionary<string, string> ModulesByName { get; } = new(StringComparer.Ordinal);
+        /// <summary>Gets the knowledge area identifier for each area name segment, first record winning.</summary>
+        public Dictionary<string, string> KnowledgeAreasByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the entry-point identifier for each entry-point name segment, first record winning.</summary>
         public Dictionary<string, string> EntryPointsByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the feature identifier for each feature name segment, first record winning.</summary>
@@ -200,6 +203,10 @@ static class BookParents
             {
                 index.ModulesByName.TryAdd(name, pair.Key);
             }
+            else if (string.Equals(type, "knowledge-area", StringComparison.Ordinal))
+            {
+                index.KnowledgeAreasByName.TryAdd(name, pair.Key);
+            }
             else if (string.Equals(type, "entry-point", StringComparison.Ordinal))
             {
                 index.EntryPointsByName.TryAdd(name, pair.Key);
@@ -231,7 +238,7 @@ static class BookParents
             "product" => null,
             "goal" or "problem" or "constraint" or "research" => index.ProductId,
             "decision" or "runbook" or "waiver" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
-            "direction" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" or "cast" => index.ProductId,
+            "direction" or "module" or "knowledge-area" or "role" or "flow" or "actor" or "term" or "entry-point" or "cast" => index.ProductId,
             "party" or "person" or "occasion" or "figure" => index.CastId,
             "feature" => ProblemFromFile(record),
             "permission" => ModuleFromFile(index, record),
@@ -244,7 +251,8 @@ static class BookParents
             "scenario" => ScenarioParent(index, record, id),
             "rule" => RuleParent(index, record, id),
             "domain-event" => AggregateFromFile(index, record) ?? AggregateNameParent(index, id),
-            "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
+            "reaction" or "job" or "notification" or "setting" or "read-model" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
+            "reference-data" => KnowledgeAreaFromFile(index, record) ?? ModuleFromFile(index, record) ?? KnowledgeAreaParent(index, id) ?? ModuleParent(index, id),
             "screen" => EntryPointFromFile(index, record) ?? ScreenParent(index, id),
             _ => null,
         };
@@ -451,6 +459,45 @@ static class BookParents
         }
 
         return index.ModulesByName.TryGetValue(home, out var module) ? module : null;
+    }
+
+    /// <summary>Finds the knowledge area parent of a record from its file: the area its folder sits under.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="record">The record object that holds the file path.</param>
+    /// <returns>The knowledge area identifier for the folder, or null when the file names no known area.</returns>
+    static string? KnowledgeAreaFromFile(ParentIndex index, JsonObject record)
+    {
+        var file = StrProp(record, "file");
+        if (file is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        var segments = file.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        for (var at = 0; at + 1 < segments.Length; at++)
+        {
+            if (string.Equals(segments[at], "knowledge", StringComparison.Ordinal)
+                && index.KnowledgeAreasByName.TryGetValue(segments[at + 1], out var area))
+            {
+                return area;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Finds the knowledge area parent of a record from its identifier home.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="id">The record identifier whose home names the knowledge area.</param>
+    /// <returns>The knowledge area identifier for the home, or null when the identifier has no home or no area carries that name.</returns>
+    static string? KnowledgeAreaParent(ParentIndex index, string id)
+    {
+        if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        return index.KnowledgeAreasByName.TryGetValue(home, out var area) ? area : null;
     }
 
     /// <summary>Finds the parent of a use case: its folder node, else its module from the identifier home.</summary>

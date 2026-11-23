@@ -10,8 +10,8 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The reference-data checks: every row value stays within its table's closed set, every cross-reference names a row key its table holds, every required role is played by a row, the rows leave no date uncovered, and the use cases computing one value agree on its sign.</summary>
 /// <follows>litespec/core/domain-model#close-the-value-set-of-every-meaning-column</follows>
-/// <follows>litespec/core/domain-model#name-a-role-not-a-row</follows>
-/// <follows>litespec/core/domain-model#validate-reference-data-before-serving</follows>
+/// <follows>litespec/backend/knowledge#name-a-role-not-a-row</follows>
+/// <follows>litespec/backend/knowledge#validate-reference-data-before-serving</follows>
 /// <follows>litespec/core/domain-model#cover-every-date-in-use</follows>
 /// <follows>litespec/core/domain-model#state-the-sign-of-every-amount</follows>
 internal static class ReferenceDataChecks
@@ -128,7 +128,7 @@ internal static class ReferenceDataChecks
         }
     }
 
-    /// <summary>Reports a reference-data table whose required role is played by no row.</summary>
+    /// <summary>Reports a reference-data table whose required role is played by no row of a variant. Each variant answers lookups on its own, so each plays every required role.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRolePlayed(ProjectModel model, List<Finding> findings)
@@ -167,27 +167,35 @@ internal static class ReferenceDataChecks
                 }
             }
 
-            var played = RowsOf(table)
-                .Select(row => Str(row, RecordFields.Role))
-                .Where(role => role is not null)
-                .ToHashSet(StringComparer.Ordinal);
+            var rows = RowsOf(table);
 
-            foreach (var role in wanted.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+            foreach (var variant in VariantsOf(rows))
             {
-                if (!played.Contains(role))
+                var played = rows
+                    .Where(row => string.Equals(Str(row, RecordFields.Variant), variant, StringComparison.Ordinal))
+                    .Select(row => Str(row, RecordFields.Role))
+                    .Where(role => role is not null)
+                    .ToHashSet(StringComparer.Ordinal);
+
+                var whose = variant is null ? "no row plays" : $"no row of variant '{variant}' plays";
+
+                foreach (var role in wanted.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
                 {
-                    findings.Add(new Finding(
-                        "reference-data-role-missing",
-                        $"Reference data '{table.Id}' requires role '{role}', which no row plays.",
-                        table.File,
-                        table.Line,
-                        SubjectOf(table)));
+                    if (!played.Contains(role))
+                    {
+                        findings.Add(new Finding(
+                            "reference-data-role-missing",
+                            $"Reference data '{table.Id}' requires role '{role}', which {whose}.",
+                            table.File,
+                            table.Line,
+                            SubjectOf(table)));
+                    }
                 }
             }
         }
     }
 
-    /// <summary>Reports a reference-data table whose rows leave dates with no row in force, or cover no row on the date the cast declares as today.</summary>
+    /// <summary>Reports a reference-data table whose rows of one variant leave dates with no row in force, or cover no row on the date the cast declares as today. Each variant covers its own dates.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record and the cast.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunCoverage(ProjectModel model, List<Finding> findings)
@@ -206,48 +214,56 @@ internal static class ReferenceDataChecks
         {
             var spans = SpansOf(table);
 
-            for (var left = 0; left + 1 < spans.Count; left++)
+            foreach (var group in GroupsOf(spans))
             {
-                var current = spans[left];
-                var next = spans[left + 1];
+                var whose = group.Variant is { } variant ? $" of variant '{variant}'" : "";
+                var rows = group.Spans;
 
-                // An inverted or overlapping pair already draws its period finding, so one defect draws one finding.
-                if (current.Inverted || next.Inverted || Overlap(current, next))
+                for (var left = 0; left + 1 < rows.Count; left++)
                 {
-                    continue;
+                    var current = rows[left];
+                    var next = rows[left + 1];
+
+                    // An inverted or overlapping pair already draws its period finding, so one defect draws one finding.
+                    if (current.Inverted || next.Inverted || Overlap(current, next))
+                    {
+                        continue;
+                    }
+
+                    if (current.To is { } ends
+                        && next.From is { } starts
+                        && starts > ends.AddDays(1))
+                    {
+                        findings.Add(new Finding(
+                            "reference-data-coverage-missing",
+                            $"Reference data '{table.Id}' holds rows {current.Index} and {next.Index}{whose} leaving dates between '{current.ToText}' and '{next.FromText}' with no row in force.",
+                            table.File,
+                            table.Line,
+                            SubjectOf(table)));
+                    }
                 }
 
-                if (current.To is { } ends
-                    && next.From is { } starts
-                    && starts > ends.AddDays(1))
+                foreach (var declared in today)
                 {
-                    findings.Add(new Finding(
-                        "reference-data-coverage-missing",
-                        $"Reference data '{table.Id}' holds rows {current.Index} and {next.Index} leaving dates between '{current.ToText}' and '{next.FromText}' with no row in force.",
-                        table.File,
-                        table.Line,
-                        SubjectOf(table)));
-                }
-            }
+                    if (!IsoDate(declared, out var now))
+                    {
+                        continue;
+                    }
 
-            foreach (var declared in today)
-            {
-                if (!IsoDate(declared, out var now))
-                {
-                    continue;
-                }
+                    var covered = rows.Any(span =>
+                        span.From is { } starts && starts <= now && (span.To is null || now <= span.To));
 
-                var covered = spans.Any(span =>
-                    span.From is { } starts && starts <= now && (span.To is null || now <= span.To));
+                    if (!covered)
+                    {
+                        var held = group.Variant is { } heldBy ? $"no row of variant '{heldBy}' in force" : "no row in force";
 
-                if (!covered)
-                {
-                    findings.Add(new Finding(
-                        "reference-data-coverage-missing",
-                        $"Reference data '{table.Id}' holds no row in force on '{declared}', the date the cast declares as today.",
-                        table.File,
-                        table.Line,
-                        SubjectOf(table)));
+                        findings.Add(new Finding(
+                            "reference-data-coverage-missing",
+                            $"Reference data '{table.Id}' holds {held} on '{declared}', the date the cast declares as today.",
+                            table.File,
+                            table.Line,
+                            SubjectOf(table)));
+                    }
                 }
             }
         }
@@ -349,14 +365,20 @@ internal static class ReferenceDataChecks
         }
     }
 
-    /// <summary>The validity span of one reference-data row: its parsed dates with their written text and its row index.</summary>
+    /// <summary>The validity span of one reference-data row: its parsed dates with their written text, its row index and its variant.</summary>
     /// <param name="From">The first date in force, or null when the row states no parseable start.</param>
     /// <param name="To">The last date in force, or null while the row stands.</param>
     /// <param name="FromText">The written start date.</param>
     /// <param name="ToText">The written end date, or null while the row stands.</param>
     /// <param name="Inverted">Whether the row ends no later than it starts.</param>
     /// <param name="Index">The row index.</param>
-    private sealed record RowSpan(DateOnly? From, DateOnly? To, string FromText, string? ToText, bool Inverted, int Index);
+    /// <param name="Variant">The variant the row belongs to, or null when it names none.</param>
+    private sealed record RowSpan(DateOnly? From, DateOnly? To, string FromText, string? ToText, bool Inverted, int Index, string? Variant);
+
+    /// <summary>One validity-span group: the spans of one variant in start-date order.</summary>
+    /// <param name="Variant">The variant the spans belong to, or null for rows that name none.</param>
+    /// <param name="Spans">The spans in start-date order.</param>
+    private sealed record SpanGroup(string? Variant, List<RowSpan> Spans);
 
     /// <summary>One amount field of a use case: its name with the sign convention it states.</summary>
     /// <param name="Name">The field name.</param>
@@ -383,13 +405,84 @@ internal static class ReferenceDataChecks
             DateOnly? from = IsoDate(fromText, out var starts) ? starts : null;
             DateOnly? to = toText is not null && IsoDate(toText, out var ends) ? ends : null;
             var inverted = toText is not null && string.Compare(toText, fromText, StringComparison.Ordinal) <= 0;
-            spans.Add(new RowSpan(from, to, fromText, toText, inverted, index));
+            spans.Add(new RowSpan(from, to, fromText, toText, inverted, index, Str(row, RecordFields.Variant)));
             index++;
         }
 
         spans.Sort((left, right) => string.Compare(left.FromText, right.FromText, StringComparison.Ordinal));
 
         return spans;
+    }
+
+    /// <summary>The distinct row variants of a table: the shared rows first, then each named variant in order.</summary>
+    /// <param name="rows">The row objects in written order.</param>
+    /// <returns>The distinct variants, with null for rows that name none.</returns>
+    private static List<string?> VariantsOf(IReadOnlyList<JsonElement> rows)
+    {
+        var variants = new List<string?>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var shared = false;
+
+        foreach (var row in rows)
+        {
+            if (Str(row, RecordFields.Variant) is { } variant)
+            {
+                if (seen.Add(variant))
+                {
+                    variants.Add(variant);
+                }
+            }
+            else
+            {
+                shared = true;
+            }
+        }
+
+        variants.Sort(StringComparer.Ordinal);
+
+        return shared ? [null, .. variants] : variants;
+    }
+
+    /// <summary>The validity spans of a table grouped by variant: the shared rows first, then each named variant in order.</summary>
+    /// <param name="spans">The spans in start-date order.</param>
+    /// <returns>The groups, each keeping start-date order.</returns>
+    private static List<SpanGroup> GroupsOf(List<RowSpan> spans)
+    {
+        var byVariant = new Dictionary<string, List<RowSpan>>(StringComparer.Ordinal);
+        List<RowSpan>? shared = null;
+
+        foreach (var span in spans)
+        {
+            if (span.Variant is { } variant)
+            {
+                if (!byVariant.TryGetValue(variant, out var held))
+                {
+                    held = [];
+                    byVariant[variant] = held;
+                }
+
+                held.Add(span);
+            }
+            else
+            {
+                shared ??= [];
+                shared.Add(span);
+            }
+        }
+
+        var groups = new List<SpanGroup>();
+
+        if (shared is not null)
+        {
+            groups.Add(new SpanGroup(null, shared));
+        }
+
+        foreach (var variant in byVariant.Keys.Order(StringComparer.Ordinal))
+        {
+            groups.Add(new SpanGroup(variant, byVariant[variant]));
+        }
+
+        return groups;
     }
 
     /// <summary>Whether two validity spans overlap: each starts before the other ends, with a missing end open. Dates compare as ISO text.</summary>

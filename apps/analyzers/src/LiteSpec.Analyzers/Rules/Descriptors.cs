@@ -91,6 +91,12 @@ internal static class Descriptors
     private static readonly Provision TypedIdentifierQueryValues = Provision.Of("backend/dotnet/persistence", "compare-typed-identifiers-by-their-value-in-queries");
     /// <summary>The provision the related descriptors enforce: compare typed identifiers by their underlying values in queries (litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
     private static readonly Provision TypedIdentifierUnderlyingValues = Provision.Of("backend/dotnet/persistence", "compare-typed-identifiers-by-their-underlying-values-in-queries");
+    /// <summary>The provision the related descriptors enforce: read knowledge through its model (litespec/backend/knowledge#read-knowledge-through-its-model).</summary>
+    private static readonly Provision KnowledgeThroughModel = Provision.Of("backend/knowledge", "read-knowledge-through-its-model");
+    /// <summary>The provision the related descriptors enforce: keep knowledge sets free of logic (litespec/backend/knowledge#keep-knowledge-sets-free-of-logic).</summary>
+    private static readonly Provision KnowledgeSetData = Provision.Of("backend/knowledge", "keep-knowledge-sets-free-of-logic");
+    /// <summary>The provision the related descriptors enforce: read knowledge by role and date (litespec/backend/knowledge#read-knowledge-by-role-and-date).</summary>
+    private static readonly Provision KnowledgeByRole = Provision.Of("backend/knowledge", "read-knowledge-by-role-and-date");
     /// <summary>The provision the related descriptors enforce: load typed identifier documents one at a time (litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time).</summary>
     private static readonly Provision TypedIdentifierDocumentLoads = Provision.Of("backend/dotnet/persistence", "load-typed-identifier-documents-one-at-a-time");
     /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/quality/testing#prove-each-scenario-through-the-public-boundary).</summary>
@@ -437,6 +443,24 @@ internal static class Descriptors
         "Identity value read in a queryable expression",
         "'{0}' reads its identity '{1}' by value inside a queryable expression; compare the identifier itself or page in memory",
         "A queryable expression never reads the underlying value of the document's own typed identifier, because the document store cannot translate the member chain on its identity member.");
+
+    /// <summary>The LS2038 descriptor: Module references a knowledge set.</summary>
+    public static readonly DiagnosticDescriptor LS2038 = Create("LS2038", LayersCategory, KnowledgeThroughModel,
+        "Module references a knowledge set",
+        "'{0}' lives in knowledge set '{1}'; read knowledge through its model",
+        "A module reads knowledge through the knowledge model, never by naming a type of a knowledge set project. Only hosts reference a set, to register it.");
+
+    /// <summary>The LS2039 descriptor: Knowledge set declares logic.</summary>
+    public static readonly DiagnosticDescriptor LS2039 = Create("LS2039", LayersCategory, KnowledgeSetData,
+        "Knowledge set declares logic",
+        "'{0}' declares logic; a knowledge set holds only rows built through its model's constructors",
+        "A knowledge set holds only rows built through its model's constructors: no branches, loops, switches, calls, or throws. A variant that needs behavior selects a strategy the model declares.");
+
+    /// <summary>The LS2040 descriptor: Knowledge key built from a string literal.</summary>
+    public static readonly DiagnosticDescriptor LS2040 = Create("LS2040", LayersCategory, KnowledgeByRole,
+        "Knowledge key built from a string literal",
+        "'{0}' builds a knowledge key from a string literal; read knowledge by role and date",
+        "Code outside a knowledge set reads knowledge by role and date through the model; it never builds a knowledge key from a string literal.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

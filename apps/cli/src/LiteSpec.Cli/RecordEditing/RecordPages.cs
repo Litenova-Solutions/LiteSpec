@@ -18,7 +18,7 @@ static class RecordPages
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
         "product", "goal", "direction", "problem", "feature", "requirement", "constraint", "research",
-        "decision", "flow", "actor", "module", "aggregate", "use-case",
+        "decision", "flow", "actor", "module", "knowledge-area", "aggregate", "use-case",
         "rule", "setting", "domain-event",
         "reaction", "job", "notification", "role", "external-system",
         "runbook", "waiver", "screen", "read-model", "reference-data",

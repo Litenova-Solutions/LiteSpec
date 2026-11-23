@@ -24,6 +24,12 @@ Each module also holds a `Ports/` folder beside the four layer folders with its 
 
 Layers are not deployment units: the layers deploy together as one modular monolith.
 
+### The Knowledge Layer
+
+A knowledge area is a backend concept beside the module layer. It holds the rules that govern how operational records behave, such as rates, limits, deadlines, and templates that vary by a dimension like a country or a branch. An area has one knowledge model, which owns the types and the lookups, and one knowledge set per variant, which owns only values. An area that varies by nothing keeps its one table in the model. [Knowledge](knowledge.md) states the rules the layer follows.
+
+Knowledge code lives in `src/Knowledge/` beside `src/Modules/`: one project per model named `<Product>.<Area>`, and one per set named `<Product>.<Area>.<Variant>`. Slice folders inside both are by subject. The dependencies point from the Kernel to a knowledge model to the modules. A knowledge set references only its model and the Kernel. Only a host references a set, to register it, and no module references a set. A module reaches knowledge through the model instead.
+
 ### Modules and Use Cases
 
 A [module](../reference/glossary.md) is one business area: it organizes the language, records, use cases, and ownership of that area. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. A [reaction](../reference/glossary.md) answers an event without a request, and a [job](../reference/glossary.md) runs work on a schedule or by hand.
@@ -149,7 +155,9 @@ In the Claimwick product, the reporting module sits downstream of the spending m
 | `Ports/` | Application, Infrastructure or WebApi types |
 | WebApi | Domain types other than typed identifiers and Kernel values; repositories |
 | A use case folder | Any type in another use case folder |
-| A module | Another module's types outside its `Contracts/`, and any module outside its `dependsOn` |
+| A module | Another module's types outside its `Contracts/`, and any module outside its `dependsOn`; a knowledge set project |
+| A knowledge model | A module project, and a knowledge set project |
+| A knowledge set | A module project, and any project other than its model and the Kernel |
 
 Across modules, each read takes one of three paths:
 

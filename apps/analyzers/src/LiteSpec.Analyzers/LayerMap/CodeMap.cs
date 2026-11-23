@@ -96,7 +96,7 @@ internal sealed class CodeMap
             FileFoldersOf(paths));
     }
 
-    /// <summary>Returns the layer of the file: Application for a Contracts file, otherwise the resolver's layer.</summary>
+    /// <summary>Returns the layer of the file: Application for a Contracts file, Domain for a knowledge model file, None for a knowledge set file, otherwise the resolver's layer.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The layer.</returns>
     public ArchitectureLayer LayerOf(string? filePath)
@@ -104,6 +104,16 @@ internal sealed class CodeMap
         if (IsContracts(filePath) || IsContractsAssembly(AssemblyName))
         {
             return ArchitectureLayer.Application;
+        }
+
+        if (Knowledge.IsModelFile(filePath))
+        {
+            return ArchitectureLayer.Domain;
+        }
+
+        if (Knowledge.IsSetFile(filePath))
+        {
+            return ArchitectureLayer.None;
         }
 
         return ArchitectureLayerResolver.FileLayer(filePath, AssemblyName, declared: null);

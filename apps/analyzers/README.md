@@ -71,7 +71,7 @@ Add the package to a consumer project, or once in `Directory.Build.props`, follo
 | `src/LiteSpec.Analyzers/Generation/GeneratorDiagnostics.cs` | The generator diagnostics for `LS5009`, `LS5012`, and `LS5013` (four descriptors: the permission and role forms of `LS5009`, `LS5012`, and the non-virtual base `Code` of `LS5013`) with IDs, messages, provisions, and help links. |
 | `src/LiteSpec.Analyzers/Rules/Provision.cs` | Provision IDs and help links, pinned to release `7.0.0`. |
 | `src/LiteSpec.Analyzers/Rules/Domain/` | 14 analyzers for `LS1001` to `LS1016`. |
-| `src/LiteSpec.Analyzers/Rules/Layers/` | 25 analyzers for `LS2001` and `LS2003` to `LS2028`, by the page each cites: `Application/` (handlers, the command pipeline, repositories, the message and event mediators, message definitions, infrastructure work), `Architecture/` (layer direction, module and use case boundaries, controllers, visibility, platform ownership, adapters, duplicate models), and `Naming/` (the naming rules). |
+| `src/LiteSpec.Analyzers/Rules/Layers/` | 25 analyzers for `LS2001` and `LS2003` to `LS2028`, plus 3 analyzers for `LS2038` to `LS2040`, by the page each cites: `Application/` (handlers, the command pipeline, repositories, the message and event mediators, message definitions, infrastructure work), `Architecture/` (layer direction, module and use case boundaries, controllers, visibility, platform ownership, adapters, duplicate models), `Knowledge/` (knowledge set references, set logic, key literals), and `Naming/` (the naming rules). |
 | `src/LiteSpec.Analyzers/Rules/Style/` | 4 analyzers for `LS3001` to `LS3005`. |
 | `src/LiteSpec.Analyzers/Rules/Tests/` | 1 analyzer for `LS4001`. |
 | `src/LiteSpec.Analyzers/Rules/Traceability/` | 5 analyzers for `LS5003` to `LS5006` and `LS5014`. |
@@ -92,7 +92,7 @@ A rule outside its layer registers nothing and costs nothing.
 
 The generator lives outside this flow. `LiteSpecGenerator` implements `IIncrementalGenerator` and writes its sources through `GeneratedSourceWriter.Execute`, which stays silent in the shared kernel and writes the full surface for a module project. A host sees the registry, the permissions, and the roles through its module project, so it generates none of its own.
 
-The resolver reads each file: the nearest layer folder (`Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`), a sibling `{Product}.{Module}.Contracts` project counting as `Application` for its owner module, or the file's role suffix. A file's layer is its top folder in the module. A file under `Application/` or `WebApi/` takes its use case from the next folder; `Ports/` and `Infrastructure/` hold shared folders only. The assembly name suffix places only hosts, the kernel, the platform, and test projects: `Shop.WebApi` and `Shop.Api` mean WebApi, `Shop.Worker` means Worker, `Shop.Kernel` means Domain, `Shop.Platform` means Infrastructure, and `Shop.Domain.Tests` means Test. A module project names no layer, so each of its files takes its layer from its folder. The suffix check matches a full name or a dot segment, which leaves `Shop.DomainTests` resolving to `None` with no rule running there. A host file with neither signal takes its layer from the assembly, and a file the rules cannot place stays silent.
+The resolver reads each file: the nearest layer folder (`Domain/`, `Application/`, `Ports/`, `Infrastructure/`, `WebApi/`, with `Contracts/` counting as `Application`), a sibling `{Product}.{Module}.Contracts` project counting as `Application` for its owner module, or the file's role suffix. A file's layer is its top folder in the module. A file under `Application/` or `WebApi/` takes its use case from the next folder; `Ports/` and `Infrastructure/` hold shared folders only. The assembly name suffix places only hosts, the kernel, the platform, and test projects: `Shop.WebApi` and `Shop.Api` mean WebApi, `Shop.Worker` means Worker, `Shop.Kernel` means Domain, `Shop.Platform` means Infrastructure, and `Shop.Domain.Tests` means Test. A module project names no layer, so each of its files takes its layer from its folder. A knowledge model project under a `Knowledge/` folder reads as Domain, and a knowledge set project reads as no layer. The suffix check matches a full name or a dot segment, which leaves `Shop.DomainTests` resolving to `None` with no rule running there. A host file with neither signal takes its layer from the assembly, and a file the rules cannot place stays silent.
 
 | Rule | Analyzer class | Layer |
 |:---|:---|:---|
@@ -135,6 +135,9 @@ The resolver reads each file: the nearest layer folder (`Domain/`, `Application/
 | `LS2026` | `DuplicateModelAnalyzer` | Every layer |
 | `LS2027` | `InfrastructureWorkAnalyzer` | Application |
 | `LS2028` | `ModuleVisibilityAnalyzer` | Every layer |
+| `LS2038` | `KnowledgeSetReferenceAnalyzer` | Every layer |
+| `LS2039` | `KnowledgeSetLogicAnalyzer` | Knowledge set |
+| `LS2040` | `KnowledgeKeyLiteralAnalyzer` | Every layer |
 | `LS3001`, `LS3002` | `AsyncMethodAnalyzer` | Every production layer |
 | `LS3003` | `FileTypeNameAnalyzer` | Every production layer |
 | `LS3004` | `SealedClassAnalyzer` | Every production layer |

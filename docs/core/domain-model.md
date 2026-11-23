@@ -22,6 +22,15 @@ Each child record sits in a typed folder inside its module, such as `aggregates/
 | `covers` | What the area covers, one sentence per covered area. |
 | `excludes` | What the area does not cover, one sentence per exclusion. |
 
+### Knowledge Areas
+
+A knowledge area is one subject of rules that govern how operational records behave, such as travel rates that differ by country. Its record sits at `behavior/knowledge/<area>/knowledge-area.yaml` and carries its `meaning` with the `variants` it has knowledge sets for, as `litespec/backend/knowledge#give-each-knowledge-area-one-model` states, in the home the [model page](model.md) names. An area that varies by nothing lists no variants and keeps its one table in the model. Claimwick's travel area holds the per-diem and mileage tables for Germany and the Netherlands. The explanation file beside the record restates Variants from `variants` and carries Example.
+
+| Field | Meaning |
+|:---|:---|
+| `meaning` | What rules the area holds, in one sentence. |
+| `variants` | The variants the area has knowledge sets for. |
+
 ### Glossary
 
 The glossary holds the project's ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`, which says whose vocabulary the word belongs to: `intent` for business words, `behavior` for design words such as aggregate, refusal, reaction, and job, and `implementation` for design words that live in code, such as a read model.
@@ -86,7 +95,7 @@ When a query shows a value and a command records it, both cite the same calculat
 
 ### Reference Data
 
-Reference data is a table of dated business values the running system looks up: rates, thresholds, deadlines, and time zones with the dates each row takes effect. It carries the identifier `reference-data/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml`, under the module that owns the values. A setting holds one operator configuration value, aggregate data holds what the business changes while the system runs, and reference data holds the dated tables rules look up.
+Reference data is a table of dated business values the running system looks up: rates, thresholds, deadlines, and time zones with the dates each row takes effect. It carries the identifier `reference-data/<home>.<name>`, where the home is the module or knowledge area that owns the values. A module-owned table lives at `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml`; a knowledge table lives at `.litespec/behavior/knowledge/<area>/reference-data/<name>/<name>.yaml` under its area. A setting holds one operator configuration value, aggregate data holds what the business changes while the system runs, and reference data holds the dated tables rules look up.
 
 Rules cite the table instead of stating its values: a use case names it in `reads` and a step cites it in `cites`, and a rule statement names it by its identifier. The model checks that every cited table exists and that no two rows overlap in time.
 
@@ -94,17 +103,20 @@ A table can take its values from an external pack file, such as a country pack, 
 
 A table holds one value column: the `value` each row carries, which behavior reads. That column is the table's meaning column. A table whose meaning column changes behavior lists every allowed value in `choices`, so a value outside the list is reported instead of interpreted by each caller. A table whose values are open counts or amounts carries no `choices`.
 
-A table lists in `requiredRoles` the roles its citing rules read, and each row names the role it plays in `role`. A row carries a stable `key` within its table, and a row reads a row of another table in `refersTo` as `reference-data/<module>.<table>#<key>`. Callers ask the table for a role; the table says which row plays it.
+A table lists in `requiredRoles` the roles its citing rules read, and each row names the role it plays in `role`. A row carries a stable `key` within its table, and a row reads a row of another table in `refersTo` as `reference-data/<home>.<table>#<key>`. Callers ask the table for a role; the table says which row plays it.
 
-The rows of a table cover every date the product reads: consecutive rows leave no date without a row in force, and where the cast declares `today`, a row covers it. A released row is never edited: a new value arrives as a new row, and the old row takes an end date.
+A table whose rows differ by variant states the dimension in `variation`, such as `country`, and each row names the variant it belongs to in `variant`. Only knowledge tables vary: a module-owned table states no `variation` and names no `variant`. Each variant's rows form their own timeline, so periods, coverage, and roles are judged within one variant, while keys stay unique across the table so `refersTo` keeps resolving.
+
+The rows of each variant cover every date the product reads: consecutive rows of one variant leave no date without a row in force, and where the cast declares `today`, a row of each variant covers it. A released row is never edited: a new value arrives as a new row, and the old row takes an end date.
 
 | Field | Meaning |
 |:---|:---|
 | `summary`, `unit` | What values the table holds and who reads them, and the unit of each value, such as EUR. |
 | `choices`, `requiredRoles` | The closed set of allowed row values, and the roles the citing rules read, each played by a row. Both optional. |
+| `variation` | The dimension the rows vary by, such as country, stated when rows name a variant. Knowledge tables only; optional. |
 | `pack` | The path of an external file whose values this table copies, relative to the consumer root. Optional; the named file must exist. |
 | `rows` | One entry per dated value, each with its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. |
-| `key`, `role`, `refersTo` | Row fields: the stable key of the row, the role the row plays, and the row of another table the row reads. |
+| `key`, `role`, `variant`, `refersTo` | Row fields: the stable key of the row, the role the row plays, the variant the row belongs to, and the row of another table the row reads. |
 
 ### Amount Signs
 
@@ -542,22 +554,6 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Checked by:** `litespec model check` reports `reference-data-period-invalid` for rows whose validity periods overlap, or whose `effectiveTo` is no later than `effectiveFrom`.
 
-### Model Reference Data as Domain Values
-
-**ID:** `litespec/core/domain-model#model-reference-data-as-domain-values`
-
-**Strength:** required
-
-**Applies to:** artifact: record:reference-data
-
-**Statement:** Each reference-data table MUST be read through domain values that carry the behavior its values decide, with infrastructure only loading the rows.
-
-**Rationale:** A row of free strings means whatever each caller guesses: one value reads two ways in two callers, and a new caller adds a third reading. A domain value types what the table holds and carries the behavior each reading needs, so every caller decides the same way. Infrastructure loads rows and parses them into those values, and decides nothing from them.
-
-**Example:** Claimwick's decision target is read through a domain value carrying days: the approval rules interpret the days, and the loader that reads the table's rows interprets nothing.
-
-**Reviewed for:** Does any caller interpret reference-data rows outside the domain values, or does infrastructure decide behavior from them? Check the readers of each reference-data table beside the domain values.
-
 ### Close the Value Set of Every Meaning Column
 
 **ID:** `litespec/core/domain-model#close-the-value-set-of-every-meaning-column`
@@ -573,38 +569,6 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Example:** The library's membership table lists `choices: [child, adult, senior]`, and a row holding `guest` is reported.
 
 **Checked by:** `litespec model check` reports `reference-data-value-invalid` (level G) for a row whose value is outside the table's `choices`.
-
-### Name a Role Not a Row
-
-**ID:** `litespec/core/domain-model#name-a-role-not-a-row`
-
-**Strength:** required
-
-**Applies to:** artifact: record:reference-data
-
-**Statement:** Each reference-data table MUST list in `requiredRoles` the roles its citing rules read, with each role played by a row in `role`.
-
-**Rationale:** A data key names one row of one data set, so code naming the key breaks when another data set keys its rows differently or not at all. A role names what the product needs, such as the standard target, and each data set says which row plays it. The `reference-data-role-missing` check reports a required role no row plays, and code asks for the role instead of the key.
-
-**Example:** Claimwick's `reference-data/spending.decision-target` lists `requiredRoles: [standard]`, and both its rows play `standard`, so the approval rules read the standard target without naming a row.
-
-**Checked by:** `litespec model check` reports `reference-data-role-missing` (level G) for a required role played by no row.
-
-### Validate Reference Data Before Serving
-
-**ID:** `litespec/core/domain-model#validate-reference-data-before-serving`
-
-**Strength:** required
-
-**Applies to:** artifact: record:reference-data
-
-**Statement:** Each reference-data table MUST hold only rows that resolve their cross-references, stay within its closed set where one is listed, and play its required roles.
-
-**Rationale:** A broken cross-reference, an unlisted value, or a missing role each fails at read time, far from the row that caused it. Validating the whole table before serving it moves each failure to startup, naming the file and row. The record checks report `reference-data-key-unknown`, `reference-data-value-invalid`, and `reference-data-role-missing`, and the host refuses to start until the tables it loads validate.
-
-**Example:** A Claimwick row referring to `reference-data/spending.decision-target#target-2030` is reported, naming the file and row, before the product serves the table.
-
-**Checked by:** `litespec model check` reports `reference-data-key-unknown`, `reference-data-value-invalid`, and `reference-data-role-missing` (level G) for a cross-reference to a missing key, a value outside `choices`, and a required role played by no row.
 
 ### Cover Every Date in Use
 
@@ -637,22 +601,6 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Example:** Claimwick's five-day row keeps 2026-01-01 to 2026-12-31 while the three-day row starts 2027-01-01.
 
 **Reviewed for:** Does any released row carry an edited value? Check each row's value beside its git history: a new value arrives as a new row with the old row end-dated.
-
-### Use an Aggregate for Edited Reference Data Only
-
-**ID:** `litespec/core/domain-model#use-an-aggregate-for-edited-reference-data-only`
-
-**Strength:** required
-
-**Applies to:** artifact: record:reference-data
-
-**Statement:** Reference data MUST live as an aggregate only when people edit it at runtime, on the owner who edits it rather than the published table.
-
-**Rationale:** A published table changes by release: its rows are written with the product and read as written. An aggregate changes by use case: it guards each change with rules, refusals, and access. Making a published table an aggregate promises guarding nothing performs, and leaving runtime-edited values in a table leaves their changes unguarded. The aggregate sits on the owner who edits the values, such as a tenant's own overrides, rather than on the published table.
-
-**Example:** Claimwick's receipt threshold lives on the policy aggregate because managers change it through `use-case/spending.change-receipt-threshold`, while the decision target stays a reference table nobody edits at runtime.
-
-**Reviewed for:** Does any reference-data table take edits at runtime, or does any aggregate hold a published table nobody edits? Check each table beside the use cases that write it.
 
 ### State the Sign of Every Amount
 

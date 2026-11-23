@@ -1498,6 +1498,30 @@
       "links": {}
     },
     {
+      "type": "knowledge-area",
+      "id": "knowledge-area/loan-rules",
+      "title": "Loan Rules",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/knowledge/loan-rules/knowledge-area.yaml",
+      "line": 3,
+      "explanation": "# Loan Rules\n\n## Purpose\n\nEach branch lends under its own loan limits.",
+      "fields": {
+        "type": "knowledge-area",
+        "id": "knowledge-area/loan-rules",
+        "title": "Loan Rules",
+        "meaning": "The loan limits each branch lends under.",
+        "variants": [
+          "riverside",
+          "harbour"
+        ]
+      },
+      "links": {}
+    },
+    {
       "type": "read-model",
       "id": "read-model/reporting.loan-borrowing",
       "title": "Loan Borrowing",

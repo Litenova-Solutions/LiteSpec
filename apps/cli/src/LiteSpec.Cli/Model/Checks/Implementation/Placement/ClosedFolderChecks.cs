@@ -158,6 +158,11 @@ internal static class ClosedFolderChecks
             CheckPlatformRoot(model.Config, findings);
         }
 
+        if (SourceRoots.KnowledgeRoot(model.Config) is { Length: > 0 } knowledge)
+        {
+            CheckKnowledgeRoot(model.Config, knowledge, findings);
+        }
+
         foreach (var frontend in model.Config.Frontends)
         {
             CheckFrontendRoot(model.Config, frontend, modules, findings);
@@ -252,6 +257,47 @@ internal static class ClosedFolderChecks
             : "group them into one folder per sub-area";
 
         CheckUngrouped(config, capability, children, _ => true, remedy, findings, [".cs"]);
+    }
+
+    /// <summary>Reports every folder under the Knowledge root that is neither a knowledge model nor a set of a model the folder holds, and every file directly at the root: the root holds one model project per area and one set project per variant.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="knowledge">The absolute Knowledge folder beside Modules.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</follows>
+    private static void CheckKnowledgeRoot(ConsumerConfig config, string knowledge, List<Finding> findings)
+    {
+        var models = ChildFolders(knowledge)
+            .Select(Path.GetFileName)
+            .OfType<string>()
+            .Where(SourceRoots.IsKnowledgeModelName)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var child in ChildFolders(knowledge))
+        {
+            var name = Path.GetFileName(child);
+
+            if (SourceRoots.IsKnowledgeModelName(name))
+            {
+                continue;
+            }
+
+            if (SourceRoots.KnowledgeModelName(child) is { } own && models.Contains(own))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no knowledge model or set of a known model; Knowledge holds one '<Product>.<Area>/' model project per area and one '<Product>.<Area>.<Variant>/' set project per variant.", child, 1, null));
+        }
+
+        foreach (var file in ChildFiles(knowledge))
+        {
+            if (Path.GetFileName(file).EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in the Knowledge root, which holds only model and set projects.", file, 1, null));
+        }
     }
 
     /// <summary>Reports every folder under the single modules root that breaks its level's closed set.</summary>
