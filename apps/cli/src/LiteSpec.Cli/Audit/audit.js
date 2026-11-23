@@ -344,6 +344,10 @@
   // Visible text that is a raw code: a GUID, a dotted message key, null, undefined, or (null).
   const guid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
   const messageKey = /^[a-z]+(\.[a-zA-Z]+)+$/;
+  // A kebab-case code such as an enum value or a role name; text inside code, kbd, samp
+  // and pre elements is meant to show as typed.
+  const kebabCode = /^[a-z]+(-[a-z0-9]+)+$/;
+  const literalParent = 'CODE,KBD,SAMP,PRE';
   const hiddenParent = 'SCRIPT,STYLE,NOSCRIPT,TEMPLATE';
 
   const walker = document.createTreeWalker(document.body || document, NodeFilter.SHOW_TEXT, {
