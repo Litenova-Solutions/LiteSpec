@@ -290,7 +290,7 @@ public sealed class FindingCodesTests
         throw new InvalidOperationException("The test binary sits outside a LiteSpec checkout.");
     }
 
-    /// <summary>Every quoted kebab-case literal in the CLI, model and analyzer sources, outside the code table itself.</summary>
+    /// <summary>Every quoted kebab-case literal in the CLI, model and analyzer sources, outside the code table itself, including the browser scripts the CLI embeds, which emit the rendered-page codes.</summary>
     /// <param name="repository">The path of the repository root.</param>
     /// <returns>The literals found.</returns>
     static HashSet<string> QuotedLiterals(string repository)
@@ -299,7 +299,8 @@ public sealed class FindingCodesTests
 
         foreach (var root in new[] { "cli", "model", "analyzers" }.Select(app => Path.Combine(repository, "apps", app, "src")))
         {
-            foreach (var file in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(root, "*.*", SearchOption.AllDirectories)
+                .Where(file => file.EndsWith(".cs", StringComparison.Ordinal) || file.EndsWith(".js", StringComparison.Ordinal)))
             {
                 var name = Path.GetFileName(file);
 
@@ -321,7 +322,7 @@ public sealed class FindingCodesTests
     }
 
     static Regex QuotedCode() =>
-        new("\"(?<code>[a-z0-9]+(?:-[a-z0-9]+)+)\"", RegexOptions.Compiled);
+        new("[\"'](?<code>[a-z0-9]+(?:-[a-z0-9]+)+)[\"']", RegexOptions.Compiled);
 
     static Regex EmittedCode() =>
         new("(?:new Finding\\(|Tiered\\()\"(?<code>[a-z0-9]+(?:-[a-z0-9]+)+)\"", RegexOptions.Compiled);
