@@ -241,9 +241,8 @@ static class RecordReader
         };
 
     /// <summary>
-    ///     Derives the generic refusal results: forbidden for every use case with a permission
-    ///     grant, and invalid-input for every use case with a validated input. Scenarios and
-    ///     tests point at them; they are never written as records.
+    ///     Derives the generic refusal results from each use case's access, inputs, kind and
+    ///     knowledge reads. Scenarios and tests point at them; they are never written as records.
     /// </summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="records">The written records, appended in place with the derived results.</param>
@@ -255,6 +254,10 @@ static class RecordReader
             .Where(record => record.Id.Length > 0)
             .Select(record => record.Id)
             .ToHashSet(StringComparer.Ordinal);
+        var byId = records
+            .Where(record => record.Id.Length > 0)
+            .GroupBy(record => record.Id, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
         var derived = new List<Record>();
 
         foreach (var useCase in records.Where(record => record.Type == RecordTypes.UseCase))
@@ -264,7 +267,7 @@ static class RecordReader
                 continue;
             }
 
-            foreach (var code in RefusalSetReader.DeriveFor(useCase))
+            foreach (var code in RefusalSetReader.DeriveFor(useCase, byId))
             {
                 var id = $"result/{name}.{code}";
 
@@ -302,6 +305,7 @@ static class RecordReader
         "conflict" => "Conflict",
         "unauthenticated" => "Unauthenticated",
         "sign-in-too-old" => "Sign in too old",
+        "rule-not-stated" => "Rule not stated",
         _ => code,
     };
 
@@ -316,6 +320,7 @@ static class RecordReader
         "conflict" => "The record changed since the caller read it.",
         "unauthenticated" => "The caller is not signed in.",
         "sign-in-too-old" => "The caller's sign-in is older than the window the use case requires.",
+        "rule-not-stated" => "The knowledge the use case reads states no rule for the asked key or day.",
         _ => code,
     };
 

@@ -885,7 +885,7 @@ internal static class SchemaChecks
     }
 
     /// <summary>The refusal names a product derives for every use case, which no result states by hand.</summary>
-    private static readonly string[] GenericRefusals = ["forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old"];
+    private static readonly string[] GenericRefusals = ["forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old", "rule-not-stated"];
 
     /// <summary>The modes a read model's freshness may state.</summary>
     private static readonly string[] FreshnessModes = ["immediate", "snapshot", "eventual"];

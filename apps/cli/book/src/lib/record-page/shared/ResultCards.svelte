@@ -11,7 +11,7 @@
   let { items, caption = null }: Props = $props();
 
   // The refusals the model derives instead of a written result.
-  const GENERIC_SUFFIXES = [".forbidden", ".invalid-input", ".not-found", ".conflict", ".unauthenticated", ".sign-in-too-old"];
+  const GENERIC_SUFFIXES = [".forbidden", ".invalid-input", ".not-found", ".conflict", ".unauthenticated", ".sign-in-too-old", ".rule-not-stated"];
 
   function isGeneric(x: { id?: string | null; kind?: string }): boolean {
     if (x.kind === "generic") return true;

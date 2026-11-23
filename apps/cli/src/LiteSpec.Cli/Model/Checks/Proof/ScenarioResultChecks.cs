@@ -12,7 +12,7 @@ internal static class ScenarioResultChecks
 {
     /// <summary>The generic refusals the model derives, which no result record declares.</summary>
     private static readonly string[] Derived =
-        ["forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old"];
+        ["forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old", "rule-not-stated"];
 
     /// <summary>Reports each scenario ending in a result no record declares.</summary>
     /// <param name="model">The loaded project model that holds every scenario and result.</param>

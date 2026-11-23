@@ -708,7 +708,7 @@ Source: LiteSpec.
 
 ### Generic Refusal
 
-One refusal the model derives instead of a written result: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated`, or `sign-in-too-old`.
+One refusal the model derives instead of a written result: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated`, `sign-in-too-old`, or `rule-not-stated`.
 
 Layer: Behavior.
 

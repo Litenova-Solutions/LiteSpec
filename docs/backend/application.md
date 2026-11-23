@@ -293,7 +293,7 @@ When the create loses a race, it refuses with its conflict under `litespec/backe
 
 **Statement:** A handler MUST return only the results, refusals, and codes its use-case record declares.
 
-**Rationale:** An observable outcome no result declares is behavior the specification hides, so the stack reader fails `result-undeclared` on it. Refusals return in the precedence order the record lists, first match wins, and a success carrying `codes` returns only those codes. Generic refusals derive from `access` and `input` and need no declaration.
+**Rationale:** An observable outcome no result declares is behavior the specification hides, so the stack reader fails `result-undeclared` on it. Refusals return in the precedence order the record lists, first match wins, and a success carrying `codes` returns only those codes. Generic refusals derive from `access`, `input`, and the knowledge the use case reads, and need no declaration.
 
 A use case refuses only with refusals its own module declares: when another module's public query answers nothing, the use case refuses with its own declared refusal, never with the other module's exception.
 

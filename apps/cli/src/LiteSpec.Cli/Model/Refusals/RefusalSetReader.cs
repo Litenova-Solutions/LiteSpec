@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
@@ -10,17 +11,23 @@ namespace LiteSpec.Cli.Model.Refusals;
 ///     The refusal sets of the model and the generic refusals it derives. Each aggregate declares the refusals
 ///     its rules raise in <c>behavior/modules/&lt;m&gt;/aggregates/&lt;a&gt;/refusals.yaml</c>, and the module
 ///     declares only refusals no aggregate raises in <c>behavior/modules/&lt;m&gt;/refusals.yaml</c>, each under
-///     the <c>records</c> list. The six generic refusals are derived from a use case's access, inputs and kind,
-///     and are never written.
+///     the <c>records</c> list. The seven generic refusals are derived from a use case's access, inputs, kind
+///     and knowledge reads, and are never written.
 /// </summary>
 /// <follows>litespec/core/use-cases#declare-each-modules-refusals-once</follows>
+/// <follows>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</follows>
 static class RefusalSetReader
 {
     /// <summary>The generic refusal codes the model derives for a use case, which no file writes.</summary>
     public static readonly IReadOnlyList<string> DerivedCodes =
     [
-        "forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old",
+        "forbidden", "invalid-input", "not-found", "conflict", "unauthenticated", "sign-in-too-old", "rule-not-stated",
     ];
+
+    /// <summary>A reference-data table identifier named in a rule statement.</summary>
+    private static readonly Regex TableId = new(
+        @"\breference-data/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*\b",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Reads every aggregate's and every module's refusal set.</summary>
     /// <param name="config">The consumer configuration holding the behavior folder.</param>
@@ -130,11 +137,13 @@ static class RefusalSetReader
     ///     The generic refusals a use case derives: <c>forbidden</c> when it names a grant other than anonymous or
     ///     system, <c>unauthenticated</c> for <c>signed-in</c>, <c>sign-in-too-old</c> when it sets
     ///     <c>recentSignInLimit</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
-    ///     id of an aggregate, and <c>conflict</c> when a command declares <c>conflicts</c>.
+    ///     id of an aggregate, <c>conflict</c> when a command declares <c>conflicts</c>, and <c>rule-not-stated</c>
+    ///     when the use case reads knowledge with no rule in force for the asked key or day.
     /// </summary>
     /// <param name="useCase">The use case record.</param>
+    /// <param name="byId">The written records by id, resolving the rules and tables the use case takes.</param>
     /// <returns>The derived generic refusal codes, in the order of <see cref="DerivedCodes" />.</returns>
-    public static IReadOnlyList<string> DeriveFor(Record useCase)
+    public static IReadOnlyList<string> DeriveFor(Record useCase, IReadOnlyDictionary<string, Record> byId)
     {
         var codes = new List<string>();
         var grant = AccessText(useCase, RecordFields.Grant);
@@ -170,7 +179,160 @@ static class RefusalSetReader
             codes.Add("conflict");
         }
 
+        if (ReadsKnowledge(useCase, byId))
+        {
+            codes.Add("rule-not-stated");
+        }
+
         return codes;
+    }
+
+    /// <summary>
+    ///     Whether the use case reads knowledge: an input takes a rule refused as the generic
+    ///     <c>rule-not-stated</c>, or a taken rule cites a reference-data table of a knowledge area.
+    /// </summary>
+    /// <param name="useCase">The use case record.</param>
+    /// <param name="byId">The written records by id, resolving the rules and tables the use case takes.</param>
+    /// <returns>True when either knowledge signal holds; otherwise false.</returns>
+    private static bool ReadsKnowledge(Record useCase, IReadOnlyDictionary<string, Record> byId)
+    {
+        foreach (var id in InputRules(useCase))
+        {
+            if (byId.TryGetValue(Identifiers.BaseId(id), out var rule)
+                && rule.Type == RecordTypes.Rule
+                && IsRuleNotStatedRefusal(RefusalCode.Of(rule)))
+            {
+                return true;
+            }
+        }
+
+        foreach (var id in TakenRules(useCase))
+        {
+            if (byId.TryGetValue(Identifiers.BaseId(id), out var rule)
+                && rule.Type == RecordTypes.Rule
+                && CitesKnowledgeTable(rule, byId))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the refusal code names the generic rule-not-stated refusal: any home with that name.</summary>
+    /// <param name="code">The refusal code under test, or null when the rule names none.</param>
+    /// <returns>True when the name after the home is <c>rule-not-stated</c>; otherwise false.</returns>
+    private static bool IsRuleNotStatedRefusal(string? code)
+    {
+        if (code is not { Length: > 0 })
+        {
+            return false;
+        }
+
+        var name = code.Contains('.', StringComparison.Ordinal)
+            ? code[(code.IndexOf('.', StringComparison.Ordinal) + 1)..]
+            : code;
+
+        return name == "rule-not-stated";
+    }
+
+    /// <summary>Whether the rule cites a reference-data table owned by a knowledge area.</summary>
+    /// <param name="rule">The rule record whose statement is read.</param>
+    /// <param name="byId">The written records by id, resolving the cited tables and areas.</param>
+    /// <returns>True when the statement names a table whose home is a knowledge area; otherwise false.</returns>
+    private static bool CitesKnowledgeTable(Record rule, IReadOnlyDictionary<string, Record> byId)
+    {
+        if (rule.Field(RecordFields.Statement) is not { Length: > 0 } statement)
+        {
+            return false;
+        }
+
+        foreach (Match match in TableId.Matches(statement))
+        {
+            if (byId.TryGetValue(match.Value, out var table)
+                && table.Type == RecordTypes.ReferenceData
+                && Identifiers.TrySplit(table.Id, out _, out var home, out _)
+                && home is { Length: > 0 }
+                && byId.TryGetValue($"knowledge-area/{home}", out var area)
+                && area.Type == RecordTypes.KnowledgeArea)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>The rule identifiers the use case takes: its steps' rule cites, its input rules, and its consistency boundBy.</summary>
+    /// <param name="useCase">The use case record whose citations are read.</param>
+    /// <returns>The taken rule identifiers, in steps, input, then boundBy order.</returns>
+    private static IEnumerable<string> TakenRules(Record useCase)
+    {
+        foreach (var cited in useCase.AppliedCitations())
+        {
+            if (cited.StartsWith("rule/", StringComparison.Ordinal))
+            {
+                yield return cited;
+            }
+        }
+
+        foreach (var rule in InputRules(useCase))
+        {
+            yield return rule;
+        }
+
+        if (useCase.Raw.ValueKind == JsonValueKind.Object
+            && useCase.Raw.TryGetProperty(RecordFields.Consistency, out var consistency))
+        {
+            foreach (var rule in LinkStrings(consistency, RecordFields.BoundBy))
+            {
+                yield return rule;
+            }
+        }
+    }
+
+    /// <summary>The rule identifiers each input of a use case names.</summary>
+    /// <param name="useCase">The use case record whose input array is read.</param>
+    /// <returns>The rule identifiers named by its inputs, in written order.</returns>
+    private static IEnumerable<string> InputRules(Record useCase)
+    {
+        if (useCase.Raw.ValueKind != JsonValueKind.Object
+            || !useCase.Raw.TryGetProperty(RecordFields.Input, out var inputs)
+            || inputs.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return inputs.EnumerateArray().SelectMany(input => LinkStrings(input, RecordFields.Rules));
+    }
+
+    /// <summary>Reads one field that holds one id or an array of ids.</summary>
+    /// <param name="element">The object holding the field.</param>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The single id or the array of ids the field holds, or an empty list when it holds neither.</returns>
+    private static IReadOnlyList<string> LinkStrings(JsonElement element, string name)
+    {
+        if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var value))
+        {
+            return [];
+        }
+
+        if (value.ValueKind == JsonValueKind.String && value.GetString() is { } single)
+        {
+            return [single];
+        }
+
+        if (value.ValueKind == JsonValueKind.Array)
+        {
+            return
+            [
+                .. value.EnumerateArray()
+                          .Where(entry => entry.ValueKind == JsonValueKind.String)
+                          .Select(entry => entry.GetString()!),
+            ];
+        }
+
+        return [];
     }
 
     /// <summary>The string a use case's access object holds under a name.</summary>

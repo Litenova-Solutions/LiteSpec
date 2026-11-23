@@ -132,7 +132,7 @@ A refusal is a rejection or error in industry words; the record word stays refus
 | `recorded` | Whether the attempt and its reason are stored. A validating refusal stores nothing. |
 | `codes` | The closed list of recorded outcomes inside a success result. |
 
-The generic refusals are derived and never written as records. The `forbidden` refusal comes from the grant in `access`, `invalid-input` from the rules in `input`, `not-found` from the named target, `conflict` from the state the call met, `unauthenticated` from the missing caller, and `sign-in-too-old` from the recent-sign-in window [Access](access.md) states. A derived generic result takes the form `result/<use-case>.<name>`. Scenarios may point at derived results.
+The generic refusals are derived and never written as records. The `forbidden` refusal comes from the grant in `access`, `invalid-input` from the rules in `input`, `not-found` from the named target, `conflict` from the state the call met, `unauthenticated` from the missing caller, and `sign-in-too-old` from the recent-sign-in window [Access](access.md) states. `rule-not-stated` comes from the knowledge the use case reads. A derived generic result takes the form `result/<use-case>.<name>`. Scenarios may point at derived results.
 
 ### Scenarios
 
@@ -761,7 +761,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Statement:** Each use case MUST list its refusals so the first match wins.
 
-**Rationale:** Two refusals matching one call need an order. Without precedence, each architecture layer picks its own refusal, and callers branch on a different code per stack. The derived refusals come first: unauthenticated, forbidden, sign-in-too-old, invalid input, not found, then conflict. The written refusals follow in the order the page lists them. The first match is the one every architecture layer reports.
+**Rationale:** Two refusals matching one call need an order. Without precedence, each architecture layer picks its own refusal, and callers branch on a different code per stack. The derived refusals come first: unauthenticated, forbidden, sign-in-too-old, invalid input, not found, rule-not-stated, then conflict. The written refusals follow in the order the page lists them. The first match is the one every architecture layer reports.
 
 **Reviewed for:** Does every refusal list stand in precedence order, with derived refusals first? Look at the refusal entries on each use-case page.
 
@@ -807,7 +807,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Statement:** A use case MUST NOT write a generic refusal as a record.
 
-**Rationale:** Hand-written generic refusals multiply: hundreds of pages each declare their own forbidden, and each drifts in wording and code. Deriving them keeps one of each per use case, current with the grant, the inputs, the target, the state, the caller, and the sign-in. The builder derives `result/<use-case>.forbidden`, `result/<use-case>.invalid-input`, `result/<use-case>.not-found`, `result/<use-case>.conflict`, `result/<use-case>.unauthenticated`, and `result/<use-case>.sign-in-too-old`. Scenarios point at the derived results without anyone writing them.
+**Rationale:** Hand-written generic refusals multiply: hundreds of pages each declare their own forbidden, and each drifts in wording and code. Deriving them keeps one of each per use case, current with the grant, the inputs, the target, the state, the knowledge, the caller, and the sign-in. The builder derives `result/<use-case>.forbidden`, `result/<use-case>.invalid-input`, `result/<use-case>.not-found`, `result/<use-case>.conflict`, `result/<use-case>.unauthenticated`, `result/<use-case>.sign-in-too-old`, and `result/<use-case>.rule-not-stated`. Scenarios point at the derived results without anyone writing them.
 
 **Checked by:** `litespec model check` reports `refusal-generic-written` for a use case writing a generic refusal as a record.
 

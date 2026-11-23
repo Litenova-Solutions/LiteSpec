@@ -80,7 +80,7 @@ Role-based access control grants permissions through roles, which forms a chain 
 
 **Words:** actor, role, permission.
 
-**Differs:** An actor holds a role, and a use case declares its access as a grant and a tenant scope, which forms one chain from actor to use case. Deriving the actor from verified claims is Implementation: stack code that tools check. Generic refusals derive from access and input instead of being written on every use case.
+**Differs:** An actor holds a role, and a use case declares its access as a grant and a tenant scope, which forms one chain from actor to use case. Deriving the actor from verified claims is Implementation: stack code that tools check. Generic refusals derive from access, input, and the knowledge the use case reads instead of being written on every use case.
 
 ## Design by Contract
 

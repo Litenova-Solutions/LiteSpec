@@ -28,7 +28,7 @@ For example, Claimwick code that reimburses without a stated promise keeps runni
 
 ### Derivation Between Records Only
 
-One record derives from another, never from code. Generic refusals derive from access and input, and read models derive from the records they list. Derivation runs one way, from the authored source to what cites it.
+One record derives from another, never from code. Generic refusals derive from access, input, and the knowledge the use case reads, and read models derive from the records they list. Derivation runs one way, from the authored source to what cites it.
 
 For example, Claimwick's reporting read model derives its reimbursed-expense rows from the published expense events it lists, not from the spending store. Derivation copies values only, and never invents a promise the source never stated.
 
@@ -152,7 +152,7 @@ For example, a Claimwick use case with no endpoint yet stays on its branch until
 
 **Statement:** A record MUST take each derived value from another record.
 
-**Rationale:** Derivation between records keeps one authored source behind every value: the source changes once, and each derived read model follows. Generic refusals derive from access and input, and each read model derives from the records it lists, so readers trace every derived value to the record that states it.
+**Rationale:** Derivation between records keeps one authored source behind every value: the source changes once, and each derived read model follows. Generic refusals derive from access, input, and the knowledge the use case reads, and each read model derives from the records it lists, so readers trace every derived value to the record that states it.
 
 **Reviewed for:** Can every derived value be traced to the record that authors it? Trace each derived value to the record it cites.
 

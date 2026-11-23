@@ -103,7 +103,7 @@ The handler uses ASP.NET Core `AddProblemDetails` with one `IExceptionHandler`:
 - Conflicts and state rejections answer 409.
 - Unexpected failures answer 500 with code `internal_error`.
 
-The derived `invalid-input` refusal answers 400 under the project's `refusals.invalidInput` code, and the derived `forbidden` refusal answers 403 or the declared 404 under the project's `refusals.forbidden` code. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error.
+The derived `invalid-input` refusal answers 400 under the project's `refusals.invalidInput` code, and the derived `forbidden` refusal answers 403 or the declared 404 under the project's `refusals.forbidden` code. The derived `rule-not-stated` refusal answers 409. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error.
 
 **Example:** The handler registers through the framework's Problem Details services:
 

@@ -123,3 +123,12 @@ records:
   exercises:
   - rule/expense.receipt-required-above-threshold
   competesWith: use-case/spending.change-receipt-threshold
+- type: scenario
+  id: scenario/submit-expense.unstated-travel-rule-refused
+  title: Unstated Travel Rule Refused
+  given: An employee travels to a country the travel rates state no per-diem row for.
+  when: The employee submits the expense.
+  then: The submission is refused because the travel rates state no rule for the travel date and country.
+  result: result/submit-expense.rule-not-stated
+  exercises:
+  - rule/expense.travel-allowance-from-per-diem

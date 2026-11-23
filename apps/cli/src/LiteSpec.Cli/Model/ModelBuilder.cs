@@ -114,7 +114,7 @@ static partial class ModelBuilder
     }
 
     /// <summary>
-    ///     Derives the generic refusals of each use case from its access, inputs and kind. A refusal is derived, never written.
+    ///     Derives the generic refusals of each use case from its access, inputs, kind and knowledge reads. A refusal is derived, never written.
     /// </summary>
     /// <param name="model">The project model.</param>
     private static void ComputeDerivedRefusals(ProjectModel model)
@@ -123,7 +123,7 @@ static partial class ModelBuilder
 
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase && !record.Derived))
         {
-            model.DerivedRefusals[useCase.Id] = RefusalSetReader.DeriveFor(useCase);
+            model.DerivedRefusals[useCase.Id] = RefusalSetReader.DeriveFor(useCase, model.ById);
         }
     }
 

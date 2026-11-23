@@ -382,7 +382,7 @@ Each name stays unique in its record type, and a `record-key-duplicate` finding 
 
 A flow step id is `step/<flow>.<act>`, where `<flow>` is the flow's name and `<act>` is the step's act as a verb phrase in kebab case. List order is the main path; no position lives in an id. An act that only numbers the step, such as `s3` or `step-2`, is reported, and so is a `<flow>` segment naming another flow.
 
-A derived generic result is `result/<use-case>.forbidden`, `result/<use-case>.invalid-input`, `result/<use-case>.not-found`, `result/<use-case>.conflict`, `result/<use-case>.unauthenticated` or `result/<use-case>.sign-in-too-old`. Scenarios can point at derived results. Derived results are never written as records.
+A derived generic result is `result/<use-case>.forbidden`, `result/<use-case>.invalid-input`, `result/<use-case>.not-found`, `result/<use-case>.conflict`, `result/<use-case>.unauthenticated`, `result/<use-case>.sign-in-too-old` or `result/<use-case>.rule-not-stated`. Scenarios can point at derived results. Derived results are never written as records.
 
 ### Common Fields
 
@@ -1655,7 +1655,7 @@ title: Submit Expense
 
 **Statement:** A specification MUST name the source or the command that produces any count, census, or membership list derived between records.
 
-**Rationale:** A restated number is right until the next unrelated edit changes the records it counts, and nothing reports when it goes stale. Naming the source or the command gives every reader the current figure instead of the figure from commit day. Derivation between records is allowed: generic refusals derive from `access` and `input`, and computed completion appears in the book and the model output only.
+**Rationale:** A restated number is right until the next unrelated edit changes the records it counts, and nothing reports when it goes stale. Naming the source or the command gives every reader the current figure instead of the figure from commit day. Derivation between records is allowed: generic refusals derive from `access`, `input`, and the knowledge the use case reads, and computed completion appears in the book and the model output only.
 
 **Example:** A chapter states where its numbers come from rather than copying them.
 

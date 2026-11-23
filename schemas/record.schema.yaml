@@ -105,10 +105,10 @@ $defs:
     pattern: '^use-case/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   resultId:
     type: string
-    pattern: '^result/[a-z0-9][a-z0-9-]*\.(?!(?:forbidden|invalid-input|not-found|conflict|unauthenticated|sign-in-too-old)$)[a-z0-9][a-z0-9-]*$'
+    pattern: '^result/[a-z0-9][a-z0-9-]*\.(?!(?:forbidden|invalid-input|not-found|conflict|unauthenticated|sign-in-too-old|rule-not-stated)$)[a-z0-9][a-z0-9-]*$'
   derivedResultId:
     type: string
-    pattern: '^result/[a-z0-9][a-z0-9-]*\.(forbidden|invalid-input|not-found|conflict|unauthenticated|sign-in-too-old)$'
+    pattern: '^result/[a-z0-9][a-z0-9-]*\.(forbidden|invalid-input|not-found|conflict|unauthenticated|sign-in-too-old|rule-not-stated)$'
   scenarioId:
     type: string
     pattern: '^scenario/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'

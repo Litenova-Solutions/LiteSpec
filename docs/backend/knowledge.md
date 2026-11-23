@@ -165,7 +165,7 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Statement:** A lookup with no row in force MUST end its use case in a refusal naming the missing role, date, and variant.
 
-**Rationale:** A null or a default value makes the caller spend a value no rule supports, with no record of why. A refusal with a reason points the operator at the row that is missing, and the use case records the refusal beside its other endings.
+**Rationale:** A null or a default value makes the caller spend a value no rule supports, with no record of why. A refusal with a reason points the operator at the row that is missing, and the use case records the refusal beside its other endings. The model derives that ending as `result/<use-case>.rule-not-stated`.
 
 **Example:** If no German per-diem row covers a travel date, Claimwick's submission ends in a refusal naming the `FullDay` role, that date, and Germany, rather than paying zero.
 
