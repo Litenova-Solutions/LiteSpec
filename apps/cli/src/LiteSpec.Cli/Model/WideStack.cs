@@ -8,6 +8,7 @@ namespace LiteSpec.Cli.Model;
 ///     compiler's walkers stop with an insufficient-stack failure when a thread's stack runs low. Thread-pool threads
 ///     take the platform's default size, which is small on musl and in native builds, so the CLI never relies on it.
 /// </summary>
+/// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class WideStack
 {
     /// <summary>The stack size of every model thread: 16 MiB, far above what the deepest walk needs.</summary>
