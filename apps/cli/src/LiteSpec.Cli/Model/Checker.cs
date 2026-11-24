@@ -201,22 +201,12 @@ static class Checker
         // own list, taking the next check as a thread frees; the lists join in the order above.
         var raised = new List<Finding>[Checks.Length];
 
-        try
+        WideStack.ForEach(Checks.Length, index =>
         {
-            Parallel.ForEach(
-                Partitioner.Create(Enumerable.Range(0, Checks.Length), EnumerablePartitionerOptions.NoBuffering),
-                index =>
-                {
-                    var own = new List<Finding>();
-                    Checks[index](model, own);
-                    raised[index] = own;
-                });
-        }
-        catch (AggregateException failure) when (failure.InnerExceptions.Count > 0)
-        {
-            ExceptionDispatchInfo.Capture(failure.InnerExceptions[0]).Throw();
-            throw;
-        }
+            var own = new List<Finding>();
+            Checks[index](model, own);
+            raised[index] = own;
+        });
 
         var findings = new List<Finding>(model.Problems);
 
