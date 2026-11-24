@@ -14,11 +14,11 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/copy.copy-retired
-steps:
-- statement: The librarian retires the copy from lending.
 idempotency:
   mode: none
   reason: Each call retires its own copy, and retiring a copy on loan is refused.
+steps:
+- statement: The librarian retires the copy from lending.
 records:
 - type: result
   id: result/retire-copy.retired

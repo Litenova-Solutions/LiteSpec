@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The async settle checks: a reaction or job that runs a use case writing an aggregate names the pending, done and refused states the run settles, entered and distinct so a reader tells them apart.</summary>
+/// <summary>The async settle checks: a declared settles on a reaction or job running a use case writing an aggregate names the pending, done and refused states the run settles, entered and distinct so a reader tells them apart.</summary>
 /// <follows>litespec/core/automation#settle-every-async-outcome-in-visible-states</follows>
 internal static class AsyncSettleChecks
 {
@@ -28,7 +28,7 @@ internal static class AsyncSettleChecks
     /// <summary>The failure mode that tries the run again.</summary>
     const string RetryMode = "retry";
 
-    /// <summary>Reports each run use case writing an aggregate whose reaction or job names no usable pending, done and refused states.</summary>
+    /// <summary>Reports each declared settles whose pending, done and refused states a reader cannot tell apart.</summary>
     /// <param name="model">The loaded project model that holds every reaction, job, use case and aggregate.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -79,14 +79,12 @@ internal static class AsyncSettleChecks
             return;
         }
 
+        // A run with no settles states nothing: the model cannot tell whether a reader
+        // waits on its outcome, so only a declared settles is judged.
         if (holder.Raw.ValueKind != JsonValueKind.Object
             || !holder.Raw.TryGetProperty(Settles, out var settles)
             || settles.ValueKind != JsonValueKind.Object)
         {
-            findings.Add(new Finding(
-                "async-settles-missing",
-                $"{Label(holder.Type)} '{holder.Id}' runs '{runId}' writing '{aggregateId}' but names no settles; name the pending, done and refused states the run settles.",
-                holder.File, holder.Line, SubjectOf(holder)));
             return;
         }
 

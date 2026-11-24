@@ -58,7 +58,7 @@ The value you choose decides what else applies:
 - With `own`, the team keeps its own test practice.
 - With `litespec`, the cross-stack testing page, the stack testing pages, and LiteSpec's test projects apply.
 
-Proof is in place when every scenario has a passing proof, or a gap waiver covers the scenarios no test proves yet. Until then, `litespec model check` reports `use-case-unverified` for each use case with a scenario that has no passing proof. That finding is advisory: it blocks only under `litespec model check --release`.
+Proof is in place when every scenario has a passing proof, or a gap waiver covers the scenarios no test proves yet. Until then, `litespec model check` blocks on `use-case-unverified` for each use case with a scenario that has no passing proof.
 
 ## Record Waivers for Adoption Gaps
 

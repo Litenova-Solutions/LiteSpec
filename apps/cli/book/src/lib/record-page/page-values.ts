@@ -501,13 +501,13 @@ export function tenantWord(tenant: unknown): string {
 const CHECK_LEVEL_TEXT = {
   G: "Blocks a release",
   S: "Blocks when qualified",
-  A: "Advice",
+  R: "For review",
 } satisfies Record<CheckLevel, string>;
 function isCheckLevel(v: string): v is CheckLevel {
-  return v === "G" || v === "S" || v === "A";
+  return v === "G" || v === "S" || v === "R";
 }
 
-/** A check level in words: what the level blocks. Unknown levels read as nothing. */
+/** A check level in words: the pill text of the level. Unknown levels read as nothing. */
 export function checkLevelText(level: unknown): string {
   const key = typeof level === "string" ? level : "";
   return isCheckLevel(key) ? CHECK_LEVEL_TEXT[key] : "";

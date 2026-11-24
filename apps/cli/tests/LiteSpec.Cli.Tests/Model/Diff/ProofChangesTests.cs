@@ -4,7 +4,7 @@ using LiteSpec.Cli.Model.Diff;
 
 namespace LiteSpec.Cli.Tests.Model.Diff;
 
-/// <summary>Proves a proving test method changed without its scenario reports proof-hash-drift as advisory, and only on the base comparison.</summary>
+/// <summary>Proves a proving test method changed without its scenario reports proof-hash-drift as blocking, and only on the base comparison.</summary>
 public sealed class ProofChangesTests
 {
     const string Scenario = "scenario/borrow-copy.borrowing-an-available-copy-succeeds";
@@ -12,10 +12,10 @@ public sealed class ProofChangesTests
     const string ScenarioPath = ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
-    /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift as an advisory finding on the scenario.</summary>
+    /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift as a blocking finding on the scenario.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void TestMethodChangedWithoutScenarioReportsAdvisoryFinding()
+    public void TestMethodChangedWithoutScenarioReportsBlockingFinding()
     {
         using var temp = ModelFixture.Prepare("small");
         var baseModel = Prove(temp.Path);
@@ -26,7 +26,7 @@ public sealed class ProofChangesTests
         var finding = Assert.Single(ProofChanges.Find(baseModel, head));
 
         Assert.Equal("proof-hash-drift", finding.Code);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("S", finding.Tier);
         Assert.Equal(Scenario, finding.Subject);
         Assert.Equal(Path.Combine(temp.Path, ScenarioPath.Replace('/', Path.DirectorySeparatorChar)), finding.Path);
     }
@@ -103,7 +103,7 @@ public sealed class ProofChangesTests
         var finding = Assert.Single(ProofChanges.Find(baseModel, head));
 
         Assert.Equal("proof-hash-drift", finding.Code);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("S", finding.Tier);
         Assert.Equal(Scenario, finding.Subject);
     }
 

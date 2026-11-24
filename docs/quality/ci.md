@@ -71,11 +71,11 @@ The [Delivery extension](../ext/delivery.md) gives projects that select it a sup
 
 **Strength:** required
 
-**Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, or prose rules.
+**Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract or configuration.
 
-**Rationale:** Documentation breaks come in small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix in the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started.
+**Rationale:** Documentation breaks come in small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix in the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started, and `litespec model review` reports the prose rules beside it.
 
-**Checked by:** `litespec model check` reports `page-section-missing`, `page-heading-invalid`, or `project-invalid` (level G) for a page or configuration that breaks its contract, and `prose-missing` (level A) for a record that lacks its prose field.
+**Checked by:** `litespec model check` reports `project-invalid` (level G) for a page or configuration that breaks its contract, and `litespec model review` reports `page-section-missing`, `page-heading-invalid`, and `prose-missing` (level R) for a page missing a section or heading, or a record that lacks its prose field.
 
 ### Keep Generated Contracts Fresh
 

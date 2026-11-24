@@ -12,11 +12,25 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-extended
-steps:
-- statement: The reader extends the loan before its due date.
+input:
+- name: loanId
+  meaning: The loan the reader extends.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  classification: internal
+- name: days
+  meaning: The number of days the loan is extended.
+  type: integer
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
+steps:
+- statement: The reader extends the loan before its due date.
 records:
 - type: result
   id: result/extend-loan.extended

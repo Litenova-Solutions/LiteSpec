@@ -9,13 +9,15 @@ namespace LiteSpec.Cli.Model.Configuration;
 /// <param name="RouteSuite">The absolute path of the route suite, or null when the frontend declares none.</param>
 /// <param name="VisualGoldens">The absolute path of the visual goldens folder, or null when the frontend declares none.</param>
 /// <param name="EntryPoint">The entry point id the frontend serves, or null to derive it from its screens.</param>
+/// <param name="Client">The generated API client's contract and folder, or null when the frontend declares none.</param>
 sealed record FrontendConfig(
     string Name,
     string Path,
     string Platform,
     string? RouteSuite = null,
     string? VisualGoldens = null,
-    string? EntryPoint = null)
+    string? EntryPoint = null,
+    FrontendClientConfig? Client = null)
 {
     /// <summary>Gets the routes root the reader reads.</summary>
     public string RoutesRoot => System.IO.Path.Combine(Path, "src", "routes");

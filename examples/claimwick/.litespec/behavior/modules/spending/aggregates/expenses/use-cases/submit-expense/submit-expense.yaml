@@ -16,7 +16,7 @@ reachedThrough:
 raises:
 - domain-event/expense.submitted
 input:
-- name: requestId
+- name: expenseId
   meaning: The identifier the app mints for one submission attempt, so a retried request finds the same expense.
   type: id
   identifies: aggregate/spending.expense
@@ -44,6 +44,14 @@ input:
   - rule/expense.receipt-required-above-threshold
   origin: caller
   classification: internal
+- name: employee
+  meaning: The signed-in employee filing the expense, read from verified claims.
+  type: id
+  identifies: actor/employee
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
 writes:
 - aggregate/spending.expense
 reads:
@@ -56,7 +64,7 @@ consistency:
   - aggregate/spending.policy
 idempotency:
   mode: key
-  key: "{requestId}"
+  key: "{expenseId}"
   keyScope: account
   replay: returns-first-result
 steps:

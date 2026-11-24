@@ -37,11 +37,11 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** A release MUST show green G checks, verified scenarios, and green S checks where the reader is qualified.
 
-**Rationale:** The three parts prove the three risks are closed: G checks prove the record graph holds, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unchecked. `litespec model check --release` makes the release-readiness findings block, so the gate runs as a command.
+**Rationale:** The three parts prove the three risks are closed: G checks prove the record graph holds, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unchecked. `litespec model check --release` makes `reader-missing` block for a claimed layer, so the gate runs as a command.
 
 **Example:** Claimwick's reimbursement release shows green G checks, every scenario verified, and green S checks on the .NET reader.
 
-**Checked by:** `litespec model check --release` blocks on `use-case-unverified`.
+**Checked by:** `litespec model check` blocks on `use-case-unverified` (level S).
 
 ### Keep Release Data Recoverable
 
@@ -259,11 +259,11 @@ Selecting `delivery` switches on two record types: `setting` and `runbook`. Reso
 
 **Statement:** An alert rule MUST state every number its requirement's `measure` names in its own expression or threshold.
 
-**Rationale:** The requirement's measure states the agreed target, and the alert is the one place that target is enforced at runtime. When the requirement changes, nobody re-reads the alert, so a measure that says two seconds and an alert that fires at five drift apart silently. Comparing the numbers is coarse because a measure is prose, so the check advises rather than blocks.
+**Rationale:** The requirement's measure states the agreed target, and the alert is the one place that target is enforced at runtime. When the requirement changes, nobody re-reads the alert, so a measure that says two seconds and an alert that fires at five drift apart silently. Comparing the numbers is coarse because a measure is prose, so the check compares only the decimal numbers the measure names with the alert's own text, and blocks when the alert carries none of them.
 
 **Example:** Claimwick's `requirement/approval-reminders.month-end-submission` measures "at least 99 percent within two seconds", and its alert's expression compares the 0.99 quantile against 2.
 
-**Checked by:** `litespec model check` reports `alert-threshold-drift` (level A) for an alert rule whose own text carries none of the decimal numbers its requirement's `measure` names.
+**Checked by:** `litespec model check` reports `alert-threshold-drift` (level G) for an alert rule whose own text carries none of the decimal numbers its requirement's `measure` names.
 
 ### Record Each Drill Run as a Check Result
 

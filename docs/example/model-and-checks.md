@@ -9,22 +9,22 @@ The project model joins a project's written records to its code, screens, and te
 ```text
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered G] [use-case-flow-missing] Use case 'use-case/reporting.list-reimbursed-expenses' sits in no flow.
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/reporting.list-reimbursed-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/reporting.list-reimbursed-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/approve-expense/approve-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.approve-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/erase-personal-data/erase-personal-data.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.erase-personal-data' has scenarios with no passing proof.
+.litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/reporting.list-reimbursed-expenses' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/approve-expense/approve-expense.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.approve-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/erase-personal-data/erase-personal-data.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.erase-personal-data' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.export-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/list-expenses/list-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.list-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/refuse-expense/refuse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.refuse-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/reimburse-expense/reimburse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.reimburse-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.export-expenses' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/list-expenses/list-expenses.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.list-expenses' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/refuse-expense/refuse-expense.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.refuse-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/reimburse-expense/reimburse-expense.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.reimburse-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.change-receipt-threshold' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.change-reminder-preference' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-reminder-preference' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/reminder-preferences/use-cases/change-reminder-preference/change-reminder-preference.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.change-reminder-preference' has scenarios with no passing proof.
 .litespec/intent/flows/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Flow step 'step/export-approved-expenses.export-batch' is served by a browser or device use case but by no screen.
 .litespec/intent/flows/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Flow step 'step/set-receipt-threshold.set-threshold' is served by a browser or device use case but by no screen.
 0 findings, 0 blocking, 21 covered.
@@ -41,7 +41,7 @@ The 21 covered findings fall into four codes:
 
 Each code names one gap. The screen gap and the proof gap are real: the web app holds three screens, and no run records a passing proof for a scenario.
 
-Every code in the table but `use-case-unverified` blocks when open. The link findings are level G on records and level S on code, while `use-case-unverified` blocks only with `--release`.
+Every code in the table blocks when open. The link findings are level G on records and level S on code, and `use-case-unverified` (level S) blocks until a passing proof or a waiver covers it.
 
 ## A Waiver That Covers a Finding
 

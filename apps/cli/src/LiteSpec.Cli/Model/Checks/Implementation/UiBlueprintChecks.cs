@@ -51,7 +51,13 @@ internal static class UiBlueprintChecks
         "record-page",
     };
 
-    /// <summary>Reports wireframe-invalid, the wireframe composition codes, reference-unknown, screen-pageframe-missing, screen-pageframe-invalid, screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
+    /// <summary>The wireframe actions that need no use case: they dismiss, page, or clear local state.</summary>
+    private static readonly HashSet<string> LocalActions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Cancel", "Close", "Back", "Clear", "Skip", "Show more",
+    };
+
+    /// <summary>Reports wireframe-invalid, the wireframe composition codes, screen-pageframe-missing, screen-pageframe-invalid, screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -174,7 +180,7 @@ internal static class UiBlueprintChecks
         return blocks;
     }
 
-    /// <summary>Reports each wireframe action, state or refusal naming nothing the screen reaches.</summary>
+    /// <summary>Reports each wireframe action, state or refusal naming nothing the screen reaches; a local action and a link name no use case.</summary>
     /// <param name="model">The loaded project model that holds every screen, use case, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckWireframeReferences(ProjectModel model, List<Finding> findings)
@@ -212,7 +218,7 @@ internal static class UiBlueprintChecks
 
             foreach (var node in page.Descendants())
             {
-                if (node.Part == "action" && !names.Contains(WordsOf(node.Text)))
+                if (node.Part == "action" && !IsLocalAction(node.Text) && !names.Contains(WordsOf(node.Text)))
                 {
                     findings.Add(new Finding(
                         "wireframe-invalid",
@@ -268,7 +274,7 @@ internal static class UiBlueprintChecks
         return names;
     }
 
-    /// <summary>The sentences of the written refusal results of the offered use cases.</summary>
+    /// <summary>The sentences of the written and derived refusal results of the offered use cases.</summary>
     /// <param name="model">The loaded project model that holds every result.</param>
     /// <param name="offered">The offered use case records.</param>
     /// <returns>Each refusal sentence, normalized, without empties.</returns>
@@ -286,7 +292,6 @@ internal static class UiBlueprintChecks
             foreach (var result in model.RecordsByHome[name])
             {
                 if (result.Type != RecordTypes.Result
-                    || result.Derived
                     || result.Field(RecordFields.Outcome) != "refusal"
                     || result.Field(SentenceField) is not { Length: > 0 } sentence)
                 {
@@ -304,6 +309,17 @@ internal static class UiBlueprintChecks
     /// <param name="text">The copy to normalize.</param>
     /// <returns>The trimmed copy with single spaces.</returns>
     private static string WordsOf(string text) => SpaceRuns.Replace(text.Trim(), " ");
+
+    /// <summary>Whether a wireframe action is local: one of the closed list, or Show more naming what paging adds.</summary>
+    /// <param name="text">The action copy.</param>
+    /// <returns>True when the action needs no use case.</returns>
+    private static bool IsLocalAction(string text)
+    {
+        var words = WordsOf(text);
+
+        return LocalActions.Contains(words)
+            || words.StartsWith("Show more ", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>Reports each screen no other screen leads to that is not its entry point's start.</summary>
     /// <param name="model">The loaded project model that holds every screen.</param>

@@ -22,7 +22,7 @@ public sealed class FormatCheckTests
             TestModel.Record("aggregate", "aggregate/lending.loan", file, """{}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "format-drift");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Run 'litespec model format'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);

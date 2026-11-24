@@ -2,6 +2,7 @@ using LiteSpec.Cli.Audit;
 using LiteSpec.Cli.Book;
 using LiteSpec.Cli.Context;
 using LiteSpec.Cli.Explore;
+using LiteSpec.Cli.Generate;
 using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.RecordEditing;
@@ -23,7 +24,8 @@ static class CliEntry
           init          Write .litespec/project.yaml from a preset.
           new           Scaffold a record page and reserve its identifier.
           rename        Rename a record identifier and rewrite every link.
-          model         Check, format, render or query the project model.
+          model         Check, review, format, render or query the project model.
+          generate      Write the code the records fully determine.
           book          Generate the project book from the records.
           context       Write the specification as one compact text file.
           rules         List the provisions that govern a path or record.
@@ -57,6 +59,7 @@ static class CliEntry
                 "new" => NewCommand.Run(rest),
                 "rename" => RenameCommand.Run(rest),
                 "model" => ModelCommand.Run(rest),
+                "generate" => GenerateCommand.Run(rest),
                 "book" => BookCommand.Run(rest),
                 "context" => ContextCommand.Run(rest),
                 "rules" => RulesCommand.Run(rest),

@@ -19,7 +19,7 @@ public sealed class RefusalNextStepCheckTests
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "refusal-next-step-unknown");
         Assert.Equal("Result 'result/submit-expense.closed-report' names 'use-case/spending.reopen-report' in its refusal sentence, which no record holds.", finding.Message);
         Assert.Equal("result/submit-expense.closed-report", finding.Subject);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
     }
 
     /// <summary>Refusal Sentence Promising Another Way Out Reports.</summary>
@@ -34,7 +34,7 @@ public sealed class RefusalNextStepCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "refusal-next-step-unknown");
         Assert.Equal("Result 'result/submit-expense.closed-report' carries a refusal sentence promising another way out with 'instead'.", finding.Message);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
     }
 
     /// <summary>Refusal Sentence Promising Another Way Out With Alternatively Reports.</summary>

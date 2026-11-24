@@ -67,7 +67,7 @@ The schema states every field of a frontend entry. The model builder reads each 
 
 ### A `selectedExtensions` Entry
 
-The schema states the extension id, the criterion that was met, and the `releaseStage` and `decision` a selection carries. `litespec model check` refuses an id the pinned release does not ship, and lists the known ids.
+The schema states the extension id, the criterion that was met, and the `releaseStage`, `decision`, and `tenant` a selection carries. `litespec model check` refuses an id the pinned release does not ship, and lists the known ids.
 
 ### Placeholders and the Init Fill
 

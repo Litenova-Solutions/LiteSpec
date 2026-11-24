@@ -62,8 +62,9 @@ public sealed class RequirementPageTests
             ["layers"] = new JsonArray("intent"),
         });
 
-        var result = TestCli.Run("model", "check", "--root", folder.Path, "--all");
+        var result = TestCli.Run("model", "review", "--root", folder.Path);
 
+        Assert.Equal(0, result.Status);
         Assert.Contains("Requirement 'requirement/pricing.flat-fee' holds no explanation file", result.Output);
     }
 
@@ -78,8 +79,9 @@ public sealed class RequirementPageTests
             ["layers"] = new JsonArray("behavior"),
         });
 
-        var result = TestCli.Run("model", "check", "--root", folder.Path, "--all");
+        var result = TestCli.Run("model", "review", "--root", folder.Path);
 
+        Assert.Equal(0, result.Status);
         Assert.DoesNotContain("Requirement 'requirement/pricing.flat-fee' holds no explanation file", result.Output);
     }
 
@@ -91,8 +93,9 @@ public sealed class RequirementPageTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(folder.Path, RequirementExplanation, "# Flat Fee\n\n## Example\n\nAlex pays one fee.\n");
 
-        var result = TestCli.Run("model", "check", "--root", folder.Path, "--all");
+        var result = TestCli.Run("model", "review", "--root", folder.Path);
 
+        Assert.Equal(0, result.Status);
         Assert.Contains("Requirement 'requirement/pricing.flat-fee' opens with no paragraph between its H1 and its first H2.", result.Output);
     }
 

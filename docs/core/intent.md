@@ -726,7 +726,7 @@ The record's question tests the findings: a finding answering another question b
 
 The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to be named in `basedOn` by at least one record it settles.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Decision in its explanation file.
+**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model review` reports `explanation-missing` (level R) for a decision without Decision in its explanation file.
 
 ### Record Each Decision Option with Pros and Cons
 
@@ -850,7 +850,7 @@ An outside rule the team acknowledged but no requirement answers is a rule the p
 
 **Rationale:** A number nobody defines cannot be checked: the team cannot tell what is counted. The `measure` names what is counted, so a quality statement naming a number without one is unfinished. A number in a functional or policy requirement asks for no `measure`.
 
-A requirement carrying `measure` needs a `check` and a passing run, and a quality statement naming a number with no `measure` reports at check level A.
+A requirement carrying `measure` needs a `check` and a passing run, and a quality statement naming a number with no `measure` is reported by `litespec model review` at level R.
 
 **Checked by:** `litespec model check` reports `requirement-measure-missing` for a requirement carrying `measure` without `check` or a passing run, and for a quality statement naming a number with no `measure`.
 

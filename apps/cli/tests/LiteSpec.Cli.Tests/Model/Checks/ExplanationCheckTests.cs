@@ -101,7 +101,7 @@ public sealed class ExplanationCheckTests
                 "# Loan period\n\nThe loan period decides how long a copy stays out.\n\n## Options\n\nFourteen days or twenty-one.\n\n## Decision\n\nFourteen days.\n\n## Consequences\n\nCopies turn over faster.\n\n## Revisit Conditions\n\nDemand shifts.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Decision 'decision/0001-loan-period' holds no Context section in its explanation.", finding.Message);
         Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
@@ -148,7 +148,7 @@ public sealed class ExplanationCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Source Notes\n\nOne source covers the answer.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Research 'research/loan-period-benchmarks' holds no Findings section in its explanation.", finding.Message);
         Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
@@ -238,7 +238,7 @@ public sealed class ExplanationCheckTests
             TestModel.Record("feature", "feature/submit-an-expense-claim", file, """{"summary": "Reminders nudge approvers."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Feature 'feature/submit-an-expense-claim' holds no explanation file 'submit-an-expense-claim.md'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
@@ -267,7 +267,7 @@ public sealed class ExplanationCheckTests
                 "# Submit an Expense Claim\n\nEmployees submit claims and wait for an answer.\n\n## Capabilities\n\nReminders nudge approvers.\n\n## Boundaries\n\nThe feature stops at the approval step.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Feature 'feature/submit-an-expense-claim' holds no Success Criteria section in its explanation.", finding.Message);
         Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
@@ -296,7 +296,7 @@ public sealed class ExplanationCheckTests
                 "# Submit Expense\n\nNo sections here.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Use case 'use-case/spending.submit-expense' holds no Flow section in its explanation.", finding.Message);
         Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
@@ -334,7 +334,7 @@ public sealed class ExplanationCheckTests
             TestModel.Record("waiver", "waiver/hold-queue", file, """{"waives": ["litespec/core/model#require-explanation-files-on-the-layers-a-project-names"], "reason": "The queue ships next week."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Waiver 'waiver/hold-queue' holds no explanation file 'hold-queue.md'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
@@ -432,7 +432,7 @@ public sealed class ExplanationCheckTests
             RecordWithExplanation(temp.Path, type, id, Explanation("An opening paragraph names the record.", kept), json));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal($"{char.ToUpperInvariant(type[0])}{type[1..]} '{id}' holds no {missing} section in its explanation.", finding.Message);
         Assert.Equal(id, finding.Subject);
     }
@@ -481,7 +481,7 @@ public sealed class ExplanationCheckTests
         var model = TestModel.Model(TestModel.Config(temp.Path), record);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-opening-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Goal 'goal/faster-pickup' opens with no paragraph between its H1 and its first H2.", finding.Message);
         Assert.Equal(Path.Combine(temp.Path, ".litespec", "goal", "faster-pickup", "faster-pickup.md"), finding.Path);
         Assert.Equal("goal/faster-pickup", finding.Subject);

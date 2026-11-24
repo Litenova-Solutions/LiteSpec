@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -19,6 +20,15 @@ namespace LiteSpec.Analyzers.Tests.Support;
 internal static partial class Verify
 {
     private static readonly ImmutableArray<MetadataReference> References = LoadReferences();
+
+    /// <summary>A referenced assembly the main compilation reads as metadata, built from sources and emitted to an in-memory image.</summary>
+    /// <param name="AssemblyName">The assembly name.</param>
+    /// <param name="Files">The source files, each with its path and text. Referenced sources carry no marked spans.</param>
+    /// <param name="ReferenceNames">The names of earlier assemblies this one references, or null for none.</param>
+    internal sealed record ReferencedAssembly(
+        string AssemblyName,
+        IReadOnlyList<(string Path, string Source)> Files,
+        IReadOnlyList<string>? ReferenceNames = null);
 
     /// <summary>Asserts the analyzer reports exactly the marked spans in one file.</summary>
     /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
@@ -72,7 +82,7 @@ internal static partial class Verify
     /// <param name="outputKind">The output kind of the compilation.</param>
     /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    public static async Task AnalyzerWithRecordsAsync<TAnalyzer>(
+    public static Task AnalyzerWithRecordsAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
         string assemblyName = "Shop.Spending",
@@ -80,6 +90,92 @@ internal static partial class Verify
         string? editorconfig = null,
         OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
         IReadOnlyList<string>? preprocessorSymbols = null)
+        where TAnalyzer : DiagnosticAnalyzer, new() =>
+        RunAnalyzerAsync<TAnalyzer>(files, References, additionalFiles, assemblyName, documentationFile, editorconfig, outputKind, preprocessorSymbols);
+
+    /// <summary>
+    ///     Asserts the analyzer reports exactly the marked spans with the referenced assemblies
+    ///     in reach as metadata: each entry compiles from its sources and is emitted to an
+    ///     in-memory image, referencing the base class library and the earlier entries its
+    ///     <see cref="ReferencedAssembly.ReferenceNames"/> names. The main compilation
+    ///     references every entry. Referenced sources carry no marked spans.
+    /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="referencedAssemblies">The referenced assemblies in dependency order.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    public static Task AnalyzerWithMetadataAsync<TAnalyzer>(
+        IReadOnlyList<(string Path, string Source)> files,
+        IReadOnlyList<ReferencedAssembly> referencedAssemblies,
+        string assemblyName = "Shop.Spending",
+        bool documentationFile = true,
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        var images = new Dictionary<string, MetadataReference>(StringComparer.Ordinal);
+        foreach (var referenced in referencedAssemblies)
+        {
+            var referencedTrees = referenced.Files
+                .Select(file => ParseTree(file.Path, file.Source, documentationFile, preprocessorSymbols: null))
+                .ToList();
+            var referencedReferences = References.Concat(
+                (referenced.ReferenceNames ?? []).Select(name =>
+                {
+                    Assert.True(images.TryGetValue(name, out var image), $"No earlier assembly names '{name}'.");
+                    return image!;
+                })).ToImmutableArray();
+            var referencedCompilation = CSharpCompilation.Create(
+                referenced.AssemblyName,
+                referencedTrees,
+                referencedReferences,
+                new CSharpCompilationOptions(outputKind, nullableContextOptions: NullableContextOptions.Enable));
+
+            var referencedErrors = referencedCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+            Assert.True(referencedErrors.Count == 0, "The referenced source does not compile:\n" + string.Join("\n", referencedErrors));
+
+            using var stream = new MemoryStream();
+            var emitted = referencedCompilation.Emit(stream);
+            Assert.True(emitted.Success, "The referenced source does not emit:\n" + string.Join("\n", emitted.Diagnostics));
+            images[referenced.AssemblyName] = MetadataReference.CreateFromImage(stream.ToArray());
+        }
+
+        return RunAnalyzerAsync<TAnalyzer>(
+            files,
+            References.AddRange(images.Values),
+            [],
+            assemblyName,
+            documentationFile,
+            editorconfig: null,
+            outputKind,
+            preprocessorSymbols: null);
+    }
+
+    /// <summary>
+    ///     Asserts the analyzer reports exactly the marked spans over one compilation with
+    ///     the references in reach.
+    /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="references">The metadata references the compilation reads.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    private static async Task RunAnalyzerAsync<TAnalyzer>(
+        IReadOnlyList<(string Path, string Source)> files,
+        ImmutableArray<MetadataReference> references,
+        IReadOnlyList<(string Path, string Source)> additionalFiles,
+        string assemblyName,
+        bool documentationFile,
+        string? editorconfig,
+        OutputKind outputKind,
+        IReadOnlyList<string>? preprocessorSymbols)
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var expected = new List<string>();
@@ -88,11 +184,7 @@ internal static partial class Verify
         foreach (var (path, marked) in files)
         {
             var (text, spans) = ParseMarkup(marked);
-            var parseOptions = new CSharpParseOptions(
-                LanguageVersion.Latest,
-                documentationFile ? DocumentationMode.Parse : DocumentationMode.None,
-                preprocessorSymbols: preprocessorSymbols);
-            var tree = CSharpSyntaxTree.ParseText(SourceText.From(text, Encoding.UTF8), parseOptions, path);
+            var tree = ParseTree(path, text, documentationFile, preprocessorSymbols);
             trees.Add(tree);
             expected.AddRange(spans.Select(span => Describe(span.Id, span.Severity, tree.GetLineSpan(span.Span), withSeverity)));
         }
@@ -100,7 +192,7 @@ internal static partial class Verify
         var compilation = CSharpCompilation.Create(
             assemblyName,
             trees,
-            References,
+            references,
             new CSharpCompilationOptions(outputKind, nullableContextOptions: NullableContextOptions.Enable)
                 .WithSpecificDiagnosticOptions(CompilerSeverities(editorconfig)));
 
@@ -439,6 +531,21 @@ internal static partial class Verify
         }
 
         return false;
+    }
+
+    /// <summary>Parses one source text into a syntax tree at its path.</summary>
+    /// <param name="path">The file path, whose layer folder places the file.</param>
+    /// <param name="text">The C# source text to parse.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the source parses with, such as DEBUG, or null for none.</param>
+    /// <returns>The syntax tree.</returns>
+    private static SyntaxTree ParseTree(string path, string text, bool documentationFile, IReadOnlyList<string>? preprocessorSymbols)
+    {
+        var parseOptions = new CSharpParseOptions(
+            LanguageVersion.Latest,
+            documentationFile ? DocumentationMode.Parse : DocumentationMode.None,
+            preprocessorSymbols: preprocessorSymbols);
+        return CSharpSyntaxTree.ParseText(SourceText.From(text, Encoding.UTF8), parseOptions, path);
     }
 
     private static (string Text, List<(string Id, string? Severity, TextSpan Span)> Spans) ParseMarkup(string marked)

@@ -4731,6 +4731,24 @@
       ]
     },
     {
+      "file": "docs/maintain/publish-local.md",
+      "path": "maintain/publish-local",
+      "style": "command",
+      "area": "maintain",
+      "title": "Publish a Local Toolchain",
+      "intent": "\u0060litespec-maintain publish-local\u0060 packs the checkout\u0027s CLI and analyzers into a local feed and moves a consumer onto that build.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/maintain/validate.md",
       "path": "maintain/validate",
       "style": "command",
@@ -5035,6 +5053,24 @@
       ]
     },
     {
+      "file": "docs/tools/generate.md",
+      "path": "tools/generate",
+      "style": "command",
+      "area": "tools",
+      "title": "Generate",
+      "intent": "\u0060litespec generate\u0060 writes the code the records fully determine, from the \u0060generate\u0060 targets of the consumer declaration.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/tools/init.md",
       "path": "tools/init",
       "style": "command",
@@ -5058,7 +5094,7 @@
       "style": "command",
       "area": "tools",
       "title": "Model Builder",
-      "intent": "\u0060litespec model\u0060 checks the project model, formats record files, renders generated outputs, answers record queries, and reports module edges.",
+      "intent": "\u0060litespec model\u0060 checks the project model, reviews its prose, formats record files, renders generated outputs, answers record queries, and reports module edges.",
       "sections": [
         "Name",
         "Synopsis",

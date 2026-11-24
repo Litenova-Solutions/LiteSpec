@@ -18,7 +18,7 @@ public sealed class SourcedStatementCheckTests
             TestModel.Record("constraint", "constraint/privacy-law", file, Constraint("""{"statement": "Do not share reader data.", "sources": ["unknown-law"]}""")));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "constraint-obligation-source-unknown");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Constraint 'constraint/privacy-law' names source name 'unknown-law' in obligations that its sources do not hold.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal("constraint/privacy-law", finding.Subject);
@@ -50,7 +50,7 @@ public sealed class SourcedStatementCheckTests
             TestModel.Record("research", "research/loan-period-benchmarks", file, Research("""{"statement": "Others lend for three weeks.", "sources": ["unknown-report"]}""")));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "research-finding-source-unknown");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Research 'research/loan-period-benchmarks' names source name 'unknown-report' in findings that its sources do not hold.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal("research/loan-period-benchmarks", finding.Subject);

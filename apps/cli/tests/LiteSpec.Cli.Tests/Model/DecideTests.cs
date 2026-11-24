@@ -7,7 +7,7 @@ using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
 
-/// <summary>Proves the check qualifies S findings by reader, that reader-missing blocks under CI, and that the release gate blocks unverified use cases.</summary>
+/// <summary>Proves the check qualifies S findings by reader, that reader-missing blocks under CI, and that an unverified use case blocks.</summary>
 public sealed class DecideTests
 {
     /// <summary>Reader-unavailable blocks when CI is set, even though its reader is unqualified.</summary>
@@ -50,19 +50,19 @@ public sealed class DecideTests
         Assert.Equal("reported", outcome);
     }
 
-    /// <summary>At release an unverified use case blocks instead of reporting.</summary>
+    /// <summary>An unverified use case blocks in a plain check and at release.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void ReleaseBlocksAnUnverifiedUseCase()
+    public void UnverifiedUseCaseBlocks()
     {
         using var fixture = ModelFixture.Prepare("small");
         WriteScenario(fixture.Path);
 
-        var loose = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (looseOutcome, _) = OutcomeOf(loose.Stdout, "use-case-unverified");
+        var plain = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var (plainOutcome, _) = OutcomeOf(plain.Stdout, "use-case-unverified");
 
-        Assert.True(loose.Status == 0, loose.Output);
-        Assert.Equal("reported", looseOutcome);
+        Assert.Equal(1, plain.Status);
+        Assert.Equal("blocking", plainOutcome);
 
         var strict = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json", "--release");
         var (strictOutcome, _) = OutcomeOf(strict.Stdout, "use-case-unverified");
@@ -71,7 +71,7 @@ public sealed class DecideTests
         Assert.Equal("blocking", strictOutcome);
     }
 
-    /// <summary>Each JSON finding carries the severity name of its level: error for G, warning for S and note for A.</summary>
+    /// <summary>Each JSON finding carries its level and its decided outcome.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void JsonFindingsCarryLevelAndOutcome()
@@ -82,12 +82,12 @@ public sealed class DecideTests
         Assert.Equal("blocking", OutcomeOf(result.Stdout, "paging-undeclared").Outcome);
         Assert.Equal("G", LevelOf(result.Stdout, "paging-undeclared"));
 
-        using var advisoryFixture = ModelFixture.Prepare("small");
-        WriteScenario(advisoryFixture.Path);
-        var advisory = TestCli.Run("model", "check", "--root", advisoryFixture.Path, "--format", "json");
+        using var proofFixture = ModelFixture.Prepare("small");
+        WriteScenario(proofFixture.Path);
+        var proof = TestCli.Run("model", "check", "--root", proofFixture.Path, "--format", "json");
 
-        Assert.Equal("reported", OutcomeOf(advisory.Stdout, "use-case-unverified").Outcome);
-        Assert.Equal("A", LevelOf(advisory.Stdout, "use-case-unverified"));
+        Assert.Equal("blocking", OutcomeOf(proof.Stdout, "use-case-unverified").Outcome);
+        Assert.Equal("S", LevelOf(proof.Stdout, "use-case-unverified"));
 
         using var readerFixture = ModelFixture.Prepare("small", "use-case-unimplemented");
         var reader = TestCli.Run("model", "check", "--root", readerFixture.Path, "--format", "json");
@@ -99,7 +99,7 @@ public sealed class DecideTests
     /// <summary>Reads one finding's level from the check JSON.</summary>
     /// <param name="stdout">The check command JSON output.</param>
     /// <param name="code">The finding code to read.</param>
-    /// <returns>The finding level: G, S or A.</returns>
+    /// <returns>The finding level: G, S or R.</returns>
     static string? LevelOf(string stdout, string code)
     {
         using var document = JsonDocument.Parse(stdout);

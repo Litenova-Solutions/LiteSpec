@@ -35,7 +35,7 @@ public sealed class AgentProtocolTests
         Assert.DoesNotContain("agent-protocol", checkedResult.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>Check reports a missing region as advisory, and render inserts it after the first heading.</summary>
+    /// <summary>Check blocks on a missing region, and render inserts it after the first heading.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
     [Fact]
     public void CheckReportsAMissingRegionAndRenderInsertsIt()
@@ -44,14 +44,10 @@ public sealed class AgentProtocolTests
         var agents = Path.Combine(fixture.Path, "AGENTS.md");
         File.WriteAllText(agents, "# Notes\n\nOur notes.\n");
 
-        var missing = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
-        Assert.Equal(0, missing.Status);
+        var missing = TestCli.Run("model", "check", "--root", fixture.Path);
+        Assert.Equal(1, missing.Status);
         Assert.Contains("[agent-protocol-missing]", missing.Output, StringComparison.Ordinal);
-
-        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
-        Assert.Equal(0, summarized.Status);
-        Assert.DoesNotContain("[agent-protocol-missing]", summarized.Output, StringComparison.Ordinal);
-        Assert.Contains("agent-protocol-missing (level A)", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("agent-protocol-missing (level G)", missing.Output, StringComparison.Ordinal);
 
         var rendered = TestCli.Run("model", "render", "--root", fixture.Path);
         Assert.Equal(0, rendered.Status);
@@ -68,7 +64,7 @@ public sealed class AgentProtocolTests
         Assert.True(checkedResult.Status == 0, checkedResult.Output);
     }
 
-    /// <summary>Check reports drift as advisory after a hand edit inside the region, and render rewrites it.</summary>
+    /// <summary>Check blocks on drift after a hand edit inside the region, and render rewrites it.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
     [Fact]
     public void CheckReportsDriftAndRenderRewritesIt()
@@ -83,14 +79,10 @@ public sealed class AgentProtocolTests
             agents,
             text.Replace("<!-- generated:agent-protocol -->\n", "<!-- generated:agent-protocol -->\ndrift\n", StringComparison.Ordinal));
 
-        var drifted = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
-        Assert.Equal(0, drifted.Status);
+        var drifted = TestCli.Run("model", "check", "--root", fixture.Path);
+        Assert.Equal(1, drifted.Status);
         Assert.Contains("[agent-protocol-drift]", drifted.Output, StringComparison.Ordinal);
-
-        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
-        Assert.Equal(0, summarized.Status);
-        Assert.DoesNotContain("[agent-protocol-drift]", summarized.Output, StringComparison.Ordinal);
-        Assert.Contains("agent-protocol-drift (level A)", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("agent-protocol-drift (level G)", drifted.Output, StringComparison.Ordinal);
 
         var rewritten = TestCli.Run("model", "render", "--root", fixture.Path);
         Assert.Equal(0, rewritten.Status);

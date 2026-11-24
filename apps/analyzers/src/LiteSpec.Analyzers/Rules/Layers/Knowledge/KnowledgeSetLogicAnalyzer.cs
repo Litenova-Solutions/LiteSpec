@@ -163,22 +163,43 @@ public sealed class KnowledgeSetLogicAnalyzer : LayerAnalyzer
         }
     }
 
-    /// <summary>Returns true when the member body declares logic: a branch, loop, switch, call, or throw; otherwise false.</summary>
+    /// <summary>Returns true when the member body declares logic: a branch, loop, switch, throw, or a call other than a model value factory; otherwise false.</summary>
     /// <param name="body">The member body, arrow clause, or initializer under inspection.</param>
     /// <returns>True when the body holds logic beyond returning or constructing rows.</returns>
-    private static bool DeclaresLogic(SyntaxNode body) =>
-        body.DescendantNodes().Any(static child =>
-            child is IfStatementSyntax
-            or SwitchStatementSyntax
-            or SwitchExpressionSyntax
-            or ForStatementSyntax
-            or ForEachStatementSyntax
-            or ForEachVariableStatementSyntax
-            or WhileStatementSyntax
-            or DoStatementSyntax
-            or ThrowStatementSyntax
-            or ThrowExpressionSyntax
-            or InvocationExpressionSyntax);
+    private static bool DeclaresLogic(SyntaxNode body)
+    {
+        foreach (var child in body.DescendantNodes())
+        {
+            switch (child)
+            {
+                case IfStatementSyntax or SwitchStatementSyntax or SwitchExpressionSyntax
+                    or ForStatementSyntax or ForEachStatementSyntax or ForEachVariableStatementSyntax
+                    or WhileStatementSyntax or DoStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax:
+                    return true;
+                case InvocationExpressionSyntax invocation:
+                    if (!IsValueFactory(invocation))
+                    {
+                        return true;
+                    }
+
+                    break;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Returns true when the call builds one value from literals: a static Parse, From, FromCode, Of or Create called on a
+    ///     named type, never a keyword type such as decimal, with only literal arguments. A set builds its typed keys this way,
+    ///     because LS2040 keeps string-built keys inside sets.
+    /// </summary>
+    /// <param name="invocation">The call under inspection.</param>
+    /// <returns>True when the call is a value factory over literals; otherwise false.</returns>
+    private static bool IsValueFactory(InvocationExpressionSyntax invocation) =>
+        invocation.Expression is MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax or QualifiedNameSyntax or GenericNameSyntax } access
+        && access.Name.Identifier.ValueText is "Parse" or "From" or "FromCode" or "Of" or "Create"
+        && invocation.ArgumentList.Arguments.All(static argument => argument.Expression is LiteralExpressionSyntax);
 
     /// <summary>Returns true when an accessor body declares logic; otherwise false.</summary>
     /// <param name="accessors">The accessor list, or null when the property has none.</param>

@@ -24,9 +24,9 @@ Completion is computed from proof: code exists, tests exist, and scenarios pass.
 
 The gate admits a release when its blocking checks are green, its scenarios are verified, and every waiver it relies on is in effect. A waiver is in effect while it is present and, when it sets `expiresOn`, before that date.
 
-Whether a finding blocks follows the strength of the provision it reports. A finding on a required provision blocks unless a waiver covers it, and a finding on an advisory provision never blocks. The level letter states what a finding rests on: G findings read records only, S findings read code through a stack reader and report without blocking where that reader is not qualified, and A findings report without blocking, except the release-readiness findings `--release` names.
+Whether a finding blocks follows its level: a G finding blocks, an S finding blocks where the reader that produced it is qualified, and an R finding never blocks. A waiver parks a blocking finding; it never changes a level. There is no advisory level: `litespec model check` prints only findings that block, and `litespec model review` reports the prose quality a person weighs.
 
-`litespec model check --release` makes the release-readiness findings block, so running that command applies the gate. Under `--release`, a claimed layer whose reader is missing or failing blocks, since the gate can't judge evidence it can't read. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment, and rollback rules on top of this gate.
+`litespec model check --release` makes `reader-missing` block for a claimed layer, so running that command applies the gate. Under `--release`, a claimed layer whose reader is missing or failing blocks, since the gate can't judge evidence it can't read. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment, and rollback rules on top of this gate.
 
 ### The Verification Report
 
@@ -121,6 +121,22 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 **Rationale:** G checks read records only: shape, references, links, reachability, coverage, and the Behavior rules the check list names. Without them, a renamed record or a moved file silently breaks the references other pages rely on, and the book renders a graph that no longer holds. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
 **Checked by:** `litespec model check` exits zero when it reports no G finding, such as `record-invalid`, and the inspection was complete.
+
+### Run One LiteSpec Build
+
+**ID:** `litespec/core/release#run-one-litespec-build`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A project MUST run one LiteSpec build at a time: the `LiteSpec.Cli` version the tool manifest pins, the `LiteSpec.Analyzers` version the build references, and the CLI running the checks name the same build.
+
+**Rationale:** Checks written against one build misread code written against another. An old tool reports findings the current build fixed, and a lagging analyzer never runs its newest rules, so the team fixes findings that do not apply and misses the ones that do. Moving the tool manifest, the analyzer reference, and the running CLI together keeps every finding about the build the code follows.
+
+**Example:** The Claimwick expense product pins `LiteSpec.Cli` 7.0.0 in `.config/dotnet-tools.json`, references `LiteSpec.Analyzers` 7.0.0 from its central package file, and runs the checks with the 7.0.0 CLI.
+
+**Checked by:** `litespec model check` reports `toolchain-drift` when any two of the three name different builds.
 
 ### Regenerate Application Contracts
 

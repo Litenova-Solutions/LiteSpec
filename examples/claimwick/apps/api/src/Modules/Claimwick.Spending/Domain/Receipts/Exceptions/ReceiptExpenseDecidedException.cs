@@ -13,5 +13,5 @@ internal sealed class ReceiptExpenseDecidedException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.expense-decided";
+    public override string Code => SpendingRefusalCodes.ExpenseDecided;
 }

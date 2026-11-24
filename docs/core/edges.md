@@ -261,7 +261,7 @@ Its `summary` states what the system does for the product and who operates it. I
 
 **Example:** Claimwick's `receipt-reminder-manager` names the receipt, the reminder, and the manager audience, while `email-change-confirmation` names no audience and is reported.
 
-**Checked by:** `litespec model check` reports `template-key-invalid` (level A) for a template key ending in no name the notification declares in `audience`.
+**Checked by:** `litespec model check` reports `template-key-invalid` (level G) for a template key ending in no name the notification declares in `audience`.
 
 ### Cite the Requirement Behind Every Notification Claim
 

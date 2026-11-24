@@ -125,7 +125,7 @@ Four related rules live on other pages:
 
 **Example:** `scenario/list-expenses.listing-own-expenses-succeeds` is proved by the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts`, the cheapest boundary that shows what a person sees on the expense list. A scenario whose risk is a business outcome alone is proved at the API boundary instead.
 
-**Checked by:** `litespec model check` reports `proves-duplicate` (level A) for a scenario with `proves` marks on more than one test.
+**Checked by:** `litespec model check` reports `proves-duplicate` (level S) for a scenario with `proves` marks on more than one test.
 
 ### Name the Flow a Flow Test Covers
 

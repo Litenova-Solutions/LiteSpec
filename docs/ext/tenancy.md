@@ -16,6 +16,8 @@ Applicable specification kinds: None.
 
 Select `tenancy` only when independent customer organizations share one deployment and need isolated data or policy. One organization with many users does not select it: tenants are separate customers, not separate logins.
 
+A project whose messages carry the tenant identifier names the glossary term for the tenant in the `tenant` field of its tenancy selection, such as `tenant: term/workspace`. When the field is set and a use case declares `access.tenant` of `own`, the message property carrying the tenant is implied: `Workspace` or `WorkspaceId` for `term/workspace`. The use case does not restate the property in `input`, and `litespec model check` reports `reference-unknown` for a `tenant` value that no record holds. Without the field, no tenant property is implied.
+
 ## Baseline Relationship
 
 No baseline provision changes under this extension. It adds the tenant obligations the baseline does not state: identity, isolation, tenant scope, and operations across every boundary a tenant touches. For delegation, this extension adds only the cross-tenant form; a delegated or temporary grant inside one tenant follows `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`.

@@ -12,11 +12,19 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/hold.hold-canceled
-steps:
-- statement: The reader cancels the waiting hold.
+input:
+- name: holdId
+  meaning: The waiting hold the reader cancels.
+  type: id
+  identifies: aggregate/lending.hold
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call cancels its own hold, and canceling an ended hold is refused.
+steps:
+- statement: The reader cancels the waiting hold.
 records:
 - type: result
   id: result/cancel-hold.canceled

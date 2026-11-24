@@ -305,7 +305,7 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Example:** Claimwick's erase job runs the erase-personal-data command over decided expenses past retention. It settles the expense from pending Reimbursed to done Erased, and names no refused state: its retry returns each failed expense to Reimbursed for the next nightly run.
 
-**Checked by:** `litespec model check` reports `async-settles-missing` (level A) for a run writing an aggregate with no `settles`, because the model cannot tell whether a reader waits on it, `async-pending-missing` (level G) for a `settles` with a pending or done state that names no state or names one state twice, or with a pending state that no earlier transition reaches, `async-refused-unrecorded` (level G) for a run with no refused state and no declared retry, or a refused state that repeats pending or done, and `reference-unknown` (level G) for a `settles` naming no written aggregate or state. A reviewer confirms each query reading the settled aggregate returns its state.
+**Checked by:** `litespec model check` reports `async-pending-missing` (level G) for a `settles` with a pending or done state that names no state or names one state twice, or with a pending state that no earlier transition reaches, `async-refused-unrecorded` (level G) for a run with no refused state and no declared retry, or a refused state that repeats pending or done, and `reference-unknown` (level G) for a `settles` naming no written aggregate or state. A run with no `settles` states nothing, because the model cannot tell whether a reader waits on it. A reviewer confirms each query reading the settled aggregate returns its state.
 
 ### Declare Each Read Model Field from a Published Field
 

@@ -23,7 +23,7 @@ public sealed class ExercisesUncitedCheckTests
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "exercises-uncited");
         Assert.Equal("Scenario 'scenario/submit-expense.submitting-succeeds' exercises 'rule/expense.reimbursed-once', which use case 'use-case/spending.submit-expense' cites nowhere in its steps, inputs, or results.", finding.Message);
         Assert.Equal("scenario/submit-expense.submitting-succeeds", finding.Subject);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
     }
 
     /// <summary>Scenario Exercising A Rule Its Steps Cite Passes.</summary>

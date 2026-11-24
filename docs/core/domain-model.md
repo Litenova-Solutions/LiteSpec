@@ -120,7 +120,7 @@ The rows of each variant cover every date the product reads: consecutive rows of
 
 ### Amount Signs
 
-An amount field whose sign carries meaning states its convention in `sign`: `money-in-positive` when positive reads as money in, and `money-out-positive` when positive reads as money out. Use-case input and output fields of type money or decimal carry it. Every consumer of the field reads the convention from the record instead of assuming it, and the model advises when the use cases computing one value through one calculation rule state differing conventions or none.
+An amount field whose sign carries meaning states its convention in `sign`: `money-in-positive` when positive reads as money in, and `money-out-positive` when positive reads as money out. Use-case input and output fields of type money or decimal carry it. Every consumer of the field reads the convention from the record instead of assuming it, and the model blocks when the use cases computing one value through one calculation rule state differing conventions or none.
 
 ### Domain Events
 
@@ -276,7 +276,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Example:** A Claimwick rule that stated the receipt duty, the approval chain, and the reimbursement limit of every expense category in one statement would report `rule-statement-wide`; as one rule per category and duty, each statement stays within a sentence or two.
 
-**Checked by:** `litespec model check` reports `rule-statement-wide` (level A) for a rule whose statement is longer than 600 characters.
+**Checked by:** `litespec model review` reports `rule-statement-wide` (level R) for a rule whose statement is longer than 600 characters.
 
 ### Cite Varying Values from Reference Data
 
@@ -306,11 +306,11 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each atomicity rule MUST name the aggregates it binds in `binds` and the decision behind the group in `basedOn`.
 
-**Rationale:** An atomic write across aggregates stays allowed only through its rule and its decision. The rule states the group and why, such as an order without its hold overselling, names in `basedOn` the decision recording why the invariant needs one transaction, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, and the check reports it at level A.
+**Rationale:** An atomic write across aggregates stays allowed only through its rule and its decision. The rule states the group and why, such as an order without its hold overselling, names in `basedOn` the decision recording why the invariant needs one transaction, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, and the check reports it at level G.
 
 **Example:** The library's hold rule binds the hold and the copy aggregates, so a hold without its copy never stands.
 
-**Checked by:** `litespec model check` reports `atomicity-drift` (level G) for an atomic use case whose `writes` differs from its rule's `binds`, and `atomicity-invalid` (level A) for a group binding more than 4 aggregates.
+**Checked by:** `litespec model check` reports `atomicity-drift` (level G) for an atomic use case whose `writes` differs from its rule's `binds`, and `atomicity-invalid` (level G) for a group binding more than 4 aggregates.
 
 ### Name Every Spanned Aggregate in Binds
 
@@ -433,6 +433,22 @@ A domain event is an immutable statement that a business fact completed. It is n
 **Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind the shown and the recorded value. Code carries a mark naming the rule; the rule never names code.
 
 **Reviewed for:** Do the query and the command behind one value cite the same calculation rule in `computedBy`? Check the use cases beside the calculation rule.
+
+### Keep One Home for Each Rule, Calculation, and Projection
+
+**ID:** `litespec/core/domain-model#keep-one-home-for-each-rule-calculation-and-projection`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, query-handler, reaction, job
+
+**Statement:** Each slice MUST call every rule, calculation, or projection from its one home in the aggregate, a domain service, or the knowledge model, instead of carrying a copy of another slice's logic.
+
+**Rationale:** A rule copied into several slices is fixed several times: each change must be found and made in every copy, and one copy drifts while the others move. Vertical slices multiply whatever the first slice did, so a copied projection or test spreads with every new slice. One home keeps the rule, the calculation, or the projection behind one call, so a change lands once and every slice moves together.
+
+**Example:** Claimwick reads the per-diem rate for an expense day when submitting and when approving the expense. Both slices call one calculation on the travel knowledge model with the day and the country, instead of each carrying its own walk over the per-diem rows. A copy of the walk in the approval slice would report `logic-duplicate`.
+
+**Checked by:** `litespec model check` reports `logic-duplicate` (level S) for one method or local-function body of at least 6 statements or 80 tokens carried in two or more different folders.
 
 ### Tabulate Every Calculation with Examples
 
@@ -612,11 +628,11 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each use-case amount field whose sign carries meaning MUST state its convention in `sign`.
 
-**Rationale:** A bare amount reads two ways: positive as money in or money out, and each consumer assumes one. The convention in `sign` fixes the reading on the field, so every consumer reads it from the record. The `amount-sign-drift` check advises where the use cases computing one value through one calculation rule state differing conventions or none; a field no second use case computes is judged by review.
+**Rationale:** A bare amount reads two ways: positive as money in or money out, and each consumer assumes one. The convention in `sign` fixes the reading on the field, so every consumer reads it from the record. The `amount-sign-drift` check blocks where the use cases computing one value through one calculation rule state differing conventions or none; a field no second use case computes is judged by review.
 
 **Example:** The library computes its fine total through one calculation rule: the payment command and the payout report both state `money-in-positive` on it, and a report stating `money-out-positive` is reported.
 
-**Checked by:** `litespec model check` reports `amount-sign-drift` (level A) for amount fields one calculation rule computes that state differing conventions or none.
+**Checked by:** `litespec model check` reports `amount-sign-drift` (level G) for amount fields one calculation rule computes that state differing conventions or none.
 
 ## Conventions
 

@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Model.Diff;
 /// <summary>
 ///     Finds the proving tests changed since the base without their scenario: a scenario both trees
 ///     hold, whose own hash has not moved, while the hash of its proving test methods has. Each
-///     becomes an advisory proof-hash-drift finding on the scenario record.
+///     becomes a blocking proof-hash-drift finding on the scenario record.
 /// </summary>
 /// <follows>litespec/core/agent#protect-proofs-from-implementation-edits</follows>
 static class ProofChanges

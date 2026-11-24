@@ -847,7 +847,7 @@ A message that leaves before its transaction commits promises work even when the
 
 **Example:** The reminder job loads due loans with one scoped query instead of reading each loan inside its loop.
 
-**Checked by:** `litespec model check` reports `repository-read-invalid` (level A) for a repository read inside a loop body.
+**Checked by:** `litespec model check` reports `repository-read-invalid` (level S) for a repository read inside a loop body.
 
 ## Conventions
 

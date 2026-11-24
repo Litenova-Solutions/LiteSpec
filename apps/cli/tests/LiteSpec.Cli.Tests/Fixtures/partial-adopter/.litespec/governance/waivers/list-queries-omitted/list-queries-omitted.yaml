@@ -1,0 +1,14 @@
+type: waiver
+id: waiver/list-queries-omitted
+title: List queries omitted
+kind: gap
+waives:
+- caller-identifier-unreachable
+appliesTo:
+- use-case/lending.borrow-copy
+- use-case/lending.return-copy
+reason: The partial adopter keeps two commands to prove its layer claims, and carries no list query returning copies or loans.
+exitWhen: A list query returning copies and loans lands, and the waiver is removed.
+expiresOn: 2035-06-01
+closedBy:
+- use-case/lending.borrow-copy

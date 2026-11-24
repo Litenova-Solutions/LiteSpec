@@ -180,7 +180,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Deviation:** A longer sentence that keeps a condition the shorter form would drop, as `litespec/core/writing#keep-the-conditions-when-shortening` requires.
 
-**Rationale:** A record sentence carries one fact a builder implements. A sentence past 25 words often carries two facts joined by a comma, so the reader must hold both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary `meaning` bound is the same bound, checked by `litespec model check` as the advisory `term-meaning-invalid`. A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
+**Rationale:** A record sentence carries one fact a builder implements. A sentence past 25 words often carries two facts joined by a comma, so the reader must hold both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary `meaning` bound is the same bound, checked by `litespec model review` as `term-meaning-invalid` (level R). A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** "Employees wait three weeks for reimbursement while approvers batch decisions monthly." The sentence holds 11 words and one fact.
 
@@ -280,7 +280,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Example:** The Claimwick problem explanation for waiting expenses holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
 
-**Checked by:** `litespec model check` reports `explanation-missing` for a section out of order, or missing while its backing fields hold a value, and `explanation-section-unbacked` for a section whose backing fields are empty on its record.
+**Checked by:** `litespec model review` reports `explanation-missing` (level R) for a section out of order, or missing while its backing fields hold a value, and `explanation-section-unbacked` (level R) for a section whose backing fields are empty on its record.
 
 ### Open Each Explanation File with a Paragraph
 
@@ -296,7 +296,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Example:** The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin.
 
-**Checked by:** `litespec model check` reports `explanation-opening-missing` for an explanation file with no prose between its H1 and its first H2.
+**Checked by:** `litespec model review` reports `explanation-opening-missing` (level R) for an explanation file with no prose between its H1 and its first H2.
 
 ### Explain the Same Specification the Records State
 

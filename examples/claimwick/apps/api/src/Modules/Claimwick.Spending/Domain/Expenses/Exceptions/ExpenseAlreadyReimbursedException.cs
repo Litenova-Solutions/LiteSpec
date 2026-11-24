@@ -13,5 +13,5 @@ internal sealed class ExpenseAlreadyReimbursedException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.already-reimbursed";
+    public override string Code => SpendingRefusalCodes.AlreadyReimbursed;
 }

@@ -251,7 +251,7 @@ public sealed class ReferenceDataChecksTests
             Query(temp.Path, "report-fines", """{"name": "amount", "meaning": "The fine.", "type": "money", "sign": "money-out-positive"}"""));
 
         var finding = Assert.Single(Findings(model, "amount-sign-drift"));
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("rule/spending.fine-total", finding.Subject);
         Assert.Contains("computes 'amount' from use cases stating differing sign conventions", finding.Message);
     }

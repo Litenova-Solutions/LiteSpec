@@ -13,5 +13,5 @@ internal sealed class PolicyNegativeThresholdException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.negative-threshold";
+    public override string Code => SpendingRefusalCodes.NegativeThreshold;
 }

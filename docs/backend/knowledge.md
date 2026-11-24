@@ -53,7 +53,7 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Statement:** A knowledge area MUST have one knowledge model and one knowledge set per variant of its dimension, keeping its one table in the model when it varies by nothing.
 
-**Rationale:** One model gives every caller the same types and lookups, and one set per variant keeps values for a country or a branch apart without copying the types into each set. An area that varies by nothing needs no set: a second shape for one table would leave readers unsure which holds the values.
+**Rationale:** One model gives every caller the same types and lookups, and one set per variant keeps values for a country or a branch apart without copying the types into each set. An area that varies by nothing needs no set: a second shape for one table would leave readers unsure which holds the values. A set project sits under `Knowledge/` beside its model and references that model; anything else the tools never treat as a set.
 
 **Example:** Claimwick's `travel` area has the `Claimwick.Travel` model and a set for each country its rates cover, while its approval-target table, which varies by nothing, stays in the model.
 
@@ -69,11 +69,11 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Statement:** A module MUST reach a knowledge area through its knowledge model, leaving a set to be referenced only by a host that registers it.
 
-**Rationale:** A module that names a set binds its code to one country or branch, so adding a variant means editing the module. The model gives modules one stable surface, and a host registers each set with that model at startup. The dependency runs from the Kernel to the model to the modules, and from a set to its model and the Kernel only.
+**Rationale:** A module that names a set binds its code to one country or branch, so adding a variant means editing the module. The model gives modules one stable surface, and a host registers each set with that model at startup. The dependency runs from the Kernel to the model to the modules, and from a set to its model and the Kernel only. The model owns its registry, its composition and its startup validation, so it references the dependency-injection, logging and options libraries those need.
 
-**Example:** Claimwick's spending module asks `Claimwick.Travel` for a per-diem role on the expense date and names no country project. The API host registers `Claimwick.Travel.Germany` and `Claimwick.Travel.Netherlands` with the model at startup.
+**Example:** Claimwick's spending module asks `Claimwick.Travel` for a per-diem role on the expense date and names no country project. The API host registers `Claimwick.Travel.Germany` and `Claimwick.Travel.Netherlands` with the model at startup. The `Claimwick.Travel` model registers its sets through `TravelComposition`, which takes an `IServiceCollection` and validates the registered sets at startup.
 
-**Checked by:** `dotnet build` reports `LS2038` for a module assembly referencing a knowledge set assembly.
+**Checked by:** `dotnet build` reports `LS2038` for a module assembly referencing a knowledge set assembly: a project under `Knowledge/` named `<Product>.<Area>.<Variant>` of the same product that references its model, so another vendor's packages never count. It reports `LS1001` for an outer-layer reference in a model outside the dependency-injection, logging and options libraries.
 
 ### Keep Knowledge Sets Free of Logic
 
@@ -89,7 +89,7 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Example:** Claimwick's Germany and Netherlands sets list dated per-diem rows and nothing else. When a country needs a different rounding of a partial day, the rule becomes a case in the model's rounding strategy set, selected by the set's data.
 
-**Checked by:** `dotnet build` reports `LS2039` for a method or property body in a knowledge set that does more than return or construct rows.
+**Checked by:** `dotnet build` reports `LS2039` for a method or property body in a knowledge set that does more than return or construct rows; a static `Parse`, `From`, `FromCode`, `Of` or `Create` call on a named type with only literal arguments, such as a typed key built from its text, counts as constructing.
 
 ### Model Reference Data as Domain Values
 
@@ -165,9 +165,9 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Statement:** A lookup with no row in force MUST end its use case in a refusal naming the missing role, date, and variant.
 
-**Rationale:** A null or a default value makes the caller spend a value no rule supports, with no record of why. A refusal with a reason points the operator at the row that is missing, and the use case records the refusal beside its other endings. The model derives that ending as `result/<use-case>.rule-not-stated`.
+**Rationale:** A null or a default value makes the caller spend a value no rule supports, with no record of why. A refusal with a reason points the operator at the row that is missing, and the use case records the refusal beside its other endings. The model derives that ending as `result/<use-case>.rule-not-stated`. The model throws the product's rule-not-stated refusal type, which derives the kernel's domain exception.
 
-**Example:** If no German per-diem row covers a travel date, Claimwick's submission ends in a refusal naming the `FullDay` role, that date, and Germany, rather than paying zero.
+**Example:** If no German per-diem row covers a travel date, Claimwick's submission ends in a refusal naming the `FullDay` role, that date, and Germany, rather than paying zero. Claimwick's travel model throws `TravelRuleMissingException`, which derives the kernel `DomainException` and carries the code `travel.rule-missing`.
 
 **Reviewed for:** Does any knowledge lookup return a null or a default when no row is in force, or end without naming the missing rule? Look at each lookup beside the use-case refusals.
 
@@ -181,9 +181,9 @@ A per-tenant override is a setting on an operational aggregate: it belongs to on
 
 **Statement:** Shape and cross-references in code MUST be checked at compile time, while overlaps, gaps, and coverage of the current period are checked at startup.
 
-**Rationale:** Row types, roles, and references between model types are fixed by the code, and the compiler proves them on every build. Dates depend on the rows a set ships, so only loading the set can prove that its periods do not overlap, leave no gap, and cover today. Startup is the first moment the whole set is known, and a failure there names the row before any request uses it.
+**Rationale:** Row types, roles, and references between model types are fixed by the code, and the compiler proves them on every build. Dates depend on the rows a set ships, so only loading the set can prove that its periods do not overlap, leave no gap, and cover today. Startup is the first moment the whole set is known, and a failure there names the row before any request uses it. A set that fails startup validation raises a startup configuration failure, not a business refusal, so `LS1005` does not apply inside a knowledge model.
 
-**Example:** Claimwick's build proves that every per-diem row carries a country, an amount, dates, and a source. At startup the travel model rejects a German row that overlaps another or leaves the current year uncovered, and the product does not serve until it is fixed.
+**Example:** Claimwick's build proves that every per-diem row carries a country, an amount, dates, and a source. At startup the travel model rejects a German row that overlaps another or leaves the current year uncovered, and the product does not serve until it is fixed. The rejection raises `InvalidOperationException`, as `TravelRegistry.Validate` does.
 
 **Reviewed for:** Is any date rule left to a compile-time check, or any shape rule left to a startup check? Look at the build diagnostics beside the startup validation of each set.
 

@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model;
 /// <summary>Proves <c>model render</c> rewrites marked skill copies, <c>model check</c> reports drift and an unread CLAUDE.md, and the carried skill frontmatter parses as YAML.</summary>
 public sealed class AgentProtocolSkillTests
 {
-    /// <summary>Check reports skill-drift as advisory after a hand edit, and render rewrites the copy.</summary>
+    /// <summary>Check blocks on skill-drift after a hand edit, and render rewrites the copy.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
     [Fact(DisplayName = "check reports skill-drift and render rewrites the copy")]
     public void CheckReportsSkillDriftAndRenderRewritesIt()
@@ -18,16 +18,11 @@ public sealed class AgentProtocolSkillTests
         var entry = Join(fixture.Path, ".agents/skills/litespec/SKILL.md");
         File.WriteAllText(entry, File.ReadAllText(entry) + "drift\n");
 
-        var drifted = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
+        var drifted = TestCli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Equal(0, drifted.Status);
+        Assert.Equal(1, drifted.Status);
         Assert.Contains("[skill-drift]", drifted.Output, StringComparison.Ordinal);
-
-        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
-
-        Assert.Equal(0, summarized.Status);
-        Assert.DoesNotContain("[skill-drift]", summarized.Output, StringComparison.Ordinal);
-        Assert.Contains("skill-drift (level A)", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("skill-drift (level G)", drifted.Output, StringComparison.Ordinal);
 
         var rewritten = TestCli.Run("model", "render", "--root", fixture.Path);
 
@@ -110,7 +105,7 @@ public sealed class AgentProtocolSkillTests
         Assert.DoesNotContain("skills/litespec", second.Stdout, StringComparison.Ordinal);
     }
 
-    /// <summary>Check reports an extra file in a marked copy as advisory skill-drift, and render removes it.</summary>
+    /// <summary>Check blocks on an extra file in a marked copy as skill-drift, and render removes it.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
     [Fact(DisplayName = "check reports an extra file as skill-drift")]
     public void CheckReportsAnExtraFileAsDrift()
@@ -120,39 +115,29 @@ public sealed class AgentProtocolSkillTests
         var folder = Join(fixture.Path, ".claude/skills/litespec");
         File.WriteAllText(Path.Combine(folder, "stale.md"), "stale\n");
 
-        var drifted = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
+        var drifted = TestCli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Equal(0, drifted.Status);
+        Assert.Equal(1, drifted.Status);
         Assert.Contains("[skill-drift]", drifted.Output, StringComparison.Ordinal);
-
-        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
-
-        Assert.Equal(0, summarized.Status);
-        Assert.DoesNotContain("[skill-drift]", summarized.Output, StringComparison.Ordinal);
-        Assert.Contains("skill-drift (level A)", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("skill-drift (level G)", drifted.Output, StringComparison.Ordinal);
 
         Assert.Equal(0, TestCli.Run("model", "render", "--root", fixture.Path).Status);
         Assert.False(File.Exists(Path.Combine(folder, "stale.md")));
     }
 
-    /// <summary>Check reports agent-protocol-unreached as advisory when CLAUDE.md does not import AGENTS.md.</summary>
+    /// <summary>Check blocks on agent-protocol-unreached when CLAUDE.md does not import AGENTS.md.</summary>
     /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
-    [Fact(DisplayName = "check reports agent-protocol-unreached as advisory")]
-    public void CheckReportsUnreadAsAdvisory()
+    [Fact(DisplayName = "check reports agent-protocol-unreached as blocking")]
+    public void CheckReportsUnreadAsBlocking()
     {
         using var fixture = ModelFixture.Prepare("small");
         File.WriteAllText(Path.Combine(fixture.Path, "CLAUDE.md"), "# Claude\n\nOur notes.\n");
 
-        var listed = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
+        var listed = TestCli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Equal(0, listed.Status);
+        Assert.Equal(1, listed.Status);
         Assert.Contains("[agent-protocol-unreached]", listed.Output, StringComparison.Ordinal);
-
-        var summarized = TestCli.Run("model", "check", "--root", fixture.Path);
-
-        Assert.Equal(0, summarized.Status);
-        Assert.DoesNotContain("[agent-protocol-unreached]", summarized.Output, StringComparison.Ordinal);
-        Assert.Contains("agent-protocol-unreached (level A)", summarized.Output, StringComparison.Ordinal);
+        Assert.Contains("agent-protocol-unreached (level G)", listed.Output, StringComparison.Ordinal);
     }
 
     /// <summary>Check stays clean when CLAUDE.md imports AGENTS.md.</summary>
@@ -163,7 +148,7 @@ public sealed class AgentProtocolSkillTests
         using var fixture = ModelFixture.Prepare("small");
         File.WriteAllText(Path.Combine(fixture.Path, "CLAUDE.md"), "# Claude\n\n@AGENTS.md\n");
 
-        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.True(result.Status == 0, result.Output);
         Assert.DoesNotContain("agent-protocol-unreached", result.Output, StringComparison.Ordinal);
@@ -176,7 +161,7 @@ public sealed class AgentProtocolSkillTests
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.True(result.Status == 0, result.Output);
         Assert.DoesNotContain("agent-protocol-unreached", result.Output, StringComparison.Ordinal);

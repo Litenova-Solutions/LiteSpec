@@ -201,7 +201,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Example:** The project declares `borrow` and `check-in` as glossary verb terms. The names `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`. The library declares `archive` as its own verb for a copy kept readable and restorable, with a definition stating how it differs from `retire`.
 
-**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name opening with a verb neither list declares, `term-verb-duplicate` for a glossary verb term restating a baseline verb, and `verb-distinction-missing` (level A) for a declared verb retaking a retired synonym whose definition does not name the baseline verb it differs from.
+**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name opening with a verb neither list declares and `term-verb-duplicate` for a glossary verb term restating a baseline verb, and `litespec model review` reports `verb-distinction-missing` (level R) for a declared verb retaking a retired synonym whose definition does not name the baseline verb it differs from.
 
 ### Keep One Kind per Verb
 
@@ -385,11 +385,11 @@ A type on each field lets the builder compare the records with the generated con
 
 **Statement:** Each required input with `origin: caller` and type `id` that names no idempotency key placeholder MUST be returned as an `id` field identifying the same record by a query through the same entry point, or by a query of its module when no entry point reaches the use case.
 
-**Rationale:** A command that needs an identifier no read hands to its caller can never be called correctly: the screen offers the act, the caller has no value to send, and the failure surfaces only at runtime. Comparing the `identifies` links keeps the check exact, because names differ while the identified record does not. The entry point bounds the caller's reach, because an identifier travels between the screens of one entry point through navigation, and holding each screen to only the reads it offers would repeat one list query on every record screen. An optional input needs no read, because the caller can call without it, and an idempotency key needs none, because the caller mints it for an identifier that does not exist yet. A use case no entry point reaches answers to its module instead, where the caller may pass through an identifier of its own, so the module scope advises rather than blocks.
+**Rationale:** A command that needs an identifier no read hands to its caller can never be called correctly: the screen offers the act, the caller has no value to send, and the failure surfaces only at runtime. Comparing the `identifies` links keeps the check exact, because names differ while the identified record does not. The entry point bounds the caller's reach, because an identifier travels between the screens of one entry point through navigation, and holding each screen to only the reads it offers would repeat one list query on every record screen. An optional input needs no read, because the caller can call without it, and an idempotency key needs none, because the caller mints it for an identifier that does not exist yet. A use case no entry point reaches answers to its module instead, so the module scope reports only when no query of the module returns the identifier.
 
 **Example:** Claimwick's approve-expense command takes `expense` identifying `aggregate/spending.expense` from the caller. The list-expenses query through the same entry point returns `expenseId` identifying the same aggregate, so the manager picks the expense from the list and approves it. A command taking an identifier no query through its entry point returns is reported.
 
-**Checked by:** `litespec model check` reports `caller-identifier-unreachable` for a required caller-supplied identifier on a use case an entry point reaches that no query through the same entry point returns, and `module-identifier-unreachable` (level A) for one on a use case no entry point reaches that no query of its module returns.
+**Checked by:** `litespec model check` reports `caller-identifier-unreachable` for a required caller-supplied identifier on a use case an entry point reaches that no query through the same entry point returns, and `module-identifier-unreachable` (level G) for one on a use case no entry point reaches that no query of its module returns.
 
 ### Name Every Aggregate a Use Case Writes or Reads
 
@@ -453,7 +453,7 @@ An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and `
 
 **Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule. The self-checkout scan declares per-record consistency across its attempts. The submit-expense command writes the expense and reads the report, so it declares atomic consistency citing the open-report rule with the report in `guards`.
 
-**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` for `writes` differing from the bound group, `atomicity-invalid` (level A) for a group above 4 aggregates, and `atomicity-duplicate` (level A) for a command saving more than one atomic write group; `litespec model check` reports `record-invalid` for a query carrying `consistency`.
+**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `boundBy`, `atomicity-drift` for `writes` differing from the bound group, `atomicity-invalid` (level G) for a group above 4 aggregates, and `atomicity-duplicate` (level G) for a command saving more than one atomic write group; `litespec model check` reports `record-invalid` for a query carrying `consistency`.
 
 ### Hold Every Cross-Aggregate Guard Until Commit
 
@@ -827,7 +827,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Example:** Claimwick's closed-report refusal carries "This expense falls in a closed report. Reopen the report and submit again." only when the reopen use case exists; otherwise it carries "This expense falls in a closed report, so it cannot be submitted."
 
-**Checked by:** `litespec model check` reports `refusal-next-step-unknown` (level A) for a refusal sentence naming a `use-case/`, `screen/`, or `setting/` id no record holds, or carrying `instead`, `alternatively`, `you can also`, or `or you can`.
+**Checked by:** `litespec model check` reports `refusal-next-step-unknown` (level G) for a refusal sentence naming a `use-case/`, `screen/`, or `setting/` id no record holds, or carrying `instead`, `alternatively`, `you can also`, or `or you can`.
 
 ### Name the Result Each Scenario Ends In
 
@@ -917,7 +917,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Example:** In the library product, a scenario walking a second hold on one copy names `rule/lending.one-hold-per-copy` in `exercises`.
 
-**Checked by:** `litespec model check` reports `scenario-rule-unexercised` for a refusal scenario whose result's rule is not in `exercises`, or an input rule no scenario of the use case exercises, and `exercises-uncited` (level A) for a scenario exercising a rule its use case cites nowhere in its steps, inputs, or results.
+**Checked by:** `litespec model check` reports `scenario-rule-unexercised` for a refusal scenario whose result's rule is not in `exercises`, or an input rule no scenario of the use case exercises, and `exercises-uncited` (level G) for a scenario exercising a rule its use case cites nowhere in its steps, inputs, or results.
 
 ### Keep Each Scenario Inside Its Operation
 
@@ -981,7 +981,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Example:** The submit-expense summary states that an employee files a work expense for approval. Its `steps` list validation, storage, and the approver notice in order, and its Flow section restates them.
 
-**Checked by:** `litespec model check` reports `prose-missing` for a use case, actor, role, or external system without `summary`.
+**Checked by:** `litespec model review` reports `prose-missing` (level R) for a use case, actor, role, or external system without `summary`.
 
 ### Tie Every Setting Default to a Requirement
 

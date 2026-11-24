@@ -43,7 +43,7 @@ A project may grant wider authority in its `AGENTS.md`. The side-effect provisio
 
 ### Ask the Tool Which Provisions Apply
 
-`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
+`litespec rules <path or record id>` prints the record's contract card first, then the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. Checked provisions collapse into one summary line, since the tools already enforce them; `litespec rules <...> --all` lists each one, and `litespec rules <...> --full` adds rationale and example when a statement is not enough.
 
 An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
 
@@ -119,9 +119,9 @@ A change that touches behavior, access, a contract, or a trace link always needs
 
 **Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each judgment provision `litespec rules --since <base>` lists before reporting done.
 
-**Rationale:** Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and waivers merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. Settled by [decision/0038-narrow-rules-output-per-file-and-change-set](decision/0038-narrow-rules-output-per-file-and-change-set).
+**Rationale:** Provisions are only usable when retrieved by situation: the query prints the record's contract card first, then what governs the change, grouped by strength, with project conventions and waivers merged in. Checked provisions collapse into one summary line that `litespec rules <...> --all` expands, and `litespec rules <...> --full` adds rationale and example when a statement is not enough. Settled by [decision/0038-narrow-rules-output-per-file-and-change-set](decision/0038-narrow-rules-output-per-file-and-change-set).
 
-**Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
+**Example:** `litespec rules use-case/spending.submit-expense` prints the use case's contract card first, then the provisions that govern the change, grouped by strength.
 
 **Reviewed for:** Does the completion report answer every judgment provision `litespec rules --since <base>` listed? Compare the rules output with the report.
 
@@ -325,11 +325,11 @@ The money risk is the risk on the permission guarding the use case. Settled by [
 
 **Rationale:** A proof that changes with the implementation stops proving the decided behavior and starts restating the code.
 
-The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change. Settled by [decision/0033-agents-never-weaken-proving-tests](decision/0033-agents-never-weaken-proving-tests).
+The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as a blocking finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change. Settled by [decision/0033-agents-never-weaken-proving-tests](decision/0033-agents-never-weaken-proving-tests).
 
 **Example:** A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result.
 
-**Checked by:** `litespec model check --since <ref>` reports `proof-hash-drift` as advisory for each scenario whose proving test method changed since the base while the scenario did not.
+**Checked by:** `litespec model check --since <ref>` reports `proof-hash-drift` (level S) for each scenario whose proving test method changed since the base while the scenario did not.
 
 ### Name Judged Provisions in the Completion Report
 
@@ -360,6 +360,54 @@ The proof ledger records each scenario's hash and the hash of each test that pro
 **Rationale:** Decisions belong to the owner: the pull request that changes a record is its review. An agent that records a decision spends authority it was never given. Advice with evidence lets the owner decide faster without moving the decision to the agent.
 
 **Reviewed for:** Does the agent output record findings as advice with evidence, with decisions left to the owner? Check the output beside the changed records.
+
+### Raise a Spec Gap Instead of Bending the Code
+
+**ID:** `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** When a check, a record type, or a provision forces a shape the domain does not have, an agent MUST stop, name the missing concept, and raise it as an owner question with a recommendation or a backlog item instead of writing code around it.
+
+**Rationale:** A check that accepts a rate table only as an external system, or a refusal with no record to hold it, pushes the agent to a substitute shape. The substitute compiles and passes the check while the real concept stays unmodelled, so the next agent copies it and the gap spreads. A missing concept is an open need: it travels up as a question to the owner with a recommendation or as a backlog item, as `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` states, and the agent writes no code around it.
+
+**Example:** Claimwick's checks accept the per-diem rate table only as an external system, but the rates are figures the business changes while the system runs. The agent stops, names the missing concept of dated reference data, and raises a question to the owner with a recommendation instead of adding an external port the domain does not have.
+
+**Reviewed for:** Does each forced shape the agent met have a named concept and an owner question with a recommendation or a backlog item, with no code written around it? Check the completion report beside the gap and the code.
+
+### Check Your Own Change Before Handing It Back
+
+**ID:** `litespec/core/agent#check-your-own-change-before-handing-it-back`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Before reporting done, an agent, including a worker under another agent, MUST run the narrowest build and model check for the paths it changed, let the configured analyzers run in that build, exercise each behavior change once as `litespec/core/agent#exercise-changed-use-cases-through-the-running-stack` states, and report each command with its result.
+
+**Rationale:** A worker that hands back code without running its own narrow gates returns compile errors and failing checks for the caller to find. The caller then spends its review on mechanical failures instead of the change. Running the gates on the changed paths catches those failures where the context is freshest, and naming each command and result lets the caller see what actually ran.
+
+**Example:** After changing one Claimwick command handler, an agent builds the backend project, runs `litespec model check`, submits an expense through the seeded stack, and lists each command with its result in the completion report.
+
+**Reviewed for:** Does the completion report name the build, model check and analyzers run for the changed paths, each result, and the behavior the agent exercised? Check the report beside the changed paths and the commands it names.
+
+### Follow the Record, Not the Neighbour
+
+**ID:** `litespec/core/agent#follow-the-record-not-the-neighbour`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An agent MUST shape new code from the record and the provisions, use a neighbouring file only for style, and follow the record and report the neighbour when the two contradict.
+
+**Rationale:** A neighbouring file shows the names and idioms this project chose, but it can hold an older or local rule. Copying it spreads one rule into several homes, and the copies drift from the record. The neighbour is not authority: the record is decided Intent, and a contradiction is a defect for the owner to see.
+
+**Example:** A Claimwick handler's neighbour reads a rate from configuration while the rule record cites dated reference data. The agent reads the rate from the cited reference data and reports the neighbour as out of date.
+
+**Reviewed for:** Does each new code shape trace to a record and its provisions, with the neighbour used only for style and each contradiction reported? Check the change beside the cited records and the neighbours it read.
 
 ## Conventions
 

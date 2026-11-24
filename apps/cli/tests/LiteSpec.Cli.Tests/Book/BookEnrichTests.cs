@@ -440,7 +440,7 @@ public sealed class BookEnrichTests
         (model["covered"] as JsonArray)!.Add(new JsonObject
         {
             ["code"] = "step-screen-missing",
-            ["tier"] = "A",
+            ["tier"] = "G",
             ["message"] = "No screen.",
             ["subject"] = "flow/borrowing",
             ["outcome"] = "accepted",

@@ -6,7 +6,7 @@ namespace Claimwick.Spending.Application.ReminderPreferences.ChangeReminderPrefe
 /// <summary>Authorizes the change-reminder-preference command from its declared permission.</summary>
 internal sealed class ChangeReminderPreferenceCommandAuthorizationDefinition : IAuthorizationDefinition<ChangeReminderPreferenceCommand>
 {
-    public static Permission Policy { get; } = new("permission/manage-reminder-preference");
+    public static Permission Policy { get; } = new(SpendingPermissions.ManageReminderPreference);
 
     public AuthorizationDeclaration Authorization => AuthorizationDeclaration.Authorized(Policy.Id);
 }

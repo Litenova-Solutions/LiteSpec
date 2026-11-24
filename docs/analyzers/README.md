@@ -58,13 +58,13 @@ Most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS100
 
 A traceability rule reads the records that the code marks name. The package adds `.litespec/project.yaml` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. When no project file is in reach, or a docs root cannot be resolved, every traceability rule and the generator stay silent; the CLI owns that configuration error.
 
-Severity follows the check level: a blocking finding is an error and an advisory finding is a warning. A finding covered by a live waiver stays silent: a waiver is live while it has no `expiresOn` date or its date has not passed.
+Every finding is an error, because every check level blocks. A finding covered by a live waiver stays silent: a waiver is live while it has no `expiresOn` date or its date has not passed.
 
 An `.editorconfig` entry for the rule id overrides the computed severity, and lowering a rule project-wide needs a waiver record behind it.
 
 ## Severity and Compiler Support
 
-Every rule reports an error and is enabled by default, so a finding fails the build. `LS3005` reports at info severity instead, because the primary-constructor advice is advisory: it never fails the build on its own. A traceability rule reports a warning instead where the finding is advisory, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so an advisory finding stays a warning while a blocking one fails the build. A project lowers a rule's severity in `.editorconfig`:
+Every rule reports an error and is enabled by default, so a finding fails the build. `LS3005` reports at info severity instead, because the primary-constructor advice is advisory: it never fails the build on its own. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so a severity the project lowered stays a warning instead of failing the build. A project lowers a rule's severity in `.editorconfig`:
 
 ```ini
 [*.cs]
@@ -103,6 +103,8 @@ System.Text.Json
 System.Runtime.Serialization
 System.Xml.Serialization
 ```
+
+Inside a knowledge model, `LS1001` allows `Microsoft.Extensions.DependencyInjection`, `Microsoft.Extensions.Logging` and `Microsoft.Extensions.Options`, because the model owns its registry, composition and startup validation; every other prefix above still reports there.
 
 A namespace that only shares a prefix, such as `MartenStore`, does not match. Base class library namespaces outside this list, such as `System`, `System.Collections.Generic`, and `System.Linq`, never match.
 

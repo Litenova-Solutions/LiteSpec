@@ -118,12 +118,12 @@ public sealed class BookContractTests
         }
     }
 
-    /// <summary>Check levels are G, S and A, and every written finding tier and level reads one of them.</summary>
+    /// <summary>Check levels are G, S and R, and every written finding tier and level reads one of them.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void CheckLevelsAreGSAAndFindingsCarryThem()
+    public void CheckLevelsAreGSRAndFindingsCarryThem()
     {
-        string[] expected = ["A", "G", "S"];
+        string[] expected = ["G", "R", "S"];
         Assert.Equal(expected, BookCheckLevels.All.OrderBy(level => level, StringComparer.Ordinal).ToList());
         var model = NewModel(Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved"));
         model["findings"] = new JsonArray(
@@ -143,9 +143,9 @@ public sealed class BookContractTests
             },
             new JsonObject
             {
-                ["code"] = "sample-a",
-                ["level"] = "A",
-                ["message"] = "An A finding.",
+                ["code"] = "sample-r",
+                ["level"] = "R",
+                ["message"] = "An R finding.",
                 ["subject"] = "use-case/lending.borrow-copy",
             });
         var findings = Arr(DetailsOf(model)["use-case/lending.borrow-copy"], "findings");

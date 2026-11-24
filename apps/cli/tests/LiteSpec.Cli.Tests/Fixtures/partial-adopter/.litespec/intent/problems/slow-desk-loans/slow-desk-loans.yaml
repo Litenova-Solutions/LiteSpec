@@ -5,6 +5,11 @@ affects:
 - actor/reader
 summary: Readers borrow and return every copy at the desk, so the desk queues at busy hours and loans take too long.
 statement: Desk loans take too long at busy hours.
+evidence:
+- claim: Readers queue at the desk to borrow and return copies at busy hours.
+  source: https://example.org/library/desk-log
+  readOn: 2026-10-01
+  kind: reported
 failureCases:
 - Readers queue at the desk to borrow copies at busy hours.
 - Readers queue at the desk to return copies at busy hours.
@@ -13,8 +18,3 @@ cost: Each loan takes too long at busy hours.
 resolutionCriteria:
 - Readers borrow copies without queueing at the desk.
 - Readers return copies without queueing at the desk.
-evidence:
-- claim: Readers queue at the desk to borrow and return copies at busy hours.
-  source: https://example.org/library/desk-log
-  readOn: 2026-10-01
-  kind: reported

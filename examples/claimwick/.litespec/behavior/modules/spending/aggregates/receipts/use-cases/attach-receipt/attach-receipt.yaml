@@ -23,16 +23,18 @@ input:
   required: true
   origin: caller
   classification: internal
-- name: file
-  meaning: The receipt file as the employee uploaded it.
-  type: file
-  contentTypes:
-  - application/pdf
-  - image/jpeg
-  - image/png
-  maxSize: 10 MB
+- name: receipt
+  meaning: The stored receipt to attach, uploaded before the call.
+  type: id
+  identifies: aggregate/spending.receipt
   required: true
   origin: caller
+  classification: internal
+- name: attachedAt
+  meaning: The time the receipt attaches, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
   classification: internal
 writes:
 - aggregate/spending.expense

@@ -198,6 +198,20 @@ The checks below report a manifest or schema defect that blocks the release, so 
 
 **Reviewed for:** Does a change prompted by one consumer name the general need and check the rule against products unlike that consumer? Check the change's wording, the products it tests, and any need left in the consumer as a convention or waiver.
 
+### Model a Reported Spec Gap Before More Code
+
+**ID:** `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`
+
+**Strength:** required
+
+**Statement:** When a consumer's agent reports a spec gap, a maintainer MUST model the missing concept in LiteSpec as a record type, a field, or a provision, with the change citing the gap, before the consumer writes more code around it.
+
+**Rationale:** An agent that meets a concept LiteSpec cannot express stops instead of bending the code, so the gap is a request for a contract change. Answering the question alone leaves the next agent to meet the same gap, and the consumer's substitutes grow. Modelling the concept in LiteSpec gives every consumer one decided shape, and citing the gap in the change shows which need the provision answers. Check the rule against products unlike the consumer that reported it, as `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need` states.
+
+**Example:** An agent reports that Claimwick's per-diem rates have no home because the checks accept a rate table only as an external system. The maintainer adds the dated reference data and the rule that cites it, cites the gap in the change, and only then does the consumer replace the substitute.
+
+**Reviewed for:** Does each reported spec gap have a LiteSpec model change that cites the gap before the consumer writes more code around it? Check the gap report beside the record type, field, or provision that answers it.
+
 ## Conventions
 
 None.

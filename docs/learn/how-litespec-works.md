@@ -106,7 +106,7 @@ From the project root, `dotnet litespec model check` reports each gap as a findi
 
 The model computes one completion stage for the use case from the marks, as [Completion Stages](../core/model.md#completion-stages) defines: `coded` when the handler exists, `verified` only when every scenario has a passing proof. [A Use Case in Code](../example/a-use-case-in-code.md) walks the same record line by line, with the rule, the endpoint, the handler, and the tests.
 
-Each finding carries a level. Level G findings read records only and always block. Level S findings read code through a stack reader, and level A findings are advisory. A finding about a missing, unknown, or unused link always blocks: level G on records, level S on code. The [Model Builder](../tools/model.md) states the levels, and [The Model and Its Checks](../example/model-and-checks.md) shows the full Claimwick output.
+Each finding carries a level. Level G findings read records only and always block. Level S findings read code through a stack reader and block where the reader is qualified, and level R findings are prose quality a person weighs through `litespec model review`, which never blocks. A finding about a missing, unknown, or unused link always blocks: level G on records, level S on code. The [Model Builder](../tools/model.md) states the levels, and [The Model and Its Checks](../example/model-and-checks.md) shows the full Claimwick output.
 
 ## How to Read a Specification
 

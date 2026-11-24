@@ -13,5 +13,5 @@ internal sealed class ReminderPreferenceChangerNotAllowedException : DomainExcep
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.not-preference-owner";
+    public override string Code => SpendingRefusalCodes.NotPreferenceOwner;
 }

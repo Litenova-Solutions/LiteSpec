@@ -23,7 +23,7 @@ public sealed class SourceLinkCheckTests
         using var temp = TestCli.Temp("checks");
         var finding = Assert.Single(Checker.Check(Model(temp.Path, "# Library Privacy Law\n\nReader records stay private.\n")).Findings, found => found.Code == "source-links-missing");
 
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("constraint/library-privacy-law", finding.Subject);
     }
 
@@ -37,7 +37,7 @@ public sealed class SourceLinkCheckTests
 
         var finding = Assert.Single(Checker.Check(Model(temp.Path, text)).Findings, found => found.Code == "source-links-drift");
 
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("constraint/library-privacy-law", finding.Subject);
     }
 
@@ -80,7 +80,7 @@ public sealed class SourceLinkCheckTests
 
         var finding = Assert.Single(Checker.Check(Model(temp.Path, text)).Findings, found => found.Code == "source-link-bare");
 
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
     }
 
     /// <summary>A model with one sourced constraint whose explanation holds the given text.</summary>

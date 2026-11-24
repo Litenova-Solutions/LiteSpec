@@ -17,7 +17,7 @@ static class RulesCommand
     /// <summary>The usage text for the rules command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec rules [--root <consumer>] <path or record id> [--full]
+          litespec rules [--root <consumer>] <path or record id> [--full] [--all]
           litespec rules [--root <consumer>] --since <ref>
           litespec rules [--root <consumer>] <provision id or page id>
           litespec rules --help
@@ -36,7 +36,7 @@ static class RulesCommand
             return args.Length == 0 ? 2 : 0;
         }
 
-        var parsed = CliArgs.Parse(args, ["--full"], ["--root", "--since"], maxPositionals: 1);
+        var parsed = CliArgs.Parse(args, ["--full", "--all"], ["--root", "--since"], maxPositionals: 1);
 
         if (parsed.Help)
         {
@@ -101,7 +101,7 @@ static class RulesCommand
             var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context);
             IReadOnlyList<RulesDecided.DecidedDecision> decided = context.IsCodePath ? RulesDecided.LoadDecisions(config, context) : [];
 
-            Print(config, home, context, results, parsed.Has("--full"), config.Layers, decided);
+            Print(config, home, context, results, parsed.Has("--full"), parsed.Has("--all"), config.Layers, decided);
             return 0;
         }
 
@@ -260,24 +260,27 @@ static class RulesCommand
     }
 
     /// <summary>
-    ///     Prints the retrieved provisions. On a code path the followed decisions and
-    ///     covering waivers print first under Decided, then the Page frame block on a
+    ///     Prints the retrieved provisions. The contract card of each use case, reaction
+    ///     or job the target names prints first. On a code path the followed decisions and
+    ///     covering waivers print next under Decided, then the Page frame block on a
     ///     route file. Without full, the provisions that need judgment and match the
     ///     file kind print as statements grouped by strength, the provisions matched
     ///     only through a marked record collapse into one line per record, the checked
-    ///     provisions print as one line each with their finding codes and analyzer IDs,
-    ///     and the layer-wide provisions print by identifier under their own heading.
-    ///     With full, every provision prints as a statement with its rationale and
-    ///     example, with collapsed records after.
+    ///     provisions collapse into one summary line unless all asks for one line each
+    ///     with their finding codes and analyzer IDs, and the concern-wide provisions
+    ///     print by identifier under their own heading only with all. With full, every
+    ///     provision prints as a statement with its rationale and example, with
+    ///     collapsed records after.
     /// </summary>
     /// <param name="config">The consumer configuration holding the record roots and frontends.</param>
     /// <param name="home">The carried LiteSpec release root holding the pattern pages.</param>
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
+    /// <param name="showAll">Whether to print the full list: each checked provision on its own line and the concern-wide provisions by identifier.</param>
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="decided">The decisions the target marks, in marked order; empty for a record target.</param>
-    static void Print(ConsumerConfig config, string home, PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
+    static void Print(ConsumerConfig config, string home, PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, bool showAll, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
     {
         var parts = new List<string>();
 
@@ -299,6 +302,8 @@ static class RulesCommand
         CliHost.Out.WriteLine(parts.Count > 0
             ? $"Rules for {context.Display} ({string.Join(", ", parts)})"
             : $"Rules for {context.Display}");
+
+        RulesContractCard.Print(config, context);
 
         if (context.IsCodePath)
         {
@@ -357,26 +362,36 @@ static class RulesCommand
 
         if (checkedItems.Count > 0)
         {
-            CliHost.Out.WriteLine("Checked by a tool:");
-
-            foreach (var item in checkedItems)
+            if (showAll)
             {
-                CliHost.Out.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine("Checked by a tool:");
+
+                foreach (var item in checkedItems)
+                {
+                    CliHost.Out.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+                }
+            }
+            else
+            {
+                CliHost.Out.WriteLine($"{checkedItems.Count} checked provisions apply; model check and the analyzers enforce them (litespec rules {context.Display} --all lists them).");
             }
         }
 
-        var layerItems = rest
-            .Where(result => result.IsConcernWide)
-            .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
-            .ToList();
-
-        if (layerItems.Count > 0)
+        if (showAll)
         {
-            CliHost.Out.WriteLine("Concern-wide:");
+            var layerItems = rest
+                .Where(result => result.IsConcernWide)
+                .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
+                .ToList();
 
-            foreach (var item in layerItems)
+            if (layerItems.Count > 0)
             {
-                CliHost.Out.WriteLine($"- {item.Entry.Id}");
+                CliHost.Out.WriteLine("Concern-wide:");
+
+                foreach (var item in layerItems)
+                {
+                    CliHost.Out.WriteLine($"- {item.Entry.Id}");
+                }
             }
         }
     }

@@ -7,7 +7,8 @@ namespace LiteSpec.Cli.Tests.Rules;
 ///     The retrieval evaluation: each case names a real path or record id with the
 ///     provisions a reviewer agrees apply. Every agreed provision must be returned,
 ///     collapsed into its record line, or left out by its applicability condition,
-///     and at least 0.8 of the returned provisions must be agreed.
+///     and at least 0.8 of the returned provisions must be agreed. The evaluation
+///     queries with --all, so the one-line checked summary hides no agreed provision.
 /// </summary>
 public sealed class RulesRetrievalTests
 {
@@ -27,7 +28,7 @@ public sealed class RulesRetrievalTests
         var agreed = evaluation.Agreed[name];
         var target = evaluation.Targets[name];
         var root = evaluation.Roots[name];
-        var result = TestCli.Run("rules", "--root", root, target);
+        var result = TestCli.Run("rules", "--root", root, target, "--all");
 
         Assert.Equal(0, result.Status);
 

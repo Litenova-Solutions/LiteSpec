@@ -261,7 +261,7 @@ The cast page may also hold `today`, the ISO date every example shares as now, a
 
 Each identifier takes the grammar `party/<name>`, `person/<name>`, `occasion/<name>`, `figure/<name>`, or `cast/<name>`, where the name is lowercase words joined by hyphens. The links are `actor`, `partyOf`, `involves`, and `term`, and the Links table reads each one's phrase from the record schema.
 
-The model checks the cast in four ways. A malformed cast is a `record-invalid` finding. A person's `email` on a domain that no reserved test domain covers is a `cast-identity-unreserved` finding, at level G. A cast entry that no record field, explanation file, or seeds mark cites, by its identifier or, for a person or party, by its exact name, is a `cast-entry-unused` finding, at level A. A seeds mark that names no cast entry is a `mark-unknown` finding. The [book](#the-book) lists each entry with the records, explanation files, and code marks that cite it, computed from those citations.
+The model checks the cast in four ways. A malformed cast is a `record-invalid` finding. A person's `email` on a domain that no reserved test domain covers is a `cast-identity-unreserved` finding, at level G. A cast entry that no record field, explanation file, or seeds mark cites, by its identifier or, for a person or party, by its exact name, is a `cast-entry-unused` finding, at level R reported by `litespec model review`. A seeds mark that names no cast entry is a `mark-unknown` finding. The [book](#the-book) lists each entry with the records, explanation files, and code marks that cite it, computed from those citations.
 
 ### Record Files
 
@@ -658,7 +658,7 @@ A record that reaches no Behavior gets an `intent-unreached` finding: it is eith
 
 Intent that is written but not yet served is planned, and planned Intent is a gap the project records. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`.
 
-Each one blocks in every run, local or in the pull-request check, whenever the project claims Behavior, because a link from Intent to the Behavior that serves it is never advisory. A gap waiver with `expiresOn` and `closedBy` parks any of them for its appliesTo or paths until it expires. A project that claims Intent alone sees Intent coverage in the book and no planned-Intent finding.
+Each one blocks in every run, local or in the pull-request check, whenever the project claims Behavior, because a link from Intent to the Behavior that serves it always blocks. A gap waiver with `expiresOn` and `closedBy` parks any of them for its appliesTo or paths until it expires. A project that claims Intent alone sees Intent coverage in the book and no planned-Intent finding.
 
 Intent coverage states, for each Intent requirement and each flow step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction, or job serves it.
 
@@ -719,15 +719,15 @@ Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each 
 
 ### Check Levels
 
-Every check has a level, and the level states what a finding rests on: records only, code read through a stack reader, or prose, names, and proof state.
+Every check has a level, and the level states what a finding rests on: records only, code read through a stack reader, or prose quality a person weighs.
 
 | Level | Meaning |
 |:--|:--|
 | G | Rests on records only. Every missing required link is G. |
 | S | Rests on code read through a stack reader. |
-| A | Rests on prose, names, or proof state. |
+| R | Rests on prose quality a person weighs. Reported only by `litespec model review`; never blocks. |
 
-Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks.
+Whether a finding blocks follows its level: a G finding blocks, an S finding blocks where the reader that produced it is qualified, and an R finding never blocks. A waiver parks a blocking finding; it never changes a level. There is no advisory level: `litespec model check` prints only findings that block.
 
 Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified.
 
@@ -752,7 +752,7 @@ The [model command page](../tools/model.md) lists every finding code with its le
 
 Two flags tune blocking without changing the levels:
 
-- `litespec model check --release` makes the release-readiness findings block, and `reader-missing` for a claimed layer blocks unless a gap waiver with `expiresOn` and `closedBy` parks it.
+- `litespec model check --release` makes `reader-missing` block for a claimed layer, unless a gap waiver with `expiresOn` and `closedBy` parks it.
 - `litespec model check --since <ref>` checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`, so an adopting project clears new findings first. Findings match by code, subject identifier and message, never by line. When the base cannot be built or checked, every finding blocks and the output says why.
 
 ### The Book
@@ -885,7 +885,7 @@ A generated region that `model render` writes from the record file is not a seco
 
 **Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check. When Claimwick lists `governance`, its waiver `waiver/export-expenses-unimplemented` carries its explanation file with Provision, Reason, Risk and Expiry.
 
-**Checked by:** `litespec model check` reports `explanation-missing` for a record page on a listed layer with no explanation file or with a required H2 section missing or its sections out of order.
+**Checked by:** `litespec model review` reports `explanation-missing` (level R) for a record page on a listed layer with no explanation file or with a required H2 section missing or its sections out of order.
 
 ### Write Every Record File in Canonical Form
 
@@ -1047,7 +1047,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Example:** Claimwick's `problem/expenses-wait-weeks` states its failure cases in `failureCases` and the condition that ends the problem in `resolutionCriteria`. Its explanation's Failure Cases section restates those cases and walks through one with the cast.
 
-**Checked by:** `litespec model check` reports `explanation-section-unbacked` for an explanation section whose backing fields are empty on its record. Whether prose adds a fact no field holds is reviewed: does any explanation file state a fact that no field of its record or of a record it cites holds?
+**Checked by:** `litespec model review` reports `explanation-section-unbacked` (level R) for an explanation section whose backing fields are empty on its record. Whether prose adds a fact no field holds is reviewed: does any explanation file state a fact that no field of its record or of a record it cites holds?
 
 ### Write Links on the Record That Points
 
@@ -1235,7 +1235,7 @@ Technical decisions sit under Implementation because they name technologies and 
 
 **Example:** Claimwick renders each receipt as a PDF file. `decision/0005-render-receipts-as-pdf` weighs a PDF library against an HTML-to-PDF browser, chooses the PDF library, and names what reopens the choice: receipts no longer needing a downloadable file. The decision carries `kind: package`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`.
 
-**Checked by:** `litespec model check` reports `decision-unimplemented` (level S) for a technical decision that no code element follows. It reports `decision-kind-missing` (level A) for a technical decision with no `kind`, `decision-scope-invalid` (level A) for a technical decision whose followers all sit in one module and each already carry an `implements` mark, and `decision-home-drift` (level A) for a technical decision kept at a level its followers do not match. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.
+**Checked by:** `litespec model check` reports `decision-unimplemented` (level S) for a technical decision that no code element follows. It reports `decision-kind-missing` (level G) for a technical decision with no `kind`, `decision-scope-invalid` (level S) for a technical decision whose followers all sit in one module and each already carry an `implements` mark, and `decision-home-drift` (level S) for a technical decision kept at a level its followers do not match. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.
 
 ### Keep Rules and Targets Out of Technical Decisions
 
@@ -1321,7 +1321,7 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Example:** A use case reads coded when its handler exists.
 
-**Checked by:** `litespec model check` reports `use-case-unimplemented`, `proves-unreached`, and `refusal-unimplemented` for a use case whose handler, proof, or refusal code is missing, and `proof-invalid` (level A) for a test that both passed and failed within the runs read.
+**Checked by:** `litespec model check` reports `use-case-unimplemented`, `proves-unreached`, and `refusal-unimplemented` for a use case whose handler, proof, or refusal code is missing, and `proof-invalid` (level S) for a test that both passed and failed within the runs read.
 
 ### Report Unverified Use Cases
 
@@ -1333,11 +1333,11 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Statement:** A use case whose scenarios are not all proved MUST be reported as `use-case-unverified`.
 
-**Rationale:** Nothing blocks on an unverified scenario day to day, so the release gate would depend on someone reading the book. Reporting the use case keeps daily work loose, and `litespec model check --release` makes the finding block, so the release stays honest without slowing ordinary work.
+**Rationale:** An unverified use case is a promise with no proof, so the finding blocks until every scenario has a passing proof or a waiver parks the use case. The waiver keeps daily work loose where proof cannot land yet, and the release stays honest because no unverified use case passes the check unparked.
 
-**Example:** Claimwick adds `use-case/spending.export-expenses` with two scenarios and one passing proof: `litespec model check` reports `use-case-unverified` for it and exits zero, and `litespec model check --release` blocks on it.
+**Example:** Claimwick adds `use-case/spending.export-expenses` with two scenarios and one passing proof: `litespec model check` reports `use-case-unverified` (level S) for it and exits 1, until a passing proof or a waiver covers it.
 
-**Checked by:** `litespec model check` reports `use-case-unverified` (level A) for a use case whose scenarios are not all proved, and `litespec model check --release` blocks on it.
+**Checked by:** `litespec model check` reports `use-case-unverified` (level S) for a use case whose scenarios are not all proved.
 
 ### Compute Completion in the Builder
 
@@ -1379,11 +1379,11 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Applies to:** artifact: any
 
-**Statement:** Every check MUST carry the level its finding rests on, and block or report as the strength of its provision states.
+**Statement:** Every check MUST carry one of the levels G, S or R, where `litespec model check` blocks on G findings and on S findings whose reader is qualified, and only `litespec model review` reports R findings, without blocking.
 
-**Rationale:** The level tells a reader what a finding rests on: G rests on records only, S rests on code read through a stack reader, and A rests on prose, names, or proof state. Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. `litespec model check` prints the level beside each finding, so a reader tells what each finding rests on at a glance. A missing required link is level G.
+**Rationale:** The level tells a reader what a finding rests on: G rests on records only, S rests on code read through a stack reader, and R rests on prose quality a person weighs. `litespec model check` prints the level beside each finding, so a reader tells what each finding rests on at a glance. A missing required link is level G.
 
-**Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line when any reader was missing with one clause per frontend, and exits with code 3 when no finding blocks but the inspection was incomplete. `litespec model check --release` blocks on `reader-missing` for a claimed layer.
+**Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, prints the level beside each finding, prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line when any reader was missing with one clause per frontend, and exits with code 3 when no finding blocks but the inspection was incomplete. `litespec model check --release` blocks on `reader-missing` for a claimed layer. `litespec model review` reports the level R findings and exits zero.
 
 ### Block Every Finding That Predicts a Runtime Failure
 
@@ -1393,13 +1393,13 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 **Applies to:** artifact: any
 
-**Statement:** A check MUST block when ignoring its finding fails at runtime, leaving level A to findings whose neglect only weakens documentation.
+**Statement:** A check MUST block when ignoring its finding fails at runtime; prose quality only a person can weigh is reported by `litespec model review` at level R and never blocks.
 
-**Rationale:** Level A findings report without failing the run outside the release gate, so a team reads them once and moves on. When a finding predicts a refused call, a crash, or a wrong result, moving on ships the failure: a command whose idempotency states no replay ignores its advisory, and a repeat then fails instead of returning the first result. Blocking the finding holds the run until the record or the code answers what the repeat brings. Level A stays for prose, names, and proof state no caller meets at runtime.
+**Rationale:** A finding nobody must act on teaches its readers to ignore findings. When a finding predicts a refused call, a crash, or a wrong result, moving on ships the failure: a command whose idempotency states no replay ignores its report, and a repeat then fails instead of returning the first result. Blocking the finding holds the run until the record or the code answers what the repeat brings. Level R stays for prose quality no caller meets at runtime, which a person weighs through `litespec model review`.
 
 **Example:** Claimwick's reimburse-expense command states `replay: refuses` with the state it checks in `recognizedBy`. A command stating no replay is reported and blocks until the replay is stated.
 
-**Reviewed for:** Does every check block when ignoring its finding fails at runtime, and does level A hold only documentation quality? Read each finding code's meaning in `FindingCodes.cs` against the runtime-failure test: a refused call, a crash, or a wrong result.
+**Reviewed for:** Does every check block when ignoring its finding fails at runtime, and does level R hold only prose quality? Read each finding code's meaning in `FindingCodes.cs` against the runtime-failure test: a refused call, a crash, or a wrong result.
 
 ### Declare One Mark Style
 
@@ -1461,7 +1461,7 @@ A test that verifies a choice no record states shows a missing record, which is 
 
 **Statement:** Every entity aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 
-**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A use case with no screen calling it blocks at level S: the link between a use case and the screens that call it is never advisory.
+**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A use case with no screen calling it blocks at level S: the link between a use case and the screens that call it always blocks.
 
 **Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` has no event handler carrying its mark, so the check reports `reaction-unimplemented` and blocks.
 
@@ -1728,6 +1728,22 @@ The figures below render from the retention schedule at build time.
 **Example:** The author validates the touched page, fixes the reported diagnostics, and commits only when the page passes.
 
 **Reviewed for:** Does the change report show each touched page passing single-page validation before commit?
+
+### Generate Record-Determined Code from the Records
+
+**ID:** `litespec/core/model#generate-record-determined-code-from-the-records`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Code that the records fully determine MUST come from `litespec generate`, written again in the same change as the record and never typed by hand.
+
+**Rationale:** A typed copy of a record fact drifts the first time the record changes and the copy does not: a refusal code typed into an exception and into the web, a permission name typed into a policy, an event decision typed into startup code. A generator removes the typing, and the drift check removes the drift. The records stay the one source, and the generated files carry no fact of their own.
+
+**Example:** The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs `litespec generate` and the exceptions read the new constant.
+
+**Checked by:** `litespec model check` reports `generated-drift` for each file `litespec generate` writes that is missing or differs from what the records render now.
 
 ### State What Happens in Every Behavior Statement
 

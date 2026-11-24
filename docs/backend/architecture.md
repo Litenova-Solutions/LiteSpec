@@ -591,7 +591,7 @@ An architecture test that repeats a covered boundary holds a second copy of a ru
 |:---|:---|
 | A folder sits outside the closed set its level allows, or a module folder names no declared module | `record-placement-invalid` from `litespec model check` |
 | A marked code element, test, or folder sits outside the folder its record names, or a folder names no declared record | `mark-folder-drift` and `code-placement-drift` from `litespec model check` |
-| A folder or type carries a technical grouping name such as `Shared`, `Common`, or `Helpers` outside the declared Kernel | `name-reason-missing` from `litespec model check` |
+| A folder or type carries a technical grouping name such as `Shared`, `Common`, or `Helpers` outside the declared Kernel | `name-reason-missing` from `litespec model review` |
 
 **Example:** In the Claimwick product, no architecture test repeats the checks that report an outer-layer type in Domain, an enum in Domain, a command handler that holds a write session, or a handler that authorizes itself, because the stack's checks report each one. The architecture suite keeps a test that no module reaches another module outside its `dependsOn`, with a type in the other module's `Contracts/` folder staying allowed.
 

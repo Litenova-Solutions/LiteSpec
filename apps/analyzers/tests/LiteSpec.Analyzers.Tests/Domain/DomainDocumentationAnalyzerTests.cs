@@ -235,4 +235,19 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1011 reports an undocumented member in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#document-every-public-domain-contract</proves>
+    [Fact(DisplayName = "LS1011 reports an undocumented member in a knowledge model")]
+    public Task ReportsAnUndocumentedMemberInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
+            namespace Claimwick.Travel;
+
+            /// <summary>Travel rates by country.</summary>
+            public sealed class TravelRates
+            {
+                public decimal {|LS1011:Amount|} { get; }
+            }
+            """, assemblyName: "Claimwick.Travel", path: "src/Knowledge/Claimwick.Travel/TravelRates.cs");
+
 }

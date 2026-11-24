@@ -240,7 +240,7 @@ A tool that alters the schema from application startup is no reviewed step, whic
 
 **Example:** The list-expenses query passes its employee scope and page to the repository. A handler that filters a full list in memory is reported.
 
-**Checked by:** `litespec model check` reports `query-filter-invalid` (level A) for a query handler filtering a repository list in memory.
+**Checked by:** `litespec model check` reports `query-filter-invalid` (level S) for a query handler filtering a repository list in memory.
 
 ### Assign Document Numbers from a Sequence
 

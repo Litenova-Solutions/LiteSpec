@@ -143,7 +143,8 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run(
             "rules",
             "--root", root.Path,
-            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
+            "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/application#ask-another-module-one-question-through-a-decision-port:", result.Output);

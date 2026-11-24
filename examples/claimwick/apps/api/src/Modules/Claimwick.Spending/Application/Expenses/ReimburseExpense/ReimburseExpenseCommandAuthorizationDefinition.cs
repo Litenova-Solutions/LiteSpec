@@ -6,7 +6,7 @@ namespace Claimwick.Spending.Application.Expenses.ReimburseExpense;
 /// <summary>Authorizes the reimburse-expense command from its declared permission.</summary>
 internal sealed class ReimburseExpenseCommandAuthorizationDefinition : IAuthorizationDefinition<ReimburseExpenseCommand>
 {
-    public static Permission Policy { get; } = new("permission/post-reimbursement");
+    public static Permission Policy { get; } = new(SpendingPermissions.PostReimbursement);
 
     public AuthorizationDeclaration Authorization => AuthorizationDeclaration.Authorized(Policy.Id);
 }

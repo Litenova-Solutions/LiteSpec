@@ -17,7 +17,7 @@ page
     field "Currency" select = "EUR"
     field "Receipt" file
     message "Attach the receipt for this expense, then submit again." critical
-    link "Cancel"
+    action "Cancel"
     action primary "Submit Expense"
 ```
 

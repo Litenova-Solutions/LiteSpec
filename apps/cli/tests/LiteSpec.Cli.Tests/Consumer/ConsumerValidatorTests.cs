@@ -13,7 +13,7 @@ public sealed partial class ConsumerValidatorTests
 {
     /// <summary>One <c>model check</c> finding line: its path, line, level, code and message.</summary>
     static readonly Regex FindingLine = new(
-        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|A)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
+        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|R)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
         RegexOptions.Compiled);
 
     /// <summary>
@@ -89,12 +89,14 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains(problems, problem => problem.Contains(expected, StringComparison.Ordinal));
     }
 
-    /// <summary>Asserts an advisory consumer problem: listed with <c>--all</c>, summarized without it. The exit code belongs to the whole check, so it is not asserted here.</summary>
+    /// <summary>Asserts a review consumer problem: listed by <c>model review</c> with exit zero, absent from <c>model check</c>.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     /// <param name="expected">The text one problem line must contain.</param>
-    static void AssertAdvisory(string root, string expected)
+    static void AssertReview(string root, string expected)
     {
-        var listed = Problems(RunConsumer(root, "--all"));
+        var reviewed = RunReview(root);
+        Assert.Equal(0, reviewed.Status);
+        var listed = Problems(reviewed);
         Assert.Contains(listed, problem => problem.Contains(expected, StringComparison.Ordinal));
         Assert.All(Problems(RunConsumer(root)), problem => Assert.DoesNotContain(expected, problem));
     }
@@ -111,6 +113,12 @@ public sealed partial class ConsumerValidatorTests
     static CliResult RunConsumer(string root, params string[] extra)
     {
         string[] args = ["model", "check", "--root", root, ..extra];
+        return TestCli.Run(args);
+    }
+
+    static CliResult RunReview(string root, params string[] extra)
+    {
+        string[] args = ["model", "review", "--root", root, ..extra];
         return TestCli.Run(args);
     }
 

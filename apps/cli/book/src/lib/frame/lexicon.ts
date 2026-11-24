@@ -180,7 +180,7 @@ export function lexiconExplain(lex: Lexicon, key: string): Explanation | null {
     "reach-verified": () => reach("Reach verified"),
     G: levels,
     S: levels,
-    A: levels,
+    R: levels,
     covered: () => glossary("Covered", "covered"),
     finding: () => glossary("Finding", "finding"),
   };

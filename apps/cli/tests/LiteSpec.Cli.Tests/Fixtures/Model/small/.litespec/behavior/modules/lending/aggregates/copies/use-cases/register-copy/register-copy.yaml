@@ -12,11 +12,25 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/copy.copy-registered
-steps:
-- statement: The librarian registers the copy on its home shelf.
+input:
+- name: copyId
+  meaning: The identity of the copy the librarian registers.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  classification: internal
+- name: shelf
+  meaning: The home shelf where the copy belongs.
+  type: text
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call registers its own copy, and registering the same barcode twice is refused.
+steps:
+- statement: The librarian registers the copy on its home shelf.
 records:
 - type: result
   id: result/register-copy.registered

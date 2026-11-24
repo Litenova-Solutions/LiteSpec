@@ -474,7 +474,7 @@ public sealed class BookOutlineTests
                 new JsonObject
                 {
                     ["code"] = "step-screen-missing",
-                    ["tier"] = "A",
+                    ["tier"] = "G",
                     ["message"] = "Step s2 has no screen.",
                     ["subject"] = "use-case/lending.borrow-copy#s2",
                     ["outcome"] = "accepted",
@@ -583,7 +583,7 @@ public sealed class BookOutlineTests
                 new JsonObject
                 {
                     ["code"] = "third",
-                    ["tier"] = "A",
+                    ["tier"] = "G",
                     ["message"] = "Third.",
                     ["subject"] = "use-case/lending.borrow-copy",
                     ["outcome"] = "accepted",

@@ -29,7 +29,7 @@ public sealed class FindingSourceCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "finding-source-missing");
 
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Research 'research/loan-period-benchmarks' states a finding with no source link: 'Others lend for three weeks.'.", finding.Message);
         Assert.Equal(explanationFile, finding.Path);
         Assert.Equal(7, finding.Line);

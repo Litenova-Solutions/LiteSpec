@@ -14,6 +14,8 @@ outcomes:
   meaning: The notice could not be sent after every retry.
 - name: retry-scheduled
   meaning: The send failed and another attempt is scheduled.
+fulfills:
+- requirement/borrowing.max-active-loans
 onFailure:
   mode: retry
   retry:
@@ -29,5 +31,3 @@ idempotency:
   mode: key
   key: loan-due-{loanId}
   keyScope: global
-fulfills:
-- requirement/borrowing.max-active-loans

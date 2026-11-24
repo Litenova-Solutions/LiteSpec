@@ -30,7 +30,7 @@ public sealed class RuleStatementLengthTests
 
         Assert.Equal("Rule 'rule/copy.loaned-once' states 601 characters, more than 600; split it into one rule per condition.", finding.Message);
         Assert.Equal("rule/copy.loaned-once", finding.Subject);
-        Assert.Equal("A", FindingCodes.Of(finding.Code).Level);
+        Assert.Equal("R", FindingCodes.Of(finding.Code).Level);
     }
 
     /// <summary>A model with one rule holding the statement and the use case it governs.</summary>

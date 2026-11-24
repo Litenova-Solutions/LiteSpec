@@ -14,11 +14,27 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/hold.hold-placed
-steps:
-- statement: The reader places a hold on the copy.
+input:
+- name: copyId
+  meaning: The copy the reader places a hold on.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  classification: internal
+- name: readerId
+  meaning: The signed-in reader waiting for the copy, read from verified claims.
+  type: id
+  identifies: actor/reader
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/library-app
+  classification: personal
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.
+steps:
+- statement: The reader places a hold on the copy.
 records:
 - type: result
   id: result/place-hold.placed

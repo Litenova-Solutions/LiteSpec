@@ -60,11 +60,25 @@ public sealed class FindingCodesTests
     {
         Assert.All(FindingCodes.All, row =>
         {
-            Assert.Contains(row.Level, new[] { "G", "S", "A" });
+            Assert.Contains(row.Level, new[] { "G", "S", "R" });
             Assert.False(string.IsNullOrWhiteSpace(row.Meaning), row.Code);
             Assert.False(string.IsNullOrWhiteSpace(row.Fix), row.Code);
         });
         Assert.Equal(FindingCodes.All.Count, FindingCodes.All.Select(row => row.Code).Distinct(StringComparer.Ordinal).Count());
+    }
+
+    /// <summary>No finding code has level A: every code either blocks at G or S, or is reported by model review at R.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void NoCodeHasLevelA()
+    {
+        var advisory = FindingCodes.All
+            .Select(row => row.Code)
+            .Where(code => FindingCodes.Of(code).Level == "A")
+            .OrderBy(code => code, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Empty(advisory);
     }
 
     /// <summary>Each scope and term finding code added for rc.10 carries its contracted tier, layer and trace.</summary>
@@ -90,7 +104,7 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("requirement-cites-missing", "A")]
+    [InlineData("requirement-cites-missing", "G")]
     [InlineData("constraint-unreached", "G")]
     public void NewIntentCodesHaveTiers(string code, string tier)
     {
@@ -99,15 +113,16 @@ public sealed class FindingCodesTests
 
     /// <summary>Each new YAML finding code carries its contracted tier.</summary>
     /// <param name="code">The finding code under test.</param>
+    /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("explanation-missing")]
-    [InlineData("format-drift")]
-    [InlineData("rule-statement-wide")]
-    [InlineData("source-link-bare")]
-    public void NewYamlCodesAreAdvisory(string code)
+    [InlineData("explanation-missing", "R")]
+    [InlineData("format-drift", "G")]
+    [InlineData("rule-statement-wide", "R")]
+    [InlineData("source-link-bare", "G")]
+    public void NewYamlCodesHaveTiers(string code, string tier)
     {
-        Assert.Equal("A", FindingCodes.Of(code).Level);
+        Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
 
     /// <summary>Each YAML finding code about a link between files or records blocks at level G.</summary>
@@ -127,14 +142,14 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("job-name-invalid", "A")]
+    [InlineData("job-name-invalid", "G")]
     [InlineData("reaction-unimplemented", "S")]
     [InlineData("job-unimplemented", "S")]
     [InlineData("atomicity-drift", "G")]
-    [InlineData("atomicity-invalid", "A")]
+    [InlineData("atomicity-invalid", "G")]
     [InlineData("rule-sibling-uncited", "G")]
-    [InlineData("exercises-uncited", "A")]
-    [InlineData("refusal-next-step-unknown", "A")]
+    [InlineData("exercises-uncited", "G")]
+    [InlineData("refusal-next-step-unknown", "G")]
     [InlineData("guard-module-foreign", "G")]
     [InlineData("command-target-invalid", "G")]
     [InlineData("command-consumer-missing", "G")]
@@ -156,8 +171,8 @@ public sealed class FindingCodesTests
     [Theory]
     [InlineData("waiver-expired", "G")]
     [InlineData("waiver-invalid", "G")]
-    [InlineData("use-case-unverified", "A")]
-    [InlineData("proof-invalid", "A")]
+    [InlineData("use-case-unverified", "S")]
+    [InlineData("proof-invalid", "S")]
     public void NewGovernanceCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);

@@ -14,7 +14,7 @@ public sealed class TemplateValueCheckTests
         File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{\"explanations\":{\"layers\":[\"intent\"]}}");
         Assert.Equal(0, TestCli.Run("new", "goal", "faster-reimbursement", "--root", consumer.Path).Status);
 
-        var result = TestCli.Run("model", "check", "--root", consumer.Path, "--all");
+        var result = TestCli.Run("model", "check", "--root", consumer.Path);
 
         Assert.Contains("template-value-unchanged", result.Output);
     }

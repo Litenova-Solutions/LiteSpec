@@ -22,8 +22,8 @@ export type ProofState =
 /** A screen capture state from the model: captured, route-not-captured or no-route. */
 export type CaptureState = "captured" | "route-not-captured" | "no-route";
 
-/** A finding check level: blocking, should-fix or advisory. */
-export type CheckLevel = "G" | "S" | "A";
+/** A finding check level: G blocks a release, S blocks when qualified, R is for review. */
+export type CheckLevel = "G" | "S" | "R";
 
 /** An implementation entry kind the book writes in impl[].kind. */
 export type ImplKind =

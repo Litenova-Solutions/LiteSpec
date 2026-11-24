@@ -147,7 +147,7 @@ public sealed class BookTruthTests
                 new JsonObject
                 {
                     ["code"] = "step-screen-missing",
-                    ["tier"] = "A",
+                    ["tier"] = "G",
                     ["message"] = "Step s2 has no screen.",
                     ["subject"] = "flow/borrowing",
                     ["outcome"] = "accepted",

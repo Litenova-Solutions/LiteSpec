@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed partial class ModelCheckSummaryTests
 {
     /// <summary>One count line under "Findings by code:", such as <c>     12  paging-undeclared (level G)</c>.</summary>
-    [System.Text.RegularExpressions.GeneratedRegex(@"^\s+(?<count>\d+)\s+(?<code>[a-z-]+) \(level (?<level>[GSA])\)$")]
+    [System.Text.RegularExpressions.GeneratedRegex(@"^\s+(?<count>\d+)\s+(?<code>[a-z-]+) \(level (?<level>[GS])\)$")]
     private static partial System.Text.RegularExpressions.Regex CountLine();
 
     /// <summary>The per-code count lines of one output, in printed order, as code, level and count.</summary>
@@ -34,7 +34,7 @@ public sealed partial class ModelCheckSummaryTests
     static string[] Lines(string output) =>
         output.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
 
-    /// <summary>The sort rank of a level: G first, then S, then A.</summary>
+    /// <summary>The sort rank of a level: G first, then S.</summary>
     /// <param name="level">The level letter to rank.</param>
     /// <returns>The sort rank, lower first.</returns>
     static int Rank(string level) => level switch
@@ -45,40 +45,40 @@ public sealed partial class ModelCheckSummaryTests
     };
 
     /// <summary>
-    ///     With --all each finding prints once, the blocking ones first; the counts per code follow the
+    ///     Each finding prints once, blocking first; the counts per code follow the
     ///     findings, and the totals line, with the blocking count, ends the output.
     /// </summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void CheckPrintsBlockingFirstThenCountsThenTotals()
+    public void CheckPrintsFindingsThenCountsThenTotals()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
         WriteScenario(fixture.Path);
-        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Equal(1, result.Status);
 
         var lines = Lines(result.Output);
-        var blocking = Array.FindIndex(lines, line => line.Contains("[paging-undeclared]", StringComparison.Ordinal));
-        var advisory = Array.FindIndex(lines, line => line.Contains("[use-case-unverified]", StringComparison.Ordinal));
+        var general = Array.FindIndex(lines, line => line.Contains("[paging-undeclared]", StringComparison.Ordinal));
+        var stack = Array.FindIndex(lines, line => line.Contains("[use-case-unverified]", StringComparison.Ordinal));
         var heading = Array.IndexOf(lines, "Findings by code:");
         var totals = Array.FindIndex(lines, line => line.Contains(" findings, ", StringComparison.Ordinal) && line.EndsWith(" covered.", StringComparison.Ordinal));
         var counts = CountLines(result.Output);
 
         Assert.Single(lines, line => line.Contains("[paging-undeclared]", StringComparison.Ordinal));
-        Assert.True(blocking >= 0 && advisory >= 0 && heading >= 0 && totals >= 0);
-        Assert.True(blocking < advisory, "The blocking findings print before the advisory ones.");
-        Assert.True(advisory < heading, "The findings print before the counts.");
+        Assert.Contains(lines, line => line.Contains("[use-case-unverified]", StringComparison.Ordinal));
+        Assert.True(general >= 0 && stack >= 0 && heading >= 0 && totals >= 0);
+        Assert.True(general < heading && stack < heading, "The findings print before the counts.");
         Assert.True(heading < totals, "The counts print before the totals line.");
         Assert.Contains(" blocking, ", lines[totals], StringComparison.Ordinal);
         Assert.NotEmpty(counts);
         Assert.Equal("G", counts[0].Level);
         Assert.Contains(counts, count => count.Code == "paging-undeclared" && count.Level == "G");
-        Assert.Contains(counts, count => count.Code == "use-case-unverified" && count.Level == "A");
+        Assert.Contains(counts, count => count.Code == "use-case-unverified" && count.Level == "S");
 
         for (var index = 1; index < counts.Count; index++)
         {
-            Assert.True(Rank(counts[index].Level) >= Rank(counts[index - 1].Level), "The counts order by level G, S, A.");
+            Assert.True(Rank(counts[index].Level) >= Rank(counts[index - 1].Level), "The counts order by level G, S.");
 
             if (counts[index].Level == counts[index - 1].Level)
             {
@@ -87,10 +87,10 @@ public sealed partial class ModelCheckSummaryTests
         }
     }
 
-    /// <summary>By default the level A findings are summarized by code and not listed; the counts still name them.</summary>
+    /// <summary>Every finding is listed in full; no finding is summarized away.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void CheckByDefaultSummarizesAdvisoryByCode()
+    public void CheckListsEveryFinding()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
         WriteScenario(fixture.Path);
@@ -98,14 +98,9 @@ public sealed partial class ModelCheckSummaryTests
 
         Assert.Equal(1, result.Status);
         Assert.Contains("[paging-undeclared]", result.Output, StringComparison.Ordinal);
-        Assert.DoesNotContain("[use-case-unverified]", result.Output, StringComparison.Ordinal);
-        Assert.Contains("advisory findings summarized by code; run with --all to list them.", result.Output, StringComparison.Ordinal);
-        Assert.Contains(CountLines(result.Output), count => count.Code == "use-case-unverified" && count.Level == "A");
-
-        var all = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
-
-        Assert.Contains("[use-case-unverified]", all.Output, StringComparison.Ordinal);
-        Assert.DoesNotContain("advisory findings summarized by code", all.Output, StringComparison.Ordinal);
+        Assert.Contains("[use-case-unverified]", result.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain("summarized by code", result.Output, StringComparison.Ordinal);
+        Assert.Contains(CountLines(result.Output), count => count.Code == "use-case-unverified" && count.Level == "S");
     }
 
     /// <summary>A release drift prints before every other finding, naming both releases and the install command, in text and in JSON.</summary>
@@ -181,10 +176,17 @@ public sealed partial class ModelCheckSummaryTests
         File.WriteAllText(project, text.Replace("reviewedLiteSpecVersion: 7.0.0", $"reviewedLiteSpecVersion: {version}", StringComparison.Ordinal));
     }
 
-    /// <summary>Writes a scenario for borrow-copy with no proving test, so an advisory finding prints.</summary>
+    /// <summary>Writes a scenario for borrow-copy with no proving test, so a blocking S finding prints.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
+        var omitted = Path.Combine(root, ".litespec", "governance", "waivers", "test-results-omitted");
+
+        if (Directory.Exists(omitted))
+        {
+            Directory.Delete(omitted, true);
+        }
+
         TestRecords.Write(root, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-refused-scenario.yaml", """
             {
               "type": "scenario",

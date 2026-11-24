@@ -182,10 +182,11 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 
 ### Maintain
 
-- [Maintain overview](maintain/README.md): the three commands that keep the standard itself consistent.
+- [Maintain overview](maintain/README.md): the four maintainer commands.
 - [Validate Standards](maintain/validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
 - [Generate Provisions](maintain/provisions.md): rebuilds the provision index from the active standards.
 - [Generate Provision Changelog](maintain/changelog.md): writes the provision changes since a git ref into the changelog.
+- [Publish a Local Toolchain](maintain/publish-local.md): packs the checkout's CLI and analyzers into a local feed and moves a consumer onto that build.
 
 ### Analyzers
 

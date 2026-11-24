@@ -20,7 +20,7 @@ public sealed class UseCaseUnverifiedCheckTests
         model.Completion["use-case/lending.borrow-copy"] = new Completion("coded", "known", [], new Dictionary<string, CompletionCount>(), [], 0, 0, 0);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "use-case-unverified");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("S", finding.Tier);
         Assert.Equal("Use case 'use-case/lending.borrow-copy' has scenarios with no passing proof.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }

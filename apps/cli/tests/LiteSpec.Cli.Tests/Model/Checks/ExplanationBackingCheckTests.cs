@@ -25,7 +25,7 @@ public sealed class ExplanationBackingCheckTests
                 "# Lost Copies\n\nCopies go missing on the shelf, and readers wait.\n\n## Affected Users\n\nReaders.\n\n## Failure Cases\n\nCopies go missing on the shelf.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-section-unbacked");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Problem 'problem/lost-copies' explains Failure Cases, but its record holds no failureCases.", finding.Message);
         Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal("problem/lost-copies", finding.Subject);
@@ -113,7 +113,7 @@ public sealed class ExplanationBackingCheckTests
                 "# Loan\n\nA loan lends one copy to one reader.\n\n## Lifecycle\n\nA loan opens when a copy goes out.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Aggregate 'aggregate/lending.loan' holds no Data and Retention section in its explanation.", finding.Message);
         Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal("aggregate/lending.loan", finding.Subject);

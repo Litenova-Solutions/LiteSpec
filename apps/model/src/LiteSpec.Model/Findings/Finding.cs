@@ -25,6 +25,6 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
     /// <summary>The TypeScript reader name.</summary>
     public const string TypeScriptReader = "typescript";
 
-    /// <summary>Gets the finding tier from <see cref="FindingCodes" />: G blocks, S blocks where qualified, A reports.</summary>
+    /// <summary>Gets the finding tier from <see cref="FindingCodes" />: G blocks, S blocks where qualified, R is reported by model review.</summary>
     public string Tier => FindingCodes.IsKnown(Code) ? FindingCodes.Of(Code).Level : "G";
 }

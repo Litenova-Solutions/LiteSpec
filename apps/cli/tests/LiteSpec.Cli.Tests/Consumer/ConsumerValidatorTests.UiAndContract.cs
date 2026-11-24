@@ -93,32 +93,29 @@ public sealed partial class ConsumerValidatorTests
     public void FailingRunWritesItsProblemsAsAnArray()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(
-            folder.Path,
-            ".litespec/intent/decisions/0001-launch/0001-launch.md",
-            raw => ReplaceFirst(raw, "## Context", "## Notes"));
+        ConsumerFixture.MutateMeta(folder.Path, DecisionPage, meta => meta.Remove("consequences"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         var messages = parsed["findings"]!.AsArray()
             .Select(finding => (JsonObject)finding!)
-            .Where(finding => (string?)finding["code"] == "page-section-missing")
+            .Where(finding => (string?)finding["code"] == "record-invalid")
             .Select(finding => (string?)finding["message"] ?? string.Empty);
-        Assert.Contains(messages, message => message.Contains("requires an H2 'Context'", StringComparison.Ordinal));
+        Assert.Contains(messages, message => message.Contains("missing required property 'consequences'", StringComparison.Ordinal));
     }
 
-    /// <summary>Machine-readable problems carry their code and level.</summary>
+    /// <summary>Machine-readable review problems carry their code and level.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact(DisplayName = "machine-readable problems carry their code and level")]
-    public void MachineReadableProblemsCarryTheirCodeAndLevel()
+    [Fact(DisplayName = "machine-readable review problems carry their code and level")]
+    public void MachineReadableReviewProblemsCarryTheirCodeAndLevel()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
             ".litespec/intent/decisions/0001-launch/0001-launch.md",
             raw => ReplaceFirst(raw, "## Context", "## Notes"));
-        var result = RunConsumer(folder.Path, "--format", "json");
-        Assert.Equal(1, result.Status);
+        var result = RunReview(folder.Path, "--format", "json");
+        Assert.Equal(0, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         var findings = parsed["findings"]!.AsArray()
             .Select(finding => (JsonObject)finding!)
@@ -127,7 +124,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.NotEmpty(findings);
         Assert.All(findings, finding =>
         {
-            Assert.Equal("A", (string?)finding["level"]);
+            Assert.Equal("R", (string?)finding["level"]);
             Assert.Equal("page-section-missing", (string?)finding["code"]);
             Assert.Equal("reported", (string?)finding["outcome"]);
             Assert.Contains("requires an H2 'Context'", (string?)finding["message"] ?? string.Empty, StringComparison.Ordinal);

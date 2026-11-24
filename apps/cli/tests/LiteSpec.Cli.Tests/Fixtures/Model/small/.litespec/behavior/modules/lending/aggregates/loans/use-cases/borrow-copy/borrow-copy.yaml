@@ -12,11 +12,27 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-borrowed
-steps:
-- statement: The reader borrows the copy from the shelf.
+input:
+- name: copyId
+  meaning: The copy the reader borrows.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  classification: internal
+- name: readerId
+  meaning: The signed-in reader borrowing the copy, read from verified claims.
+  type: id
+  identifies: actor/reader
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/library-app
+  classification: personal
 idempotency:
   mode: none
   reason: Each call lends its own copy, and lending an unavailable copy is refused.
+steps:
+- statement: The reader borrows the copy from the shelf.
 records:
 - type: result
   id: result/borrow-copy.borrowed

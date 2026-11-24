@@ -46,7 +46,7 @@ public sealed class AtomicityCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "atomicity-invalid");
         Assert.Equal("Rule 'rule/sales.big-order' binds 5 aggregates.", finding.Message);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
     }
 
     /// <summary>Rule Binding Four Aggregates Passes.</summary>
@@ -73,5 +73,31 @@ public sealed class AtomicityCheckTests
             TestModel.Record("use-case", "use-case/sales.place-order", Path.Combine(temp.Path, "order.yaml"), """{"kind": "command", "writes": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"], "consistency": {"mode": "atomic"}}"""));
 
         Assert.Contains("atomicity-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>Atomic With Two BoundBy Rules Reports.</summary>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
+    [Fact]
+    public void AtomicWithTwoBoundByRulesReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "boundBy": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
+
+        Assert.Contains("atomicity-duplicate", TestModel.Codes(model));
+    }
+
+    /// <summary>Atomic With One BoundBy Rule Passes.</summary>
+    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
+    [Fact]
+    public void AtomicWithOneBoundByRulePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "boundBy": ["rule/loan.one-open-loan"]}}"""));
+
+        Assert.DoesNotContain("atomicity-duplicate", TestModel.Codes(model));
     }
 }

@@ -99,7 +99,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Example:** The declared shared kernel project passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 
-**Checked by:** `litespec model check` reports `name-reason-missing` (level S) for a folder or type named for the absence of a reason outside the declared shared kernel.
+**Checked by:** `litespec model review` reports `name-reason-missing` (level R) for a folder or type named for the absence of a reason outside the declared shared kernel.
 
 ## Reference Example
 

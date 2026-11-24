@@ -14,7 +14,8 @@ public sealed class RulesExplanationTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            ".litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.md");
+            ".litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.md",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
@@ -33,7 +34,8 @@ public sealed class RulesExplanationTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            ".litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md");
+            ".litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(

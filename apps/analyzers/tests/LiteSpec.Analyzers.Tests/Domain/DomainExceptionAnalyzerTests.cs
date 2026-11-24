@@ -352,4 +352,44 @@ public sealed class DomainExceptionAnalyzerTests
                 }
             }
             """, path: "Shop.Spending/Domain/Source.cs");
+
+    /// <summary>LS1005 stays quiet for a startup failure in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/knowledge#check-shape-at-compile-time-and-dates-at-startup</proves>
+    [Fact(DisplayName = "LS1005 stays quiet for a startup failure in a knowledge model")]
+    public Task StaysQuietForAStartupFailureInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Claimwick.Travel;
+
+            public sealed class TravelRegistry
+            {
+                public void Validate(bool registered)
+                {
+                    if (!registered)
+                    {
+                        throw new InvalidOperationException("No travel set is registered.");
+                    }
+                }
+            }
+            """, assemblyName: "Claimwick.Travel", path: "src/Knowledge/Claimwick.Travel/TravelRegistry.cs");
+
+    /// <summary>LS1006 still reports a misnamed exception in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    [Fact(DisplayName = "LS1006 still reports a misnamed exception in a knowledge model")]
+    public Task StillReportsAMisnamedExceptionInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Claimwick.Travel;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class {|LS1006:TravelRuleFailure|} : DomainException
+            {
+                public TravelRuleFailure() : base("Broken.") { }
+            }
+            """, assemblyName: "Claimwick.Travel", path: "src/Knowledge/Claimwick.Travel/TravelRuleFailure.cs");
 }

@@ -14,11 +14,19 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-returned
-steps:
-- statement: The reader returns the copy to the desk.
+input:
+- name: loanId
+  meaning: The loan whose copy the reader returns.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call returns its own copy, and returning an inactive loan is refused.
+steps:
+- statement: The reader returns the copy to the desk.
 records:
 - type: result
   id: result/return-copy.returned

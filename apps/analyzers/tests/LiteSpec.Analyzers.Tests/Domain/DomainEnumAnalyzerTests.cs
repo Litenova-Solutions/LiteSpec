@@ -41,4 +41,15 @@ public sealed class DomainEnumAnalyzerTests
             public enum ResponseShape { Full, Summary }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1002 reports an enum declared in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1002 reports an enum declared in a knowledge model")]
+    public Task ReportsAnEnumInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
+            namespace Claimwick.Travel;
+
+            public enum {|LS1002:VehicleKind|} { Car, Bicycle }
+            """, assemblyName: "Claimwick.Travel", path: "src/Knowledge/Claimwick.Travel/VehicleKind.cs");
+
 }

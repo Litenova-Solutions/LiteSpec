@@ -11,7 +11,7 @@ namespace LiteSpec.Model;
 public sealed record Severity(Outcome Outcome)
 {
     /// <summary>
-    ///     Decides one finding's severity from its tier and the reader: reported for tier A, reported for tier S under an unqualified
+    ///     Decides one finding's severity from its tier and the reader: reported for tier R, reported for tier S under an unqualified
     ///     reader, and blocking otherwise. Waived findings are set aside before, in Suppression.Partition.
     /// </summary>
     /// <param name="finding">The finding.</param>
@@ -21,7 +21,7 @@ public sealed record Severity(Outcome Outcome)
         Finding finding,
         bool readerQualified)
     {
-        if (string.Equals(finding.Tier, "A", StringComparison.Ordinal))
+        if (string.Equals(finding.Tier, "R", StringComparison.Ordinal))
         {
             return new Severity(Outcome.Reported);
         }

@@ -26,7 +26,7 @@ public sealed class ResearchSourceCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nSee [the report](https://example.com/benchmark-report) for numbers.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-link-bare");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Research explanation links 'https://example.com/benchmark-report' directly; cite a source name instead.", finding.Message);
         Assert.Equal(explanationFile, finding.Path);
         Assert.Equal(7, finding.Line);
@@ -53,7 +53,7 @@ public sealed class ResearchSourceCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nSee https://example.com/benchmark-report for numbers.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-link-bare");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Research explanation links 'https://example.com/benchmark-report' directly; cite a source name instead.", finding.Message);
         Assert.Equal(explanationFile, finding.Path);
         Assert.Equal(7, finding.Line);
@@ -80,7 +80,7 @@ public sealed class ResearchSourceCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nSee <https://example.com/benchmark-report> for numbers.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-link-bare");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Research explanation links 'https://example.com/benchmark-report' directly; cite a source name instead.", finding.Message);
         Assert.Equal(explanationFile, finding.Path);
         Assert.Equal(7, finding.Line);

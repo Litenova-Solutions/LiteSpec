@@ -13,5 +13,5 @@ internal sealed class ExpenseReceiptMissingException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.receipt-missing";
+    public override string Code => SpendingRefusalCodes.ReceiptMissing;
 }

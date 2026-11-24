@@ -13,5 +13,5 @@ internal sealed class ExpenseNotSubmittedException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.not-submitted";
+    public override string Code => SpendingRefusalCodes.NotSubmitted;
 }

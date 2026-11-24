@@ -2,12 +2,13 @@
 
 ## Name
 
-`litespec model` checks the project model, formats record files, renders generated outputs, answers record queries, and reports module edges.
+`litespec model` checks the project model, reviews its prose, formats record files, renders generated outputs, answers record queries, and reports module edges.
 
 ## Synopsis
 
 ```bash
-litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof] [--verbose]
+litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--module <module>] [--record-proof] [--verbose]
+litespec model review [--root <consumer>] [--format json]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
@@ -20,21 +21,23 @@ litespec model edges [--root <consumer>] [--module <module>]
 
 The model builder reads the written records, the code marks, the routes, the tests, and the latest test run into one model, and checks it. Every finding carries a code, a level, an outcome, a message, a path, a line, and a subject, as the field table below describes. [Underneath](#underneath) states how the model is read and how each finding's level, layer, and trace are decided.
 
-The five subcommands are `check`, `format`, `render`, `query`, and `edges`.
+The six subcommands are `check`, `review`, `format`, `render`, `query`, and `edges`.
 
-`check` builds the model in memory and reports every finding with its level, code, message, path, and line. It runs only the findings of the layers the project claims in `layers`, in both the model checks and the consumer pass, as the finding table states per code. It runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, and reports those findings in the same shape, so one command and one CI step check the whole consumer.
+`check` builds the model in memory and reports every finding with its level, code, message, path, and line. It runs only the findings of the layers the project claims in `layers`, in both the model checks and the consumer pass, as the finding table states per code. It runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, and reports those findings in the same shape, so one command and one CI step check the whole consumer. It reports `toolchain-drift` when the tool manifest, the analyzer reference, and the running CLI name different LiteSpec builds, as [Run One LiteSpec Build](../core/release.md#run-one-litespec-build) requires.
 
-In text, `check` lists every open blocking finding in full, then one line per finding code with its count and level, ordered by level (G, then S, then A) and then by count, such as `       3  record-invalid (level G)`, and then the totals line. Level A findings appear only in those counts unless `--all` lists each one. When the installed release differs from the release the project reviewed, the `release-drift` finding prints before every other finding: it names both releases and the command that installs the reviewed one, because every finding after it may not apply.
+In text, `check` lists every finding in full, the open blocking findings first, then one line per finding code with its count and level, ordered by level (G, then S) and then by count, such as `       3  record-invalid (level G)`, and then the totals line. When the installed release differs from the release the project reviewed, the `release-drift` finding prints before every other finding: it names both releases and the command that installs the reviewed one, because every finding after it may not apply.
 
 With `--format json`, it writes one JSON object: the `findings` array holds every finding the run shows, and the `covered` array holds every finding a live waiver covers.
 
-With `--release`, the release-readiness findings block: `use-case-unverified` and, for a claimed layer, `reader-missing`.
+With `--release`, `reader-missing` blocks for a claimed layer.
 
 With `--since <ref>`, the command checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`. Findings match by code, subject identifier and message, never by line. When the base tree cannot be built or checked, every finding blocks and the output says why. The run also reports every client-breaking contract change since `<ref>` as a `contract-break` finding of level S, which always blocks at the level that runs it: a removed result, a removed refusal code, and a changed integration event.
 
 With `--module <module>`, the command prints only the findings on the records and files of that module, and the exit code follows those findings alone.
 
 `check` writes nothing to the repository, except with `--record-proof`, which writes `.litespec/proof/proofs.json` from the run. Continuous integration runs the check with `--record-proof` on the pull request head, after the test run in the same job, so a merged pull request carries fresh proofs.
+
+`review` builds the same model and reports the level R findings the check sets aside: prose quality only a person can weigh, such as a missing summary or a vague word. It prints in the same shape as `check`, with the same counts and totals, and it always exits zero: its findings never block, and agents are not asked to clear them.
 
 `format` rewrites every record file under the record roots, and the glossary file, into canonical form. With `--check` it writes nothing and lists each file that would change.
 
@@ -50,12 +53,12 @@ With `--list <type>`, it lists every written record of the type, such as `use-ca
 
 `edges` prints the written record links between modules, per module: the outgoing and incoming counts with counts per link kind and per other module, then every pair of modules that link each other both ways. With `--module <module>` it prints only that module with the mutual pairs it belongs to. It only reads the built model; it writes nothing.
 
-With `--format json`, `check` writes one JSON object with each finding carrying these fields. A continuous integration job decides what blocked the run from `outcome`, because the level alone does not decide it.
+With `--format json`, `check` and `review` write one JSON object with each finding carrying these fields. A continuous integration job decides what blocked the run from `outcome`, because the level alone does not decide it.
 
 | Field | Holds |
 |:---|:---|
 | `code` | The finding code, such as `record-invalid`. |
-| `level` | The finding's level: G, S or A. |
+| `level` | The finding's level: G, S or R. |
 | `outcome` | What the run does with the finding: `blocking` when it fails the run, `reported` when it prints and the run passes, and `covered` when a live waiver covers it. |
 | `reason` | `unchanged` when `--since` reported a finding already present at `<ref>`, and `null` otherwise. |
 | `message` | What is wrong, in one sentence. |
@@ -92,10 +95,9 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 | Option | Default | Effect |
 |:---|:---|:---|
 | `--root <consumer>` | the working directory | Selects the consumer repository to read. |
-| `--format <name>` | human lines | Only `check` reads it. It accepts `json` and writes one JSON object holding the `findings` and `covered` arrays, each finding with the fields the Description lists. |
-| `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified` and, for a claimed layer, `reader-missing`. |
+| `--format <name>` | human lines | Only `check` and `review` read it. It accepts `json` and writes one JSON object holding the `findings` and `covered` arrays, each finding with the fields the Description lists. |
+| `--release` | off | Only `check` reads it. Makes `reader-missing` block for a claimed layer. |
 | `--since <ref>` | off | Only `check` reads it. Checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`; findings match by code, subject identifier and message, never by line. When the base cannot be built or checked, every finding blocks. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. |
-| `--all` | off | Only `check` reads it. In text, lists every level A finding one by one. Without it, the level A findings are summarized by code in the counts. In JSON every finding is always listed. |
 | `--check` | off | Only `format` reads it. Writes nothing, lists each file that would change, and exits 1 when any would. |
 | `--search <text>` | off | Only `query` reads it. Lists the written records and flow steps whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
 | `--list <type>` | off | Only `query` reads it. Lists every written record of the type, one line each with identifier, title and path, ordered by identifier. With `--module` it lists only the records of that module. An unknown type is a usage error. |
@@ -108,7 +110,7 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 
 | Code | Meaning |
 |:--|:--|
-| `0` | The command finished with no open blocking finding and, for `check`, a complete inspection. |
+| `0` | The command finished with no open blocking finding and, for `check`, a complete inspection. `review` always exits 0. |
 | `1` | `check` found an open blocking finding or an expired waiver, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. With `--search` or `--list`, no match prints nothing and exits 0. |
 | `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, the `--list` type or `--module` name is unknown, or `format` or `render` found a file that does not parse. |
 | `3` | `check` found no open blocking finding but the inspection was incomplete: a reader was missing, so some level S findings report without blocking. The run prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line, one clause per frontend. |
@@ -119,6 +121,12 @@ Check the model and read the findings from another program:
 
 ```bash
 litespec model check --root ../consumer --format json
+```
+
+Review the prose quality a person weighs:
+
+```bash
+litespec model review --root ../consumer
 ```
 
 Render the generated outputs after a record change:
@@ -175,7 +183,7 @@ Report the links between modules:
 litespec model edges --root ../consumer
 ```
 
-Check for release, with the release-readiness findings blocking:
+Check for release, with a missing reader for a claimed layer blocking:
 
 ```bash
 litespec model check --root ../consumer --release
@@ -203,7 +211,7 @@ A proof is fresh when its run commit is HEAD, or when every path changed between
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. The link is always the mark, never a folder or a type name. A marked refusal type declares the `code` of the refusal result its rule names.
 
-Every check has a level. G reads records only and always blocks. S reads code through a stack reader, the reader a stack selects to read its code, screens or tests: it blocks where the reader that produced the finding is qualified, and reports otherwise. A is advisory: it reports, and blocks only when `litespec model check --release` makes a release-readiness finding block.
+Every check has a level. G reads records only and always blocks. S reads code through a stack reader, the reader a stack selects to read its code, screens or tests: it blocks where the reader that produced the finding is qualified, and reports otherwise. R reads prose quality a person weighs: `litespec model review` reports it, and it never blocks.
 
 Qualification is per reader: a reader is qualified when it ran and its handshake matched. The golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified, and a finding no reader produced, a record finding, is qualified.
 

@@ -9,7 +9,7 @@ public sealed class FindingCode
 {
     /// <summary>Initializes a new instance of the <see cref="FindingCode" /> class.</summary>
     /// <param name="code">The kebab-case code, such as <c>record-invalid</c>.</param>
-    /// <param name="level">The check level: G, S or A.</param>
+    /// <param name="level">The check level: G, S or R.</param>
     /// <param name="layer">The record layer the code governs.</param>
     /// <param name="trace">Whether the code ties the layer to the records rather than checking LiteSpec's practice for it.</param>
     /// <param name="meaning">What the finding means, in one sentence.</param>
@@ -33,7 +33,7 @@ public sealed class FindingCode
     /// <summary>Gets the kebab-case code.</summary>
     public string Code { get; }
 
-    /// <summary>Gets the check level: G reads records only and always blocks, S reads code through a stack reader and blocks where the reader is qualified, and A is advisory.</summary>
+    /// <summary>Gets the check level: G reads records only and always blocks, S reads code through a stack reader and blocks where the reader is qualified, and R is prose quality a person reviews through model review.</summary>
     public string Level { get; }
 
     /// <summary>Gets the record layer the code governs.</summary>

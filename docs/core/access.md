@@ -487,7 +487,7 @@ The opening verb is a naming convention only: no permission implies another by i
 
 **Example:** `permission/approve-expense` opens with `approve` and `permission/manage-policy` opens with `manage`, so both pass. `permission/submit-expense` opens with the glossary verb `submit` and passes. `permission/handle-documents` opens with a word neither list states, so it is reported.
 
-**Checked by:** `litespec model check` reports `permission-verb-unknown` as advisory for a permission name whose opening verb is neither in the table, nor a glossary verb of kind command or either, nor `manage`.
+**Checked by:** `litespec model check` reports `permission-verb-unknown` (level G) for a permission name whose opening verb is neither in the table, nor a glossary verb of kind command or either, nor `manage`.
 
 ### Keep Permission Sets to Entries
 

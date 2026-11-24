@@ -455,4 +455,99 @@ public sealed class DomainOuterLayerAnalyzerTests
                     internal sealed record TeamName(string Value);
                     """),
             ], assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS1001 accepts composition, logging and options in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    [Fact(DisplayName = "LS1001 accepts composition, logging and options in a knowledge model")]
+    public Task AcceptsCompositionLoggingAndOptionsInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("src/Knowledge/Claimwick.Travel/TravelComposition.cs", """
+                    using Microsoft.Extensions.DependencyInjection;
+                    using Microsoft.Extensions.Logging;
+                    using Microsoft.Extensions.Options;
+
+                    namespace Claimwick.Travel;
+
+                    public static class TravelComposition
+                    {
+                        public static IServiceCollection AddTravel(this IServiceCollection services, ILogger<TravelRegistry> logger, IOptions<TravelSettings> settings)
+                        {
+                            logger.LogInformation("Registering travel.");
+                            services.AddSingleton(new TravelRegistry());
+                            return services;
+                        }
+                    }
+                    """),
+                ("src/Knowledge/Claimwick.Travel/TravelRegistry.cs", """
+                    namespace Claimwick.Travel;
+
+                    public sealed class TravelRegistry
+                    {
+                    }
+                    """),
+                ("src/Knowledge/Claimwick.Travel/TravelSettings.cs", """
+                    namespace Claimwick.Travel;
+
+                    public sealed class TravelSettings
+                    {
+                    }
+                    """),
+                ("src/Knowledge/Claimwick.Travel/Stubs.cs", """
+                    namespace Microsoft.Extensions.DependencyInjection
+                    {
+                        public interface IServiceCollection
+                        {
+                        }
+
+                        public static class ServiceCollectionExtensions
+                        {
+                            public static IServiceCollection AddSingleton(this IServiceCollection services, object instance) => services;
+                        }
+                    }
+
+                    namespace Microsoft.Extensions.Logging
+                    {
+                        public interface ILogger<T>
+                        {
+                            void LogInformation(string message);
+                        }
+                    }
+
+                    namespace Microsoft.Extensions.Options
+                    {
+                        public interface IOptions<T>
+                        {
+                            T Value { get; }
+                        }
+                    }
+                    """),
+            ], assemblyName: "Claimwick.Travel");
+
+    /// <summary>LS1001 reports any other outer-layer reference in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    [Fact(DisplayName = "LS1001 reports any other outer-layer reference in a knowledge model")]
+    public Task ReportsAnyOtherOuterLayerReferenceInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("src/Knowledge/Claimwick.Travel/TravelStore.cs", """
+                    using {|LS1001:Microsoft.EntityFrameworkCore|};
+
+                    namespace Claimwick.Travel;
+
+                    public sealed class TravelStore : {|LS1001:DbContext|}
+                    {
+                    }
+                    """),
+                ("src/Knowledge/Claimwick.Travel/Stubs.cs", """
+                    namespace Microsoft.EntityFrameworkCore
+                    {
+                        public class DbContext
+                        {
+                        }
+                    }
+                    """),
+            ], assemblyName: "Claimwick.Travel");
 }

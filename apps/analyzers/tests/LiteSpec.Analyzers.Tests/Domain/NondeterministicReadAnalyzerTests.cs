@@ -213,4 +213,28 @@ public sealed class NondeterministicReadAnalyzerTests
                 }
             }
             """, path: "Shop.Spending/Domain/Source.cs");
+
+    /// <summary>LS1009 reports a clock read in a knowledge model.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
+    [Fact(DisplayName = "LS1009 reports a clock read in a knowledge model")]
+    public Task ReportsAClockReadInAKnowledgeModel() =>
+        Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
+            using System;
+
+            namespace Claimwick.Travel;
+
+            public sealed class TravelRegistry
+            {
+                public TimeProvider Clock()
+                {
+                    return TimeProvider.{|LS1009:System|};
+                }
+
+                public DateTime Stamp()
+                {
+                    return DateTime.{|LS1009:UtcNow|};
+                }
+            }
+            """, assemblyName: "Claimwick.Travel", path: "src/Knowledge/Claimwick.Travel/TravelRegistry.cs");
 }

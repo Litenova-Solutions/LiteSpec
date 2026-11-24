@@ -13,5 +13,5 @@ internal sealed class ExpenseRetentionNotEndedException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.retention-not-ended";
+    public override string Code => SpendingRefusalCodes.RetentionNotEnded;
 }

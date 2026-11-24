@@ -1,0 +1,11 @@
+type: waiver
+id: waiver/attach-receipt-identifier-unlisted
+title: Attach Receipt Identifier Unlisted
+summary: The attach-receipt command takes the stored receipt identity, which no query returns, because receipts are stored by the upload before the call.
+kind: lasting
+waives:
+- caller-identifier-unreachable
+appliesTo:
+- use-case/spending.attach-receipt
+reason: Receipts are stored by the upload before the call and no query lists them, so the caller passes a stored identity that no query returns.
+consequences: A reader finds where receipt identities come from only in the upload path, which no record describes yet.

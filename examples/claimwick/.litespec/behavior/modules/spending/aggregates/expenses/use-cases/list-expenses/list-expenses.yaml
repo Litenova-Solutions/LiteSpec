@@ -14,6 +14,15 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
+input:
+- name: employee
+  meaning: The signed-in employee listing their expenses, read from verified claims.
+  type: id
+  identifies: actor/employee
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
 output:
   include:
     rows:

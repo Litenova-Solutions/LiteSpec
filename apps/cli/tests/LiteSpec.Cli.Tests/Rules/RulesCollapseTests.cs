@@ -29,7 +29,7 @@ public sealed class RulesCollapseTests
     public void RulesRecordIdPrintsRecordProvisionsInFull()
     {
         var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
-        var result = TestCli.Run("rules", "--root", root, "use-case/spending.submit-expense");
+        var result = TestCli.Run("rules", "--root", root, "use-case/spending.submit-expense", "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
@@ -45,7 +45,8 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            ".litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml");
+            ".litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
@@ -61,7 +62,8 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/backend/application#keep-command-handlers-to-load-call-and-stage:", result.Output);

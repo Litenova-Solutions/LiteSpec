@@ -18,8 +18,8 @@ public sealed class StackReaderTests
     /// <param name="scenarios">The scenario count the case expects the builder to read.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
-    [InlineData("small", 80, 7, 0, 0)]
-    [InlineData("large", 118, 7, 1, 9)]
+    [InlineData("small", 86, 7, 0, 0)]
+    [InlineData("large", 125, 7, 1, 8)]
     public void BuildReadsFixtureCounts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);

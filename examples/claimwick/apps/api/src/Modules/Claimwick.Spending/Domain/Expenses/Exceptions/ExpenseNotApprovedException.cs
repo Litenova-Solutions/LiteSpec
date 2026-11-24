@@ -13,5 +13,5 @@ internal sealed class ExpenseNotApprovedException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.not-approved";
+    public override string Code => SpendingRefusalCodes.NotApproved;
 }

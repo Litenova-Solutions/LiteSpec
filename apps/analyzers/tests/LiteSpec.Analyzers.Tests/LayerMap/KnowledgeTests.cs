@@ -67,13 +67,16 @@ public sealed class KnowledgeTests
         Assert.Equal("Claimwick.Travel", Knowledge.ProjectOf("src/Knowledge/Claimwick.Travel/Rates/TravelRates.cs"));
     }
 
-    /// <summary>A compilation is a model or a set when its assembly names its Knowledge project.</summary>
+    /// <summary>A compilation is a model when its assembly names its Knowledge project, and a set when it also references its model.</summary>
     /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact]
     public void CompilationNamesDecideModelAndSet()
     {
         var model = CompilationFor("Claimwick.Travel", "src/Knowledge/Claimwick.Travel/Rates/TravelRates.cs");
-        var set = CompilationFor("Claimwick.Travel.France", "src/Knowledge/Claimwick.Travel.France/Rates/FranceRates.cs");
+        var set = CompilationFor(
+            "Claimwick.Travel.France",
+            "src/Knowledge/Claimwick.Travel.France/Rates/FranceRates.cs",
+            model.ToMetadataReference());
         var module = CompilationFor("Claimwick.Spending", "Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.True(Knowledge.IsModelCompilation(model));
@@ -82,6 +85,16 @@ public sealed class KnowledgeTests
         Assert.False(Knowledge.IsModelCompilation(set));
         Assert.False(Knowledge.IsModelCompilation(module));
         Assert.False(Knowledge.IsSetCompilation(module));
+    }
+
+    /// <summary>A set-named compilation under Knowledge that references no model is no set.</summary>
+    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    [Fact]
+    public void SetCompilationWithoutAModelReferenceIsNoSet()
+    {
+        var set = CompilationFor("Claimwick.Travel.France", "src/Knowledge/Claimwick.Travel.France/Rates/FranceRates.cs");
+
+        Assert.False(Knowledge.IsSetCompilation(set));
     }
 
     /// <summary>Builds the code map for one compilation holding one file.</summary>
@@ -94,10 +107,11 @@ public sealed class KnowledgeTests
     /// <summary>Builds the compilation holding one file.</summary>
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="path">The source file path.</param>
+    /// <param name="references">The metadata references the compilation reads.</param>
     /// <returns>The compilation.</returns>
-    static Compilation CompilationFor(string assemblyName, string path)
+    static Compilation CompilationFor(string assemblyName, string path, params MetadataReference[] references)
     {
         var tree = CSharpSyntaxTree.ParseText(SourceText.From("namespace Fixture;\n", Encoding.UTF8), path: path);
-        return CSharpCompilation.Create(assemblyName, [tree]);
+        return CSharpCompilation.Create(assemblyName, [tree], references);
     }
 }

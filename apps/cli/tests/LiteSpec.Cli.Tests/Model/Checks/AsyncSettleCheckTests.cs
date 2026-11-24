@@ -2,11 +2,11 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the async settle checks against hand-built models: a reaction or job that runs a use case writing an aggregate names the pending, done and refused states the run settles, entered and distinct.</summary>
+/// <summary>Proves the async settle checks against hand-built models: a declared settles on a reaction or job running a use case writing an aggregate names the pending, done and refused states the run settles, entered and distinct.</summary>
 public sealed class AsyncSettleCheckTests
 {
     /// <summary>The finding codes the async settle checks report.</summary>
-    static readonly string[] AsyncSettleCodes = ["async-settles-missing", "async-pending-missing", "async-refused-unrecorded"];
+    static readonly string[] AsyncSettleCodes = ["async-pending-missing", "async-refused-unrecorded"];
 
     /// <summary>A reaction settling distinct pending, done and refused states entered in order reports no async settle finding.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
@@ -134,10 +134,10 @@ public sealed class AsyncSettleCheckTests
         Assert.DoesNotContain(TestModel.Codes(model), code => AsyncSettleCodes.Contains(code, StringComparer.Ordinal));
     }
 
-    /// <summary>A reaction running a use case that writes an aggregate without settles reports async-settles-missing.</summary>
+    /// <summary>A reaction running a use case that writes an aggregate without settles states nothing and reports no async settle finding.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
-    public void RunWithoutSettlesReportsSettlesMissing()
+    public void RunWithoutSettlesPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -161,7 +161,7 @@ public sealed class AsyncSettleCheckTests
                  "onFailure": {"mode": "skip-and-log"}}
                 """));
 
-        Assert.Contains("async-settles-missing", TestModel.Codes(model));
+        Assert.DoesNotContain(TestModel.Codes(model), code => AsyncSettleCodes.Contains(code, StringComparer.Ordinal));
     }
 
     /// <summary>Settles naming one state as both pending and done reports async-pending-missing.</summary>

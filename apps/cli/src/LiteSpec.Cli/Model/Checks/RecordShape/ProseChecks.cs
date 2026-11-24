@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The prose checks, advisory: every record except a requirement or a direction holds a summary, every goal, direction, problem, requirement and rule holds a statement, a Behavior statement names what happens rather than a vague word, and a refusal sentence names only a way out the records provide.</summary>
+/// <summary>The prose checks: every record except a requirement or a direction holds a summary, every goal, direction, problem, requirement and rule holds a statement, a Behavior statement names what happens rather than a vague word, and a refusal sentence names only a way out the records provide. The missing prose and vague words are reported by model review; the refusal next step blocks.</summary>
 /// <follows>litespec/core/use-cases#summarize-every-use-case</follows>
 /// <follows>litespec/core/model#state-what-happens-in-every-behavior-statement</follows>
 /// <follows>litespec/core/use-cases#name-only-a-provided-way-out-in-each-refusal-sentence</follows>

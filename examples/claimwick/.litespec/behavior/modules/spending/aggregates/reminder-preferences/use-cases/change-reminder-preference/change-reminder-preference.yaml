@@ -34,6 +34,26 @@ input:
   required: false
   origin: caller
   classification: internal
+- name: changer
+  meaning: The signed-in caller changing the preference, the manager the preference belongs to or finance, read from verified claims.
+  type: id
+  identifies: actor/manager
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
+- name: changerIsFinance
+  meaning: Whether the changer holds the finance role, computed from the changer's verified roles.
+  type: boolean
+  required: false
+  origin: derived
+  classification: internal
+- name: handledAt
+  meaning: The time the change runs, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
+  classification: internal
 writes:
 - aggregate/spending.reminder-preference
 idempotency:

@@ -321,7 +321,7 @@ function stateTitle(book: Book, key: string, fallback: string): string {
   // The level pill text FindingsBlock prints through checkLevelText.
   if (key === "G") return "Blocks a release";
   if (key === "S") return "Blocks when qualified";
-  if (key === "A") return "Advice";
+  if (key === "R") return "For review";
   if (key.indexOf("g:") === 0) return book.lex.glossary?.[key.slice("g:".length).toLowerCase()]?.term || fallback;
   return fallback;
 }

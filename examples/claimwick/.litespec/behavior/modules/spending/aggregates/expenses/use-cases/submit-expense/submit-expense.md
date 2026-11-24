@@ -9,7 +9,7 @@ Submit Expense is how an employee files a work cost so that a manager can decide
 3. Spending refuses the submission with `spending.receipt-missing` when the receipt is missing.
 4. Spending stores the expense as Submitted and raises the submitted event.
 
-Each request creates a new expense with a new identity, while a repeated request returns the first result instead: the requestId key recognizes the repeat.
+Each request creates a new expense with a new identity, while a repeated request returns the first result instead: the expenseId key recognizes the repeat.
 
 ## Example
 

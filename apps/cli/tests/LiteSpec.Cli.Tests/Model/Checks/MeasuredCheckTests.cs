@@ -89,10 +89,10 @@ public sealed class MeasuredCheckTests
         Assert.DoesNotContain("requirement-measure-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Statement Naming Number Without Measure Reports At Tier A.</summary>
+    /// <summary>Statement Naming Number Without Measure Reports At Tier R.</summary>
     /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
     [Fact]
-    public void StatementNamingNumberWithoutMeasureReportsAtTierA()
+    public void StatementNamingNumberWithoutMeasureReportsAtTierR()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -100,7 +100,7 @@ public sealed class MeasuredCheckTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "statement-measure-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names a number with no measure.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }

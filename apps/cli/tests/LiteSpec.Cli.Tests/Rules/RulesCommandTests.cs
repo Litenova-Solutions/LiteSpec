@@ -78,8 +78,7 @@ public sealed class RulesCommandTests
             "Rules for apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
             result.Output);
         Assert.Contains("Required:", result.Output);
-        Assert.Contains("Concern-wide:", result.Output);
-        Assert.Contains("- litespec/backend/application#organize-application-by-use-case", result.Output);
+        Assert.DoesNotContain("Concern-wide:", result.Output);
         Assert.Contains("path match (artifact command-handler)", result.Output);
         Assert.Contains("use-case/spending.submit-expense: ", result.Output);
         Assert.Contains(" provisions about the record; model check checks ", result.Output);
@@ -87,15 +86,32 @@ public sealed class RulesCommandTests
         Assert.DoesNotContain("[record use-case/spending.submit-expense]", result.Output);
     }
 
-    /// <summary>A checked provision prints as one line with its analyzer ID and without its statement.</summary>
+    /// <summary>The default output collapses the checked provisions into one summary line naming the --all flag.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
-    public void RulesCheckedProvisionsPrintOneLineWithCodes()
+    public void RulesCheckedProvisionsPrintOneSummaryLine()
     {
         var result = TestCli.Run(
             "rules",
             "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("Checked by a tool:", result.Output);
+        Assert.Contains(" checked provisions apply; model check and the analyzers enforce them (litespec rules apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs --all lists them).", result.Output);
+        Assert.DoesNotContain("A command handler MUST", result.Output);
+    }
+
+    /// <summary>With --all, a checked provision prints as one line with its analyzer ID and without its statement.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesAllPrintsCheckedProvisionsOneLineEach()
+    {
+        var result = TestCli.Run(
+            "rules",
+            "--root", TestCli.Fixture("rules-basic"),
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Checked by a tool:", result.Output);
@@ -103,7 +119,7 @@ public sealed class RulesCommandTests
         Assert.DoesNotContain("A command handler MUST", result.Output);
     }
 
-    /// <summary>A layer-wide provision prints by identifier only and without its statement.</summary>
+    /// <summary>With --all, a concern-wide provision prints by identifier only and without its statement; the default output leaves it out.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesLayerWideProvisionsPrintByIdOnly()
@@ -111,12 +127,22 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", TestCli.Fixture("rules-basic"),
-            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Concern-wide:", result.Output);
         Assert.Contains("- litespec/backend/application#organize-application-by-use-case", result.Output);
         Assert.DoesNotContain("Each command or query MUST own one use case folder", result.Output);
+
+        var compact = TestCli.Run(
+            "rules",
+            "--root", TestCli.Fixture("rules-basic"),
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+
+        Assert.Equal(0, compact.Status);
+        Assert.DoesNotContain("Concern-wide:", compact.Output);
+        Assert.DoesNotContain("- litespec/backend/application#organize-application-by-use-case", compact.Output);
     }
 
     /// <summary>Full output prints the checked and layer-wide statements that the compact output shortens.</summary>
@@ -158,7 +184,7 @@ public sealed class RulesCommandTests
     public void RulesIntentAndBehaviorRecordIdReturnsRecordsProvisions()
     {
         using var root = CopyFixtureWithClaim("rules-basic", "intent-and-behavior");
-        var result = TestCli.Run("rules", "--root", root.Path, "use-case/billing.send-invoice");
+        var result = TestCli.Run("rules", "--root", root.Path, "use-case/billing.send-invoice", "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/billing.send-invoice (concern: records, artifact: use-case)", result.Output);
@@ -188,7 +214,7 @@ public sealed class RulesCommandTests
     public void RulesRecordIdListsProvisions()
     {
         var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
-        var result = TestCli.Run("rules", "--root", root, "use-case/spending.submit-expense");
+        var result = TestCli.Run("rules", "--root", root, "use-case/spending.submit-expense", "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/spending.submit-expense (concern: records, artifact: use-case)", result.Output);
@@ -236,7 +262,8 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", TestCli.Fixture("rules-basic"),
-            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(

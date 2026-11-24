@@ -40,7 +40,7 @@ public sealed class ProofInvalidCheckTests
             new HashSet<string>(StringComparer.Ordinal)));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "proof-invalid");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("S", finding.Tier);
         Assert.Equal($"Test '{TestName}' passed and failed within the runs read.", finding.Message);
         Assert.Equal(Scenario, finding.Subject);
         Assert.Equal(file, finding.Path);

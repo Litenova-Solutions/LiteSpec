@@ -3,9 +3,6 @@ id: use-case/lending.return-copy
 title: Return copy
 exposure: Any signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong return puts a lent copy back on the shelf while its reader still holds it.
 kind: command
-steps:
-  - statement: The reader sends the copy to return.
-  - statement: Lending returns the copy and raises the returned event.
 access:
   grant: permission/borrow-copy
   tenant: own
@@ -15,9 +12,20 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-returned
+input:
+- name: loanId
+  meaning: The loan whose copy the reader returns.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call returns its own copy, and returning an inactive loan is refused.
+steps:
+- statement: The reader sends the copy to return.
+- statement: Lending returns the copy and raises the returned event.
 records:
 - type: result
   id: result/return-copy.returned

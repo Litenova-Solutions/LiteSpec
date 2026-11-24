@@ -35,10 +35,26 @@ stackConfig:
     webapi:
     - apps/api/src/Hosts/Claimwick.WebApi
     templateStore: apps/api/src/Modules/Claimwick.Spending/Application/Notifications/ApprovalReminder/MessageTemplates.cs
+generate:
+- kind: refusal-codes
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+- kind: permissions
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+- kind: event-decisions
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
 frontends:
 - name: web
   path: apps/web
   platform: svelte
+  client:
+    contract: packages/api/openapi.json
+    generated: packages/api/src/generated
   entryPoint: entry-point/claimwick-app
   routeSuite: apps/web/tests/routes
   ui:

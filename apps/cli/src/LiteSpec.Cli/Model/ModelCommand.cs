@@ -12,7 +12,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model;
 
 /// <summary>
-///     The <c>litespec model</c> command: check, format, render, query and edges a consumer's project model.
+///     The <c>litespec model</c> command: check, review, format, render, query and edges a consumer's project model.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class ModelCommand
@@ -20,7 +20,8 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all] [--module <module>] [--record-proof] [--verbose]
+          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--module <module>] [--record-proof] [--verbose]
+          litespec model review --root <consumer> [--format json]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
@@ -32,7 +33,7 @@ static class ModelCommand
         Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, or a file that would change with format --check, 2 usage error or a record file that does not parse, 3 no open blocking finding but the inspection is incomplete.
         """;
 
-    /// <summary>Runs the model command: check, format, render, query or edges.</summary>
+    /// <summary>Runs the model command: check, review, format, render, query or edges.</summary>
     /// <param name="args">The command arguments, the subcommand first.</param>
     /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error, 3 for success with an incomplete inspection.</returns>
     public static int Run(string[] args)
@@ -48,13 +49,14 @@ static class ModelCommand
             args[1..],
             command switch
             {
-                "check" => ["--release", "--all", "--record-proof", "--verbose"],
+                "check" => ["--release", "--record-proof", "--verbose"],
                 "format" => ["--check"],
                 _ => [],
             },
             command switch
             {
                 "check" => ["--root", "--format", "--since", "--module"],
+                "review" => ["--root", "--format"],
                 "query" => ["--root", "--search", "--list", "--module"],
                 "edges" => ["--root", "--module"],
                 _ => ["--root"],
@@ -65,7 +67,7 @@ static class ModelCommand
                 _ => 0,
             });
 
-        // Only check takes --format, so every other subcommand fails in text.
+        // Only check and review take --format, so every other subcommand fails in text.
         var json = parsed.Json;
 
         // A usage error is reported before --help is honoured, so an unsupported --format value fails here too.
@@ -108,8 +110,11 @@ static class ModelCommand
                     return CommandFailure.Fail(fail.Message, json, fail.Code);
                 }
 
+                // Level R findings are prose quality for a person: model review reports them, never the check.
+                findings.RemoveAll(finding => finding.Tier == "R");
+                covered = covered.Where(finding => finding.Tier != "R").ToList();
+
                 var release = parsed.Has("--release");
-                var all = parsed.Has("--all");
                 var recordProof = parsed.Has("--record-proof");
                 var sinceRef = parsed.Value("--since");
                 HashSet<(string Code, string Subject, string Message)>? baseline = null;
@@ -133,6 +138,7 @@ static class ModelCommand
                     {
                         using var checkout = DiffBase.Load(config, sinceRef);
                         var (baseStanding, _) = Collect(checkout.Model, checkout.Model.Config.Root);
+                        baseStanding.RemoveAll(finding => finding.Tier == "R");
                         baseline = baseStanding.Select(SinceKey).ToHashSet();
                         newFindings = findings.Count(finding => !baseline.Contains(SinceKey(finding)));
                         breaks = ContractBreaks.Find(checkout.Model, model);
@@ -167,7 +173,7 @@ static class ModelCommand
                     shown.Add((breaking, Decide(model, config, breaking, release), false));
                 }
 
-                // A proving test changed without its scenario is advisory: it reports and never blocks.
+                // A proving test changed without its scenario blocks: the scenario must change with its proof.
                 foreach (var drift in proofDrift.Where(finding => config.Layers.Covers(finding.Code, config.Extensions)))
                 {
                     shown.Add((drift, Decide(model, config, drift, release), false));
@@ -235,18 +241,12 @@ static class ModelCommand
                             : $"Since {sinceRef}: {newFindings} new findings.");
                     }
 
-                    // Each listed finding prints once. The open blocking findings come first, so the lines
-                    // that fail the run lead the output however many advisory findings follow. By default
-                    // the level A findings are summarized by code in the counts below and not listed one
-                    // by one, so a passing check with many advisories stays readable; --all lists them.
+                    // Each finding prints once. The open blocking findings come first, so the lines
+                    // that fail the run lead the output however many reported findings follow.
                     var blocking = shown.Where(entry => entry.Severity.Outcome == Outcome.Blocking).ToList();
-                    var advisoryCount = shown.Count(entry => entry.Finding.Tier == "A");
-                    var listed = all
-                        ? shown
-                        : shown.Where(entry => entry.Finding.Tier != "A").ToList();
 
-                    foreach (var entry in listed.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
-                                 .Concat(listed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
+                    foreach (var entry in shown.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
+                                 .Concat(shown.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
                     {
                         CliHost.Out.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
                     }
@@ -272,11 +272,6 @@ static class ModelCommand
                         }
                     }
 
-                    if (!all && advisoryCount > 0)
-                    {
-                        CliHost.Out.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
-                    }
-
                     CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
 
                     if (incomplete is not null)
@@ -298,6 +293,73 @@ static class ModelCommand
                 }
 
                 return incomplete is not null ? 3 : 0;
+            }
+
+            case "review":
+            {
+                var model = ModelBuilder.Build(config);
+                List<Finding> findings;
+                IReadOnlyList<Finding> covered;
+
+                try
+                {
+                    (findings, covered) = Collect(model, root);
+                }
+                catch (FailFast fail)
+                {
+                    return CommandFailure.Fail(fail.Message, json, fail.Code);
+                }
+
+                // Review reports the level R findings the check sets aside: prose quality only a person can weigh.
+                var shown = findings
+                    .Where(finding => finding.Tier == "R")
+                    .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, release: false)))
+                    .ToList();
+                covered = covered.Where(finding => finding.Tier == "R").ToList();
+
+                if (json)
+                {
+                    var payload = new JsonObject
+                    {
+                        ["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity))]),
+                        ["covered"] = new JsonArray([.. covered.Select(finding => (JsonNode?)AsCoveredJson(config, finding))]),
+                    };
+
+                    CliHost.Out.WriteLine(CliJson.Serialize(payload));
+                }
+                else
+                {
+                    foreach (var entry in shown)
+                    {
+                        CliHost.Out.WriteLine(FindingLine(config, entry.Finding, false));
+                    }
+
+                    foreach (var finding in covered)
+                    {
+                        CliHost.Out.WriteLine($"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [covered {finding.Tier}] [{finding.Code}] {finding.Message}");
+                    }
+
+                    if (shown.Count > 0)
+                    {
+                        CliHost.Out.WriteLine();
+                        CliHost.Out.WriteLine("Findings by code:");
+
+                        foreach (var group in shown
+                            .GroupBy(entry => (entry.Finding.Code, entry.Finding.Tier))
+                            .Select(group => (group.Key.Code, group.Key.Tier, Count: group.Count()))
+                            .OrderBy(group => LevelRank(group.Tier))
+                            .ThenByDescending(group => group.Count)
+                            .ThenBy(group => group.Code, StringComparer.Ordinal))
+                        {
+                            CliHost.Out.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
+                        }
+                    }
+
+                    CliHost.Out.WriteLine($"{shown.Count} findings, 0 blocking, {covered.Count} covered.");
+                }
+
+                // Review never blocks: its findings are prose quality for a person, not defects.
+                return 0;
             }
 
             case "format":
@@ -503,7 +565,7 @@ static class ModelCommand
     /// <summary>
     ///     Collects a project's findings that its layer claims cover: the model checks, then the consumer
     ///     pass, which reads the project file, the record pages, the glossary and the controlled UI into the same
-    ///     finding shape. <c>model check</c> and the book both take their findings here, so they hold the same
+    ///     finding shape. <c>model check</c>, <c>model review</c> and the book all take their findings here, so they hold the same
     ///     claim filter and the same severity rule.
     /// </summary>
     /// <param name="model">The built project model to check.</param>
@@ -642,13 +704,13 @@ static class ModelCommand
     }
 
     /// <summary>
-    ///     Whether the finding gates a release: an unverified use case, or a reader missing for a claimed layer. A
-    ///     waiver with an expiry parks either one before it reaches this decision, so a covered finding never gates.
+    ///     Whether the finding gates a release: a reader missing for a claimed layer. A
+    ///     waiver with an expiry parks it before it reaches this decision, so a covered finding never gates.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding gates a release.</returns>
     static bool IsReleaseReadiness(Finding finding) =>
-        finding.Code is "use-case-unverified" or "reader-missing";
+        finding.Code is "reader-missing";
 
     /// <summary>The identity a <c>--since</c> run matches a finding on: its code, subject and message, never its line.</summary>
     /// <param name="finding">The finding whose identity is wanted.</param>
@@ -715,14 +777,14 @@ static class ModelCommand
     static string FindingLine(ConsumerConfig config, Finding finding, bool demoted) =>
         $"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [{LevelLabel(finding, demoted)}] [{finding.Code}] {finding.Message}";
 
-    /// <summary>The sort rank of a level: G first, then S, then A.</summary>
-    /// <param name="level">The level letter: G, S or A.</param>
-    /// <returns>The sort rank, 0 for G, 1 for S, 2 for A and 3 for anything else.</returns>
+    /// <summary>The sort rank of a level: G first, then S, then R.</summary>
+    /// <param name="level">The level letter: G, S or R.</param>
+    /// <returns>The sort rank, 0 for G, 1 for S, 2 for R and 3 for anything else.</returns>
     static int LevelRank(string level) => level switch
     {
         "G" => 0,
         "S" => 1,
-        "A" => 2,
+        "R" => 2,
         _ => 3,
     };
 

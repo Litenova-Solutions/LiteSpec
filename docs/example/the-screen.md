@@ -66,10 +66,10 @@ A decision with source `recommended` stands until an owner chooses otherwise. Ev
 
 ## What the Model Checks
 
-`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract, and the one frontend, `web`, which declares `platform: svelte`. Three lines from the run show the shape of the result, one at each finding level. [The Model and Its Checks](model-and-checks.md#the-full-check) lists the covered findings:
+`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract, and the one frontend, `web`, which declares `platform: svelte`. Three lines from the run show the shape of the result. [The Model and Its Checks](model-and-checks.md#the-full-check) lists the covered findings:
 
 ```text
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered S] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
 .litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'step/submit-and-reimburse.submit-expense' is served by a browser or device use case but by no screen.
 ```

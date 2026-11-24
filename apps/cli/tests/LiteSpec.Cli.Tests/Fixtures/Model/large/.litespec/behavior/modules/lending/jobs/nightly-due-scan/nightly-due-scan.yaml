@@ -16,6 +16,8 @@ outcomes:
   meaning: The scan could not finish after every retry.
 - name: retry-scheduled
   meaning: The scan failed and another attempt is scheduled.
+fulfills:
+- requirement/borrowing.loan-period-days
 onFailure:
   mode: retry
   retry:
@@ -30,5 +32,3 @@ onFailure:
 idempotency:
   mode: state
   recognizedBy: the notice already sent for the loan, so a rerun sends each notice once
-fulfills:
-- requirement/borrowing.loan-period-days

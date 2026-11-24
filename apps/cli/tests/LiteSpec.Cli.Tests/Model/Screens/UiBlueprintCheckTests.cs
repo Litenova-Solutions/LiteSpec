@@ -64,6 +64,168 @@ public sealed class UiBlueprintCheckTests
         Assert.Empty(WithCode(model, "wireframe-invalid"));
     }
 
+    /// <summary>A wireframe local action needs no use case the screen offers.</summary>
+    /// <param name="local">The local action copy.</param>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Theory]
+    [InlineData("Cancel")]
+    [InlineData("Close")]
+    [InlineData("Back")]
+    [InlineData("Clear")]
+    [InlineData("Skip")]
+    [InlineData("Show more")]
+    [InlineData("Show more lines")]
+    public void WireframeLocalActionReportsNothing(string local)
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            LocalExplanation(local)));
+
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
+    }
+
+    /// <summary>A wireframe link naming no use case reports nothing: navigation is a link, not an action.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeLinkNamingNoUseCaseReportsNothing()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+                link "Open the reports"
+            ```
+            """));
+
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
+    }
+
+    /// <summary>A wireframe action starting with Open still names a use case: navigation written as an action reports wireframe-invalid.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeActionStartingWithOpenReportsWireframeInvalid()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+                action "Open the reports"
+            ```
+            """));
+
+        var findings = WithCode(model, "wireframe-invalid");
+
+        Assert.Single(findings);
+        Assert.Contains("Open the reports", findings[0].Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A wireframe refusal matching the sentence of a written refusal result of an offered use case reports nothing.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeRefusalMatchingAWrittenSentenceReportsNothing()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
+        model.Records.Add(Rec(
+            "result", "result/list-loans.refused",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"That list is not available."}""",
+            temp.Path));
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+              region "Loans"
+                message "That list is not available." critical
+            ```
+            """));
+
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
+    }
+
+    /// <summary>A wireframe refusal matching no result sentence of an offered use case reports wireframe-invalid.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeRefusalMatchingNoSentenceReportsWireframeInvalid()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+              region "Loans"
+                message "That list is not available." critical
+            ```
+            """));
+
+        var findings = WithCode(model, "wireframe-invalid");
+
+        Assert.Single(findings);
+        Assert.Contains("That list is not available.", findings[0].Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A wireframe refusal matching the sentence of a derived generic refusal result of an offered use case reports nothing.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeRefusalMatchingADerivedSentenceReportsNothing()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        using var document = JsonDocument.Parse("""{"outcome":"refusal","code":"sign-in-too-old","meaning":"The caller's sign-in is older than the window the use case requires.","sentence":"Sign in again to continue."}""");
+        model.Records.Add(new Record
+        {
+            Type = "result",
+            Id = "result/list-loans.sign-in-too-old",
+            Title = "Sign in too old",
+            File = Path.Combine(temp.Path, "result.md"),
+            Line = 1,
+            Raw = document.RootElement.Clone(),
+            Derived = true,
+        });
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+              region "Loans"
+                message "Sign in again to continue." critical
+            ```
+            """));
+
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
+    }
+
     /// <summary>A screen with a route and no page frame reports screen-pageframe-missing.</summary>
     /// <proves>litespec/frontend/ui#name-the-page-frame-on-every-screen</proves>
     [Fact]
@@ -968,6 +1130,12 @@ public sealed class UiBlueprintCheckTests
 
     static List<Finding> WithCode(ProjectModel model, string code) =>
         Checker.Check(model).Findings.Where(finding => finding.Code == code).ToList();
+
+    /// <summary>An explanation whose wireframe holds one action with the copy.</summary>
+    /// <param name="action">The action copy.</param>
+    /// <returns>The explanation text.</returns>
+    static string LocalExplanation(string action) =>
+        "# Loans\n\n```wireframe\npage\n  header\n    heading \"Loans\"\n    action \"" + action + "\"\n```\n";
 
     /// <summary>Adds query use cases of the lending module reached through the app entry point.</summary>
     /// <param name="model">The model holding the records.</param>

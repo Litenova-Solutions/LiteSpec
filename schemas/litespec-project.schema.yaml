@@ -174,6 +174,55 @@ properties:
       - android
     additionalProperties:
       type: object
+  generate:
+    description: 'The files `litespec generate` writes from the records: one target per kind and stack, each naming the folder the files go in. A file the records render that is missing or differs is a `generated-drift` finding.'
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - stack
+      - path
+      properties:
+        kind:
+          description: 'The record facts the target writes: refusal codes, permission ids, domain event decisions, or closed value sets.'
+          type: string
+          enum:
+          - refusal-codes
+          - permissions
+          - event-decisions
+          - closed-sets
+        stack:
+          description: 'The stack the target writes for: dotnet, blazor or android write C#, react or svelte write TypeScript. Event decisions and closed sets need a .NET stack.'
+          type: string
+          enum:
+          - dotnet
+          - react
+          - svelte
+          - blazor
+          - android
+        path:
+          description: 'The folder the target writes into, relative to the consumer root. For a .NET stack the path may hold {module} for the record module name or {Module} for the same name in PascalCase, and each module writes its file into its own resolved folder; without a placeholder each module writes into <path>/<Module>/. For a TypeScript stack the target writes one file into the folder.'
+          $ref: '#/$defs/projectPath'
+        namespace:
+          description: 'The C# namespace of the generated files, with {module} or {Module} for the module name. Required for a .NET stack; unused for a TypeScript stack.'
+          type: string
+          minLength: 1
+      allOf:
+      - if:
+          properties:
+            stack:
+              enum:
+              - dotnet
+              - blazor
+              - android
+          required:
+          - stack
+        then:
+          required:
+          - namespace
   frontends:
     type: array
     items:
@@ -197,6 +246,20 @@ properties:
           - svelte
           - blazor
           - android
+        client:
+          description: The generated API client this frontend calls. Both paths are relative to the consumer root.
+          type: object
+          additionalProperties: false
+          required:
+          - contract
+          - generated
+          properties:
+            contract:
+              description: The contract document the client is generated from, such as the published OpenAPI JSON document.
+              $ref: '#/$defs/projectPath'
+            generated:
+              description: The generated client folder holding contract.sha256.
+              $ref: '#/$defs/projectPath'
         entryPoint:
           description: The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.
           type: string
@@ -431,6 +494,10 @@ properties:
           description: The identifier of the audit adoption decision the audit extension names.
           type: string
           pattern: '^decision/'
+        tenant:
+          description: The identifier of the tenant glossary term the tenancy extension names.
+          type: string
+          pattern: '^term/[a-z0-9][a-z0-9-]*$'
       allOf:
       - if:
           required:
@@ -439,6 +506,13 @@ properties:
           properties:
             id:
               const: audit
+      - if:
+          required:
+          - tenant
+        then:
+          properties:
+            id:
+              const: tenancy
 $defs:
   projectPath:
     type: string

@@ -67,6 +67,22 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Reviewed for:** Is every client, type, schema, and operation option generated from the published OpenAPI document? Look in the generated client directory and the contract it names.
 
+### Regenerate the Client with the Contract
+
+**ID:** `litespec/frontend/data#regenerate-the-client-with-the-contract`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A frontend that uses a generated API client MUST regenerate it from the current contract document in the same change that changes the contract and record that document's lowercase SHA-256 after LF normalization in `contract.sha256`, written by the generator in the generated client folder.
+
+**Rationale:** Generated code still compiles after the contract changes when nobody regenerates it, so the type check passes and the request fails at runtime. The hash makes the recorded source visible, so a contract-only change fails the model check instead of reaching runtime. The check compares the recorded hash; it does not prove that every generated file is unedited.
+
+**Example:** Claimwick's web frontend names `packages/api/openapi.json` as its contract and `packages/api/src/generated` as its generated client folder. The generator writes that folder's `contract.sha256` after each contract change, so `client-drift` blocks a change that updates only the document.
+
+**Checked by:** `litespec model check` reports `client-drift` (level S) when `contract.sha256` is missing or its hash differs from the current contract document's SHA-256 after LF normalization.
+
 ### Use One Configured Client per Application
 
 **ID:** `litespec/frontend/data#use-one-configured-client-per-application`

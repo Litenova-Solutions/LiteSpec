@@ -74,7 +74,7 @@ Each agent reads its own entry file, so the project bridges each one to the shar
 | Cursor | The nearest `AGENTS.md` | None; it reads the file directly |
 | Gemini CLI | `GEMINI.md` | Point `context.fileName` at `AGENTS.md` |
 
-`litespec init` prints a line when a `CLAUDE.md` does not import `AGENTS.md`, and `litespec model check` reports `agent-protocol-unreached` as advisory for the same gap.
+`litespec init` prints a line when a `CLAUDE.md` does not import `AGENTS.md`, and `litespec model check` blocks on `agent-protocol-unreached` (level G) for the same gap.
 
 ## The Agent Task Sequence
 

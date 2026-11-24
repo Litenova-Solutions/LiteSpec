@@ -6,10 +6,10 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves a requirement cites its reasons and an applying constraint is cited.</summary>
 public sealed class CitationCheckTests
 {
-    /// <summary>Requirement Without Cites Reports At Tier A.</summary>
+    /// <summary>Requirement Without Cites Reports At Tier G.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
-    public void RequirementWithoutCitesReportsAtTierA()
+    public void RequirementWithoutCitesReportsAtTierG()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -17,7 +17,7 @@ public sealed class CitationCheckTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-cites-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' cites no goal, problem, feature, constraint, research or decision.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }

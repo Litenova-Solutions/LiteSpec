@@ -41,7 +41,7 @@ Read the [design rules](docs/core/designing.md) before you add or change a recor
 8. **Checks match their certainty.**
    - The schema holds shape and the model check holds the graph.
    - Add a check only where it is cheap and sure; otherwise the provision is reviewed.
-   - Broken links and contracts block; heuristics and prose advise.
+   - Broken links, contracts and naming block; prose quality is reviewed by a person through `litespec model review`.
    (`litespec/core/model#keep-shape-rules-in-the-schema`, `litespec/core/model#mark-every-check-with-its-level`)
 9. **Ship a record type complete.** In the same change, add:
    - the schema definition, its home and its explanation sections;
@@ -54,6 +54,14 @@ Read the [design rules](docs/core/designing.md) before you add or change a recor
 
 Treat each rule as binding at its stated strength, not as a veto on judgment. When a task needs a departure, state it in the decision record, naming the provision and the reason (`litespec/core/designing#state-each-deviation-from-a-design-rule`). When the same rule has been set aside twice, propose an amendment to the design page instead of a third exception (`litespec/core/designing#update-a-design-rule-that-keeps-bending`). Propose the amendment in the same change as the work that shows the rule no longer fits.
 
+## Spec Gaps
+
+When an agent reports that LiteSpec cannot express a concept, model the concept as a record type, a field, or a provision before the consumer writes more code around it, and cite the gap in the change. (`litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`)
+
+A check that keeps forcing an awkward shape is a design defect in LiteSpec, not a consumer workaround. Fix the check, the record type, or the provision so the domain has a home, and check the rule against products unlike the one that reported it. (`litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`, `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`)
+
+Sources: `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`, `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`
+
 ## Serving Many Consumers
 
 LiteSpec serves many projects, so never name a consumer project in it. Keep every consumer's domain vocabulary, records, flows, figures, people, and products out of every page, provision, example, test fixture, template, decision, changelog entry, and tool message, and draw examples only from the Claimwick expense product or the library product. When one consumer's need prompts a change, state the general need behind it, design and check the rule against products unlike that consumer, and apply it only where it makes sense across them. A need that holds for one consumer alone stays in that consumer as a project convention or waiver, not in LiteSpec.
@@ -64,10 +72,10 @@ Sources: `litespec/core/maintaining#keep-consumers-out-of-litespec`, `litespec/c
 
 | Repository | You change | You run |
 |:---|:---|:---|
-| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, `litespec-maintain changelog`, the tests |
+| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, `litespec-maintain changelog`, `litespec-maintain publish-local`, the tests |
 | A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec model check`, `dotnet litespec book`, `dotnet litespec rules`, and the gates its CI selects |
 
-In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate`, `provisions` and `changelog`.
+In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate`, `provisions`, `changelog` and `publish-local`. Use `publish-local` to hand a consumer the current branch's CLI and analyzers through a local feed, without waiting for NuGet.
 
 ## Loading Context
 

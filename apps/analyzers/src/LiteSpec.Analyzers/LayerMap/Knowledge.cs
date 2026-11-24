@@ -8,7 +8,8 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     The knowledge projects of one compilation: the knowledge model holding the rule types,
 ///     and the knowledge sets holding one variant's values each. A model project sits under a
 ///     <c>Knowledge/</c> folder named <c>&lt;Product&gt;.&lt;Area&gt;</c>; a set project sits
-///     beside it named <c>&lt;Product&gt;.&lt;Area&gt;.&lt;Variant&gt;</c>.
+///     beside it named <c>&lt;Product&gt;.&lt;Area&gt;.&lt;Variant&gt;</c> and references its model.
+///     Nothing outside <c>Knowledge/</c> is ever a model or a set.
 /// </summary>
 /// <follows>litespec/backend/knowledge#read-knowledge-through-its-model</follows>
 internal static class Knowledge
@@ -66,9 +67,9 @@ internal static class Knowledge
 
     /// <summary>Returns true when the compilation is a knowledge set project; otherwise false.</summary>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
-    /// <returns>True when the assembly name is a set project holding source files below Knowledge.</returns>
+    /// <returns>True when the assembly name is a set project holding source files below Knowledge and referencing its model.</returns>
     public static bool IsSetCompilation(Compilation compilation) =>
-        IsSetProject(compilation.AssemblyName ?? string.Empty) && HoldsProject(compilation);
+        IsSetProject(compilation.AssemblyName ?? string.Empty) && HoldsProject(compilation) && ReferencesModel(compilation);
 
     /// <summary>Returns the knowledge set holding the type, or null when no set does.</summary>
     /// <param name="type">The type under inspection.</param>
@@ -87,10 +88,67 @@ internal static class Knowledge
             return null;
         }
 
+        // A referenced assembly counts as a set only within the compiling product (its first name segment)
+        // and only when it references its parent model, so a vendor's Vendor.Area.Part assemblies never count.
+        var product = ProductOf(compilation.AssemblyName);
+        if (product.Length == 0 || !string.Equals(ProductOf(assembly), product, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
         var parent = assembly!.Substring(0, assembly.LastIndexOf('.'));
-        return compilation.ReferencedAssemblyNames.Any(reference => reference.Name.Equals(parent, StringComparison.Ordinal))
-            ? assembly
-            : null;
+        return ReferencesParent(type, parent) ? assembly : null;
+    }
+
+    /// <summary>Returns the product segment of an assembly name: the text before the first dot, or empty when there is none.</summary>
+    /// <param name="assembly">The assembly name, or null.</param>
+    /// <returns>The product segment, or empty.</returns>
+    private static string ProductOf(string? assembly)
+    {
+        var dot = assembly?.IndexOf('.') ?? -1;
+        return dot > 0 ? assembly!.Substring(0, dot) : string.Empty;
+    }
+
+    /// <summary>Returns true when the compilation references its knowledge model: the parent of its set assembly name; otherwise false.</summary>
+    /// <param name="compilation">The compilation whose types and references the check reads.</param>
+    /// <returns>True when the compilation references its parent model assembly.</returns>
+    private static bool ReferencesModel(Compilation compilation)
+    {
+        var assembly = compilation.AssemblyName ?? string.Empty;
+        var dot = assembly.LastIndexOf('.');
+        if (dot <= 0)
+        {
+            return false;
+        }
+
+        var parent = assembly.Substring(0, dot);
+        return compilation.ReferencedAssemblyNames.Any(reference => reference.Name.Equals(parent, StringComparison.Ordinal));
+    }
+
+    /// <summary>Returns true when the candidate set assembly references its knowledge model; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="parent">The parent model assembly name.</param>
+    /// <returns>True when the type's assembly references the parent model assembly.</returns>
+    private static bool ReferencesParent(INamedTypeSymbol type, string parent)
+    {
+        var assembly = type.ContainingAssembly;
+        if (assembly is null)
+        {
+            return false;
+        }
+
+        foreach (var module in assembly.Modules)
+        {
+            foreach (var referenced in module.ReferencedAssemblySymbols)
+            {
+                if (referenced.Name.Equals(parent, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Returns true when a source file sits in the compilation's project folder below Knowledge; otherwise false.</summary>

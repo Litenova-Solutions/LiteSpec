@@ -13,5 +13,5 @@ internal sealed class ExpenseApproverIsSubmitterException : DomainException
     }
 
     /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.own-expense";
+    public override string Code => SpendingRefusalCodes.OwnExpense;
 }

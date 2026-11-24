@@ -23,6 +23,12 @@ input:
   required: true
   origin: caller
   classification: internal
+- name: handledAt
+  meaning: The time the payment runs, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
+  classification: internal
 writes:
 - aggregate/spending.expense
 idempotency:

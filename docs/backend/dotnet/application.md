@@ -98,6 +98,22 @@ A read that writes makes retries and caching unsafe: repeating the query would r
 
 **Reviewed for:** Does every query handler project through `IQuerySession`, with no repository and no stage, store, delete, or dispatch? Check each query handler; `dotnet build` reports LS2011 for a repository in a query handler and LS2012 for a forbidden refusal or the authorization guard.
 
+### Call Shared Logic Instead of Copying It
+
+**ID:** `litespec/backend/dotnet/application#call-shared-logic-instead-of-copying-it`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, query-handler, reaction, job
+
+**Statement:** A command handler, query handler, event handler, or job MUST call shared logic from its one home, the aggregate, a domain service, or the knowledge model, instead of carrying a copy of another slice's method body.
+
+**Rationale:** A handler body has three steps: the load, the one domain call, and the stage. A rule, calculation, or projection copied into the handler adds a fourth step that no record owns and no other slice shares, so each fix lands in every copy or misses one. Calling the aggregate method, the domain service, or the knowledge model keeps the handler at its three steps and the logic behind one call. This provision binds `litespec/core/domain-model#keep-one-home-for-each-rule-calculation-and-projection` for .NET.
+
+**Example:** Claimwick's submit-expense handler calls `Expense.Submit` with the receipt threshold it loaded, and the approve-expense handler calls `expense.Approve`: each handler holds its three steps while the expense aggregate holds the rules. A per-diem walk copied into both handlers would report `logic-duplicate`; both call the travel knowledge model instead.
+
+**Checked by:** `litespec model check` reports `logic-duplicate` (level S) for one method or local-function body of at least 6 statements or 80 tokens carried in two or more different folders.
+
 ### Dispatch Declared Effects Through Their Entry Points
 
 **ID:** `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`

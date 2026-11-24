@@ -559,6 +559,20 @@ Rates, limits, deadlines, templates and treatments that vary by a dimension form
 
 The new pages are `docs/backend/knowledge.md` and the knowledge sections of `docs/backend/dotnet/architecture.md`.
 
+### Part BE: Code That Follows the Records Exactly
+
+Checks now compare code with the record field by field, generated code replaces typed copies of record facts, and every finding in `model check` blocks.
+
+- `input-field-drift` and `output-field-drift` (level S) compare each use case's message and result type with its `input` and `output` fields. `refusal-undeclared` (level S) reports a refusal code a handler, a root method it calls or a one-hop helper throws while its use case declares no result for it.
+- `logic-duplicate` (level S) reports a method body of at least 6 statements or 80 tokens carried in two or more folders, under the new `litespec/core/domain-model#keep-one-home-for-each-rule-calculation-and-projection` and `litespec/backend/dotnet/application#call-shared-logic-instead-of-copying-it`.
+- `litespec generate` writes refusal codes, permission ids, domain event decisions and closed value sets from the records, configured by a new `generate:` list in `.litespec/project.yaml`. `generated-drift` (level S) reports a generated file that is missing or stale (`litespec/core/model#generate-record-determined-code-from-the-records`). Claimwick's exceptions and authorization definitions read the generated constants.
+- A frontend may name its generated API client with `client: { contract, generated }`; the generator writes `contract.sha256`, and `client-drift` (level S) reports a client generated from another contract (`litespec/frontend/data#regenerate-the-client-with-the-contract`).
+- The advisory level is gone. Every former level A code blocks at G or S, except the prose and tidiness codes, which move to the new level R that only `litespec model review` reports, never blocking. `async-settles-missing` is removed; a declared `settles` that is wrong still blocks.
+- `litespec rules` prints the contract card of the use case, reaction or job a file implements, the judgement provisions, and one line counting the checked ones; `--all` lists every checked provision.
+- `toolchain-drift` (level G) reports a consumer whose tool manifest, analyzer reference and running CLI name different LiteSpec builds (`litespec/core/release#run-one-litespec-build`). `litespec-maintain publish-local` packs the checkout's CLI and analyzers into a consumer's local feed and moves both pins to that build.
+- The analyzers treat a knowledge model as its own layer: it may reference dependency injection, logging and options for its composition and startup validation, and LS1005 does not apply there, while the domain value rules still do. Only an assembly under `Knowledge/` that references its model counts as a knowledge set, so LS2038 no longer reports third-party packages.
+- New agent provisions: `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`, `litespec/core/agent#check-your-own-change-before-handing-it-back` and `litespec/core/agent#follow-the-record-not-the-neighbour`, and for maintainers `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -581,8 +595,9 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (295):
+Added (347):
 
+- `litespec/backend/api#map-every-failure-to-its-declared-status`
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`
 - `litespec/backend/application#declare-a-port-only-for-what-the-module-does-not-compute`
@@ -595,6 +610,7 @@ Added (295):
 - `litespec/backend/application#send-public-commands-in-process`
 - `litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`
 - `litespec/backend/application#write-only-aggregates-the-record-names`
+- `litespec/backend/architecture#carry-cross-module-text-references-as-contract-types`
 - `litespec/backend/architecture#give-each-use-case-its-own-models`
 - `litespec/backend/architecture#give-every-module-relationship-one-direction`
 - `litespec/backend/architecture#group-a-folder-that-holds-past-twenty-files`
@@ -608,14 +624,20 @@ Added (295):
 - `litespec/backend/domain#name-domain-types-from-their-aggregate-root`
 - `litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`
 - `litespec/backend/domain#reach-an-aggregate-only-through-its-root`
+- `litespec/backend/domain#store-each-state-the-reader-sees`
 - `litespec/backend/dotnet/api#compose-the-host-in-programcs`
 - `litespec/backend/dotnet/api#convert-money-with-the-platform-converter`
+- `litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler`
+- `litespec/backend/dotnet/application#call-shared-logic-instead-of-copying-it`
 - `litespec/backend/dotnet/application#dispatch-read-model-projections-immediately`
 - `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories-and-writes`
 - `litespec/backend/dotnet/application#name-every-outbox-subscriber`
+- `litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases`
 - `litespec/backend/dotnet/application#report-immediate-dispatch-beside-the-backlog`
 - `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`
+- `litespec/backend/dotnet/application#verify-durable-contracts-event-decisions-and-reference-data-at-startup`
 - `litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project`
+- `litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects`
 - `litespec/backend/dotnet/architecture#expose-one-public-entry-type-per-module`
 - `litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point`
 - `litespec/backend/dotnet/architecture#hold-each-layer-in-its-own-folder`
@@ -626,24 +648,45 @@ Added (295):
 - `litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder`
 - `litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions`
 - `litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project`
+- `litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts`
 - `litespec/backend/dotnet/architecture#register-each-module-through-its-entry-point`
 - `litespec/backend/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules`
 - `litespec/backend/dotnet/config#bind-every-keyed-setting-in-one-options-class`
 - `litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root`
+- `litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types`
 - `litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier`
 - `litespec/backend/dotnet/domain#split-a-large-root-into-one-file-per-action`
 - `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`
 - `litespec/backend/dotnet/naming#name-every-event-type-by-its-kind`
 - `litespec/backend/dotnet/naming#put-the-cancellation-token-last`
 - `litespec/backend/dotnet/persistence#apply-schema-changes-in-a-migration-step`
+- `litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries`
 - `litespec/backend/dotnet/persistence#evolve-stored-documents-when-they-are-read`
 - `litespec/backend/dotnet/persistence#implement-the-unit-of-work-boundary`
+- `litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time`
 - `litespec/backend/dotnet/persistence#plan-each-schema-change-before-applying-it`
 - `litespec/backend/dotnet/persistence#read-each-guarding-aggregate-under-a-shared-lock`
+- `litespec/backend/dotnet/persistence#share-one-serializer-configuration-across-marten-and-the-outbox`
 - `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`
 - `litespec/backend/dotnet/testing#drain-the-outbox-in-acceptance-tests`
 - `litespec/backend/dotnet/workspace#exclude-development-shortcuts-from-release-builds`
 - `litespec/backend/dotnet/workspace#keep-the-apphost-in-the-deploy-folder`
+- `litespec/backend/knowledge#check-shape-at-compile-time-and-dates-at-startup`
+- `litespec/backend/knowledge#give-each-knowledge-area-one-model`
+- `litespec/backend/knowledge#keep-knowledge-in-the-backend-language`
+- `litespec/backend/knowledge#keep-knowledge-sets-free-of-logic`
+- `litespec/backend/knowledge#keep-overrides-and-integration-catalogs-out-of-knowledge`
+- `litespec/backend/knowledge#model-reference-data-as-domain-values`
+- `litespec/backend/knowledge#name-a-role-not-a-row`
+- `litespec/backend/knowledge#read-knowledge-by-role-and-date`
+- `litespec/backend/knowledge#read-knowledge-through-its-model`
+- `litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason`
+- `litespec/backend/knowledge#seed-operational-records-from-templates`
+- `litespec/backend/knowledge#use-an-aggregate-for-edited-reference-data-only`
+- `litespec/backend/knowledge#validate-reference-data-before-serving`
+- `litespec/backend/knowledge#version-each-set-and-freeze-what-records-used`
+- `litespec/backend/persistence#serialize-every-persisted-payload-with-one-configuration`
+- `litespec/core/access#admit-the-system-identity-on-every-system-run-use-case`
 - `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`
 - `litespec/core/access#authorize-every-use-case-through-a-declared-grant`
 - `litespec/core/access#describe-every-served-content-entry-with-its-serving-fields`
@@ -651,8 +694,13 @@ Added (295):
 - `litespec/core/access#keep-permission-sets-to-entries`
 - `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
 - `litespec/core/access#model-a-hosted-sign-in-as-use-cases`
+- `litespec/core/agent#check-your-own-change-before-handing-it-back`
+- `litespec/core/agent#exercise-changed-use-cases-through-the-running-stack`
+- `litespec/core/agent#follow-the-record-not-the-neighbour`
+- `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`
 - `litespec/core/agent#scope-every-convention-to-files-it-governs`
 - `litespec/core/agent#verify-money-calculations-and-refusals-against-held-back-examples`
+- `litespec/core/agent#write-only-rules-you-have-seen-hold`
 - `litespec/core/authoring#open-each-page-with-a-lead`
 - `litespec/core/authoring#validate-each-template-against-the-record-schema`
 - `litespec/core/automation#decide-current-truth-in-the-owning-module`
@@ -668,6 +716,7 @@ Added (295):
 - `litespec/core/automation#raise-completion-only-when-every-module-is-done`
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
 - `litespec/core/automation#run-each-effect-on-its-own`
+- `litespec/core/automation#settle-every-async-outcome-in-visible-states`
 - `litespec/core/automation#subscribe-to-every-module-event`
 - `litespec/core/designing#change-every-instance-of-a-shape-in-one-change`
 - `litespec/core/designing#deliver-each-record-type-complete`
@@ -677,10 +726,14 @@ Added (295):
 - `litespec/core/designing#shape-each-record-type-for-its-next-field`
 - `litespec/core/designing#state-each-deviation-from-a-design-rule`
 - `litespec/core/designing#update-a-design-rule-that-keeps-bending`
+- `litespec/core/domain-model#append-released-reference-rows`
 - `litespec/core/domain-model#bind-a-reference-data-table-to-an-external-pack`
 - `litespec/core/domain-model#cite-varying-values-from-reference-data`
+- `litespec/core/domain-model#close-the-value-set-of-every-meaning-column`
+- `litespec/core/domain-model#cover-every-date-in-use`
 - `litespec/core/domain-model#date-every-reference-data-row`
 - `litespec/core/domain-model#keep-each-rule-statement-short`
+- `litespec/core/domain-model#keep-one-home-for-each-rule-calculation-and-projection`
 - `litespec/core/domain-model#keep-reference-data-rows-from-overlapping`
 - `litespec/core/domain-model#keep-technical-state-out-of-behavior`
 - `litespec/core/domain-model#name-every-spanned-aggregate-in-binds`
@@ -688,6 +741,7 @@ Added (295):
 - `litespec/core/domain-model#record-when-each-frozen-value-freezes-and-where-it-lives`
 - `litespec/core/domain-model#state-each-rules-source`
 - `litespec/core/domain-model#state-one-condition-per-rule`
+- `litespec/core/domain-model#state-the-sign-of-every-amount`
 - `litespec/core/domain-model#state-what-each-rule-governs`
 - `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`
 - `litespec/core/edges#give-every-screen-a-route-or-a-host`
@@ -727,8 +781,11 @@ Added (295):
 - `litespec/core/language#read-each-field-name-in-its-record-type`
 - `litespec/core/maintaining#derive-a-general-rule-from-a-consumer-need`
 - `litespec/core/maintaining#keep-consumers-out-of-litespec`
+- `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`
+- `litespec/core/model#block-every-finding-that-predicts-a-runtime-failure`
 - `litespec/core/model#cite-reference-data-instead-of-literal-values`
 - `litespec/core/model#declare-cross-module-references-in-depends-on`
+- `litespec/core/model#generate-record-determined-code-from-the-records`
 - `litespec/core/model#hold-module-rules-in-rule-folders`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`
 - `litespec/core/model#keep-the-whole-specification-in-the-records`
@@ -745,6 +802,7 @@ Added (295):
 - `litespec/core/privacy#enforce-a-data-class-through-its-aggregate`
 - `litespec/core/privacy#pause-deletion-while-a-hold-stands`
 - `litespec/core/privacy#round-an-event-start-to-a-calendar-end`
+- `litespec/core/release#run-one-litespec-build`
 - `litespec/core/release#verify-connected-flows`
 - `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`
 - `litespec/core/stacks#name-every-provision-a-replacement-replaces`
@@ -768,6 +826,7 @@ Added (295):
 - `litespec/core/use-cases#name-the-idempotency-of-every-command`
 - `litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure`
 - `litespec/core/use-cases#prove-every-guard-against-a-competing-command`
+- `litespec/core/use-cases#return-every-caller-supplied-identifier-from-a-reachable-query`
 - `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`
 - `litespec/core/use-cases#state-the-exposure-of-every-use-case`
 - `litespec/core/use-cases#state-what-a-replay-does`
@@ -802,6 +861,7 @@ Added (295):
 - `litespec/ext/jobs#name-a-varying-time-zone-by-its-source`
 - `litespec/ext/jobs#record-the-schedule-on-the-job-record`
 - `litespec/ext/mcp#keep-secrets-and-personal-data-out-of-descriptions-and-logs`
+- `litespec/ext/outbox#decide-every-domain-event-outcome`
 - `litespec/ext/outbox#deliver-module-facts-in-process-without-a-broker`
 - `litespec/ext/outbox#dispatch-flow-step-commands-in-a-new-scope`
 - `litespec/ext/outbox#dispatch-projections-immediately-after-commit`
@@ -818,6 +878,7 @@ Added (295):
 - `litespec/frontend/data#brand-every-identifier-from-the-contract`
 - `litespec/frontend/data#compose-a-screen-from-each-owners-query`
 - `litespec/frontend/data#hold-every-monetary-amount-in-the-frame-money-type`
+- `litespec/frontend/data#regenerate-the-client-with-the-contract`
 - `litespec/frontend/mobile/screens#route-app-links-to-flow-entry-screens`
 - `litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built`
 - `litespec/frontend/patterns/feedback-and-states#route-error-frame`
@@ -825,6 +886,7 @@ Added (295):
 - `litespec/frontend/patterns/page-frames#entry-page`
 - `litespec/frontend/testing#name-the-flow-a-flow-test-covers`
 - `litespec/frontend/ui#align-numbers-to-the-end`
+- `litespec/frontend/ui#cover-each-screen-scope-with-its-read`
 - `litespec/frontend/ui#draw-each-role-with-one-composite`
 - `litespec/frontend/ui#draw-every-field-on-a-surface`
 - `litespec/frontend/ui#group-a-long-form`
@@ -843,6 +905,7 @@ Added (295):
 - `litespec/frontend/ui#route-a-busy-screen-through-a-hub-frame`
 - `litespec/frontend/ui#show-names-never-codes`
 - `litespec/frontend/ui#show-one-primary-action-per-view`
+- `litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts`
 - `litespec/frontend/ui#use-tabs-only-for-peer-views`
 - `litespec/frontend/web/components#name-visual-files-with-the-stack-suffix`
 - `litespec/frontend/web/components#render-raw-html-through-the-stack-sink`
@@ -860,15 +923,18 @@ Added (295):
 - `litespec/frontend/web/ui#keep-the-tone-table-in-the-stack-states-file`
 - `litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed`
 - `litespec/quality/development#authenticate-as-a-cast-person`
+- `litespec/quality/development#check-seeded-figures-against-the-cast`
 - `litespec/quality/development#generate-volume-data-apart-from-the-cast`
 - `litespec/quality/development#give-each-external-system-a-stand-in-that-answers-its-declared-operations`
 - `litespec/quality/development#keep-development-shortcuts-out-of-release-builds`
 - `litespec/quality/development#keep-the-real-identity-provider-one-launch-profile-away`
 - `litespec/quality/development#provide-seed-and-reset-from-the-local-orchestrator`
 - `litespec/quality/development#review-screens-with-seeded-data`
+- `litespec/quality/development#run-the-api-walker-after-api-boundary-changes`
 - `litespec/quality/development#run-the-local-stack-on-the-cast-day`
 - `litespec/quality/development#seed-from-the-cast-through-public-use-cases`
 - `litespec/quality/development#seed-only-development-and-test-environments`
+- `litespec/quality/development#show-failure-causes-in-development`
 - `litespec/quality/development#split-the-seed-into-repeatable-scenarios`
 - `litespec/quality/development#start-the-stack-with-one-local-command`
 - `litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class`

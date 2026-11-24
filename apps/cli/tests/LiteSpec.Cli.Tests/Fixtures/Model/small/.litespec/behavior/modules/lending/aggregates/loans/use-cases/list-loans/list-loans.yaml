@@ -11,6 +11,15 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises: []
+input:
+- name: readerId
+  meaning: The signed-in reader whose loans are listed, read from verified claims.
+  type: id
+  identifies: actor/reader
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/library-app
+  classification: personal
 output:
   include:
     rows:
@@ -41,6 +50,28 @@ output:
       classification: internal
       reads:
       - aggregate/lending.loan
+      freshness:
+        mode: immediate
+    holds:
+      fields:
+      - name: holds
+        type: list
+        meaning: "One row per waiting hold: its identity and copy."
+        rowShape:
+          fields:
+          - name: hold
+            type: id
+            identifies: aggregate/lending.hold
+            required: true
+            meaning: The hold identity.
+          - name: copy
+            type: id
+            identifies: aggregate/lending.copy
+            required: true
+            meaning: The copy on hold.
+      classification: internal
+      reads:
+      - aggregate/lending.hold
       freshness:
         mode: immediate
 paging:

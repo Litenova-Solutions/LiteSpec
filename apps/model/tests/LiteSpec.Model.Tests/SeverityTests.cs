@@ -5,13 +5,13 @@ namespace LiteSpec.Model.Tests;
 /// <summary>Proves one finding's severity follows its tier and the reader.</summary>
 public sealed class SeverityTests
 {
-    /// <summary>An advisory finding reports under any reader.</summary>
+    /// <summary>A review finding reports under any reader.</summary>
     /// <param name="readerQualified">Whether the reader is qualified for the finding.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void AdvisoryFindingReportsAndNeverBlocks(bool readerQualified)
+    public void ReviewFindingReportsAndNeverBlocks(bool readerQualified)
     {
         var decided = Severity.Of(At("prose-missing", "use-case/lending.list-loans"), readerQualified);
 

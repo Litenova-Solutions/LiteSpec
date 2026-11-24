@@ -3,8 +3,8 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the advisory checks against hand-built models.</summary>
-public sealed class AdvisoryCheckTests
+/// <summary>Proves the prose-missing check against hand-built models.</summary>
+public sealed class ProseCheckTests
 {
     /// <summary>Use Case Without Summary Reports.</summary>
     /// <proves>litespec/core/use-cases#summarize-every-use-case</proves>
@@ -17,7 +17,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Use case 'use-case/lending.borrow-copy' holds no summary field.", finding.Message);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
@@ -46,7 +46,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Reaction 'reaction/lending.notify-borrower-on-loan-borrowed' holds no summary field.", finding.Message);
         Assert.Equal("reaction/lending.notify-borrower-on-loan-borrowed", finding.Subject);
     }
@@ -62,7 +62,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "pickup.yaml"), """{"summary": "Readers pick up ready holds faster.", "measure": "Median pickup wait", "target": "2 days"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-missing");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Goal 'goal/faster-pickup' holds no statement field.", finding.Message);
         Assert.Equal("goal/faster-pickup", finding.Subject);
     }
@@ -78,31 +78,5 @@ public sealed class AdvisoryCheckTests
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "pickup.yaml"), """{"summary": "Readers pick up ready holds faster.", "statement": "Readers pick up ready holds faster.", "measure": "Median pickup wait", "target": "2 days"}"""));
 
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Atomic With Two BoundBy Rules Reports.</summary>
-    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
-    [Fact]
-    public void AtomicWithTwoBoundByRulesReports()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "boundBy": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
-
-        Assert.Contains("atomicity-duplicate", TestModel.Codes(model));
-    }
-
-    /// <summary>Atomic With One BoundBy Rule Passes.</summary>
-    /// <proves>litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands</proves>
-    [Fact]
-    public void AtomicWithOneBoundByRulePasses()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "boundBy": ["rule/loan.one-open-loan"]}}"""));
-
-        Assert.DoesNotContain("atomicity-duplicate", TestModel.Codes(model));
     }
 }

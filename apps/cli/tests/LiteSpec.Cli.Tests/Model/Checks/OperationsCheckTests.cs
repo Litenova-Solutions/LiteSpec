@@ -152,7 +152,7 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("alert-threshold-drift", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>An alert carrying none of its measure's numbers reports advisory drift.</summary>
+    /// <summary>An alert carrying none of its measure's numbers reports blocking drift.</summary>
     /// <proves>litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures</proves>
     [Fact]
     public void ThresholdMissingMeasureNumbersReports()
@@ -160,12 +160,12 @@ public sealed class OperationsCheckTests
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("histogram_quantile(0.99, rate(list_loans_seconds_bucket[5m])) > 0.3", "up == 0"));
 
-        var check = TestCli.Run("model", "check", "--root", temp.Path, "--all");
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var drift = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-threshold-drift]", StringComparison.Ordinal));
 
-        Assert.True(check.Status == 0, check.Output);
-        Assert.Contains("[A]", drift, StringComparison.Ordinal);
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[G]", drift, StringComparison.Ordinal);
         Assert.Contains("listing-latency-high", drift, StringComparison.Ordinal);
         Assert.Contains("requirement/performance.list-loans-latency", drift, StringComparison.Ordinal);
     }
@@ -527,6 +527,9 @@ public sealed class OperationsCheckTests
           "response": "Each listing answers from the index.",
           "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
           "check": "list-loans-load",
+          "cites": [
+            "problem/slow-desk-loans"
+          ],
           "basedOn": [
             "decision/0003-term-start-listing"
           ]
@@ -609,6 +612,7 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0002-loan-index",
           "title": "Loan Index",
+          "kind": "package",
           "options": [
             {
               "name": "Search index",
@@ -631,6 +635,7 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0002-loan-index",
           "title": "Loan Index",
+          "kind": "package",
           "options": [
             {
               "name": "Search index",
