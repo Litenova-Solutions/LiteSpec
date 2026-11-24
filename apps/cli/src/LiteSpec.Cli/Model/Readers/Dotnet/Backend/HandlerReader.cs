@@ -19,6 +19,7 @@ static class HandlerReader
     /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
     public static void ReadHandler(
         string file,
         SyntaxTree tree,
@@ -28,7 +29,8 @@ static class HandlerReader
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        IReadOnlyDictionary<string, string> constants)
     {
         var useCase = ElementReader.SingleMark(marks, "use-case/") ?? "";
 
@@ -41,7 +43,7 @@ static class HandlerReader
         var kind = handlesQuery && !handlesCommand
             ? "query"
             : "command";
-        var details = ClassDetailsReader.HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query", qualified);
+        var details = ClassDetailsReader.HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query", qualified, constants);
 
         model.Handlers.Add(new CodeHandler(
             useCase,
@@ -76,6 +78,7 @@ static class HandlerReader
     /// <param name="helpers">The helper index of this read.</param>
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
     public static void ReadReaction(
         string file,
         SyntaxTree tree,
@@ -84,7 +87,8 @@ static class HandlerReader
         CodeFacts model,
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> holders,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        IReadOnlyDictionary<string, string> constants)
     {
         model.Reactions.Add(new CodeReaction(
             declared.Identifier.ValueText,
@@ -93,7 +97,7 @@ static class HandlerReader
             ElementReader.SingleMark(marks, "use-case/"),
             ElementReader.SingleMark(marks, "reaction/"),
             ClassDetailsReader.RepositoriesOf(declared, tree, file),
-            ClassDetailsReader.RefusalsOf(declared, tree, file),
+            ClassDetailsReader.RefusalsOf(declared, tree, file, constants),
             ClassDetailsReader.ThrownOf(declared, tree, file),
             DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified),
             ClassDetailsReader.DependencyCountOf(declared),
@@ -134,6 +138,7 @@ static class HandlerReader
     /// <param name="helpers">The helper index of this read.</param>
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
     public static void ReadJob(
         string file,
         SyntaxTree tree,
@@ -142,7 +147,8 @@ static class HandlerReader
         CodeFacts model,
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> holders,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        IReadOnlyDictionary<string, string> constants)
     {
         var dispatches = DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified);
 
@@ -162,7 +168,7 @@ static class HandlerReader
             ElementReader.SingleMark(marks, "use-case/"),
             ElementReader.SingleMark(marks, "job/"),
             ClassDetailsReader.RepositoriesOf(declared, tree, file),
-            ClassDetailsReader.RefusalsOf(declared, tree, file),
+            ClassDetailsReader.RefusalsOf(declared, tree, file, constants),
             ClassDetailsReader.ThrownOf(declared, tree, file),
             dispatches,
             ClassDetailsReader.DependencyCountOf(declared),

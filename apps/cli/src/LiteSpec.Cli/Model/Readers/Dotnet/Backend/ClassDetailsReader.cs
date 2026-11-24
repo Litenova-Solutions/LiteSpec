@@ -18,6 +18,7 @@ static class ClassDetailsReader
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="isQuery">Whether the handler handles a query.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
     /// <returns>The collected details of the handler class.</returns>
     public static ClassDetails HandlerDetailsOf(
         BaseTypeDeclarationSyntax declared,
@@ -27,13 +28,14 @@ static class ClassDetailsReader
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         bool isQuery,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        IReadOnlyDictionary<string, string> constants)
     {
         return new ClassDetails(
             declared.Identifier.ValueText,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
             RepositoriesOf(declared, tree, file),
-            RefusalsOf(declared, tree, file),
+            RefusalsOf(declared, tree, file, constants),
             ThrownOf(declared, tree, file),
             DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified),
             MessageTypeOf(declared),
@@ -109,8 +111,9 @@ static class ClassDetailsReader
     /// <param name="declared">The class declaration.</param>
     /// <param name="tree">The parsed syntax tree.</param>
     /// <param name="file">The file.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
     /// <returns>The refusal codes the class produces, earliest line first.</returns>
-    public static List<CodeRefusal> RefusalsOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file)
+    public static List<CodeRefusal> RefusalsOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file, IReadOnlyDictionary<string, string> constants)
     {
         var found = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -127,6 +130,19 @@ static class ClassDetailsReader
                 {
                     found.TryAdd(match.Value, tree.GetLineSpan(token.Span).StartLinePosition.Line + 1);
                 }
+            }
+        }
+
+        foreach (var expression in RefusalLiterals.ConstantCandidates(declared))
+        {
+            if (!RefusalLiterals.Declares(expression))
+            {
+                continue;
+            }
+
+            if (ConstRefusalCodes.Resolve(expression, declared.Identifier.ValueText, constants) is { } code)
+            {
+                found.TryAdd(code, tree.GetLineSpan(expression.Span).StartLinePosition.Line + 1);
             }
         }
 

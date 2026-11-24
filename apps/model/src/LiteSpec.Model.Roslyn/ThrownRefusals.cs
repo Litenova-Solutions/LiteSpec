@@ -33,6 +33,25 @@ public static class ThrownRefusals
         public int Line { get; }
     }
 
+    /// <summary>One refusal code a construction passes directly: the code with its line.</summary>
+    public sealed class ThrownCode
+    {
+        /// <summary>Initializes a new instance of the <see cref="ThrownCode" /> class.</summary>
+        /// <param name="code">The refusal code.</param>
+        /// <param name="line">The 1-based line of the argument.</param>
+        public ThrownCode(string code, int line)
+        {
+            Code = code;
+            Line = line;
+        }
+
+        /// <summary>Gets the refusal code.</summary>
+        public string Code { get; }
+
+        /// <summary>Gets the 1-based line of the argument.</summary>
+        public int Line { get; }
+    }
+
     /// <summary>
     ///     Reads the refusal types the method body constructs, in line order: each object creation
     ///     whose simple type name ends with <c>Exception</c>, <c>Failure</c> or <c>Refusal</c>. A
@@ -73,6 +92,124 @@ public static class ThrownRefusals
         found.Sort((left, right) => left.Line.CompareTo(right.Line));
 
         return found;
+    }
+
+    /// <summary>
+    ///     Reads the refusal codes the method body passes directly when it constructs a refusal
+    ///     type: each argument that is a string literal matching the refusal-code grammar in
+    ///     full, or a member access or identifier that resolves through the constants map to
+    ///     such a value. A bare identifier reads the constant of that name in the enclosing
+    ///     type. A target-typed creation names no type and reads nothing here.
+    /// </summary>
+    /// <param name="method">The method to read.</param>
+    /// <param name="tree">The parsed syntax tree, for line numbers.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <returns>The directly passed refusal codes, in line order, without duplicates.</returns>
+    /// <exception cref="ArgumentNullException">The method, tree or constants are null.</exception>
+    public static IReadOnlyList<ThrownCode> CodesOf(
+        MethodDeclarationSyntax method,
+        SyntaxTree tree,
+        IReadOnlyDictionary<string, string> constants)
+    {
+        if (method is null)
+        {
+            throw new ArgumentNullException(nameof(method));
+        }
+
+        if (tree is null)
+        {
+            throw new ArgumentNullException(nameof(tree));
+        }
+
+        if (constants is null)
+        {
+            throw new ArgumentNullException(nameof(constants));
+        }
+
+        var found = new List<ThrownCode>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var enclosing = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault()?.Identifier.ValueText;
+
+        foreach (var creation in method.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        {
+            if (SimpleName(creation.Type) is not string name || !IsRefusalType(name))
+            {
+                continue;
+            }
+
+            if (creation.ArgumentList is null)
+            {
+                continue;
+            }
+
+            foreach (var argument in creation.ArgumentList.Arguments)
+            {
+                if (ResolveCode(argument.Expression, enclosing, constants) is { } code && seen.Add(code))
+                {
+                    found.Add(new ThrownCode(code, tree.GetLineSpan(argument.Span).StartLinePosition.Line + 1));
+                }
+            }
+        }
+
+        found.Sort((left, right) => left.Line.CompareTo(right.Line));
+
+        return found;
+    }
+
+    /// <summary>Resolves an argument to the refusal code it holds: a literal reads directly, a member access or identifier reads through the constants map.</summary>
+    /// <param name="expression">The argument holding the code.</param>
+    /// <param name="enclosing">The simple name of the enclosing type, for a bare identifier, or null outside any type.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <returns>The refusal code, or null when the argument holds none.</returns>
+    private static string? ResolveCode(ExpressionSyntax expression, string? enclosing, IReadOnlyDictionary<string, string> constants)
+    {
+        var current = expression;
+
+        while (current is ParenthesizedExpressionSyntax parenthesized)
+        {
+            current = parenthesized.Expression;
+        }
+
+        string? value = current switch
+        {
+            LiteralExpressionSyntax literal when literal.Token.Value is string text => text,
+            MemberAccessExpressionSyntax access when MemberKey(access) is { } key
+                && constants.TryGetValue(key, out var held) => held,
+            IdentifierNameSyntax identifier when enclosing is not null
+                && constants.TryGetValue(enclosing + "." + identifier.Identifier.ValueText, out var named) => named,
+            _ => null,
+        };
+
+        if (value is null)
+        {
+            return null;
+        }
+
+        var match = Identifiers.RefusalCode().Match(value);
+
+        return match.Success && match.Value == value ? value : null;
+    }
+
+    /// <summary>The map key a member access names: its last two identifiers as <c>Type.Member</c>.</summary>
+    /// <param name="access">The member access expression.</param>
+    /// <returns>The <c>Type.Member</c> key, or null when the access names none.</returns>
+    private static string? MemberKey(MemberAccessExpressionSyntax access)
+    {
+        var names = new List<string> { access.Name.Identifier.ValueText };
+        var current = access.Expression;
+
+        while (current is MemberAccessExpressionSyntax nested)
+        {
+            names.Add(nested.Name.Identifier.ValueText);
+            current = nested.Expression;
+        }
+
+        if (current is IdentifierNameSyntax root)
+        {
+            names.Add(root.Identifier.ValueText);
+        }
+
+        return names.Count >= 2 ? names[1] + "." + names[0] : null;
     }
 
     /// <summary>Whether the simple type name is a refusal type: it ends with Exception, Failure or Refusal.</summary>

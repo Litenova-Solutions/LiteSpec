@@ -30,22 +30,41 @@ static class RefusalLiterals
 
     /// <summary>
     ///     Whether a literal sits where code declares a refusal code: inside a property, field or
-    ///     constant named <c>Code</c>, as an argument of a <c>new ...Exception(...)</c>, or as a
-    ///     value named <c>code</c> (a named argument, an anonymous object member or an assignment).
+    ///     constant named <c>Code</c> or <c>RefusalCode</c> on an exception type, as the first
+    ///     argument of a base call passing a code and a message, as an argument of a
+    ///     <c>new ...Exception(...)</c>, or as a value named <c>code</c> (a named argument,
+    ///     an anonymous object member or an assignment).
     /// </summary>
     /// <param name="token">The literal token.</param>
     /// <returns>True when the literal sits where code declares a refusal code.</returns>
-    public static bool Declares(SyntaxToken token)
+    public static bool Declares(SyntaxToken token) =>
+        DeclaresAt(token.Parent?.AncestorsAndSelf() ?? []);
+
+    /// <summary>
+    ///     Whether an expression sits where code declares a refusal code: the same positions
+    ///     a literal declares from, so a generated constant reads where a literal would.
+    /// </summary>
+    /// <param name="expression">The expression holding the code.</param>
+    /// <returns>True when the expression sits where code declares a refusal code.</returns>
+    public static bool Declares(ExpressionSyntax expression) =>
+        DeclaresAt(expression.AncestorsAndSelf());
+
+    /// <summary>Whether any node on the walk from a literal or expression declares a refusal code.</summary>
+    /// <param name="nodes">The nodes from the literal or expression up to its members.</param>
+    /// <returns>True when the walk reaches a declaring position before any statement or member.</returns>
+    static bool DeclaresAt(IEnumerable<SyntaxNode> nodes)
     {
-        foreach (var node in token.Parent?.AncestorsAndSelf() ?? [])
+        foreach (var node in nodes)
         {
             switch (node)
             {
                 case PropertyDeclarationSyntax property:
-                    return property.Identifier.ValueText == "Code" && RefusalType(property);
+                    return IsCodeMember(property.Identifier.ValueText) && RefusalType(property);
                 case FieldDeclarationSyntax field:
-                    return field.Declaration.Variables.Any(variable => variable.Identifier.ValueText == "Code") && RefusalType(field);
+                    return field.Declaration.Variables.Any(variable => IsCodeMember(variable.Identifier.ValueText)) && RefusalType(field);
                 case ArgumentSyntax { NameColon.Name.Identifier.ValueText: var name } when IsCodeName(name):
+                    return true;
+                case ArgumentSyntax argument when IsBaseCodeArgument(argument):
                     return true;
                 case AnonymousObjectMemberDeclaratorSyntax { NameEquals.Name.Identifier.ValueText: var name }:
                     return IsCodeName(name);
@@ -65,6 +84,22 @@ static class RefusalLiterals
         // features or kinds the same member name holds a label instead.
         static bool RefusalType(SyntaxNode member) =>
             member.Parent is BaseTypeDeclarationSyntax type
+            && (type.Identifier.ValueText.EndsWith("Exception", StringComparison.Ordinal)
+                || type.Identifier.ValueText.EndsWith("Failure", StringComparison.Ordinal)
+                || type.Identifier.ValueText.EndsWith("Refusal", StringComparison.Ordinal));
+
+        static bool IsCodeMember(string name) =>
+            name is "Code" or "RefusalCode";
+
+        // The first argument of a base call passing at least a code and a message,
+        // inside an exception type: a single base argument carries the message alone.
+        static bool IsBaseCodeArgument(ArgumentSyntax argument) =>
+            argument.NameColon is null
+            && argument.Parent is ArgumentListSyntax list
+            && list.Parent is ConstructorInitializerSyntax initializer
+            && initializer.ArgumentList.Arguments.Count >= 2
+            && ReferenceEquals(initializer.ArgumentList.Arguments[0], argument)
+            && argument.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault() is { } type
             && (type.Identifier.ValueText.EndsWith("Exception", StringComparison.Ordinal)
                 || type.Identifier.ValueText.EndsWith("Failure", StringComparison.Ordinal)
                 || type.Identifier.ValueText.EndsWith("Refusal", StringComparison.Ordinal));
@@ -90,6 +125,39 @@ static class RefusalLiterals
     public static string? EnclosingClass(SyntaxToken token)
     {
         var parent = token.Parent;
+
+        while (parent is not null && parent is not BaseTypeDeclarationSyntax)
+        {
+            parent = parent.Parent;
+        }
+
+        return (parent as BaseTypeDeclarationSyntax)?.Identifier.ValueText;
+    }
+
+    /// <summary>Every constant candidate under a node: each outermost member access and each identifier outside one, so a generated constant reads where it sits.</summary>
+    /// <param name="root">The node whose constants are wanted.</param>
+    /// <returns>The member access and identifier expressions under the node.</returns>
+    public static IEnumerable<ExpressionSyntax> ConstantCandidates(SyntaxNode root)
+    {
+        foreach (var node in root.DescendantNodes())
+        {
+            if (node is MemberAccessExpressionSyntax access && access.Parent is not MemberAccessExpressionSyntax)
+            {
+                yield return access;
+            }
+            else if (node is IdentifierNameSyntax identifier && identifier.Parent is not MemberAccessExpressionSyntax)
+            {
+                yield return identifier;
+            }
+        }
+    }
+
+    /// <summary>The class enclosing an expression, or null when no class encloses it.</summary>
+    /// <param name="expression">The expression.</param>
+    /// <returns>The class enclosing the expression, or null when no class encloses it.</returns>
+    public static string? EnclosingClass(SyntaxNode expression)
+    {
+        SyntaxNode? parent = expression;
 
         while (parent is not null && parent is not BaseTypeDeclarationSyntax)
         {
