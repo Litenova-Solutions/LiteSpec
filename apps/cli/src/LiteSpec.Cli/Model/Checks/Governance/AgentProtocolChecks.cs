@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using LiteSpec.Cli.Skill;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -56,18 +57,19 @@ internal static class AgentProtocolChecks
             return;
         }
 
-        if (AgentProtocol.ExpectedRegion(model) is not { } expected)
+        if (AgentProtocol.ExpectedRegionPattern(model) is not { } expected)
         {
             return;
         }
 
-        // Both sides are compared with LF endings, so a CRLF page never drifts on its line endings alone.
-        // A candidate and its final release render the same region apart from the version suffix, so neither drifts on it.
-        var release = LiteSpecHome.Version ?? string.Empty;
-        var actual = ReleaseVersion.WithoutCandidateSuffix(match.Value.Replace("\r\n", "\n", StringComparison.Ordinal), release);
-        var wanted = ReleaseVersion.WithoutCandidateSuffix(expected.Replace("\r\n", "\n", StringComparison.Ordinal), release);
+        // Both sides are compared with LF endings, so a CRLF page never drifts on its line endings alone. The package
+        // version and the docs folder depend on the install that rendered the region, so each matches any one-line value.
+        var actual = match.Value.Replace("\r\n", "\n", StringComparison.Ordinal);
+        var pattern = "^" + Regex.Escape(expected.Replace("\r\n", "\n", StringComparison.Ordinal))
+            .Replace(Regex.Escape(AgentProtocol.PackageMarker), "[^\\n]+", StringComparison.Ordinal)
+            .Replace(Regex.Escape(AgentProtocol.DocsMarker), "[^\\n]+", StringComparison.Ordinal) + "$";
 
-        if (actual != wanted)
+        if (!Regex.IsMatch(actual, pattern, RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2)))
         {
             findings.Add(new Finding(DriftCode, "The agent-protocol region in AGENTS.md differs from what model render writes.", file, LineOf(LineStarts(text), match.Index), null));
         }

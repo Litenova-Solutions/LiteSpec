@@ -247,6 +247,42 @@ static partial class AgentProtocol
         return BuildRegion(filled, "\n");
     }
 
+    /// <summary>The marker that stands for the package version in <see cref="ExpectedRegionPattern" />.</summary>
+    internal const string PackageMarker = "{{litespec-package-version}}";
+
+    /// <summary>The marker that stands for the docs folder in <see cref="ExpectedRegionPattern" />.</summary>
+    internal const string DocsMarker = "{{litespec-docs}}";
+
+    /// <summary>
+    ///     The region the check compares against, with the package version and the docs folder left as markers: both
+    ///     depend on where the CLI runs (a repository build, a packed tool, a NuGet cache path), so a region rendered by
+    ///     one install never drifts from another install of the same release.
+    /// </summary>
+    /// <param name="model">The built project model the region renders from.</param>
+    /// <returns>The expected region with markers, or null when the release carries no readable template.</returns>
+    internal static string? ExpectedRegionPattern(ProjectModel model)
+    {
+        if (ReleaseTemplate() is not { } release || TemplateBody(release.Template) is not { } body)
+        {
+            return null;
+        }
+
+        var config = model.Config;
+        var filled = Fill(
+            body,
+            release.Release,
+            PackageMarker,
+            config.Size,
+            config.Shape,
+            FormatStacks(config.Stacks),
+            FormatExtensions(config.Extensions),
+            FormatLayers(config.Layers),
+            DocsMarker,
+            CommandFor(config.Root));
+
+        return BuildRegion(filled, "\n");
+    }
+
     /// <summary>The release version, the package version, the docs folder and the agent context template text, or null when the release carries no readable template.</summary>
     /// <returns>The release, the package version, the docs folder and the template text, or null.</returns>
     private static (string Release, string Package, string Docs, string Template)? ReleaseTemplate()
