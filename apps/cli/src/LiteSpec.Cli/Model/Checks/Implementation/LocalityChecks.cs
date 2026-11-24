@@ -49,6 +49,9 @@ internal static class LocalityChecks
                 edges = new HashSet<string>(StringComparer.Ordinal);
             }
 
+            var opaque = HeldOpaqueIds(useCase);
+            HashSet<string> used = opaque.Count == 0 ? [] : UsedRecordIds(useCase);
+
             foreach (var field in new[] { RecordFields.Input, RecordFields.Output, RecordFields.Steps })
             {
                 if (!useCase.Raw.TryGetProperty(field, out var entries) || entries.ValueKind != JsonValueKind.Array)
@@ -58,7 +61,9 @@ internal static class LocalityChecks
 
                 foreach (var id in NestedRecordIds(entries, collect: false).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
                 {
-                    if (!model.ById.TryGetValue(Identifiers.BaseId(id), out var target)
+                    var baseId = Identifiers.BaseId(id);
+
+                    if (!model.ById.TryGetValue(baseId, out var target)
                         || target.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
                     {
                         continue;
@@ -71,6 +76,13 @@ internal static class LocalityChecks
                         continue;
                     }
 
+                    if (field != RecordFields.Steps
+                        && opaque.Contains(baseId)
+                        && !used.Contains(baseId))
+                    {
+                        continue;
+                    }
+
                     findings.Add(new Finding(
                         "module-reference-undeclared",
                         $"Use case '{useCase.Id}' names '{id}' of module '{to}' in '{field}' with no declared dependency from '{from}'.",
@@ -78,6 +90,63 @@ internal static class LocalityChecks
                 }
             }
         }
+    }
+
+    /// <summary>The records a use case holds opaque: the identifies of its input and output fields stating held opaque.</summary>
+    /// <param name="useCase">The use-case record whose contract fields are read.</param>
+    /// <returns>Each base record identifier held opaque, once.</returns>
+    private static HashSet<string> HeldOpaqueIds(Record useCase)
+    {
+        var held = new HashSet<string>(StringComparer.Ordinal);
+
+        if (useCase.Raw.ValueKind != JsonValueKind.Object)
+        {
+            return held;
+        }
+
+        foreach (var field in new[] { RecordFields.Input, RecordFields.Output })
+        {
+            if (!useCase.Raw.TryGetProperty(field, out var entries) || entries.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in entries.EnumerateArray())
+            {
+                if (string.Equals(RecordEntries.Str(entry, "held"), "opaque", StringComparison.Ordinal)
+                    && RecordEntries.Str(entry, "identifies") is { Length: > 0 } named)
+                {
+                    held.Add(Identifiers.BaseId(named));
+                }
+            }
+        }
+
+        return held;
+    }
+
+    /// <summary>The records a use case reads, writes, or cites: its reads, its writes, and the records its steps name.</summary>
+    /// <param name="useCase">The use-case record whose reads, writes, and steps are read.</param>
+    /// <returns>Each base record identifier read, written, or cited, once.</returns>
+    private static HashSet<string> UsedRecordIds(Record useCase)
+    {
+        var used = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var id in useCase.Ids(RecordFields.Reads).Concat(useCase.Ids(RecordFields.Writes)))
+        {
+            used.Add(Identifiers.BaseId(id));
+        }
+
+        if (useCase.Raw.ValueKind == JsonValueKind.Object
+            && useCase.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            && steps.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var id in NestedRecordIds(steps, collect: false))
+            {
+                used.Add(Identifiers.BaseId(id));
+            }
+        }
+
+        return used;
     }
 
     /// <summary>The record identifiers nested in an input, output or steps entry, read only from the fields that name records.</summary>

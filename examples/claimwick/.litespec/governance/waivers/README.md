@@ -15,6 +15,5 @@
 
 | Waiver | Module | Covers | Consequences |
 |:---|:---|:---|:---|
-| [Attach Receipt Identifier Unlisted](attach-receipt-identifier-unlisted/attach-receipt-identifier-unlisted.yaml) | - | `caller-identifier-unreachable` | A reader finds where receipt identities come from only in the upload path, which no record describes yet. |
 | [Read Expense Unserved](read-expense-unserved/read-expense-unserved.yaml) | - | `use-case-flow-missing` | No flow shows the query, so a reader finds its caller through the queries edge on the reporting list. |
 <!-- /generated:waiver-index -->

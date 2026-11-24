@@ -19,11 +19,10 @@ public sealed class ClaimwickExampleTests
         var result = TestCli.Run("model", "check", "--root", Root);
         AssertPasses(result);
         // The covered findings sit under their waivers: twelve unverified use cases, four
-        // use cases no screen calls, two use cases in no flow, three unscreened steps, and
-        // the attach-receipt caller identity no query returns. The six UI quality
-        // requirements are proved by token and route runs, so no Behavior record fulfills
-        // them and they report nothing.
-        Assert.Contains("0 findings, 0 blocking, 22 covered.", result.Output);
+        // use cases no screen calls, two use cases in no flow, and three unscreened steps.
+        // The six UI quality requirements are proved by token and route runs, so no
+        // Behavior record fulfills them and they report nothing.
+        Assert.Contains("0 findings, 0 blocking, 21 covered.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

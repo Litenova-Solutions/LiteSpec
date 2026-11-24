@@ -165,6 +165,7 @@ internal static class FieldTable
         new("grantedTo", "The roles that hold the permission", "array", "permissionEntry"),
         new("group", "The permission group for review", "string", "permissionEntry"),
         new("guards", "The aggregates a command reads but does not write", "array", "consistencyObject"),
+        new("held", "How the module keeps a named identifier", "string", "useCaseInput, outputField"),
         new("heldOn", "The date a retention hold starts", "string", "retentionHold"),
         new("holds", "The roles an actor holds", "array", "actorPage"),
         new("host", "The screen this screen opens on", "string", "screenPage"),

@@ -844,6 +844,10 @@ $defs:
         $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      held:
+        description: How the module keeps the identifier the field names. Opaque states the module stores and passes the identifier but never loads, queries, or reasons about the named aggregate.
+        enum:
+        - opaque
       rowShape:
         $ref: '#/$defs/contractListShape'
       choices:
@@ -871,6 +875,12 @@ $defs:
         not:
           required:
           - sign
+    - if:
+        required:
+        - held
+      then:
+        required:
+        - identifies
   outputGroup:
     type: object
     additionalProperties: false
@@ -1982,6 +1992,10 @@ $defs:
         $ref: '#/$defs/genericRecordId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      held:
+        description: How the module keeps the identifier the field names. Opaque states the module stores and passes the identifier but never loads, queries, or reasons about the named aggregate.
+        enum:
+        - opaque
       rowShape:
         $ref: '#/$defs/contractListShape'
       choices:
@@ -2042,6 +2056,12 @@ $defs:
         not:
           required:
           - sign
+    - if:
+        required:
+        - held
+      then:
+        required:
+        - identifies
   densityValue:
     enum:
     - public-light

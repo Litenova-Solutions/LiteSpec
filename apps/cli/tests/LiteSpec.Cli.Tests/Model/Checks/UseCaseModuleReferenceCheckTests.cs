@@ -40,6 +40,48 @@ public sealed class UseCaseModuleReferenceCheckTests
         Assert.Single(Findings(model));
     }
 
+    /// <summary>An input held opaque that names another module's aggregate without dependsOn passes.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueInputWithoutDependencyPasses()
+    {
+        var model = ModelWith("""{"kind": "command", "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
+
+        Assert.Empty(Findings(model));
+    }
+
+    /// <summary>An output held opaque that names another module's aggregate without dependsOn passes.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueOutputWithoutDependencyPasses()
+    {
+        var model = ModelWith("""{"kind": "command", "output": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
+
+        Assert.Empty(Findings(model));
+    }
+
+    /// <summary>An opaque input still reports when the use case reads the named aggregate.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueInputWithReadOfAggregateReports()
+    {
+        var model = ModelWith("""{"kind": "command", "reads": ["aggregate/finance.overdue-fine"], "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
+
+        var finding = Assert.Single(Findings(model));
+        Assert.Contains("in 'input'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>An opaque input still reports when a step cites the named aggregate.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueInputWithStepCitingAggregateReports()
+    {
+        var model = ModelWith("""{"kind": "command", "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}], "steps": [{"statement": "Record the fine.", "cites": ["aggregate/finance.overdue-fine"]}]}""", []);
+
+        var finding = Assert.Single(Findings(model));
+        Assert.Contains("in 'input'", finding.Message, StringComparison.Ordinal);
+    }
+
     /// <summary>The same references pass once the module declares the dependency.</summary>
     /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
     [Fact]

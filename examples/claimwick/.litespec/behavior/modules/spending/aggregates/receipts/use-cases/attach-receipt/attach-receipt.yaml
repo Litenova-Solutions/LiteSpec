@@ -24,7 +24,7 @@ input:
   origin: caller
   classification: internal
 - name: receipt
-  meaning: The stored receipt to attach, uploaded before the call.
+  meaning: The identifier the app mints for the receipt, so a retried request attaches the same receipt.
   type: id
   identifies: aggregate/spending.receipt
   required: true
@@ -46,10 +46,10 @@ consistency:
   boundBy:
   - rule/spending.receipt-attached-atomically
 idempotency:
-  mode: state
-  reason: a repeat attaches the same receipt to the same submitted expense, leaving the same receipt attached
-  replay: acts-again
-  recognizedBy: the aggregate state already holds the outcome this command sets
+  mode: key
+  key: "{receipt}"
+  keyScope: account
+  replay: returns-first-result
 steps:
 - statement: The employee sends the receipt for a submitted expense.
   cites:

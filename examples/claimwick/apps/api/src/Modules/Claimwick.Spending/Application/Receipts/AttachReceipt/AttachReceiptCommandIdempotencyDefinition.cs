@@ -2,13 +2,11 @@ using LiteBus.Messaging.Abstractions;
 
 namespace Claimwick.Spending.Application.Receipts.AttachReceipt;
 
-/// <summary>Declares that attach receipt needs no idempotency key: the command recognizes a repeat by state, since a stored key would outlive that state.</summary>
-internal sealed class AttachReceiptCommandIdempotencyDefinition : IMessageDefinition<AttachReceiptCommand>
+/// <summary>Keys the attach-receipt command by its receipt identity, returning the first result on a repeat.</summary>
+internal sealed class AttachReceiptCommandIdempotencyDefinition : IIdempotencyDefinition<AttachReceiptCommand>
 {
-    /// <inheritdoc />
-    public void Describe(IMessageDeclarations declarations)
-    {
-        ArgumentNullException.ThrowIfNull(declarations);
-        declarations.Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets");
-    }
+    public IdempotencyDeclaration Idempotency { get; } = IdempotencyDeclaration.Idempotent(
+        static message => ((AttachReceiptCommand)message).ReceiptId.ToString(),
+        scope: "account",
+        replayResult: true);
 }
