@@ -130,6 +130,22 @@ $defs:
   aggregateFieldRef:
     type: string
     pattern: '^aggregate/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*#[A-Za-z0-9]+$'
+  aggregatePartRef:
+    type: string
+    pattern: '^aggregate/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*#[a-z0-9]+(-[a-z0-9]+)*$'
+  aggregatePart:
+    description: One child entity or value object inside the aggregate, with its kebab-case name and whether it carries its own identity.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    properties:
+      name:
+        type: string
+        pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
+      identity:
+        description: True when the part carries its own identity, so an identifies field can name it.
+        type: boolean
   reactionId:
     type: string
     pattern: '^reaction/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
@@ -200,6 +216,11 @@ $defs:
   genericRecordId:
     type: string
     pattern: '^[a-z][a-z-]+/[a-z0-9][a-z0-9._-]*$'
+  identifiesId:
+    description: The record an id field refers to, or an identified part of an aggregate as aggregate/<module>.<aggregate>#<part>.
+    anyOf:
+    - $ref: '#/$defs/genericRecordId'
+    - $ref: '#/$defs/aggregatePartRef'
   classification:
     enum:
     - public
@@ -677,7 +698,7 @@ $defs:
       meaning:
         $ref: '#/$defs/nonEmptyString'
       identifies:
-        $ref: '#/$defs/genericRecordId'
+        $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       choices:
@@ -744,7 +765,7 @@ $defs:
         - identifies
         properties:
           identifies:
-            $ref: '#/$defs/genericRecordId'
+            $ref: '#/$defs/identifiesId'
     - if:
         required:
         - type
@@ -841,7 +862,7 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/genericRecordId'
+        $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       held:
@@ -1619,7 +1640,7 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/genericRecordId'
+        $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       rowShape:
@@ -1649,7 +1670,7 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/genericRecordId'
+        $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       rowShape:
@@ -1989,7 +2010,7 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/genericRecordId'
+        $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       held:
@@ -3255,12 +3276,11 @@ $defs:
       summary:
         $ref: '#/$defs/nonEmptyString'
       parts:
-        description: The kebab-case names of the child entities and value objects inside the aggregate that use cases act on.
+        description: The child entities and value objects inside the aggregate that use cases act on, each with its kebab-case name and whether it carries its own identity.
         type: array
         uniqueItems: true
         items:
-          type: string
-          pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
+          $ref: '#/$defs/aggregatePart'
       states:
         type: array
         minItems: 1
@@ -3932,7 +3952,7 @@ $defs:
       type:
         $ref: '#/$defs/contractValueType'
       identifies:
-        $ref: '#/$defs/genericRecordId'
+        $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       rowShape:

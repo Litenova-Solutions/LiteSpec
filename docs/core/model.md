@@ -480,7 +480,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `erasure.operation` | external system | external operation | is erased through | erases |
 | `erasure.event` | external system | published event | is erased through | carries the erasure of |
 | `basedOn` | external system | decision, requirement | is based on | is a basis for |
-| `payload.identifies` | integration event | generic record | identifies | is identified by |
+| `payload.identifies` | integration event | identifies | identifies | is identified by |
 | `through` | integration event | external system | travels through | carries |
 | `arrivesThrough` | integration event | entry point, external system | arrives through | receives |
 | `requires` | integration event | permission | requires | is required by |
@@ -500,7 +500,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `binds` | rule | aggregate | binds | is bound by |
 | `cites` | rule | constraint, research | cites | is cited by |
 | `releasedBy` | rule | use case | is released by | releases |
-| `carries.identifies` | domain event | generic record | identifies | is identified by |
+| `carries.identifies` | domain event | identifies | identifies | is identified by |
 | `rows.refersTo` | reference data | reference data row | refers to | is referred to by |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 | `records.terms` | refusal set | term | uses | is used by |

@@ -1,19 +1,22 @@
+using LiteSpec.Model;
+
 namespace LiteSpec.Cli.Generate;
 
 /// <summary>
 ///     Renders the domain event decisions the records state: per module a C# table with one
 ///     constant per event and a dictionary from each event identifier to its decision, so a
-///     consumer's startup check compares against data instead of typed lists.
+///     consumer's startup check compares against data instead of typed lists. Each decision
+///     is the outcome the outbox decision check derives from the records, in the same words.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class EventDecisionsRenderer
 {
-    /// <summary>The decision the records state for a domain event: ignored, translated, or undecided.</summary>
+    /// <summary>The decision the records state for a domain event: its outbox outcome with its record id.</summary>
     /// <param name="EventId">The domain event identifier.</param>
     /// <param name="Aggregate">The aggregate name the event identifier carries.</param>
     /// <param name="Name">The event name the event identifier carries.</param>
-    /// <param name="Decision">The decision: ignored, translated, or undecided.</param>
-    public sealed record EventDecision(string EventId, string Aggregate, string Name, string Decision);
+    /// <param name="Decision">The outcome the outbox decision check derives from the records.</param>
+    public sealed record EventDecision(string EventId, string Aggregate, string Name, DomainEventOutcome Decision);
 
     /// <summary>
     ///     Renders one module's domain event decisions as C#: a public static class with one
@@ -43,9 +46,10 @@ static class EventDecisionsRenderer
         foreach (var decided in ordered)
         {
             var constant = GenerateNaming.ModulePascal(decided.Aggregate) + GenerateNaming.ConstName(decided.Name);
+            var value = DomainEventOutcomes.Value(decided.Decision);
 
-            lines.Add($"    /// <summary>The decision the records state for {decided.EventId}: {decided.Decision}.</summary>");
-            lines.Add($"    public const string {constant} = \"{decided.Decision}\";");
+            lines.Add($"    /// <summary>The decision the records state for {decided.EventId}: {value}.</summary>");
+            lines.Add($"    public const string {constant} = \"{value}\";");
         }
 
         lines.Add("");

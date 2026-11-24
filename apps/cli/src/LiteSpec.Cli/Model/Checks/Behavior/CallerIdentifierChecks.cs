@@ -105,8 +105,8 @@ internal static class CallerIdentifierChecks
     {
         foreach (var (field, identifies) in inputs)
         {
-            // A dangling identifies is reference-unknown, so only held records count here.
-            if (!model.ById.ContainsKey(Identifiers.BaseId(identifies)))
+            // A dangling identifies is reference-unknown, so only resolving records and identified parts count here.
+            if (!ContractChecks.IdentifiesResolves(model, identifies))
             {
                 continue;
             }
@@ -161,8 +161,8 @@ internal static class CallerIdentifierChecks
 
         foreach (var (field, identifies) in inputs)
         {
-            // A dangling identifies is reference-unknown, so only held records count here.
-            if (!model.ById.ContainsKey(Identifiers.BaseId(identifies)))
+            // A dangling identifies is reference-unknown, so only resolving records and identified parts count here.
+            if (!ContractChecks.IdentifiesResolves(model, identifies))
             {
                 continue;
             }

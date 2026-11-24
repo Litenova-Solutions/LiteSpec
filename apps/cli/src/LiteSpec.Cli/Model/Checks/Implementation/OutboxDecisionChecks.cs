@@ -56,6 +56,8 @@ internal static class OutboxDecisionChecks
 
             var isTranslated = translated.Contains(codeEvent.Class);
             var isIgnored = !isTranslated && ignored.Contains(codeEvent.Class);
+            var hasConsumer = consumers.TryGetValue(eventId, out var named) && named.Count > 0;
+            var outcome = DomainEventOutcomes.FromRecord(record.Flag(RecordFields.Ignored), hasConsumer);
 
             if (!isTranslated && !isIgnored)
             {
@@ -70,7 +72,7 @@ internal static class OutboxDecisionChecks
 
             var (file, line) = decidedAt[codeEvent.Class];
 
-            if (isTranslated && record.Flag(RecordFields.Ignored))
+            if (isTranslated && outcome == DomainEventOutcome.Ignored)
             {
                 findings.Add(new Finding(
                     "outbox-decision-drift",
@@ -79,13 +81,11 @@ internal static class OutboxDecisionChecks
                     line,
                     eventId));
             }
-            else if (isIgnored
-                && consumers.TryGetValue(eventId, out var named)
-                && named.Count > 0)
+            else if (isIgnored && hasConsumer)
             {
                 findings.Add(new Finding(
                     "outbox-decision-drift",
-                    $"Domain event type '{codeEvent.Class}' ({eventId}) is ignored in code, but is consumed by {string.Join(", ", named.Select(id => $"'{id}'"))} in the records. Translate the event in code, or remove the consumer.",
+                    $"Domain event type '{codeEvent.Class}' ({eventId}) is ignored in code, but is consumed by {string.Join(", ", named!.Select(id => $"'{id}'"))} in the records. Translate the event in code, or remove the consumer.",
                     file,
                     line,
                     eventId));

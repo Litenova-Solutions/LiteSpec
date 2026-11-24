@@ -13,3 +13,12 @@ carries:
 - name: employeeId
   type: id
   identifies: actor/employee
+- name: lineItemIds
+  type: list
+  rowShape:
+    fields:
+    - name: lineItemId
+      meaning: One line of the submitted expense.
+      type: id
+      identifies: aggregate/spending.expense#line-item
+      required: true

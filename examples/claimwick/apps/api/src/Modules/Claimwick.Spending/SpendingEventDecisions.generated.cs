@@ -8,14 +8,14 @@ public static class SpendingEventDecisions
 {
     /// <summary>The decision the records state for domain-event/expense.approved: ignored.</summary>
     public const string ExpenseApproved = "ignored";
-    /// <summary>The decision the records state for domain-event/expense.personal-data-erased: translated.</summary>
-    public const string ExpensePersonalDataErased = "translated";
+    /// <summary>The decision the records state for domain-event/expense.personal-data-erased: consumed.</summary>
+    public const string ExpensePersonalDataErased = "consumed";
     /// <summary>The decision the records state for domain-event/expense.refused: ignored.</summary>
     public const string ExpenseRefused = "ignored";
-    /// <summary>The decision the records state for domain-event/expense.reimbursed: translated.</summary>
-    public const string ExpenseReimbursed = "translated";
-    /// <summary>The decision the records state for domain-event/expense.submitted: translated.</summary>
-    public const string ExpenseSubmitted = "translated";
+    /// <summary>The decision the records state for domain-event/expense.reimbursed: consumed.</summary>
+    public const string ExpenseReimbursed = "consumed";
+    /// <summary>The decision the records state for domain-event/expense.submitted: consumed.</summary>
+    public const string ExpenseSubmitted = "consumed";
     /// <summary>The decision the records state for domain-event/receipt.attached: ignored.</summary>
     public const string ReceiptAttached = "ignored";
 

@@ -175,6 +175,7 @@ static class Checker
         ConsistencyChecks.RunGuard,
         RuleBindsChecks.Run,
         ContractChecks.RunTypedInputs,
+        ContractChecks.RunIdentifiedParts,
         CallerIdentifierChecks.Run,
         GraphChecks.RunExercises,
         ContractChecks.RunDoors,

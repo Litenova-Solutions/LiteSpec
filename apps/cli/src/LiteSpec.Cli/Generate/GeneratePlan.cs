@@ -223,7 +223,7 @@ static class GeneratePlan
                 var consumed = consumers.TryGetValue(record.Id, out var named) && named.Count > 0;
 
                 decisions.Add(new EventDecisionsRenderer.EventDecision(
-                    record.Id, aggregate, eventName, ignored ? "ignored" : consumed ? "translated" : "undecided"));
+                    record.Id, aggregate, eventName, DomainEventOutcomes.FromRecord(ignored, consumed)));
             }
 
             if (decisions.Count == 0)

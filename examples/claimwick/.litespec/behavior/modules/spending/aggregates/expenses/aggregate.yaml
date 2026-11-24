@@ -2,6 +2,9 @@ type: aggregate
 id: aggregate/spending.expense
 title: Expense
 summary: An expense is one work cost an employee submitted.
+parts:
+- name: line-item
+  identity: true
 states:
 - name: Submitted
   meaning: The expense waits for a decision.

@@ -362,6 +362,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `id` field.</summary>
     public const string Id = "id";
 
+    /// <summary>Gets the name of the `identity` field: whether an aggregate part carries its own identity.</summary>
+    public const string Identity = "identity";
+
     /// <summary>Gets the name of the `idempotency` field.</summary>
     public const string Idempotency = "idempotency";
 

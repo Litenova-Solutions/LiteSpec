@@ -1,7 +1,11 @@
 using LiteSpec.Cli.Generate;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Checks;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Cli.Tests.Model.Checks;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Generate;
 
@@ -94,23 +98,80 @@ public sealed class GenerateRendererTests
         Assert.Contains("export type PermissionId = (typeof permissions)[keyof typeof permissions];", text);
     }
 
-    /// <summary>Event decisions render as a C# table with one constant per event and an identifier dictionary.</summary>
+    /// <summary>Event decisions render as a C# table with one constant per event holding its outcome word, and an identifier dictionary.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void EventDecisionsRenderAsATable()
     {
         var events = new List<EventDecisionsRenderer.EventDecision>
         {
-            new("domain-event/loan.loan-borrowed", "loan", "loan-borrowed", "ignored"),
-            new("domain-event/loan.loan-returned", "loan", "loan-returned", "translated"),
+            new("domain-event/loan.loan-borrowed", "loan", "loan-borrowed", DomainEventOutcome.Ignored),
+            new("domain-event/loan.loan-returned", "loan", "loan-returned", DomainEventOutcome.Consumed),
+            new("domain-event/loan.loan-overdue", "loan", "loan-overdue", DomainEventOutcome.Missing),
         };
 
         var text = EventDecisionsRenderer.RenderDotnet("lending", events, "Library.Lending");
 
         Assert.Contains("public static class LendingEventDecisions", text);
         Assert.Contains("public const string LoanLoanBorrowed = \"ignored\";", text);
+        Assert.Contains("public const string LoanLoanReturned = \"consumed\";", text);
+        Assert.Contains("public const string LoanLoanOverdue = \"missing\";", text);
         Assert.Contains("[\"domain-event/loan.loan-returned\"] = LoanLoanReturned,", text);
         Assert.Contains("IReadOnlyDictionary<string, string> Decisions", text);
+        Assert.DoesNotContain("translated", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("undecided", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>The shared derivation reads the ignored flag first, then consumers, and reports neither as missing.</summary>
+    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    [Fact]
+    public void EventDecisionOutcomesDeriveFromTheIgnoredFlagAndConsumers()
+    {
+        Assert.Equal(DomainEventOutcome.Ignored, DomainEventOutcomes.FromRecord(ignored: true, consumed: false));
+        Assert.Equal(DomainEventOutcome.Ignored, DomainEventOutcomes.FromRecord(ignored: true, consumed: true));
+        Assert.Equal(DomainEventOutcome.Consumed, DomainEventOutcomes.FromRecord(ignored: false, consumed: true));
+        Assert.Equal(DomainEventOutcome.Missing, DomainEventOutcomes.FromRecord(ignored: false, consumed: false));
+
+        Assert.Equal("ignored", DomainEventOutcomes.Value(DomainEventOutcome.Ignored));
+        Assert.Equal("consumed", DomainEventOutcomes.Value(DomainEventOutcome.Consumed));
+        Assert.Equal("missing", DomainEventOutcomes.Value(DomainEventOutcome.Missing));
+    }
+
+    /// <summary>Each Claimwick domain event renders the outcome the outbox decision check derives from its record.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RenderedClaimwickDecisionsEqualTheCheckDerivation()
+    {
+        var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
+        var model = ModelBuilder.Build(ConsumerConfig.Load(root));
+        var consumers = RecordEntries.DomainEventConsumers(model);
+        var plan = GeneratePlan.Build(model);
+        var file = Assert.Single(
+            plan.Files,
+            candidate => candidate.AbsolutePath.EndsWith("SpendingEventDecisions.generated.cs", StringComparison.Ordinal));
+        var values = DecisionValues(file.Content);
+        var events = model.Records
+            .Where(record => record.Type == RecordTypes.DomainEvent && !record.Derived)
+            .ToList();
+
+        Assert.NotEmpty(events);
+        Assert.Equal(events.Count, values.Count);
+
+        foreach (var record in events)
+        {
+            var consumed = consumers.TryGetValue(record.Id, out var named) && named.Count > 0;
+            var expected = DomainEventOutcomes.Value(DomainEventOutcomes.FromRecord(record.Flag(RecordFields.Ignored), consumed));
+
+            Assert.True(values.TryGetValue(record.Id, out var rendered), $"The table holds no decision for '{record.Id}'.");
+            Assert.Equal(expected, rendered);
+        }
+
+        Assert.Equal("ignored", values["domain-event/expense.approved"]);
+        Assert.Equal("ignored", values["domain-event/expense.refused"]);
+        Assert.Equal("ignored", values["domain-event/receipt.attached"]);
+        Assert.Equal("consumed", values["domain-event/expense.submitted"]);
+        Assert.Equal("consumed", values["domain-event/expense.reimbursed"]);
+        Assert.Equal("consumed", values["domain-event/expense.personal-data-erased"]);
     }
 
     /// <summary>Closed sets render as nested C# classes with sanitized constant names.</summary>
@@ -154,5 +215,43 @@ public sealed class GenerateRendererTests
         Assert.Equal("apps/lending", GenerateNaming.ResolveModule("apps/{module}", "lending"));
         Assert.Equal("say \\\"hi\\\" \\\\ ok", GenerateNaming.EscapeLiteral("say \"hi\" \\ ok"));
         Assert.Equal("a &amp; &lt;b&gt;", GenerateNaming.EscapeXml("a & <b>"));
+    }
+
+    /// <summary>Reads the rendered decision word by event id from the dictionary entries of a generated table.</summary>
+    /// <param name="text">The generated table text.</param>
+    /// <returns>The decision word by event identifier.</returns>
+    static Dictionary<string, string> DecisionValues(string text)
+    {
+        var constants = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var line in text.Split('\n'))
+        {
+            var trimmed = line.Trim();
+
+            if (trimmed.StartsWith("public const string ", StringComparison.Ordinal)
+                && trimmed.EndsWith(';'))
+            {
+                var rest = trimmed["public const string ".Length..^1].Split(" = ");
+                constants[rest[0]] = rest[1].Trim('"');
+            }
+        }
+
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var line in text.Split('\n'))
+        {
+            var trimmed = line.Trim();
+
+            if (trimmed.StartsWith("[\"", StringComparison.Ordinal) && trimmed.EndsWith(','))
+            {
+                var id = trimmed[2..trimmed.IndexOf("\"]", StringComparison.Ordinal)];
+                var constant = trimmed[(trimmed.IndexOf("] = ", StringComparison.Ordinal) + 4)..^1];
+
+                Assert.True(constants.TryGetValue(constant, out var value), $"The table holds no constant '{constant}'.");
+                values[id] = value;
+            }
+        }
+
+        return values;
     }
 }
