@@ -14,6 +14,8 @@ export class WireframeNode {
   strings: string[] = [];
   // The value after =, for a field that shows one.
   value: string | null = null;
+  // The use case after ->, for an action that runs one.
+  target: string | null = null;
   // The bare integer, for a collection.
   count: number | null = null;
   // The width ratio, for a split.
@@ -286,6 +288,14 @@ function build(tokens: Token[], number: number, errors: WireframeError[]): Wiref
       } else {
         errors.push({ line: number, message: "'=' is followed by a quoted value" });
       }
+    } else if (token.kind === "arrow") {
+      const next = tokens[index + 1];
+      if (next !== undefined && next.kind === "target") {
+        index++;
+        node.target = next.text;
+      } else {
+        errors.push({ line: number, message: "'->' is followed by a use case, such as 'spending.submit-expense'" });
+      }
     } else {
       errors.push({ line: number, message: `unexpected '${token.text}'` });
     }
@@ -329,6 +339,10 @@ function check(node: WireframeNode, parent: WireframeNode | null, errors: Wirefr
 
   if (node.value !== null && node.part !== "field") {
     errors.push({ line: node.line, message: "only a field takes a value after '='" });
+  }
+
+  if (node.target !== null && node.part !== "action") {
+    errors.push({ line: node.line, message: "only an action takes a target after '->'" });
   }
 
   if (spec.number === "count" && node.count === null) {
@@ -440,7 +454,7 @@ function quoted(count: number): string {
   return `${count} quoted strings`;
 }
 
-type TokenKind = "word" | "string" | "count" | "ratio" | "equals" | "colon" | "separator";
+type TokenKind = "word" | "string" | "count" | "ratio" | "equals" | "arrow" | "target" | "colon" | "separator";
 
 interface Token {
   kind: TokenKind;
@@ -448,6 +462,11 @@ interface Token {
 }
 
 const inlineSeparator = " · ";
+
+// Whether an action target follows: the last token is the arrow.
+function afterArrow(tokens: Token[]): boolean {
+  return tokens.length > 0 && tokens[tokens.length - 1]?.kind === "arrow";
+}
 
 function tokenize(content: string, number: number, errors: WireframeError[]): Token[] | null {
   const tokens: Token[] = [];
@@ -504,6 +523,12 @@ function tokenize(content: string, number: number, errors: WireframeError[]): To
       continue;
     }
 
+    if (current === "-" && content[index + 1] === ">") {
+      tokens.push({ kind: "arrow", text: "->" });
+      index += 2;
+      continue;
+    }
+
     const start = index;
 
     while (index < content.length && content[index] !== " " && content[index] !== '"' && content[index] !== "=") {
@@ -511,17 +536,26 @@ function tokenize(content: string, number: number, errors: WireframeError[]): To
     }
 
     const word = content.slice(start, index);
+    const followsArrow = afterArrow(tokens);
 
     if (word.endsWith(":")) {
       if (word.length > 1) {
-        tokens.push(classify(word.slice(0, -1), number, errors));
+        if (followsArrow) {
+          tokens.push({ kind: "target", text: word.slice(0, -1) });
+        } else {
+          tokens.push(classify(word.slice(0, -1), number, errors));
+        }
       }
 
       tokens.push({ kind: "colon", text: ":" });
       continue;
     }
 
-    tokens.push(classify(word, number, errors));
+    if (followsArrow) {
+      tokens.push({ kind: "target", text: word });
+    } else {
+      tokens.push(classify(word, number, errors));
+    }
   }
 
   return tokens;

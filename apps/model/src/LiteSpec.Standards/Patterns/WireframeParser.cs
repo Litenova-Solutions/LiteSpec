@@ -212,6 +212,17 @@ public static class WireframeParser
                     }
 
                     break;
+                case TokenKind.Arrow:
+                    if (index + 1 < tokens.Count && tokens[index + 1].Kind == TokenKind.Target)
+                    {
+                        node.Target = tokens[++index].Text;
+                    }
+                    else
+                    {
+                        errors.Add(new(number, "'->' is followed by a use case, such as 'spending.submit-expense'"));
+                    }
+
+                    break;
                 default:
                     errors.Add(new(number, $"unexpected '{token.Text}'"));
                     break;
@@ -256,6 +267,11 @@ public static class WireframeParser
         if (node.Value is not null && node.Part != "field")
         {
             errors.Add(new(node.Line, "only a field takes a value after '='"));
+        }
+
+        if (node.Target is not null && node.Part != "action")
+        {
+            errors.Add(new(node.Line, "only an action takes a target after '->'"));
         }
 
         if (spec.Number == "count" && node.Count is null)
@@ -512,6 +528,10 @@ public static class WireframeParser
         Ratio,
         /// <summary>An equals sign.</summary>
         Equals,
+        /// <summary>The arrow before an action target.</summary>
+        Arrow,
+        /// <summary>A use case named after the arrow.</summary>
+        Target,
         /// <summary>A colon before inline children.</summary>
         Colon,
         /// <summary>The inline separator.</summary>
@@ -522,6 +542,11 @@ public static class WireframeParser
     /// <param name="Kind">The token kind.</param>
     /// <param name="Text">The token text.</param>
     sealed record Token(TokenKind Kind, string Text);
+
+    /// <summary>Whether an action target follows: the last token is the arrow.</summary>
+    /// <param name="tokens">The tokens read so far on the line.</param>
+    /// <returns>True when the next bare word is the target of an arrow.</returns>
+    static bool AfterArrow(List<Token> tokens) => tokens.Count > 0 && tokens[^1].Kind == TokenKind.Arrow;
 
     /// <summary>Splits one line into tokens.</summary>
     /// <param name="content">The line text, without its indent.</param>
@@ -593,6 +618,13 @@ public static class WireframeParser
                 continue;
             }
 
+            if (current == '-' && index + 1 < content.Length && content[index + 1] == '>')
+            {
+                tokens.Add(new(TokenKind.Arrow, "->"));
+                index += 2;
+                continue;
+            }
+
             var start = index;
 
             while (index < content.Length && content[index] is not (' ' or '"' or '='))
@@ -601,19 +633,20 @@ public static class WireframeParser
             }
 
             var word = content[start..index];
+            var afterArrow = AfterArrow(tokens);
 
             if (word.EndsWith(':'))
             {
                 if (word.Length > 1)
                 {
-                    tokens.Add(Classify(word[..^1], number, errors));
+                    tokens.Add(afterArrow ? new Token(TokenKind.Target, word[..^1]) : Classify(word[..^1], number, errors));
                 }
 
                 tokens.Add(new(TokenKind.Colon, ":"));
                 continue;
             }
 
-            tokens.Add(Classify(word, number, errors));
+            tokens.Add(afterArrow ? new Token(TokenKind.Target, word) : Classify(word, number, errors));
         }
 
         return tokens;

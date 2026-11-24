@@ -76,7 +76,7 @@ page
         fact "Name" "Ava"
 ```
 
-Each line is one part: its name, its modifiers as bare words, its copy in double quotes, then a count or a ratio. Children indent by two spaces. A line ending in `:` takes inline children sitting side by side, separated by a middle dot, `U+00B7`, with a space on each side. A line starting with `#` is a comment. Copy is the real text the product would show, drawn from the Claimwick expense product.
+Each line is one part: its name, its modifiers as bare words, its copy in double quotes, then a count or a ratio. Children indent by two spaces. A line ending in `:` takes inline children sitting side by side, separated by a middle dot, `U+00B7`, with a space on each side. A line starting with `#` is a comment. Copy is the real text the product would show, drawn from the Claimwick expense product. An action may name the use case it runs after `->`, so its label stays the screen's real copy: `action primary "Submit expense" -> spending.submit-expense` runs the `submit-expense` use case of the `spending` module. The target is the use case id without the `use-case/` prefix, or the full id.
 
 The parts form a closed set.
 
@@ -124,7 +124,7 @@ The section limit and the field limit come from `ui.limits` in `.litespec/projec
 
 On a phone the drawing reflows unless a `wireframe compact` block says otherwise. A `row` or `split` stacks, an `aside` follows the main content, a table keeps its first two columns, and a drawer rises from the bottom.
 
-A screen's explanation file holds one fenced block with the info string `wireframe`, drawn in this language. Each action in the block names a use case the screen offers, except the local actions, which dismiss, page, or clear without a use case: `Cancel`, `Close`, `Back`, `Clear`, `Skip`, `Show more`, and `Show more <noun>` naming what paging adds, such as `Show more lines`. Navigation is a `link`, never an action, and a link names no use case; an action starting with `Open` still names one. Each state names a glossary term of the record shown, and each refusal names the sentence of a written or derived refusal result of an offered use case. The book draws the block on the screen page.
+A screen's explanation file holds one fenced block with the info string `wireframe`, drawn in this language. Each action in the block names a use case the screen offers: an action with a target names it after `->` and keeps the screen's real copy as its label, while an action without a target carries the use case title as its label. The local actions, which dismiss, page, or clear without a use case, name none: `Cancel`, `Close`, `Back`, `Clear`, `Skip`, `Show more`, and `Show more <noun>` naming what paging adds, such as `Show more lines`. A local action takes no target. Navigation is a `link`, never an action, and a link names no use case and takes no target; an action starting with `Open` still names one. Each state names a glossary term of the record shown, and each refusal names the sentence of a written or derived refusal result of an offered use case. The book draws the block on the screen page, showing each target on hover.
 
 ### Starting a Catalog Entry from a LiteSpec Pattern
 
@@ -342,7 +342,7 @@ The entry names the pattern's default option with `owner` as the source, so the 
 
 **Statement:** Each screen MUST carry one wireframe block in its explanation file, drawn in the wireframe language this page states.
 
-**Rationale:** The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder renders that structure with the project's own components inside the page frame the screen names. Each action names a use case the screen offers, except the local actions that need none; navigation is a link, which names no use case; each state names a glossary term of the record shown, and each refusal names the sentence of a written or derived refusal result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.
+**Rationale:** The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder renders that structure with the project's own components inside the page frame the screen names. Each action names a use case the screen offers, through a target after `->` or through the use case title as its label, except the local actions that need none; navigation is a link, which names no use case and takes no target; each state names a glossary term of the record shown, and each refusal names the sentence of a written or derived refusal result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.
 
 **Example:** The Claimwick expense record carries this wireframe before its route exists.
 
@@ -355,7 +355,7 @@ page
     action primary "Message spender"
 ```
 
-**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe block the wireframe language rejects, also for an action that names no use case the screen offers (a local action such as Cancel, Clear or Show more, and a link, name none) and for a refusal whose sentence matches no written or derived refusal result, and `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe block the wireframe language rejects, also for an action that names no use case the screen offers, through its target after `->` or through its label without one (a local action such as Cancel, Clear or Show more takes no target, and a link names no use case), and for a refusal whose sentence matches no written or derived refusal result, and `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
 
 ## Conventions
 

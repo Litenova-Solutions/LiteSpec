@@ -180,7 +180,7 @@ internal static class UiBlueprintChecks
         return blocks;
     }
 
-    /// <summary>Reports each wireframe action, state or refusal naming nothing the screen reaches; a local action and a link name no use case.</summary>
+    /// <summary>Reports each wireframe action, state or refusal naming nothing the screen reaches: an action with a target names an offered use case after the arrow, an action without one carries its title, and a local action and a link name no use case.</summary>
     /// <param name="model">The loaded project model that holds every screen, use case, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckWireframeReferences(ProjectModel model, List<Finding> findings)
@@ -214,11 +214,29 @@ internal static class UiBlueprintChecks
             var offered = OfferedUseCases(model, screen);
             var names = offered.SelectMany(UseCaseNames).ToHashSet(StringComparer.OrdinalIgnoreCase);
             var sentences = RefusalSentences(model, offered);
+            var offeredIds = screen.Ids(RecordFields.Offers).ToHashSet(StringComparer.Ordinal);
             var fence = blocks[0].Block.Line;
 
             foreach (var node in page.Descendants())
             {
-                if (node.Part == "action" && !IsLocalAction(node.Text) && !names.Contains(WordsOf(node.Text)))
+                if (node.Part == "action" && node.Target is { } target)
+                {
+                    if (IsLocalAction(node.Text))
+                    {
+                        findings.Add(new Finding(
+                            "wireframe-invalid",
+                            $"Screen '{screen.Id}' names '{node.Text}' as a local action with a target in its wireframe; a local action takes no target.",
+                            screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
+                    }
+                    else if (!offeredIds.Contains(TargetId(target)))
+                    {
+                        findings.Add(new Finding(
+                            "wireframe-invalid",
+                            $"Screen '{screen.Id}' names '{target}' as the target of action '{node.Text}' in its wireframe, which matches no use case it offers.",
+                            screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
+                    }
+                }
+                else if (node.Part == "action" && !IsLocalAction(node.Text) && !names.Contains(WordsOf(node.Text)))
                 {
                     findings.Add(new Finding(
                         "wireframe-invalid",
@@ -253,6 +271,12 @@ internal static class UiBlueprintChecks
             .OfType<Record>()
             .Where(useCase => useCase.Type == RecordTypes.UseCase)
             .ToList();
+
+    /// <summary>The use-case id a wireframe target names: the target itself when it holds the prefix, else with the use-case prefix added.</summary>
+    /// <param name="target">The target as written after the arrow.</param>
+    /// <returns>The full use-case id the target names.</returns>
+    private static string TargetId(string target) =>
+        target.Contains('/') ? target : "use-case/" + target;
 
     /// <summary>The names an action matches a use case by: its title and its name with dashes as spaces.</summary>
     /// <param name="useCase">The use case record.</param>

@@ -820,14 +820,26 @@ class WireframeRenderer {
   button(node: WireframeNode, x: number, y: number, width: number): number {
     this.lastControl = { x, y, w: width, h: 34 };
     const label = node.part === "menu" ? `${node.text}  ▾` : node.text;
+    // An action names the use case it runs on hover, like an icon names itself.
+    const hover = node.target === null ? "" : `<title>${htmlEncode(node.target)}</title>`;
+    const end = hover === "" ? "/>" : `>${hover}</rect>`;
 
     if (node.has("quiet")) {
+      if (hover !== "") {
+        this.svg += `<g>${hover}`;
+      }
+
       this.text(node.text, x + 4, y + 9, width - 4, Ink, Body, false, true);
+
+      if (hover !== "") {
+        this.svg += `</g>`;
+      }
+
       return 34;
     }
 
     if (node.has("disabled")) {
-      this.svg += `<rect x="${n(x + 0.5)}" y="${n(y + 0.5)}" width="${n(width - 1)}" height="33" rx="7" fill="#f2f4f7" stroke="${Hairline}" stroke-dasharray="4 3"${this.opacity()}/>`;
+      this.svg += `<rect x="${n(x + 0.5)}" y="${n(y + 0.5)}" width="${n(width - 1)}" height="33" rx="7" fill="#f2f4f7" stroke="${Hairline}" stroke-dasharray="4 3"${this.opacity()}${end}`;
       this.text(label, x + 14, y + 9, width - 20, Faint, Body, true);
       return 34;
     }
@@ -838,7 +850,7 @@ class WireframeRenderer {
     const fill = primary ? (destructive ? critical : Ink) : "#ffffff";
     const stroke = primary ? fill : destructive ? critical : Line;
     const ink = primary ? "#ffffff" : destructive ? critical : Ink;
-    this.svg += `<rect x="${n(x + 0.5)}" y="${n(y + 0.5)}" width="${n(width - 1)}" height="33" rx="7" fill="${fill}" stroke="${stroke}"${this.opacity()}/>`;
+    this.svg += `<rect x="${n(x + 0.5)}" y="${n(y + 0.5)}" width="${n(width - 1)}" height="33" rx="7" fill="${fill}" stroke="${stroke}"${this.opacity()}${end}`;
     this.text(label, x + 14, y + 9, width - 20, ink, Body, true);
     return 34;
   }

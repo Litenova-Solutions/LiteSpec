@@ -135,6 +135,137 @@ public sealed class UiBlueprintCheckTests
         Assert.Contains("Open the reports", findings[0].Message, StringComparison.Ordinal);
     }
 
+    /// <summary>A wireframe action with a target naming an offered use case reports nothing, with any label and the modifier before it.</summary>
+    /// <param name="target">The target as written after the arrow.</param>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Theory]
+    [InlineData("lending.list-loans")]
+    [InlineData("use-case/lending.list-loans")]
+    public void WireframeActionWithTargetNamingAnOfferedUseCaseReportsNothing(string target)
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            TargetExplanation(target)));
+
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
+    }
+
+    /// <summary>A wireframe action with a target naming a use case the screen does not offer reports wireframe-invalid.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeActionWithTargetNamingAnUnofferedUseCaseReportsWireframeInvalid()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        AddUseCases(model, temp.Path, "borrow-copy");
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+                action "Borrow it" -> lending.borrow-copy
+            ```
+            """));
+
+        var findings = WithCode(model, "wireframe-invalid");
+
+        Assert.Single(findings);
+        Assert.Contains("lending.borrow-copy", findings[0].Message, StringComparison.Ordinal);
+        Assert.Contains("matches no use case it offers", findings[0].Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A wireframe link with a target reports wireframe-invalid: only an action takes a target.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeTargetOnALinkReportsWireframeInvalid()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+                link "New expense" -> lending.list-loans
+            ```
+            """));
+
+        var findings = WithCode(model, "wireframe-invalid");
+
+        Assert.Single(findings);
+        Assert.Contains("only an action takes a target", findings[0].Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A wireframe local action with a target reports wireframe-invalid: a local action takes no target.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeLocalActionWithTargetReportsWireframeInvalid()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+                action "Cancel" -> lending.list-loans
+            ```
+            """));
+
+        var findings = WithCode(model, "wireframe-invalid");
+
+        Assert.Single(findings);
+        Assert.Contains("takes no target", findings[0].Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A wireframe action without a target still matches an offered use case by its title.</summary>
+    /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
+    [Fact]
+    public void WireframeActionWithoutTargetStillMatchedByTitle()
+    {
+        using var temp = TestCli.Temp("ui-blueprint");
+        var model = BaseModel(temp.Path);
+        model.Records.RemoveAll(record => record.Id == "use-case/lending.list-loans");
+        using var document = JsonDocument.Parse("""{"kind":"query","reachedThrough":["entry-point/app"]}""");
+        model.Records.Add(new Record
+        {
+            Type = "use-case",
+            Id = "use-case/lending.list-loans",
+            Title = "Show every loan",
+            File = Path.Combine(temp.Path, "use-case.md"),
+            Line = 1,
+            Raw = document.RootElement.Clone(),
+        });
+        model.Records.Add(ScreenWithExplanation(
+            temp.Path, "screen/app.loans", "/loans", ["use-case/lending.list-loans"],
+            """
+            # Loans
+
+            ```wireframe
+            page
+              header
+                heading "Loans"
+                action "Show every loan"
+            ```
+            """));
+
+        Assert.Empty(WithCode(model, "wireframe-invalid"));
+    }
+
     /// <summary>A wireframe refusal matching the sentence of a written refusal result of an offered use case reports nothing.</summary>
     /// <proves>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</proves>
     [Fact]
@@ -1136,6 +1267,12 @@ public sealed class UiBlueprintCheckTests
     /// <returns>The explanation text.</returns>
     static string LocalExplanation(string action) =>
         "# Loans\n\n```wireframe\npage\n  header\n    heading \"Loans\"\n    action \"" + action + "\"\n```\n";
+
+    /// <summary>An explanation whose wireframe holds one primary action with free copy and the target.</summary>
+    /// <param name="target">The target as written after the arrow.</param>
+    /// <returns>The explanation text.</returns>
+    static string TargetExplanation(string target) =>
+        "# Loans\n\n```wireframe\npage\n  header\n    heading \"Loans\"\n    action primary \"Show the loans\" -> " + target + "\n```\n";
 
     /// <summary>Adds query use cases of the lending module reached through the app entry point.</summary>
     /// <param name="model">The model holding the records.</param>

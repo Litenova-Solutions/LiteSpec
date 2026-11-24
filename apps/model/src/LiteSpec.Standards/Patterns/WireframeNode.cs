@@ -19,6 +19,9 @@ public sealed class WireframeNode
     /// <summary>Gets or sets the value after <c>=</c>, for a field that shows one.</summary>
     public string? Value { get; set; }
 
+    /// <summary>Gets or sets the use case after <c>-></c>, for an action that runs one.</summary>
+    public string? Target { get; set; }
+
     /// <summary>Gets or sets the bare integer, for a collection.</summary>
     public int? Count { get; set; }
 

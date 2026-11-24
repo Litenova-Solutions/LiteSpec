@@ -724,18 +724,19 @@ static class AuditBrowser
     /// <returns>The path, or the address up to its query string when the address is not absolute.</returns>
     internal static string PathOf(string url)
     {
-        try
+        // Only a web address counts as absolute: on Unix a rooted path such as "/api/reports?x=1"
+        // also parses as an absolute file URI, which escapes the query into the path.
+        if (Uri.TryCreate(url, UriKind.Absolute, out var address)
+            && (address.Scheme == Uri.UriSchemeHttp || address.Scheme == Uri.UriSchemeHttps))
         {
-            var path = new Uri(url, UriKind.Absolute).AbsolutePath;
+            var path = address.AbsolutePath;
 
             return path.Length == 0 ? "/" : path;
         }
-        catch (Exception exception) when (exception is UriFormatException or ArgumentException)
-        {
-            var query = url.IndexOfAny(['?', '#']);
 
-            return query < 0 ? url : url[..query];
-        }
+        var query = url.IndexOfAny(['?', '#']);
+
+        return query < 0 ? url : url[..query];
     }
 
     /// <summary>Whether a protocol error names an unknown method.</summary>

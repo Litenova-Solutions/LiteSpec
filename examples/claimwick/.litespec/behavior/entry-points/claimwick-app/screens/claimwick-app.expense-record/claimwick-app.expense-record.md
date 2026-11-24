@@ -13,7 +13,7 @@ page
     heading "EXP-1042"
     status "Submitted" caution
     text "Filed 18 Nov 2026, 09:32 for the client visit."
-    action primary "Approve Expense"
+    action primary "Approve" -> spending.approve-expense
     action "Refuse Expense"
     action "Attach Receipt"
     action "Reimburse Expense"

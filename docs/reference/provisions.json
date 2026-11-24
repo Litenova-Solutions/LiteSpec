@@ -25190,7 +25190,7 @@
       "anchor": "draw-each-screen-as-a-wireframe-before-it-is-built",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060wireframe-invalid\u0060 for a wireframe block the wireframe language rejects, also for an action that names no use case the screen offers (a local action such as Cancel, Clear or Show more, and a link, name none) and for a refusal whose sentence matches no written or derived refusal result, and \u0060wording-alias\u0060 for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060wireframe-invalid\u0060 for a wireframe block the wireframe language rejects, also for an action that names no use case the screen offers, through its target after \u0060-\u003E\u0060 or through its label without one (a local action such as Cancel, Clear or Show more takes no target, and a link names no use case), and for a refusal whose sentence matches no written or derived refusal result, and \u0060wording-alias\u0060 for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "record:screen",
@@ -25198,7 +25198,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each screen MUST carry one wireframe block in its explanation file, drawn in the wireframe language this page states.",
-      "rationale": "The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder renders that structure with the project\u0027s own components inside the page frame the screen names. Each action names a use case the screen offers, except the local actions that need none; navigation is a link, which names no use case; each state names a glossary term of the record shown, and each refusal names the sentence of a written or derived refusal result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.",
+      "rationale": "The wireframe is the blueprint the screen is built from: the product owner settles the structure, the actions, and the words before any route exists, and the builder renders that structure with the project\u0027s own components inside the page frame the screen names. Each action names a use case the screen offers, through a target after \u0060-\u003E\u0060 or through the use case title as its label, except the local actions that need none; navigation is a link, which names no use case and takes no target; each state names a glossary term of the record shown, and each refusal names the sentence of a written or derived refusal result of an offered use case, so the drawing stays bound to the records. Proposed by decision 0089.",
       "example": "The Claimwick expense record carries this wireframe before its route exists.\n\n\u0060\u0060\u0060wireframe\npage\n  breadcrumb \u0022Expenses\u0022 \u0022EXP-1042\u0022\n  header\n    heading \u0022EXP-1042\u0022\n    status \u0022Paid\u0022 positive\n    action primary \u0022Message spender\u0022\n\u0060\u0060\u0060"
     },
     {

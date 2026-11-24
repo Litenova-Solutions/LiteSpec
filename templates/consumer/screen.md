@@ -4,7 +4,7 @@ Say what page this is and what a person does on it. A reader who has read nothin
 
 ## Task
 
-Explains `task`. Say the job the person does here, in one or two sentences, then draw the screen in one wireframe block. Each action in the block names a use case the screen offers, except local actions such as Cancel and links, which name none; each state names a glossary term, and each refusal shows the sentence of a refusal result of an offered use case.
+Explains `task`. Say the job the person does here, in one or two sentences, then draw the screen in one wireframe block. Each action in the block names a use case the screen offers, through a target after `->` such as `action "Submit expense" -> spending.submit-expense` or through the use case title as its label, except local actions such as Cancel and links, which name none and take no target; each state names a glossary term, and each refusal shows the sentence of a refusal result of an offered use case.
 
 ## States
 

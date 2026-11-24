@@ -83,6 +83,7 @@ export type ProofTargetId =
   | "litespec/frontend/data#place-a-refusal-beside-what-was-refused"
   | "litespec/frontend/data#read-a-permission-from-the-session"
   | "litespec/frontend/data#regenerate-the-client-rather-than-editing-it"
+  | "litespec/frontend/data#regenerate-the-client-with-the-contract"
   | "litespec/frontend/data#route-a-personal-value-in-a-header"
   | "litespec/frontend/data#route-use-cases-through-application"
   | "litespec/frontend/data#set-the-write-marker-on-every-request"
@@ -498,7 +499,8 @@ export type ProofTargetId =
   | "scenario/send-approver-reminders-on-expense-submitted.waiting-expense-earns-a-reminder"
   | "scenario/submit-expense.lowered-threshold-refuses-waiting-expense"
   | "scenario/submit-expense.submitting-with-a-receipt-succeeds"
-  | "scenario/submit-expense.submitting-without-a-receipt-is-refused";
+  | "scenario/submit-expense.submitting-without-a-receipt-is-refused"
+  | "scenario/submit-expense.unstated-travel-rule-refused";
 export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }
 export function proves(id: ProofTargetId): { annotation: [{ type: "proves"; description: ProofTargetId }] } {
   return { annotation: [{ type: "proves", description: id }] };
