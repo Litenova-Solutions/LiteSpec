@@ -15,6 +15,7 @@ namespace LiteSpec.Cli.Model.Refusals;
 ///     and knowledge reads, and are never written.
 /// </summary>
 /// <follows>litespec/core/use-cases#declare-each-modules-refusals-once</follows>
+/// <follows>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</follows>
 /// <follows>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</follows>
 static class RefusalSetReader
 {
@@ -188,6 +189,115 @@ static class RefusalSetReader
     }
 
     /// <summary>
+    ///     The product refusal a derived generic result carries: the refusal of the product-level rule
+    ///     that triggers it, or of a rule naming the generic refusal itself, which no written result
+    ///     may state. Only not-found and rule-not-stated carry a rule refusal; every other generic
+    ///     keeps its configured or generic code.
+    /// </summary>
+    /// <param name="useCase">The use case record.</param>
+    /// <param name="generic">The derived generic refusal name.</param>
+    /// <param name="byId">The written records by id, resolving the rules the use case takes.</param>
+    /// <returns>The refusal identifier the derived result carries, or null when no triggering rule states a carried refusal.</returns>
+    public static string? ProductRefusalFor(Record useCase, string generic, IReadOnlyDictionary<string, Record> byId) =>
+        generic switch
+        {
+            "not-found" => NotFoundRefusal(useCase, byId),
+            "rule-not-stated" => RuleNotStatedRefusal(useCase, byId),
+            _ => null,
+        };
+
+    /// <summary>The refusal the derived not-found result carries: the carried refusal of the first rule taken on an input, in input then rules order.</summary>
+    /// <param name="useCase">The use case record.</param>
+    /// <param name="byId">The written records by id, resolving the rules the inputs take.</param>
+    /// <returns>The carried refusal identifier, or null when no input takes a rule stating one.</returns>
+    private static string? NotFoundRefusal(Record useCase, IReadOnlyDictionary<string, Record> byId)
+    {
+        foreach (var id in InputRules(useCase))
+        {
+            if (byId.TryGetValue(Identifiers.BaseId(id), out var rule)
+                && rule.Type == RecordTypes.Rule
+                && CarriedRefusal(rule, "not-found") is { } refusal)
+            {
+                return refusal;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The refusal the derived rule-not-stated result carries: the carried refusal of the rule that triggers it, an input rule refused as rule-not-stated or a taken rule citing a knowledge table.</summary>
+    /// <param name="useCase">The use case record.</param>
+    /// <param name="byId">The written records by id, resolving the rules the use case takes.</param>
+    /// <returns>The carried refusal identifier, or null when the triggering rule states none.</returns>
+    private static string? RuleNotStatedRefusal(Record useCase, IReadOnlyDictionary<string, Record> byId)
+    {
+        foreach (var id in InputRules(useCase))
+        {
+            if (byId.TryGetValue(Identifiers.BaseId(id), out var rule)
+                && rule.Type == RecordTypes.Rule
+                && IsRuleNotStatedRefusal(RefusalCode.Of(rule))
+                && CarriedRefusal(rule, "rule-not-stated") is { } refusal)
+            {
+                return refusal;
+            }
+        }
+
+        foreach (var id in TakenRules(useCase))
+        {
+            if (byId.TryGetValue(Identifiers.BaseId(id), out var rule)
+                && rule.Type == RecordTypes.Rule
+                && CitesKnowledgeTable(rule, byId)
+                && CarriedRefusal(rule, "rule-not-stated") is { } refusal)
+            {
+                return refusal;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     The refusal a derived generic result carries from one triggering rule: its refusal when the rule
+    ///     stands at product level, or when the refusal names the generic itself. A module rule refusing
+    ///     anything else keeps its written result.
+    /// </summary>
+    /// <param name="rule">The triggering rule record.</param>
+    /// <param name="generic">The derived generic refusal name.</param>
+    /// <returns>The carried refusal identifier, or null when the rule states none or stays written.</returns>
+    private static string? CarriedRefusal(Record rule, string generic)
+    {
+        if (rule.Field(RecordFields.Refusal) is not { Length: > 0 } refusal)
+        {
+            return null;
+        }
+
+        if (rule.Module is null)
+        {
+            return refusal;
+        }
+
+        return IsGenericName(RefusalCode.CodeOf(refusal), generic) ? refusal : null;
+    }
+
+    /// <summary>Whether the refusal code names the generic refusal: any home with that name.</summary>
+    /// <param name="code">The refusal code under test, or null when the rule names none.</param>
+    /// <param name="generic">The derived generic refusal name.</param>
+    /// <returns>True when the name after the home is the generic; otherwise false.</returns>
+    private static bool IsGenericName(string? code, string generic)
+    {
+        if (code is not { Length: > 0 })
+        {
+            return false;
+        }
+
+        var name = code.Contains('.', StringComparison.Ordinal)
+            ? code[(code.IndexOf('.', StringComparison.Ordinal) + 1)..]
+            : code;
+
+        return name == generic;
+    }
+
+    /// <summary>
     ///     Whether the use case reads knowledge: an input takes a rule refused as the generic
     ///     <c>rule-not-stated</c>, or a taken rule cites a reference-data table of a knowledge area.
     /// </summary>
@@ -222,19 +332,7 @@ static class RefusalSetReader
     /// <summary>Whether the refusal code names the generic rule-not-stated refusal: any home with that name.</summary>
     /// <param name="code">The refusal code under test, or null when the rule names none.</param>
     /// <returns>True when the name after the home is <c>rule-not-stated</c>; otherwise false.</returns>
-    private static bool IsRuleNotStatedRefusal(string? code)
-    {
-        if (code is not { Length: > 0 })
-        {
-            return false;
-        }
-
-        var name = code.Contains('.', StringComparison.Ordinal)
-            ? code[(code.IndexOf('.', StringComparison.Ordinal) + 1)..]
-            : code;
-
-        return name == "rule-not-stated";
-    }
+    private static bool IsRuleNotStatedRefusal(string? code) => IsGenericName(code, "rule-not-stated");
 
     /// <summary>Whether the rule cites a reference-data table owned by a knowledge area.</summary>
     /// <param name="rule">The rule record whose statement is read.</param>

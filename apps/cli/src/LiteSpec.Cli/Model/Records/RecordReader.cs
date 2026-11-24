@@ -243,6 +243,8 @@ static class RecordReader
     /// <summary>
     ///     Derives the generic refusal results from each use case's access, inputs, kind and
     ///     knowledge reads. Scenarios and tests point at them; they are never written as records.
+    ///     A derived not-found or rule-not-stated result carries the refusal of the product-level
+    ///     rule that triggers it, so the product code is declared without restating it.
     /// </summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="records">The written records, appended in place with the derived results.</param>
@@ -276,18 +278,27 @@ static class RecordReader
                     continue;
                 }
 
+                var refusal = RefusalSetReader.ProductRefusalFor(useCase, code, byId);
+                var wire = code switch
+                {
+                    "forbidden" => forbiddenCode,
+                    "invalid-input" => invalidInputCode,
+                    _ => code,
+                };
+
+                if (refusal is not null && RefusalCode.CodeOf(refusal) is { } product)
+                {
+                    wire = product;
+                }
+
                 derived.Add(DerivedResult(
                     config,
                     useCase,
                     id,
                     DerivedTitle(code),
                     DerivedMeaning(code),
-                    code switch
-                    {
-                        "forbidden" => forbiddenCode,
-                        "invalid-input" => invalidInputCode,
-                        _ => code,
-                    }));
+                    wire,
+                    refusal));
             }
         }
 
@@ -331,18 +342,27 @@ static class RecordReader
     /// <param name="title">The derived result title.</param>
     /// <param name="meaning">The derived result meaning sentence.</param>
     /// <param name="code">The refusal code the derived result carries.</param>
+    /// <param name="refusal">The refusal identifier the derived result carries, or null when it keeps the generic code.</param>
     /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
-    private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code)
+    private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code, string? refusal)
     {
-        var fields = JsonText.ObjectOf(
-        [
+        var properties = new List<KeyValuePair<string, JsonText>>
+        {
             new(RecordFields.Type, JsonText.Text(RecordTypes.Result)),
             new(RecordFields.Id, JsonText.Text(id)),
             new(RecordFields.Title, JsonText.Text(title)),
             new(RecordFields.Outcome, JsonText.Text("refusal")),
-            new(RecordFields.Code, JsonText.Text(code)),
-            new(RecordFields.Meaning, JsonText.Text(meaning)),
-        ]);
+        };
+
+        if (refusal is not null)
+        {
+            properties.Add(new(RecordFields.Refusal, JsonText.Text(refusal)));
+        }
+
+        properties.Add(new(RecordFields.Code, JsonText.Text(code)));
+        properties.Add(new(RecordFields.Meaning, JsonText.Text(meaning)));
+
+        var fields = JsonText.ObjectOf(properties);
 
         return new Record
         {

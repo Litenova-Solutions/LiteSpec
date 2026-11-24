@@ -61,7 +61,8 @@ internal static class RefusalDeclarationChecks
 
     /// <summary>
     ///     Every refusal code a use case declares: its written refusal results plus the derived
-    ///     generic codes, which read from the results the builder derived for the use case.
+    ///     generic codes, which read from the results the builder derived for the use case. A
+    ///     derived result carrying a product refusal declares that code with its generic name.
     /// </summary>
     /// <param name="model">The loaded project model that holds every result record.</param>
     /// <param name="useCase">The use case record whose declared refusal codes are collected.</param>
@@ -82,6 +83,12 @@ internal static class RefusalDeclarationChecks
                 if (RefusalCode.Of(result) is { } code)
                 {
                     declared.Add(code);
+                }
+
+                if (result.Derived && result.Field(RecordFields.Refusal) is not null
+                    && Identifiers.TrySplit(result.Id, out _, out _, out var generic))
+                {
+                    declared.Add(generic);
                 }
             }
         }
