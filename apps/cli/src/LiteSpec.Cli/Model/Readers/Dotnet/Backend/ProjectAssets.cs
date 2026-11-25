@@ -48,6 +48,88 @@ static class ProjectAssets
         return found;
     }
 
+    /// <summary>Every target framework the project assets files name, distinct in read order.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The target frameworks, such as net10.0, distinct in read order.</returns>
+    public static IReadOnlyList<string> TargetFrameworks(ConsumerConfig config)
+    {
+        var found = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var root in SourceRoots.BackendRoots(config))
+        {
+            var assets = Path.Combine(root, "obj", "project.assets.json");
+
+            if (!File.Exists(assets))
+            {
+                continue;
+            }
+
+            foreach (var framework in TargetFrameworksOf(assets))
+            {
+                if (seen.Add(framework))
+                {
+                    found.Add(framework);
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Every target framework one assets file names: each target before its slash, else each project framework.</summary>
+    /// <param name="assetsFile">The project assets file.</param>
+    /// <returns>The target frameworks the file names.</returns>
+    static List<string> TargetFrameworksOf(string assetsFile)
+    {
+        var found = new List<string>();
+        JsonDocument document;
+
+        try
+        {
+            document = JsonDocument.Parse(File.ReadAllText(assetsFile));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return found;
+        }
+
+        using (document)
+        {
+            if (document.RootElement.TryGetProperty("targets", out var targets)
+                && targets.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var target in targets.EnumerateObject())
+                {
+                    var slash = target.Name.IndexOf('/');
+                    var framework = slash < 0 ? target.Name : target.Name[..slash];
+
+                    if (framework.Length > 0 && !found.Contains(framework, StringComparer.OrdinalIgnoreCase))
+                    {
+                        found.Add(framework);
+                    }
+                }
+            }
+
+            if (found.Count == 0
+                && document.RootElement.TryGetProperty("project", out var project)
+                && project.ValueKind == JsonValueKind.Object
+                && project.TryGetProperty("frameworks", out var frameworks)
+                && frameworks.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var framework in frameworks.EnumerateObject())
+                {
+                    if (framework.Name.Length > 0 && !found.Contains(framework.Name, StringComparer.OrdinalIgnoreCase))
+                    {
+                        found.Add(framework.Name);
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
     /// <summary>Every package binary the project assets files name that exists on disk, as metadata references.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <returns>The package references that exist on disk.</returns>

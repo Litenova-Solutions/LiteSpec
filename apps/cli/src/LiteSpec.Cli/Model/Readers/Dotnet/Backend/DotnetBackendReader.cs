@@ -67,7 +67,7 @@ sealed class DotnetBackendReader : IBackendReader
         var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
         var holders = RepositoryImplementationReader.RepositoryHoldersOf(config, trees);
         var constants = ConstRefusalCodes.Collect(trees);
-        var semantics = BackendSemantics.TryCreate(config, trees);
+        var (semantics, unavailableReason) = BackendSemantics.TryCreateWithReason(config, trees);
 
         var merged = new CodeFacts();
         var gate = new object();
@@ -175,7 +175,7 @@ sealed class DotnetBackendReader : IBackendReader
             return file != 0 ? file : left.Line.CompareTo(right.Line);
         });
 
-        return new BackendRead(model, problems, semantics);
+        return new BackendRead(model, problems, semantics, unavailableReason);
     }
 
     /// <summary>Reads one file into the model: its elements, aggregate methods, audit actions, domain types, repository implementations, literals, and comments.</summary>

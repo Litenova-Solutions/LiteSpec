@@ -23,8 +23,8 @@ sealed class BackendSemantics
     /// <summary>The environment variable forcing a reader mode: syntax or semantic, anything else for automatic.</summary>
     const string ModeVariable = "LITESPEC_BACKEND_READER";
 
-    /// <summary>The cached framework references, shared by every read in the process.</summary>
-    static IReadOnlyList<MetadataReference>? framework;
+    /// <summary>The cached trusted-list framework references, shared by every read in the process.</summary>
+    static List<MetadataReference>? framework;
 
     /// <summary>The gate guarding the framework cache.</summary>
     static readonly object FrameworkGate = new();
@@ -126,23 +126,54 @@ sealed class BackendSemantics
     /// <param name="trees">The parsed syntax trees by file path.</param>
     /// <param name="mode">The forced mode, or null for automatic.</param>
     /// <returns>The read semantics, or null when the syntax-only path runs.</returns>
-    internal static BackendSemantics? TryCreate(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees, string? mode)
+    internal static BackendSemantics? TryCreate(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees, string? mode) =>
+        TryCreateWithReason(config, trees, mode).Semantics;
+
+    /// <summary>
+    ///     Builds the semantics of one read with the reason when semantic mode is unavailable:
+    ///     a compilation when the backend has build output and framework references exist,
+    ///     else null for the syntax-only path. The mode variable forces either path.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="trees">The parsed syntax trees by file path.</param>
+    /// <returns>The read semantics with the reason when semantic mode is unavailable.</returns>
+    public static (BackendSemantics? Semantics, string? UnavailableReason) TryCreateWithReason(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees) =>
+        TryCreateWithReason(config, trees, CliHost.Variable(ModeVariable));
+
+    /// <summary>
+    ///     Builds the semantics of one read with an explicit mode and the reason when semantic
+    ///     mode is unavailable: syntax forces the syntax-only path, semantic forces a build, and
+    ///     anything else builds only when the backend has build output. A build without framework
+    ///     references falls back to the syntax-only path with the reason, rather than running
+    ///     semantic with no base library; any other failed build falls back silently.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="trees">The parsed syntax trees by file path.</param>
+    /// <param name="mode">The forced mode, or null for automatic.</param>
+    /// <returns>The read semantics with the reason when semantic mode is unavailable.</returns>
+    internal static (BackendSemantics? Semantics, string? UnavailableReason) TryCreateWithReason(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees, string? mode)
     {
         if (mode == SyntaxMode)
         {
-            return null;
+            return (null, null);
         }
 
         var evidence = ProjectAssets.Evidence(config);
 
         if (mode != SemanticMode && evidence.Count == 0)
         {
-            return null;
+            return (null, null);
         }
 
         try
         {
-            var frameworkReferences = FrameworkReferences();
+            var (frameworkReferences, unavailableReason) = FrameworkReferences(config);
+
+            if (frameworkReferences.Count == 0)
+            {
+                return (null, unavailableReason ?? "no framework references were found");
+            }
+
             var packageReferences = ProjectAssets.PackageReferences(config);
             var references = new List<MetadataReference>(frameworkReferences.Count + packageReferences.Count);
             references.AddRange(frameworkReferences);
@@ -153,39 +184,51 @@ sealed class BackendSemantics
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            return new BackendSemantics(compilation, evidence, frameworkReferences.Count, packageReferences.Count);
+            return (new BackendSemantics(compilation, evidence, frameworkReferences.Count, packageReferences.Count), null);
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or IOException or UnauthorizedAccessException or BadImageFormatException)
         {
-            return null;
+            return (null, null);
         }
     }
 
-    /// <summary>The framework assemblies of the running runtime, as metadata references, cached per process.</summary>
-    /// <returns>The framework references that exist on disk.</returns>
-    static IReadOnlyList<MetadataReference> FrameworkReferences()
+    /// <summary>The framework assemblies the read builds from: the running runtime, else the targeting pack matching the consumer.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The framework references with the reason when none was found.</returns>
+    static (IReadOnlyList<MetadataReference> References, string? UnavailableReason) FrameworkReferences(ConsumerConfig config)
     {
         if (framework is not null)
         {
-            return framework;
+            if (framework.Count > 0)
+            {
+                return (framework, null);
+            }
         }
-
-        lock (FrameworkGate)
+        else
         {
-            framework ??= LoadFramework();
+            lock (FrameworkGate)
+            {
+                framework ??= LoadTrustedPlatform();
+            }
+
+            if (framework.Count > 0)
+            {
+                return (framework, null);
+            }
         }
 
-        return framework;
+        return TargetingPack.Load(config);
     }
 
     /// <summary>
     ///     Loads the two framework assemblies symbol resolution needs that exist on disk, skipping
     ///     the rest: the core library defines the predefined types, and the runtime forwards them.
     ///     Every other framework member a check reads falls back to its syntax guess, which names
-    ///     no source file either way.
+    ///     no source file either way. A native process has no trusted list, so this loads nothing
+    ///     there and the targeting pack resolves instead.
     /// </summary>
     /// <returns>The core library and runtime references that exist on disk.</returns>
-    static List<MetadataReference> LoadFramework()
+    static List<MetadataReference> LoadTrustedPlatform()
     {
         var found = new List<MetadataReference>();
 
