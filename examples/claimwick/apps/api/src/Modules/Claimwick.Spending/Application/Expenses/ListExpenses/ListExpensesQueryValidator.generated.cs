@@ -6,29 +6,30 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Queries.Abstractions;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 namespace Claimwick.Spending.Application.Expenses.ListExpenses;
 
 /// <summary>Validates the list-expenses query against its record constraints.</summary>
-internal sealed partial class ListExpensesQueryValidator : IValidator<ListExpensesQuery>
+internal sealed partial class ListExpensesQueryValidator : IQueryValidator<ListExpensesQuery>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="query">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(ListExpensesQuery query, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(ListExpensesQuery query, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (query.EmployeeId == Guid.Empty)
         {
-            failures.Add(new ValidationFailure("EmployeeId", "required", "An employee is required."));
+            failures.Add(new ValidationFailure("An employee is required.", "EmployeeId", "required"));
         }
 
         ValidateExtra(query, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

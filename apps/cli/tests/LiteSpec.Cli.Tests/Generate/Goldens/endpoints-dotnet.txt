@@ -54,7 +54,7 @@ internal static partial class LendingEndpoints
             await mediator.SendAsync(
                 new BorrowCopyCommand(
                     CopyId: CopyId.From(request.CopyId),
-                    ReaderId: ActorClaims.ReadActorId(user, "reader")
+                    ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader")
                 ),
                 cancellationToken);
 
@@ -164,7 +164,7 @@ internal static partial class LendingEndpoints
 
             var result = await mediator.QueryAsync(
                 new ListLoansQuery(
-                    ReaderId: ActorClaims.ReadActorId(user, "reader"),
+                    ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader"),
                     Cursor: cursor,
                     Limit: effectiveLimit
                 ),
@@ -207,7 +207,7 @@ internal static partial class LendingEndpoints
             await mediator.SendAsync(
                 new PlaceHoldCommand(
                     CopyId: CopyId.From(request.CopyId),
-                    ReaderId: ActorClaims.ReadActorId(user, "reader")
+                    ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader")
                 ),
                 cancellationToken);
 

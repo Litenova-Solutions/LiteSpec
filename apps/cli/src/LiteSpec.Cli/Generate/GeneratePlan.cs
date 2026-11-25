@@ -987,6 +987,54 @@ static class GeneratePlan
         return match is null ? null : match.Namespace + "." + simple;
     }
 
+    /// <summary>The C# type a part-reusing list builds its rows as: the qualified part type when its members resolve from the backend source, or null when the part resolves nowhere or declares no readable member.</summary>
+    /// <param name="model">The built project model holding the parts map and the Domain types.</param>
+    /// <param name="source">The backend source the part type is read from.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
+    /// <param name="reference">The aggregate part reference naming one part of one aggregate.</param>
+    /// <returns>The qualified part type, or null when the part members resolve nowhere.</returns>
+    private static string? PartEndpointRowTypeOf(
+        ProjectModel model,
+        MessageFieldChecks.MessageSource source,
+        Func<string, string?> qualify,
+        string reference)
+    {
+        if (qualify(reference) is not { Length: > 0 } qualified)
+        {
+            return null;
+        }
+
+        var hash = reference.IndexOf('#');
+        var simple = hash < 0 ? "" : GenerateNaming.ConstName(reference[(hash + 1)..]);
+
+        if (simple.Length == 0)
+        {
+            return null;
+        }
+
+        var declaring = model.Code.DomainTypes.FirstOrDefault(candidate =>
+            candidate.Name.Equals(simple, StringComparison.Ordinal)
+            && (candidate.Namespace + "." + simple).Equals(qualified, StringComparison.Ordinal));
+
+        if (declaring is null)
+        {
+            return null;
+        }
+
+        var declarations = source.TypesIn(declaring.File, simple);
+
+        if (declarations.Count == 0)
+        {
+            return null;
+        }
+
+        var members = declarations
+            .SelectMany(declaration => MessageProperties.Of(declaration.Declared, source.SemanticOf(declaration.Tree)))
+            .ToList();
+
+        return members.Count > 0 ? qualified : null;
+    }
+
     /// <summary>The input fields of a use case with their C# types, in written order.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
     /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
@@ -2630,6 +2678,9 @@ static class GeneratePlan
     /// <returns>The message namespace.</returns>
     private static string MessageNamespaceOf(string resolved, Record record, string messageName)
     {
+        var root = resolved.EndsWith(".WebApi", StringComparison.Ordinal)
+            ? resolved[..^".WebApi".Length]
+            : resolved;
         var segments = record.File.Replace('\\', '/').Split('/');
 
         for (var index = 0; index + 1 < segments.Length; index++)
@@ -2637,11 +2688,40 @@ static class GeneratePlan
             if (segments[index] == "aggregates"
                 && segments.Skip(index + 1).Contains("use-cases", StringComparer.Ordinal))
             {
-                return $"{resolved}.Application.{Naming.Pascal(segments[index + 1])}.{messageName}";
+                return $"{root}.Application.{Naming.Pascal(segments[index + 1])}.{messageName}";
             }
         }
 
-        return $"{resolved}.Application.{messageName}";
+        return $"{root}.Application.{messageName}";
+    }
+
+    /// <summary>The namespace a messages or results target places a use case contract in: the target matching the use case visibility, with the module, aggregate and use case resolved, or null when no target renders the use case.</summary>
+    /// <param name="model">The built project model holding the generate targets.</param>
+    /// <param name="record">The use case record whose module names the namespace.</param>
+    /// <param name="useCaseName">The record use-case name.</param>
+    /// <param name="kind">The contract kind: messages or results.</param>
+    /// <param name="wantPublic">True for the public target, false for the module target.</param>
+    /// <returns>The contract namespace, or null when no target of the kind renders the use case.</returns>
+    private static string? ContractNamespaceFor(ProjectModel model, Record record, string useCaseName, string kind, bool wantPublic)
+    {
+        if (record.Module is not { } module)
+        {
+            return null;
+        }
+
+        foreach (var target in model.Config.Generate)
+        {
+            if (target.Kind != kind || (target.Visibility == "public") != wantPublic)
+            {
+                continue;
+            }
+
+            return GenerateNaming.ResolveModule(
+                GenerateNaming.ResolveUseCaseFolders(target.Namespace, AggregateFolderOf(record), useCaseName),
+                module);
+        }
+
+        return null;
     }
 
     /// <summary>Renders one C# file per command and query carrying constrained inputs, with the validator its record constraints determine.</summary>
@@ -2681,6 +2761,8 @@ static class GeneratePlan
             var messageType = messageName + (kind == "query" ? "Query" : "Command");
             var folder = UseCaseFolderOf(model.Config.Root, target, record, messageName);
             var @namespace = MessageNamespaceOf(GenerateNaming.ResolveModule(target.Namespace, record.Module!), record, messageName);
+            var validatorInterface = ValidatorsRenderer.ValidatorInterfaceFor(
+                kind, target.CommandValidatorInterface, target.QueryValidatorInterface);
 
             files.Add(new GeneratedFile(
                 Path.Combine(folder, $"{messageType}Validator.generated.cs"),
@@ -2693,7 +2775,8 @@ static class GeneratePlan
                     rules,
                     usesGuid,
                     usesRegex,
-                    usesLinq))));
+                    usesLinq,
+                    validatorInterface))));
         }
 
         return files;
@@ -2790,6 +2873,8 @@ static class GeneratePlan
         var uses = model.Records
             .Where(record => record.Type == RecordTypes.UseCase && !record.Derived && record.Module is not null)
             .Select(record => (record.Module!, record));
+        var source = new MessageFieldChecks.MessageSource(model);
+        var qualify = PartQualifier(model);
 
         foreach (var (module, entries) in ByModule(uses))
         {
@@ -2798,7 +2883,7 @@ static class GeneratePlan
 
             foreach (var record in entries.OrderBy(entry => entry.Id, StringComparer.Ordinal))
             {
-                var endpoint = EndpointOf(model, record, resolved, model.Config.Marks, target.TenantReader, target.ClaimValueReader, out var skip);
+                var endpoint = EndpointOf(model, record, resolved, model.Config.Marks, target.TenantReader, target.ClaimValueReader, source, qualify, out var skip);
 
                 if (skip is not null)
                 {
@@ -2821,11 +2906,17 @@ static class GeneratePlan
 
             files.Add(new GeneratedFile(
                 Path.Combine(folder, $"{name}Endpoints.generated.cs"),
-                EndpointsRenderer.RenderDotnet(module, endpoints, resolved + ".WebApi", target.ClaimReader, usings, target.TenantReader, target.ClaimValueReader)));
+                EndpointsRenderer.RenderDotnet(module, endpoints, EndpointsNamespaceOf(resolved), target.ClaimReader, usings, target.TenantReader, target.ClaimValueReader)));
         }
 
         return files;
     }
+
+    /// <summary>The namespace declaring a module endpoints class: the resolved target namespace, with WebApi appended unless it already ends there.</summary>
+    /// <param name="resolved">The target namespace with the module resolved.</param>
+    /// <returns>The endpoints class namespace.</returns>
+    private static string EndpointsNamespaceOf(string resolved) =>
+        resolved.EndsWith(".WebApi", StringComparison.Ordinal) ? resolved : resolved + ".WebApi";
 
     /// <summary>Reads one use case record as the endpoint its HTTP surface renders, or the reason it renders nothing.</summary>
     /// <param name="model">The built project model holding the results and refusal sets.</param>
@@ -2834,6 +2925,8 @@ static class GeneratePlan
     /// <param name="marks">The mark style the project declares.</param>
     /// <param name="tenantReader">The qualified tenant reader method, or empty when the target names none.</param>
     /// <param name="claimValueReader">The qualified claim value reader method, or empty when the target names none.</param>
+    /// <param name="source">The backend source the part types are read from.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="skip">The skip reason when the record states something the vocabulary cannot express.</param>
     /// <returns>The endpoint, or null when the record renders nothing.</returns>
     private static EndpointsRenderer.EndpointData? EndpointOf(
@@ -2843,6 +2936,8 @@ static class GeneratePlan
         MarkStyle marks,
         string tenantReader,
         string claimValueReader,
+        MessageFieldChecks.MessageSource source,
+        Func<string, string?> qualify,
         out string? skip)
     {
         skip = null;
@@ -2886,7 +2981,7 @@ static class GeneratePlan
             return null;
         }
 
-        if (BoundInputsOf(record, claimValueReader, out skip) is not { } inputs || skip is not null)
+        if (BoundInputsOf(model, record, claimValueReader, source, qualify, out skip) is not { } inputs || skip is not null)
         {
             return null;
         }
@@ -2932,6 +3027,17 @@ static class GeneratePlan
 
         var messageName = Naming.Pascal(useCaseName);
         var messageType = messageName + (kind == "query" ? "Query" : "Command");
+        var wantPublic = IsPublicUseCase(record);
+        var messageNamespace = ContractNamespaceFor(model, record, useCaseName, "messages", wantPublic)
+            ?? MessageNamespaceOf(resolvedNamespace, record, messageName);
+        var resultNamespace = ContractNamespaceFor(model, record, useCaseName, "results", wantPublic)
+            ?? "";
+        var resultType = MessagesRenderer.ResultTypeName(useCaseName, kind, wantPublic);
+
+        if (string.Equals(resultNamespace, messageNamespace, StringComparison.Ordinal))
+        {
+            resultNamespace = "";
+        }
 
         return new EndpointsRenderer.EndpointData(
             record.Id,
@@ -2947,14 +3053,15 @@ static class GeneratePlan
             projects,
             RefusalStatusesOf(model, record),
             messageType,
-            MessageNamespaceOf(resolvedNamespace, record, messageName),
-            messageType + "Result",
+            messageNamespace,
+            resultType,
             messageName + "ResponseModel",
             ResponseNamespaceOf(resolvedNamespace, record, messageName),
             marks,
             tenant,
             paging,
-            RequiresAuthOf(record));
+            RequiresAuthOf(record),
+            resultNamespace);
     }
 
     /// <summary>The paging an endpoint binds from the query, or null when the use case pages nothing.</summary>
@@ -3012,11 +3119,20 @@ static class GeneratePlan
             messageName, "(?<=[a-z0-9])(?=[A-Z])", " ", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 
     /// <summary>Reads the bound inputs of a use case in written order, or the reason the endpoint renders nothing.</summary>
+    /// <param name="model">The built project model holding the parts map and the Domain types.</param>
     /// <param name="record">The use case record whose inputs are read.</param>
     /// <param name="claimValueReader">The qualified claim value reader method, or empty when the target names none.</param>
+    /// <param name="source">The backend source the part types are read from.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="skip">The skip reason when an input states something the vocabulary cannot express.</param>
     /// <returns>The bound inputs, or null when the endpoint renders nothing.</returns>
-    private static List<EndpointsRenderer.BoundInput>? BoundInputsOf(Record record, string claimValueReader, out string? skip)
+    private static List<EndpointsRenderer.BoundInput>? BoundInputsOf(
+        ProjectModel model,
+        Record record,
+        string claimValueReader,
+        MessageFieldChecks.MessageSource source,
+        Func<string, string?> qualify,
+        out string? skip)
     {
         skip = null;
 
@@ -3074,8 +3190,15 @@ static class GeneratePlan
 
                 if (rowType is { Length: > 0 } named && EventFieldTypes.IsPartReference(named))
                 {
-                    skip = $"input '{name}' carries a list of rows reusing an aggregate part, which endpoints do not bind";
-                    return null;
+                    if (PartEndpointRowTypeOf(model, source, qualify, named) is { } partType)
+                    {
+                        rowType = partType;
+                    }
+                    else
+                    {
+                        skip = $"input '{name}' carries a list of rows reusing an aggregate part, which endpoints do not bind";
+                        return null;
+                    }
                 }
 
                 if (rows.Count > 1 && rowType is not { Length: > 0 })
@@ -3423,6 +3546,7 @@ static class GeneratePlan
     /// <returns>The response model namespace.</returns>
     private static string ResponseNamespaceOf(string resolved, Record record, string messageName)
     {
+        var webApi = EndpointsNamespaceOf(resolved);
         var segments = record.File.Replace('\\', '/').Split('/');
 
         for (var index = 0; index + 1 < segments.Length; index++)
@@ -3430,11 +3554,11 @@ static class GeneratePlan
             if (segments[index] == "aggregates"
                 && segments.Skip(index + 1).Contains("use-cases", StringComparer.Ordinal))
             {
-                return $"{resolved}.WebApi.{Naming.Pascal(segments[index + 1])}.{messageName}";
+                return $"{webApi}.{Naming.Pascal(segments[index + 1])}.{messageName}";
             }
         }
 
-        return $"{resolved}.WebApi.{messageName}";
+        return $"{webApi}.{messageName}";
     }
 
     /// <summary>The result property by created-location parameter, resolved against the command output fields.</summary>

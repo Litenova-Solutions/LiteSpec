@@ -32,6 +32,7 @@ public sealed class GenerateValidatorsTests
                 StringComparison.Ordinal));
 
         Assert.DoesNotContain("Adjustment", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("TryFromCode", file.Content, StringComparison.Ordinal);
         GenerateGoldens.AssertEqual("validators-dotnet-loans-renew-loan.txt", file.Content);
     }
 
@@ -135,6 +136,84 @@ public sealed class GenerateValidatorsTests
         Assert.Contains(plan.Errors, error => error.Contains("namespace", StringComparison.Ordinal));
     }
 
+    /// <summary>A validators target naming its own interfaces renders each validator over the interface of its kind.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CustomValidatorInterfacesRender()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        File.AppendAllText(
+            Path.Combine(temp.Path, ".litespec", "project.yaml"),
+            "\n"
+            + """
+              generate:
+              - kind: validators
+                stack: dotnet
+                path: apps/api/src/Modules/Library.{Module}
+                namespace: Library.{Module}
+                commandValidatorInterface: Shop.Platform.Validation.IOrderValidator
+                queryValidatorInterface: Shop.Platform.Validation.IOrderQueryValidator
+              """
+            + "\n");
+        WriteUseCase(
+            temp.Path,
+            "loans",
+            "renew-loan",
+            "Renew loan",
+            "command",
+            """
+            - name: note
+              meaning: The note the reader leaves on the renewal.
+              type: text
+              required: true
+              origin: caller
+              classification: internal
+            """);
+        WriteUseCase(
+            temp.Path,
+            "loans",
+            "search-loans",
+            "Search loans",
+            "query",
+            """
+            - name: filter
+              meaning: The text the loan rows match.
+              type: text
+              required: true
+              origin: caller
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+
+        var commandFile = Assert.Single(
+            plan.Files,
+            candidate => candidate.AbsolutePath.EndsWith(
+                Path.Combine("Application", "Loans", "RenewLoan", "RenewLoanCommandValidator.generated.cs"),
+                StringComparison.Ordinal));
+
+        Assert.Contains("using Shop.Platform.Validation;", commandFile.Content, StringComparison.Ordinal);
+        Assert.Contains(
+            "internal sealed partial class RenewLoanCommandValidator : IOrderValidator<RenewLoanCommand>",
+            commandFile.Content,
+            StringComparison.Ordinal);
+
+        var queryFile = Assert.Single(
+            plan.Files,
+            candidate => candidate.AbsolutePath.EndsWith(
+                Path.Combine("Application", "Loans", "SearchLoans", "SearchLoansQueryValidator.generated.cs"),
+                StringComparison.Ordinal));
+
+        Assert.Contains("using Shop.Platform.Validation;", queryFile.Content, StringComparison.Ordinal);
+        Assert.Contains(
+            "internal sealed partial class SearchLoansQueryValidator : IOrderQueryValidator<SearchLoansQuery>",
+            queryFile.Content,
+            StringComparison.Ordinal);
+    }
+
     /// <summary>Required fields judge presence by shape: text for emptiness, actor ids for an empty Guid, aggregate ids for default, choice and list for null, and value types never.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -155,6 +234,24 @@ public sealed class GenerateValidatorsTests
         AssertNoRules(Input("""{ "name": "amount", "type": "decimal", "required": true }"""), "Amount");
         AssertNoRules(Input("""{ "name": "active", "type": "boolean", "required": true }"""), "Active");
         AssertNoRules(Input("""{ "name": "due", "type": "date", "required": true }"""), "Due");
+    }
+
+    /// <summary>A choice input with a set renders presence only: the message carries the closed-set record, so only known cases reach the validator, and the endpoint refuses an unlisted label before the message runs.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ChoiceInputWithSetRendersPresenceOnly()
+    {
+        var rules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(
+            rules, "Kind", "command", false,
+            Input("""{ "name": "kind", "type": "choice", "set": "reference-data/lending.loan-kind", "required": true }"""));
+
+        var rule = Assert.Single(rules);
+
+        Assert.Equal("Kind", rule.Member);
+        Assert.Equal("required", rule.Code);
+        Assert.Equal("command.Kind is null", rule.Condition);
     }
 
     /// <summary>A field holding many values renders no rules: per-item checks stay hand-written.</summary>
@@ -401,7 +498,16 @@ public sealed class GenerateValidatorsTests
               - rule/loan.no-negative-adjustment
               origin: caller
               classification: internal
+            - name: kind
+              meaning: The kind of loan the reader renews.
+              type: choice
+              set: reference-data/lending.loan-kind
+              required: true
+              origin: caller
+              classification: internal
             """);
+
+        WriteLoanKind(root);
 
         var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "rules", "no-negative-adjustment");
         Directory.CreateDirectory(folder);
@@ -417,6 +523,30 @@ public sealed class GenerateValidatorsTests
             - use-case/lending.renew-loan
             - aggregate/lending.loan
             refusal: refusal/lending.negative-adjustment
+            """);
+    }
+
+    /// <summary>Writes the loan-kind closed set the renew-loan choice field names.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteLoanKind(string root)
+    {
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "reference-data", "loan-kind");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "loan-kind.yaml"),
+            """
+            type: reference-data
+            id: reference-data/lending.loan-kind
+            title: Loan Kind
+            summary: The kinds of loan the library lends.
+            choices:
+            - standard
+            - reference-only
+            rows:
+            - value: standard
+              key: standard-2026
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
             """);
     }
 

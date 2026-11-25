@@ -1968,6 +1968,174 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("WorkspaceId Workspace", message.Content, StringComparison.Ordinal);
     }
 
+    /// <summary>Endpoints import each message namespace as the messages targets place it, choosing the internal or public target by use case visibility, never deriving it from the endpoints namespace.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EndpointsImportMessageNamespacesFromMessagesTargets()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var list = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            list,
+            File.ReadAllText(list).Replace(
+                "reachedThrough:\n- entry-point/library-app",
+                "reachedThrough:\n- entry-point/library-app\n- module/catalog",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}.Contracts/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Contracts.{Aggregate}.{UseCase}
+              visibility: public
+            - kind: results
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            - kind: results
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}.Contracts/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Contracts.{Aggregate}.{UseCase}
+              visibility: public
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}.WebApi
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        var file = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("LendingEndpoints.generated.cs", StringComparison.Ordinal));
+        Assert.Contains("namespace Library.Lending.WebApi;", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Library.Lending.WebApi.WebApi", file.Content, StringComparison.Ordinal);
+        Assert.Contains("using Library.Lending.Application.Loans.BorrowCopy;", file.Content, StringComparison.Ordinal);
+        Assert.Contains("using Library.Lending.Contracts.Loans.ListLoans;", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Library.Lending.WebApi.Application", file.Content, StringComparison.Ordinal);
+        Assert.Contains("ShapeListLoansResponse(ListLoansResult result)", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("ListLoansQueryResult", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>Each claim identity reads through the generic claim reader with its member type as the type argument, so one module serves several actor kinds.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ClaimReaderRendersMemberTypeAsTypeArgument()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.borrow-copy",
+                "BorrowCopy",
+                "Borrow copy",
+                null,
+                "command",
+                "POST",
+                "/api/loans",
+                null,
+                [
+                    new EndpointsRenderer.BoundInput(
+                        "reader", "ReaderId", "reader", "reader", "id", "claim", true,
+                        "The signed-in reader borrowing the copy.", null, "ReaderId", "reader", "verified-claim"),
+                    new EndpointsRenderer.BoundInput(
+                        "workspace", "WorkspaceId", "workspace", "workspace", "id", "claim", true,
+                        "The workspace the loan belongs to.", null, "WorkspaceId", "workspace", "verified-claim"),
+                    new EndpointsRenderer.BoundInput(
+                        "holder", "HolderId", "holder", "holder", "id", "claim", false,
+                        "The signed-in holder, read from verified claims.", null, null, "holder", "verified-claim"),
+                ],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "BorrowCopyCommand",
+                "Library.Lending.Application.Loans.BorrowCopy",
+                "BorrowCopyCommandResult",
+                "BorrowCopyResponseModel",
+                "Library.Lending.WebApi.Loans.BorrowCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("ReaderId: ActorClaims.ReadActorId<ReaderId>(user, \"reader\")", text, StringComparison.Ordinal);
+        Assert.Contains("WorkspaceId: ActorClaims.ReadActorId<WorkspaceId>(user, \"workspace\")", text, StringComparison.Ordinal);
+        Assert.Contains("HolderId: ActorClaims.ReadActorId<Guid>(user, \"holder\")", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A list reusing an aggregate part binds from the body as request rows mapped to the part type when the part members resolve from the backend source.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PartRowListBindsWhenPartResolves()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteRenewalPart(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: renewals
+              meaning: The renewals the retirement files the copy under.
+              type: list
+              rowType: aggregate/lending.loan#renewal
+              rowShape:
+                fields:
+                - name: renewedAt
+                  meaning: The renewal time.
+                  type: instant
+                  required: true
+                - name: note
+                  meaning: The renewal note.
+                  type: text
+                  required: false
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("internal sealed partial record RetireCopyRenewalsRow(DateTimeOffset RenewedAt, string? Note);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("var renewalsRows = new List<Library.Lending.Domain.Loans.Parts.Renewal>(request.Renewals.Length);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("renewalsRows.Add(new Library.Lending.Domain.Loans.Parts.Renewal(", file.Content, StringComparison.Ordinal);
+        Assert.Contains("RenewedAt: row.RenewedAt,", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Note: row.Note", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Renewals: renewalsRows", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>Declares the renewal part on the loan aggregate and writes its declaring type with the renewal time and note, so the part members resolve.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteRenewalPart(string root)
+    {
+        File.AppendAllText(
+            Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"),
+            "\nparts:\n- name: renewal\n  identity: false\n");
+        var parts = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Domain", "Loans", "Parts");
+        Directory.CreateDirectory(parts);
+        File.WriteAllText(
+            Path.Combine(parts, "Renewal.cs"),
+            """
+            namespace Library.Lending.Domain.Loans.Parts;
+
+            internal sealed record Renewal(DateTimeOffset RenewedAt, string? Note);
+            """);
+    }
+
     /// <summary>Appends a generate block to the fixture project file.</summary>
     /// <param name="root">The prepared fixture folder.</param>
     /// <param name="yaml">The generate block YAML.</param>

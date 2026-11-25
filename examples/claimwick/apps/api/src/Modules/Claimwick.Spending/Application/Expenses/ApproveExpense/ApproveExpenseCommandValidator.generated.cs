@@ -6,34 +6,35 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Commands.Abstractions;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
 
 /// <summary>Validates the approve-expense command against its record constraints.</summary>
-internal sealed partial class ApproveExpenseCommandValidator : IValidator<ApproveExpenseCommand>
+internal sealed partial class ApproveExpenseCommandValidator : ICommandValidator<ApproveExpenseCommand>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="command">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(ApproveExpenseCommand command, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(ApproveExpenseCommand command, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (command.ExpenseId == default)
         {
-            failures.Add(new ValidationFailure("ExpenseId", "required", "An expense is required."));
+            failures.Add(new ValidationFailure("An expense is required.", "ExpenseId", "required"));
         }
 
         if (command.ApproverId == Guid.Empty)
         {
-            failures.Add(new ValidationFailure("ApproverId", "required", "An approver is required."));
+            failures.Add(new ValidationFailure("An approver is required.", "ApproverId", "required"));
         }
 
         ValidateExtra(command, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

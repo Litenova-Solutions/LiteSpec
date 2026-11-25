@@ -46,7 +46,7 @@ internal static partial class LendingEndpoints
                 new BorrowCopyCommand(
                     WorkspaceId: TenantClaims.ReadTenantId(user),
                     CopyId: CopyId.From(request.CopyId),
-                    ReaderId: ActorClaims.ReadActorId(user, "reader")
+                    ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader")
                 ),
                 cancellationToken);
 

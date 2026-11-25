@@ -108,6 +108,7 @@ static class EndpointsRenderer
     /// <param name="Tenant">The tenant key the message carries first, or null when the use case implies none.</param>
     /// <param name="Paging">The paging the endpoint binds from the query, or null when the use case pages nothing.</param>
     /// <param name="RequiresAuth">Whether the use case grant requires a signed-in actor, so the endpoint lists authentication problems.</param>
+    /// <param name="ResultNamespace">The C# namespace declaring the result type, or empty when the message namespace declares it.</param>
     public sealed record EndpointData(
         string UseCaseId,
         string UseCaseName,
@@ -129,7 +130,8 @@ static class EndpointsRenderer
         MarkStyle Marks,
         MessagesRenderer.TenantKey? Tenant = null,
         EndpointPaging? Paging = null,
-        bool RequiresAuth = false);
+        bool RequiresAuth = false,
+        string ResultNamespace = "");
 
     /// <summary>The paging a collection endpoint binds from the query: the cursor or offset with the limit.</summary>
     /// <param name="Cursor">The cursor text the record states, or null when the query pages by offset.</param>
@@ -146,7 +148,7 @@ static class EndpointsRenderer
     /// <param name="module">The record module name.</param>
     /// <param name="endpoints">The module's endpoints in use case order.</param>
     /// <param name="namespace">The C# namespace of the generated class.</param>
-    /// <param name="claimReader">The qualified claim reader method, as Namespace.Type.Method.</param>
+    /// <param name="claimReader">The qualified generic claim reader method, as Namespace.Type.Method, answering the identity as its type argument.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
     /// <param name="tenantReader">The qualified tenant reader method, as Namespace.Type.Method, or empty when the target names none.</param>
     /// <param name="claimValueReader">The qualified claim value reader method, as Namespace.Type.Method, or empty when the target names none.</param>
@@ -221,7 +223,7 @@ static class EndpointsRenderer
             : new Reader(qualified, "");
     }
 
-    /// <summary>The using lines the file opens with: the claims, mediator, message, response and reader namespaces with the target usings, ordered, without the file's own namespace or an enclosing one.</summary>
+    /// <summary>The using lines the file opens with: the claims, mediator, message, result, response and reader namespaces with the target usings, ordered, without the file's own namespace or an enclosing one.</summary>
     /// <param name="endpoints">The module's endpoints in use case order.</param>
     /// <param name="namespace">The C# namespace of the generated class.</param>
     /// <param name="readerNamespace">The C# namespace declaring the claim reader type.</param>
@@ -303,6 +305,17 @@ static class EndpointsRenderer
             if (response.Length > 0)
             {
                 names.Add(response);
+            }
+        }
+
+        foreach (var result in endpoints
+            .Where(endpoint => endpoint.Projects)
+            .Select(endpoint => endpoint.ResultNamespace)
+            .Distinct(StringComparer.Ordinal))
+        {
+            if (result.Length > 0)
+            {
+                names.Add(result);
             }
         }
 
@@ -1116,7 +1129,7 @@ static class EndpointsRenderer
         if (input.Binding == "claim")
         {
             return input.Type == "id"
-                ? $"{reader.Call}(user, \"{GenerateNaming.EscapeLiteral(input.Actor ?? input.Name)}\")"
+                ? $"{reader.Call}<{input.IdentifierType ?? "Guid"}>(user, \"{GenerateNaming.EscapeLiteral(input.Actor ?? input.Name)}\")"
                 : $"{values.Call}<{ClaimTypeOf(input)}>(user, \"{GenerateNaming.EscapeLiteral(input.Actor ?? input.Name)}\")";
         }
 

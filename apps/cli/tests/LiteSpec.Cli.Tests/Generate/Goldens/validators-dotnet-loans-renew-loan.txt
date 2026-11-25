@@ -7,73 +7,79 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Commands.Abstractions;
 
 namespace Library.Lending.Application.Loans.RenewLoan;
 
 /// <summary>Validates the renew-loan command against its record constraints.</summary>
-internal sealed partial class RenewLoanCommandValidator : IValidator<RenewLoanCommand>
+internal sealed partial class RenewLoanCommandValidator : ICommandValidator<RenewLoanCommand>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="command">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(RenewLoanCommand command, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(RenewLoanCommand command, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (command.LoanId == default)
         {
-            failures.Add(new ValidationFailure("LoanId", "required", "A loan is required."));
+            failures.Add(new ValidationFailure("A loan is required.", "LoanId", "required"));
         }
 
         if (command.ReaderId == Guid.Empty)
         {
-            failures.Add(new ValidationFailure("ReaderId", "required", "A reader is required."));
+            failures.Add(new ValidationFailure("A reader is required.", "ReaderId", "required"));
         }
 
         if (string.IsNullOrEmpty(command.Note))
         {
-            failures.Add(new ValidationFailure("Note", "required", "A note is required."));
+            failures.Add(new ValidationFailure("A note is required.", "Note", "required"));
         }
 
         if (!string.IsNullOrEmpty(command.Note) && command.Note.Length < 3)
         {
-            failures.Add(new ValidationFailure("Note", "too-short", "The note must be at least 3 characters long."));
+            failures.Add(new ValidationFailure("The note must be at least 3 characters long.", "Note", "too-short"));
         }
 
         if (!string.IsNullOrEmpty(command.Note) && command.Note.Length > 200)
         {
-            failures.Add(new ValidationFailure("Note", "too-long", "The note must be at most 200 characters long."));
+            failures.Add(new ValidationFailure("The note must be at most 200 characters long.", "Note", "too-long"));
         }
 
         if (command.RenewalCode is not null && !Regex.IsMatch(command.RenewalCode, "^R-[0-9]{4}$"))
         {
-            failures.Add(new ValidationFailure("RenewalCode", "invalid-format", "The renewal code must match the required format."));
+            failures.Add(new ValidationFailure("The renewal code must match the required format.", "RenewalCode", "invalid-format"));
         }
 
         if (command.ExtensionDays < 1)
         {
-            failures.Add(new ValidationFailure("ExtensionDays", "too-small", "The extension days must be at least 1."));
+            failures.Add(new ValidationFailure("The extension days must be at least 1.", "ExtensionDays", "too-small"));
         }
 
         if (command.ExtensionDays > 30)
         {
-            failures.Add(new ValidationFailure("ExtensionDays", "too-large", "The extension days must be at most 30."));
+            failures.Add(new ValidationFailure("The extension days must be at most 30.", "ExtensionDays", "too-large"));
         }
 
         if (command.Fine.HasValue && command.Fine.Value >= 50m)
         {
-            failures.Add(new ValidationFailure("Fine", "too-large", "The fine must be less than 50."));
+            failures.Add(new ValidationFailure("The fine must be less than 50.", "Fine", "too-large"));
         }
 
         if (command.Deposit.Amount < 0m)
         {
-            failures.Add(new ValidationFailure("Deposit", "too-small", "The deposit must be at least 0."));
+            failures.Add(new ValidationFailure("The deposit must be at least 0.", "Deposit", "too-small"));
+        }
+
+        if (command.Kind is null)
+        {
+            failures.Add(new ValidationFailure("A kind is required.", "Kind", "required"));
         }
 
         ValidateExtra(command, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

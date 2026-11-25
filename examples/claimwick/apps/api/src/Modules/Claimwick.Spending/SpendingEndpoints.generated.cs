@@ -61,7 +61,7 @@ internal static partial class SpendingEndpoints
             await mediator.SendAsync(
                 new ApproveExpenseCommand(
                     ExpenseId: expenseId,
-                    ApproverId: ActorClaims.ReadActorId(user, "manager"),
+                    ApproverId: ActorClaims.ReadActorId<Guid>(user, "manager"),
                     ApproverIsFinance: ActorClaims.ReadClaimValue<bool>(user, "approverIsFinance"),
                     HandledAt: DateTimeOffset.UtcNow
                 ),
@@ -183,7 +183,7 @@ internal static partial class SpendingEndpoints
                     ManagerId: id,
                     ReceivesReminders: receivesReminders,
                     Reason: reason,
-                    ChangerId: ActorClaims.ReadActorId(user, "manager"),
+                    ChangerId: ActorClaims.ReadActorId<Guid>(user, "manager"),
                     ChangerIsFinance: DeriveChangeReminderPreferenceChangerIsFinance(user),
                     HandledAt: DateTimeOffset.UtcNow
                 ),
@@ -296,7 +296,7 @@ internal static partial class SpendingEndpoints
 
             var result = await mediator.QueryAsync(
                 new ListExpensesQuery(
-                    EmployeeId: ActorClaims.ReadActorId(user, "employee"),
+                    EmployeeId: ActorClaims.ReadActorId<Guid>(user, "employee"),
                     States: states,
                     Cursor: cursor,
                     Limit: effectiveLimit
@@ -340,7 +340,7 @@ internal static partial class SpendingEndpoints
                 new RefuseExpenseCommand(
                     ExpenseId: expenseId,
                     Reason: reason,
-                    ApproverId: ActorClaims.ReadActorId(user, "manager"),
+                    ApproverId: ActorClaims.ReadActorId<Guid>(user, "manager"),
                     HandledAt: DateTimeOffset.UtcNow
                 ),
                 cancellationToken);
@@ -476,7 +476,7 @@ internal static partial class SpendingEndpoints
                     Currency: request.Currency,
                     Category: request.Category,
                     ReceiptId: request.ReceiptId is null ? null : ReceiptId.From(request.ReceiptId.Value),
-                    EmployeeId: ActorClaims.ReadActorId(user, "employee"),
+                    EmployeeId: ActorClaims.ReadActorId<Guid>(user, "employee"),
                     Labels: request.Labels,
                     Splits: splitsRows,
                     Note: request.Note,

@@ -649,7 +649,9 @@ sealed class ConsumerConfig
                     JsonValues.PropString(target, "visibility") ?? "",
                     JsonValues.PropString(target, "claimReader") ?? "",
                     JsonValues.PropString(target, "tenantReader") ?? "",
-                    JsonValues.PropString(target, "claimValueReader") ?? ""));
+                    JsonValues.PropString(target, "claimValueReader") ?? "",
+                    JsonValues.PropString(target, "commandValidatorInterface") ?? "",
+                    JsonValues.PropString(target, "queryValidatorInterface") ?? ""));
             }
         }
 

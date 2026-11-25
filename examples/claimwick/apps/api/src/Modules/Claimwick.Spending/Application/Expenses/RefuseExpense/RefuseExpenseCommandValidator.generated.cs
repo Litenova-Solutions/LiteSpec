@@ -6,39 +6,40 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Commands.Abstractions;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 namespace Claimwick.Spending.Application.Expenses.RefuseExpense;
 
 /// <summary>Validates the refuse-expense command against its record constraints.</summary>
-internal sealed partial class RefuseExpenseCommandValidator : IValidator<RefuseExpenseCommand>
+internal sealed partial class RefuseExpenseCommandValidator : ICommandValidator<RefuseExpenseCommand>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="command">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(RefuseExpenseCommand command, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(RefuseExpenseCommand command, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (command.ExpenseId == default)
         {
-            failures.Add(new ValidationFailure("ExpenseId", "required", "An expense is required."));
+            failures.Add(new ValidationFailure("An expense is required.", "ExpenseId", "required"));
         }
 
         if (string.IsNullOrEmpty(command.Reason))
         {
-            failures.Add(new ValidationFailure("Reason", "required", "A reason is required."));
+            failures.Add(new ValidationFailure("A reason is required.", "Reason", "required"));
         }
 
         if (command.ApproverId == Guid.Empty)
         {
-            failures.Add(new ValidationFailure("ApproverId", "required", "An approver is required."));
+            failures.Add(new ValidationFailure("An approver is required.", "ApproverId", "required"));
         }
 
         ValidateExtra(command, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

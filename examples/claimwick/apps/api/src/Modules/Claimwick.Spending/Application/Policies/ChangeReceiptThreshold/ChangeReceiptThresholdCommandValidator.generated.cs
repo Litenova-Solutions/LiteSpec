@@ -5,34 +5,35 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Commands.Abstractions;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 namespace Claimwick.Spending.Application.Policies.ChangeReceiptThreshold;
 
 /// <summary>Validates the change-receipt-threshold command against its record constraints.</summary>
-internal sealed partial class ChangeReceiptThresholdCommandValidator : IValidator<ChangeReceiptThresholdCommand>
+internal sealed partial class ChangeReceiptThresholdCommandValidator : ICommandValidator<ChangeReceiptThresholdCommand>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="command">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(ChangeReceiptThresholdCommand command, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(ChangeReceiptThresholdCommand command, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (string.IsNullOrEmpty(command.Currency))
         {
-            failures.Add(new ValidationFailure("Currency", "required", "A currency is required."));
+            failures.Add(new ValidationFailure("A currency is required.", "Currency", "required"));
         }
 
         if (!string.IsNullOrEmpty(command.Currency) && command.Currency.Length > 3)
         {
-            failures.Add(new ValidationFailure("Currency", "too-long", "The currency must be at most 3 characters long."));
+            failures.Add(new ValidationFailure("The currency must be at most 3 characters long.", "Currency", "too-long"));
         }
 
         ValidateExtra(command, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

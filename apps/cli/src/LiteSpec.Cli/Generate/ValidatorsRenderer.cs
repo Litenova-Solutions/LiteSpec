@@ -35,6 +35,7 @@ static class ValidatorsRenderer
     /// <param name="UsesGuid">True when a rule compares against Guid.Empty.</param>
     /// <param name="UsesRegex">True when a rule matches a regular expression.</param>
     /// <param name="UsesLinq">True when a rule reads map values through Linq.</param>
+    /// <param name="ValidatorInterface">The validator interface as the target declares it, qualified or simple.</param>
     public sealed record ValidatorData(
         string UseCaseName,
         string Kind,
@@ -44,7 +45,31 @@ static class ValidatorsRenderer
         IReadOnlyList<ValidationRule> Rules,
         bool UsesGuid,
         bool UsesRegex,
-        bool UsesLinq);
+        bool UsesLinq,
+        string ValidatorInterface);
+
+    /// <summary>The validator interface a command implements when the target names none: the LiteBus command validator.</summary>
+    public const string DefaultCommandValidatorInterface = "LiteBus.Commands.Abstractions.ICommandValidator";
+
+    /// <summary>The validator interface a query implements when the target names none: the LiteBus query validator.</summary>
+    public const string DefaultQueryValidatorInterface = "LiteBus.Queries.Abstractions.IQueryValidator";
+
+    /// <summary>The validator interface one use case implements: the target interface for its kind, or the LiteBus default when the target names none.</summary>
+    /// <param name="kind">The use case kind: command or query.</param>
+    /// <param name="commandInterface">The target command validator interface, or empty.</param>
+    /// <param name="queryInterface">The target query validator interface, or empty.</param>
+    /// <returns>The qualified or simple interface name.</returns>
+    public static string ValidatorInterfaceFor(string kind, string commandInterface, string queryInterface)
+    {
+        var named = kind == "query" ? queryInterface : commandInterface;
+
+        if (named.Length > 0)
+        {
+            return named;
+        }
+
+        return kind == "query" ? DefaultQueryValidatorInterface : DefaultCommandValidatorInterface;
+    }
 
     /// <summary>The validator type name: the message type with a Validator suffix.</summary>
     /// <param name="messageType">The simple message type name.</param>
@@ -74,13 +99,13 @@ static class ValidatorsRenderer
         lines.Add($"namespace {data.Namespace};");
         lines.Add("");
         lines.Add($"/// <summary>Validates the {data.UseCaseName} {data.Kind} against its record constraints.</summary>");
-        lines.Add($"internal sealed partial class {type} : IValidator<{data.MessageType}>");
+        lines.Add($"internal sealed partial class {type} : {SimpleName(data.ValidatorInterface)}<{data.MessageType}>");
         lines.Add("{");
         lines.Add("    /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>");
         lines.Add($"    /// <param name=\"{parameter}\">The message to validate.</param>");
         lines.Add("    /// <param name=\"cancellationToken\">The cancellation token.</param>");
         lines.Add("    /// <returns>The validity holding every finding.</returns>");
-        lines.Add($"    public Task<Validity> ValidateAsync({data.MessageType} {parameter}, CancellationToken cancellationToken)");
+        lines.Add($"    public Task<Validity> ValidateAsync({data.MessageType} {parameter}, CancellationToken cancellationToken = default)");
         lines.Add("    {");
         lines.Add("        var failures = new List<ValidationFailure>();");
         lines.Add("");
@@ -89,14 +114,14 @@ static class ValidatorsRenderer
         {
             lines.Add($"        if ({rule.Condition})");
             lines.Add("        {");
-            lines.Add($"            failures.Add(new ValidationFailure(\"{rule.Member}\", \"{rule.Code}\", \"{GenerateNaming.EscapeLiteral(rule.Message)}\"));");
+            lines.Add($"            failures.Add(new ValidationFailure(\"{GenerateNaming.EscapeLiteral(rule.Message)}\", \"{rule.Member}\", \"{rule.Code}\"));");
             lines.Add("        }");
             lines.Add("");
         }
 
         lines.Add($"        ValidateExtra({parameter}, failures);");
         lines.Add("");
-        lines.Add("        return Task.FromResult(new Validity(failures));");
+        lines.Add("        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));");
         lines.Add("    }");
         lines.Add("");
         lines.Add("    /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>");
@@ -136,6 +161,14 @@ static class ValidatorsRenderer
         lines.Add("using System.Threading.Tasks;");
         lines.Add("using LiteBus.Messaging.Abstractions;");
 
+        if (InterfaceNamespace(data.ValidatorInterface) is { Length: > 0 } interfaceNamespace
+            && interfaceNamespace != "LiteBus.Messaging.Abstractions"
+            && interfaceNamespace != data.Namespace
+            && !data.Namespace.StartsWith(interfaceNamespace + ".", StringComparison.Ordinal))
+        {
+            lines.Add($"using {interfaceNamespace};");
+        }
+
         foreach (var usingNamespace in data.Usings
             .Where(candidate => candidate.Length > 0
                 && candidate != data.Namespace
@@ -150,6 +183,22 @@ static class ValidatorsRenderer
 
         return lines;
     }
+
+    /// <summary>The simple interface name: the declared validator interface type after its last dot.</summary>
+    /// <param name="validatorInterface">The validator interface as the target declares it.</param>
+    /// <returns>The simple type name.</returns>
+    private static string SimpleName(string validatorInterface) =>
+        validatorInterface.Contains('.', StringComparison.Ordinal)
+            ? validatorInterface[(validatorInterface.LastIndexOf('.') + 1)..]
+            : validatorInterface;
+
+    /// <summary>The namespace a qualified validator interface lives in, or empty when the target names a simple name.</summary>
+    /// <param name="validatorInterface">The validator interface as the target declares it.</param>
+    /// <returns>The namespace before the last dot, or empty.</returns>
+    private static string InterfaceNamespace(string validatorInterface) =>
+        validatorInterface.Contains('.', StringComparison.Ordinal)
+            ? validatorInterface[..validatorInterface.LastIndexOf('.')]
+            : string.Empty;
 
     /// <summary>Appends the rules one input field states: its presence rule with one rule per constraint the validator owns.</summary>
     /// <param name="rules">The rules, appended in place.</param>

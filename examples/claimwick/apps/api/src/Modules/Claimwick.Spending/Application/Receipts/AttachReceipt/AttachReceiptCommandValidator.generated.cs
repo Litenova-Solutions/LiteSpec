@@ -5,39 +5,40 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Commands.Abstractions;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 namespace Claimwick.Spending.Application.Receipts.AttachReceipt;
 
 /// <summary>Validates the attach-receipt command against its record constraints.</summary>
-internal sealed partial class AttachReceiptCommandValidator : IValidator<AttachReceiptCommand>
+internal sealed partial class AttachReceiptCommandValidator : ICommandValidator<AttachReceiptCommand>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="command">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(AttachReceiptCommand command, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(AttachReceiptCommand command, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (command.ExpenseId == default)
         {
-            failures.Add(new ValidationFailure("ExpenseId", "required", "An expense is required."));
+            failures.Add(new ValidationFailure("An expense is required.", "ExpenseId", "required"));
         }
 
         if (command.ReceiptId == default)
         {
-            failures.Add(new ValidationFailure("ReceiptId", "required", "A receipt is required."));
+            failures.Add(new ValidationFailure("A receipt is required.", "ReceiptId", "required"));
         }
 
         if (command.Scans is null)
         {
-            failures.Add(new ValidationFailure("Scans", "required", "A scans is required."));
+            failures.Add(new ValidationFailure("A scans is required.", "Scans", "required"));
         }
 
         ValidateExtra(command, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

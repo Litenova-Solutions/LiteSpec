@@ -5,38 +5,39 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Queries.Abstractions;
 
 namespace Library.Lending.Application.Loans.SearchLoans;
 
 /// <summary>Validates the search-loans query against its record constraints.</summary>
-internal sealed partial class SearchLoansQueryValidator : IValidator<SearchLoansQuery>
+internal sealed partial class SearchLoansQueryValidator : IQueryValidator<SearchLoansQuery>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="query">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(SearchLoansQuery query, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(SearchLoansQuery query, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (query.Filter is not null && query.Filter.Length > 60)
         {
-            failures.Add(new ValidationFailure("Filter", "too-long", "The filter must be at most 60 characters long."));
+            failures.Add(new ValidationFailure("The filter must be at most 60 characters long.", "Filter", "too-long"));
         }
 
         if (query.Limit.HasValue && query.Limit.Value < 1)
         {
-            failures.Add(new ValidationFailure("Limit", "too-small", "The limit must be at least 1."));
+            failures.Add(new ValidationFailure("The limit must be at least 1.", "Limit", "too-small"));
         }
 
         if (query.Limit.HasValue && query.Limit.Value > 100)
         {
-            failures.Add(new ValidationFailure("Limit", "too-large", "The limit must be at most 100."));
+            failures.Add(new ValidationFailure("The limit must be at most 100.", "Limit", "too-large"));
         }
 
         ValidateExtra(query, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

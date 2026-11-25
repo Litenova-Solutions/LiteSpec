@@ -6,34 +6,35 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LiteBus.Messaging.Abstractions;
+using LiteBus.Commands.Abstractions;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 namespace Claimwick.Spending.Application.ReminderPreferences.ChangeReminderPreference;
 
 /// <summary>Validates the change-reminder-preference command against its record constraints.</summary>
-internal sealed partial class ChangeReminderPreferenceCommandValidator : IValidator<ChangeReminderPreferenceCommand>
+internal sealed partial class ChangeReminderPreferenceCommandValidator : ICommandValidator<ChangeReminderPreferenceCommand>
 {
     /// <summary>Validates the message, merging every constraint finding with the hand-written checks.</summary>
     /// <param name="command">The message to validate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The validity holding every finding.</returns>
-    public Task<Validity> ValidateAsync(ChangeReminderPreferenceCommand command, CancellationToken cancellationToken)
+    public Task<Validity> ValidateAsync(ChangeReminderPreferenceCommand command, CancellationToken cancellationToken = default)
     {
         var failures = new List<ValidationFailure>();
 
         if (command.ManagerId == Guid.Empty)
         {
-            failures.Add(new ValidationFailure("ManagerId", "required", "A manager is required."));
+            failures.Add(new ValidationFailure("A manager is required.", "ManagerId", "required"));
         }
 
         if (command.ChangerId == Guid.Empty)
         {
-            failures.Add(new ValidationFailure("ChangerId", "required", "A changer is required."));
+            failures.Add(new ValidationFailure("A changer is required.", "ChangerId", "required"));
         }
 
         ValidateExtra(command, failures);
 
-        return Task.FromResult(new Validity(failures));
+        return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));
     }
 
     /// <summary>Hand-written checks the records do not state, run after the generated rules.</summary>

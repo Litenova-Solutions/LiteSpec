@@ -614,6 +614,8 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Message and result lists reuse a row type the backend declares by hand; a nested row object may hold one list of scalar rows; a nested row field may name a library type through `rowType`, rendered as is.
 - Generated endpoints bind paging (`cursor` or `offset` with `limit`, `defaultLimit`, 400 past `maxLimit`), name operations in camelCase, take the summary from the title and the description from the purpose, declare 400, 401 and 403, 404 and refusal problem responses from the record, accept `application/merge-patch+json` on PATCH, and bind a single `object` input from the body.
 - A money input whose currency comes from an optional sibling field rides a decimal with the optional code, and the handler joins the currency, as for `currencyHome`.
+- Generated endpoints import each message and result namespace from the `messages` and `results` targets by use case visibility, read identity claims through a generic `claimReader` taking the member type as its type argument, and bind lists reusing an aggregate part when the part's members resolve.
+- Generated validators implement `ICommandValidator<T>` or `IQueryValidator<T>` (target options `commandValidatorInterface` and `queryValidatorInterface`), pass failures message first, answer `Validity.Valid` or `Validity.Invalid(failures)`, and compile in a test against the LiteBus validator contract; reason codes stay field-free with the member carried separately.
 
 ### Part U: Provision Changes Since v6.0.0
 

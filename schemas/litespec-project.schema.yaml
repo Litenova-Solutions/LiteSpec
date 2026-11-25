@@ -283,6 +283,14 @@ properties:
           description: 'The C# message interface a messages target implements on queries, such as LiteBus.Queries.Abstractions.IQuery, with the result type as its argument. Optional; a query implements none when the target names none; unused for every other kind.'
           type: string
           minLength: 1
+        commandValidatorInterface:
+          description: 'The C# validator interface a validators target implements on commands, such as LiteBus.Commands.Abstractions.ICommandValidator. Optional; the LiteBus command validator when the target names none; unused for every other kind.'
+          type: string
+          minLength: 1
+        queryValidatorInterface:
+          description: 'The C# validator interface a validators target implements on queries, such as LiteBus.Queries.Abstractions.IQueryValidator. Optional; the LiteBus query validator when the target names none; unused for every other kind.'
+          type: string
+          minLength: 1
         visibility:
           description: 'The use cases a messages or results target renders: public for the use cases another module reaches, internal for the use cases of the module. Optional; internal when the target names none; unused for every other kind.'
           type: string
