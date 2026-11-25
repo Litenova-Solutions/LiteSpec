@@ -148,11 +148,11 @@ internal static partial class LendingEndpoints
         }
 
         private static async Task<Results<Ok<ListLoansResponseModel>, ProblemHttpResult>> HandleAsync(
-            [FromQuery(Name = "cursor")] string? cursor = null,
-            [FromQuery(Name = "limit")] int? limit = null,
             ClaimsPrincipal user,
             IQueryMediator mediator,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            [FromQuery(Name = "cursor")] string? cursor = null,
+            [FromQuery(Name = "limit")] int? limit = null)
         {
             var effectiveLimit = limit ?? 25;
             if (effectiveLimit < 1 || effectiveLimit > 100)
@@ -176,7 +176,7 @@ internal static partial class LendingEndpoints
     }
 
     /// <summary>Shapes the List loans response.</summary>
-    static partial ListLoansResponseModel ShapeListLoansResponse(ListLoansQueryResult result);
+    private static partial ListLoansResponseModel ShapeListLoansResponse(ListLoansQueryResult result);
 
     /// <summary>The PlaceHold request body.</summary>
     /// <param name="CopyId">The copy the reader places a hold on.</param>

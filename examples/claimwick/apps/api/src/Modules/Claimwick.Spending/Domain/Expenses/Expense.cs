@@ -4,6 +4,7 @@ using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Domain.Expenses.Events;
 using Claimwick.Spending.Domain.Expenses.Exceptions;
 using Claimwick.Spending.Domain.Expenses.Parts;
+using Claimwick.Spending.Domain.Receipts;
 using Claimwick.Spending.Domain.Receipts.Events;
 using Claimwick.Spending.Domain.Receipts.Exceptions;
 
@@ -13,7 +14,7 @@ namespace Claimwick.Spending.Domain.Expenses;
 /// <implements>aggregate/spending.expense</implements>
 internal sealed class Expense : AggregateRoot<ExpenseId>
 {
-    private Expense(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, Guid? receiptId, IReadOnlyList<LineItem> lines)
+    private Expense(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, ReceiptId? receiptId, IReadOnlyList<LineItem> lines)
     {
         Id = id;
         EmployeeId = employeeId;
@@ -34,7 +35,7 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
     public ExpenseCategory Category { get; }
 
     /// <summary>The attached receipt, when one is attached.</summary>
-    public Guid? ReceiptId { get; private set; }
+    public ReceiptId? ReceiptId { get; private set; }
 
     /// <summary>The line items the expense was submitted with.</summary>
     public IReadOnlyList<LineItem> Lines { get; }
@@ -49,7 +50,7 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
         Guid employeeId,
         Money total,
         ExpenseCategory category,
-        Guid? receiptId,
+        ReceiptId? receiptId,
         Money receiptThreshold,
         string? note,
         Guid? importId,
@@ -68,7 +69,7 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
 
     /// <summary>Attaches one receipt to a submitted expense.</summary>
     /// <implements>use-case/spending.attach-receipt</implements>
-    public void AttachReceipt(Guid receiptId)
+    public void AttachReceipt(ReceiptId receiptId)
     {
         if (State is not ExpenseSubmittedState)
         {

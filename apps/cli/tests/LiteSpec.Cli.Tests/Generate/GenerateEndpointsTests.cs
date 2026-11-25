@@ -557,7 +557,7 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("return TypedResults.Created(", text, StringComparison.Ordinal);
         Assert.Contains("$\"/api/expenses/{result.ExpenseId}\"", text, StringComparison.Ordinal);
         Assert.Contains("ShapeSubmitExpenseResponse(result)", text, StringComparison.Ordinal);
-        Assert.Contains("static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result);", text, StringComparison.Ordinal);
+        Assert.Contains("private static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result);", text, StringComparison.Ordinal);
     }
 
     /// <summary>An unlisted choice label answers 400 naming the set before the message runs.</summary>
@@ -638,7 +638,7 @@ public sealed class GenerateEndpointsTests
 
         Assert.Contains("ClaimsPrincipal user", text, StringComparison.Ordinal);
         Assert.Contains("ChangerIsFinance: DeriveChangeReminderPreferenceChangerIsFinance(user)", text, StringComparison.Ordinal);
-        Assert.Contains("static partial bool? DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);", text, StringComparison.Ordinal);
+        Assert.Contains("private static partial bool? DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);", text, StringComparison.Ordinal);
     }
 
     /// <summary>An optional body id maps an absent value to null and a carried one through its factory.</summary>

@@ -194,7 +194,7 @@ internal static partial class SpendingEndpoints
     }
 
     /// <summary>Derives ChangerIsFinance for Change Reminder Preference.</summary>
-    static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);
+    private static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);
 
     /// <summary>Finance erases the personal data of an old expense so nothing personal is kept past its need.</summary>
     /// <implements>use-case/spending.erase-personal-data</implements>
@@ -258,7 +258,7 @@ internal static partial class SpendingEndpoints
     }
 
     /// <summary>Shapes the Export Expenses response.</summary>
-    static partial ExportExpensesResponseModel ShapeExportExpensesResponse(ExportExpensesQueryResult result);
+    private static partial ExportExpensesResponseModel ShapeExportExpensesResponse(ExportExpensesQueryResult result);
 
     /// <summary>An employee sees their own expenses with the latest state of each.</summary>
     /// <implements>use-case/spending.list-expenses</implements>
@@ -279,11 +279,11 @@ internal static partial class SpendingEndpoints
 
         private static async Task<Results<Ok<ListExpensesResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromQuery(Name = "states")] string[]? states,
-            [FromQuery(Name = "cursor")] string? cursor = null,
-            [FromQuery(Name = "limit")] int? limit = null,
             ClaimsPrincipal user,
             IQueryMediator mediator,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            [FromQuery(Name = "cursor")] string? cursor = null,
+            [FromQuery(Name = "limit")] int? limit = null)
         {
             var effectiveLimit = limit ?? 25;
             if (effectiveLimit < 1 || effectiveLimit > 100)
@@ -308,7 +308,7 @@ internal static partial class SpendingEndpoints
     }
 
     /// <summary>Shapes the List Expenses response.</summary>
-    static partial ListExpensesResponseModel ShapeListExpensesResponse(ListExpensesQueryResult result);
+    private static partial ListExpensesResponseModel ShapeListExpensesResponse(ListExpensesQueryResult result);
 
     /// <summary>A manager turns down a submitted expense that falls outside the policy.</summary>
     /// <implements>use-case/spending.refuse-expense</implements>
@@ -492,5 +492,5 @@ internal static partial class SpendingEndpoints
     }
 
     /// <summary>Shapes the Submit Expense response.</summary>
-    static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result);
+    private static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result);
 }

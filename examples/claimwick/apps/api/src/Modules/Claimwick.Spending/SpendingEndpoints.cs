@@ -13,11 +13,11 @@ namespace Claimwick.Spending.WebApi;
 internal static partial class SpendingEndpoints
 {
     /// <summary>Shapes the Submit Expense response.</summary>
-    static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result) =>
+    private static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result) =>
         new(result.ExpenseId.Value);
 
     /// <summary>Shapes the List Expenses response.</summary>
-    static partial ListExpensesResponseModel ShapeListExpensesResponse(ListExpensesQueryResult result) =>
+    private static partial ListExpensesResponseModel ShapeListExpensesResponse(ListExpensesQueryResult result) =>
         new(result.Expenses
             .Select(expense => new ExpenseResponseItemModel(
                 expense.ExpenseId.Value,
@@ -29,7 +29,7 @@ internal static partial class SpendingEndpoints
             .ToList());
 
     /// <summary>Shapes the Export Expenses response.</summary>
-    static partial ExportExpensesResponseModel ShapeExportExpensesResponse(ExportExpensesQueryResult result) =>
+    private static partial ExportExpensesResponseModel ShapeExportExpensesResponse(ExportExpensesQueryResult result) =>
         new(result.Rows
             .Select(row => new ExportedExpenseResponseItemModel(
                 row.ExpenseId.Value,
@@ -41,6 +41,6 @@ internal static partial class SpendingEndpoints
             result.CountByCurrency);
 
     /// <summary>Derives ChangerIsFinance for Change Reminder Preference.</summary>
-    static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user) =>
+    private static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user) =>
         user.IsInRole("finance");
 }

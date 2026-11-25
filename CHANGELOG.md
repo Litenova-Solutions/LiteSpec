@@ -617,6 +617,8 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Generated endpoints import each message and result namespace from the `messages` and `results` targets by use case visibility, read identity claims through a generic `claimReader` taking the member type as its type argument, and bind lists reusing an aggregate part when the part's members resolve.
 - Generated validators implement `ICommandValidator<T>` or `IQueryValidator<T>` (target options `commandValidatorInterface` and `queryValidatorInterface`), pass failures message first, answer `Validity.Valid` or `Validity.Invalid(failures)`, and compile in a test against the LiteBus validator contract; reason codes stay field-free with the member carried separately.
 - `reviewedLiteSpecVersion` accepts a `-dev.<digits>` suffix beside `-rc.<digits>`, so a consumer pinned to a dev-feed build validates against the project schema.
+- Generated endpoints declare their partial shaping and derivation methods `private static partial`, and place optional paging and form parameters after the required ones, so the endpoints file compiles.
+- The test suite compiles the whole Claimwick backend, hand-written and generated files together, against the framework, the ASP.NET Core reference pack, Marten and faithful LiteBus stubs, and Claimwick's missing usings are fixed.
 
 ### Part U: Provision Changes Since v6.0.0
 

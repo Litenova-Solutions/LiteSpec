@@ -14,7 +14,7 @@ internal sealed class ReceiptRepository : IReceiptRepository
         _session = session;
     }
 
-    public async Task<Receipt> GetAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Receipt> GetAsync(ReceiptId id, CancellationToken cancellationToken)
     {
         var receipt = await _session.LoadAsync<Receipt>(id, cancellationToken);
         return receipt ?? throw new InvalidOperationException($"No receipt with id '{id}'.");

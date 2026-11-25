@@ -8,7 +8,7 @@ namespace Claimwick.Reporting.WebApi;
 internal static partial class ReportingEndpoints
 {
     /// <summary>Shapes the List Reimbursed Expenses response.</summary>
-    static partial ListReimbursedExpensesResponseModel ShapeListReimbursedExpensesResponse(ListReimbursedExpensesQueryResult result) =>
+    private static partial ListReimbursedExpensesResponseModel ShapeListReimbursedExpensesResponse(ListReimbursedExpensesQueryResult result) =>
         new(result.Expenses
             .Select(expense => new ReimbursedExpenseResponseItemModel(
                 expense.ExpenseId.Value,

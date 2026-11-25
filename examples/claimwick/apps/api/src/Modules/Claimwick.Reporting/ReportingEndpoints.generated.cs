@@ -37,10 +37,10 @@ internal static partial class ReportingEndpoints
         }
 
         private static async Task<Results<Ok<ListReimbursedExpensesResponseModel>, ProblemHttpResult>> HandleAsync(
-            [FromQuery(Name = "cursor")] string? cursor = null,
-            [FromQuery(Name = "limit")] int? limit = null,
             IQueryMediator mediator,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            [FromQuery(Name = "cursor")] string? cursor = null,
+            [FromQuery(Name = "limit")] int? limit = null)
         {
             var effectiveLimit = limit ?? 25;
             if (effectiveLimit < 1 || effectiveLimit > 100)
@@ -63,5 +63,5 @@ internal static partial class ReportingEndpoints
     }
 
     /// <summary>Shapes the List Reimbursed Expenses response.</summary>
-    static partial ListReimbursedExpensesResponseModel ShapeListReimbursedExpensesResponse(ListReimbursedExpensesQueryResult result);
+    private static partial ListReimbursedExpensesResponseModel ShapeListReimbursedExpensesResponse(ListReimbursedExpensesQueryResult result);
 }

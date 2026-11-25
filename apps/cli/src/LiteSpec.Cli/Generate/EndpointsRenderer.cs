@@ -514,6 +514,7 @@ static class EndpointsRenderer
     private static void HandleLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant, Reader values)
     {
         var parameters = new List<string>();
+        var optional = new List<string>();
         var requested = false;
 
         foreach (var input in endpoint.Inputs)
@@ -536,11 +537,25 @@ static class EndpointsRenderer
 
             if (input is { Binding: "form", Type: "list" })
             {
-                parameters.Add(Nullable(input) ? $"IFormFileCollection? {input.Local} = null" : $"IFormFileCollection {input.Local}");
+                if (Nullable(input))
+                {
+                    optional.Add($"IFormFileCollection? {input.Local} = null");
+                }
+                else
+                {
+                    parameters.Add($"IFormFileCollection {input.Local}");
+                }
             }
             else if (input.Binding == "form")
             {
-                parameters.Add(Nullable(input) ? $"IFormFile? {input.Local} = null" : $"IFormFile {input.Local}");
+                if (Nullable(input))
+                {
+                    optional.Add($"IFormFile? {input.Local} = null");
+                }
+                else
+                {
+                    parameters.Add($"IFormFile {input.Local}");
+                }
             }
         }
 
@@ -548,15 +563,15 @@ static class EndpointsRenderer
         {
             if (paging.Cursor is { Length: > 0 })
             {
-                parameters.Add("[FromQuery(Name = \"cursor\")] string? cursor = null");
+                optional.Add("[FromQuery(Name = \"cursor\")] string? cursor = null");
             }
 
             if (paging.Offset is { Length: > 0 })
             {
-                parameters.Add("[FromQuery(Name = \"offset\")] int? offset = null");
+                optional.Add("[FromQuery(Name = \"offset\")] int? offset = null");
             }
 
-            parameters.Add("[FromQuery(Name = \"limit\")] int? limit = null");
+            optional.Add("[FromQuery(Name = \"limit\")] int? limit = null");
         }
 
         if (UsesUser(endpoint))
@@ -566,6 +581,7 @@ static class EndpointsRenderer
 
         parameters.Add(endpoint.Kind == "query" ? "IQueryMediator mediator" : "ICommandMediator mediator");
         parameters.Add("CancellationToken cancellationToken");
+        parameters.AddRange(optional);
 
         lines.Add($"        private static async Task<{ResultUnionOf(endpoint)}> HandleAsync(");
         lines.Add($"            {string.Join(",\n            ", parameters)})");
@@ -1094,7 +1110,7 @@ static class EndpointsRenderer
         if (endpoint.Projects)
         {
             lines.Add($"    /// <summary>Shapes the {endpoint.Title} response.</summary>");
-            lines.Add($"    static partial {endpoint.ResponseModel} Shape{endpoint.UseCaseName}Response({endpoint.ResultType} result);");
+            lines.Add($"    private static partial {endpoint.ResponseModel} Shape{endpoint.UseCaseName}Response({endpoint.ResultType} result);");
         }
 
         foreach (var input in endpoint.Inputs.Where(input => input.Origin == "derived" && (input.Type != "instant" || input.Many)))
@@ -1105,7 +1121,7 @@ static class EndpointsRenderer
             }
 
             lines.Add($"    /// <summary>Derives {input.Property} for {endpoint.Title}.</summary>");
-            lines.Add($"    static partial {DeriveTypeOf(input)} Derive{endpoint.UseCaseName}{input.Property}(ClaimsPrincipal user);");
+            lines.Add($"    private static partial {DeriveTypeOf(input)} Derive{endpoint.UseCaseName}{input.Property}(ClaimsPrincipal user);");
         }
 
         return lines;
