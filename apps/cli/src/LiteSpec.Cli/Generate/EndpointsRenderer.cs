@@ -692,6 +692,7 @@ static class EndpointsRenderer
         404 => "Status404NotFound",
         409 => "Status409Conflict",
         422 => "Status422UnprocessableEntity",
+        503 => "Status503ServiceUnavailable",
         _ => $"Status{status}",
     };
 

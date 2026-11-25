@@ -94,7 +94,12 @@ idempotency:
   keyScope: account
   replay: returns-first-result
 audit:
-  exemptBecause: Submissions leave their trail in the expense states and events.
+  level: required
+  category: monetary-action
+  target:
+    from: output
+    field: expenseId
+  targetKind: aggregate/spending.expense
 steps:
 - statement: The employee sends the amount, currency, category and receipt.
   cites:

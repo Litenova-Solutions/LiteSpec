@@ -44,7 +44,7 @@ input:
   origin: <caller|claim|derived|verified-claim>
   binding: <route|query|body|claim|header>
   classification: <public|internal|personal|sensitive>
-# A file field carries contentTypes and maxSize, a choice field names its closed set in set, and an id field carries identifies. A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A list field names its row shape in rowShape, and a multi-field list names its row type in rowType. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding.
+# A file field carries contentTypes and maxSize, a choice field names its closed set in set, and an id field carries identifies. A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A list field names its row shape in rowShape, and a multi-field list names its row type in rowType. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding. A route input whose URL name differs states it in routeParameter.
 output:
   include:
     <group>:
@@ -88,7 +88,7 @@ consentRule: rule/<home>.<name, or remove this line>
 audit:
   level: <required|optional|none>
   category: <the audit category, or remove this line when the level is none>
-  target: <the input naming the audited record, or remove this line when the level is none>
+  target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
   targetKind: <what the audit trail records for this query>
 background: <what the caller sees while the query runs on, or remove this line>
 records:

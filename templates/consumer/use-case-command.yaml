@@ -62,7 +62,7 @@ input:
   origin: <caller|claim|derived|verified-claim>
   binding: <route|query|body|claim|header>
   classification: <public|internal|personal|sensitive>
-# A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. A list field names its row shape in rowShape, and a multi-field list names its row type in rowType. A file field carries contentTypes and maxSize instead of identifies. A choice field names its closed set in set: a reference-data table or a choice setting. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding.
+# A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. A list field names its row shape in rowShape, and a multi-field list names its row type in rowType. A file field carries contentTypes and maxSize instead of identifies. A choice field names its closed set in set: a reference-data table or a choice setting. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding. A route input whose URL name differs states it in routeParameter.
 output:
 - name: <field name>
   meaning: <what the field holds>
@@ -127,7 +127,7 @@ consentRule: rule/<home>.<name, or remove this line>
 audit:
   level: <required|optional|none>
   category: <the audit category, or remove this line when the level is none>
-  target: <the input naming the audited record, or remove this line when the level is none>
+  target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
   targetKind: <what the audit trail records for this command>
 background: <what the caller sees while the command runs on, or remove this line>
 records:

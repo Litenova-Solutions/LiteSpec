@@ -361,6 +361,105 @@ public sealed class GenerateEndpointsTests
         Assert.DoesNotContain("<implements>", text, StringComparison.Ordinal);
     }
 
+    /// <summary>A route input renamed for the URL binds under its route parameter name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void RenamedRouteInputMatchesGolden()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/spending.change-reminder-preference",
+                "ChangeReminderPreference",
+                "Change Reminder Preference",
+                null,
+                "command",
+                "PUT",
+                "/api/reminder-preferences/{id}",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "manager", "ManagerId", "id", "id", "id", "route", true,
+                    "The manager the preference belongs to.", null, null, null, "caller")],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "ChangeReminderPreferenceCommand",
+                "Claimwick.Spending.Application.ReminderPreferences.ChangeReminderPreference",
+                "ChangeReminderPreferenceCommandResult",
+                "ChangeReminderPreferenceResponseModel",
+                "Claimwick.Spending.WebApi.ReminderPreferences.ChangeReminderPreference",
+                MarkStyle.Xml)],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            []);
+
+        GenerateGoldens.AssertEqual("endpoints-route-parameter.txt", text);
+    }
+
+    /// <summary>An upstream refusal answers 503 Service Unavailable.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UpstreamRefusalRendersServiceUnavailable()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/spending.reimburse-expense",
+                "ReimburseExpense",
+                "Reimburse Expense",
+                null,
+                "command",
+                "POST",
+                "/api/expenses/{expenseId}:reimburse",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "expense", "ExpenseId", "expenseId", "expenseId", "id", "route", true,
+                    "The approved expense to reimburse.", null, "ExpenseId", null, "caller")],
+                new Dictionary<string, string>(),
+                false,
+                [503],
+                "ReimburseExpenseCommand",
+                "Claimwick.Spending.Application.Expenses.ReimburseExpense",
+                "ReimburseExpenseCommandResult",
+                "ReimburseExpenseResponseModel",
+                "Claimwick.Spending.WebApi.Expenses.ReimburseExpense",
+                MarkStyle.Xml)],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains(".ProducesProblem(StatusCodes.Status503ServiceUnavailable)", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A route parameter name in the record binds the endpoint under that name through the plan.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RouteParameterNameInRecordBindsUnderThatName()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var loan = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "return-copy", "return-copy.yaml");
+        var yaml = File.ReadAllText(loan)
+            .Replace("route: /api/loans/{loanId}:return", "route: /api/loans/{id}:return", StringComparison.Ordinal)
+            .Replace("- name: loanId\n  meaning: The loan whose copy the reader returns.", "- name: loan\n  meaning: The loan whose copy the reader returns.", StringComparison.Ordinal)
+            .Replace("  binding: route\n  classification: internal", "  binding: route\n  routeParameter: id\n  classification: internal", StringComparison.Ordinal);
+        File.WriteAllText(loan, yaml);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains("[FromRoute(Name = \"id\")]", file.Content, StringComparison.Ordinal);
+        Assert.Contains("LoanId: id", file.Content, StringComparison.Ordinal);
+    }
+
     /// <summary>One submit endpoint stating a created location, for the created-response test.</summary>
     /// <returns>The endpoint the plan would read from the submit-expense record.</returns>
     static EndpointsRenderer.EndpointData CreatedEndpoint() =>

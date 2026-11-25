@@ -172,7 +172,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Statement:** A WebApi operation MUST return the status the outcome table assigns to its result.
 
-**Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack reads the status from the use-case result: each written refusal carries the status it answers with on its refusal record, as `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites` states, and each derived generic refusal maps to exactly one fixed status. The operation returns exactly that status.
+**Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack reads the status from the use-case result: each written refusal carries the status it answers with on its refusal record, as `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites` states, and each derived generic refusal maps to exactly one fixed status. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 answers only an unexpected fault. The operation returns exactly that status.
 
 **Example:**
 
@@ -188,6 +188,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Resource unavailable under the disclosure policy | 404 |
 | Generic conflict or unstated rule | 409 |
 | Written refusal | The status its refusal record states |
+| Upstream refusal | 503 |
 | Abuse limit exceeded | 429 with a `Retry-After` header |
 | Accepted background operation | 202 with status location |
 | Unexpected failure | 500 |
@@ -572,11 +573,11 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Statement:** The one global error handler MUST map an unknown record to 404 with a problem detail, a malformed identifier or value to 400, each domain refusal to its declared status, and only an unexpected fault to 500, with the exception type and message in a 500 problem detail only when the host runs in the Development environment.
 
-**Rationale:** A caller-caused failure answered as 500 reads as a broken server: alerts fire, retries repeat a request that was never going to work, and the caller learns nothing. The map keeps each cause on its status: an unknown record answers 404 with a problem detail carrying the stable code, a malformed identifier or value answers 400, and each domain refusal answers the status its record declares. Only an unexpected fault answers 500, so a 500 always means the server failed.
+**Rationale:** A caller-caused failure answered as 500 reads as a broken server: alerts fire, retries repeat a request that was never going to work, and the caller learns nothing. The map keeps each cause on its status: an unknown record answers 404 with a problem detail carrying the stable code, a malformed identifier or value answers 400, and each domain refusal answers the status its record declares, including 503 for an upstream refusing or unreachable. Only an unexpected fault answers 500, so a 500 always means the server failed.
 
-**Example:** In the Claimwick product, reading an expense that does not exist answers 404 with a problem detail carrying the missing-resource code; submitting an expense with a malformed identifier answers 400; reimbursing an expense that is not approved answers 422 under `result/reimburse-expense.not-approved`; and only a fault no refusal covers answers 500.
+**Example:** In the Claimwick product, reading an expense that does not exist answers 404 with a problem detail carrying the missing-resource code; submitting an expense with a malformed identifier answers 400; reimbursing an expense that is not approved answers 422 under `result/reimburse-expense.not-approved`; a payout the bank leaves unreachable answers 503; and only a fault no refusal covers answers 500.
 
-**Reviewed for:** Does every caller-caused failure answer below 500 with its declared status, with only an unexpected fault answering 500? Look at the global handler map beside the refusal records.
+**Reviewed for:** Does every caller-caused failure answer its declared status with only an unexpected fault answering 500? Look at the global handler map beside the refusal records.
 
 ## Conventions
 

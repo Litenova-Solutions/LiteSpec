@@ -41,15 +41,28 @@ sealed class BackendSemantics
     /// <summary>Initializes a new instance of the <see cref="BackendSemantics" /> class.</summary>
     /// <param name="compilation">The compilation built from the read trees.</param>
     /// <param name="evidence">The build output the read was built from.</param>
-    BackendSemantics(CSharpCompilation compilation, IReadOnlyList<string> evidence)
+    /// <param name="frameworkCount">The framework references the compilation was built from.</param>
+    /// <param name="packageCount">The package references the compilation was built from.</param>
+    BackendSemantics(CSharpCompilation compilation, IReadOnlyList<string> evidence, int frameworkCount, int packageCount)
     {
         this.compilation = compilation;
         trees = compilation.SyntaxTrees.ToDictionary(tree => tree.FilePath, StringComparer.Ordinal);
         Evidence = evidence;
+        FrameworkReferenceCount = frameworkCount;
+        PackageReferenceCount = packageCount;
     }
 
     /// <summary>Gets the build output the read was built from: the project assets files and binaries found.</summary>
     public IReadOnlyList<string> Evidence { get; }
+
+    /// <summary>Gets the framework references the compilation was built from.</summary>
+    public int FrameworkReferenceCount { get; }
+
+    /// <summary>Gets the package references the compilation was built from.</summary>
+    public int PackageReferenceCount { get; }
+
+    /// <summary>Gets the reference counts the mode line prints: the framework and package references the compilation was built from.</summary>
+    public string ReferenceSummary => $"{FrameworkReferenceCount} framework references, {PackageReferenceCount} package references";
 
     /// <summary>The semantic model of one tree, or null when the tree is not part of the read.</summary>
     /// <param name="tree">The parsed syntax tree.</param>
@@ -129,16 +142,18 @@ sealed class BackendSemantics
 
         try
         {
-            var references = new List<MetadataReference>();
-            references.AddRange(FrameworkReferences());
-            references.AddRange(ProjectAssets.PackageReferences(config));
+            var frameworkReferences = FrameworkReferences();
+            var packageReferences = ProjectAssets.PackageReferences(config);
+            var references = new List<MetadataReference>(frameworkReferences.Count + packageReferences.Count);
+            references.AddRange(frameworkReferences);
+            references.AddRange(packageReferences);
             var compilation = CSharpCompilation.Create(
                 "LiteSpecBackendRead",
                 trees.Values,
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            return new BackendSemantics(compilation, evidence);
+            return new BackendSemantics(compilation, evidence, frameworkReferences.Count, packageReferences.Count);
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or IOException or UnauthorizedAccessException or BadImageFormatException)
         {
@@ -179,10 +194,18 @@ sealed class BackendSemantics
             return found;
         }
 
-        foreach (var path in list.Split(';'))
+        // The trusted list joins with the platform separator: a semicolon on Windows, a
+        // colon anywhere else. Splitting on a semicolon finds no framework on Unix.
+        // The list names the core library twice, so each file loads once.
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var path in list.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
         {
-            if (Path.GetFileName(path) is not ("System.Private.CoreLib.dll" or "System.Runtime.dll")
-                || !File.Exists(path))
+            var name = Path.GetFileName(path);
+
+            if (name is not ("System.Private.CoreLib.dll" or "System.Runtime.dll")
+                || !File.Exists(path)
+                || !seen.Add(name))
             {
                 continue;
             }

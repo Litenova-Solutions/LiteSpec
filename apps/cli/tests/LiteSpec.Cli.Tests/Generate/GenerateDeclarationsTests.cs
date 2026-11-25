@@ -203,6 +203,66 @@ public sealed class GenerateDeclarationsTests
                 "TagCopyCommand", "command", "Tag", targetIsText: true));
     }
 
+    /// <summary>A composite audit target joins its message properties with a slash in listed order.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CompositeAuditTargetJoinsItsProperties()
+    {
+        Assert.Equal(
+            @".Declare<AuditDeclaration>(AuditDeclaration.Audited(""use-case/lending.borrow-copy"", category: ""personal-data-read"", targetKind: ""aggregate/lending.loan"").WithTargetFrom<BorrowCopyCommand>(command => $""{command.CopyId.ToString()}/{command.ReaderId.ToString()}""))",
+            DeclarationsRenderer.AuditedWithCompositeTargetCall(
+                "use-case/lending.borrow-copy", "personal-data-read", "aggregate/lending.loan",
+                "BorrowCopyCommand", "command", [("CopyId", false), ("ReaderId", false)]));
+
+        Assert.Equal(
+            @".Declare<AuditDeclaration>(AuditDeclaration.Audited(""use-case/lending.tag-copy"").WithTargetFrom<TagCopyCommand>(command => $""{command.Tag}/{command.CopyId.ToString()}""))",
+            DeclarationsRenderer.AuditedWithCompositeTargetCall(
+                "use-case/lending.tag-copy", null, null,
+                "TagCopyCommand", "command", [("Tag", true), ("CopyId", false)]));
+    }
+
+    /// <summary>A composite audit target renders its golden catalog source with the joined selector.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void CompositeAuditTargetMatchesGolden()
+    {
+        var text = DeclarationsRenderer.RenderDotnet(
+            "lending",
+            [
+                new DeclarationsRenderer.DeclaredMessage(
+                    "use-case/lending.borrow-copy", "BorrowCopyCommand", "Library.Lending.Application.Loans.BorrowCopy", "command",
+                    DeclarationsRenderer.AuthorizedCall("permission/borrow-copy"),
+                    DeclarationsRenderer.AuditedWithCompositeTargetCall(
+                        "use-case/lending.borrow-copy", "personal-data-read", "aggregate/lending.loan",
+                        "BorrowCopyCommand", "command", [("CopyId", false), ("ReaderId", false)]),
+                    null),
+            ],
+            "Library.Lending");
+
+        GenerateGoldens.AssertEqual("declarations-audit-composite.txt", text);
+    }
+
+    /// <summary>A target the handler determines renders its golden catalog source without a selector.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void FromOutputAuditTargetMatchesGolden()
+    {
+        var text = DeclarationsRenderer.RenderDotnet(
+            "spending",
+            [
+                new DeclarationsRenderer.DeclaredMessage(
+                    "use-case/spending.submit-expense", "SubmitExpenseCommand", "Claimwick.Spending.Application.Expenses.SubmitExpense", "command",
+                    DeclarationsRenderer.AuthorizedCall("permission/request-expense"),
+                    DeclarationsRenderer.AuditedCall("use-case/spending.submit-expense", "monetary-action", "aggregate/spending.expense"),
+                    null),
+            ],
+            "Claimwick.Spending");
+
+        GenerateGoldens.AssertEqual("declarations-audit-from-output.txt", text);
+    }
+
     /// <summary>A message with one declaration renders on one line, and a catalog without audit imports no auditing namespace.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -220,6 +280,60 @@ public sealed class GenerateDeclarationsTests
         Assert.Contains("internal sealed partial class LendingDeclarations : IMultiMessageDefinition", text, StringComparison.Ordinal);
         Assert.Contains(".Describe<ListLoansQuery>(declarations => declarations.Authorized(\"signed-in\"));", text, StringComparison.Ordinal);
         Assert.DoesNotContain("Auditing", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A composite target in the record renders the joined selector through the plan.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CompositeTargetInRecordRendersJoinedSelector()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+        var borrow = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        File.WriteAllText(borrow, File.ReadAllText(borrow).Replace(
+            "  target: copyId\n  targetKind: aggregate/lending.copy",
+            "  target: [copyId, readerId]\n  targetKind: aggregate/lending.loan",
+            StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains("targetKind: \"aggregate/lending.loan\"", file.Content, StringComparison.Ordinal);
+        Assert.Contains("$\"{command.CopyId.ToString()}/{command.ReaderId.ToString()}\"", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A target read from output renders no selector through the plan, leaving the target to the handler.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void FromOutputTargetInRecordRendersWithoutSelector()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+        var borrow = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        var yaml = File.ReadAllText(borrow).Replace(
+            "  target: copyId\n  targetKind: aggregate/lending.copy",
+            "  target:\n    from: output\n    field: loanId\n  targetKind: aggregate/lending.loan",
+            StringComparison.Ordinal);
+        yaml += "\noutput:\n- name: loanId\n  meaning: The created loan.\n  type: id\n  identifies: aggregate/lending.loan\n";
+        File.WriteAllText(borrow, yaml);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains(".Audited(\"use-case/lending.borrow-copy\", category: \"personal-data-read\", targetKind: \"aggregate/lending.loan\")", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("WithTargetFrom<BorrowCopyCommand>", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A module whose every use case skips writes no file, and generate still lists each skip.</summary>

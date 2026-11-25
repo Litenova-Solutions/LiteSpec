@@ -65,7 +65,12 @@ idempotency:
   keyScope: account
   replay: returns-first-result
 audit:
-  exemptBecause: Attachments leave their trail in the expense and receipt states.
+  level: required
+  category: monetary-action
+  target:
+  - expense
+  - receipt
+  targetKind: aggregate/spending.receipt
 steps:
 - statement: The employee sends the receipt for a submitted expense.
   cites:

@@ -122,7 +122,7 @@ static class ProjectAssets
                     && path.ValueKind == JsonValueKind.String
                     && path.GetString() is { Length: > 0 } folderPath)
                 {
-                    folderPaths.Add(folderPath.Replace('/', Path.DirectorySeparatorChar));
+                    folderPaths.Add(NormalizeSeparators(folderPath));
                 }
             }
 
@@ -150,6 +150,12 @@ static class ProjectAssets
 
         return found;
     }
+
+    /// <summary>One assets-file path with both separators read as folder separators, so a file written on Windows still resolves on Unix.</summary>
+    /// <param name="path">The path as the assets file names it.</param>
+    /// <returns>The path with every separator replaced by the platform separator.</returns>
+    static string NormalizeSeparators(string path) =>
+        path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
     /// <summary>One binary of a package library: a reference asset first, else the first compile or runtime asset.</summary>
     /// <param name="library">The package library entry of the assets target.</param>
@@ -184,7 +190,7 @@ static class ProjectAssets
 
                 if (asset.Name.StartsWith("ref/", StringComparison.OrdinalIgnoreCase))
                 {
-                    return Path.Combine(package.Replace('/', Path.DirectorySeparatorChar), asset.Name.Replace('/', Path.DirectorySeparatorChar));
+                    return Path.Combine(NormalizeSeparators(package), NormalizeSeparators(asset.Name));
                 }
 
                 first ??= asset.Name;
@@ -192,7 +198,7 @@ static class ProjectAssets
 
             if (first is not null)
             {
-                return Path.Combine(package.Replace('/', Path.DirectorySeparatorChar), first.Replace('/', Path.DirectorySeparatorChar));
+                return Path.Combine(NormalizeSeparators(package), NormalizeSeparators(first));
             }
         }
 

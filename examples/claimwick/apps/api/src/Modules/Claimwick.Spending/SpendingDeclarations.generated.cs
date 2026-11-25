@@ -30,7 +30,7 @@ internal sealed partial class SpendingDeclarations : IMultiMessageDefinition
                 .Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets"))
             .Describe<AttachReceiptCommand>(declarations => declarations
                 .Authorized("permission/request-expense")
-                .NotAudited("Attachments leave their trail in the expense and receipt states.")
+                .Declare<AuditDeclaration>(AuditDeclaration.Audited("use-case/spending.attach-receipt", category: "monetary-action", targetKind: "aggregate/spending.receipt").WithTargetFrom<AttachReceiptCommand>(command => $"{command.ExpenseId.ToString()}/{command.ReceiptId.ToString()}"))
                 .Declare(IdempotencyDeclaration.KeyedBy<AttachReceiptCommand>(command => $"{command.ReceiptId}") with { Scope = "account", ReplayResult = true }))
             .Describe<ChangeReceiptThresholdCommand>(declarations => declarations
                 .Authorized("permission/manage-policy")
@@ -63,7 +63,7 @@ internal sealed partial class SpendingDeclarations : IMultiMessageDefinition
                 .Exempt<IdempotencyDeclaration>("recognized by state: the aggregate state already holds the outcome this command sets"))
             .Describe<SubmitExpenseCommand>(declarations => declarations
                 .Authorized("permission/request-expense")
-                .NotAudited("Submissions leave their trail in the expense states and events.")
+                .Audited("use-case/spending.submit-expense", category: "monetary-action", targetKind: "aggregate/spending.expense")
                 .Declare(IdempotencyDeclaration.KeyedBy<SubmitExpenseCommand>(command => $"{command.ExpenseId}") with { Scope = "account", ReplayResult = true }));
     }
 }

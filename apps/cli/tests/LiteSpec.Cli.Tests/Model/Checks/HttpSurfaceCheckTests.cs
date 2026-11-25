@@ -205,6 +205,36 @@ public sealed class HttpSurfaceCheckTests
         Assert.Contains("http-route-param-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>A route parameter matching a stated route parameter name passes the route rule.</summary>
+    /// <proves>litespec/core/use-cases#declare-the-http-surface-of-every-http-reached-use-case</proves>
+    [Fact]
+    public void RouteParamMatchingCustomNamePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/claimwick-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "api"}"""),
+            TestModel.Record("use-case", "use-case/spending.change-reminder-preference", Path.Combine(temp.Path, "change.yaml"),
+                """{"kind": "command", "reachedThrough": ["entry-point/claimwick-app"], "http": {"method": "PUT", "route": "/api/reminder-preferences/{id}"}, "input": [{"name": "manager", "meaning": "The manager the preference belongs to.", "type": "id", "identifies": "actor/manager", "origin": "caller", "binding": "route", "routeParameter": "id", "classification": "personal"}]}"""));
+
+        Assert.DoesNotContain("http-route-param-unknown", TestModel.Codes(model));
+    }
+
+    /// <summary>A route parameter using the input name when the input renames it reports http-route-param-unknown.</summary>
+    /// <proves>litespec/core/use-cases#declare-the-http-surface-of-every-http-reached-use-case</proves>
+    [Fact]
+    public void RouteParamUsingInputNameWhenRenamedReportsUnknown()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/claimwick-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "api"}"""),
+            TestModel.Record("use-case", "use-case/spending.change-reminder-preference", Path.Combine(temp.Path, "change.yaml"),
+                """{"kind": "command", "reachedThrough": ["entry-point/claimwick-app"], "http": {"method": "PUT", "route": "/api/reminder-preferences/{managerId}"}, "input": [{"name": "manager", "meaning": "The manager the preference belongs to.", "type": "id", "identifies": "actor/manager", "origin": "caller", "binding": "route", "routeParameter": "id", "classification": "personal"}]}"""));
+
+        Assert.Contains("http-route-param-unknown", TestModel.Codes(model));
+    }
+
     /// <summary>A refusal with no status cited by an HTTP-reached use case reports refusal-status-missing.</summary>
     /// <proves>litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites</proves>
     [Fact]

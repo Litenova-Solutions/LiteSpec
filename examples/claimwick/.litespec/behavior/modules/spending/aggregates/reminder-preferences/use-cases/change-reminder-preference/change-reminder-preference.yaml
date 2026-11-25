@@ -16,7 +16,7 @@ reachedThrough:
 raises: []
 http:
   method: PUT
-  route: /api/reminder-preferences/{managerId}
+  route: /api/reminder-preferences/{id}
 input:
 - name: manager
   meaning: The manager the preference belongs to.
@@ -25,6 +25,7 @@ input:
   required: true
   origin: caller
   binding: route
+  routeParameter: id
   classification: personal
 - name: receivesReminders
   meaning: Whether the manager gets an approval reminder for a waiting expense.

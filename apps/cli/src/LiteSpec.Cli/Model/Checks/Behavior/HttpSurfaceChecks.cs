@@ -141,7 +141,7 @@ internal static class HttpSurfaceChecks
         }
     }
 
-    /// <summary>Reports a route parameter naming no route input of the use case.</summary>
+    /// <summary>Reports a route parameter naming no route input of the use case, by stated route parameter name or by input name.</summary>
     /// <param name="useCase">The HTTP-reached use case record whose route is judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRoute(Record useCase, List<Finding> findings)
@@ -168,13 +168,13 @@ internal static class HttpSurfaceChecks
 
         var routeInputs = useCase.Objects(RecordFields.Input)
             .Where(input => Str(input, RecordFields.Binding) == "route")
-            .Select(input => (Name: Str(input, RecordFields.Name) ?? "", Type: Str(input, RecordFields.Type) ?? ""))
+            .Select(input => (Name: Str(input, RecordFields.Name) ?? "", Type: Str(input, RecordFields.Type) ?? "", RouteParameter: Str(input, RecordFields.RouteParameter)))
             .Where(input => input.Name.Length > 0)
             .ToList();
 
         foreach (var name in names)
         {
-            if (!routeInputs.Any(input => NamesInput(name, input.Name, input.Type)))
+            if (!routeInputs.Any(input => NamesInput(name, input.Name, input.Type, input.RouteParameter)))
             {
                 findings.Add(new Finding(
                     "http-route-param-unknown",
@@ -184,14 +184,17 @@ internal static class HttpSurfaceChecks
         }
     }
 
-    /// <summary>Whether a route parameter names a route input: the input name, or the input name plus Id for an id, which names its record while the parameter names its identity.</summary>
+    /// <summary>Whether a route parameter names a route input: the stated route parameter name when the input renames it, else the input name, or the input name plus Id for an id, which names its record while the parameter names its identity.</summary>
     /// <param name="parameter">The route parameter name.</param>
     /// <param name="input">The route input name.</param>
     /// <param name="type">The route input value type.</param>
+    /// <param name="routeParameter">The stated route parameter name, or null when the input states none.</param>
     /// <returns>True when the parameter names the input; otherwise false.</returns>
-    internal static bool NamesInput(string parameter, string input, string type) =>
-        string.Equals(parameter, input, StringComparison.Ordinal)
-        || (type == "id" && string.Equals(parameter, input + "Id", StringComparison.Ordinal));
+    internal static bool NamesInput(string parameter, string input, string type, string? routeParameter = null) =>
+        routeParameter is { Length: > 0 }
+            ? string.Equals(parameter, routeParameter, StringComparison.Ordinal)
+            : string.Equals(parameter, input, StringComparison.Ordinal)
+                || (type == "id" && string.Equals(parameter, input + "Id", StringComparison.Ordinal));
 
     /// <summary>Reports a created-location parameter naming no output field of the use case.</summary>
     /// <param name="useCase">The HTTP-reached use case record whose location is judged.</param>

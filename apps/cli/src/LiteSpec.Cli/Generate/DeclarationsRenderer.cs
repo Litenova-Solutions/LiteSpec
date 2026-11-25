@@ -67,6 +67,31 @@ static class DeclarationsRenderer
         return $".Declare<AuditDeclaration>(AuditDeclaration.Audited(\"{GenerateNaming.EscapeLiteral(action)}\"{AuditArguments(category, targetKind)}).WithTargetFrom<{messageType}>({parameter} => {selector}))";
     }
 
+    /// <summary>The audit call for a message the records audit with a composite target read off the message.</summary>
+    /// <param name="action">The use case identifier written to the audit record.</param>
+    /// <param name="category">The audit category, or null when the record states none.</param>
+    /// <param name="targetKind">The kind of the audited record, or null when the record states none.</param>
+    /// <param name="messageType">The simple message type name the selector reads.</param>
+    /// <param name="parameter">The lambda parameter name: command or query.</param>
+    /// <param name="parts">The message properties forming the composite target, in listed order, each with whether it already reads as text.</param>
+    /// <returns>The call text, starting with a dot.</returns>
+    public static string AuditedWithCompositeTargetCall(
+        string action,
+        string? category,
+        string? targetKind,
+        string messageType,
+        string parameter,
+        IReadOnlyList<(string Property, bool IsText)> parts)
+    {
+        var joined = string.Join(
+            "/",
+            parts.Select(part => part.IsText
+                ? $"{{{parameter}.{part.Property}}}"
+                : $"{{{parameter}.{part.Property}.ToString()}}"));
+
+        return $".Declare<AuditDeclaration>(AuditDeclaration.Audited(\"{GenerateNaming.EscapeLiteral(action)}\"{AuditArguments(category, targetKind)}).WithTargetFrom<{messageType}>({parameter} => $\"{joined}\"))";
+    }
+
     /// <summary>The audit call for a message the records exempt from auditing.</summary>
     /// <param name="rationale">The recorded reason the message produces no audit record.</param>
     /// <returns>The call text, starting with a dot.</returns>

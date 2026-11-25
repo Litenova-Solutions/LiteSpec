@@ -273,7 +273,9 @@ static class ModelCommand
                         }
                     }
 
-                    CliHost.Out.WriteLine($"Backend reader: {model.BackendReaderMode}.");
+                    CliHost.Out.WriteLine(model.BackendSemantics is { } semantics
+                        ? $"Backend reader: {model.BackendReaderMode} ({semantics.ReferenceSummary})."
+                        : $"Backend reader: {model.BackendReaderMode}.");
                     CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
 
                     if (incomplete is not null)

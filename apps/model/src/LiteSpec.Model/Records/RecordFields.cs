@@ -1139,4 +1139,7 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `rowType` field: the C# row type a multi-field list renders.</summary>
     public const string RowType = "rowType";
+
+    /// <summary>Gets the name of the `routeParameter` field: the route template parameter carrying the input.</summary>
+    public const string RouteParameter = "routeParameter";
 }

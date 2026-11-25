@@ -1444,8 +1444,15 @@ $defs:
         - bulk-export
         - background-process-change
       target:
-        description: The input naming the audited record; the kind comes from what that input identifies.
-        $ref: '#/$defs/nonEmptyString'
+        description: The audited record as one input, a list of two or more inputs forming a composite target, or the output field carrying it when the handler determines it.
+        anyOf:
+        - $ref: '#/$defs/nonEmptyString'
+        - type: array
+          minItems: 2
+          uniqueItems: true
+          items:
+            $ref: '#/$defs/nonEmptyString'
+        - $ref: '#/$defs/auditTargetFromOutput'
       targetKind:
         $ref: '#/$defs/nonEmptyString'
     allOf:
@@ -1473,6 +1480,18 @@ $defs:
             - category
           - required:
             - target
+  auditTargetFromOutput:
+    description: The output field carrying the audited record when the handler determines the target.
+    type: object
+    additionalProperties: false
+    required:
+    - from
+    - field
+    properties:
+      from:
+        const: output
+      field:
+        $ref: '#/$defs/nonEmptyString'
   auditExempt:
     type: object
     additionalProperties: false
@@ -2375,6 +2394,9 @@ $defs:
         - body
         - claim
         - header
+      routeParameter:
+        description: The route template parameter carrying the input when it differs from the input name.
+        $ref: '#/$defs/nonEmptyString'
       classification:
         $ref: '#/$defs/classification'
       sign:
@@ -2430,6 +2452,16 @@ $defs:
       then:
         required:
         - identifies
+    - if:
+        required:
+        - binding
+        properties:
+          binding:
+            const: route
+      else:
+        not:
+          required:
+          - routeParameter
   densityValue:
     enum:
     - public-light
@@ -2512,7 +2544,7 @@ $defs:
       meaning:
         $ref: '#/$defs/nonEmptyString'
       status:
-        description: The HTTP status the refusal answers with when a use case reached through an api or browser entry point cites it.
+        description: The HTTP status the refusal answers with when a use case reached through an api or browser entry point cites it. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 stays out.
         type: integer
         enum:
         - 400
@@ -2520,6 +2552,7 @@ $defs:
         - 404
         - 409
         - 422
+        - 503
       parameters:
         description: The values the meaning varies by, each named in `meaning` as `{name}`; the generator writes a constructor taking them.
         type: array

@@ -72,6 +72,21 @@ public sealed class SemanticBackendReaderTests
         Assert.Null(BackendSemantics.TryCreate(ConsumerConfig.Load(temp.Path), trees, "syntax"));
     }
 
+    /// <summary>Semantic Loads Framework References.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void SemanticLoadsFrameworkReferences()
+    {
+        using var temp = TestCli.Temp("reader");
+        WriteProject(temp.Path);
+        var trees = new Dictionary<string, SyntaxTree>(StringComparer.Ordinal);
+
+        var semantics = BackendSemantics.TryCreate(ConsumerConfig.Load(temp.Path), trees, "semantic");
+
+        Assert.NotNull(semantics);
+        Assert.Equal(2, semantics.FrameworkReferenceCount);
+    }
+
     /// <summary>Semantic Resolves Using Static Constant.</summary>
     /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
     [Fact]
@@ -147,7 +162,7 @@ public sealed class SemanticBackendReaderTests
 
         var text = TestCli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Contains("Backend reader: semantic.", text.Output, StringComparison.Ordinal);
+        Assert.Contains("Backend reader: semantic (2 framework references, 0 package references).", text.Output, StringComparison.Ordinal);
 
         var semantic = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 

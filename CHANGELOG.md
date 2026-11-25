@@ -584,6 +584,9 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Generator safety: every renderer ships with golden-file tests, each generated header names the LiteSpec version, and a target inside a frontend's client output folder or two targets writing one file is a configuration error.
 - The .NET backend reader builds a Roslyn compilation when the consumer has build output (semantic mode) and reads constants, typed identifiers and calls through symbols; it falls back to syntax-only reading otherwise, and `model check` names the mode that ran. The native tool keeps semantic mode.
 - Each green release-branch build publishes the CLI and analyzers to GitHub Packages as `<version>-dev.<run>`; `litespec-maintain publish-local --from-ci <run>` pins a consumer to one, so its CI restores the build its developers use.
+- `audit.target` also takes a list of inputs forming a composite target with its `kind`, or `from: output` naming the output field that carries a target the handler determines.
+- An input bound from the route may name its route parameter (`routeParameter`) when the URL names it apart from the input.
+- A refusal reporting an upstream system that refuses or is unreachable answers 503; 500 stays out of refusal statuses, since a server fault is never a refusal.
 
 ### Part U: Provision Changes Since v6.0.0
 

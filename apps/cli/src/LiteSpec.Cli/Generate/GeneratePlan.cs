@@ -1709,7 +1709,40 @@ static class GeneratePlan
         var category = RecordEntries.Str(audit, RecordFields.Category);
         var targetKind = RecordEntries.Str(audit, RecordFields.TargetKind);
 
-        if (RecordEntries.Str(audit, RecordFields.Target) is not { Length: > 0 } target)
+        if (!audit.TryGetProperty(RecordFields.Target, out var targetValue)
+            || targetValue.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        {
+            return new DeclarationPosition(DeclarationsRenderer.AuditedCall(record.Id, category, targetKind), null);
+        }
+
+        if (targetValue.ValueKind == JsonValueKind.Array)
+        {
+            var parts = new List<(string Property, bool IsText)>();
+
+            foreach (var entry in targetValue.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { Length: > 0 } name)
+                {
+                    parts.Add(TargetPropertyOf(record, name));
+                }
+            }
+
+            if (parts.Count == 0)
+            {
+                return new DeclarationPosition(DeclarationsRenderer.AuditedCall(record.Id, category, targetKind), null);
+            }
+
+            return new DeclarationPosition(
+                DeclarationsRenderer.AuditedWithCompositeTargetCall(record.Id, category, targetKind, messageType, parameter, parts),
+                null);
+        }
+
+        if (targetValue.ValueKind == JsonValueKind.Object)
+        {
+            return new DeclarationPosition(DeclarationsRenderer.AuditedCall(record.Id, category, targetKind), null);
+        }
+
+        if (targetValue.ValueKind != JsonValueKind.String || targetValue.GetString() is not { Length: > 0 } target)
         {
             return new DeclarationPosition(DeclarationsRenderer.AuditedCall(record.Id, category, targetKind), null);
         }
@@ -2289,7 +2322,7 @@ static class GeneratePlan
                 }
             }
 
-            var wire = WireNameOf(name, type);
+            var wire = WireNameOf(name, type, binding, RecordEntries.Str(input, RecordFields.RouteParameter));
             var sanitized = GenerateNaming.SanitizeConstName(wire);
 
             inputs.Add(new EndpointsRenderer.BoundInput(
@@ -2310,12 +2343,16 @@ static class GeneratePlan
         return inputs;
     }
 
-    /// <summary>The route, query or header name an input travels under: its name, with the identity suffix for an id the name does not already carry.</summary>
+    /// <summary>The route, query or header name an input travels under: the stated route parameter name for a renamed route input, else its name, with the identity suffix for an id the name does not already carry.</summary>
     /// <param name="name">The input name.</param>
     /// <param name="type">The input type, or null when the record states none.</param>
+    /// <param name="binding">Where the input travels, or empty when the record states none.</param>
+    /// <param name="routeParameter">The stated route parameter name, or null when the input states none.</param>
     /// <returns>The wire name.</returns>
-    private static string WireNameOf(string name, string? type) =>
-        type == "id" && !name.EndsWith("Id", StringComparison.Ordinal) ? name + "Id" : name;
+    private static string WireNameOf(string name, string? type, string binding, string? routeParameter) =>
+        binding == "route" && routeParameter is { Length: > 0 }
+            ? routeParameter
+            : type == "id" && !name.EndsWith("Id", StringComparison.Ordinal) ? name + "Id" : name;
 
     /// <summary>The typed identifier an id input binds as: the aggregate or part identifier, or null for a Guid. The event generators read the same rule from their fields.</summary>
     /// <param name="identifies">The identifies reference, or null when the record states none.</param>

@@ -133,7 +133,7 @@ internal static partial class SpendingEndpoints
         /// <inheritdoc />
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPut("/api/reminder-preferences/{managerId}", HandleAsync)
+            endpoints.MapPut("/api/reminder-preferences/{id}", HandleAsync)
                 .WithName("ChangeReminderPreference")
                 .WithSummary("A manager sets whether they get an approval reminder for a waiting expense.")
                 .Produces(StatusCodes.Status204NoContent)
@@ -141,7 +141,7 @@ internal static partial class SpendingEndpoints
         }
 
         private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
-            [FromRoute(Name = "managerId")] Guid managerId,
+            [FromRoute(Name = "id")] Guid id,
             [FromQuery(Name = "receivesReminders")] bool receivesReminders,
             [FromQuery(Name = "reason")] string? reason,
             ClaimsPrincipal user,
@@ -150,7 +150,7 @@ internal static partial class SpendingEndpoints
         {
             await mediator.SendAsync(
                 new ChangeReminderPreferenceCommand(
-                    ManagerId: managerId,
+                    ManagerId: id,
                     ReceivesReminders: receivesReminders,
                     Reason: reason,
                     ChangerId: ActorClaims.ReadActorId(user, "manager"),
