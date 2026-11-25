@@ -19,6 +19,9 @@ namespace LiteSpec.Cli.Model.Configuration;
 /// <param name="SelfPolicy">How a declarations target wraps a policy for a self grant or a self scope, with {policy} for the wrapped policy; empty for the default.</param>
 /// <param name="RecentSignInPolicy">How a declarations target wraps a policy for a recent sign-in, with {policy} for the wrapped policy and {window} for the window; empty for the default.</param>
 /// <param name="RunsAsPolicy">How a declarations target wraps a policy for a use case the system also runs, with {policy} for the wrapped policy; empty for the default.</param>
+/// <param name="CrossPolicy">How a declarations target wraps a policy for a use case reaching across tenants, with {policy} for the grant's policy; empty for the grant's policy unwrapped.</param>
+/// <param name="PublicPolicy">How a declarations target wraps a policy for a use case working beyond tenant boundaries, with {policy} for the grant's policy; empty for the grant's policy unwrapped.</param>
+/// <param name="NonePolicy">How a declarations target wraps a policy for a use case touching no tenant data, with {policy} for the grant's policy; empty for the grant's policy unwrapped.</param>
 /// <param name="CommandInterface">The C# message interface a messages target implements on commands, such as ICommand; empty when the declaration names none.</param>
 /// <param name="QueryInterface">The C# message interface a messages target implements on queries, such as IQuery; empty when the declaration names none.</param>
 /// <param name="Visibility">The use cases a messages or results target renders: public for the use cases another module reaches, anything else for the module's own.</param>
@@ -38,6 +41,9 @@ sealed record GenerateTarget(
     string SelfPolicy = "",
     string RecentSignInPolicy = "",
     string RunsAsPolicy = "",
+    string CrossPolicy = "",
+    string PublicPolicy = "",
+    string NonePolicy = "",
     string CommandInterface = "",
     string QueryInterface = "",
     string Visibility = "",

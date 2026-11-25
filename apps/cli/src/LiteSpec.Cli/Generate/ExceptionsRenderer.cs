@@ -16,7 +16,7 @@ static class ExceptionsRenderer
     /// <param name="Module">The record module name.</param>
     /// <param name="Aggregate">The aggregate record name, for the type prefix; empty when no aggregate record was found.</param>
     /// <param name="Entry">The declared refusal.</param>
-    /// <param name="RuleId">The rule identifier naming the refusal, or null when no rule names it.</param>
+    /// <param name="RuleId">The rule identifier the exception marks: the rule naming the refusal, or the rule the refusing step cites.</param>
     /// <param name="BaseType">The base type as the target declares it, qualified or simple.</param>
     /// <param name="Namespace">The C# namespace of the generated class.</param>
     /// <param name="Marks">The mark style the project declares.</param>
@@ -24,7 +24,7 @@ static class ExceptionsRenderer
         string Module,
         string Aggregate,
         RefusalEntry Entry,
-        string? RuleId,
+        string RuleId,
         string BaseType,
         string Namespace,
         MarkStyle Marks);
@@ -62,12 +62,9 @@ static class ExceptionsRenderer
             lines.Add($"/// <param name=\"{parameter.Name}\">{GenerateNaming.EscapeXml(FlatOf(parameter.Meaning))}</param>");
         }
 
-        if (data.RuleId is { Length: > 0 } rule)
-        {
-            lines.Add(data.Marks == MarkStyle.Attribute
-                ? $"[Implements(\"{GenerateNaming.EscapeLiteral(rule)}\")]"
-                : $"/// <implements>{GenerateNaming.EscapeXml(rule)}</implements>");
-        }
+        lines.Add(data.Marks == MarkStyle.Attribute
+            ? $"[Implements(\"{GenerateNaming.EscapeLiteral(data.RuleId)}\")]"
+            : $"/// <implements>{GenerateNaming.EscapeXml(data.RuleId)}</implements>");
 
         lines.Add($"internal sealed partial class {type} : {BaseSimple(data.BaseType)}");
         lines.Add("{");

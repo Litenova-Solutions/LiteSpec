@@ -247,14 +247,14 @@ static class MessageFieldTypes
         return GenerateNaming.ConstName(name);
     }
 
-    /// <summary>The typed identifier an id field names: the aggregate or part identifier, or a Guid for any other target.</summary>
+    /// <summary>The typed identifier an id field names: the aggregate or part identifier, or a Guid for any other target or with no identifies.</summary>
     /// <param name="entry">The field entry holding the identifies reference.</param>
-    /// <returns>The identifier type, or null when the field names none.</returns>
+    /// <returns>The identifier type, or null when the identifies reference is malformed.</returns>
     private static string? IdentifierOf(JsonElement entry)
     {
         if (RecordEntries.Str(entry, RecordFields.Identifies) is not { Length: > 0 } identifies)
         {
-            return null;
+            return "Guid";
         }
 
         if (!identifies.StartsWith("aggregate/", StringComparison.Ordinal))

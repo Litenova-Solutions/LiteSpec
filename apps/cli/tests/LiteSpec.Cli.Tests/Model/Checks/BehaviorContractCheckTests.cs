@@ -34,10 +34,10 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "record-invalid", "with type 'count' outside"));
     }
 
-    /// <summary>Use Case Id Input Without An Identifies Record Reports.</summary>
+    /// <summary>Use Case Untyped Id Input Without Identifies Passes.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
-    public void UseCaseIdInputWithoutAnOfRecordReports()
+    public void UseCaseUntypedIdInputPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -45,7 +45,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "required": true}]}"""));
 
-        Assert.True(Reports(model, "record-invalid", "of type id with no identifies"));
+        Assert.False(Reports(model, "record-invalid", "of type id with no identifies"));
     }
 
     /// <summary>Use Case Id Input Naming No Record Reports.</summary>

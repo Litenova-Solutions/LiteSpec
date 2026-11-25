@@ -141,6 +141,7 @@ static class Checker
         ReferenceDataChecks.RunValueMeanings,
         ReferenceDataChecks.RunKeyResolves,
         ReferenceDataChecks.RunRolePlayed,
+        ReferenceDataChecks.RunRowStart,
         ReferenceDataChecks.RunCoverage,
         ReferenceDataChecks.RunAmountSign,
         ReferenceDataChecks.RunColumnMapping,

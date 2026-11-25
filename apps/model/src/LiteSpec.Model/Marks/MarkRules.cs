@@ -111,6 +111,20 @@ public static class MarkRules
     }
 
     /// <summary>
+    ///     Whether a mark with the verb counts toward the kind's mark count: a
+    ///     technical class counts <c>implements</c> and <c>follows</c>, every
+    ///     other kind counts every verb but <c>follows</c>. Both hosts call this,
+    ///     so the CLI and the analyzer count the same marks on a partial type.
+    /// </summary>
+    /// <param name="kind">The code kind.</param>
+    /// <param name="verb">The mark verb.</param>
+    /// <returns>True when the verb counts toward the kind's mark count.</returns>
+    public static bool CountsTowardLimit(CodeKind kind, MarkVerb verb) =>
+        kind == CodeKind.Technical
+            ? verb == MarkVerb.Implements || verb == MarkVerb.Follows
+            : verb != MarkVerb.Follows;
+
+    /// <summary>
     ///     Whether a record identifier is of a type the kind's <c>implements</c> or
     ///     <c>proves</c> marks take: the identifier starts with one of the kind's
     ///     record types followed by <c>/</c> and a non-empty name. For a technical

@@ -10,4 +10,6 @@ carries:
   identifies: <identified record id>
 - name: <field name>
   type: <text|integer|decimal|money|boolean|date|instant|duration|email|choice|id|list|file>
+  required: <true|false, or remove this line>
+# A field carrying a nested object names the existing type in type: an aggregate part as aggregate/<module>.<aggregate>#<part>, or the C# type name. A multi-field list may name the existing row type in rowType: an aggregate part or a C# type name.
 ignored: <true|false, or remove this line>

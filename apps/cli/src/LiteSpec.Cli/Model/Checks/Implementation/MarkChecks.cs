@@ -18,9 +18,11 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     kind takes, each backend mark sits in its record's module folder, each command
 ///     handler calls its marked act, each marked act raises its use case's events, each
 ///     use-case folder, event handler and job host with no record is reported once, and
-///     every mapped record is named by a mark. The analyzers own the C# mark style,
-///     count, runtime values and partial types, which one compilation shows; this
-///     check owns what needs the records.
+///     every mapped record is named by a mark. A partial type counts as one element
+///     carrying the marks of every declaration, generated or hand-written, and a
+///     union no kind takes is reported here as LS5003 reports it. The analyzers own
+///     the C# mark style, the count of one declaration, and runtime values, which one
+///     compilation shows; this check owns what needs the records.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 /// <follows>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</follows>
@@ -99,22 +101,40 @@ internal static class MarkChecks
             }
 
             // A C# element's count is LS5003's, from the compilation; only the
-            // frontend kinds no analyzer reads are counted here.
+            // frontend kinds no analyzer reads are counted here, and a merged
+            // partial type whose marks span declarations, which carries the same
+            // union the analyzer counts.
             if (element.Kind is CodeKind.FrontendModule or CodeKind.FrontendRoute or CodeKind.BrowserTest)
             {
-                var counted = element.Marks
-                    .Where(mark => mark.Verb != MarkVerb.Follows)
-                    .Select(mark => mark.RecordId)
-                    .ToList();
-                var count = MarkRules.CheckCount(element.Kind, counted);
-
-                if (count.Violated)
-                {
-                    findings.Add(count.Duplicate is not null
-                        ? new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
-                        : new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
-                }
+                CheckMarkCount(element, findings);
             }
+            else if (element.Marks.Select(mark => mark.File).Distinct(StringComparer.Ordinal).Count() > 1)
+            {
+                CheckMarkCount(element, findings);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports a count the kind does not take: more than one mark for a kind
+    ///     taking exactly one, or one record named twice. The counted marks are the
+    ///     kind's share of the union, exactly as the analyzer counts them.
+    /// </summary>
+    /// <param name="element">The marked code element whose marks are counted.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckMarkCount(MarkedElement element, List<Finding> findings)
+    {
+        var counted = element.Marks
+            .Where(mark => MarkRules.CountsTowardLimit(element.Kind, mark.Verb))
+            .Select(mark => mark.RecordId)
+            .ToList();
+        var count = MarkRules.CheckCount(element.Kind, counted);
+
+        if (count.Violated)
+        {
+            findings.Add(count.Duplicate is not null
+                ? new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
+                : new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
         }
     }
 

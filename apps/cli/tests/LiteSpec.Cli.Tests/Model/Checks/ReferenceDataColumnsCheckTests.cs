@@ -422,6 +422,275 @@ public sealed class ReferenceDataColumnsCheckTests
         Assert.Contains("of the wrong kind for a decimal column", finding.Message);
     }
 
+    /// <summary>A singleton table mapping scalar, list and object-list parameters from its one keyless row passes.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ValidListsAndSingletonPass()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableSingleton(
+                temp.Path,
+                """{"column": "value", "parameter": "dailyCap", "as": "number"}, """
+                + """{"column": "channels", "parameter": "channels", "as": "list", "items": "string"}, """
+                + """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "type": "Claimwick.Travel.PerDiem.FineSlice", "columns": ["""
+                + """{"column": "minDays", "parameter": "minDays", "as": "number"}, """
+                + """{"column": "maxDays", "parameter": "maxDays", "as": "number"}]}, """
+                + """{"column": "source", "parameter": "source", "as": "string"}""",
+                """{"value": 30, "variant": "germany", "channels": ["email"], "bands": [{"minDays": 1, "maxDays": 7}], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        Assert.Empty(Findings(model, "reference-data-column-invalid"));
+    }
+
+    /// <summary>A table stating singleton without row and columns reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingletonWithoutRowReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            Table(temp.Path, """{"title": "Per Diem Rates", "summary": "The daily allowance.", "singleton": true, "rows": [""" + Row(30, "de-full-day-2026", "full-day", "germany") + "]}"));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("states `singleton` without `row` and `columns`", finding.Message);
+    }
+
+    /// <summary>A singleton row stating a key reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingletonRowWithKeyReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableSingleton(
+                temp.Path,
+                """{"column": "value", "parameter": "dailyCap", "as": "number"}""",
+                Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("with key 'de-full-day-2026' while the table is a singleton", finding.Message);
+    }
+
+    /// <summary>A singleton variant holding two rows reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingletonTwoRowsReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableSingleton(
+                temp.Path,
+                """{"column": "value", "parameter": "dailyCap", "as": "number"}""",
+                """{"value": 30, "variant": "germany", "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}, """
+                + """{"value": 28, "variant": "germany", "effectiveFrom": "2027-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("holds 2 rows of variant 'germany'", finding.Message);
+    }
+
+    /// <summary>A list entry without items reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListWithoutItemsReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "channels", "parameter": "channels", "as": "list"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "channels": ["email"], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("without items; name how each item renders", finding.Message);
+    }
+
+    /// <summary>A list entry with items outside the item renderings reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UnknownItemsReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "channels", "parameter": "channels", "as": "list", "items": "furlong"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "channels": ["email"], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("with items 'furlong' outside", finding.Message);
+    }
+
+    /// <summary>A list entry reading a scalar value reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListReadingScalarReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "channels", "parameter": "channels", "as": "list", "items": "string"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "channels": "email", "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("with channels 'email' of the wrong kind for a list column", finding.Message);
+    }
+
+    /// <summary>An item of the wrong kind reports reference-data-column-invalid with its row and item numbers.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ItemOfWrongKindReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "channels", "parameter": "channels", "as": "list", "items": "string"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "channels": ["email", 5], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("holds row 0 item 1 with 5 of the wrong kind for a string item", finding.Message);
+    }
+
+    /// <summary>A mapped item the value map skips reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapItemSkippedReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "branchCodes", "parameter": "branchCodes", "as": "list", "items": "map", "literals": {"central": "CT"}}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "branchCodes": ["harbor"], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("item 0 with 'harbor' the value map of entry 0 skips", finding.Message);
+    }
+
+    /// <summary>An item field no sub-column reads reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UnreadItemFieldReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "type": "Claimwick.Travel.PerDiem.FineSlice", "columns": [{"column": "minDays", "parameter": "minDays", "as": "number"}, {"column": "maxDays", "parameter": "maxDays", "as": "number"}]}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "bands": [{"minDays": 1, "maxDays": 7, "maxx": 2}], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("holds row 0 item 0 with field 'maxx' no sub-column of entry 0 reads", finding.Message);
+    }
+
+    /// <summary>An item field of the wrong kind reports reference-data-column-invalid with its row and item numbers.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ItemFieldOfWrongKindReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "type": "Claimwick.Travel.PerDiem.FineSlice", "columns": [{"column": "minDays", "parameter": "minDays", "as": "number"}]}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "bands": [{"minDays": "soon"}], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("holds row 0 item 0 with minDays 'soon' of the wrong kind for a number column", finding.Message);
+    }
+
+    /// <summary>A sub-column reading a field no item holds reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SubColumnUnknownFieldReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "type": "Claimwick.Travel.PerDiem.FineSlice", "columns": [{"column": "minWeeks", "parameter": "minDays", "as": "number"}]}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "bands": [{"minDays": 1}], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("reading column 'minWeeks', which no item holds", finding.Message);
+    }
+
+    /// <summary>A list entry with object items but no sub-columns reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListObjectWithoutSubColumnsReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "type": "Claimwick.Travel.PerDiem.FineSlice"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "bands": [{"minDays": 1}], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("without sub-columns; list the nested parameters building each 'bands' item", finding.Message);
+    }
+
+    /// <summary>A list entry with object items but no model type reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListObjectWithoutTypeReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "columns": [{"column": "minDays", "parameter": "minDays", "as": "number"}]}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "bands": [{"minDays": 1}], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("without a qualified model type; name the item type with its namespace", finding.Message);
+    }
+
+    /// <summary>A row stating no start date reports record-invalid naming the earliest date the source covers.</summary>
+    /// <proves>litespec/core/domain-model#date-every-reference-data-row</proves>
+    [Fact]
+    public void RowWithoutStartReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            Table(temp.Path, """{"title": "Per Diem Rates", "summary": "The daily allowance.", "rows": [""" + """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "source": "decision/0003-travel-rates"}""" + "]}"));
+
+        var finding = Assert.Single(Findings(model, "record-invalid"));
+        Assert.Contains("holds row 0 with no start date; state in `effectiveFrom` the earliest date the source covers", finding.Message);
+    }
+
     /// <summary>The findings of a model that carry one code.</summary>
     /// <param name="model">The model under test.</param>
     /// <param name="code">The finding code.</param>
@@ -456,6 +725,15 @@ public sealed class ReferenceDataColumnsCheckTests
     static Record TableWith(string root, string columns, string rows) => Table(
         root,
         """{"title": "Per Diem Rates", "summary": "The daily allowance.", "variation": "country", "row": {"type": "Claimwick.Travel.PerDiem.PerDiemRate"}, "columns": [""" + columns + """], "rows": [""" + rows + "]}");
+
+    /// <summary>One singleton reference-data table of the travel area with one row construction and the given columns and rows.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <param name="columns">The column entries as JSON.</param>
+    /// <param name="rows">The row entries as JSON.</param>
+    /// <returns>The reference-data record.</returns>
+    static Record TableSingleton(string root, string columns, string rows) => Table(
+        root,
+        """{"title": "Per Diem Rates", "summary": "The daily allowance.", "variation": "country", "singleton": true, "row": {"type": "Claimwick.Travel.PerDiem.PerDiemRate"}, "columns": [""" + columns + """], "rows": [""" + rows + "]}");
 
     /// <summary>The row construction of the per-diem table: one rate per row with its country, key, role, amount, dates and source.</summary>
     /// <returns>The row and columns fields as JSON.</returns>

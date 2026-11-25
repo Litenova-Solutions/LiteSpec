@@ -1,5 +1,4 @@
 using LiteSpec.Cli.Model.Code;
-using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -244,35 +243,31 @@ static class ElementKindCorrection
     }
 
     /// <summary>
-    ///     Merges the partial parts of one aggregate root into one element: parts
-    ///     count as one root and a mark on any part counts. The merged element
-    ///     keeps the main file's position and carries every part's marks. Parts
-    ///     group by class and module project, so an act's part in its own folder
-    ///     merges with the main file while two roots sharing a simple name in
-    ///     different modules never merge.
+    ///     Merges the partial parts of one type into one element: parts count as one
+    ///     type and a mark on any part counts, generated or hand-written, exactly as
+    ///     the analyzers read every declaration of one symbol. The merged element
+    ///     keeps the main file's position, carries every part's marks, and keeps the
+    ///     first runtime value a part declares. Parts group by kind and
+    ///     namespace-qualified name, so two types sharing a simple name in different
+    ///     namespaces never merge. Member elements and elements with no qualified
+    ///     name keep their own rows.
     /// </summary>
     /// <param name="elements">The marked elements.</param>
-    /// <param name="config">The consumer configuration naming the module projects.</param>
-    /// <returns>The elements with the partial parts of one aggregate root merged.</returns>
-    public static List<MarkedElement> MergeAggregateRootPartials(List<MarkedElement> elements, ConsumerConfig config)
+    /// <returns>The elements with the partial parts of one type merged.</returns>
+    public static List<MarkedElement> MergePartialTypes(List<MarkedElement> elements)
     {
-        if (elements.All(element => element.Kind != CodeKind.AggregateRoot))
-        {
-            return elements;
-        }
-
         var merged = new List<MarkedElement>();
         var parts = new Dictionary<string, List<MarkedElement>>(StringComparer.Ordinal);
 
         foreach (var element in elements)
         {
-            if (element.Kind != CodeKind.AggregateRoot)
+            if (element.Member is not null || element.QualifiedName.Length == 0)
             {
                 merged.Add(element);
                 continue;
             }
 
-            var key = element.Class + "\0" + (SourceRoots.ModuleProjectOf(config, element.File) ?? Path.GetDirectoryName(element.File) ?? "");
+            var key = element.Kind + "\0" + element.QualifiedName;
 
             if (!parts.TryGetValue(key, out var group))
             {
@@ -285,18 +280,29 @@ static class ElementKindCorrection
 
         foreach (var group in parts.Values)
         {
-            var first = group
+            if (group.Count == 1)
+            {
+                merged.Add(group[0]);
+                continue;
+            }
+
+            var ordered = group
                 .OrderBy(part => IsMainFile(part) ? 0 : 1)
+                .ThenBy(part => GeneratedCode.IsGeneratedFileName(part.File) ? 1 : 0)
                 .ThenBy(part => part.File, StringComparer.Ordinal)
                 .ThenBy(part => part.Line)
-                .First();
+                .ToList();
             var marks = group
                 .SelectMany(part => part.Marks)
                 .OrderBy(mark => mark.File, StringComparer.Ordinal)
                 .ThenBy(mark => mark.Line)
                 .ToList();
 
-            merged.Add(first with { Marks = marks });
+            merged.Add(ordered[0] with
+            {
+                Marks = marks,
+                RuntimeValue = ordered.Select(part => part.RuntimeValue).FirstOrDefault(value => value is not null),
+            });
         }
 
         return merged
@@ -307,66 +313,9 @@ static class ElementKindCorrection
             .ToList();
     }
 
-    /// <summary>Whether the element sits in its root's main file: the file named for the class.</summary>
+    /// <summary>Whether the element sits in its type's main file: the file named for the class.</summary>
     /// <param name="element">The marked element.</param>
     /// <returns>True when the element's file is the class's main file; otherwise false.</returns>
     private static bool IsMainFile(MarkedElement element) =>
         string.Equals(Path.GetFileName(element.File), element.Class + ".cs", StringComparison.Ordinal);
-
-    /// <summary>
-    ///     Merges the partial parts of one technical class into one element: parts
-    ///     count as one class and a mark on any part counts. The merged element
-    ///     keeps the earliest part's file and line and carries every part's marks.
-    /// </summary>
-    /// <param name="elements">The marked elements.</param>
-    /// <returns>The elements with the partial parts of one technical class merged.</returns>
-    public static List<MarkedElement> MergeTechnicalPartials(List<MarkedElement> elements)
-    {
-        if (elements.All(element => element.Kind != CodeKind.Technical))
-        {
-            return elements;
-        }
-
-        var merged = new List<MarkedElement>();
-        var parts = new Dictionary<string, List<MarkedElement>>(StringComparer.Ordinal);
-
-        foreach (var element in elements)
-        {
-            if (element.Kind != CodeKind.Technical)
-            {
-                merged.Add(element);
-                continue;
-            }
-
-            if (!parts.TryGetValue(element.Class, out var group))
-            {
-                group = [];
-                parts[element.Class] = group;
-            }
-
-            group.Add(element);
-        }
-
-        foreach (var group in parts.Values)
-        {
-            var first = group
-                .OrderBy(part => part.File, StringComparer.Ordinal)
-                .ThenBy(part => part.Line)
-                .First();
-            var marks = group
-                .SelectMany(part => part.Marks)
-                .OrderBy(mark => mark.File, StringComparer.Ordinal)
-                .ThenBy(mark => mark.Line)
-                .ToList();
-
-            merged.Add(first with { Marks = marks });
-        }
-
-        return merged
-            .OrderBy(element => element.File, StringComparer.Ordinal)
-            .ThenBy(element => element.Line)
-            .ThenBy(element => element.Class, StringComparer.Ordinal)
-            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
-            .ToList();
-    }
 }

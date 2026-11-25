@@ -6,6 +6,7 @@ using Library.Kernel.Domain;
 namespace Library.Lending.Domain.Copies.Exceptions;
 
 /// <summary>The copy is on loan.</summary>
+/// <implements>rule/copy.retired-only-when-returned</implements>
 internal sealed partial class CopyCopyOnLoanException : DomainException
 {
     /// <summary>Creates the rejection.</summary>

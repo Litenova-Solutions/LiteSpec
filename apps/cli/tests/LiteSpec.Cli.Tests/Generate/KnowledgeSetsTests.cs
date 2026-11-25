@@ -67,6 +67,282 @@ public sealed class KnowledgeSetsTests
         }
     }
 
+    /// <summary>Each list and singleton kind renders byte for byte as its golden file: scalar, key and case lists, an object list, and a singleton value.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void GeneratedListAndSingletonKindsMatchGoldens()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteListRecords(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: knowledge-sets
+              stack: dotnet
+              path: apps/api/src/Knowledge/Library.{Area}.{Variant}
+              namespace: Library.{Area}.{Variant}
+            """);
+
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+        var files = GeneratePlan.Build(model).Files
+            .OrderBy(file => file.AbsolutePath, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Equal(ListGoldens.Count, files.Count);
+
+        foreach (var file in files)
+        {
+            Assert.True(
+                ListGoldens.TryGetValue(Path.GetFileName(file.AbsolutePath), out var golden),
+                $"No golden names '{Path.GetFileName(file.AbsolutePath)}'.");
+            GenerateGoldens.AssertEqual(golden, file.Content);
+        }
+    }
+
+    /// <summary>A singleton renders one value from its row, through the constructor without a factory and through the factory when the table names one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingletonRendersValue()
+    {
+        using var document = JsonDocument.Parse("""
+            {"value": 21, "variant": "central", "maxHolds": 5, "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            """);
+        var row = document.RootElement;
+        var mappings = new List<KnowledgeSetsRenderer.ColumnMapping>
+        {
+            new("value", "defaultLoanDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+            new("maxHolds", "maxHolds", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+        };
+
+        var built = KnowledgeSetsRenderer.RenderSingletonDotnet(
+            "lending", "central", "lending-facts", "reference-data/lending.lending-facts",
+            "Library.Lending.LendingFacts", null, mappings, row, "Library.Lending.Central");
+        var factored = KnowledgeSetsRenderer.RenderSingletonDotnet(
+            "lending", "central", "lending-facts", "reference-data/lending.lending-facts",
+            "Library.Lending.LendingFacts", "Create", mappings, row, "Library.Lending.Central");
+
+        Assert.Contains("public static partial class CentralLendingFacts", built);
+        Assert.Contains("public static LendingFacts Value { get; } = new LendingFacts(", built);
+        Assert.DoesNotContain("LendingFacts.Create(", built);
+        Assert.Contains("defaultLoanDays: 21,", built);
+        Assert.Contains("maxHolds: 5\n    );", built);
+        Assert.Contains("public static LendingFacts Value { get; } = LendingFacts.Create(", factored);
+    }
+
+    /// <summary>A list renders its items in written order, an empty list renders empty, and a missing or non-list value renders null or a literal.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListRendersItemsEmptyAndNull()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"channels": ["email", "sms"], "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"},
+            {"channels": [], "key": "b-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"},
+            {"key": "c-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"},
+            {"channels": "email", "key": "d-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "notice-rules",
+            "reference-data/lending.notice-rules",
+            "Library.Lending.HoldNotice",
+            null,
+            [
+                new("channels", "channels", "list", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), [], "string"),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("channels: [\"email\", \"sms\"]", text);
+        Assert.Contains("channels: []", text);
+        Assert.Contains("channels: null", text);
+        Assert.Contains("channels: \"email\"", text);
+    }
+
+    /// <summary>Key and case items render through the model factory and as new cases, each in written order.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListOfKeysAndCasesRenderThroughModels()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"branchKeys": ["central", "harbor"], "noticeKinds": ["ready"], "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "notice-rules",
+            "reference-data/lending.notice-rules",
+            "Library.Lending.HoldNotice",
+            null,
+            [
+                new("branchKeys", "branchKeys", "list", "Library.Lending.BranchKey", "Parse", null, new Dictionary<string, string>(StringComparer.Ordinal), [], "key"),
+                new("noticeKinds", "noticeKinds", "list", "Library.Lending.NoticeKind", "From", null, new Dictionary<string, string>(StringComparer.Ordinal), [], "case"),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("branchKeys: [BranchKey.Parse(\"central\"), BranchKey.Parse(\"harbor\")],", text);
+        Assert.Contains("noticeKinds: [new NoticeKind.Ready()]", text);
+        Assert.Contains("using Library.Lending;", text);
+    }
+
+    /// <summary>Object items render one construction each; an item stating nothing renders null, and a partial item renders null for its missing fields.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectItemsRenderNullWhenStatingNothing()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"bands": [{}, {"minDays": 8}], "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "fine-bands",
+            "reference-data/lending.fine-bands",
+            "Library.Lending.FineBand",
+            null,
+            [
+                new(
+                    "bands",
+                    "bands",
+                    "list",
+                    "Library.Lending.FineSlice",
+                    "From",
+                    null,
+                    new Dictionary<string, string>(StringComparer.Ordinal),
+                    [
+                        new("minDays", "minDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+                        new("maxDays", "maxDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+                    ],
+                    "object"),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("bands: [", text);
+        Assert.Contains("null,", text);
+        Assert.Contains("minDays: 8,", text);
+        Assert.Contains("maxDays: null", text);
+    }
+
+    /// <summary>An item of the wrong kind renders as a literal: a scalar where an object item belongs.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectItemOfWrongKindRendersLiteral()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"bands": ["flat"], "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "fine-bands",
+            "reference-data/lending.fine-bands",
+            "Library.Lending.FineBand",
+            null,
+            [
+                new(
+                    "bands",
+                    "bands",
+                    "list",
+                    "Library.Lending.FineSlice",
+                    "From",
+                    null,
+                    new Dictionary<string, string>(StringComparer.Ordinal),
+                    [new("minDays", "minDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), [])],
+                    "object"),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("\"flat\"", text);
+        Assert.DoesNotContain("new FineSlice(", text);
+    }
+
+    /// <summary>Mapped items render their literals, and an item the map skips renders as written.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapItemsRenderMappedLiterals()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"branchCodes": ["central", "harbor"], "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "notice-rules",
+            "reference-data/lending.notice-rules",
+            "Library.Lending.HoldNotice",
+            null,
+            [
+                new("branchCodes", "branchCodes", "list", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal) { ["central"] = "CT" }, [], "map"),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("branchCodes: [\"CT\", \"harbor\"]", text);
+    }
+
+    /// <summary>A list nested in an object reads its row field: the reminder list inside the renewal window.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListInsideObjectReadsRowField()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"windowDays": 3, "reminders": ["email"], "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "renewal-rules",
+            "reference-data/lending.renewal-rules",
+            "Library.Lending.RenewalRule",
+            null,
+            [
+                new(
+                    "",
+                    "window",
+                    "object",
+                    "Library.Lending.RenewalWindow",
+                    "From",
+                    null,
+                    new Dictionary<string, string>(StringComparer.Ordinal),
+                    [
+                        new("windowDays", "days", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+                        new("reminders", "reminders", "list", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), [], "string"),
+                    ]),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("window: new RenewalWindow(", text);
+        Assert.Contains("reminders: [\"email\"]", text);
+    }
+
     /// <summary>Rows build through the constructor when the table names no factory, and through the factory when it names one.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -399,6 +675,14 @@ public sealed class KnowledgeSetsTests
         ["CentralRenewalRules.generated.cs"] = "knowledge-sets-dotnet-central-renewal-rules.txt",
     };
 
+    /// <summary>The golden file by generated file name, one per list and singleton kind.</summary>
+    static readonly IReadOnlyDictionary<string, string> ListGoldens = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["CentralNoticeRules.generated.cs"] = "knowledge-sets-dotnet-central-notice-rules.txt",
+        ["CentralFineBands.generated.cs"] = "knowledge-sets-dotnet-central-fine-bands.txt",
+        ["CentralLendingFacts.generated.cs"] = "knowledge-sets-dotnet-central-lending-facts.txt",
+    };
+
     /// <summary>Writes a knowledge area with one loan limit table into the fixture consumer.</summary>
     /// <param name="root">The prepared fixture folder.</param>
     static void WriteKnowledgeRecords(string root)
@@ -604,6 +888,160 @@ public sealed class KnowledgeSetsTests
             - value: 1
               key: central-closed-2026
               variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+    }
+
+    /// <summary>Writes a knowledge area with one table per list and singleton kind into the fixture consumer.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteListRecords(string root)
+    {
+        var area = Path.Combine(root, ".litespec", "behavior", "knowledge", "lending");
+        Directory.CreateDirectory(area);
+        File.WriteAllText(
+            Path.Combine(area, "knowledge-area.yaml"),
+            """
+            type: knowledge-area
+            id: knowledge-area/lending
+            title: Lending
+            meaning: The loan rules the library looks up by branch.
+            variants:
+            - central
+            """);
+        WriteTable(
+            area,
+            "notice-rules",
+            """
+            type: reference-data
+            id: reference-data/lending.notice-rules
+            title: Notice Rules
+            summary: When each hold notice goes out.
+            row:
+              type: Library.Lending.HoldNotice
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.HoldNoticeKey
+            - column: channels
+              parameter: channels
+              as: list
+              items: string
+            - column: branchKeys
+              parameter: branchKeys
+              as: list
+              items: key
+              type: Library.Lending.BranchKey
+              factory: Parse
+            - column: noticeKinds
+              parameter: noticeKinds
+              as: list
+              items: case
+              type: Library.Lending.NoticeKind
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 1
+              key: central-ready-2026
+              variant: central
+              channels: [email, sms]
+              branchKeys: [central, harbor]
+              noticeKinds: [ready, lapsed]
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            - value: 1
+              key: central-collected-2026
+              variant: central
+              channels: []
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+        WriteTable(
+            area,
+            "fine-bands",
+            """
+            type: reference-data
+            id: reference-data/lending.fine-bands
+            title: Fine Bands
+            summary: The daily fine per overdue band.
+            row:
+              type: Library.Lending.FineBand
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.FineBandKey
+            - column: bands
+              parameter: bands
+              as: list
+              items: object
+              type: Library.Lending.FineSlice
+              columns:
+              - column: minDays
+                parameter: minDays
+                as: number
+              - column: maxDays
+                parameter: maxDays
+                as: number
+              - column: dailyRate
+                parameter: dailyRate
+                as: decimal
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 1
+              key: central-standard-2026
+              variant: central
+              bands:
+              - minDays: 1
+                maxDays: 7
+                dailyRate: 0.50
+              - minDays: 8
+                dailyRate: 1.00
+              - {}
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            - value: 1
+              key: central-short-2026
+              variant: central
+              bands: []
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+        WriteTable(
+            area,
+            "lending-facts",
+            """
+            type: reference-data
+            id: reference-data/lending.lending-facts
+            title: Lending Facts
+            summary: The facts every lending lookup shares.
+            singleton: true
+            row:
+              type: Library.Lending.LendingFacts
+            columns:
+            - column: value
+              parameter: defaultLoanDays
+              as: number
+            - column: maxHolds
+              parameter: maxHolds
+              as: number
+            - column: homeBranch
+              parameter: homeBranch
+              as: string
+            - column: openWeekdays
+              parameter: openWeekdays
+              as: list
+              items: string
+            rows:
+            - value: 21
+              variant: central
+              maxHolds: 5
+              homeBranch: central
+              openWeekdays: [monday, tuesday, wednesday, thursday, friday]
               effectiveFrom: 2026-01-01
               source: decision/0001-loan-period
             """);

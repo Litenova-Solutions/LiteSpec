@@ -815,21 +815,14 @@ $defs:
     description: The C# row type a multi-field list renders, as a PascalCase type name.
     type: string
     pattern: '^[A-Z][A-Za-z0-9]*$'
+  contractExistingType:
+    description: 'An existing type a carried event field reuses instead of a generated one: an aggregate part as aggregate/<module>.<aggregate>#<part>, or the C# type name.'
+    anyOf:
+    - $ref: '#/$defs/aggregatePartRef'
+    - $ref: '#/$defs/contractRowType'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so an id names a record in identifies, a list names its row shape in rowShape, a choice names its closed set in set, a money field names its currency source, a decimal states its scale and a file names its media types and size.
+    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape, a choice names its closed set in set, a money field names its currency source, a decimal states its scale and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it.
     allOf:
-    - if:
-        required:
-        - type
-        properties:
-          type:
-            const: id
-      then:
-        required:
-        - identifies
-        properties:
-          identifies:
-            $ref: '#/$defs/identifiesId'
     - if:
         required:
         - type
@@ -1931,13 +1924,23 @@ $defs:
       name:
         $ref: '#/$defs/nonEmptyString'
       type:
-        $ref: '#/$defs/contractValueType'
+        description: 'The carried value shape: one of the contract value types, or the existing type of an object field as an aggregate part or a C# type name.'
+        anyOf:
+        - $ref: '#/$defs/contractValueType'
+        - $ref: '#/$defs/contractExistingType'
       identifies:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       rowShape:
         $ref: '#/$defs/contractListShape'
+      rowType:
+        $ref: '#/$defs/contractExistingType'
+        x-reads-as: takes rows from
+        x-read-back-as: gives rows to
+      required:
+        description: False when the event may arrive without the field; a missing flag reads as required.
+        type: boolean
       set:
         $ref: '#/$defs/contractClosedSet'
         x-reads-as: takes values from
@@ -1969,6 +1972,21 @@ $defs:
         $ref: '#/$defs/contractMaxSize'
     allOf:
     - $ref: '#/$defs/contractValueRules'
+    - if:
+        required:
+        - type
+        - rowShape
+        properties:
+          type:
+            const: list
+          rowShape:
+            properties:
+              fields:
+                minItems: 2
+      else:
+        not:
+          required:
+          - rowType
   externalOperation:
     type: object
     additionalProperties: false
@@ -4872,11 +4890,7 @@ $defs:
   referenceDataRow:
     type: object
     additionalProperties:
-      description: An extra scalar field a generated table's columns read. Tables without row construction state no extra field.
-      anyOf:
-      - $ref: '#/$defs/nonEmptyString'
-      - type: number
-      - type: boolean
+      $ref: '#/$defs/referenceDataExtraField'
     required:
     - value
     - effectiveFrom
@@ -4915,6 +4929,24 @@ $defs:
         - $ref: '#/$defs/decisionId'
         x-reads-as: rests on
         x-read-back-as: is the source for
+  referenceDataExtraField:
+    description: 'An extra field value of a generated table row: a scalar a leaf column reads, or a list a list column reads. Tables without row construction state no extra field.'
+    anyOf:
+    - $ref: '#/$defs/nonEmptyString'
+    - type: number
+    - type: boolean
+    - type: array
+      items:
+        anyOf:
+        - $ref: '#/$defs/nonEmptyString'
+        - type: number
+        - type: boolean
+        - $ref: '#/$defs/referenceDataItemMap'
+  referenceDataItemMap:
+    description: 'One item map of an object list: the fields one item builds from, each read by a sub-column of the list entry.'
+    type: object
+    additionalProperties:
+      $ref: '#/$defs/referenceDataExtraField'
   referenceDataClosedRow:
     description: 'One row of a table without row construction: the fixed row fields with no extra field.'
     allOf:
@@ -4944,7 +4976,7 @@ $defs:
         type: string
         pattern: '^[A-Z][A-Za-z0-9]*$'
   referenceDataColumn:
-    description: 'One column-to-parameter mapping of a reference-data table: the row field one row parameter reads and how its value renders, or the sub-columns building one nested object.'
+    description: 'One column-to-parameter mapping of a reference-data table: the row field one row parameter reads and how its value renders, the sub-columns building one nested object, or the items building one list.'
     type: object
     additionalProperties: false
     required:
@@ -4952,7 +4984,7 @@ $defs:
     - as
     properties:
       column:
-        description: 'The row field the parameter reads: a fixed row field or an extra field the rows state. An object entry states none.'
+        description: 'The row field the parameter reads: a fixed row field or an extra field the rows state. An object entry states none; a sub-column of object items reads an item field.'
         type: string
         pattern: '^[a-z][A-Za-z0-9]*$'
       parameter:
@@ -4960,7 +4992,22 @@ $defs:
         type: string
         pattern: '^[a-z][A-Za-z0-9]*$'
       as:
-        description: 'How the column value renders: a literal of its kind, a date construction, a money construction, a decimal, a typed key through the model factory, a member of the model closed set, a case of the model nested closed set, a nested object from its sub-columns, or a mapped literal.'
+        description: 'How the column value renders: a literal of its kind, a date construction, a money construction, a decimal, a typed key through the model factory, a member of the model closed set, a case of the model nested closed set, a nested object from its sub-columns, a mapped literal, or a list of items.'
+        enum:
+        - string
+        - number
+        - boolean
+        - date
+        - money
+        - decimal
+        - key
+        - member
+        - case
+        - object
+        - map
+        - list
+      items:
+        description: 'How each item of a list column renders: any rendering but a list. An object item builds from the entry sub-columns. Only a list entry states it.'
         enum:
         - string
         - number
@@ -4974,10 +5021,10 @@ $defs:
         - object
         - map
       type:
-        description: The qualified model type of a money, key, member, case or object column.
+        description: The qualified model type of a money, key, member, case or object column, or of the items of a list column.
         $ref: '#/$defs/qualifiedTypeName'
       factory:
-        description: The static factory method building a typed key. Defaults to From.
+        description: The static factory method building a typed key or the key items of a list. Defaults to From.
         enum:
         - Parse
         - From
@@ -4985,18 +5032,18 @@ $defs:
         - Of
         - Create
       currency:
-        description: The three-letter currency code of a money column.
+        description: The three-letter currency code of a money column or of the money items of a list.
         type: string
         pattern: '^[A-Z]{3}$'
       literals:
-        description: The literal each row value maps to, for a map column.
+        description: The literal each row value or each list item maps to, for a map column.
         type: object
         minProperties: 1
         additionalProperties:
           type: string
           minLength: 1
       columns:
-        description: The sub-columns building a nested object, one entry per nested parameter. Only an object entry states it.
+        description: The sub-columns building a nested object, one entry per nested parameter. Only an object entry or a list entry with object items states it.
         type: array
         minItems: 1
         items:
@@ -5048,6 +5095,9 @@ $defs:
         description: The dimension the table varies by, such as country; each row names its variant in `variant`.
         type: string
         pattern: '^[a-z0-9][a-z0-9-]*$'
+      singleton:
+        description: 'True when the table holds one value instead of a row list: one dated row with no key per variant, rendered as Value. Only knowledge tables state it, together with `row` and `columns`.'
+        type: boolean
       pack:
         description: 'The path of an external pack file, relative to the consumer root, whose values this table copies. The file must exist.'
         $ref: '#/$defs/nonEmptyString'

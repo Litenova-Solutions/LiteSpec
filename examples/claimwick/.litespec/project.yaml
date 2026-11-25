@@ -68,6 +68,7 @@ generate:
   markerType: Claimwick.Kernel.Domain.IDomainEvent
   usings:
   - Claimwick.Spending.Contracts.Expenses
+  - Claimwick.Spending.Domain.Expenses.Parts
   - Claimwick.Spending.Domain.Receipts
 - kind: module-events
   stack: dotnet

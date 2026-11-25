@@ -71,7 +71,8 @@ static class ElementReader
 
                 model.Elements.Add(new MarkedElement(
                     kind, element.Name, null, file, element.Line, marks, false,
-                    RuntimeValueOf(declared, kind, constants, tree, semantics)));
+                    RuntimeValueOf(declared, kind, constants, tree, semantics),
+                    DotnetNames.QualifiedNameOf(declared)));
 
                 switch (kind)
                 {

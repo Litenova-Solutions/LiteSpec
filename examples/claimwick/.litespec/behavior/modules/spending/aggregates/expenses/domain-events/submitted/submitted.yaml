@@ -15,3 +15,23 @@ carries:
 - name: employeeId
   type: id
   identifies: actor/employee
+- name: note
+  type: text
+  maxLength: 280
+  required: false
+- name: importId
+  type: id
+- name: lines
+  type: list
+  rowShape:
+    fields:
+    - name: category
+      meaning: The kind of cost the line carries.
+      type: text
+      required: true
+    - name: amount
+      meaning: The line amount.
+      type: money
+      currencyHome: aggregate/spending.expense
+      required: true
+  rowType: aggregate/spending.expense#line-item

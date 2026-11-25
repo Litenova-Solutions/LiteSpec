@@ -23,7 +23,7 @@ internal static class ContractChecks
     /// <summary>The input names that carry a claim a provider verifies, never a caller.</summary>
     private static readonly string[] ClaimNames = ["subject", "tenant", "verified"];
 
-    /// <summary>Reports a use-case input or an integration-event payload field outside its typed shape, a contract field whose exact type facts name nothing, a claim-shaped input a caller supplies, and a module-event field or integration-event payload field its translated domain event does not carry.</summary>
+    /// <summary>Reports a use-case input or an integration-event payload field outside its typed shape, a contract field whose exact type facts name nothing, a claim-shaped input a caller supplies, a module-event field or integration-event payload field its translated domain event does not carry, and a carried field whose type or rowType names an aggregate part no aggregate declares.</summary>
     /// <param name="model">The loaded project model that holds every use case, module event and integration event record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTypedInputs(ProjectModel model, List<Finding> findings)
@@ -43,6 +43,7 @@ internal static class ContractChecks
         foreach (var domainEvent in model.Records.Where(record => record.Type == RecordTypes.DomainEvent))
         {
             CheckFieldArray(model, domainEvent, RecordFields.Carries, "Domain event", "carries", findings);
+            CheckCarryTypeRefs(model, domainEvent, findings);
         }
 
         foreach (var system in model.Records.Where(record => record.Type == RecordTypes.ExternalSystem))
@@ -599,6 +600,72 @@ internal static class ContractChecks
         CheckFieldEntries(model, record, label, noun, noun + " field", fields, findings);
     }
 
+    /// <summary>Reports a carried field whose type or rowType names an aggregate part no aggregate declares.</summary>
+    /// <param name="model">The loaded project model that resolves each named aggregate part.</param>
+    /// <param name="domainEvent">The domain event record whose carries are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckCarryTypeRefs(ProjectModel model, Record domainEvent, List<Finding> findings)
+    {
+        if (domainEvent.Raw.ValueKind != JsonValueKind.Object
+            || !domainEvent.Raw.TryGetProperty(RecordFields.Carries, out var fields)
+            || fields.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var entry in fields.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var name = Str(entry, RecordFields.Name) ?? "(no name)";
+
+            if (Str(entry, RecordFields.Type) is { Length: > 0 } type)
+            {
+                CheckPartTypeRef(model, domainEvent, name, "type", type, findings);
+            }
+
+            if (Str(entry, RecordFields.RowType) is { Length: > 0 } rowType)
+            {
+                CheckPartTypeRef(model, domainEvent, name, RecordFields.RowType, rowType, findings);
+            }
+        }
+    }
+
+    /// <summary>Reports an existing type reference naming a part of no record, of no aggregate, or of a part the aggregate does not declare. A value object part needs no identity, so any declared part resolves.</summary>
+    /// <param name="model">The loaded project model that resolves the named aggregate.</param>
+    /// <param name="domainEvent">The domain event record holding the carries field.</param>
+    /// <param name="name">The carries field name quoted in each finding.</param>
+    /// <param name="holder">The field holding the reference: type or rowType.</param>
+    /// <param name="target">The reference value under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckPartTypeRef(ProjectModel model, Record domainEvent, string name, string holder, string target, List<Finding> findings)
+    {
+        if (!TrySplitPart(target, out var baseId, out var part))
+        {
+            return;
+        }
+
+        if (!model.ById.TryGetValue(baseId, out var aggregate))
+        {
+            findings.Add(new Finding("reference-unknown", $"Domain event '{domainEvent.Id}' holds carries field '{name}' with {holder} '{target}', which names a part of '{baseId}', which no record holds.", domainEvent.File, domainEvent.Line, SubjectOf(domainEvent)));
+            return;
+        }
+
+        if (aggregate.Type != RecordTypes.Aggregate)
+        {
+            findings.Add(new Finding("reference-unknown", $"Domain event '{domainEvent.Id}' holds carries field '{name}' with {holder} '{target}', which names a part of '{baseId}', which is no aggregate.", domainEvent.File, domainEvent.Line, SubjectOf(domainEvent)));
+            return;
+        }
+
+        if (!DeclaresPart(aggregate, part))
+        {
+            findings.Add(new Finding("reference-unknown", $"Domain event '{domainEvent.Id}' holds carries field '{name}' with {holder} '{target}', which names part '{part}' the aggregate does not declare.", domainEvent.File, domainEvent.Line, SubjectOf(domainEvent)));
+        }
+    }
+
     /// <summary>Reports each field of one field array whose exact type facts name nothing.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record that holds the field array.</param>
@@ -653,7 +720,7 @@ internal static class ContractChecks
         return siblings;
     }
 
-    /// <summary>Reports an identifies that names no record for an id, a choice with inline choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither.</summary>
+    /// <summary>Reports an identifies that names no record for an id, a choice with inline choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither. An id field with no identifies reads as an untyped identifier and reports nothing.</summary>
     /// <param name="model">The loaded project model that resolves the id field target.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -676,7 +743,6 @@ internal static class ContractChecks
 
             if (!hasId || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with no identifies.", record.File, record.Line, SubjectOf(record)));
                 return;
             }
 

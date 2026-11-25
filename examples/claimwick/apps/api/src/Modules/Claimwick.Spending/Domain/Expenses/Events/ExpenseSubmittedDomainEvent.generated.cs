@@ -3,10 +3,11 @@
 
 using Claimwick.Kernel.Domain;
 using Claimwick.Spending.Contracts.Expenses;
+using Claimwick.Spending.Domain.Expenses.Parts;
 using Claimwick.Spending.Domain.Receipts;
 
 namespace Claimwick.Spending.Domain.Expenses.Events;
 
 /// <summary>An expense was submitted.</summary>
 /// <implements>domain-event/expense.submitted</implements>
-internal sealed partial record ExpenseSubmittedDomainEvent(ExpenseId ExpenseId, decimal Amount, string Currency, Guid EmployeeId) : IDomainEvent;
+internal sealed partial record ExpenseSubmittedDomainEvent(ExpenseId ExpenseId, decimal Amount, string Currency, Guid EmployeeId, string? Note, Guid ImportId, IReadOnlyList<LineItem> Lines) : IDomainEvent;

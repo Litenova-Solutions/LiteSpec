@@ -67,7 +67,7 @@ Some refusals follow from access and input rules, so they need no written result
 
 ### Tenant Reach of a Call
 
-`own` keeps the call inside the caller tenant. `cross` reaches across tenants. `public` opens it beyond tenant boundaries. `none` states the call touches no tenant data. A call that reads or writes another tenant's data names the widest reach it needs, and the pull request that changes it is its review.
+`own` keeps the call inside the caller tenant. `cross` reaches across tenants. `public` opens it beyond tenant boundaries. `none` states the call touches no tenant data. A call that reads or writes another tenant's data names the widest reach it needs, and the pull request that changes it is its review. The reach bounds which data the call may touch; it does not change the authorization policy name. The declarations generator renders the grant's policy for every reach, and a target whose calls at one reach need a distinct policy wraps the grant's policy with the form it names for that reach. The tenancy extension enforces the scoping the reach states.
 
 ### Entitlements
 

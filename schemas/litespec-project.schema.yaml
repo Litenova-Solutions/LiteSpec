@@ -263,6 +263,18 @@ properties:
           description: 'How a declarations target wraps a policy for a use case the system also runs, with {policy} for the wrapped policy. Optional; SystemOr({policy}) when the target names none; unused for every other kind.'
           type: string
           minLength: 1
+        crossPolicy:
+          description: 'How a declarations target wraps a policy for a use case reaching across tenants, with {policy} for the grant policy. Optional; the grant policy unwrapped when the target names none; unused for every other kind.'
+          type: string
+          minLength: 1
+        publicPolicy:
+          description: 'How a declarations target wraps a policy for a use case working beyond tenant boundaries, with {policy} for the grant policy. Optional; the grant policy unwrapped when the target names none; unused for every other kind.'
+          type: string
+          minLength: 1
+        nonePolicy:
+          description: 'How a declarations target wraps a policy for a use case touching no tenant data, with {policy} for the grant policy. Optional; the grant policy unwrapped when the target names none; unused for every other kind.'
+          type: string
+          minLength: 1
         commandInterface:
           description: 'The C# message interface a messages target implements on commands, such as LiteBus.Commands.Abstractions.ICommand, with the result type as its argument. Optional; a command implements none when the target names none; unused for every other kind.'
           type: string

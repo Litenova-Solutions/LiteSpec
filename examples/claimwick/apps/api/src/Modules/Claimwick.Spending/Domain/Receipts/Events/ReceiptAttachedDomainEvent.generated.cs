@@ -3,6 +3,7 @@
 
 using Claimwick.Kernel.Domain;
 using Claimwick.Spending.Contracts.Expenses;
+using Claimwick.Spending.Domain.Expenses.Parts;
 
 namespace Claimwick.Spending.Domain.Receipts.Events;
 

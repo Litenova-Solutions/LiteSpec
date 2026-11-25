@@ -6,6 +6,7 @@ using Library.Kernel.Domain;
 namespace Library.Lending.Domain.Copies.Exceptions;
 
 /// <summary>The copy is already registered.</summary>
+/// <implements>rule/copy.registered-once</implements>
 internal sealed partial class CopyCopyAlreadyRegisteredException : DomainException
 {
     /// <summary>Creates the rejection.</summary>

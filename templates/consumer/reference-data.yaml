@@ -12,6 +12,7 @@ valueMeanings:
 requiredRoles:
 - <a role the citing rules read, or remove this line>
 variation: <the dimension the rows vary by, such as country, or remove this line>
+singleton: <true when the table holds one value, or remove this line>
 row:
   type: <the qualified model row type, or remove row with columns>
   factory: <the static factory method building one row, or remove this line for the constructor>
@@ -28,6 +29,22 @@ columns:
   type: <the qualified model type of the nested object>
   columns:
   - column: <a row field the nested parameter reads>
+    parameter: <the nested parameter name>
+    as: <string, number, boolean, date, money, decimal, key, member, case or map>
+- column: <a row field holding the list the parameter reads>
+  parameter: <the row parameter name>
+  as: list
+  items: <string, number, boolean, date, money, decimal, key, member, case, object or map>
+  type: <the qualified model type for key, member, case or object items, or remove this line>
+  factory: <the static factory building key items, or remove this line for From>
+  currency: <the three-letter currency code for money items, or remove this line>
+- column: <a row field holding the object list the parameter reads>
+  parameter: <the row parameter name>
+  as: list
+  items: object
+  type: <the qualified model type of the list items>
+  columns:
+  - column: <an item field the nested parameter reads>
     parameter: <the nested parameter name>
     as: <string, number, boolean, date, money, decimal, key, member, case or map>
 rows:

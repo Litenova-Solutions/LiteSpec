@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LiteSpec.Cli.Generate;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
@@ -19,6 +20,7 @@ public sealed class GenerateEventsTests
         using var temp = ModelFixture.Prepare("small");
         WriteRichLoanBorrowed(temp.Path);
         WriteLoanKind(temp.Path);
+        WriteLoanRenewalPart(temp.Path);
         AppendGenerate(temp.Path, """
             generate:
             - kind: domain-events
@@ -62,6 +64,7 @@ public sealed class GenerateEventsTests
         using var temp = ModelFixture.Prepare("small");
         WriteRichLoanBorrowed(temp.Path);
         WriteLoanKind(temp.Path);
+        WriteLoanRenewalPart(temp.Path);
         var folder = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "module-events", "loan-receipt");
         Directory.CreateDirectory(folder);
         File.WriteAllText(
@@ -75,6 +78,7 @@ public sealed class GenerateEventsTests
             - loanId
             - copyId
             - dueDate
+            - note
             translates: domain-event/loan.loan-borrowed
             compatibility: The selection may gain a new field the domain event carries. No field may be removed, and no meaning may change.
             """);
@@ -248,6 +252,63 @@ public sealed class GenerateEventsTests
         Assert.Empty(plan.Errors);
         Assert.Equal(6, plan.Files.Count);
         Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.Contains("LoanBorrowed", StringComparison.Ordinal));
+    }
+
+    /// <summary>An untyped identifier maps to a Guid on the event and message mappers alike.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UntypedIdentifierMapsToGuid()
+    {
+        Assert.True(EventFieldTypes.TryMap(Carry("""{"name": "sessionId", "type": "id"}"""), out var carried));
+        Assert.Equal("Guid", carried!.Type);
+
+        Assert.True(MessageFieldTypes.TryMapInput(Carry("""{"name": "sessionId", "meaning": "The desk session.", "type": "id", "required": true, "origin": "caller"}"""), out var input));
+        Assert.Equal("Guid", input!.Type);
+    }
+
+    /// <summary>An optional list rides nullable, and a row type naming a code type renders no nested row.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OptionalListAndCodeRowTypeMap()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "tags", "type": "list", "required": false, "rowShape": {"fields": [{"name": "tag", "type": "text", "required": true}]}}"""),
+            out var tags));
+        Assert.Equal("IReadOnlyList<string>?", tags!.Type);
+        Assert.Empty(tags.Row);
+
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "fines", "type": "list", "rowShape": {"fields": [{"name": "amount", "type": "decimal", "scale": 2, "required": true}, {"name": "note", "type": "text", "required": false}]}, "rowType": "FineRow"}"""),
+            out var fines));
+        Assert.Equal("IReadOnlyList<FineRow>", fines!.Type);
+        Assert.Empty(fines.Row);
+    }
+
+    /// <summary>An untyped row identifier maps to a Guid, and an existing type naming a part maps to the part name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UntypedRowIdentifierAndPartTypeMap()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "batches", "type": "list", "rowShape": {"fields": [{"name": "batch", "type": "id", "required": true}]}}"""),
+            out var batches));
+        Assert.Equal("IReadOnlyList<Guid>", batches!.Type);
+
+        Assert.True(EventFieldTypes.TryMap(Carry("""{"name": "line", "type": "aggregate/spending.expense#line-item"}"""), out var line));
+        Assert.Equal("LineItem", line!.Type);
+        Assert.Empty(line.Row);
+    }
+
+    /// <summary>A carry of no known shape maps to nothing: an unknown type, a type naming no part, and an unreadable row type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UnknownCarryShapesMapToNothing()
+    {
+        Assert.False(EventFieldTypes.TryMap(Carry("""{"name": "shelf", "type": "wat"}"""), out _));
+        Assert.False(EventFieldTypes.TryMap(Carry("""{"name": "loan", "type": "aggregate/lending.loan"}"""), out _));
+        Assert.False(EventFieldTypes.TryMap(
+            Carry("""{"name": "fines", "type": "list", "rowShape": {"fields": [{"name": "amount", "type": "decimal", "scale": 2, "required": true}, {"name": "note", "type": "text", "required": false}]}, "rowType": "wat"}"""),
+            out _));
     }
 
     /// <summary>A project with attribute marks renders the event mark as an attribute.</summary>
@@ -427,6 +488,29 @@ public sealed class GenerateEventsTests
                   meaning: The line note, when one is kept.
                   type: text
                   required: false
+            - name: note
+              type: text
+              required: false
+            - name: sessionId
+              type: id
+            - name: latestRenewal
+              type: aggregate/lending.loan#renewal
+            - name: slip
+              type: DueSlip
+              required: false
+            - name: renewals
+              type: list
+              rowShape:
+                fields:
+                - name: renewedAt
+                  meaning: The renewal time.
+                  type: instant
+                  required: true
+                - name: note
+                  meaning: The renewal note, when one is kept.
+                  type: text
+                  required: false
+              rowType: aggregate/lending.loan#renewal
             ignored: true
             """);
 
@@ -459,4 +543,16 @@ public sealed class GenerateEventsTests
     /// <param name="yaml">The generate block YAML.</param>
     static void AppendGenerate(string root, string yaml) =>
         File.AppendAllText(Path.Combine(root, ".litespec", "project.yaml"), "\n" + yaml + "\n");
+
+    /// <summary>Declares the renewal part on the small fixture's loan aggregate, with no identity of its own.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteLoanRenewalPart(string root) =>
+        File.AppendAllText(
+            Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"),
+            "\nparts:\n- name: renewal\n  identity: false\n");
+
+    /// <summary>Parses one carries entry.</summary>
+    /// <param name="json">The entry as JSON.</param>
+    /// <returns>The parsed entry.</returns>
+    static JsonElement Carry(string json) => JsonDocument.Parse(json).RootElement;
 }

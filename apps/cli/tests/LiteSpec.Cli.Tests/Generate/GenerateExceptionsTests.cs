@@ -27,11 +27,38 @@ public sealed class GenerateExceptionsTests
               namespace: Library.{Module}.Domain.{Aggregate}.Exceptions
               baseType: Library.Kernel.Domain.DomainException
             """);
+        WriteCopiesRule(temp.Path, "registered-once", """
+            type: rule
+            id: rule/copy.registered-once
+            title: Registered once
+            kind: precondition
+            statement: A copy registers only once.
+            governs:
+            - use-case/lending.register-copy
+            refusal: refusal/lending.copy-already-registered
+            basedOn: []
+            fulfills:
+            - requirement/borrowing.copy-shelf-home
+            """);
+        WriteCopiesRule(temp.Path, "retired-only-when-returned", """
+            type: rule
+            id: rule/copy.retired-only-when-returned
+            title: Retired only when returned
+            kind: precondition
+            statement: A copy retires only when no reader holds it.
+            governs:
+            - use-case/lending.retire-copy
+            refusal: refusal/lending.copy-on-loan
+            basedOn: []
+            fulfills:
+            - requirement/borrowing.copy-shelf-home
+            """);
 
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
 
         Assert.Empty(plan.Errors);
         Assert.Empty(plan.ConfigErrors);
+        Assert.Empty(plan.Skips);
         Assert.Equal(
             [
                 "apps/api/src/Modules/Library.Lending/Domain/Copies/Exceptions/CopyCopyAlreadyRegisteredException.generated.cs",
@@ -96,6 +123,87 @@ public sealed class GenerateExceptionsTests
         AssertGolden(plan, "LoanExtensionRefusedException.generated.cs", "exceptions-dotnet-loans-extension-refused-parameterised.txt");
     }
 
+    /// <summary>A refusal no rule names and no use-case step links renders nothing and lists as skipped with the reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RefusalWithoutRuleSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: exceptions
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Domain/{Aggregate}/Exceptions
+              namespace: Library.{Module}.Domain.{Aggregate}.Exceptions
+              baseType: Library.Kernel.Domain.DomainException
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Equal(5, plan.Files.Count);
+        Assert.Equal(
+            [
+                "refusal/lending.copy-already-registered: refusal lending.copy-already-registered names no rule it enforces",
+                "refusal/lending.copy-on-loan: refusal lending.copy-on-loan names no rule it enforces",
+            ],
+            plan.Skips.Select(skip => $"{skip.UseCaseId}: {skip.Reason}").Order(StringComparer.Ordinal));
+    }
+
+    /// <summary>A refusal no rule names but a use-case step cites beside its rule renders with that rule's mark.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void StepCitedRuleMarksException()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: exceptions
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Domain/{Aggregate}/Exceptions
+              namespace: Library.{Module}.Domain.{Aggregate}.Exceptions
+              baseType: Library.Kernel.Domain.DomainException
+            """);
+        var useCase = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "register-copy", "register-copy.yaml");
+        File.WriteAllText(useCase, File.ReadAllText(useCase).Replace(
+            "- statement: The librarian registers the copy on its home shelf.",
+            "- statement: The librarian registers the copy on its home shelf.\n  cites:\n  - result/register-copy.copy-already-registered\n  - rule/copy.has-one-home-shelf",
+            StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        var file = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("CopyCopyAlreadyRegisteredException.generated.cs", StringComparison.Ordinal));
+        Assert.Contains("/// <implements>rule/copy.has-one-home-shelf</implements>", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "refusal/lending.copy-already-registered");
+    }
+
+    /// <summary>A refusal cited beside several rules renders nothing and lists every rule in the reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RefusalWithSeveralStepRulesSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: exceptions
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Domain/{Aggregate}/Exceptions
+              namespace: Library.{Module}.Domain.{Aggregate}.Exceptions
+              baseType: Library.Kernel.Domain.DomainException
+            """);
+        var useCase = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "register-copy", "register-copy.yaml");
+        File.WriteAllText(useCase, File.ReadAllText(useCase).Replace(
+            "- statement: The librarian registers the copy on its home shelf.",
+            "- statement: The librarian registers the copy on its home shelf.\n  cites:\n  - result/register-copy.copy-already-registered\n  - rule/copy.has-one-home-shelf\n  - rule/loan.returned-while-active",
+            StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.Contains("CopyAlreadyRegistered", StringComparison.Ordinal));
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "refusal/lending.copy-already-registered");
+        Assert.Equal("refusal lending.copy-already-registered is refused by several rules: rule/copy.has-one-home-shelf, rule/loan.returned-while-active", skip.Reason);
+    }
+
     /// <summary>A module-level refusal renders no exception file, while aggregate refusals still render theirs.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -124,7 +232,7 @@ public sealed class GenerateExceptionsTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
 
         Assert.Empty(plan.Errors);
-        Assert.Equal(7, plan.Files.Count);
+        Assert.Equal(5, plan.Files.Count);
         Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.Contains("ImportRejected", StringComparison.Ordinal));
     }
 
@@ -340,14 +448,14 @@ public sealed class GenerateExceptionsTests
         var entry = new RefusalEntry("lending", "lending.loan-not-active", "The loan is already returned.", "refusals.yaml", "loans");
 
         var simple = ExceptionsRenderer.RenderDotnet(new ExceptionsRenderer.ExceptionData(
-            "lending", "loan", entry, null, "DomainException",
+            "lending", "loan", entry, "rule/loan.returned-while-active", "DomainException",
             "Library.Lending.Domain.Loans.Exceptions", MarkStyle.Xml));
 
         Assert.DoesNotContain("using ", simple, StringComparison.Ordinal);
         Assert.Contains("class LoanLoanNotActiveException : DomainException", simple, StringComparison.Ordinal);
 
         var scoped = ExceptionsRenderer.RenderDotnet(new ExceptionsRenderer.ExceptionData(
-            "lending", "loan", entry, null, "Library.Lending.Domain.Loans.Exceptions.DomainException",
+            "lending", "loan", entry, "rule/loan.returned-while-active", "Library.Lending.Domain.Loans.Exceptions.DomainException",
             "Library.Lending.Domain.Loans.Exceptions", MarkStyle.Xml));
 
         Assert.DoesNotContain("using ", scoped, StringComparison.Ordinal);
@@ -406,4 +514,15 @@ public sealed class GenerateExceptionsTests
     /// <param name="yaml">The generate block YAML.</param>
     static void AppendGenerate(string root, string yaml) =>
         File.AppendAllText(Path.Combine(root, ".litespec", "project.yaml"), "\n" + yaml + "\n");
+
+    /// <summary>Writes a rule page under the copies aggregate.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="folder">The rule folder under the copies rules.</param>
+    /// <param name="yaml">The rule page YAML.</param>
+    static void WriteCopiesRule(string root, string folder, string yaml)
+    {
+        var directory = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "rules", folder);
+        Directory.CreateDirectory(directory);
+        File.WriteAllText(Path.Combine(directory, folder + ".yaml"), yaml + "\n");
+    }
 }

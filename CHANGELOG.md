@@ -589,6 +589,12 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - A refusal reporting an upstream system that refuses or is unreachable answers 503; 500 stays out of refusal statuses, since a server fault is never a refusal.
 - The `declarations` generator resolves each message type with its namespace and members from the backend source; a use case whose message, key placeholder or audit target resolves to nothing is skipped with the reason, and idempotency keys render culture-invariant with dates round-trip.
 - Knowledge-set rows build through the row constructor unless the table names a factory, and reference-data columns render `decimal` values, nested closed-set cases (`case`) and nested objects from sub-columns fed by extra row fields.
+- Event `carries` fields take `required` (default true; an optional field generates a nullable member), name an existing part or code type in `type` for a nested object, and name an existing row type in `rowType` for a multi-field list, which then generates no row record.
+- An `id` field with no `identifies` is an untyped identifier: `Guid` in C#, `string` in TypeScript.
+- Reference-data columns render lists (`as: list` with scalar, key, case, object or literal items), and a table stating `singleton` holds one dated row per variant rendered as one `Value`; a row with no start date asks for an explicit `effectiveFrom`.
+- The declarations generator renders the grant's policy for use cases whose tenant reach is `cross`, `public` or `none`; a target may wrap it per reach with `crossPolicy`, `publicPolicy` or `nonePolicy`.
+- A partial type is one code element carrying the marks of all its declarations, so a mark on the generated half satisfies the hand-written half; the model check and LS5003 share one counting rule.
+- Every generated exception carries its rule mark, from the rule naming the refusal or the single rule a use-case step cites beside it; a refusal with no rule, or several, is skipped with the reason.
 
 ### Part U: Provision Changes Since v6.0.0
 

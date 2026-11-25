@@ -38,9 +38,9 @@ static class GeneratePlan
         IReadOnlyList<string> ConfigErrors,
         IReadOnlyList<SkippedMessage> Skips);
 
-    /// <summary>One use case the plan renders nothing for: the record states something the declaration vocabulary cannot express.</summary>
-    /// <param name="UseCaseId">The skipped use case identifier.</param>
-    /// <param name="Reason">Why the use case renders nothing.</param>
+    /// <summary>One record the plan renders nothing for: a use case the declaration vocabulary cannot express, or a refusal no rule determines.</summary>
+    /// <param name="UseCaseId">The skipped use case or refusal identifier.</param>
+    /// <param name="Reason">Why the record renders nothing.</param>
     public sealed record SkippedMessage(string UseCaseId, string Reason);
 
     /// <summary>Renders every configured target in memory from the built model.</summary>
@@ -357,6 +357,27 @@ static class GeneratePlan
             return false;
         }
 
+        if (target.Kind == "declarations" && target.CrossPolicy.Length > 0
+            && !target.CrossPolicy.Contains("{policy}", StringComparison.Ordinal))
+        {
+            error = $"Generate target 'declarations' for stack '{target.Stack}' names crossPolicy '{target.CrossPolicy}', which holds no {{policy}}.";
+            return false;
+        }
+
+        if (target.Kind == "declarations" && target.PublicPolicy.Length > 0
+            && !target.PublicPolicy.Contains("{policy}", StringComparison.Ordinal))
+        {
+            error = $"Generate target 'declarations' for stack '{target.Stack}' names publicPolicy '{target.PublicPolicy}', which holds no {{policy}}.";
+            return false;
+        }
+
+        if (target.Kind == "declarations" && target.NonePolicy.Length > 0
+            && !target.NonePolicy.Contains("{policy}", StringComparison.Ordinal))
+        {
+            error = $"Generate target 'declarations' for stack '{target.Stack}' names nonePolicy '{target.NonePolicy}', which holds no {{policy}}.";
+            return false;
+        }
+
         if (target.Kind == "endpoints" && target.Stack != "dotnet")
         {
             error = $"Generate target 'endpoints' needs stack 'dotnet', not '{target.Stack}'.";
@@ -399,7 +420,7 @@ static class GeneratePlan
                 : RenderPermissionsDotnet(model, target),
             "event-decisions" => RenderEventDecisions(model, target),
             "closed-sets" => RenderClosedSets(model, target),
-            "exceptions" => RenderExceptions(model, target),
+            "exceptions" => RenderExceptions(model, target, skips),
             "domain-events" => RenderDomainEvents(model, target),
             "module-events" => RenderModuleEvents(model, target),
             "declarations" => RenderDeclarations(model, target, skips),
@@ -597,14 +618,16 @@ static class GeneratePlan
         return files;
     }
 
-    /// <summary>Renders one C# file per aggregate-declared refusal, with the exception its records determine.</summary>
+    /// <summary>Renders one C# file per aggregate-declared refusal, with the exception its records determine. A refusal no rule names and no use-case step links renders nothing and lists as skipped, so a generated exception always carries its rule mark.</summary>
     /// <param name="model">The built project model holding the refusal sets and the rules naming them.</param>
     /// <param name="target">The validated target.</param>
+    /// <param name="skips">The skipped refusals, appended in place.</param>
     /// <returns>The rendered files in module, aggregate then code order.</returns>
-    private static List<GeneratedFile> RenderExceptions(ProjectModel model, GenerateTarget target)
+    private static List<GeneratedFile> RenderExceptions(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips)
     {
         var files = new List<GeneratedFile>();
         var rules = RulesByRefusal(model);
+        var stepped = StepRulesByRefusal(model);
 
         foreach (var entry in model.RefusalSets
             .Where(candidate => candidate.Aggregate is not null)
@@ -612,6 +635,25 @@ static class GeneratePlan
             .ThenBy(candidate => candidate.Aggregate, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.Code, StringComparer.Ordinal))
         {
+            var refusal = "refusal/" + entry.Code;
+
+            if (!rules.TryGetValue(refusal, out var rule))
+            {
+                if (!stepped.TryGetValue(refusal, out var steppedRules) || steppedRules.Count == 0)
+                {
+                    skips.Add(new SkippedMessage(refusal, $"refusal {entry.Code} names no rule it enforces"));
+                    continue;
+                }
+
+                if (steppedRules.Count > 1)
+                {
+                    skips.Add(new SkippedMessage(refusal, $"refusal {entry.Code} is refused by several rules: {string.Join(", ", steppedRules)}"));
+                    continue;
+                }
+
+                rule = steppedRules[0];
+            }
+
             var aggregate = entry.Aggregate!;
             var folder = Combine(
                 model.Config.Root,
@@ -619,8 +661,6 @@ static class GeneratePlan
             var @namespace = GenerateNaming.ResolveModule(GenerateNaming.ResolveAggregate(target.Namespace, aggregate), entry.Module);
             var recordName = AggregateNameOf(model, entry.Module, aggregate);
             var type = ExceptionsRenderer.TypeName(entry.Module, recordName, entry.Code);
-
-            rules.TryGetValue("refusal/" + entry.Code, out var rule);
 
             files.Add(new GeneratedFile(
                 Path.Combine(folder, $"{type}.generated.cs"),
@@ -1219,6 +1259,79 @@ static class GeneratePlan
         return rules;
     }
 
+    /// <summary>
+    ///     The rules each refusal's results link through use-case steps: for every result
+    ///     carrying the refusal, each rule a step cites beside that result, in identifier
+    ///     order with each rule once. A step states what one statement refuses and under
+    ///     which rule, so the refusal's exception marks that rule. Only citations naming
+    ///     a rule record count: a citation naming no rule belongs to the citation check.
+    /// </summary>
+    /// <param name="model">The built project model holding the use cases, results and rules.</param>
+    /// <returns>The rule identifiers by refusal identifier.</returns>
+    private static Dictionary<string, List<string>> StepRulesByRefusal(ProjectModel model)
+    {
+        var refusals = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records
+            .Where(candidate => candidate.Type == RecordTypes.Result && !candidate.Derived)
+            .OrderBy(candidate => candidate.Id, StringComparer.Ordinal))
+        {
+            if (record.Field(RecordFields.Refusal) is { Length: > 0 } refusal)
+            {
+                refusals[record.Id] = refusal;
+            }
+        }
+
+        var rules = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records
+            .Where(candidate => candidate.Type == RecordTypes.UseCase && !candidate.Derived)
+            .OrderBy(candidate => candidate.Id, StringComparer.Ordinal))
+        {
+            foreach (var cites in record.StepCites())
+            {
+                var cited = cites
+                    .Where(cited => refusals.ContainsKey(cited))
+                    .Select(cited => refusals[cited])
+                    .ToHashSet(StringComparer.Ordinal);
+
+                if (cited.Count == 0)
+                {
+                    continue;
+                }
+
+                foreach (var rule in cites.Where(cited => cited.StartsWith("rule/", StringComparison.Ordinal)))
+                {
+                    if (!model.ById.TryGetValue(rule, out var ruleRecord) || ruleRecord.Type != RecordTypes.Rule)
+                    {
+                        continue;
+                    }
+
+                    foreach (var refusal in cited)
+                    {
+                        if (!rules.TryGetValue(refusal, out var named))
+                        {
+                            named = [];
+                            rules[refusal] = named;
+                        }
+
+                        if (!named.Contains(rule, StringComparer.Ordinal))
+                        {
+                            named.Add(rule);
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach (var named in rules.Values)
+        {
+            named.Sort(StringComparer.Ordinal);
+        }
+
+        return rules;
+    }
+
     /// <summary>The aggregate record name behind an aggregate folder: the name part of the aggregate record filed under it, or the singular folder name when no record is filed there.</summary>
     /// <param name="model">The built project model holding the aggregate records.</param>
     /// <param name="module">The record module holding the folder.</param>
@@ -1286,7 +1399,13 @@ static class GeneratePlan
     /// <summary>Gets the name of the `literals` field: the literal each row value maps to.</summary>
     private const string LiteralsField = "literals";
 
-    /// <summary>Renders one C# file per knowledge table and variant holding row construction.</summary>
+    /// <summary>Gets the name of the `singleton` field: whether the table holds one value instead of a row list.</summary>
+    private const string SingletonField = "singleton";
+
+    /// <summary>Gets the name of the `items` field: how each item of a list column renders.</summary>
+    private const string ItemsField = "items";
+
+    /// <summary>Renders one C# file per knowledge table and variant holding row construction: a Rows list per variant, or a Value for a singleton table.</summary>
     /// <param name="model">The built project model holding the reference-data records.</param>
     /// <param name="target">The validated target.</param>
     /// <returns>The rendered files in table then variant order.</returns>
@@ -1322,6 +1441,8 @@ static class GeneratePlan
                 continue;
             }
 
+            var singleton = SingletonOf(table);
+
             foreach (var (variant, rows) in RowsByVariant(table))
             {
                 if (rows.Count == 0)
@@ -1331,19 +1452,33 @@ static class GeneratePlan
 
                 var folder = KnowledgeFolder(model.Config.Root, target, home, variant);
                 var file = $"{GenerateNaming.ConstName(variant)}{GenerateNaming.ConstName(name)}.generated.cs";
+                var @namespace = GenerateNaming.ResolveKnowledge(target.Namespace, home, variant);
 
-                files.Add(new GeneratedFile(
-                    Path.Combine(folder, file),
-                    KnowledgeSetsRenderer.RenderDotnet(
-                        home,
-                        variant,
-                        name,
-                        table.Id,
-                        rowType,
-                        factory,
-                        mappings,
-                        rows,
-                        GenerateNaming.ResolveKnowledge(target.Namespace, home, variant))));
+                files.Add(singleton
+                    ? new GeneratedFile(
+                        Path.Combine(folder, file),
+                        KnowledgeSetsRenderer.RenderSingletonDotnet(
+                            home,
+                            variant,
+                            name,
+                            table.Id,
+                            rowType,
+                            factory,
+                            mappings,
+                            rows[0],
+                            @namespace))
+                    : new GeneratedFile(
+                        Path.Combine(folder, file),
+                        KnowledgeSetsRenderer.RenderDotnet(
+                            home,
+                            variant,
+                            name,
+                            table.Id,
+                            rowType,
+                            factory,
+                            mappings,
+                            rows,
+                            @namespace)));
             }
         }
 
@@ -1374,6 +1509,14 @@ static class GeneratePlan
         return true;
     }
 
+    /// <summary>Whether the table holds one value instead of a row list: its `singleton` flag.</summary>
+    /// <param name="table">The reference-data record whose shape is read.</param>
+    /// <returns>True when the table states `singleton` with a true value; otherwise false.</returns>
+    private static bool SingletonOf(Record table) =>
+        table.Raw.ValueKind == JsonValueKind.Object
+        && table.Raw.TryGetProperty(SingletonField, out var singleton)
+        && singleton.ValueKind == JsonValueKind.True;
+
     /// <summary>Reads the column mappings of a table: one entry per row parameter, in written order.</summary>
     /// <param name="table">The reference-data record whose column entries are read.</param>
     /// <returns>The well-shaped mappings; a malformed entry renders nothing, and the column check reports it.</returns>
@@ -1399,7 +1542,7 @@ static class GeneratePlan
         return mappings;
     }
 
-    /// <summary>Reads one column entry with the sub-columns building its nested object.</summary>
+    /// <summary>Reads one column entry with the sub-columns building its nested object or each object item.</summary>
     /// <param name="entry">The column entry as written.</param>
     /// <returns>The mapping, or null when the entry states no parameter or rendering; the column check reports it.</returns>
     private static KnowledgeSetsRenderer.ColumnMapping? MappingOf(JsonElement entry)
@@ -1424,9 +1567,10 @@ static class GeneratePlan
             }
         }
 
+        var items = RecordEntries.Str(entry, ItemsField) ?? "";
         var nested = new List<KnowledgeSetsRenderer.ColumnMapping>();
 
-        if (rendering == "object"
+        if ((rendering == "object" || (rendering == "list" && items == "object"))
             && entry.TryGetProperty(ColumnsField, out var columns)
             && columns.ValueKind == JsonValueKind.Array)
         {
@@ -1447,7 +1591,8 @@ static class GeneratePlan
             RecordEntries.Str(entry, FactoryField) is { Length: > 0 } factory ? factory : "From",
             RecordEntries.Str(entry, RecordFields.Currency),
             values,
-            nested);
+            nested,
+            items);
     }
 
     /// <summary>Groups a table's rows by variant in variant order, skipping rows that name none.</summary>
@@ -1734,7 +1879,7 @@ static class GeneratePlan
     /// <param name="Skip">The skip reason, or null when the record renders or stays silent.</param>
     private sealed record DeclarationPosition(string? Call, string? Skip);
 
-    /// <summary>The authorization policy name one use case record states: its grant composed with its scope, sign-in window and system runs.</summary>
+    /// <summary>The authorization policy name one use case record states: its grant composed with its tenant reach, scope, sign-in window and system runs.</summary>
     /// <param name="record">The use case record whose access block is read.</param>
     /// <param name="target">The validated target holding the policy forms.</param>
     /// <param name="skip">The skip reason when the record states something the vocabulary cannot express.</param>
@@ -1752,9 +1897,9 @@ static class GeneratePlan
 
         var tenant = RecordEntries.Str(access, RecordFields.Tenant);
 
-        if (tenant is not null && tenant != "own")
+        if (tenant is not null && tenant is not ("own" or "cross" or "public" or "none"))
         {
-            skip = $"access states tenant '{tenant}', which no authorization policy names";
+            skip = $"tenant '{tenant}' is no own, cross, public or none tenant scope";
             return null;
         }
 
@@ -1790,6 +1935,11 @@ static class GeneratePlan
             skip = $"grant '{grant}' is no signed-in, anonymous, system, permission or self grant";
             return null;
         }
+
+        // The tenant reach qualifies the grant: the reach bounds which data the call
+        // may touch, so its form wraps the grant's policy first, before the wraps
+        // that qualify the call itself.
+        policy = TenantPolicyOf(target, tenant, policy);
 
         if (FirstCondition(access) is { Length: > 0 } condition)
         {
@@ -2041,6 +2191,24 @@ static class GeneratePlan
     private static string RunsAsPolicyOf(GenerateTarget target, string policy) =>
         (target.RunsAsPolicy.Length > 0 ? target.RunsAsPolicy : DefaultRunsAsPolicy)
             .Replace("{policy}", policy, StringComparison.Ordinal);
+
+    /// <summary>The policy name a tenant reach reads: the target form for the reach with the grant's policy resolved, or the grant's policy when the target names no form for it.</summary>
+    /// <param name="target">The validated target holding the policy forms.</param>
+    /// <param name="tenant">The tenant reach as the record states it, or null when the record states none.</param>
+    /// <param name="policy">The grant's policy name.</param>
+    /// <returns>The resolved policy name.</returns>
+    private static string TenantPolicyOf(GenerateTarget target, string? tenant, string policy)
+    {
+        var form = tenant switch
+        {
+            "cross" => target.CrossPolicy,
+            "public" => target.PublicPolicy,
+            "none" => target.NonePolicy,
+            _ => "",
+        };
+
+        return form.Length > 0 ? form.Replace("{policy}", policy, StringComparison.Ordinal) : policy;
+    }
 
     /// <summary>The permission id a self grant wraps, or null when the grant is no self grant.</summary>
     /// <param name="grant">The grant string.</param>

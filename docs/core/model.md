@@ -504,6 +504,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `cites` | rule | constraint, research | cites | is cited by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `carries.identifies` | domain event | identifies | identifies | is identified by |
+| `carries.rowType` | domain event | aggregate part | takes rows from | gives rows to |
 | `carries.set` | domain event | reference data, setting | takes values from | gives values to |
 | `carries.currencyHome` | domain event | aggregate | takes its currency from | gives its currency to |
 | `rows.refersTo` | reference data | reference data row | refers to | is referred to by |
@@ -607,6 +608,8 @@ Mark style belongs to the language. C# marks use the one style the project decla
 One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports.
 
 A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
+
+A partial type is one code element: it carries the marks of every declaration, generated or hand-written, and the count rule applies to their union. The mark sits on one declaration only: naming the same record twice reports, whether both namings sit on one declaration or on two halves.
 
 A development seed or fixture names each cast entry it uses with a `seeds` mark: `<seeds>person/ava</seeds>` in a C# documentation tag, or `// litespec: seeds person/ava` in a TypeScript line comment. A seeds mark stands on no code element of a kind, so the element readers leave it out and the cast checks read it. `mark-unknown` reports a seeds mark that names no party, person, occasion, or figure. The [writing page](writing.md) states where cast names may appear.
 

@@ -7,8 +7,10 @@ namespace LiteSpec.Cli.Generate;
 /// <summary>
 ///     The C# types the event generators write for record fields: one mapped property per
 ///     carried field, from the coarse record type the way the message field checks read it.
-///     An <c>id</c> becomes the typed identifier of what it identifies, a <c>choice</c> the
-///     closed set it names, and every other type its fixed .NET form.
+///     An <c>id</c> becomes the typed identifier of what it identifies, or a <c>Guid</c>
+///     with no <c>identifies</c>, a <c>choice</c> the closed set it names, an object field
+///     the part or code type its <c>type</c> names, and every other type its fixed .NET form.
+///     A field with <c>required: false</c> rides nullable.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class EventFieldTypes
@@ -39,28 +41,37 @@ static class EventFieldTypes
         }
 
         var property = GenerateNaming.ConstName(name);
+        var optional = !IsRequired(carry);
 
         if (type == "list")
         {
-            return TryList(carry, property, out field);
+            return TryList(carry, property, optional, out field);
         }
 
-        if (ScalarOf(carry, type) is not { } scalar)
+        if (ScalarOf(carry, type) is { } scalar)
         {
-            return false;
+            field = new MappedField(property, optional ? scalar + "?" : scalar, [], new Dictionary<string, string>(StringComparer.Ordinal));
+
+            return true;
         }
 
-        field = new MappedField(property, scalar, [], new Dictionary<string, string>(StringComparer.Ordinal));
+        if (ObjectTypeOf(type) is { } objectType)
+        {
+            field = new MappedField(property, optional ? objectType + "?" : objectType, [], new Dictionary<string, string>(StringComparer.Ordinal));
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
 
-    /// <summary>Maps one list carry to its read-only list type: the row element for a single-field row, a nested row record for a multi-field row.</summary>
+    /// <summary>Maps one list carry to its read-only list type: the row element for a single-field row, the named row type for a multi-field row stating rowType, a nested row record otherwise.</summary>
     /// <param name="carry">The carries entry holding the row shape.</param>
     /// <param name="property">The property name in PascalCase.</param>
+    /// <param name="optional">True when the event may arrive without the field.</param>
     /// <param name="field">The mapped property, or null when the row shape states no known shape.</param>
     /// <returns>True when the row shape maps; otherwise false.</returns>
-    private static bool TryList(JsonElement carry, string property, out MappedField? field)
+    private static bool TryList(JsonElement carry, string property, bool optional, out MappedField? field)
     {
         field = null;
 
@@ -105,14 +116,30 @@ static class EventFieldTypes
         {
             field = new MappedField(
                 property,
-                $"IReadOnlyList<{fields[0].Type}>",
+                $"IReadOnlyList<{fields[0].Type}>" + (optional ? "?" : ""),
                 [],
                 new Dictionary<string, string>(StringComparer.Ordinal));
 
             return true;
         }
 
-        field = new MappedField(property, $"IReadOnlyList<{property}Row>", fields, meanings);
+        if (RecordEntries.Str(carry, RecordFields.RowType) is { Length: > 0 } rowType)
+        {
+            if (ObjectTypeOf(rowType) is not { } shared)
+            {
+                return false;
+            }
+
+            field = new MappedField(
+                property,
+                $"IReadOnlyList<{shared}>" + (optional ? "?" : ""),
+                [],
+                new Dictionary<string, string>(StringComparer.Ordinal));
+
+            return true;
+        }
+
+        field = new MappedField(property, $"IReadOnlyList<{property}Row>" + (optional ? "?" : ""), fields, meanings);
 
         return true;
     }
@@ -152,14 +179,47 @@ static class EventFieldTypes
         return "string";
     }
 
-    /// <summary>The typed identifier an id field names: the aggregate or part identifier, or a Guid for any other target.</summary>
+    /// <summary>The C# type an existing type reference names: the part name for an aggregate part, or the named code type.</summary>
+    /// <param name="reference">The carried type or rowType value.</param>
+    /// <returns>The C# type, or null when the value names neither a part nor a code type.</returns>
+    private static string? ObjectTypeOf(string reference)
+    {
+        if (IsCodeTypeName(reference))
+        {
+            return reference;
+        }
+
+        if (!reference.StartsWith("aggregate/", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var hash = reference.IndexOf('#');
+
+        if (hash < 0 || hash == reference.Length - 1)
+        {
+            return null;
+        }
+
+        return GenerateNaming.ConstName(reference[(hash + 1)..]);
+    }
+
+    /// <summary>Whether a carried type names a C# type: one PascalCase word of letters and digits.</summary>
+    /// <param name="reference">The carried type value.</param>
+    /// <returns>True for a PascalCase name; otherwise false.</returns>
+    private static bool IsCodeTypeName(string reference) =>
+        reference.Length > 0
+        && reference[0] is >= 'A' and <= 'Z'
+        && reference.All(character => character is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z') or (>= '0' and <= '9'));
+
+    /// <summary>The typed identifier an id field names: the aggregate or part identifier, or a Guid for any other target or with no identifies.</summary>
     /// <param name="entry">The field entry holding the identifies reference.</param>
-    /// <returns>The identifier type, or null when the field names none.</returns>
+    /// <returns>The identifier type, or null when the identifies reference is malformed.</returns>
     private static string? IdentifierOf(JsonElement entry)
     {
         if (RecordEntries.Str(entry, RecordFields.Identifies) is not { Length: > 0 } identifies)
         {
-            return null;
+            return "Guid";
         }
 
         if (!identifies.StartsWith("aggregate/", StringComparison.Ordinal))
@@ -187,9 +247,9 @@ static class EventFieldTypes
         return GenerateNaming.ConstName(rest[(dot + 1)..]) + "Id";
     }
 
-    /// <summary>Whether a row field is required: true when it states so, false otherwise.</summary>
-    /// <param name="row">The row field entry.</param>
+    /// <summary>Whether a carried or row field is required: true when it states so or states nothing, false only when it states false.</summary>
+    /// <param name="entry">The field entry.</param>
     /// <returns>True when the entry requires the field; otherwise false.</returns>
-    private static bool IsRequired(JsonElement row) =>
-        row.TryGetProperty(RecordFields.Required, out var required) && required.ValueKind == JsonValueKind.True;
+    private static bool IsRequired(JsonElement entry) =>
+        !entry.TryGetProperty(RecordFields.Required, out var required) || required.ValueKind != JsonValueKind.False;
 }

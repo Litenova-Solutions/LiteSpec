@@ -307,6 +307,43 @@ sealed class Record : IRecordFields
         return ids;
     }
 
+    /// <summary>
+    ///     The citations of each step of a use case: one list per step in step order,
+    ///     each holding the step's <c>cites</c> in written order. A use case holds no
+    ///     citations of its own, so each list states what one statement links together.
+    /// </summary>
+    /// <returns>The per-step citations of the use case, or an empty list for any other record type.</returns>
+    public IReadOnlyList<IReadOnlyList<string>> StepCites()
+    {
+        if (Type != RecordTypes.UseCase
+            || Raw.ValueKind != JsonValueKind.Object
+            || !Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var cites = new List<IReadOnlyList<string>>();
+
+        foreach (var step in steps.EnumerateArray())
+        {
+            if (step.ValueKind != JsonValueKind.Object
+                || !step.TryGetProperty(RecordFields.Cites, out var cited)
+                || cited.ValueKind != JsonValueKind.Array)
+            {
+                cites.Add([]);
+                continue;
+            }
+
+            cites.Add(cited.EnumerateArray()
+                .Where(entry => entry.ValueKind == JsonValueKind.String)
+                .Select(entry => entry.GetString()!)
+                .ToList());
+        }
+
+        return cites;
+    }
+
     /// <summary>The object entries of an array field, such as a reaction's outcomes or an aggregate's transitions.</summary>
     /// <param name="name">The field name to read.</param>
     /// <returns>Each object entry of the array, in order; empty when the field is not an array.</returns>

@@ -37,7 +37,6 @@ public sealed class GenerateDeclarationsTests
             new List<string>
             {
                 "use-case/lending.merge-holds",
-                "use-case/lending.transfer-hold",
                 "use-case/lending.waive-fine",
             },
             plan.Skips.Select(skip => skip.UseCaseId).ToList());
@@ -162,7 +161,8 @@ public sealed class GenerateDeclarationsTests
         Assert.Equal(0, result.Status);
         Assert.Contains("LendingDeclarations.generated.cs", result.Stdout, StringComparison.Ordinal);
         Assert.Contains("skipped use-case/lending.merge-holds: authorization condition 'rule/hold.single-active-hold' names a guard check the policy vocabulary cannot state.", result.Stdout, StringComparison.Ordinal);
-        Assert.Contains("skipped use-case/lending.transfer-hold: access states tenant 'cross', which no authorization policy names.", result.Stdout, StringComparison.Ordinal);
+        Assert.DoesNotContain("use-case/lending.transfer-hold", result.Stdout, StringComparison.Ordinal);
+        Assert.DoesNotContain("use-case/lending.list-branches", result.Stdout, StringComparison.Ordinal);
         Assert.Contains("skipped use-case/lending.waive-fine: audit level 'none' states no exemption rationale.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains("1 files rewritten.", result.Stdout, StringComparison.Ordinal);
         Assert.True(File.Exists(Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending", "LendingDeclarations.generated.cs")));
@@ -213,6 +213,18 @@ public sealed class GenerateDeclarationsTests
             "holds no {policy}",
             PlanError("  runsAsPolicy: SystemOr"),
             StringComparison.Ordinal);
+        Assert.Contains(
+            "holds no {policy}",
+            PlanError("  crossPolicy: Cross"),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "holds no {policy}",
+            PlanError("  publicPolicy: Public"),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "holds no {policy}",
+            PlanError("  nonePolicy: WithoutTenant"),
+            StringComparison.Ordinal);
     }
 
     /// <summary>Custom policy forms render through every grant and wrap of the fixture.</summary>
@@ -247,6 +259,123 @@ public sealed class GenerateDeclarationsTests
         Assert.Contains(".Authorized(\"in\")", file.Content, StringComparison.Ordinal);
         Assert.Contains(".Authorized(\"anon\")", file.Content, StringComparison.Ordinal);
         Assert.Contains(".Authorized(\"sys\")", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case reaching across tenants renders its grant's policy instead of skipping.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CrossTenantRendersGrantPolicy()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains(".Describe<TransferHoldCommand>(declarations => declarations", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"permission/place-hold\")", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.transfer-hold");
+    }
+
+    /// <summary>A use case touching no tenant data renders its grant's policy instead of skipping.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NoneTenantRendersGrantPolicy()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains(".Describe<ListBranchesQuery>(declarations => declarations", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"signed-in\")", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.list-branches");
+    }
+
+    /// <summary>A use case beyond tenant boundaries renders its grant's policy instead of skipping.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PublicTenantRendersGrantPolicy()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+        RewriteTenant(temp.Path, "behavior/modules/lending/use-cases/list-branches/list-branches.yaml", "none", "public");
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains(".Describe<ListBranchesQuery>(declarations => declarations", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"signed-in\")", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.list-branches");
+    }
+
+    /// <summary>Tenant forms wrap the grant's policy first, before the self, recent-sign-in, and system-run wraps.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void TenantPolicyFormsWrapTheGrantPolicy()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              crossPolicy: Cross({policy})
+              nonePolicy: WithoutTenant({policy})
+            """);
+        RewriteTenant(temp.Path, "behavior/modules/lending/aggregates/loans/use-cases/extend-loan/extend-loan.yaml", "own", "cross");
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains(".Authorized(\"Cross(permission/place-hold)\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"WithoutTenant(signed-in)\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"RecentSignIn(Cross(permission/borrow-copy),PT4H)\")", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case stating an unknown tenant scope skips with the reason instead of rendering.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UnknownTenantSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+        RewriteTenant(temp.Path, "behavior/modules/lending/aggregates/holds/use-cases/cancel-hold/cancel-hold.yaml", "own", "bogus");
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.DoesNotContain(".Describe<CancelHoldCommand>", file.Content, StringComparison.Ordinal);
+        Assert.Contains(
+            plan.Skips,
+            skip => skip.UseCaseId == "use-case/lending.cancel-hold"
+                && skip.Reason == "tenant 'bogus' is no own, cross, public or none tenant scope");
     }
 
     /// <summary>A key template renders as a culture-invariant interpolated expression over the message's properties, with literals escaped.</summary>
@@ -471,7 +600,9 @@ public sealed class GenerateDeclarationsTests
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "extend-loan"),
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "renew-loan"),
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "list-branches"),
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "use-cases", "place-hold"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "use-cases", "transfer-hold"),
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "use-cases", "cancel-hold"),
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "register-copy"),
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy"),
@@ -491,7 +622,7 @@ public sealed class GenerateDeclarationsTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
 
         Assert.Empty(plan.Files);
-        Assert.Equal(3, plan.Skips.Count);
+        Assert.Equal(2, plan.Skips.Count);
 
         var result = TestCli.Run("generate", "--root", temp.Path);
 
@@ -626,4 +757,18 @@ public sealed class GenerateDeclarationsTests
     /// <param name="yaml">The generate block YAML.</param>
     static void AppendGenerate(string root, string yaml) =>
         File.AppendAllText(Path.Combine(root, ".litespec", "project.yaml"), "\n" + yaml + "\n");
+
+    /// <summary>Rewrites the tenant scope of one fixture use case record.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="record">The record path under .litespec, with forward slashes.</param>
+    /// <param name="from">The tenant scope the record states.</param>
+    /// <param name="tenant">The tenant scope to state.</param>
+    static void RewriteTenant(string root, string record, string from, string tenant)
+    {
+        var path = Path.Combine(root, ".litespec", record.Replace('/', Path.DirectorySeparatorChar));
+
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace($"  tenant: {from}", $"  tenant: {tenant}", StringComparison.Ordinal));
+    }
 }

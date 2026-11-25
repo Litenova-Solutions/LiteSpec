@@ -146,6 +146,21 @@ public sealed class MarkRulesTests
         Assert.False(MarkRules.TakesVerb(CodeKind.Test, MarkVerb.Implements));
     }
 
+    /// <summary>CountsTowardLimit counts implements and follows for technical classes and every verb but follows otherwise.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "CountsTowardLimit counts implements and follows for technical classes and every verb but follows otherwise")]
+    public void CountsTowardLimitCountsSharedMarks()
+    {
+        Assert.True(MarkRules.CountsTowardLimit(CodeKind.Technical, MarkVerb.Implements));
+        Assert.True(MarkRules.CountsTowardLimit(CodeKind.Technical, MarkVerb.Follows));
+        Assert.False(MarkRules.CountsTowardLimit(CodeKind.Technical, MarkVerb.Proves));
+        Assert.True(MarkRules.CountsTowardLimit(CodeKind.Handler, MarkVerb.Implements));
+        Assert.True(MarkRules.CountsTowardLimit(CodeKind.Handler, MarkVerb.Proves));
+        Assert.False(MarkRules.CountsTowardLimit(CodeKind.Handler, MarkVerb.Follows));
+        Assert.True(MarkRules.CountsTowardLimit(CodeKind.Test, MarkVerb.Proves));
+        Assert.False(MarkRules.CountsTowardLimit(CodeKind.Test, MarkVerb.Follows));
+    }
+
     /// <summary>Accepts rejects another type, an empty name, and a prefix without a slash.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Accepts rejects another type, an empty name, and a prefix without a slash")]

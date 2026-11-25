@@ -8,6 +8,8 @@ using Library.Lending.Application.Copies.RegisterCopy;
 using Library.Lending.Application.Copies.RetireCopy;
 using Library.Lending.Application.Holds.CancelHold;
 using Library.Lending.Application.Holds.PlaceHold;
+using Library.Lending.Application.Holds.TransferHold;
+using Library.Lending.Application.ListBranches;
 using Library.Lending.Application.ListLoans;
 using Library.Lending.Application.Loans.BorrowCopy;
 using Library.Lending.Application.Loans.ExtendLoan;
@@ -34,6 +36,9 @@ internal sealed partial class LendingDeclarations : IMultiMessageDefinition
                 .Authorized("RecentSignIn(permission/borrow-copy,PT4H)")
                 .Audited("use-case/lending.extend-loan", category: "personal-data-read", targetKind: "aggregate/lending.loan")
                 .Exempt<IdempotencyDeclaration>("Each call extends its own loan, and extending past the loan limit is refused."))
+            .Describe<ListBranchesQuery>(declarations => declarations
+                .Authorized("signed-in")
+                .NotAudited("Reads trail nothing."))
             .Describe<ListLoansQuery>(declarations => declarations
                 .Authorized("Self(permission/read-loans)")
                 .NotAudited("Reads trail nothing."))
@@ -56,6 +61,10 @@ internal sealed partial class LendingDeclarations : IMultiMessageDefinition
             .Describe<ReturnCopyCommand>(declarations => declarations
                 .Authorized("Self(permission/borrow-copy)")
                 .NotAudited("Returns trail in the loan states.")
-                .Exempt<IdempotencyDeclaration>("recognized by state: the loan already closed by an earlier return"));
+                .Exempt<IdempotencyDeclaration>("recognized by state: the loan already closed by an earlier return"))
+            .Describe<TransferHoldCommand>(declarations => declarations
+                .Authorized("permission/place-hold")
+                .NotAudited("Transfers trail in the hold states.")
+                .Exempt<IdempotencyDeclaration>("Each call transfers its own hold, and transferring an ended hold is refused."));
     }
 }
