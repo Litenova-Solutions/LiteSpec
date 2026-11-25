@@ -57,7 +57,7 @@ static class EndpointsRenderer
         string? RowType = null,
         IReadOnlyList<RowField>? Rows = null);
 
-    /// <summary>One row field of a list input, bound from the request row record.</summary>
+    /// <summary>One row field of a list input, bound from the request row record, or from one form part per row for a single file row.</summary>
     /// <param name="Name">The row field name.</param>
     /// <param name="Property">The message row property name.</param>
     /// <param name="Type">The record type.</param>
@@ -235,7 +235,8 @@ static class EndpointsRenderer
             names.Add("Microsoft.AspNetCore.Mvc");
         }
 
-        if (endpoints.Any(endpoint => endpoint.Inputs.Any(input => input is { Type: "file", Binding: "form" })))
+        if (endpoints.Any(endpoint => endpoint.Inputs.Any(input =>
+            input.Binding == "form" && (input.Type == "file" || SingleRowOf(input) is { Type: "file" }))))
         {
             names.Add("System.IO");
         }
@@ -494,7 +495,11 @@ static class EndpointsRenderer
                 parameters.Add($"{AttributeOf(input)} {ParamTypeOf(input)} {input.Local}");
             }
 
-            if (input.Binding == "form")
+            if (input is { Binding: "form", Type: "list" })
+            {
+                parameters.Add(Nullable(input) ? $"IFormFileCollection? {input.Local} = null" : $"IFormFileCollection {input.Local}");
+            }
+            else if (input.Binding == "form")
             {
                 parameters.Add(Nullable(input) ? $"IFormFile? {input.Local} = null" : $"IFormFile {input.Local}");
             }
@@ -516,6 +521,7 @@ static class EndpointsRenderer
 
         GuardLines(body, endpoint);
         FileLines(body, endpoint);
+        FileListLines(body, endpoint);
         ConversionLines(body, endpoint);
         DispatchLines(body, endpoint, reader, tenant, values);
         ResponseLines(body, endpoint);
@@ -595,6 +601,52 @@ static class EndpointsRenderer
                 body.Add($"    using var {stream} = new MemoryStream();");
                 body.Add($"    await {input.Local}.CopyToAsync({stream}, cancellationToken);");
                 body.Add($"    {bytes} = {stream}.ToArray();");
+                body.Add("}");
+            }
+
+            body.Add("");
+        }
+    }
+
+    /// <summary>Writes the upload list mapping: each form part read into the bytes of one row, one part per row.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose file lists are read.</param>
+    private static void FileListLines(List<string> body, EndpointData endpoint)
+    {
+        foreach (var input in endpoint.Inputs.Where(input =>
+            input is { Binding: "form", Type: "list" } && SingleRowOf(input) is { Type: "file" }))
+        {
+            var row = SingleRowOf(input)!;
+            var bytes = input.Local + "Bytes";
+            var stream = input.Local + "Stream";
+            var element = input.RowType is { Length: > 0 } rowType ? rowType : "byte[]";
+            var indent = Nullable(input) ? "    " : "";
+
+            if (!Nullable(input))
+            {
+                body.Add($"var {bytes} = new List<{element}>({input.Local}.Count);");
+            }
+            else
+            {
+                body.Add($"List<{element}>? {bytes} = null;");
+                body.Add($"if ({input.Local} is not null)");
+                body.Add("{");
+                body.Add($"    {bytes} = new List<{element}>({input.Local}.Count);");
+            }
+
+            body.Add($"{indent}foreach (var part in {input.Local})");
+            body.Add($"{indent}{{");
+            body.Add($"{indent}    using var {stream} = new MemoryStream();");
+            body.Add($"{indent}    await part.CopyToAsync({stream}, cancellationToken);");
+
+            body.Add(input.RowType is { Length: > 0 } named
+                ? $"{indent}    {bytes}.Add(new {named}({row.Property}: {stream}.ToArray()));"
+                : $"{indent}    {bytes}.Add({stream}.ToArray());");
+
+            body.Add($"{indent}}}");
+
+            if (Nullable(input))
+            {
                 body.Add("}");
             }
 
@@ -943,6 +995,11 @@ static class EndpointsRenderer
             return Nullable(input)
                 ? $"{amount} is null ? null : Money.Create({amount}.Value, {currency})"
                 : $"Money.Create({amount}, {currency})";
+        }
+
+        if (input is { Binding: "form", Type: "list" } && SingleRowOf(input) is { Type: "file" })
+        {
+            return input.Local + "Bytes";
         }
 
         if (input.Many || SingleRowOf(input) is not null)

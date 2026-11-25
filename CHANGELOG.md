@@ -608,6 +608,9 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Generated endpoints bind body lists as arrays of request rows, many-valued inputs as arrays from the body or repeated query parameters, and non-identity claims through a generic `claimValueReader`; a `money` input stating `currencyHome` rides a `decimal` the handler joins with the loaded aggregate's currency.
 - Every `required: false` input renders nullable whatever its origin; grouped results qualify their nested group types and compile; a result carries `NextCursor` only when its paging block states the cursor; row fields accept `held: opaque`; the declarations resolver reads the generated message when a hand-written copy also exists; a tenant-scoped message carries its tenant key under a tenancy provision.
 - Contracts take an `object` type with `rowShape` and `rowType` (one JSON object, also one level inside rows), `identifies` naming an entity part (`aggregate/x.y#part`) rendering its identifier type, message and result `rowType` reusing an aggregate part, fully qualified part rows, and row `choice` members rendering the closed set's type.
+- Input list rows may carry `file` fields with their facts, rendering bytes in the row record; endpoints bind such rows from a multipart form.
+- An identifier naming one of two aggregates is stated as two optional inputs, one per aggregate; a query group may hold several list fields; a row money input whose currency comes from an optional row field still skips endpoints, with the reason documented.
+- Claimwick's backend code compiles against its generated types.
 
 ### Part U: Provision Changes Since v6.0.0
 

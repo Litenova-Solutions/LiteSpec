@@ -17,7 +17,10 @@ namespace Claimwick.Spending.Application.Expenses.SubmitExpense;
 /// <param name="EmployeeId">The signed-in employee filing the expense, read from verified claims.</param>
 /// <param name="Labels">The labels the employee files the expense under.</param>
 /// <param name="Splits">The cost splits of the expense, one row per cost center carrying part of the amount.</param>
-internal sealed partial record SubmitExpenseCommand(ExpenseId ExpenseId, decimal Amount, string Currency, string Category, ReceiptId? ReceiptId, Guid EmployeeId, IReadOnlyList<string>? Labels, IReadOnlyList<ExpenseSplit>? Splits) : ICommand<SubmitExpenseCommandResult>
+/// <param name="Note">The note the employee files with the expense.</param>
+/// <param name="ImportId">The import batch the expense arrived in, when it arrived in one.</param>
+/// <param name="Lines">The line items of the expense, one row per cost kind.</param>
+internal sealed partial record SubmitExpenseCommand(ExpenseId ExpenseId, decimal Amount, string Currency, string Category, ReceiptId? ReceiptId, Guid EmployeeId, IReadOnlyList<string>? Labels, IReadOnlyList<ExpenseSplit>? Splits, string? Note, Guid? ImportId, IReadOnlyList<SubmittedLine> Lines) : ICommand<SubmitExpenseCommandResult>
 {
     /// <summary>The idempotency key of this command.</summary>
     public string IdempotencyKey => $"{ExpenseId}";

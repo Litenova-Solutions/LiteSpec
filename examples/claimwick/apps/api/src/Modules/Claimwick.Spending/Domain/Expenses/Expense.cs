@@ -13,13 +13,14 @@ namespace Claimwick.Spending.Domain.Expenses;
 /// <implements>aggregate/spending.expense</implements>
 internal sealed class Expense : AggregateRoot<ExpenseId>
 {
-    private Expense(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, Guid? receiptId)
+    private Expense(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, Guid? receiptId, IReadOnlyList<LineItem> lines)
     {
         Id = id;
         EmployeeId = employeeId;
         Total = total;
         Category = category;
         ReceiptId = receiptId;
+        Lines = lines;
         State = new ExpenseSubmittedState();
     }
 
@@ -35,20 +36,33 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
     /// <summary>The attached receipt, when one is attached.</summary>
     public Guid? ReceiptId { get; private set; }
 
+    /// <summary>The line items the expense was submitted with.</summary>
+    public IReadOnlyList<LineItem> Lines { get; }
+
     /// <summary>The current lifecycle state.</summary>
     public ExpenseState State { get; private set; }
 
     /// <summary>Submits one expense, refusing one above the receipt threshold that carries no receipt.</summary>
     /// <implements>use-case/spending.submit-expense</implements>
-    public static Expense Submit(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, Guid? receiptId, Money receiptThreshold)
+    public static Expense Submit(
+        ExpenseId id,
+        Guid employeeId,
+        Money total,
+        ExpenseCategory category,
+        Guid? receiptId,
+        Money receiptThreshold,
+        string? note,
+        Guid? importId,
+        IReadOnlyList<LineItem> lines)
     {
         if (receiptId is null && total.Amount > receiptThreshold.Amount)
         {
             throw new ExpenseReceiptMissingException();
         }
 
-        var expense = new Expense(id, employeeId, total, category, receiptId);
-        expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(id, total.Amount, total.Currency, employeeId));
+        var expense = new Expense(id, employeeId, total, category, receiptId, lines);
+        expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(
+            id, total.Amount, total.Currency, employeeId, note, importId, lines));
         return expense;
     }
 

@@ -11,9 +11,9 @@ namespace Claimwick.Spending.Application.Receipts.AttachReceipt;
 /// <summary>An employee adds a receipt to a submitted expense so it can be decided.</summary>
 /// <param name="ExpenseId">The submitted expense the receipt supports.</param>
 /// <param name="ReceiptId">The identifier the app mints for the receipt, so a retried request attaches the same receipt.</param>
-/// <param name="Scan">The scanned receipt the employee uploads as proof of payment.</param>
+/// <param name="Scans">The scanned receipt pages the employee uploads as proof of payment.</param>
 /// <param name="AttachedAt">The time the receipt attaches, read from the clock.</param>
-internal sealed partial record AttachReceiptCommand(ExpenseId ExpenseId, ReceiptId ReceiptId, byte[] Scan, DateTimeOffset AttachedAt) : ICommand<AttachReceiptCommandResult>
+internal sealed partial record AttachReceiptCommand(ExpenseId ExpenseId, ReceiptId ReceiptId, IReadOnlyList<byte[]> Scans, DateTimeOffset AttachedAt) : ICommand<AttachReceiptCommandResult>
 {
     /// <summary>The idempotency key of this command.</summary>
     public string IdempotencyKey => $"{ReceiptId}";

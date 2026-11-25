@@ -35,14 +35,21 @@ input:
   origin: caller
   binding: query
   classification: internal
-- name: scan
-  meaning: The scanned receipt the employee uploads as proof of payment.
-  type: file
-  contentTypes:
-  - image/png
-  - image/jpeg
-  - application/pdf
-  maxSize: 10 MB
+- name: scans
+  meaning: The scanned receipt pages the employee uploads as proof of payment.
+  type: list
+  rowShape:
+    fields:
+    - name: scan
+      meaning: One scanned receipt page.
+      type: file
+      contentTypes:
+      - image/png
+      - image/jpeg
+      - application/pdf
+      maxSize: 10 MB
+      required: true
+    minItems: 1
   required: true
   origin: caller
   binding: body
@@ -63,7 +70,7 @@ output:
   type: id
   identifies: aggregate/spending.receipt
 - name: sizeBytes
-  meaning: The stored scan's byte size.
+  meaning: The total byte size of the stored scans.
   type: integer
   size: 64
 writes:

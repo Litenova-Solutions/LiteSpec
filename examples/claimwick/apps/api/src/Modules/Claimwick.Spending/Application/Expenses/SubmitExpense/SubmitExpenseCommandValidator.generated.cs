@@ -46,6 +46,16 @@ internal sealed partial class SubmitExpenseCommandValidator : IValidator<SubmitE
             failures.Add(new ValidationFailure("EmployeeId", "required", "An employee is required."));
         }
 
+        if (command.Note is not null && command.Note.Length > 280)
+        {
+            failures.Add(new ValidationFailure("Note", "too-long", "The note must be at most 280 characters long."));
+        }
+
+        if (command.Lines is null)
+        {
+            failures.Add(new ValidationFailure("Lines", "required", "A lines is required."));
+        }
+
         ValidateExtra(command, failures);
 
         return Task.FromResult(new Validity(failures));

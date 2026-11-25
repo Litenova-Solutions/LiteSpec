@@ -10,5 +10,5 @@ namespace Claimwick.Spending.Application.Receipts.AttachReceipt;
 /// <summary>The Attach Receipt result.</summary>
 /// <param name="ExpenseId">The submitted expense the receipt supports.</param>
 /// <param name="ReceiptId">The attached receipt.</param>
-/// <param name="SizeBytes">The stored scan's byte size.</param>
+/// <param name="SizeBytes">The total byte size of the stored scans.</param>
 internal sealed partial record AttachReceiptCommandResult(ExpenseId ExpenseId, ReceiptId ReceiptId, long SizeBytes);

@@ -2993,6 +2993,9 @@ static class GeneratePlan
                 }
             }
 
+            // A list of one file per row binds from the multipart form, one part per row, as a file input does.
+            var formList = type == "list" && rows is [{ Type: "file" }];
+
             if (type == "map")
             {
                 skip = $"input '{name}' carries a map, which endpoints do not bind";
@@ -3005,7 +3008,7 @@ static class GeneratePlan
                 return null;
             }
 
-            if (type == "file")
+            if (type == "file" || formList)
             {
                 fileInput ??= name;
             }
@@ -3076,7 +3079,7 @@ static class GeneratePlan
                 char.ToLowerInvariant(sanitized[0]) + sanitized[1..],
                 wire,
                 type,
-                origin == "derived" ? "derived" : type == "file" ? "form" : binding,
+                origin == "derived" ? "derived" : type == "file" || formList ? "form" : binding,
                 required,
                 RecordEntries.Str(input, RecordFields.Meaning),
                 type == "choice" ? SetTypeOf(input) : null,
@@ -3152,7 +3155,7 @@ static class GeneratePlan
                 return null;
             }
 
-            if (rowType is "list" or "map" or "file" or "object")
+            if (rowType is "list" or "map" or "object")
             {
                 skip = $"input '{name}' carries a list whose row '{rowName}' is a {rowType}, which endpoints do not bind";
                 return null;
@@ -3199,6 +3202,14 @@ static class GeneratePlan
                 RecordEntries.Str(row, RecordFields.CurrencyField),
                 RecordEntries.Str(row, RecordFields.CurrencyHome),
                 SizeOf(row)));
+        }
+
+        if (fields.Count > 1 && fields.Any(field => field.Type == "file"))
+        {
+            var fileRow = fields.First(field => field.Type == "file").Name;
+
+            skip = $"input '{name}' carries a list whose row '{fileRow}' is a file beside other fields, which endpoints do not bind";
+            return null;
         }
 
         return fields;

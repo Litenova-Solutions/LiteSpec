@@ -730,6 +730,17 @@ public sealed class GenerateEventsTests
             Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"),
             "\nparts:\n- name: renewal\n  identity: false\n");
 
+    /// <summary>A file row field on an event carry maps to the carried bytes, as a message file row does.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void FileRowCarryMapsToBytes()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "scans", "type": "list", "rowShape": {"fields": [{"name": "scan", "type": "file", "contentTypes": ["image/png"], "maxSize": "10 MB", "required": true}]}}"""),
+            out var files));
+        Assert.Equal("IReadOnlyList<byte[]>", files!.Type);
+    }
+
     /// <summary>Parses one carries entry.</summary>
     /// <param name="json">The entry as JSON.</param>
     /// <returns>The parsed entry.</returns>

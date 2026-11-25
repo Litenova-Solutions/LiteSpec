@@ -83,19 +83,23 @@ internal static partial class SpendingEndpoints
         private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
             [FromQuery(Name = "expenseId")] ExpenseId expenseId,
             [FromQuery(Name = "receiptId")] ReceiptId receiptId,
-            IFormFile scan,
+            IFormFileCollection scans,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            using var scanStream = new MemoryStream();
-            await scan.CopyToAsync(scanStream, cancellationToken);
-            var scanBytes = scanStream.ToArray();
+            var scansBytes = new List<byte[]>(scans.Count);
+            foreach (var part in scans)
+            {
+                using var scansStream = new MemoryStream();
+                await part.CopyToAsync(scansStream, cancellationToken);
+                scansBytes.Add(scansStream.ToArray());
+            }
 
             await mediator.SendAsync(
                 new AttachReceiptCommand(
                     ExpenseId: expenseId,
                     ReceiptId: receiptId,
-                    Scan: scanBytes,
+                    Scans: scansBytes,
                     AttachedAt: DateTimeOffset.UtcNow
                 ),
                 cancellationToken);
@@ -340,6 +344,11 @@ internal static partial class SpendingEndpoints
     /// <param name="Category">The kind of cost the split carries, from the expense categories.</param>
     internal sealed partial record SubmitExpenseSplitsRow(string CostCenter, decimal Amount, string Category);
 
+    /// <summary>One row of Lines.</summary>
+    /// <param name="Category">The kind of cost the line carries.</param>
+    /// <param name="Amount">The line amount.</param>
+    internal sealed partial record SubmitExpenseLinesRow(string Category, decimal Amount);
+
     /// <summary>The SubmitExpense request body.</summary>
     /// <param name="ExpenseId">The identifier the app mints for one submission attempt, so a retried request finds the same expense.</param>
     /// <param name="Amount">The exact amount of the expense.</param>
@@ -348,7 +357,10 @@ internal static partial class SpendingEndpoints
     /// <param name="ReceiptId">The proof of payment, required above the threshold.</param>
     /// <param name="Labels">The labels the employee files the expense under.</param>
     /// <param name="Splits">The cost splits of the expense, one row per cost center carrying part of the amount.</param>
-    internal sealed partial record SubmitExpenseRequest(Guid ExpenseId, decimal Amount, string Currency, string Category, Guid? ReceiptId, string[]? Labels, SubmitExpenseSplitsRow[]? Splits);
+    /// <param name="Note">The note the employee files with the expense.</param>
+    /// <param name="ImportId">The import batch the expense arrived in, when it arrived in one.</param>
+    /// <param name="Lines">The line items of the expense, one row per cost kind.</param>
+    internal sealed partial record SubmitExpenseRequest(Guid ExpenseId, decimal Amount, string Currency, string Category, Guid? ReceiptId, string[]? Labels, SubmitExpenseSplitsRow[]? Splits, string? Note, Guid? ImportId, SubmitExpenseLinesRow[] Lines);
 
     /// <summary>An employee files a work expense so it can be decided and reimbursed.</summary>
     /// <implements>use-case/spending.submit-expense</implements>
@@ -393,6 +405,15 @@ internal static partial class SpendingEndpoints
                 }
             }
 
+            var linesRows = new List<SubmittedLine>(request.Lines.Length);
+            foreach (var row in request.Lines)
+            {
+                linesRows.Add(new SubmittedLine(
+                    Category: row.Category,
+                    Amount: row.Amount
+                ));
+            }
+
             var result = await mediator.SendAsync(
                 new SubmitExpenseCommand(
                     ExpenseId: ExpenseId.From(request.ExpenseId),
@@ -402,7 +423,10 @@ internal static partial class SpendingEndpoints
                     ReceiptId: request.ReceiptId is null ? null : ReceiptId.From(request.ReceiptId.Value),
                     EmployeeId: ActorClaims.ReadActorId(user, "employee"),
                     Labels: request.Labels,
-                    Splits: splitsRows
+                    Splits: splitsRows,
+                    Note: request.Note,
+                    ImportId: request.ImportId,
+                    Lines: linesRows
                 ),
                 cancellationToken);
 

@@ -865,6 +865,7 @@ public sealed class GenerateMessagesTests
                 "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ReimburseExpense/ReimburseExpenseCommandResult.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommand.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandResult.generated.cs",
+                "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmittedLine.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Policies/ChangeReceiptThreshold/ChangeReceiptThresholdCommand.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Policies/ChangeReceiptThreshold/ChangeReceiptThresholdCommandResult.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Receipts/AttachReceipt/AttachReceiptCommand.generated.cs",
@@ -879,7 +880,8 @@ public sealed class GenerateMessagesTests
                     || file.AbsolutePath.EndsWith("Result.generated.cs", StringComparison.Ordinal)
                     || file.AbsolutePath.EndsWith("ExpenseSummary.generated.cs", StringComparison.Ordinal)
                     || file.AbsolutePath.EndsWith("ExportedExpenseRow.generated.cs", StringComparison.Ordinal)
-                    || file.AbsolutePath.EndsWith("ReimbursedExpenseRow.generated.cs", StringComparison.Ordinal))
+                    || file.AbsolutePath.EndsWith("ReimbursedExpenseRow.generated.cs", StringComparison.Ordinal)
+                    || file.AbsolutePath.EndsWith("SubmittedLine.generated.cs", StringComparison.Ordinal))
                 .Select(file => Path.GetRelativePath(root, file.AbsolutePath).Replace('\\', '/'))
                 .Order(StringComparer.Ordinal));
     }
@@ -1477,6 +1479,92 @@ public sealed class GenerateMessagesTests
 
             internal sealed record Renewal(DateTimeOffset RenewedAt);
             """);
+    }
+
+    /// <summary>A file row field maps to the carried bytes, as a top-level file does.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void FileRowMapsToBytes()
+    {
+        var single = JsonDocument.Parse("""{"name": "scans", "meaning": "The scanned pages.", "type": "list", "required": true, "origin": "caller", "rowShape": {"fields": [{"name": "scan", "type": "file", "contentTypes": ["image/png"], "maxSize": "10 MB", "required": true, "meaning": "One scanned page."}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(single, out var files));
+        Assert.Equal("IReadOnlyList<byte[]>", files!.Type);
+
+        var mixed = JsonDocument.Parse("""{"name": "pages", "meaning": "The scanned pages with titles.", "type": "list", "required": true, "origin": "caller", "rowType": "ScanPage", "rowShape": {"fields": [{"name": "title", "type": "text", "required": true, "meaning": "The page title."}, {"name": "scan", "type": "file", "contentTypes": ["image/png"], "maxSize": "10 MB", "required": false, "meaning": "One scanned page."}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(mixed, out var rows));
+        Assert.Equal("IReadOnlyList<ScanPage>", rows!.Type);
+        Assert.Equal("byte[]?", rows.Row.Single(row => row.Property == "Scan").Type);
+
+        var nested = JsonDocument.Parse("""{"name": "bundles", "meaning": "The scan bundles.", "type": "list", "required": true, "origin": "caller", "rowShape": {"fields": [{"name": "pages", "meaning": "The pages of one bundle.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "scan", "type": "file", "contentTypes": ["image/png"], "maxSize": "10 MB", "required": true, "meaning": "One scanned page."}]}}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(nested, out var bundle));
+        Assert.Equal("IReadOnlyList<IReadOnlyList<byte[]>>", bundle!.Type);
+    }
+
+    /// <summary>One group holding several lists renders each list as a sibling property on a flat result.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SeveralListsInOneGroupRenderFlat()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var folder = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "use-cases", "export-holds");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "export-holds.yaml"),
+            """
+            type: use-case
+            id: use-case/lending.export-holds
+            title: Export holds
+            kind: query
+            output:
+              include:
+                file:
+                  fields:
+                  - name: holds
+                    meaning: One row per waiting hold.
+                    type: list
+                    rowShape:
+                      fields:
+                      - name: hold
+                        meaning: The hold identity.
+                        type: id
+                        identifies: aggregate/lending.hold
+                        required: true
+                    rowType: ExportedHoldRow
+                  - name: copies
+                    meaning: One row per held copy.
+                    type: list
+                    rowShape:
+                      fields:
+                      - name: copy
+                        meaning: The copy on hold.
+                        type: id
+                        identifies: aggregate/lending.copy
+                        required: true
+                    rowType: ExportedCopyRow
+                  classification: internal
+                  reads:
+                  - aggregate/lending.hold
+                  freshness:
+                    mode: immediate
+            """);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: results
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var result = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ExportHoldsQueryResult.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("IReadOnlyList<ExportedHoldRow> Holds, IReadOnlyList<ExportedCopyRow> Copies", result, StringComparison.Ordinal);
+        Assert.DoesNotContain("Group", result, StringComparison.Ordinal);
     }
 
     /// <summary>Appends a generate block to the fixture project file.</summary>

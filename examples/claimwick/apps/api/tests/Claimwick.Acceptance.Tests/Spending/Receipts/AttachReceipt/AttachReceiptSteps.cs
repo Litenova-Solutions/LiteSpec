@@ -8,12 +8,13 @@ public sealed class AttachReceiptSteps
 {
     public async Task AttachAReceiptAsync(string expense)
     {
-        await ExpensesWorld.PostAsync($"/api/expenses/{ExpensesWorld.IdOf(expense)}/receipts", new { receiptId = ExpensesWorld.IdOf("receipt-2") });
+        var route = $"/api/receipts?expenseId={ExpensesWorld.IdOf(expense)}&receiptId={ExpensesWorld.IdOf("receipt-2")}";
+        await ExpensesWorld.PostMultipartAsync(route, "scans", "receipt.png", "image/png", new byte[] { 1, 2, 3 });
     }
 
     public Task TheReceiptIsAttachedAsync()
     {
-        Assert.Equal(HttpStatusCode.Created, ExpensesWorld.LastResponse!.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, ExpensesWorld.LastResponse!.StatusCode);
         return Task.CompletedTask;
     }
 

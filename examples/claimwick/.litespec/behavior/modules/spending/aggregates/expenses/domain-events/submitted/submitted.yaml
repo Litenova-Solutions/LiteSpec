@@ -21,6 +21,7 @@ carries:
   required: false
 - name: importId
   type: id
+  required: false
 - name: lines
   type: list
   rowShape:

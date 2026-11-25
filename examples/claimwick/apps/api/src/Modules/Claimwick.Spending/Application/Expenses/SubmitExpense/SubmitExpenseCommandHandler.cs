@@ -1,5 +1,6 @@
 using Claimwick.Kernel.Values;
 using Claimwick.Spending.Domain.Expenses;
+using Claimwick.Spending.Domain.Expenses.Parts;
 using Claimwick.Spending.Domain.Policies;
 using LiteBus.Commands.Abstractions;
 
@@ -22,13 +23,17 @@ internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpens
         CancellationToken cancellationToken)
     {
         var policy = await _policies.GetForGuardAsync(cancellationToken);
+        var lines = command.Lines.Select(row => new LineItem(row.Category, Money.Create(row.Amount, command.Currency))).ToList();
         var expense = Expense.Submit(
             command.ExpenseId,
             command.EmployeeId,
             Money.Create(command.Amount, command.Currency),
             ExpenseCategory.FromCode(command.Category),
             command.ReceiptId,
-            policy.ReceiptThreshold);
+            policy.ReceiptThreshold,
+            command.Note,
+            command.ImportId,
+            lines);
         _expenses.Store(expense);
         return new SubmitExpenseCommandResult(expense.Id);
     }

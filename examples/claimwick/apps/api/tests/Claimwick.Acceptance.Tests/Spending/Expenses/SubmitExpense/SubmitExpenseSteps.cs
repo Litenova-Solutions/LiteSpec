@@ -16,6 +16,7 @@ public sealed class SubmitExpenseSteps
             currency = "EUR",
             category = "travel",
             receiptId = ExpensesWorld.IdOf("receipt-1"),
+            lines = new[] { new { category = "travel", amount = 48.90m } },
         });
 
         var created = await ExpensesWorld.LastResponse!.Content.ReadFromJsonAsync<SubmittedExpense>();
@@ -31,6 +32,7 @@ public sealed class SubmitExpenseSteps
             amount = 48.90m,
             currency = "EUR",
             category = "travel",
+            lines = new[] { new { category = "travel", amount = 48.90m } },
         });
     }
 

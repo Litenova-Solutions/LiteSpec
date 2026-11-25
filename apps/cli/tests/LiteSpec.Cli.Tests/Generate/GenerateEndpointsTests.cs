@@ -1465,6 +1465,201 @@ public sealed class GenerateEndpointsTests
                 StringComparison.Ordinal));
     }
 
+    /// <summary>A list of one file per row binds from the multipart form, one part per row.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleFileRowListBindsFromForm()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: photos
+              meaning: The condition photos the retirement files the copy under.
+              type: list
+              rowShape:
+                fields:
+                - name: photo
+                  meaning: One condition photo.
+                  type: file
+                  contentTypes:
+                  - image/png
+                  maxSize: 5 MB
+                  required: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        Assert.Contains("IFormFileCollection photos", file.Content, StringComparison.Ordinal);
+        Assert.Contains("foreach (var part in photos)", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Photos: photosBytes", file.Content, StringComparison.Ordinal);
+        Assert.Contains("using System.IO;", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A list of one file per row renders its golden nested endpoint class in the module file.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void FileRowListMatchesGolden()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: photos
+              meaning: The condition photos the retirement files the copy under.
+              type: list
+              rowShape:
+                fields:
+                - name: photo
+                  meaning: One condition photo.
+                  type: file
+                  contentTypes:
+                  - image/png
+                  maxSize: 5 MB
+                  required: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+
+        GenerateGoldens.AssertEqual("endpoints-file-rows-dotnet.txt", file.Content);
+    }
+
+    /// <summary>A row mixing a file with other fields renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MixedFileRowSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: photos
+              meaning: The condition photos with titles the retirement files the copy under.
+              type: list
+              rowType: ConditionPhoto
+              rowShape:
+                fields:
+                - name: title
+                  meaning: The photo title.
+                  type: text
+                  required: true
+                - name: photo
+                  meaning: One condition photo.
+                  type: file
+                  contentTypes:
+                  - image/png
+                  maxSize: 5 MB
+                  required: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("is a file beside other fields", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A row holding several files renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SeveralFilesInOneRowSkipWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: photos
+              meaning: The condition photo pair the retirement files the copy under.
+              type: list
+              rowType: ConditionPhotoPair
+              rowShape:
+                fields:
+                - name: front
+                  meaning: The front photo.
+                  type: file
+                  contentTypes:
+                  - image/png
+                  maxSize: 5 MB
+                  required: true
+                - name: back
+                  meaning: The back photo.
+                  type: file
+                  contentTypes:
+                  - image/png
+                  maxSize: 5 MB
+                  required: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("is a file beside other fields", skip.Reason, StringComparison.Ordinal);
+    }
+
     /// <summary>Appends a generate block to the fixture project file.</summary>
     /// <param name="root">The prepared fixture folder.</param>
     /// <param name="yaml">The generate block YAML.</param>

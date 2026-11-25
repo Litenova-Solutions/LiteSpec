@@ -30,6 +30,11 @@ internal sealed partial class AttachReceiptCommandValidator : IValidator<AttachR
             failures.Add(new ValidationFailure("ReceiptId", "required", "A receipt is required."));
         }
 
+        if (command.Scans is null)
+        {
+            failures.Add(new ValidationFailure("Scans", "required", "A scans is required."));
+        }
+
         ValidateExtra(command, failures);
 
         return Task.FromResult(new Validity(failures));

@@ -955,7 +955,7 @@ internal static class ContractChecks
         return siblings;
     }
 
-    /// <summary>Reports an identifies that names no record for an id or a map with id values, a choice with inline choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither. An id field with no identifies reads as an untyped identifier and reports nothing.</summary>
+    /// <summary>Reports an identifies that names no record for an id or a map with id values, a choice with inline choices, a list with no row shape, and an identifies or rowShape on a type that carries neither. An id field with no identifies reads as an untyped identifier and reports nothing.</summary>
     /// <param name="model">The loaded project model that resolves the id field target.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1044,14 +1044,6 @@ internal static class ContractChecks
 
         if (type == "file")
         {
-            if (Str(entry, RecordFields.MaxSize) is not { Length: > 0 }
-                || !entry.TryGetProperty(RecordFields.ContentTypes, out var contentTypes)
-                || contentTypes.ValueKind != JsonValueKind.Array
-                || contentTypes.GetArrayLength() == 0)
-            {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type file with no contentTypes and maxSize.", record.File, record.Line, SubjectOf(record)));
-            }
-
             RefuseShapes(record, label, array, name, type, hasId, hasRow, findings);
             return;
         }
@@ -1081,7 +1073,7 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports a contract field whose closed set, currency home, currency field, length span, or numeric span names nothing or contradicts itself.</summary>
+    /// <summary>Reports a contract field whose closed set, currency home, currency field, file media types and size, length span, or numeric span names nothing or contradicts itself.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1138,6 +1130,15 @@ internal static class ContractChecks
                     findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with currencyField '{currencyField}' naming '{currencyField}' of type '{siblingType}', which is no text.", record.File, record.Line, SubjectOf(record)));
                 }
             }
+        }
+
+        if (type == "file"
+            && (Str(entry, RecordFields.MaxSize) is not { Length: > 0 }
+                || !entry.TryGetProperty(RecordFields.ContentTypes, out var contentTypes)
+                || contentTypes.ValueKind != JsonValueKind.Array
+                || contentTypes.GetArrayLength() == 0))
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' of type file with no contentTypes and maxSize.", record.File, record.Line, SubjectOf(record)));
         }
 
         if (entry.TryGetProperty(RecordFields.MinLength, out var minLength)
@@ -1298,10 +1299,10 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>The scalar types a nested row field may carry: rows nest one level at a time.</summary>
+    /// <summary>The scalar and file types a nested row field may carry: rows nest one level at a time.</summary>
     private static readonly HashSet<string> NestedRowTypes = new(StringComparer.Ordinal)
     {
-        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id",
+        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file",
     };
 
     /// <summary>Reports a nested list row shape that is no scalar row list, a nested row field with no name, a non-scalar type, or no required flag, and a multi-field nested list with no rowType or a rowType naming an undeclared part.</summary>

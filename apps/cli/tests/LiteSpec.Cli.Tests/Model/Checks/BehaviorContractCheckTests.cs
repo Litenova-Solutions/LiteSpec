@@ -453,6 +453,62 @@ public sealed class BehaviorContractCheckTests
         Assert.False(Reports(model, "record-invalid", "of type choice with no set"));
     }
 
+    /// <summary>File Input Without Content Types Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void FileInputWithoutContentTypesReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.register-reader", Path.Combine(temp.Path, "register.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo registers the reader."}], "input": [{"name": "photo", "meaning": "The reader photo.", "type": "file", "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds input field 'photo' of type file with no contentTypes and maxSize"));
+    }
+
+    /// <summary>File Row Without Content Types Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void FileRowWithoutContentTypesReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.register-reader", Path.Combine(temp.Path, "register.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo registers the reader."}], "input": [{"name": "scans", "meaning": "The scanned pages.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "scan", "meaning": "One scanned page.", "type": "file", "required": true}]}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds row field of input field 'scans' 'scan' of type file with no contentTypes and maxSize"));
+    }
+
+    /// <summary>File Row With Facts Passes.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void FileRowWithFactsPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.register-reader", Path.Combine(temp.Path, "register.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo registers the reader."}], "input": [{"name": "scans", "meaning": "The scanned pages.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "scan", "meaning": "One scanned page.", "type": "file", "contentTypes": ["image/png"], "maxSize": "10 MB", "required": true}]}}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "'scan'"));
+    }
+
+    /// <summary>Nested File Leaf With Facts Passes.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void NestedFileLeafWithFactsPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.register-reader", Path.Combine(temp.Path, "register.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo registers the reader."}], "input": [{"name": "bundles", "meaning": "The scan bundles.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "pages", "meaning": "The pages of one bundle.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "scan", "meaning": "One scanned page.", "type": "file", "contentTypes": ["image/png"], "maxSize": "10 MB", "required": true}]}}]}}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "'scan'"));
+    }
+
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>
     /// <param name="code">The finding code to look for.</param>

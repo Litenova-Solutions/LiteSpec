@@ -105,6 +105,41 @@ input:
   origin: caller
   binding: body
   classification: internal
+- name: note
+  meaning: The note the employee files with the expense.
+  type: text
+  maxLength: 280
+  required: false
+  origin: caller
+  binding: body
+  classification: internal
+- name: importId
+  meaning: The import batch the expense arrived in, when it arrived in one.
+  type: id
+  required: false
+  origin: caller
+  binding: body
+  classification: internal
+- name: lines
+  meaning: The line items of the expense, one row per cost kind.
+  type: list
+  rowShape:
+    fields:
+    - name: category
+      meaning: The kind of cost the line carries.
+      type: text
+      required: true
+    - name: amount
+      meaning: The line amount.
+      type: money
+      currencyHome: aggregate/spending.expense
+      required: true
+    minItems: 1
+  rowType: SubmittedLine
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
 output:
 - name: expenseId
   meaning: The submitted expense.
