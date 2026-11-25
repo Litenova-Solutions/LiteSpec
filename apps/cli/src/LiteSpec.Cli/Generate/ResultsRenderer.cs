@@ -5,20 +5,22 @@ namespace LiteSpec.Cli.Generate;
 /// <summary>
 ///     Renders the result of one use case as C#: a partial record from its output, with one
 ///     positional property per field, a nested record per output group when the output holds
-///     several, a row type per multi-field list, and the next cursor when the query pages.
-///     A hand-written sibling file may add members to the generated type.
+///     several or one optional, a row type per named list, and the next cursor when the query
+///     pages. A hand-written sibling file may add members to the generated type.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class ResultsRenderer
 {
-    /// <summary>One output group of a multi-group result with its fields.</summary>
+    /// <summary>One output group of a grouped result with its fields.</summary>
     /// <param name="Group">The group name the output states.</param>
     /// <param name="Property">The property name in PascalCase.</param>
     /// <param name="Fields">The group fields with their C# types, in written order.</param>
+    /// <param name="Required">True when the use case always answers the group.</param>
     public sealed record ResultGroup(
         string Group,
         string Property,
-        IReadOnlyList<MessageFieldTypes.MappedField> Fields);
+        IReadOnlyList<MessageFieldTypes.MappedField> Fields,
+        bool Required);
 
     /// <summary>One use-case result the plan renders.</summary>
     /// <param name="UseCaseId">The use case identifier.</param>
@@ -59,7 +61,7 @@ static class ResultsRenderer
     /// <summary>
     ///     Renders one use-case result as C#: a partial record with one positional property per
     ///     output field, or one property per output group with a nested record each when the
-    ///     output holds several groups, and the next cursor when the query pages.
+    ///     output holds several groups or one optional, and the next cursor when the query pages.
     /// </summary>
     /// <param name="data">The use-case result the plan renders.</param>
     /// <returns>The file text with LF line endings.</returns>
@@ -179,14 +181,14 @@ static class ResultsRenderer
         return string.Join('\n', lines) + "\n";
     }
 
-    /// <summary>The positional parameters of the result: each field or group, with the next cursor last when the query pages.</summary>
+    /// <summary>The positional parameters of the result: each field or group, with the next cursor last when the query pages. An optional group rides nullable.</summary>
     /// <param name="data">The use-case result the plan renders.</param>
     /// <returns>The parameter texts in order.</returns>
     private static List<string> ParametersOf(ResultData data)
     {
         var parameters = data.Fields.Select(field => $"{field.Type} {field.Property}").ToList();
 
-        parameters.AddRange(data.Groups.Select(group => $"{group.Property}Group {group.Property}"));
+        parameters.AddRange(data.Groups.Select(group => $"{group.Property}Group{(group.Required ? "" : "?")} {group.Property}"));
 
         if (data.HasNextCursor)
         {

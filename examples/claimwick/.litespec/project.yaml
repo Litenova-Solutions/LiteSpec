@@ -95,6 +95,7 @@ generate:
   usings:
   - Claimwick.Spending.Contracts.Expenses
   - Claimwick.Spending.Domain.Receipts
+  - Claimwick.Kernel.Values
 - kind: messages
   stack: dotnet
   path: apps/api/src/Modules/Claimwick.{Module}.Contracts/{Aggregate}/{UseCase}
@@ -111,6 +112,7 @@ generate:
   usings:
   - Claimwick.Spending.Contracts.Expenses
   - Claimwick.Spending.Domain.Receipts
+  - Claimwick.Kernel.Values
 - kind: results
   stack: dotnet
   path: apps/api/src/Modules/Claimwick.{Module}.Contracts/{Aggregate}/{UseCase}
@@ -126,6 +128,7 @@ generate:
   usings:
   - Claimwick.Spending.Contracts.Expenses
   - Claimwick.Spending.Domain.Receipts
+  - Claimwick.Kernel.Values
 frontends:
 - name: web
   path: apps/web

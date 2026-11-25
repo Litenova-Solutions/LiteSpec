@@ -21,7 +21,7 @@ http:
   method: POST
   route: /api/expenses/{expenseId}:approve
 input:
-- name: expense
+- name: expenseId
   meaning: The submitted expense to approve.
   type: id
   identifies: aggregate/spending.expense
@@ -29,7 +29,7 @@ input:
   origin: caller
   binding: route
   classification: internal
-- name: approver
+- name: approverId
   meaning: The signed-in manager deciding the expense, read from verified claims.
   type: id
   identifies: actor/manager

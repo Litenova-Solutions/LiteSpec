@@ -464,7 +464,7 @@ internal static class MessageFieldChecks
         {
             var groups = include.EnumerateObject()
                 .Where(group => group.Value.ValueKind == JsonValueKind.Object)
-                .Select(group => (group.Name, Fields: FieldsIn(group.Value)))
+                .Select(group => (group.Name, Fields: FieldsIn(group.Value), Optional: IsOptionalGroup(group.Value)))
                 .ToList();
 
             if (groups.Count == 0)
@@ -472,11 +472,11 @@ internal static class MessageFieldChecks
                 return;
             }
 
-            if (groups.Count == 1)
+            if (groups.Count == 1 && !groups[0].Optional)
             {
                 drift = Compare(groups[0].Fields, properties, "output field", implied: ImpliedResult(useCase));
             }
-            else if (!TryNestedDrift(source, handler.File, groups, properties, out drift))
+            else if (!TryNestedDrift(source, handler.File, groups.Select(group => (group.Name, group.Fields)).ToList(), properties, out drift))
             {
                 return;
             }
@@ -559,6 +559,12 @@ internal static class MessageFieldChecks
         && useCase.Raw.TryGetProperty(RecordFields.Paging, out var paging)
         && Str(paging, RecordFields.Mode) is { Length: > 0 } mode
         && mode != "none";
+
+    /// <summary>Whether an output group is optional: true only when it states required false, so a single optional group renders nested.</summary>
+    /// <param name="group">The output group object.</param>
+    /// <returns>True when the use case may answer without the group; otherwise false.</returns>
+    static bool IsOptionalGroup(JsonElement group) =>
+        group.TryGetProperty(RecordFields.Required, out var required) && required.ValueKind == JsonValueKind.False;
 
     /// <summary>Compares each output group with its nested type, when the result holds one property per group.</summary>
     /// <param name="source">The backend source each nested type is read from.</param>
@@ -707,39 +713,27 @@ internal static class MessageFieldChecks
     {
         var expected = Naming.Pascal(name);
 
-        if (properties.ContainsKey(expected))
+        if (!properties.TryGetValue(expected, out var written))
         {
-            consumed.Add(expected);
-
-            // A money field may ride as an amount with its currency beside it: the pair
-            // answers the field together, as ChangeReceiptThreshold carries Threshold with Currency.
-            // The record names the sibling in currencyField; Currency answers when it states none.
-            if (type == "money" && IsDecimal(properties[expected]))
-            {
-                var pair = currencyField.Length > 0 ? Naming.Pascal(currencyField) : "Currency";
-
-                if (properties.TryGetValue(pair, out var currency) && IsText(currency))
-                {
-                    consumed.Add(pair);
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        // An id field names its record, while the property names its identity: expense rides as ExpenseId.
-        if (type == "id" && !expected.EndsWith("Id", StringComparison.Ordinal))
-        {
-            var identified = expected + "Id";
+        consumed.Add(expected);
 
-            if (properties.ContainsKey(identified))
+        // A money field may ride as an amount with its currency beside it: the pair
+        // answers the field together, as ChangeReceiptThreshold carries Threshold with Currency.
+        // The record names the sibling in currencyField; Currency answers when it states none.
+        if (type == "money" && IsDecimal(written))
+        {
+            var pair = currencyField.Length > 0 ? Naming.Pascal(currencyField) : "Currency";
+
+            if (properties.TryGetValue(pair, out var currency) && IsText(currency))
             {
-                consumed.Add(identified);
-                return true;
+                consumed.Add(pair);
             }
         }
 
-        return false;
+        return true;
     }
 
     /// <summary>The type clause for a matched field whose property type misses its declared type, or null when the pair is uncertain or matches.</summary>
@@ -756,7 +750,7 @@ internal static class MessageFieldChecks
     {
         string? property = null;
 
-        foreach (var candidate in Candidates(name, type))
+        foreach (var candidate in Candidates(name))
         {
             if (consumed.Contains(candidate))
             {
@@ -795,6 +789,7 @@ internal static class MessageFieldChecks
             "boolean" => actual is "bool" or "Boolean",
             "id" => IsIdentifier(actual),
             "choice" => IsClosedSet(actual),
+            "file" => IsBytes(actual),
             _ => true,
         };
 
@@ -806,21 +801,10 @@ internal static class MessageFieldChecks
         return $"property '{property}' is '{actual}' for {label} '{shown}' of type '{type}'";
     }
 
-    /// <summary>The property names one declared field matches: its PascalCase name, with the identity suffix for an id.</summary>
+    /// <summary>The property names one declared field matches: its PascalCase name, as generators name theirs.</summary>
     /// <param name="name">The declared field name.</param>
-    /// <param name="type">The declared record type.</param>
     /// <returns>The candidate property names.</returns>
-    static List<string> Candidates(string name, string type)
-    {
-        var expected = Naming.Pascal(name);
-
-        if (type == "id" && !expected.EndsWith("Id", StringComparison.Ordinal))
-        {
-            return [expected, expected + "Id"];
-        }
-
-        return [expected];
-    }
+    static List<string> Candidates(string name) => [Naming.Pascal(name)];
 
     /// <summary>The declared fields of a contract array: each entry with a name, with its type, currency field, and many flag.</summary>
     /// <param name="record">The record holding the array.</param>
@@ -936,6 +920,11 @@ internal static class MessageFieldChecks
     /// <param name="actual">The simple type name.</param>
     /// <returns>True for Guid or a name ending in Id.</returns>
     static bool IsIdentifier(string actual) => actual is "Guid" || actual.EndsWith("Id", StringComparison.Ordinal);
+
+    /// <summary>Whether a simple type name is the carried file bytes.</summary>
+    /// <param name="actual">The simple type name.</param>
+    /// <returns>True for byte[] or Byte[].</returns>
+    static bool IsBytes(string actual) => actual is "byte[]" or "Byte[]";
 
     /// <summary>Whether a simple type name is a closed-set type rather than a scalar the set never rides as.</summary>
     /// <param name="actual">The simple type name.</param>

@@ -151,25 +151,86 @@ public sealed class GenerateMessagesTests
         Assert.DoesNotContain("Cursor", query, StringComparison.Ordinal);
     }
 
-    /// <summary>A use case under tenant scope carries the tenant key when the tenancy selection names its term.</summary>
+    /// <summary>A use case under tenant scope carries the tenant key first, as a Guid when no aggregate carries the term name.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void TenantUseCaseCarriesTenantKey()
     {
         using var temp = ModelFixture.Prepare("small");
-        var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
+        WriteTenancy(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("BorrowCopyCommand(Guid WorkspaceId, CopyId CopyId, Guid ReaderId)", command, StringComparison.Ordinal);
+        Assert.Contains("/// <param name=\"WorkspaceId\">The tenant the call acts in.</param>", command, StringComparison.Ordinal);
+    }
+
+    /// <summary>The tenant key rides the tenant aggregate's identifier type when an aggregate carries the term name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void TenantKeyRidesTenantAggregateIdentifier()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteTenancy(temp.Path);
+        var folder = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "workspaces");
+        Directory.CreateDirectory(folder);
         File.WriteAllText(
-            project,
-            File.ReadAllText(project).Replace(
-                "selectedExtensions: []",
-                "selectedExtensions:\n- id: tenancy\n  criterion: Independent customers share one deployment.\n  tenant: term/workspace",
-                StringComparison.Ordinal));
-        var glossary = Path.Combine(temp.Path, ".litespec", "glossary.yaml");
+            Path.Combine(folder, "aggregate.yaml"),
+            """
+            type: aggregate
+            id: aggregate/lending.workspace
+            title: Workspace
+            states:
+            - name: Active
+              meaning: The workspace lends.
+            """);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid ReaderId)", command, StringComparison.Ordinal);
+    }
+
+    /// <summary>An input identifying the tenant aggregate carries the tenant key itself, so no key is implied.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void TenantIdentifyingInputSuppressesImpliedKey()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteTenancy(temp.Path);
+        var folder = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "workspaces");
+        Directory.CreateDirectory(folder);
         File.WriteAllText(
-            glossary,
-            File.ReadAllText(glossary).Replace(
-                "- id: term/loan",
-                "- id: term/workspace\n  term: workspace\n  meaning: One customer organization sharing the deployment.\n  layer: behavior\n- id: term/loan",
+            Path.Combine(folder, "aggregate.yaml"),
+            """
+            type: aggregate
+            id: aggregate/lending.workspace
+            title: Workspace
+            states:
+            - name: Active
+              meaning: The workspace lends.
+            """);
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "- name: copyId",
+                "- name: workspaceId\n  meaning: The workspace the loan belongs to.\n  type: id\n  identifies: aggregate/lending.workspace\n  required: true\n  origin: caller\n  classification: internal\n- name: copyId",
                 StringComparison.Ordinal));
         AppendGenerate(temp.Path, """
             generate:
@@ -182,7 +243,27 @@ public sealed class GenerateMessagesTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
         var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
 
-        Assert.Contains("Guid ReaderId, Guid WorkspaceId", command, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid ReaderId);", command, StringComparison.Ordinal);
+    }
+
+    /// <summary>Selects tenancy with the workspace term and declares the term, so messages imply the tenant key.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteTenancy(string root)
+    {
+        var project = Path.Combine(root, ".litespec", "project.yaml");
+        File.WriteAllText(
+            project,
+            File.ReadAllText(project).Replace(
+                "selectedExtensions: []",
+                "selectedExtensions:\n- id: tenancy\n  criterion: Independent customers share one deployment.\n  tenant: term/workspace",
+                StringComparison.Ordinal));
+        var glossary = Path.Combine(root, ".litespec", "glossary.yaml");
+        File.WriteAllText(
+            glossary,
+            File.ReadAllText(glossary).Replace(
+                "- id: term/loan",
+                "- id: term/workspace\n  term: workspace\n  meaning: One customer organization sharing the deployment.\n  layer: behavior\n- id: term/loan",
+                StringComparison.Ordinal));
     }
 
     /// <summary>A public use case renders its message and result into the Contracts target with public visibility.</summary>
@@ -222,7 +303,7 @@ public sealed class GenerateMessagesTests
             "apps/api/src/Modules/Library.Lending.Contracts/Loans/ReadLoan/ReadLoanQuery.generated.cs",
             Path.GetRelativePath(temp.Path, query.AbsolutePath).Replace('\\', '/'));
         Assert.Contains("namespace Library.Lending.Contracts.Loans.ReadLoan;", query.Content, StringComparison.Ordinal);
-        Assert.Contains("public sealed partial record ReadLoanQuery(LoanId LoanId);", query.Content, StringComparison.Ordinal);
+        Assert.Contains("public sealed partial record ReadLoanQuery(LoanId Loan);", query.Content, StringComparison.Ordinal);
         Assert.Contains("public sealed partial record ReadLoanResult(LoanId LoanId, DateOnly DueDate);", result.Content, StringComparison.Ordinal);
         Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.Contains("Application", StringComparison.Ordinal) && file.AbsolutePath.Contains("ReadLoan", StringComparison.Ordinal));
     }
@@ -363,6 +444,98 @@ public sealed class GenerateMessagesTests
 
         Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
         Assert.Equal("IReadOnlyList<DateTimeOffset>", mapped!.Type);
+    }
+
+    /// <summary>An optional output field maps nullable, and a required one stays non-nullable.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OptionalOutputFieldMapsNullable()
+    {
+        var missing = JsonDocument.Parse("""{"name": "source", "meaning": "The shelf the loan came from.", "type": "text", "required": false}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapOutput(missing, out var optional));
+        Assert.Equal("Source", optional!.Property);
+        Assert.Equal("string?", optional.Type);
+
+        var stated = JsonDocument.Parse("""{"name": "source", "meaning": "The shelf the loan came from.", "type": "text"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapOutput(stated, out var required));
+        Assert.Equal("string", required!.Type);
+    }
+
+    /// <summary>A member takes the PascalCase field name: no suffix is added to an id.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MemberTakesFieldNameWithoutSuffix()
+    {
+        Assert.Equal("Copy", MessageFieldTypes.PropertyName("copy"));
+        Assert.Equal("CopyId", MessageFieldTypes.PropertyName("copyId"));
+
+        var input = JsonDocument.Parse("""{"name": "copy", "meaning": "The copy borrowed.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(input, out var mapped));
+        Assert.Equal("Copy", mapped!.Property);
+        Assert.Equal("CopyId", mapped.Type);
+    }
+
+    /// <summary>A money field maps to the shared money object, and a file field to the carried bytes.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyAndFileFieldsMap()
+    {
+        var money = JsonDocument.Parse("""{"name": "deposit", "meaning": "The deposit held.", "type": "money", "currencyField": "depositCurrency", "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(money, out var amount));
+        Assert.Equal("Money", amount!.Type);
+
+        var file = JsonDocument.Parse("""{"name": "scan", "meaning": "The scanned slip.", "type": "file", "contentTypes": ["application/pdf"], "maxSize": "5 MB", "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(file, out var bytes));
+        Assert.Equal("byte[]", bytes!.Type);
+
+        var missing = JsonDocument.Parse("""{"name": "scan", "meaning": "The scanned slip.", "type": "file", "contentTypes": ["application/pdf"], "maxSize": "5 MB", "required": false, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(missing, out var absent));
+        Assert.Equal("byte[]?", absent!.Type);
+    }
+
+    /// <summary>A list of one field keeps its named row type when rowType names one, else it lists the element.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleFieldListWithRowTypeKeepsNamedRow()
+    {
+        var named = JsonDocument.Parse("""{"name": "tags", "meaning": "The tags on the loan.", "type": "list", "rowType": "LoanTagRow", "rowShape": {"fields": [{"name": "tag", "type": "text", "required": true, "meaning": "One tag."}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapOutput(named, out var kept));
+        Assert.Equal("IReadOnlyList<LoanTagRow>", kept!.Type);
+        Assert.Equal("LoanTagRow", kept.RowType);
+        Assert.Single(kept.Row);
+
+        var plain = JsonDocument.Parse("""{"name": "tags", "meaning": "The tags on the loan.", "type": "list", "rowShape": {"fields": [{"name": "tag", "type": "text", "required": true, "meaning": "One tag."}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapOutput(plain, out var collapsed));
+        Assert.Equal("IReadOnlyList<string>", collapsed!.Type);
+        Assert.Null(collapsed.RowType);
+    }
+
+    /// <summary>A single optional group stays nested and nullable, with its optional fields nullable beside it.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleOptionalGroupStaysNestedAndNullable()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteLoanSummary(temp.Path);
+        AppendGenerate(temp.Path, ShelfResultsTarget);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var result = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ReadLoanSummaryQueryResult.generated.cs", StringComparison.Ordinal)).Content;
+        var row = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("LoanTagRow.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Contains("internal sealed partial record ReadLoanSummaryQueryResult(LoanGroup? Loan)", result, StringComparison.Ordinal);
+        Assert.Contains("public sealed partial record LoanGroup(DateOnly DueDate, string? Note, IReadOnlyList<LoanTagRow> Tags);", result, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record LoanTagRow(string Tag);", row, StringComparison.Ordinal);
     }
 
     /// <summary>Generate writes the message and result files, and a second check finds them current.</summary>
@@ -747,6 +920,60 @@ public sealed class GenerateMessagesTests
               reason: the shelves of one branch fit one answer
             steps:
             - statement: The desk asks for the shelves.
+            """);
+    }
+
+    /// <summary>Writes a query whose single output group is optional, with an optional field and a named single-field row.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteLoanSummary(string root)
+    {
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "read-loan-summary");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "read-loan-summary.yaml"),
+            """
+            type: use-case
+            id: use-case/lending.read-loan-summary
+            title: Read loan summary
+            summary: Lending reads one loan with its due date, note, and tags so the desk sees the loan at a glance.
+            kind: query
+            access:
+              grant: permission/read-loans
+              tenant: own
+            output:
+              include:
+                loan:
+                  required: false
+                  fields:
+                  - name: dueDate
+                    meaning: The day the loan is due.
+                    type: date
+                  - name: note
+                    meaning: The desk note on the loan.
+                    type: text
+                    maxLength: 200
+                    required: false
+                  - name: tags
+                    meaning: The tags on the loan.
+                    type: list
+                    rowType: LoanTagRow
+                    rowShape:
+                      fields:
+                      - name: tag
+                        type: text
+                        required: true
+                        meaning: One tag.
+                      minItems: 0
+                  classification: internal
+                  reads:
+                  - aggregate/lending.loan
+                  freshness:
+                    mode: immediate
+            paging:
+              mode: none
+              reason: one loan answers the query
+            steps:
+            - statement: The desk asks for one loan.
             """);
     }
 

@@ -15,7 +15,7 @@ A reaction answers a domain event of its own module, a module event, or an inbou
 
 Only an endpoint, an event handler, and a job hold the command mediator. A command handler, query handler, reaction, or job holds the query mediator only to send another module's public query with a declared `queries` edge. A validator, step, or domain type sends nothing, no type in a module project publishes an event, and no type outside the platform holds the event mediator.
 
-A project with a `messages` generate target writes each command and query from its use case record: an internal sealed partial record with one positional property per input, the idempotency key, paging members, and tenant key the record implies, and the LiteBus interface over its result. A project with a `results` target writes each result beside its message: one property per output field, a nested record per output group, a row record per multi-field list, and the next cursor when the query pages. Hand-written members live in a sibling partial file.
+A project with a `messages` generate target writes each command and query from its use case record: an internal sealed partial record with the tenant key first when the tenancy selection implies one, one positional property per input, the idempotency key, and paging members, and the LiteBus interface over its result. Each member takes the PascalCase field name. A project with a `results` target writes each result beside its message: one property per output field, a nested record per output group when the output holds several groups or one optional, a row record per list naming a row type, and the next cursor when the query pages. Hand-written members live in a sibling partial file.
 
 In Claimwick, approving an expense sends `ApproveExpenseCommand` through `ICommandMediator`: validators check the input, the pipeline authorizes the approver, the handler records the approval, and one commit stores it.
 
@@ -40,7 +40,7 @@ A contract field maps to exactly one C# type, so a generator writes the same pro
 | `text`, `email` | `string` |
 | `integer` | `int` |
 | `decimal` | `decimal` |
-| `money` | `Money`, or `decimal` with its currency beside it |
+| `money` | `Money` |
 | `boolean` | `bool` |
 | `date` | `DateOnly` |
 | `instant` | `DateTimeOffset` |
@@ -48,9 +48,9 @@ A contract field maps to exactly one C# type, so a generator writes the same pro
 | `choice` | The closed-set record the `set` names |
 | `id` | The typed identifier of what `identifies` names, or `Guid` with no `identifies` |
 | `list` | `IReadOnlyList<T>` with `T` from the row shape or the named row type |
-| `file` | No single type: the endpoint binds the multipart upload, and an event carries the bytes as `byte[]` |
+| `file` | `byte[]`, with the endpoint binding the multipart upload |
 
-A money field rides as the shared `Money` object, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states. A money field with a fixed `currency` rides as a `decimal` alone, and one with `currencyField` rides as a `decimal` with the sibling carrying the code. An id field identifying an aggregate rides as its typed identifier struct, as `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers` states, and one identifying an actor rides as a `Guid`, as does one with no `identifies`. A choice field rides as the closed-set record hierarchy, as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` states. A list row of several fields rides as a nested record, or as the named row type when the field states `rowType`. A carried field naming an aggregate part rides as the part name in PascalCase, and one naming a C# type rides as that type. A file field states its media types and size for the endpoint and the validator; its message form follows the upload flow, so the drift check does not judge it. A file carried in an event payload rides as the bytes in `byte[]`, because the event announces content already stored rather than an upload in flight. The constraints exist so validators enforce them from the record.
+A money field rides as the shared `Money` object, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states. The currency facts state which currency the value moves in, and a validator compares the amount. An id field identifying an aggregate rides as its typed identifier struct, as `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers` states, and one identifying an actor rides as a `Guid`, as does one with no `identifies`. Each member takes the PascalCase field name: an author wanting an `Id` member names the field with the suffix. A choice field rides as the closed-set record hierarchy, as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` states. A list rides as a read-only list of its row element for one field, or of the named row type when the field states `rowType`; a multi-field message list always states one. A carried field naming an aggregate part rides as the part name in PascalCase, and one naming a C# type rides as that type. A file field rides as the carried bytes in `byte[]`, and states its media types and size for the endpoint, which binds the multipart upload and maps it to the bytes. The constraints exist so validators enforce them from the record.
 
 In Claimwick, the submit-expense command carries an `ExpenseId`, a `decimal` amount with a `string` currency, and a `DateTimeOffset` handled time from its record.
 

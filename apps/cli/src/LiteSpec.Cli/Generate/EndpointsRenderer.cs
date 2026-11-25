@@ -21,13 +21,15 @@ static class EndpointsRenderer
     /// <param name="Local">The handler local name in camelCase.</param>
     /// <param name="WireName">The route, query or header name the input travels under.</param>
     /// <param name="Type">The record type.</param>
-    /// <param name="Binding">Where the input travels: route, query, body, claim, header, or derived.</param>
+    /// <param name="Binding">Where the input travels: route, query, body, form, claim, header, or derived.</param>
     /// <param name="Required">Whether the record requires the input.</param>
     /// <param name="Meaning">The meaning the record states, or null when the record states none.</param>
     /// <param name="SetType">The closed-set type a choice input converts through, or null when the input names no set.</param>
     /// <param name="IdentifierType">The typed identifier an id input binds as, or null for a Guid.</param>
     /// <param name="Actor">The actor a claim input reads, or null when the input binds elsewhere.</param>
     /// <param name="Origin">The input origin: caller, verified-claim, or derived.</param>
+    /// <param name="Currency">The fixed ISO 4217 code a money input moves in, or null when the record states none.</param>
+    /// <param name="CurrencyField">The sibling input carrying a money input's currency code, or null when the record states none.</param>
     public sealed record BoundInput(
         string Name,
         string Property,
@@ -40,7 +42,9 @@ static class EndpointsRenderer
         string? SetType,
         string? IdentifierType,
         string? Actor,
-        string Origin);
+        string Origin,
+        string? Currency = null,
+        string? CurrencyField = null);
 
     /// <summary>One use-case endpoint the plan renders.</summary>
     /// <param name="UseCaseId">The use case identifier.</param>
@@ -181,6 +185,11 @@ static class EndpointsRenderer
         if (endpoints.Any(endpoint => endpoint.Inputs.Any(input => input.Binding is "route" or "query" or "header")))
         {
             names.Add("Microsoft.AspNetCore.Mvc");
+        }
+
+        if (endpoints.Any(endpoint => endpoint.Inputs.Any(input => input is { Type: "file", Binding: "form" })))
+        {
+            names.Add("System.IO");
         }
 
         if (endpoints.Any(UsesUser))
@@ -373,6 +382,11 @@ static class EndpointsRenderer
             {
                 parameters.Add($"{AttributeOf(input)} {ParamTypeOf(input)} {input.Local}");
             }
+
+            if (input.Binding == "form")
+            {
+                parameters.Add(Nullable(input) ? $"IFormFile? {input.Local} = null" : $"IFormFile {input.Local}");
+            }
         }
 
         if (UsesUser(endpoint))
@@ -390,6 +404,7 @@ static class EndpointsRenderer
         var body = new List<string>();
 
         GuardLines(body, endpoint);
+        FileLines(body, endpoint);
         DispatchLines(body, endpoint, reader);
         ResponseLines(body, endpoint);
 
@@ -437,6 +452,37 @@ static class EndpointsRenderer
                 body.Add("    }");
                 body.Add("");
                 body.Add($"    {local} = parsed;");
+                body.Add("}");
+            }
+
+            body.Add("");
+        }
+    }
+
+    /// <summary>Writes the upload mapping: each form file read into the bytes the message carries.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose file inputs are read.</param>
+    private static void FileLines(List<string> body, EndpointData endpoint)
+    {
+        foreach (var input in endpoint.Inputs.Where(input => input is { Type: "file", Binding: "form" }))
+        {
+            var bytes = input.Local + "Bytes";
+            var stream = input.Local + "Stream";
+
+            if (!Nullable(input))
+            {
+                body.Add($"using var {stream} = new MemoryStream();");
+                body.Add($"await {input.Local}.CopyToAsync({stream}, cancellationToken);");
+                body.Add($"var {bytes} = {stream}.ToArray();");
+            }
+            else
+            {
+                body.Add($"byte[]? {bytes} = null;");
+                body.Add($"if ({input.Local} is not null)");
+                body.Add("{");
+                body.Add($"    using var {stream} = new MemoryStream();");
+                body.Add($"    await {input.Local}.CopyToAsync({stream}, cancellationToken);");
+                body.Add($"    {bytes} = {stream}.ToArray();");
                 body.Add("}");
             }
 
@@ -548,6 +594,16 @@ static class EndpointsRenderer
             return char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
         }
 
+        if (input.Type == "money")
+        {
+            var amount = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
+            var currency = CurrencyOf(endpoint, input);
+
+            return Nullable(input)
+                ? $"{amount} is null ? null : Money.Create({amount}.Value, {currency})"
+                : $"Money.Create({amount}, {currency})";
+        }
+
         var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
 
         if (input is { Type: "id", Binding: "body", IdentifierType: not null })
@@ -557,7 +613,33 @@ static class EndpointsRenderer
                 : $"{input.IdentifierType}.From({source})";
         }
 
+        if (input is { Type: "file", Binding: "form" })
+        {
+            return input.Local + "Bytes";
+        }
+
         return source;
+    }
+
+    /// <summary>The currency a money input moves in: the fixed code, or the bound value of the sibling carrying the code.</summary>
+    /// <param name="endpoint">The endpoint whose inputs hold the sibling.</param>
+    /// <param name="input">The money input whose currency is read.</param>
+    /// <returns>The currency expression.</returns>
+    private static string CurrencyOf(EndpointData endpoint, BoundInput input)
+    {
+        if (input.Currency is { Length: > 0 } fixedCode)
+        {
+            return $"\"{GenerateNaming.EscapeLiteral(fixedCode)}\"";
+        }
+
+        var sibling = endpoint.Inputs.FirstOrDefault(candidate => candidate.Name == input.CurrencyField);
+
+        if (sibling is null)
+        {
+            return "\"\"";
+        }
+
+        return sibling.Binding == "body" ? $"request.{sibling.Property}" : sibling.Local;
     }
 
     /// <summary>Whether a bound value may be absent: an optional caller input, the way the message generator reads it. The pipeline supplies claim and derived inputs, so they never are.</summary>
@@ -613,10 +695,11 @@ static class EndpointsRenderer
             "text" or "email" => "string" + optional,
             "integer" => "int" + optional,
             "decimal" => "decimal" + optional,
-            "money" => "decimal" + optional,
+            "money" => "Money" + optional,
             "boolean" => "bool" + optional,
             "date" => "DateOnly" + optional,
             "duration" => "TimeSpan" + optional,
+            "file" => "byte[]" + optional,
             "choice" => (input.SetType ?? "string") + optional,
             "id" => (input.IdentifierType ?? "Guid") + optional,
             _ => "string" + optional,

@@ -599,6 +599,10 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Idempotency key placeholders reach a member of a carry naming an aggregate part with a dotted path (`{carry.member}`).
 - A `rowType` or object-carry `type` naming a C# type names a type declared outside the event; a row field may be a list one level deep; a module event field may state its own `type` and `identifies`.
 - Lists of one result or message naming the same row type with the same members render one row file.
+- Generated members take the PascalCase field name with no added suffix across messages, results and events; an author wanting an `Id` member names the field with the suffix.
+- A message carries the tenant key first with the tenant aggregate's identifier type (`Guid` when no aggregate carries the tenancy term), and an input identifying the tenant aggregate carries the key itself.
+- Money fields carry the shared `Money` type, and file fields the bytes, in messages and results as in events; endpoints bind the multipart upload to the bytes.
+- Output fields and groups state `required` (default true) and render nullable when false; a list of one field keeps its named row type when `rowType` names one.
 
 ### Part U: Provision Changes Since v6.0.0
 

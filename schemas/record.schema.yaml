@@ -799,21 +799,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
     allOf:
     - $ref: '#/$defs/contractValueRules'
-    - if:
-        required:
-        - type
-        - rowShape
-        properties:
-          type:
-            const: list
-          rowShape:
-            properties:
-              fields:
-                minItems: 2
-      else:
-        not:
-          required:
-          - rowType
   contractListShape:
     description: "The rows of a list value: each field of a row with its type, its requiredness and its meaning, the number of rows at least, and the fields that must be unique across rows."
     type: object
@@ -845,7 +830,7 @@ $defs:
     - $ref: '#/$defs/aggregatePartRef'
     - $ref: '#/$defs/contractRowType'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape, a choice names its closed set in set, a money field names its currency source, a decimal states its scale and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it.
+    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape and keeps its row type in rowType, a choice names its closed set in set, a money field names its currency source, a decimal states its scale and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it.
     allOf:
     - if:
         required:
@@ -879,6 +864,16 @@ $defs:
         not:
           required:
           - rowShape
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: list
+      else:
+        not:
+          required:
+          - rowType
     - if:
         required:
         - type
@@ -996,7 +991,6 @@ $defs:
     type: object
     additionalProperties: false
     x-rejected-fields:
-      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on list-row fields under `rowShape`."
       choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
     required:
     - name
@@ -1053,6 +1047,9 @@ $defs:
       many:
         description: True when the field holds a list of values of its type.
         type: boolean
+      required:
+        description: False when the use case may answer without the field; a missing flag reads as required.
+        type: boolean
       sign:
         $ref: '#/$defs/amountSign'
     allOf:
@@ -1071,10 +1068,6 @@ $defs:
       then:
         required:
         - rowType
-      else:
-        not:
-          required:
-          - rowType
     - if:
         required:
         - type
@@ -1115,6 +1108,9 @@ $defs:
         x-read-back-as: is read by
       freshness:
         $ref: '#/$defs/freshnessValue'
+      required:
+        description: False when the use case may answer without the group; a missing flag reads as required.
+        type: boolean
       visibleWhen:
         $ref: '#/$defs/nonEmptyString'
       widenedBy:
@@ -1996,21 +1992,6 @@ $defs:
         $ref: '#/$defs/contractMaxSize'
     allOf:
     - $ref: '#/$defs/contractValueRules'
-    - if:
-        required:
-        - type
-        - rowShape
-        properties:
-          type:
-            const: list
-          rowShape:
-            properties:
-              fields:
-                minItems: 2
-      else:
-        not:
-          required:
-          - rowType
   externalOperation:
     type: object
     additionalProperties: false
@@ -2459,10 +2440,6 @@ $defs:
       then:
         required:
         - rowType
-      else:
-        not:
-          required:
-          - rowType
     - if:
         required:
         - origin

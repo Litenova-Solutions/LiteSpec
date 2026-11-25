@@ -53,7 +53,7 @@ input:
   origin: caller
   binding: body
   classification: internal
-- name: receipt
+- name: receiptId
   meaning: The proof of payment, required above the threshold.
   type: id
   identifies: aggregate/spending.receipt
@@ -63,7 +63,7 @@ input:
   origin: caller
   binding: body
   classification: internal
-- name: employee
+- name: employeeId
   meaning: The signed-in employee filing the expense, read from verified claims.
   type: id
   identifies: actor/employee

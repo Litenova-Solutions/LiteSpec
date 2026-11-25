@@ -228,7 +228,7 @@ static class ValidatorsRenderer
                 rules.Add(new ValidationRule(
                     member,
                     "too-small",
-                    BoundCondition(member, parameter, required, "<", min, literal, exclusive),
+                    BoundCondition(member, parameter, required, "<", min, literal, exclusive, type == "money"),
                     exclusive ? $"The {display} must be more than {min}." : $"The {display} must be at least {min}."));
             }
 
@@ -237,7 +237,7 @@ static class ValidatorsRenderer
                 rules.Add(new ValidationRule(
                     member,
                     "too-large",
-                    BoundCondition(member, parameter, required, ">", max, literal, exclusive),
+                    BoundCondition(member, parameter, required, ">", max, literal, exclusive, type == "money"),
                     exclusive ? $"The {display} must be less than {max}." : $"The {display} must be at most {max}."));
             }
         }
@@ -262,7 +262,7 @@ static class ValidatorsRenderer
         _ => null,
     };
 
-    /// <summary>The bound condition of a numeric field: the direct comparison, or the comparison of the value when the field is optional.</summary>
+    /// <summary>The bound condition of a numeric field: the direct comparison, or the comparison of the value when the field is optional. A money bound compares the amount of the shared money object.</summary>
     /// <param name="member">The message property judging the field.</param>
     /// <param name="parameter">The validate parameter name: command or query.</param>
     /// <param name="required">True when the caller always sends the field.</param>
@@ -270,16 +270,24 @@ static class ValidatorsRenderer
     /// <param name="bound">The bound as the record states it.</param>
     /// <param name="literal">The numeric suffix: m for a decimal or money field, empty for an integer.</param>
     /// <param name="exclusive">True when the bound itself breaks the rule.</param>
+    /// <param name="money">True when the field rides the shared money object.</param>
     /// <returns>The condition holding when the value breaks the bound.</returns>
     private static string BoundCondition(
-        string member, string parameter, bool required, string direction, string bound, string literal, bool exclusive)
+        string member, string parameter, bool required, string direction, string bound, string literal, bool exclusive, bool money)
     {
         var comparison = direction == "<"
             ? (exclusive ? "<=" : "<")
             : (exclusive ? ">=" : ">");
 
-        return required
-            ? $"{parameter}.{member} {comparison} {bound}{literal}"
+        if (required)
+        {
+            return money
+                ? $"{parameter}.{member}.Amount {comparison} {bound}{literal}"
+                : $"{parameter}.{member} {comparison} {bound}{literal}";
+        }
+
+        return money
+            ? $"{parameter}.{member} is not null && {parameter}.{member}.Amount {comparison} {bound}{literal}"
             : $"{parameter}.{member}.HasValue && {parameter}.{member}.Value {comparison} {bound}{literal}";
     }
 

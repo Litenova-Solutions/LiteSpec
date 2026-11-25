@@ -20,7 +20,7 @@ http:
   method: POST
   route: /api/expenses/{expenseId}:reimburse
 input:
-- name: expense
+- name: expenseId
   meaning: The approved expense to reimburse.
   type: id
   identifies: aggregate/spending.expense

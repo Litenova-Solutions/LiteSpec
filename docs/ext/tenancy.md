@@ -16,7 +16,7 @@ Applicable specification kinds: None.
 
 Select `tenancy` only when independent customer organizations share one deployment and need isolated data or policy. One organization with many users does not select it: tenants are separate customers, not separate logins.
 
-A project whose messages carry the tenant identifier names the glossary term for the tenant in the `tenant` field of its tenancy selection, such as `tenant: term/workspace`. When the field is set and a use case declares `access.tenant` of `own`, the message property carrying the tenant is implied: `Workspace` or `WorkspaceId` for `term/workspace`. The use case does not restate the property in `input`, and `litespec model check` reports `reference-unknown` for a `tenant` value that no record holds. Without the field, no tenant property is implied.
+A project whose messages carry the tenant identifier names the glossary term for the tenant in the `tenant` field of its tenancy selection, such as `tenant: term/workspace`. When the field is set and a use case declares `access.tenant` of `own` or `all`, the message carries the tenant key first: `WorkspaceId` for `term/workspace`, riding the tenant aggregate's identifier type, or a `Guid` when no aggregate carries the term name. An input identifying the tenant aggregate carries the key itself, so no key is implied then. The use case does not restate the property in `input`, and `litespec model check` reports `reference-unknown` for a `tenant` value that no record holds. Without the field, no tenant property is implied. A hand-written message may carry the key under the bare term name (`Workspace`); the generator writes the identity form.
 
 ## Baseline Relationship
 

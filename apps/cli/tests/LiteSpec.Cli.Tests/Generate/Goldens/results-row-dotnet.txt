@@ -6,8 +6,8 @@ using Library.Lending.Contracts.Loans;
 namespace Library.Lending.Application.Loans.ListLoans;
 
 /// <summary>One row of Loans.</summary>
-/// <param name="LoanId">The loan identity.</param>
-/// <param name="CopyId">The copy on loan.</param>
+/// <param name="Loan">The loan identity.</param>
+/// <param name="Copy">The copy on loan.</param>
 /// <param name="Reader">The reader holding the copy.</param>
 /// <param name="DueDate">The day the loan is due.</param>
-internal sealed partial record LoansRow(LoanId LoanId, CopyId CopyId, string Reader, DateOnly DueDate);
+internal sealed partial record LoansRow(LoanId Loan, CopyId Copy, string Reader, DateOnly DueDate);

@@ -18,7 +18,7 @@ http:
   method: POST
   route: /api/expenses/{expenseId}:erase
 input:
-- name: expense
+- name: expenseId
   meaning: The decided expense whose personal data is erased.
   type: id
   identifies: aggregate/spending.expense

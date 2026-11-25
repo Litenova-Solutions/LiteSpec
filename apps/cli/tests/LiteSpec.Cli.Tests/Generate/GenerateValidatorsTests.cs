@@ -165,6 +165,30 @@ public sealed class GenerateValidatorsTests
         AssertNoRules(Input("""{ "name": "tags", "type": "text", "many": true, "maxLength": 20, "required": true }"""), "Tags");
     }
 
+    /// <summary>A money bound compares the amount of the shared money object, guarding null when optional.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyBoundsCompareTheAmount()
+    {
+        var rules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(rules, "Deposit", "command", false, Input("""{ "name": "deposit", "type": "money", "bounds": { "min": 0 }, "required": true }"""));
+
+        var rule = Assert.Single(rules);
+
+        Assert.Equal("Deposit", rule.Member);
+        Assert.Equal("too-small", rule.Code);
+        Assert.Equal("command.Deposit.Amount < 0m", rule.Condition);
+
+        var guardedRules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(guardedRules, "Deposit", "command", false, Input("""{ "name": "deposit", "type": "money", "bounds": { "min": 0 }, "required": false }"""));
+
+        var guarded = Assert.Single(guardedRules);
+
+        Assert.Equal("command.Deposit is not null && command.Deposit.Amount < 0m", guarded.Condition);
+    }
+
     /// <summary>Field display names drop the identity suffix and read as lowercase words.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]

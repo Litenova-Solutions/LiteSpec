@@ -18,7 +18,7 @@ http:
   method: PUT
   route: /api/reminder-preferences/{id}
 input:
-- name: manager
+- name: managerId
   meaning: The manager the preference belongs to.
   type: id
   identifies: actor/manager
@@ -41,7 +41,7 @@ input:
   origin: caller
   binding: query
   classification: internal
-- name: changer
+- name: changerId
   meaning: The signed-in caller changing the preference, the manager the preference belongs to or finance, read from verified claims.
   type: id
   identifies: actor/manager
@@ -63,7 +63,7 @@ input:
   origin: derived
   classification: internal
 output:
-- name: manager
+- name: managerId
   meaning: The manager the preference belongs to.
   type: id
   identifies: actor/manager

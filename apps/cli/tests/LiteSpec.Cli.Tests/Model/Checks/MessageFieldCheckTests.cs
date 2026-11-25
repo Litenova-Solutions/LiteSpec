@@ -56,17 +56,64 @@ public sealed class MessageFieldCheckTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
-    /// <summary>An id input naming its record meets the property naming its identity.</summary>
+    /// <summary>An id input meets the property naming its field, with no added suffix.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
-    public void IdNameMapsToIdentityProperty()
+    public void IdNameMapsToFieldProperty()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copy", "type": "id"}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(CopyId Copy);");
+
+        Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>An id input with only a suffixed property reports input-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void IdNameWithAddedSuffixReportsInputFieldDrift()
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copy", "type": "id"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId);");
 
+        var finding = Assert.Single(Run(model, "input-field-drift"));
+
+        Assert.Equal("input-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: no property for input 'copy'; extra property 'CopyId'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>A file input riding as the carried bytes reports nothing.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void FileBytesPropertyReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "scan", "type": "file"}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(byte[] Scan);");
+
         Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>A file input riding as text reports input-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void FileTextPropertyReportsInputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "scan", "type": "file"}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(string Scan);");
+
+        var finding = Assert.Single(Run(model, "input-field-drift"));
+
+        Assert.Equal("input-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: property 'Scan' is 'string' for input 'scan' of type 'file'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
     /// <summary>A money input riding as an amount with its currency beside it reports nothing.</summary>
@@ -208,6 +255,30 @@ public sealed class MessageFieldCheckTests
         WriteSource(folder, "BorrowCopyQueryResult.cs", "internal sealed record BorrowCopyQueryResult(Loan Loan, Receipt Receipt);");
         WriteSource(folder, "Loan.cs", "internal sealed record Loan(Guid CopyId);");
         WriteSource(folder, "Receipt.cs", "internal sealed record Receipt(string ReceiptNo);");
+
+        Assert.Empty(Run(model, "output-field-drift"));
+    }
+
+    /// <summary>A result holding one nested nullable type for its single optional group meets the group.</summary>
+    /// <proves>litespec/core/use-cases#type-every-output-field</proves>
+    [Fact]
+    public void SingleOptionalGroupReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(
+            temp.Path,
+            folder,
+            """{"kind": "query", "output": {"include": {"loan": {"required": false, "fields": [{"name": "copyId", "type": "id"}]}}}}""",
+            "AbsentQuery");
+        WriteSource(folder, "BorrowCopyQueryHandler.cs", """
+            internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
+            {
+                public Task<BorrowCopyQueryResult> HandleAsync(BorrowCopyQuery query, CancellationToken cancellationToken) => throw new InvalidOperationException();
+            }
+            """);
+        WriteSource(folder, "BorrowCopyQueryResult.cs", "internal sealed record BorrowCopyQueryResult(Loan? Loan);");
+        WriteSource(folder, "Loan.cs", "internal sealed record Loan(Guid CopyId);");
 
         Assert.Empty(Run(model, "output-field-drift"));
     }

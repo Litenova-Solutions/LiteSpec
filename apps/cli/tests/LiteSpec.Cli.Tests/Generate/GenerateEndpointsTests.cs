@@ -153,10 +153,10 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("ReturnCopyEndpoint", file.Content, StringComparison.Ordinal);
     }
 
-    /// <summary>A use case carrying a file input renders no endpoint and lists the skip with its reason.</summary>
+    /// <summary>A use case carrying a file input binds the upload from the form and maps it to the bytes.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
-    public void FileInputSkipsWithReason()
+    public void FileInputBindsUploadToBytes()
     {
         using var temp = ModelFixture.Prepare("small");
         AppendGenerate(temp.Path, """
@@ -175,8 +175,57 @@ public sealed class GenerateEndpointsTests
               type: file
               contentTypes:
               - image/jpeg
-              maxSize: 5MB
+              maxSize: 5 MB
               required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("using System.IO;", file.Content, StringComparison.Ordinal);
+        Assert.Contains("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        Assert.Contains("IFormFile photo", file.Content, StringComparison.Ordinal);
+        Assert.Contains("await photo.CopyToAsync(photoStream, cancellationToken);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Photo: photoBytes", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("RetireCopyRequest", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case carrying a file beside body inputs renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void FileInputWithBodyInputsSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: photo
+              meaning: The photo of the retired copy.
+              type: file
+              contentTypes:
+              - image/jpeg
+              maxSize: 5 MB
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            - name: note
+              meaning: Why the copy retires.
+              type: text
+              required: false
               origin: caller
               binding: body
               classification: internal
@@ -188,7 +237,95 @@ public sealed class GenerateEndpointsTests
         var file = Assert.Single(plan.Files);
         Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
         var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
-        Assert.Contains("file", skip.Reason, StringComparison.Ordinal);
+        Assert.Contains("carries a file with body inputs", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A money input builds the shared money object from the bound amount with its currency.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyInputBuildsMoneyObject()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: fine
+              meaning: The fine for the retired copy.
+              type: money
+              currency: EUR
+              required: true
+              origin: caller
+              binding: query
+              classification: internal
+            - name: deposit
+              meaning: The deposit returned for the retired copy.
+              type: money
+              currencyField: depositCurrency
+              required: true
+              origin: caller
+              binding: query
+              classification: internal
+            - name: depositCurrency
+              meaning: The ISO 4217 currency code of the deposit.
+              type: text
+              maxLength: 3
+              required: true
+              origin: caller
+              binding: query
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("Fine: Money.Create(fine, \"EUR\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Deposit: Money.Create(deposit, depositCurrency)", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case implying a tenant key renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void TenantImpliedEndpointSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
+        File.WriteAllText(
+            project,
+            File.ReadAllText(project).Replace(
+                "selectedExtensions: []",
+                "selectedExtensions:\n- id: tenancy\n  criterion: Independent customers share one deployment.\n  tenant: term/workspace",
+                StringComparison.Ordinal));
+        var glossary = Path.Combine(temp.Path, ".litespec", "glossary.yaml");
+        File.WriteAllText(
+            glossary,
+            File.ReadAllText(glossary).Replace(
+                "- id: term/loan",
+                "- id: term/workspace\n  term: workspace\n  meaning: One customer organization sharing the deployment.\n  layer: behavior\n- id: term/loan",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.borrow-copy");
+        Assert.Contains("implies a tenant key", skip.Reason, StringComparison.Ordinal);
     }
 
     /// <summary>A command stating a created location answers 201 with the location over the shaped result.</summary>
@@ -457,7 +594,7 @@ public sealed class GenerateEndpointsTests
         var file = Assert.Single(plan.Files);
 
         Assert.Contains("[FromRoute(Name = \"id\")]", file.Content, StringComparison.Ordinal);
-        Assert.Contains("LoanId: id", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Loan: id", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>One submit endpoint stating a created location, for the created-response test.</summary>

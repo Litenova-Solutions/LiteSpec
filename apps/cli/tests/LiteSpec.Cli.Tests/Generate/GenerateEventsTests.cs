@@ -285,6 +285,18 @@ public sealed class GenerateEventsTests
         Assert.Empty(fines.Row);
     }
 
+    /// <summary>A list of one field keeps its named row type when rowType names one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleFieldListWithRowTypeKeepsNamedRow()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "tags", "type": "list", "rowType": "LoanTag", "rowShape": {"fields": [{"name": "tag", "type": "text", "required": true}]}}"""),
+            out var tags));
+        Assert.Equal("IReadOnlyList<LoanTag>", tags!.Type);
+        Assert.Empty(tags.Row);
+    }
+
     /// <summary>An untyped row identifier maps to a Guid, and an existing type naming a part maps to the part name.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]

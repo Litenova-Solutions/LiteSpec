@@ -44,7 +44,7 @@ input:
   origin: <caller|claim|derived|verified-claim>
   binding: <route|query|body|claim|header>
   classification: <public|internal|personal|sensitive>
-# A file field carries contentTypes and maxSize, a choice field names its closed set in set, and an id field carries identifies. A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A list field names its row shape in rowShape, and a multi-field list names its row type in rowType. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding. A route input whose URL name differs states it in routeParameter.
+# A file field carries contentTypes and maxSize, a choice field names its closed set in set, and an id field carries identifies. A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A list field names its row shape in rowShape, a multi-field list names its row type in rowType, and a list of one field keeps a named row type when rowType names one. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding. A route input whose URL name differs states it in routeParameter.
 output:
   include:
     <group>:
@@ -54,6 +54,7 @@ output:
         type: <text|integer|decimal|money|boolean|date|instant|duration|email|choice|id|list|file>
         identifies: <identified record id, or remove this line>
         many: <true|false, or remove this line>
+        required: <true|false, or remove this line>
       - name: <field name>
         meaning: <what the field holds>
         type: <text|integer|decimal|money|boolean|date|instant|duration|email|choice|id|list|file>
@@ -64,6 +65,7 @@ output:
         mode: <immediate|snapshot|eventual>
         within: <how old a reading may be, such as PT5S, or remove this line>
         decidedBy: <use-case/<module>.<name> or aggregate/<module>.<name>, or remove this line>
+      required: <true|false, or remove this line>
       visibleWhen: <when this group shows, or remove this line>
       widenedBy: requirement/<feature>.<name, or remove this line>
 paging:

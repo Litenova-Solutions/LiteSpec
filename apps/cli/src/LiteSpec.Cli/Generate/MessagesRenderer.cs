@@ -3,10 +3,11 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Generate;
 
 /// <summary>
-///     Renders the command or query of one use case as C#: a partial record with one positional
-///     property per input in written order, the tenant and paging members the record implies, the
-///     idempotency key computed from the key template, and the LiteBus message interface the
-///     target names. A hand-written sibling file may add members to the generated type.
+///     Renders the command or query of one use case as C#: a partial record with the tenant key
+///     first when the tenancy selection implies one, one positional property per input in written
+///     order, the paging members the record implies, the idempotency key computed from the key
+///     template, and the LiteBus message interface the target names. A hand-written sibling file
+///     may add members to the generated type.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class MessagesRenderer
@@ -22,13 +23,18 @@ static class MessagesRenderer
     /// <param name="Expression">The key selector body: an interpolated string over the message properties, or a plain literal when the template names no property.</param>
     public sealed record MessageKey(string Template, string Expression);
 
+    /// <summary>The tenant key a message carries first: the tenant aggregate's identifier, or a Guid when no aggregate carries the term name.</summary>
+    /// <param name="Property">The tenant property name.</param>
+    /// <param name="Type">The tenant key C# type.</param>
+    public sealed record TenantKey(string Property, string Type);
+
     /// <summary>One use-case message the plan renders.</summary>
     /// <param name="UseCaseId">The use case identifier.</param>
     /// <param name="MessageType">The message type name, such as BorrowCopyCommand.</param>
     /// <param name="ResultType">The result type name the message interface carries.</param>
     /// <param name="Summary">The summary the record states, or null when the record states none.</param>
     /// <param name="Inputs">The input fields with their C# types, in written order.</param>
-    /// <param name="TenantProperty">The tenant property name, or null when the use case implies none.</param>
+    /// <param name="Tenant">The tenant key, or null when the use case implies none.</param>
     /// <param name="Paging">The paging members, or null when the use case pages nothing.</param>
     /// <param name="Key">The idempotency key, or null when the command keys none.</param>
     /// <param name="Namespace">The C# namespace of the generated record.</param>
@@ -41,7 +47,7 @@ static class MessagesRenderer
         string ResultType,
         string? Summary,
         IReadOnlyList<MessageFieldTypes.MappedField> Inputs,
-        string? TenantProperty,
+        TenantKey? Tenant,
         MessagePaging? Paging,
         MessageKey? Key,
         string Namespace,
@@ -51,8 +57,8 @@ static class MessagesRenderer
 
     /// <summary>
     ///     Renders one use-case message as C#: a partial record named for the use case and its
-    ///     kind, with one positional property per input, the implied tenant and paging members,
-    ///     and the message interface over its result. A keyed command nests its computed key.
+    ///     kind, with the implied tenant key first, one positional property per input, the paging
+    ///     members, and the message interface over its result. A keyed command nests its computed key.
     /// </summary>
     /// <param name="data">The use-case message the plan renders.</param>
     /// <returns>The file text with LF line endings.</returns>
@@ -79,17 +85,17 @@ static class MessagesRenderer
         lines.Add("");
         lines.AddRange(DocLines(data.Summary, data.MessageType));
 
+        if (data.Tenant is { } tenant)
+        {
+            lines.Add($"/// <param name=\"{tenant.Property}\">The tenant the call acts in.</param>");
+        }
+
         foreach (var input in data.Inputs)
         {
             if (input.Meaning is { Length: > 0 } meaning)
             {
                 lines.Add($"/// <param name=\"{input.Property}\">{GenerateNaming.EscapeXml(FlatOf(meaning))}</param>");
             }
-        }
-
-        if (data.TenantProperty is { Length: > 0 } tenant)
-        {
-            lines.Add($"/// <param name=\"{tenant}\">The tenant the call acts in.</param>");
         }
 
         if (data.Paging is { } paging)
@@ -144,17 +150,19 @@ static class MessagesRenderer
             ? GenerateNaming.ConstName(useCase) + "Result"
             : GenerateNaming.ConstName(useCase) + (kind == "query" ? "QueryResult" : "CommandResult");
 
-    /// <summary>The positional parameters of the message: each input, the tenant, and the paging members with their defaults.</summary>
+    /// <summary>The positional parameters of the message: the tenant key first, each input, and the paging members with their defaults.</summary>
     /// <param name="data">The use-case message the plan renders.</param>
     /// <returns>The parameter texts in order.</returns>
     private static List<string> ParametersOf(MessageData data)
     {
-        var parameters = data.Inputs.Select(input => $"{input.Type} {input.Property}").ToList();
+        var parameters = new List<string>();
 
-        if (data.TenantProperty is { Length: > 0 } tenant)
+        if (data.Tenant is { } tenant)
         {
-            parameters.Add($"Guid {tenant}");
+            parameters.Add($"{tenant.Type} {tenant.Property}");
         }
+
+        parameters.AddRange(data.Inputs.Select(input => $"{input.Type} {input.Property}"));
 
         if (data.Paging is { } paging)
         {

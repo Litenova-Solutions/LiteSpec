@@ -40,7 +40,7 @@ output:
             type: text
             maxLength: 3
             required: true
-          - name: approver
+          - name: approverId
             meaning: The manager who approved the expense.
             type: id
             identifies: actor/manager

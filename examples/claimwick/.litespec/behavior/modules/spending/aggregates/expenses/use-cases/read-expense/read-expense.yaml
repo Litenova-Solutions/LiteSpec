@@ -13,7 +13,7 @@ reachedThrough:
 - module/reporting
 raises: []
 input:
-- name: expense
+- name: expenseId
   meaning: The expense to read.
   type: id
   identifies: aggregate/spending.expense

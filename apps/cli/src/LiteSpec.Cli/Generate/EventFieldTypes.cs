@@ -65,7 +65,7 @@ static class EventFieldTypes
         return false;
     }
 
-    /// <summary>Maps one list carry to its read-only list type: the row element for a single-field row, the named row type for a multi-field row stating rowType, a nested row record otherwise.</summary>
+    /// <summary>Maps one list carry to its read-only list type: the row element for a single-field row, the named row type for a multi-field row stating rowType or a single-field one stating it, a nested row record otherwise.</summary>
     /// <param name="carry">The carries entry holding the row shape.</param>
     /// <param name="property">The property name in PascalCase.</param>
     /// <param name="optional">True when the event may arrive without the field.</param>
@@ -131,7 +131,7 @@ static class EventFieldTypes
             }
         }
 
-        if (fields.Count == 1)
+        if (fields.Count == 1 && RecordEntries.Str(carry, RecordFields.RowType) is not { Length: > 0 })
         {
             field = new MappedField(
                 property,
@@ -163,7 +163,7 @@ static class EventFieldTypes
         return true;
     }
 
-    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row. Inner rows hold scalars only, one level at a time.</summary>
+    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row or a single-field one stating rowType. Inner rows hold scalars only, one level at a time.</summary>
     /// <param name="row">The row field entry holding the nested row shape.</param>
     /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
     /// <returns>True when the nested shape maps; otherwise false.</returns>
@@ -199,13 +199,25 @@ static class EventFieldTypes
 
         if (members.Count == 1)
         {
+            if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType)
+            {
+                if (ObjectTypeOf(rowType) is not { } single)
+                {
+                    return false;
+                }
+
+                type = $"IReadOnlyList<{single}>" + (optional ? "?" : "");
+
+                return true;
+            }
+
             type = $"IReadOnlyList<{members[0]}>" + (optional ? "?" : "");
 
             return true;
         }
 
-        if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType
-            && ObjectTypeOf(rowType) is { } shared)
+        if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } multiRowType
+            && ObjectTypeOf(multiRowType) is { } shared)
         {
             type = $"IReadOnlyList<{shared}>" + (optional ? "?" : "");
 

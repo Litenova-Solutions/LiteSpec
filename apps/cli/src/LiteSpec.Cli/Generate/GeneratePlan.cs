@@ -788,12 +788,15 @@ static class GeneratePlan
             var @namespace = GenerateNaming.ResolveModule(GenerateNaming.ResolveUseCaseFolders(target.Namespace, folder, name), record.Module!);
             var message = MessagesRenderer.MessageTypeName(name, kind);
             var messageInterface = kind == "query" ? target.QueryInterface : target.CommandInterface;
+            var tenant = TenantKeyOf(model, record) is { } implied
+                ? new MessagesRenderer.TenantKey(implied.Name, implied.Type)
+                : null;
 
             files.Add(new GeneratedFile(
                 Path.Combine(resolved, $"{message}.generated.cs"),
                 MessagesRenderer.RenderDotnet(new MessagesRenderer.MessageData(
                     record.Id, message, MessagesRenderer.ResultTypeName(name, kind, wantPublic),
-                    record.Field(RecordFields.Summary), inputs, TenantPropertyOf(model, record),
+                    record.Field(RecordFields.Summary), inputs, tenant,
                     PagingOf(record), key, @namespace, messageInterface, usings, wantPublic))));
 
             foreach (var row in SharedRowsOf(inputs.Where(input => input.RowType is not null && input.Row.Count > 0)))
@@ -932,11 +935,11 @@ static class GeneratePlan
         return fields;
     }
 
-    /// <summary>The tenant property a message carries, from the tenancy selection, or null when the use case implies none.</summary>
-    /// <param name="model">The built project model holding the tenancy selection and the tenant term.</param>
-    /// <param name="record">The use case record whose tenant scope is read.</param>
-    /// <returns>The tenant property name, or null.</returns>
-    private static string? TenantPropertyOf(ProjectModel model, Record record)
+    /// <summary>The tenant key a message carries, from the tenancy selection, or null when the use case implies none. The key rides the tenant aggregate's identifier type, as any identifies maps, or a Guid when no aggregate carries the term name. An input identifying the tenant aggregate carries the key itself, so no key is implied then.</summary>
+    /// <param name="model">The built project model holding the tenancy selection, the tenant term, and the tenant aggregate.</param>
+    /// <param name="record">The use case record whose tenant scope and inputs are read.</param>
+    /// <returns>The tenant property name with its C# type, or null.</returns>
+    private static (string Name, string Type)? TenantKeyOf(ProjectModel model, Record record)
     {
         var tenant = model.Config.TenancyTenantTerm;
 
@@ -951,8 +954,38 @@ static class GeneratePlan
             return null;
         }
 
-        return Naming.Pascal(name) + "Id";
+        var aggregate = TenantAggregateIdOf(model, name);
+
+        if (aggregate is not null && IdentifiesTenantAggregate(record, aggregate))
+        {
+            return null;
+        }
+
+        var property = Naming.Pascal(name) + "Id";
+        var type = aggregate is null ? "Guid" : Naming.Pascal(name) + "Id";
+
+        return (property, type);
     }
+
+    /// <summary>The tenant aggregate the tenancy term names: the aggregate whose name matches the term name, or null when no aggregate carries it.</summary>
+    /// <param name="model">The built project model holding the aggregate records.</param>
+    /// <param name="termName">The tenant term name.</param>
+    /// <returns>The tenant aggregate id, or null.</returns>
+    private static string? TenantAggregateIdOf(ProjectModel model, string termName) =>
+        model.Records
+            .Where(candidate => candidate.Type == RecordTypes.Aggregate)
+            .Where(candidate => Identifiers.TrySplit(candidate.Id, out _, out _, out var aggregate) && aggregate == termName)
+            .OrderBy(candidate => candidate.Id, StringComparer.Ordinal)
+            .Select(candidate => candidate.Id)
+            .FirstOrDefault();
+
+    /// <summary>Whether a use-case input identifies the tenant aggregate, so the input carries the tenant key and no key is implied.</summary>
+    /// <param name="record">The use case record whose inputs are read.</param>
+    /// <param name="aggregate">The tenant aggregate id.</param>
+    /// <returns>True when an input identifies the tenant aggregate; otherwise false.</returns>
+    private static bool IdentifiesTenantAggregate(Record record, string aggregate) =>
+        record.Objects(RecordFields.Input)
+            .Any(input => RecordEntries.Str(input, RecordFields.Identifies) == aggregate);
 
     /// <summary>The paging members a use case carries, or null when the use case pages nothing.</summary>
     /// <param name="record">The use case record whose paging is read.</param>
@@ -1010,9 +1043,9 @@ static class GeneratePlan
             {
                 if (entry.ValueKind == JsonValueKind.Object
                     && RecordEntries.Str(entry, RecordFields.Name) is { Length: > 0 } name
-                    && RecordEntries.Str(entry, RecordFields.Type) is { Length: > 0 } type)
+                    && RecordEntries.Str(entry, RecordFields.Type) is { Length: > 0 })
                 {
-                    properties.TryAdd(name, MessageFieldTypes.PropertyName(name, type));
+                    properties.TryAdd(name, MessageFieldTypes.PropertyName(name));
                 }
             }
         }
@@ -1090,9 +1123,9 @@ static class GeneratePlan
         record.Raw.ValueKind == JsonValueKind.Object
         && record.Raw.TryGetProperty(RecordFields.Output, out _);
 
-    /// <summary>Reads the result shape of a use case: its flat fields, or its groups when the output holds several.</summary>
+    /// <summary>Reads the result shape of a use case: its flat fields, or its groups when the output holds several or one optional.</summary>
     /// <param name="record">The use case record whose output is read.</param>
-    /// <param name="fields">The flat output fields, or an empty list when the output holds several groups.</param>
+    /// <param name="fields">The flat output fields, or an empty list when the output holds groups.</param>
     /// <param name="groups">The output groups, or an empty list when the output holds no groups.</param>
     /// <returns>True when the output maps; otherwise false, and the result renders no file.</returns>
     private static bool TryResultShape(
@@ -1141,6 +1174,7 @@ static class GeneratePlan
         }
 
         if (held.Count == 1
+            && IsRequiredGroup(held[0].Value)
             && held[0].Value.TryGetProperty(RecordFields.Fields, out var single)
             && single.ValueKind == JsonValueKind.Array)
         {
@@ -1176,11 +1210,17 @@ static class GeneratePlan
                 mapped.Add(field);
             }
 
-            groups.Add(new ResultsRenderer.ResultGroup(group.Name, GenerateNaming.ConstName(group.Name), mapped));
+            groups.Add(new ResultsRenderer.ResultGroup(group.Name, GenerateNaming.ConstName(group.Name), mapped, IsRequiredGroup(group.Value)));
         }
 
         return true;
     }
+
+    /// <summary>Whether an output group is required: true when it states so or states nothing, false only when it states false.</summary>
+    /// <param name="group">The output group object.</param>
+    /// <returns>True when the use case always answers the group; otherwise false.</returns>
+    private static bool IsRequiredGroup(JsonElement group) =>
+        !group.TryGetProperty(RecordFields.Required, out var required) || required.ValueKind != JsonValueKind.False;
 
     /// <summary>The carried fields of a domain event with their C# types, in written order.</summary>
     /// <param name="record">The domain event record whose carries are read.</param>
@@ -2477,16 +2517,10 @@ static class GeneratePlan
         return dot >= 0 ? name[(dot + 1)..] : name;
     }
 
-    /// <summary>The message property an input reads: its PascalCase name, with the identity suffix for an id the name does not already carry.</summary>
+    /// <summary>The message property an input reads: its PascalCase name, as messages name theirs.</summary>
     /// <param name="name">The input name.</param>
-    /// <param name="type">The input type, or null when the record states none.</param>
     /// <returns>The property name the message carries.</returns>
-    private static string PropertyOf(string name, string? type)
-    {
-        var property = Naming.Pascal(name);
-
-        return type == "id" && !property.EndsWith("Id", StringComparison.Ordinal) ? property + "Id" : property;
-    }
+    private static string PropertyOf(string name) => Naming.Pascal(name);
 
     /// <summary>The namespace declaring a use case message: the module namespace with the Application folder the record tree mirrors.</summary>
     /// <param name="resolved">The target namespace with the module resolved.</param>
@@ -2579,13 +2613,13 @@ static class GeneratePlan
         {
             if (input.ValueKind != JsonValueKind.Object
                 || RecordEntries.Str(input, RecordFields.Name) is not { Length: > 0 } name
-                || RecordEntries.Str(input, RecordFields.Type) is not { } type)
+                || RecordEntries.Str(input, RecordFields.Type) is not { })
             {
                 continue;
             }
 
             var (guid, regex) = ValidatorsRenderer.AddRulesFor(
-                rules, PropertyOf(name, type), parameter, CitesRefusalRule(model, input), input);
+                rules, PropertyOf(name), parameter, CitesRefusalRule(model, input), input);
 
             usesGuid = usesGuid || guid;
             usesRegex = usesRegex || regex;
@@ -2749,6 +2783,12 @@ static class GeneratePlan
             return null;
         }
 
+        if (TenantKeyOf(model, record) is not null)
+        {
+            skip = "implies a tenant key, which endpoints do not bind";
+            return null;
+        }
+
         var created = kind == "command" ? RecordEntries.Str(http, RecordFields.Created) : null;
         var projects = kind == "query" || created is { Length: > 0 };
 
@@ -2794,14 +2834,22 @@ static class GeneratePlan
 
         var inputs = new List<EndpointsRenderer.BoundInput>();
         var siblings = new HashSet<string>(StringComparer.Ordinal);
+        var optional = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var input in record.Objects(RecordFields.Input))
         {
             if (RecordEntries.Str(input, RecordFields.Name) is { Length: > 0 } name)
             {
                 siblings.Add(name);
+
+                if (input.TryGetProperty(RecordFields.Required, out var flag) && flag.ValueKind == JsonValueKind.False)
+                {
+                    optional.Add(name);
+                }
             }
         }
+
+        string? fileInput = null;
 
         foreach (var input in record.Objects(RecordFields.Input))
         {
@@ -2816,10 +2864,15 @@ static class GeneratePlan
                 continue;
             }
 
-            if (type is "file" or "list")
+            if (type == "list")
             {
-                skip = $"input '{name}' carries a {type}, which endpoints do not bind";
+                skip = $"input '{name}' carries a list, which endpoints do not bind";
                 return null;
+            }
+
+            if (type == "file")
+            {
+                fileInput ??= name;
             }
 
             if (input.TryGetProperty(RecordFields.Many, out var many) && many.ValueKind == JsonValueKind.True)
@@ -2848,10 +2901,19 @@ static class GeneratePlan
                     return null;
                 }
 
-                if (RecordEntries.Str(input, RecordFields.CurrencyField) is { Length: > 0 } carrier && !siblings.Contains(carrier))
+                if (RecordEntries.Str(input, RecordFields.CurrencyField) is { Length: > 0 } carrier)
                 {
-                    skip = $"input '{name}' takes its currency from '{carrier}', which no input of the use case carries";
-                    return null;
+                    if (!siblings.Contains(carrier))
+                    {
+                        skip = $"input '{name}' takes its currency from '{carrier}', which no input of the use case carries";
+                        return null;
+                    }
+
+                    if (optional.Contains(carrier))
+                    {
+                        skip = $"input '{name}' takes its currency from optional '{carrier}', which endpoints do not read";
+                        return null;
+                    }
                 }
             }
 
@@ -2860,17 +2922,25 @@ static class GeneratePlan
 
             inputs.Add(new EndpointsRenderer.BoundInput(
                 name,
-                PropertyOf(name, type),
+                PropertyOf(name),
                 char.ToLowerInvariant(sanitized[0]) + sanitized[1..],
                 wire,
                 type,
-                origin == "derived" ? "derived" : binding,
+                origin == "derived" ? "derived" : type == "file" ? "form" : binding,
                 required,
                 RecordEntries.Str(input, RecordFields.Meaning),
                 type == "choice" ? SetTypeOf(input) : null,
                 type == "id" ? IdentifierTypeOf(RecordEntries.Str(input, RecordFields.Identifies)) : null,
                 binding == "claim" ? ActorOf(input, name) : null,
-                origin));
+                origin,
+                RecordEntries.Str(input, RecordFields.Currency),
+                RecordEntries.Str(input, RecordFields.CurrencyField)));
+        }
+
+        if (fileInput is not null && inputs.Any(input => input.Binding == "body"))
+        {
+            skip = $"input '{fileInput}' carries a file with body inputs, which endpoints do not bind together";
+            return null;
         }
 
         return inputs;
@@ -2994,7 +3064,7 @@ static class GeneratePlan
                     && RecordEntries.Str(entry, RecordFields.Name) is { Length: > 0 } name)
                 {
                     var type = RecordEntries.Str(entry, RecordFields.Type) ?? "";
-                    outputs.Add((name, PropertyOf(name, type), type));
+                    outputs.Add((name, PropertyOf(name), type));
                 }
             }
         }

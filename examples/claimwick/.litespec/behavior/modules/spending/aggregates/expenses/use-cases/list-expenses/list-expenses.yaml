@@ -8,7 +8,7 @@ access:
   grant: permission/list-expenses
   tenant: own
   scope: self
-  identityInput: employee
+  identityInput: employeeId
 serves:
 - step/submit-and-reimburse.watch-expenses
 fulfills:
@@ -20,7 +20,7 @@ http:
   method: GET
   route: /api/expenses
 input:
-- name: employee
+- name: employeeId
   meaning: The signed-in employee listing their expenses, read from verified claims.
   type: id
   identifies: actor/employee

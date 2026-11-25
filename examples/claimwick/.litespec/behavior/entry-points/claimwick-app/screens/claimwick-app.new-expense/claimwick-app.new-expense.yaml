@@ -12,7 +12,7 @@ fieldSources:
   from: use-case/spending.submit-expense
 - field: currency
   from: use-case/spending.submit-expense
-- field: receipt
+- field: receiptId
   from: use-case/spending.submit-expense
 serves:
 - step/submit-and-reimburse.submit-expense

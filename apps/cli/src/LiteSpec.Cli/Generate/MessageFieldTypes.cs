@@ -8,14 +8,15 @@ namespace LiteSpec.Cli.Generate;
 ///     The C# types the message and result generators write for contract fields: one mapped
 ///     property per use-case input, output, or row field, from the exact type facts the way the
 ///     message field checks read them. An <c>id</c> becomes the typed identifier of what it
-///     identifies, a <c>choice</c> the closed set it names, a <c>money</c> the decimal the message
-///     carries with its currency beside it, and every other type its fixed .NET form.
+///     identifies, a <c>choice</c> the closed set it names, a <c>money</c> the shared money
+///     object, a <c>file</c> the carried bytes, and every other type its fixed .NET form.
+///     The property takes the PascalCase field name, as events do.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class MessageFieldTypes
 {
-    /// <summary>One contract field mapped to C#: its property name, its property type with nullability, and its row type with its row fields when the type lists multi-field rows.</summary>
-    /// <param name="Property">The property name in PascalCase, with the identity suffix for an id.</param>
+    /// <summary>One contract field mapped to C#: its property name, its property type with nullability, and its row type with its row fields when the type lists a named row.</summary>
+    /// <param name="Property">The property name in PascalCase.</param>
     /// <param name="Type">The C# property type.</param>
     /// <param name="RowType">The row type name the record states in rowType, or null when the field lists no multi-field rows.</param>
     /// <param name="Row">The row fields of a multi-field list, or an empty list when the field is no multi-field list.</param>
@@ -48,7 +49,7 @@ static class MessageFieldTypes
         return TryMap(input, name, type, nullable, out field);
     }
 
-    /// <summary>Maps one use-case output entry to its C# property: every output field is always present.</summary>
+    /// <summary>Maps one use-case output entry to its C# property: an optional output field may be absent, as an event carry may.</summary>
     /// <param name="output">The output entry holding the field name and its record type.</param>
     /// <param name="field">The mapped property, or null when the entry states no known shape.</param>
     /// <returns>True when the entry maps; otherwise false, and the result renders no file.</returns>
@@ -62,7 +63,7 @@ static class MessageFieldTypes
             return false;
         }
 
-        return TryMap(output, name, type, nullable: false, out field);
+        return TryMap(output, name, type, !IsRequired(output), out field);
     }
 
     /// <summary>Maps one list-row entry to its C# property: a scalar of its record type, or a read-only list for a row field of type list, nullable when the row states no required.</summary>
@@ -111,7 +112,7 @@ static class MessageFieldTypes
         }
 
         field = new MappedField(
-            PropertyName(name, type),
+            PropertyName(name),
             scalar,
             null,
             [],
@@ -120,7 +121,7 @@ static class MessageFieldTypes
         return true;
     }
 
-    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row. Inner rows hold scalars only, one level at a time.</summary>
+    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row or a single-field one stating rowType. Inner rows hold scalars only, one level at a time.</summary>
     /// <param name="row">The row field entry holding the nested row shape.</param>
     /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
     /// <returns>True when the nested shape maps; otherwise false.</returns>
@@ -156,13 +157,25 @@ static class MessageFieldTypes
 
         if (members.Count == 1)
         {
+            if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType)
+            {
+                if (EventFieldTypes.ObjectTypeOf(rowType) is not { } single)
+                {
+                    return false;
+                }
+
+                type = $"IReadOnlyList<{single}>" + (optional ? "?" : "");
+
+                return true;
+            }
+
             type = $"IReadOnlyList<{members[0]}>" + (optional ? "?" : "");
 
             return true;
         }
 
-        if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType
-            && EventFieldTypes.ObjectTypeOf(rowType) is { } shared)
+        if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } multiRowType
+            && EventFieldTypes.ObjectTypeOf(multiRowType) is { } shared)
         {
             type = $"IReadOnlyList<{shared}>" + (optional ? "?" : "");
 
@@ -183,7 +196,7 @@ static class MessageFieldTypes
     {
         field = null;
 
-        var property = PropertyName(name, type);
+        var property = PropertyName(name);
         var meaning = RecordEntries.Str(entry, RecordFields.Meaning);
 
         if (type == "list")
@@ -211,7 +224,7 @@ static class MessageFieldTypes
         return true;
     }
 
-    /// <summary>Maps one list field to its read-only list type: the row element for a single-field row, the named row type for a multi-field row.</summary>
+    /// <summary>Maps one list field to its read-only list type: the row element for a single-field row, the named row type for a multi-field row or a single-field row stating rowType.</summary>
     /// <param name="entry">The field entry holding the row shape.</param>
     /// <param name="property">The property name in PascalCase.</param>
     /// <param name="meaning">The meaning the record states, or null.</param>
@@ -243,7 +256,7 @@ static class MessageFieldTypes
             fields.Add(mapped);
         }
 
-        if (fields.Count == 1)
+        if (fields.Count == 1 && RecordEntries.Str(entry, RecordFields.RowType) is not { Length: > 0 })
         {
             var single = $"IReadOnlyList<{fields[0].Type}>" + (nullable ? "?" : "");
 
@@ -273,32 +286,21 @@ static class MessageFieldTypes
         "text" or "email" => "string",
         "integer" => "int",
         "decimal" => "decimal",
-        "money" => "decimal",
+        "money" => "Money",
         "boolean" => "bool",
         "date" => "DateOnly",
         "instant" => "DateTimeOffset",
         "duration" => "TimeSpan",
-        "file" => "string",
+        "file" => "byte[]",
         "choice" => SetOf(entry),
         "id" => IdentifierOf(entry),
         _ => null,
     };
 
-    /// <summary>The property name of one contract field: its PascalCase name, with the identity suffix for an id.</summary>
+    /// <summary>The property name of one contract field: its PascalCase name, as events name theirs.</summary>
     /// <param name="name">The field name.</param>
-    /// <param name="type">The coarse record type.</param>
     /// <returns>The property name.</returns>
-    public static string PropertyName(string name, string type)
-    {
-        var property = GenerateNaming.ConstName(name);
-
-        if (type == "id" && !property.EndsWith("Id", StringComparison.Ordinal))
-        {
-            property += "Id";
-        }
-
-        return property;
-    }
+    public static string PropertyName(string name) => GenerateNaming.ConstName(name);
 
     /// <summary>The closed-set type a choice field takes its values from.</summary>
     /// <param name="entry">The field entry holding the set reference.</param>

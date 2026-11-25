@@ -19,7 +19,7 @@ http:
   method: POST
   route: /api/expenses/{expenseId}:refuse
 input:
-- name: expense
+- name: expenseId
   meaning: The submitted expense to refuse.
   type: id
   identifies: aggregate/spending.expense
@@ -34,7 +34,7 @@ input:
   origin: caller
   binding: query
   classification: internal
-- name: approver
+- name: approverId
   meaning: The signed-in manager deciding the expense, read from verified claims.
   type: id
   identifies: actor/manager
