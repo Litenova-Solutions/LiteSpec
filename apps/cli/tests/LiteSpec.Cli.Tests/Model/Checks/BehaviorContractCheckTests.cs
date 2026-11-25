@@ -187,10 +187,10 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "record-invalid", "holds row field 'nights' of input field 'boxes' of type list with no rowShape"));
     }
 
-    /// <summary>Nested Row List Deeper Than One Level Reports.</summary>
+    /// <summary>Nested Row List Holding A Collection Without Row Type Reports.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
-    public void NestedRowListDeeperThanOneLevelReports()
+    public void NestedRowListHoldingCollectionWithoutRowTypeReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -198,7 +198,36 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "spans", "meaning": "The spans.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "night", "meaning": "One night held.", "type": "date", "required": true}]}}]}}]}}]}"""));
 
-        Assert.True(Reports(model, "record-invalid", "with type 'list'; a nested list holds scalar fields only"));
+        Assert.True(Reports(model, "record-invalid", "holds row field 'nights' of input field 'boxes' of type list holding a list or object field and no rowType"));
+    }
+
+    /// <summary>Deeper Lists Naming Their Row Types Pass.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void DeeperListsNamingRowTypesPass()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowType": "HeldNights", "rowShape": {"fields": [{"name": "spans", "meaning": "The spans.", "type": "list", "required": true, "rowType": "NightSpan", "rowShape": {"fields": [{"name": "night", "meaning": "One night held.", "type": "date", "required": true}, {"name": "rate", "meaning": "The nightly rate.", "type": "decimal", "scale": 2, "required": true}]}}]}}]}}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "holds row field 'nights'"));
+        Assert.False(Reports(model, "record-invalid", "holds row field 'spans'"));
+    }
+
+    /// <summary>Deeper Multi Field List Without Row Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void DeeperMultiFieldListWithoutRowTypeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowType": "HeldNights", "rowShape": {"fields": [{"name": "spans", "meaning": "The spans.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "night", "meaning": "One night held.", "type": "date", "required": true}, {"name": "rate", "meaning": "The nightly rate.", "type": "decimal", "scale": 2, "required": true}]}}]}}]}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds row field 'spans' of row field 'nights' of input field 'boxes' of type list with several fields and no rowType"));
     }
 
     /// <summary>Multi Field Nested Row List Without Row Type Reports.</summary>
@@ -468,10 +497,10 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "record-invalid", "holds row field 'rates' of row field 'totals' of input field 'receipts' of type list with several fields and no rowType"));
     }
 
-    /// <summary>Nested Object Holding An Object Reports.</summary>
+    /// <summary>Nested Object Holding A Named Object Passes.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
-    public void NestedObjectHoldingObjectReports()
+    public void NestedObjectHoldingNamedObjectPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -479,10 +508,25 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "receipts", "meaning": "The receipts to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "totals", "meaning": "The receipt totals.", "type": "object", "required": true, "rowType": "ReceiptTotals", "rowShape": {"fields": [{"name": "inner", "meaning": "The inner totals.", "type": "object", "required": true, "rowType": "InnerTotals", "rowShape": {"fields": [{"name": "total", "meaning": "The total.", "type": "decimal", "scale": 2, "required": true}]}}]}}]}}]}"""));
 
-        Assert.True(Reports(model, "record-invalid", "with type 'object'; a nested row holds no object"));
+        Assert.False(Reports(model, "record-invalid", "holds row field 'inner'"));
+        Assert.False(Reports(model, "record-invalid", "holds row field 'totals'"));
     }
 
-    /// <summary>List Inside A Nested Object Holding A List Reports.</summary>
+    /// <summary>Deeper Object Without Row Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void DeeperObjectWithoutRowTypeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "receipts", "meaning": "The receipts to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "totals", "meaning": "The receipt totals.", "type": "object", "required": true, "rowType": "ReceiptTotals", "rowShape": {"fields": [{"name": "inner", "meaning": "The inner totals.", "type": "object", "required": true, "rowShape": {"fields": [{"name": "total", "meaning": "The total.", "type": "decimal", "scale": 2, "required": true}]}}]}}]}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds row field 'inner' of row field 'totals' of input field 'receipts' of type object with no rowType"));
+    }
+
+    /// <summary>List Inside A Nested Object Holding A List Without Row Type Reports.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
     public void ThirdLevelListHoldingListReports()
@@ -493,7 +537,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "receipts", "meaning": "The receipts to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "totals", "meaning": "The receipt totals.", "type": "object", "required": true, "rowType": "ReceiptTotals", "rowShape": {"fields": [{"name": "rates", "meaning": "The per-rate lines.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "bands", "meaning": "The bands.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "rate", "meaning": "The rate.", "type": "decimal", "scale": 2, "required": true}]}}]}}]}}]}}]}"""));
 
-        Assert.True(Reports(model, "record-invalid", "holds row field 'bands' of row field 'totals.rates' of input field 'receipts' with type 'list'; a nested list holds scalar fields only"));
+        Assert.True(Reports(model, "record-invalid", "holds row field 'rates' of row field 'totals' of input field 'receipts' of type list holding a list or object field and no rowType"));
     }
 
     /// <summary>Nested Money And Identifier Pass.</summary>

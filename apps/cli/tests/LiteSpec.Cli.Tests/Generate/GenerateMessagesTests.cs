@@ -558,6 +558,48 @@ public sealed class GenerateMessagesTests
         Assert.Contains("public string IdempotencyKey => $\"{CopyId.Branch}\";", content, StringComparison.Ordinal);
     }
 
+    /// <summary>A command keying on a formatted placeholder renders its key culture-invariant with the format.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CommandWithFormattedKeyPlaceholderRendersInvariantExpression()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path)
+                .Replace(
+                    "idempotency:",
+                    """
+                    - name: passedAt
+                      meaning: The time the reader passes the gate.
+                      type: instant
+                      required: true
+                      origin: caller
+                      binding: body
+                      classification: internal
+                    idempotency:
+                    """,
+                    StringComparison.Ordinal)
+                .Replace(
+                    "  mode: none\n  reason: Each call lends its own copy, and lending an unavailable copy is refused.",
+                    "  mode: key\n  key: \"pass-{passedAt:yyyy-MM-dd-HH-mm}\"\n  keyScope: account\n  replay: returns-first-result",
+                    StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var content = Assert.Single(plan.Files, file => file.AbsolutePath.Contains("BorrowCopy", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("public string IdempotencyKey => FormattableString.Invariant($\"pass-{PassedAt:yyyy-MM-dd-HH-mm}\");", content, StringComparison.Ordinal);
+        Assert.Contains("using System;", content, StringComparison.Ordinal);
+    }
+
     /// <summary>A message row field holding a list maps to a read-only list of its inner row.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -567,6 +609,38 @@ public sealed class GenerateMessagesTests
 
         Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
         Assert.Equal("IReadOnlyList<DateTimeOffset>", mapped!.Type);
+    }
+
+    /// <summary>A message row field holding a deeper named list maps to a read-only list of its row type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DeepNestedMessageRowListMaps()
+    {
+        var row = JsonDocument.Parse("""{"name": "nights", "type": "list", "required": true, "rowType": "HeldNights", "rowShape": {"fields": [{"name": "spans", "type": "list", "required": true, "rowType": "NightSpan", "rowShape": {"fields": [{"name": "night", "type": "date", "required": true}, {"name": "rate", "type": "decimal", "scale": 2, "required": true}]}}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
+        Assert.Equal("IReadOnlyList<HeldNights>", mapped!.Type);
+    }
+
+    /// <summary>A message row field holding a deeper list without a row type maps nothing.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DeepNestedMessageRowListWithoutRowTypeMapsNothing()
+    {
+        var row = JsonDocument.Parse("""{"name": "nights", "type": "list", "required": true, "rowShape": {"fields": [{"name": "spans", "type": "list", "required": true, "rowShape": {"fields": [{"name": "night", "type": "date", "required": true}]}}]}}""").RootElement;
+
+        Assert.False(MessageFieldTypes.TryMapRow(row, out _));
+    }
+
+    /// <summary>A message row field holding a deeper named object maps to its row type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DeepNestedMessageRowObjectMaps()
+    {
+        var row = JsonDocument.Parse("""{"name": "totals", "type": "object", "required": true, "rowType": "ReceiptTotals", "rowShape": {"fields": [{"name": "inner", "type": "object", "required": true, "rowType": "InnerTotals", "rowShape": {"fields": [{"name": "total", "type": "decimal", "scale": 2, "required": true}]}}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
+        Assert.Equal("ReceiptTotals", mapped!.Type);
     }
 
     /// <summary>An optional output field maps nullable, and a required one stays non-nullable.</summary>

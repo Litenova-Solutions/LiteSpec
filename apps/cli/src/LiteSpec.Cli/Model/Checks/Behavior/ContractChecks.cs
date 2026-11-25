@@ -1209,8 +1209,8 @@ internal static class ContractChecks
 
     /// <summary>
     ///     Reports a list-of-rows or single-object shape that is no object with a non-empty fields array, a row field with no name, a type outside
-    ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a nested list row shape that is no scalar row list,
-    ///     a nested object row shape that is no scalar object with at most one more list, a minItems that is no non-negative whole number, and a unique key that names no row field.
+    ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a nested list or object row shape that is no row list
+    ///     with every deeper level naming its shared row type, a minItems that is no non-negative whole number, and a unique key that names no row field.
     /// </summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record whose list or object field is judged.</param>
@@ -1299,13 +1299,13 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>The scalar and file types a nested row field may carry: a nested list holds these only, and a nested object these with one more list.</summary>
+    /// <summary>The scalar and file types a nested row field may carry without a row shape: a nested list or object holds these, or further lists and objects each naming its shared row type.</summary>
     private static readonly HashSet<string> NestedRowTypes = new(StringComparer.Ordinal)
     {
         "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file",
     };
 
-    /// <summary>Reports a nested list row shape that is no scalar row list, a nested row field with no name, a non-scalar type, or no required flag, and a multi-field nested list with no rowType or a rowType naming an undeclared part. A nested list holds scalar fields only; only a nested object holds one more list.</summary>
+    /// <summary>Reports a nested list row shape that is no row list with every deeper level naming its shared row type, a nested row field with no name, a non-scalar type, or no required flag, and a nested list holding several fields or a further list or object with no rowType or a rowType naming an undeclared part.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
     /// <param name="record">The record whose list field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1328,7 +1328,7 @@ internal static class ContractChecks
             return;
         }
 
-        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings, allowLists: false);
+        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings);
 
         if (leaves.GetArrayLength() > 1)
         {
@@ -1340,9 +1340,18 @@ internal static class ContractChecks
 
             CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
         }
+        else if (HoldsCollection(leaves) && Str(row, RecordFields.RowType) is not { Length: > 0 })
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type list holding a list or object field and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+        else if (Str(row, RecordFields.RowType) is { Length: > 0 } single)
+        {
+            CheckNestedRowTypeRef(model, record, label, array, name, rowName, single, findings);
+        }
     }
 
-    /// <summary>Reports a nested object row shape that is no scalar object with at most one more list, and a nested object with no rowType or a rowType naming an undeclared part. A nested object names its shared row type with any field count, since a single object never collapses onto its field.</summary>
+    /// <summary>Reports a nested object row shape that is no row list with every deeper level naming its shared row type, and a nested object with no rowType or a rowType naming an undeclared part. A nested object names its shared row type with any field count, since a single object never collapses onto its field.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
     /// <param name="record">The record whose object field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1365,7 +1374,7 @@ internal static class ContractChecks
             return;
         }
 
-        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings, allowLists: true);
+        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings);
 
         if (Str(row, RecordFields.RowType) is not { Length: > 0 } shared)
         {
@@ -1376,18 +1385,33 @@ internal static class ContractChecks
         CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
     }
 
-    /// <summary>Reports a nested row field with no name, a non-scalar type, or no required flag, and a nested row field whose exact type facts name nothing. A nested list holds scalar fields only; a nested object holds scalar fields with one more list, whose rows hold scalar fields only.</summary>
-    /// <param name="model">The loaded project model that resolves each closed set.</param>
+    /// <summary>Whether a nested row fields array holds a list or object field, so its shape names its shared row type.</summary>
+    /// <param name="leaves">The nested row fields.</param>
+    /// <returns>True when any field carries type list or object; otherwise false.</returns>
+    private static bool HoldsCollection(JsonElement leaves)
+    {
+        foreach (var leaf in leaves.EnumerateArray())
+        {
+            if (leaf.ValueKind == JsonValueKind.Object && Str(leaf, RecordFields.Type) is "list" or "object")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Reports a nested row field with no name, a non-scalar type, or no required flag, a nested row field whose exact type facts name nothing, and a deeper list or object without its row shape or without its shared row type where it holds several fields or a further list or object. Each deeper level states its own row shape, so the drift check compares every stated level with its named backend type.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
     /// <param name="record">The record whose list or object field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="array">The contract array field name, input, payload or output.</param>
     /// <param name="name">The contract field name quoted in each finding.</param>
-    /// <param name="rowName">The row field name quoted in each finding.</param>
+    /// <param name="path">The dotted row path of the enclosing field, quoted in each finding.</param>
     /// <param name="leaves">The nested row fields.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <param name="allowLists">True when a leaf may be one more list, on a nested object shape only.</param>
     private static void CheckNestedLeaves(
-        ProjectModel model, Record record, string label, string array, string name, string rowName, JsonElement leaves, List<Finding> findings, bool allowLists)
+        ProjectModel model, Record record, string label, string array, string name, string path, JsonElement leaves, List<Finding> findings)
     {
         var siblings = SiblingsOf(leaves);
 
@@ -1398,52 +1422,45 @@ internal static class ContractChecks
 
             if (leafName is not { Length: > 0 })
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds a row field of row field '{rowName}' of {array} field '{name}' with no name.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds a row field of row field '{path}' of {array} field '{name}' with no name.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
-            if (leafType == "list" && allowLists)
+            if (leafType is "list" or "object")
             {
-                CheckThirdLevelList(model, record, label, array, name, rowName, leafName, leaf, findings);
-            }
-            else if (leafType == "list")
-            {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type 'list'; a nested list holds scalar fields only.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (leafType == "object")
-            {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type 'object'; a nested row holds no object.", record.File, record.Line, SubjectOf(record)));
+                CheckDeepCollection(model, record, label, array, name, path, leafName, leafType, leaf, findings);
             }
             else if (leafType is not { Length: > 0 } || !NestedRowTypes.Contains(leafType))
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type '{leafType ?? "none"}' outside the scalar types.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{path}' of {array} field '{name}' with type '{leafType ?? "none"}' outside the scalar types.", record.File, record.Line, SubjectOf(record)));
             }
             else
             {
-                CheckFieldFacts(model, record, label, "row field of row field '" + rowName + "' of " + array + " field '" + name + "'", leafName, leafType, leaf, siblings, findings);
+                CheckFieldFacts(model, record, label, "row field of row field '" + path + "' of " + array + " field '" + name + "'", leafName, leafType, leaf, siblings, findings);
             }
 
             if (leaf.ValueKind != JsonValueKind.Object
                 || !leaf.TryGetProperty(RecordFields.Required, out var required)
                 || required.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{path}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
 
-    /// <summary>Reports a list inside a nested object whose rows are no scalar rows, and a multi-field one with no rowType or a rowType naming an undeclared part. The rows hold scalar fields only, so nesting stops one list inside an object.</summary>
+    /// <summary>Reports a deeper list or object without its row shape, a deeper multi-field list or a deeper list holding a further list or object without its shared row type, a deeper object without its shared row type, and a row type naming an undeclared part. A deeper level names its shared row type, since only a named level may nest further.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
-    /// <param name="record">The record whose object field is judged.</param>
+    /// <param name="record">The record whose list or object field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="array">The contract array field name, input, payload or output.</param>
     /// <param name="name">The contract field name quoted in each finding.</param>
-    /// <param name="rowName">The row field name quoted in each finding.</param>
-    /// <param name="leafName">The nested object member holding the list, quoted in each finding.</param>
-    /// <param name="leaf">The list member object holding the row shape.</param>
+    /// <param name="path">The dotted row path of the enclosing field, quoted in each finding.</param>
+    /// <param name="leafName">The nested row field name quoted in each finding.</param>
+    /// <param name="leafType">The nested row field type: list or object.</param>
+    /// <param name="leaf">The nested row field object holding the row shape.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckThirdLevelList(
-        ProjectModel model, Record record, string label, string array, string name, string rowName, string leafName, JsonElement leaf, List<Finding> findings)
+    private static void CheckDeepCollection(
+        ProjectModel model, Record record, string label, string array, string name, string path, string leafName, string leafType, JsonElement leaf, List<Finding> findings)
     {
         if (leaf.ValueKind != JsonValueKind.Object
             || !leaf.TryGetProperty(RecordFields.RowShape, out var nested)
@@ -1452,21 +1469,41 @@ internal static class ContractChecks
             || cells.ValueKind != JsonValueKind.Array
             || cells.GetArrayLength() == 0)
         {
-            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' of type list with no rowShape.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{path}' of {array} field '{name}' of type {leafType} with no rowShape.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
-        CheckNestedLeaves(model, record, label, array, name, rowName + "." + leafName, cells, findings, allowLists: false);
+        CheckNestedLeaves(model, record, label, array, name, path + "." + leafName, cells, findings);
+
+        if (leafType == "object")
+        {
+            if (Str(leaf, RecordFields.RowType) is not { Length: > 0 } shared)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{path}' of {array} field '{name}' of type object with no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            CheckNestedRowTypeRef(model, record, label, array, name, path + "." + leafName, shared, findings);
+            return;
+        }
 
         if (cells.GetArrayLength() > 1)
         {
             if (Str(leaf, RecordFields.RowType) is not { Length: > 0 } shared)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' of type list with several fields and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{path}' of {array} field '{name}' of type list with several fields and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
                 return;
             }
 
-            CheckNestedRowTypeRef(model, record, label, array, name, rowName + "." + leafName, shared, findings);
+            CheckNestedRowTypeRef(model, record, label, array, name, path + "." + leafName, shared, findings);
+        }
+        else if (HoldsCollection(cells) && Str(leaf, RecordFields.RowType) is not { Length: > 0 })
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{path}' of {array} field '{name}' of type list holding a list or object field and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (Str(leaf, RecordFields.RowType) is { Length: > 0 } single)
+        {
+            CheckNestedRowTypeRef(model, record, label, array, name, path + "." + leafName, single, findings);
         }
     }
 

@@ -251,7 +251,7 @@ static class EventFieldTypes
         return true;
     }
 
-    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row or a single-field one stating rowType. Inner rows hold scalars only, one level at a time.</summary>
+    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row, a single-field one stating rowType, or one holding a further list or object. A deeper list or object maps the same way, so each nested level may nest further when it names its row type.</summary>
     /// <param name="row">The row field entry holding the nested row shape.</param>
     /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
@@ -270,13 +270,43 @@ static class EventFieldTypes
         }
 
         var members = new List<string>();
+        var holdsCollections = false;
 
         foreach (var leaf in leaves.EnumerateArray())
         {
             if (leaf.ValueKind != JsonValueKind.Object
-                || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType
-                || leafType is "list" or "object"
-                || ScalarOf(leaf, leafType) is not { } scalar)
+                || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType)
+            {
+                return false;
+            }
+
+            if (leafType == "list")
+            {
+                holdsCollections = true;
+
+                if (!TryNestedList(leaf, qualify, out var nested) || nested is null)
+                {
+                    return false;
+                }
+
+                members.Add(nested);
+                continue;
+            }
+
+            if (leafType == "object")
+            {
+                holdsCollections = true;
+
+                if (!TryNestedObject(leaf, qualify, out var nested) || nested is null)
+                {
+                    return false;
+                }
+
+                members.Add(nested);
+                continue;
+            }
+
+            if (ScalarOf(leaf, leafType) is not { } scalar)
             {
                 return false;
             }
@@ -286,7 +316,7 @@ static class EventFieldTypes
 
         var optional = !IsRequired(row);
 
-        if (members.Count == 1)
+        if (members.Count == 1 && !holdsCollections)
         {
             if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType)
             {
@@ -316,7 +346,7 @@ static class EventFieldTypes
         return false;
     }
 
-    /// <summary>Maps one single-object row field to its row type: the named row type, qualified when it names an aggregate part the qualifier resolves. Object rows hold scalars with one more list, and always name their row type, since a single object never collapses onto its field.</summary>
+    /// <summary>Maps one single-object row field to its row type: the named row type, qualified when it names an aggregate part the qualifier resolves. Object rows hold scalars with deeper lists and objects each naming their row type, and always name their own row type, since a single object never collapses onto its field.</summary>
     /// <param name="row">The row field entry holding the nested row shape.</param>
     /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
@@ -339,8 +369,7 @@ static class EventFieldTypes
         foreach (var leaf in leaves.EnumerateArray())
         {
             if (leaf.ValueKind != JsonValueKind.Object
-                || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType
-                || leafType == "object")
+                || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType)
             {
                 return false;
             }
@@ -348,6 +377,16 @@ static class EventFieldTypes
             if (leafType == "list")
             {
                 if (!TryNestedList(leaf, qualify, out _))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (leafType == "object")
+            {
+                if (!TryNestedObject(leaf, qualify, out _))
                 {
                     return false;
                 }

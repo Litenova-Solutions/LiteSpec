@@ -620,6 +620,8 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Generated endpoints declare their partial shaping and derivation methods `private static partial`, and place optional paging and form parameters after the required ones, so the endpoints file compiles.
 - The test suite compiles the whole Claimwick backend, hand-written and generated files together, against the framework, the ASP.NET Core reference pack, Marten and faithful LiteBus stubs, and Claimwick's missing usings are fixed.
 - Generated endpoints call the `tenantReader` with the tenant key's type as a type argument, so a reader in a shared platform project needs no reference to the module that declares the identifier.
+- Idempotency key templates accept `{field:format}` with a .NET format string on date, instant, duration, integer and decimal fields (also on dotted reaction paths), judged by field name and rendered culture-invariant into the key.
+- A nested row field whose `rowType` names a declared type may itself hold lists and objects of further named row types, each level stating its own `rowShape`; the drift check compares every stated level.
 
 ### Part U: Provision Changes Since v6.0.0
 

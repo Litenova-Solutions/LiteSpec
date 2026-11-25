@@ -1,5 +1,7 @@
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Checks.Behavior;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -154,6 +156,112 @@ public sealed class IdempotencyKeyCheckTests
                 """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "idempotency": {"mode": "key", "key": "remind-{latestRenewal.note.mark}", "keyScope": "tenant"}}"""));
 
         Assert.Contains("idempotency-key-uncarried", TestModel.Codes(model));
+    }
+
+    /// <summary>A use case key formatting a carried instant passes, judged by the field name.</summary>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
+    [Fact]
+    public void UseCaseKeyWithFormatPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.record-pass", Path.Combine(temp.Path, "pass.yaml"),
+                """{"kind": "command", "input": [{"name": "passAt", "meaning": "The gate time.", "type": "instant"}], "idempotency": {"mode": "key", "key": "pass-{passAt:yyyy-MM-dd-HH-mm}", "keyScope": "tenant", "replay": "returns-first-result"}}"""));
+
+        var findings = new List<Finding>();
+        IdempotencyKeyChecks.Run(model, findings);
+
+        Assert.Empty(findings);
+    }
+
+    /// <summary>A use case key formatting a field no input carries reports the placeholder uncarried.</summary>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
+    [Fact]
+    public void UseCaseKeyWithFormatOutsideInputReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.record-pass", Path.Combine(temp.Path, "pass.yaml"),
+                """{"kind": "command", "input": [{"name": "passAt", "meaning": "The gate time.", "type": "instant"}], "idempotency": {"mode": "key", "key": "pass-{startedAt:yyyy-MM-dd-HH-mm}", "keyScope": "tenant", "replay": "returns-first-result"}}"""));
+
+        Assert.Contains("idempotency-key-uncarried", TestModel.Codes(model));
+    }
+
+    /// <summary>A use case key formatting a text input reports the format the type takes none of.</summary>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
+    [Fact]
+    public void UseCaseKeyWithFormatOnTextReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.record-pass", Path.Combine(temp.Path, "pass.yaml"),
+                """{"kind": "command", "input": [{"name": "gate", "meaning": "The gate name.", "type": "text"}], "idempotency": {"mode": "key", "key": "pass-{gate:yyyy}", "keyScope": "tenant", "replay": "returns-first-result"}}"""));
+
+        var findings = new List<Finding>();
+        IdempotencyKeyChecks.Run(model, findings);
+
+        Assert.Contains(findings, finding => finding.Code == "record-invalid" && finding.Message.Contains("takes no format", StringComparison.Ordinal));
+        Assert.DoesNotContain(findings, finding => finding.Code == "idempotency-key-uncarried");
+    }
+
+    /// <summary>A use case key with an empty format reports.</summary>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
+    [Fact]
+    public void UseCaseKeyWithEmptyFormatReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.record-pass", Path.Combine(temp.Path, "pass.yaml"),
+                """{"kind": "command", "input": [{"name": "passAt", "meaning": "The gate time.", "type": "instant"}], "idempotency": {"mode": "key", "key": "pass-{passAt:}", "keyScope": "tenant", "replay": "returns-first-result"}}"""));
+
+        var findings = new List<Finding>();
+        IdempotencyKeyChecks.Run(model, findings);
+
+        Assert.Contains(findings, finding => finding.Code == "record-invalid" && finding.Message.Contains("an empty format", StringComparison.Ordinal));
+    }
+
+    /// <summary>A reaction key formatting a member of a carry naming a declared part passes.</summary>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
+    [Fact]
+    public void ReactionDottedKeyWithFormatPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"),
+                """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "renewal"}]}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"),
+                """{"meaning": "A copy was lent.", "carries": [{"name": "latestRenewal", "type": "aggregate/lending.loan#renewal"}]}"""),
+            TestModel.Record("reaction", "reaction/lending.remind-on-loan-borrowed", Path.Combine(temp.Path, "remind.yaml"),
+                """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "idempotency": {"mode": "key", "key": "remind-{latestRenewal.renewedAt:yyyy-MM-dd}", "keyScope": "tenant"}}"""));
+
+        var findings = new List<Finding>();
+        IdempotencyKeyChecks.Run(model, findings);
+
+        Assert.Empty(findings);
+    }
+
+    /// <summary>A job key formatting a carried run input passes.</summary>
+    /// <proves>litespec/core/use-cases#carry-every-key-placeholder</proves>
+    [Fact]
+    public void JobKeyWithFormatPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.record-reading", Path.Combine(temp.Path, "reading.yaml"),
+                """{"kind": "command", "input": [{"name": "readAt", "meaning": "The meter time.", "type": "instant"}]}"""),
+            TestModel.Record("job", "job/lending.record-readings", Path.Combine(temp.Path, "job.yaml"),
+                """{"kind": "scheduled", "effects": [{"runs": "use-case/lending.record-reading", "timing": "async"}], "idempotency": {"mode": "key", "key": "reading-{readAt:yyyy-MM-dd-HH}", "keyScope": "tenant"}}"""));
+
+        var findings = new List<Finding>();
+        IdempotencyKeyChecks.Run(model, findings);
+
+        Assert.Empty(findings);
     }
 
     /// <summary>A reaction key reaching a member through a module event field passes when the translated carry names a declared part.</summary>

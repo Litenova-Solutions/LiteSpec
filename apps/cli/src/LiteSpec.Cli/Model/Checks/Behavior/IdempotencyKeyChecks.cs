@@ -11,7 +11,8 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 ///     The idempotency key check: every placeholder an idempotency or deduplication key names is
 ///     carried by the record that uses the key, as an input or a field of a triggering event.
 ///     A reaction placeholder may reach one member deeper with a dotted path when the carry
-///     names an aggregate part the records describe.
+///     names an aggregate part the records describe. A placeholder may state a .NET format
+///     after a colon, judged by its field name, on a field of a formattable type.
 /// </summary>
 /// <follows>litespec/core/use-cases#carry-every-key-placeholder</follows>
 internal static class IdempotencyKeyChecks
@@ -23,6 +24,12 @@ internal static class IdempotencyKeyChecks
     private static readonly HashSet<string> ValueTypes = new(StringComparer.Ordinal)
     {
         "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list", "map",
+    };
+
+    /// <summary>The contract types a key placeholder may format after a colon: the date, time, span, and number types the generated key renders through FormattableString.Invariant.</summary>
+    private static readonly HashSet<string> FormattableTypes = new(StringComparer.Ordinal)
+    {
+        "date", "instant", "duration", "integer", "decimal",
     };
 
     /// <summary>Reports each key placeholder that no input or triggering event carries.</summary>
@@ -40,48 +47,184 @@ internal static class IdempotencyKeyChecks
                 continue;
             }
 
-            var names = Placeholder.Matches(key)
+            var placeholders = Placeholder.Matches(key)
                 .Select(match => match.Groups["name"].Value.Trim())
-                .Where(name => name.Length > 0)
+                .Where(text => text.Length > 0)
                 .Distinct(StringComparer.Ordinal)
-                .OrderBy(name => name, StringComparer.Ordinal)
+                .OrderBy(text => text, StringComparer.Ordinal)
                 .ToList();
 
-            if (names.Count == 0)
+            if (placeholders.Count == 0)
             {
                 continue;
             }
 
             var carried = CarriedFields(model, record);
 
-            foreach (var name in names)
+            foreach (var placeholder in placeholders)
             {
-                if (carried.Contains(name, StringComparer.Ordinal))
+                var (path, format) = SplitFormat(placeholder);
+
+                if (path.Length == 0)
                 {
+                    findings.Add(new Finding("record-invalid",
+                        $"{Label(record.Type)} '{record.Id}' holds idempotency key '{key}' where placeholder '{placeholder}' names no field; name a carried field, with an optional format as field:format.",
+                        record.File, record.Line, SubjectOf(record)));
+                    continue;
+                }
+
+                if (carried.Contains(path, StringComparer.Ordinal))
+                {
+                    CheckFormat(model, record, key, placeholder, path, format, findings);
                     continue;
                 }
 
                 if (record.Type == RecordTypes.Reaction
-                    && name.Contains('.', StringComparison.Ordinal)
-                    && ResolveDotted(model, record, name, out var dotted)
+                    && path.Contains('.', StringComparison.Ordinal)
+                    && ResolveDotted(model, record, path, out var dotted)
                     && dotted)
                 {
+                    CheckFormat(model, record, key, placeholder, path, format, findings);
                     continue;
                 }
 
                 if (record.Type == RecordTypes.Reaction
-                    && name.Contains('.', StringComparison.Ordinal)
-                    && DottedFinding(model, record, key, name) is { } finding)
+                    && path.Contains('.', StringComparison.Ordinal)
+                    && DottedFinding(model, record, key, path) is { } finding)
                 {
                     findings.Add(finding);
                     continue;
                 }
 
                 findings.Add(new Finding("idempotency-key-uncarried",
-                    $"{Label(record.Type)} '{record.Id}' holds idempotency key '{key}' where placeholder '{name}' is carried by no input or triggering event; carried: {string.Join(", ", carried.Order(StringComparer.Ordinal))}.",
+                    $"{Label(record.Type)} '{record.Id}' holds idempotency key '{key}' where placeholder '{placeholder}' is carried by no input or triggering event; carried: {string.Join(", ", carried.Order(StringComparer.Ordinal))}.",
                     record.File, record.Line, SubjectOf(record)));
             }
         }
+    }
+
+    /// <summary>Splits a placeholder into its field path and its optional .NET format: the text before the first colon names the carried field, and the text after it formats the value.</summary>
+    /// <param name="placeholder">The placeholder text between the braces, trimmed.</param>
+    /// <returns>The field path with the format, or null when the placeholder states no colon.</returns>
+    private static (string Path, string? Format) SplitFormat(string placeholder)
+    {
+        var colon = placeholder.IndexOf(':');
+
+        return colon < 0
+            ? (placeholder, null)
+            : (placeholder[..colon].Trim(), placeholder[(colon + 1)..].Trim());
+    }
+
+    /// <summary>Reports a format a carried placeholder states that its field cannot render: an empty format, a format with a quote or a newline, or a format on a field of no date, instant, duration, integer, or decimal type. A format on a dotted member path renders as stated, since the member type is not modeled.</summary>
+    /// <param name="model">The loaded project model that resolves each carried field type.</param>
+    /// <param name="record">The use case, reaction or job holding the key.</param>
+    /// <param name="key">The key template quoted in each finding.</param>
+    /// <param name="placeholder">The placeholder text between the braces, as written.</param>
+    /// <param name="path">The carried field path the placeholder names.</param>
+    /// <param name="format">The stated format, or null when the placeholder states none.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFormat(ProjectModel model, Record record, string key, string placeholder, string path, string? format, List<Finding> findings)
+    {
+        if (format is null)
+        {
+            return;
+        }
+
+        if (format.Length == 0)
+        {
+            findings.Add(new Finding("record-invalid",
+                $"{Label(record.Type)} '{record.Id}' holds idempotency key '{key}' where placeholder '{placeholder}' states an empty format; state the .NET format after the colon, or drop the colon.",
+                record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (format.IndexOfAny(['"', '\r', '\n']) >= 0)
+        {
+            findings.Add(new Finding("record-invalid",
+                $"{Label(record.Type)} '{record.Id}' holds idempotency key '{key}' where placeholder '{placeholder}' states a format with a quote or a newline, which a key cannot render; state a format of letters, digits, and punctuation.",
+                record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (path.Contains('.', StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (FieldTypeOf(model, record, path) is not { Length: > 0 } type || FormattableTypes.Contains(type))
+        {
+            return;
+        }
+
+        findings.Add(new Finding("record-invalid",
+            $"{Label(record.Type)} '{record.Id}' holds idempotency key '{key}' where placeholder '{placeholder}' formats '{path}' of type '{type}', which takes no format; a format needs a date, instant, duration, integer, or decimal field.",
+            record.File, record.Line, SubjectOf(record)));
+    }
+
+    /// <summary>The contract type of one carried field: the input type of a use case, the triggering event field type of a reaction, or the run input type of a job.</summary>
+    /// <param name="model">The loaded project model that resolves reaction triggers and job runs.</param>
+    /// <param name="record">The use case, reaction or job holding the key.</param>
+    /// <param name="field">The carried field name.</param>
+    /// <returns>The contract type, or null when the field states none.</returns>
+    private static string? FieldTypeOf(ProjectModel model, Record record, string field) =>
+        record.Type switch
+        {
+            RecordTypes.UseCase => InputTypes(record).TryGetValue(field, out var type) ? type : null,
+            RecordTypes.Reaction => CarryTypeOf(model, record, field),
+            _ => JobInputTypes(model, record).TryGetValue(field, out var type) ? type : null,
+        };
+
+    /// <summary>The input field types of a record, by field name.</summary>
+    /// <param name="record">The record whose input array is read.</param>
+    /// <returns>Each input name with the type it states, when it states one.</returns>
+    private static Dictionary<string, string> InputTypes(Record record)
+    {
+        var types = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Input, out var input)
+            || input.ValueKind != JsonValueKind.Array)
+        {
+            return types;
+        }
+
+        foreach (var entry in input.EnumerateArray())
+        {
+            if (Str(entry, RecordFields.Name) is { Length: > 0 } name
+                && Str(entry, RecordFields.Type) is { Length: > 0 } type)
+            {
+                types.TryAdd(name, type);
+            }
+        }
+
+        return types;
+    }
+
+    /// <summary>The input field types of the use cases a job runs or commands, by field name.</summary>
+    /// <param name="model">The loaded project model that resolves the run use cases.</param>
+    /// <param name="job">The job whose run effects are read.</param>
+    /// <returns>Each run input name with the type it states, when it states one.</returns>
+    private static Dictionary<string, string> JobInputTypes(ProjectModel model, Record job)
+    {
+        var types = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var effect in EffectEntries(job))
+        {
+            foreach (var id in LinkStrings(effect, RecordFields.Runs)
+                .Concat(LinkStrings(effect, RecordFields.Commands)))
+            {
+                if (model.ById.TryGetValue(Identifiers.BaseId(id), out var useCase)
+                    && useCase.Type == RecordTypes.UseCase)
+                {
+                    foreach (var (name, type) in InputTypes(useCase))
+                    {
+                        types.TryAdd(name, type);
+                    }
+                }
+            }
+        }
+
+        return types;
     }
 
     /// <summary>Whether a dotted reaction placeholder resolves: its head names a triggering event field whose type is an aggregate part the records describe.</summary>

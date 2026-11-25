@@ -1192,7 +1192,7 @@ static class GeneratePlan
             }
         }
 
-        var parts = new List<(string? Literal, string? Property)>();
+        var parts = new List<(string? Literal, string? Property, string? Format)>();
         var matches = KeyPlaceholders.Matches(template);
         var at = 0;
 
@@ -1200,11 +1200,20 @@ static class GeneratePlan
         {
             if (match.Index > at)
             {
-                parts.Add((template[at..match.Index], null));
+                parts.Add((template[at..match.Index], null, null));
             }
 
             var name = match.Groups["name"].Value.Trim();
-            var segments = name.Split('.');
+            var (path, format) = SplitKeyFormat(name);
+
+            if (format is { Length: 0 } || format?.IndexOfAny(['"', '\r', '\n']) >= 0)
+            {
+                key = null;
+
+                return false;
+            }
+
+            var segments = path.Split('.');
             var head = segments[0].Trim();
 
             if (!properties.TryGetValue(head, out var property)
@@ -1220,13 +1229,13 @@ static class GeneratePlan
                 property += "." + string.Join(".", segments.Skip(1).Select(segment => Naming.Pascal(segment.Trim())));
             }
 
-            parts.Add((null, property));
+            parts.Add((null, property, format));
             at = match.Index + match.Length;
         }
 
         if (at < template.Length)
         {
-            parts.Add((template[at..], null));
+            parts.Add((template[at..], null, null));
         }
 
         key = new MessagesRenderer.MessageKey(template, KeyExpression(parts));
@@ -1238,10 +1247,22 @@ static class GeneratePlan
     private static readonly System.Text.RegularExpressions.Regex KeyPlaceholders =
         new(@"\{(?<name>[^{}]+)\}", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 
-    /// <summary>The key selector body: a plain literal when the template names no property, else an interpolated string over the message properties.</summary>
+    /// <summary>Splits a key placeholder into its field path and its optional .NET format: the text before the first colon names the carried field, and the text after it formats the value.</summary>
+    /// <param name="placeholder">The placeholder text between the braces, trimmed.</param>
+    /// <returns>The field path with the format, or null when the placeholder states no colon.</returns>
+    private static (string Path, string? Format) SplitKeyFormat(string placeholder)
+    {
+        var colon = placeholder.IndexOf(':');
+
+        return colon < 0
+            ? (placeholder, null)
+            : (placeholder[..colon].Trim(), placeholder[(colon + 1)..].Trim());
+    }
+
+    /// <summary>The key selector body: a plain literal when the template names no property, else an interpolated string over the message properties, culture-invariant when any placeholder states a format.</summary>
     /// <param name="parts">The key template parts in template order.</param>
     /// <returns>The selector body text.</returns>
-    private static string KeyExpression(IReadOnlyList<(string? Literal, string? Property)> parts)
+    private static string KeyExpression(IReadOnlyList<(string? Literal, string? Property, string? Format)> parts)
     {
         if (parts.All(part => part.Property is null))
         {
@@ -1250,12 +1271,16 @@ static class GeneratePlan
 
         var body = string.Concat(parts.Select(part =>
             part.Property is not null
-                ? $"{{{part.Property}}}"
+                ? part.Format is { Length: > 0 }
+                    ? $"{{{part.Property}:{part.Format}}}"
+                    : $"{{{part.Property}}}"
                 : GenerateNaming.EscapeLiteral(part.Literal ?? "")
                     .Replace("{", "{{", StringComparison.Ordinal)
                     .Replace("}", "}}", StringComparison.Ordinal)));
 
-        return $"$\"{body}\"";
+        return parts.Any(part => part.Format is { Length: > 0 })
+            ? $"FormattableString.Invariant($\"{body}\")"
+            : $"$\"{body}\"";
     }
 
     /// <summary>Whether a use case declares an output its result renders from.</summary>
@@ -2560,7 +2585,7 @@ static class GeneratePlan
         return (property, IsTextMember(declared.Members[property]));
     }
 
-    /// <summary>The key template parts in template order: literal text with the real member each placeholder names, following a dotted placeholder through the member path, or null with the first placeholder the message declares no member for.</summary>
+    /// <summary>The key template parts in template order: literal text with the real member each placeholder names, following a dotted placeholder through the member path and rendering a stated format as written, or null with the first placeholder the message declares no member for.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
     /// <param name="declared">The resolved message the key selector reads.</param>
     /// <param name="template">The key template as the record states it.</param>
@@ -2592,7 +2617,15 @@ static class GeneratePlan
             }
 
             var name = match.Groups["name"].Value.Trim();
-            var segments = name.Split('.');
+            var (path, stated) = SplitKeyFormat(name);
+
+            if (stated is { Length: 0 } || stated?.IndexOfAny(['"', '\r', '\n']) >= 0)
+            {
+                missing = name;
+                return null;
+            }
+
+            var segments = path.Split('.');
             var head = segments[0].Trim();
 
             inputs.TryGetValue(head, out var type);
@@ -2612,11 +2645,11 @@ static class GeneratePlan
                 }
 
                 property += "." + string.Join(".", segments.Skip(1).Select(segment => Naming.Pascal(segment.Trim())));
-                parts.Add(new DeclarationsRenderer.KeyPart(null, property));
+                parts.Add(new DeclarationsRenderer.KeyPart(null, property, stated));
             }
             else
             {
-                parts.Add(new DeclarationsRenderer.KeyPart(null, property, IsDateMember(declared.Members[property]) ? "O" : null));
+                parts.Add(new DeclarationsRenderer.KeyPart(null, property, stated ?? (IsDateMember(declared.Members[property]) ? "O" : null)));
             }
 
             written = match.Index + match.Length;

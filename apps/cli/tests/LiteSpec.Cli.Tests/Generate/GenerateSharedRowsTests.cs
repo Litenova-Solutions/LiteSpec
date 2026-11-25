@@ -162,6 +162,32 @@ public sealed class GenerateSharedRowsTests
         Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.EndsWith("BreakValue.generated.cs", StringComparison.Ordinal));
     }
 
+    /// <summary>Deeper nested rows naming their row types render the named types with no local rows for them.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DeepNestedRowsRenderNamedTypes()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteReadStatement(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: results
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var result = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ReadStatementQueryResult.generated.cs", StringComparison.Ordinal)).Content;
+        var row = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("LendingStatement.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("IReadOnlyList<LendingStatement> Statements", result, StringComparison.Ordinal);
+        Assert.Contains("IReadOnlyList<StatementLine> Lines", row, StringComparison.Ordinal);
+        Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.EndsWith("StatementLine.generated.cs", StringComparison.Ordinal));
+        Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.EndsWith("LineSplit.generated.cs", StringComparison.Ordinal));
+        Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.EndsWith("RequestedBooking.generated.cs", StringComparison.Ordinal));
+    }
+
     /// <summary>Writes the shared copy-line row the lending commands reuse.</summary>
     /// <param name="root">The prepared fixture folder.</param>
     static void WriteSharedLoanLine(string root)
@@ -412,6 +438,94 @@ public sealed class GenerateSharedRowsTests
               reason: one copy answers the query
             steps:
             - statement: The catalog verifies the copy record.
+            """);
+    }
+
+    /// <summary>Writes a query reading fine statements, each holding lines with split lines and an optional requested booking.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteReadStatement(string root)
+    {
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "read-statement");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "read-statement.yaml"),
+            """
+            type: use-case
+            id: use-case/lending.read-statement
+            title: Read statement
+            summary: Lending reads the fine statement of one reader with its lines.
+            kind: query
+            access:
+              grant: permission/read-loans
+              tenant: own
+            reachedThrough:
+            - entry-point/library-app
+            input:
+            - name: readerId
+              meaning: The reader to read.
+              type: id
+              identifies: actor/reader
+              required: true
+              origin: caller
+              classification: internal
+            output:
+              include:
+                rows:
+                  fields:
+                  - name: statements
+                    meaning: The fine statements of the reader.
+                    type: list
+                    rowShape:
+                      fields:
+                      - name: statementId
+                        meaning: The statement identity.
+                        type: id
+                        identifies: aggregate/lending.loan
+                        required: true
+                      - name: lines
+                        meaning: The fine lines of the statement.
+                        type: list
+                        required: true
+                        rowType: StatementLine
+                        rowShape:
+                          fields:
+                          - name: copyCode
+                            meaning: The shelf code of the copy.
+                            type: text
+                            required: true
+                          - name: splits
+                            meaning: The split lines of the fine line.
+                            type: list
+                            required: true
+                            rowType: LineSplit
+                            rowShape:
+                              fields:
+                              - name: part
+                                meaning: One split part.
+                                type: text
+                                required: true
+                          - name: booking
+                            meaning: The requested booking of the fine line.
+                            type: object
+                            required: false
+                            rowType: RequestedBooking
+                            rowShape:
+                              fields:
+                              - name: shelf
+                                meaning: The requested shelf.
+                                type: text
+                                required: true
+                    rowType: LendingStatement
+                  classification: internal
+                  reads:
+                  - aggregate/lending.loan
+                  freshness:
+                    mode: immediate
+            paging:
+              mode: none
+              reason: one reader answers the query
+            steps:
+            - statement: The reader reads the fine statement.
             """);
     }
 

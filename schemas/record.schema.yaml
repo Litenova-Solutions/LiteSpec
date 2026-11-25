@@ -767,7 +767,7 @@ $defs:
       name:
         $ref: '#/$defs/nonEmptyString'
       type:
-        description: 'The row value shape: one of the scalar types, a file of carried bytes, a list of one more row shape holding scalar fields, or a single object of one more row shape holding scalar fields.'
+        description: 'The row value shape: one of the scalar types, a file of carried bytes, a list of one more row shape, or a single object of one more row shape. A nested level holding a further list or object names its row type in rowType and states its own rowShape at every level.'
         anyOf:
         - $ref: '#/$defs/contractScalarType'
         - const: file
@@ -1563,6 +1563,7 @@ $defs:
         - state
         - none
       key:
+        description: "The key template over carried fields: {field} placeholders, each with an optional .NET format as {field:format} on a date, instant, duration, integer, or decimal field."
         $ref: '#/$defs/nonEmptyString'
       keyScope:
         enum:

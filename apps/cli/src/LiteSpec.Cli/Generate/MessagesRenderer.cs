@@ -71,7 +71,7 @@ static class MessagesRenderer
             "",
         };
 
-        foreach (var heading in UsingLines(data.Namespace, data.MessageInterface, data.Usings))
+        foreach (var heading in UsingLines(data.Namespace, data.MessageInterface, data.Usings, data.Key?.Expression))
         {
             lines.Add(heading);
         }
@@ -186,10 +186,16 @@ static class MessagesRenderer
     /// <param name="namespace">The C# namespace of the generated record.</param>
     /// <param name="messageInterface">The LiteBus message interface as the target declares it, or empty.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
+    /// <param name="keyExpression">The idempotency key selector body, or null when the command keys none.</param>
     /// <returns>The using lines in ordinal order.</returns>
-    private static List<string> UsingLines(string @namespace, string messageInterface, IReadOnlyList<string> usings)
+    private static List<string> UsingLines(string @namespace, string messageInterface, IReadOnlyList<string> usings, string? keyExpression)
     {
         var names = new SortedSet<string>(StringComparer.Ordinal);
+
+        if (keyExpression?.Contains("FormattableString.Invariant", StringComparison.Ordinal) is true)
+        {
+            names.Add("System");
+        }
 
         if (messageInterface.Contains('.', StringComparison.Ordinal)
             && messageInterface[..messageInterface.LastIndexOf('.')] is { Length: > 0 } interfaceNamespace)
