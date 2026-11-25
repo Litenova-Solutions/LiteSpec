@@ -8,9 +8,7 @@ offers:
 fieldSources:
 - field: expenseId
   from: use-case/spending.list-expenses
-- field: amount
-  from: use-case/spending.list-expenses
-- field: currency
+- field: total
   from: use-case/spending.list-expenses
 - field: state
   from: use-case/spending.list-expenses

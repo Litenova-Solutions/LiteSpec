@@ -82,6 +82,77 @@ public sealed class UseCaseModuleReferenceCheckTests
         Assert.Contains("in 'input'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>A row field naming another module's record without dependsOn reports.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void RowFieldToAnotherModuleWithoutDependencyReports()
+    {
+        var model = ModelWith("""{"kind": "command", "input": [{"name": "fines", "type": "list", "rowShape": {"fields": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "required": true}]}}]}""", []);
+
+        var finding = Assert.Single(Findings(model));
+        Assert.Contains("'aggregate/finance.overdue-fine' of module 'finance'", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A row field held opaque that names another module's aggregate without dependsOn passes.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueRowFieldWithoutDependencyPasses()
+    {
+        var model = ModelWith("""{"kind": "command", "input": [{"name": "fines", "type": "list", "rowShape": {"fields": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "required": true, "held": "opaque"}]}}]}""", []);
+
+        Assert.Empty(Findings(model));
+    }
+
+    /// <summary>An output row field held opaque that names another module's aggregate without dependsOn passes.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueOutputRowFieldWithoutDependencyPasses()
+    {
+        var model = ModelWith("""{"kind": "command", "output": [{"name": "fines", "type": "list", "rowShape": {"fields": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "required": true, "held": "opaque"}]}}]}""", []);
+
+        Assert.Empty(Findings(model));
+    }
+
+    /// <summary>A row field held opaque passes the model check: the schema accepts held on row fields.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void OpaqueRowFieldPassesModelCheck()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+        var path = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "identifies: aggregate/lending.loan\n            required: true",
+                "identifies: aggregate/lending.loan\n            held: opaque\n            required: true",
+                StringComparison.Ordinal));
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.True(result.Status == 0, result.Output);
+        Assert.DoesNotContain("record-invalid", result.Output, StringComparison.Ordinal);
+    }
+
+    /// <summary>A row field held opaque without identifies reports record-invalid.</summary>
+    /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
+    [Fact]
+    public void HeldRowFieldWithoutIdentifiesReportsRecordInvalid()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+        var path = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "- name: reader\n            type: text\n            required: true",
+                "- name: reader\n            type: text\n            held: opaque\n            required: true",
+                StringComparison.Ordinal));
+
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        Assert.Equal(1, result.Status);
+        Assert.Contains("record-invalid", result.Output, StringComparison.Ordinal);
+    }
+
     /// <summary>The same references pass once the module declares the dependency.</summary>
     /// <proves>litespec/core/model#declare-cross-module-references-in-depends-on</proves>
     [Fact]

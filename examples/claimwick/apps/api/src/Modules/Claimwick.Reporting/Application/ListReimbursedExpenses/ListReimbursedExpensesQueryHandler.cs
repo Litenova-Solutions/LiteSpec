@@ -26,7 +26,7 @@ internal sealed class ListReimbursedExpensesQueryHandler : IQueryHandler<ListRei
 
         foreach (var expense in expenses)
         {
-            if (await _queries.QueryAsync(new ReadExpenseQuery(expense.Id), cancellationToken) is not null)
+            if (await _queries.QueryAsync(new ReadExpenseQuery(new ClaimedPayout(expense.Id, expense.Amount, expense.Currency)), cancellationToken) is not null)
             {
                 confirmed.Add(expense);
             }

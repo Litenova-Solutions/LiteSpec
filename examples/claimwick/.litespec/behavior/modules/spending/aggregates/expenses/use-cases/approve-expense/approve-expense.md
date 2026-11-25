@@ -9,7 +9,7 @@ Approve Expense is the decision by which a manager accepts a submitted expense. 
 3. Spending refuses the approval with `spending.not-submitted` when the expense is decided.
 4. Spending moves the expense to Approved and raises the approved event.
 
-The first approval moves the expense out of Submitted, so a second approval finds it decided and is refused. No audit entry is stored for the approval.
+The first approval moves the expense out of Submitted, so a second approval finds it decided and is refused. Spending reads whether the approver holds the finance role from the verified claims. No audit entry is stored for the approval.
 
 ## Example
 

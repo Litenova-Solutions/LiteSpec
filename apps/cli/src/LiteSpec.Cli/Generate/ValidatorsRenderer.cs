@@ -237,13 +237,14 @@ static class ValidatorsRenderer
             var exclusive = bounds.TryGetProperty(RecordFields.Inclusive, out var inclusive)
                 && inclusive.ValueKind == JsonValueKind.False;
             var literal = type == "integer" ? string.Empty : "m";
+            var money = type == "money" && RecordEntries.Str(input, RecordFields.CurrencyHome) is not { Length: > 0 };
 
             if (NumberOf(bounds, RecordFields.Min) is { } min)
             {
                 rules.Add(new ValidationRule(
                     member,
                     "too-small",
-                    BoundCondition(member, parameter, required, "<", min, literal, exclusive, type == "money"),
+                    BoundCondition(member, parameter, required, "<", min, literal, exclusive, money),
                     exclusive ? $"The {display} must be more than {min}." : $"The {display} must be at least {min}."));
             }
 
@@ -252,7 +253,7 @@ static class ValidatorsRenderer
                 rules.Add(new ValidationRule(
                     member,
                     "too-large",
-                    BoundCondition(member, parameter, required, ">", max, literal, exclusive, type == "money"),
+                    BoundCondition(member, parameter, required, ">", max, literal, exclusive, money),
                     exclusive ? $"The {display} must be less than {max}." : $"The {display} must be at most {max}."));
             }
         }
@@ -264,7 +265,7 @@ static class ValidatorsRenderer
     /// <param name="rules">The rules, appended in place.</param>
     /// <param name="member">The message property judging the field.</param>
     /// <param name="parameter">The validate parameter name: command or query.</param>
-    /// <param name="required">True when the caller always sends the field.</param>
+    /// <param name="required">True when the message always carries the field.</param>
     /// <param name="display">The field display name the messages name.</param>
     /// <param name="input">The input field as the record states it.</param>
     /// <returns>True when an appended rule matches a regular expression.</returns>
@@ -322,7 +323,9 @@ static class ValidatorsRenderer
             var exclusive = bounds.TryGetProperty(RecordFields.Inclusive, out var inclusive)
                 && inclusive.ValueKind == JsonValueKind.False;
             var literal = valueType == "integer" ? string.Empty : "m";
-            var amount = valueType == "money" ? "value.Amount" : "value";
+            var amount = valueType == "money" && RecordEntries.Str(input, RecordFields.CurrencyHome) is not { Length: > 0 }
+                ? "value.Amount"
+                : "value";
 
             if (NumberOf(bounds, RecordFields.Min) is { } min)
             {
@@ -359,14 +362,14 @@ static class ValidatorsRenderer
             && identifies.StartsWith("actor/", StringComparison.Ordinal)
             ? $"{parameter}.{member} == Guid.Empty"
             : $"{parameter}.{member} == default",
-        "choice" or "list" or "map" => $"{parameter}.{member} is null",
+        "choice" or "list" or "map" or "object" => $"{parameter}.{member} is null",
         _ => null,
     };
 
     /// <summary>The bound condition of a numeric field: the direct comparison, or the comparison of the value when the field is optional. A money bound compares the amount of the shared money object.</summary>
     /// <param name="member">The message property judging the field.</param>
     /// <param name="parameter">The validate parameter name: command or query.</param>
-    /// <param name="required">True when the caller always sends the field.</param>
+    /// <param name="required">True when the message always carries the field.</param>
     /// <param name="direction">The comparison direction: &lt; for a minimum, &gt; for a maximum.</param>
     /// <param name="bound">The bound as the record states it.</param>
     /// <param name="literal">The numeric suffix: m for a decimal or money field, empty for an integer.</param>

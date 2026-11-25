@@ -50,7 +50,7 @@ input:
 - name: attachedAt
   meaning: The time the receipt attaches, read from the clock.
   type: instant
-  required: false
+  required: true
   origin: derived
   classification: internal
 output:

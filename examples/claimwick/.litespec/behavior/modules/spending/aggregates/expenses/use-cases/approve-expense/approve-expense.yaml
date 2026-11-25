@@ -33,15 +33,23 @@ input:
   meaning: The signed-in manager deciding the expense, read from verified claims.
   type: id
   identifies: actor/manager
-  required: false
+  required: true
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
   binding: claim
   classification: personal
+- name: approverIsFinance
+  meaning: Whether the approver holds the finance role, read from verified claims.
+  type: boolean
+  required: true
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  binding: claim
+  classification: internal
 - name: handledAt
   meaning: The time the decision runs, read from the clock.
   type: instant
-  required: false
+  required: true
   origin: derived
   classification: internal
 output:

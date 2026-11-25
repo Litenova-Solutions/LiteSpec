@@ -26,6 +26,11 @@ internal sealed partial class ChangeReminderPreferenceCommandValidator : IValida
             failures.Add(new ValidationFailure("ManagerId", "required", "A manager is required."));
         }
 
+        if (command.ChangerId == Guid.Empty)
+        {
+            failures.Add(new ValidationFailure("ChangerId", "required", "A changer is required."));
+        }
+
         ValidateExtra(command, failures);
 
         return Task.FromResult(new Validity(failures));

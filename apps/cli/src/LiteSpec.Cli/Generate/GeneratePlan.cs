@@ -404,6 +404,13 @@ static class GeneratePlan
             return false;
         }
 
+        if (target.Kind == "endpoints" && target.ClaimValueReader.Length > 0
+            && target.ClaimValueReader.Split('.', StringSplitOptions.RemoveEmptyEntries) is not { Length: >= 3 })
+        {
+            error = $"Generate target 'endpoints' for stack '{target.Stack}' names claimValueReader '{target.ClaimValueReader}', which is no qualified method; use Namespace.Type.Method.";
+            return false;
+        }
+
         return true;
     }
 
@@ -687,6 +694,7 @@ static class GeneratePlan
     {
         var files = new List<GeneratedFile>();
         var usings = target.Usings ?? [];
+        var qualify = PartQualifier(model);
 
         foreach (var record in model.Records
             .Where(candidate => candidate.Type == RecordTypes.DomainEvent && !candidate.Derived && candidate.Module is not null)
@@ -696,7 +704,7 @@ static class GeneratePlan
             if (!Identifiers.TrySplit(record.Id, out _, out var aggregate, out var name)
                 || aggregate is null
                 || AggregateFolderOf(record) is not { } folder
-                || FieldsOf(record) is not { } fields)
+                || FieldsOf(record, qualify) is not { } fields)
             {
                 continue;
             }
@@ -725,6 +733,7 @@ static class GeneratePlan
     {
         var files = new List<GeneratedFile>();
         var usings = target.Usings ?? [];
+        var qualify = PartQualifier(model);
 
         foreach (var record in model.Records
             .Where(candidate => candidate.Type == RecordTypes.ModuleEvent && !candidate.Derived && candidate.Module is not null)
@@ -733,7 +742,7 @@ static class GeneratePlan
         {
             if (!Identifiers.TrySplit(record.Id, out _, out _, out var name)
                 || AggregateFolderOf(record) is not { } folder
-                || PublishedFieldsOf(model, record) is not { } fields)
+                || PublishedFieldsOf(model, record, qualify) is not { } fields)
             {
                 continue;
             }
@@ -767,6 +776,7 @@ static class GeneratePlan
         var files = new List<GeneratedFile>();
         var usings = target.Usings ?? [];
         var wantPublic = target.Visibility == "public";
+        var qualify = PartQualifier(model);
 
         foreach (var record in model.Records
             .Where(candidate => candidate.Type == RecordTypes.UseCase && !candidate.Derived && candidate.Module is not null)
@@ -777,7 +787,7 @@ static class GeneratePlan
             if (record.Field(RecordFields.Kind) is not ("command" or "query")
                 || !Identifiers.TrySplit(record.Id, out _, out _, out var name)
                 || IsPublicUseCase(record) != wantPublic
-                || MessageInputsOf(record) is not { } inputs)
+                || MessageInputsOf(record, qualify) is not { } inputs)
             {
                 continue;
             }
@@ -818,7 +828,7 @@ static class GeneratePlan
         return files;
     }
 
-    /// <summary>Renders one C# file per use-case result in its use case folder, with the fields, groups, rows, and next cursor its output states.</summary>
+    /// <summary>Renders one C# file per use-case result in its use case folder, with the fields, groups, and rows its output states, and the next cursor when the query pages by cursor.</summary>
     /// <param name="model">The built project model holding the use case records.</param>
     /// <param name="target">The validated target.</param>
     /// <returns>The rendered files in module, aggregate folder then use case order.</returns>
@@ -827,6 +837,7 @@ static class GeneratePlan
         var files = new List<GeneratedFile>();
         var usings = target.Usings ?? [];
         var wantPublic = target.Visibility == "public";
+        var qualify = PartQualifier(model);
 
         foreach (var record in model.Records
             .Where(candidate => candidate.Type == RecordTypes.UseCase && !candidate.Derived && candidate.Module is not null)
@@ -838,7 +849,7 @@ static class GeneratePlan
                 || !Identifiers.TrySplit(record.Id, out _, out _, out var name)
                 || IsPublicUseCase(record) != wantPublic
                 || !HasOutput(record)
-                || TryResultShape(record, out var fields, out var groups) is false)
+                || TryResultShape(record, qualify, out var fields, out var groups) is false)
             {
                 continue;
             }
@@ -855,7 +866,7 @@ static class GeneratePlan
                 Path.Combine(resolved, $"{result}.generated.cs"),
                 ResultsRenderer.RenderDotnet(new ResultsRenderer.ResultData(
                     record.Id, record.Title, result, fields, groups,
-                    PagingOf(record) is not null, @namespace, usings, wantPublic))));
+                    PagingOf(record)?.Cursor is { Length: > 0 }, @namespace, usings, wantPublic))));
 
             var rows = fields.Concat(groups.SelectMany(group => group.Fields))
                 .Where(field => field.RowType is not null && field.Row.Count > 0);
@@ -915,10 +926,70 @@ static class GeneratePlan
     private static bool IsPublicUseCase(Record record) =>
         record.Ids(RecordFields.ReachedThrough).Any(id => id.StartsWith("module/", StringComparison.Ordinal));
 
+    /// <summary>The qualified C# type of one aggregate part reference, from the parts map the model derives from the backend source, so two parts sharing a name bind to the part their record names instead of resolving through usings.</summary>
+    /// <param name="model">The built project model holding the parts map and the Domain types.</param>
+    /// <returns>The qualifier the field mappers call per part reference, answering null when the reference resolves to no single declaring type.</returns>
+    private static Func<string, string?> PartQualifier(ProjectModel model)
+    {
+        var resolved = new Dictionary<string, string?>(StringComparer.Ordinal);
+
+        return reference =>
+        {
+            if (resolved.TryGetValue(reference, out var cached))
+            {
+                return cached;
+            }
+
+            var qualified = ResolvePartType(model, reference);
+            resolved[reference] = qualified;
+
+            return qualified;
+        };
+    }
+
+    /// <summary>Resolves one aggregate part reference to its qualified C# type: the namespace of the one Domain type the parts map holds for the part, with its simple name.</summary>
+    /// <param name="model">The built project model holding the parts map and the Domain types.</param>
+    /// <param name="reference">The aggregate part reference naming one part of one aggregate.</param>
+    /// <returns>The qualified type, or null when the reference resolves to no single declaring type.</returns>
+    private static string? ResolvePartType(ProjectModel model, string reference)
+    {
+        var hash = reference.IndexOf('#');
+
+        if (!reference.StartsWith("aggregate/", StringComparison.Ordinal) || hash < 0 || hash == reference.Length - 1)
+        {
+            return null;
+        }
+
+        var simple = GenerateNaming.ConstName(reference[(hash + 1)..]);
+
+        if (!model.Parts.TryGetValue(reference[..hash], out var entries))
+        {
+            return null;
+        }
+
+        var files = entries
+            .Where(entry => entry.EndsWith(":" + simple, StringComparison.Ordinal))
+            .Select(entry => entry[..^(simple.Length + 1)])
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (files.Count != 1)
+        {
+            return null;
+        }
+
+        var match = model.Code.DomainTypes.FirstOrDefault(candidate =>
+            candidate.Name.Equals(simple, StringComparison.Ordinal)
+            && PathText.Relative(model.Config.Root, candidate.File).Equals(files[0], StringComparison.Ordinal));
+
+        return match is null ? null : match.Namespace + "." + simple;
+    }
+
     /// <summary>The input fields of a use case with their C# types, in written order.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <returns>The mapped fields, or null when any entry states no known shape; the record check reports the entry.</returns>
-    private static List<MessageFieldTypes.MappedField>? MessageInputsOf(Record record)
+    private static List<MessageFieldTypes.MappedField>? MessageInputsOf(Record record, Func<string, string?> qualify)
     {
         var fields = new List<MessageFieldTypes.MappedField>();
 
@@ -931,7 +1002,7 @@ static class GeneratePlan
 
         foreach (var entry in inputs.EnumerateArray())
         {
-            if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapInput(entry, out var field) || field is null)
+            if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapInput(entry, out var field, qualify) || field is null)
             {
                 return null;
             }
@@ -1132,11 +1203,13 @@ static class GeneratePlan
 
     /// <summary>Reads the result shape of a use case: its flat fields, or its groups when the output holds several or one optional.</summary>
     /// <param name="record">The use case record whose output is read.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="fields">The flat output fields, or an empty list when the output holds groups.</param>
     /// <param name="groups">The output groups, or an empty list when the output holds no groups.</param>
     /// <returns>True when the output maps; otherwise false, and the result renders no file.</returns>
     private static bool TryResultShape(
         Record record,
+        Func<string, string?> qualify,
         out List<MessageFieldTypes.MappedField> fields,
         out List<ResultsRenderer.ResultGroup> groups)
     {
@@ -1153,7 +1226,7 @@ static class GeneratePlan
         {
             foreach (var entry in output.EnumerateArray())
             {
-                if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapOutput(entry, out var field) || field is null)
+                if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapOutput(entry, out var field, qualify) || field is null)
                 {
                     return false;
                 }
@@ -1187,7 +1260,7 @@ static class GeneratePlan
         {
             foreach (var entry in single.EnumerateArray())
             {
-                if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapOutput(entry, out var field) || field is null)
+                if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapOutput(entry, out var field, qualify) || field is null)
                 {
                     return false;
                 }
@@ -1209,7 +1282,7 @@ static class GeneratePlan
 
             foreach (var entry in entries.EnumerateArray())
             {
-                if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapOutput(entry, out var field) || field is null)
+                if (entry.ValueKind != JsonValueKind.Object || !MessageFieldTypes.TryMapOutput(entry, out var field, qualify) || field is null)
                 {
                     return false;
                 }
@@ -1231,8 +1304,9 @@ static class GeneratePlan
 
     /// <summary>The carried fields of a domain event with their C# types, in written order.</summary>
     /// <param name="record">The domain event record whose carries are read.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <returns>The mapped fields, or null when any entry states no known shape; the record check reports the entry.</returns>
-    private static List<EventFieldTypes.MappedField>? FieldsOf(Record record)
+    private static List<EventFieldTypes.MappedField>? FieldsOf(Record record, Func<string, string?> qualify)
     {
         var fields = new List<EventFieldTypes.MappedField>();
 
@@ -1245,7 +1319,7 @@ static class GeneratePlan
 
         foreach (var entry in carries.EnumerateArray())
         {
-            if (entry.ValueKind != JsonValueKind.Object || !EventFieldTypes.TryMap(entry, out var field) || field is null)
+            if (entry.ValueKind != JsonValueKind.Object || !EventFieldTypes.TryMap(entry, out var field, qualify) || field is null)
             {
                 return null;
             }
@@ -1259,8 +1333,9 @@ static class GeneratePlan
     /// <summary>The published fields of a module event with their C# types from the translated domain event, in written order, rendering a field's own type when it states one.</summary>
     /// <param name="model">The built project model resolving the translated domain event.</param>
     /// <param name="record">The module event record whose fields are read.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <returns>The mapped fields, or null when the translation or any field resolves to no known shape; the record check reports it.</returns>
-    private static List<EventFieldTypes.MappedField>? PublishedFieldsOf(ProjectModel model, Record record)
+    private static List<EventFieldTypes.MappedField>? PublishedFieldsOf(ProjectModel model, Record record, Func<string, string?> qualify)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
             || !record.Raw.TryGetProperty(RecordFields.Fields, out var names)
@@ -1310,12 +1385,12 @@ static class GeneratePlan
             if (entry.ValueKind == JsonValueKind.Object
                 && RecordEntries.Str(entry, RecordFields.Type) is { Length: > 0 } overrideType)
             {
-                if (!TryOverride(carry, overrideType, RecordEntries.Str(entry, RecordFields.Identifies), out field) || field is null)
+                if (!TryOverride(carry, overrideType, RecordEntries.Str(entry, RecordFields.Identifies), qualify, out field) || field is null)
                 {
                     return null;
                 }
             }
-            else if (!EventFieldTypes.TryMap(carry, out field) || field is null)
+            else if (!EventFieldTypes.TryMap(carry, out field, qualify) || field is null)
             {
                 return null;
             }
@@ -1343,9 +1418,10 @@ static class GeneratePlan
     /// <param name="carry">The translated domain carry the field publishes.</param>
     /// <param name="type">The type the module event field states.</param>
     /// <param name="identifies">The identifies the module event field states, or null for an untyped identifier.</param>
+    /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="field">The mapped property, or null when the override states no known shape.</param>
     /// <returns>True when the override maps; otherwise false, and the event renders no file.</returns>
-    private static bool TryOverride(JsonElement carry, string type, string? identifies, out EventFieldTypes.MappedField? field)
+    private static bool TryOverride(JsonElement carry, string type, string? identifies, Func<string, string?> qualify, out EventFieldTypes.MappedField? field)
     {
         field = null;
 
@@ -1367,7 +1443,7 @@ static class GeneratePlan
 
         using var document = JsonDocument.Parse(overlay.ToJsonString());
 
-        return EventFieldTypes.TryMap(document.RootElement, out field);
+        return EventFieldTypes.TryMap(document.RootElement, out field, qualify);
     }
 
     /// <summary>The aggregate folder holding an event record: the folder under aggregates its file sits in.</summary>
@@ -2704,7 +2780,7 @@ static class GeneratePlan
 
             foreach (var record in entries.OrderBy(entry => entry.Id, StringComparer.Ordinal))
             {
-                var endpoint = EndpointOf(model, record, resolved, model.Config.Marks, target.TenantReader, out var skip);
+                var endpoint = EndpointOf(model, record, resolved, model.Config.Marks, target.TenantReader, target.ClaimValueReader, out var skip);
 
                 if (skip is not null)
                 {
@@ -2727,7 +2803,7 @@ static class GeneratePlan
 
             files.Add(new GeneratedFile(
                 Path.Combine(folder, $"{name}Endpoints.generated.cs"),
-                EndpointsRenderer.RenderDotnet(module, endpoints, resolved + ".WebApi", target.ClaimReader, usings, target.TenantReader)));
+                EndpointsRenderer.RenderDotnet(module, endpoints, resolved + ".WebApi", target.ClaimReader, usings, target.TenantReader, target.ClaimValueReader)));
         }
 
         return files;
@@ -2739,6 +2815,7 @@ static class GeneratePlan
     /// <param name="resolvedNamespace">The target namespace with the module resolved.</param>
     /// <param name="marks">The mark style the project declares.</param>
     /// <param name="tenantReader">The qualified tenant reader method, or empty when the target names none.</param>
+    /// <param name="claimValueReader">The qualified claim value reader method, or empty when the target names none.</param>
     /// <param name="skip">The skip reason when the record states something the vocabulary cannot express.</param>
     /// <returns>The endpoint, or null when the record renders nothing.</returns>
     private static EndpointsRenderer.EndpointData? EndpointOf(
@@ -2747,6 +2824,7 @@ static class GeneratePlan
         string resolvedNamespace,
         MarkStyle marks,
         string tenantReader,
+        string claimValueReader,
         out string? skip)
     {
         skip = null;
@@ -2790,7 +2868,7 @@ static class GeneratePlan
             return null;
         }
 
-        if (BoundInputsOf(record, out skip) is not { } inputs || skip is not null)
+        if (BoundInputsOf(record, claimValueReader, out skip) is not { } inputs || skip is not null)
         {
             return null;
         }
@@ -2843,9 +2921,10 @@ static class GeneratePlan
 
     /// <summary>Reads the bound inputs of a use case in written order, or the reason the endpoint renders nothing.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
+    /// <param name="claimValueReader">The qualified claim value reader method, or empty when the target names none.</param>
     /// <param name="skip">The skip reason when an input states something the vocabulary cannot express.</param>
     /// <returns>The bound inputs, or null when the endpoint renders nothing.</returns>
-    private static List<EndpointsRenderer.BoundInput>? BoundInputsOf(Record record, out string? skip)
+    private static List<EndpointsRenderer.BoundInput>? BoundInputsOf(Record record, string claimValueReader, out string? skip)
     {
         skip = null;
 
@@ -2875,16 +2954,43 @@ static class GeneratePlan
             var binding = RecordEntries.Str(input, RecordFields.Binding) ?? "";
             var origin = RecordEntries.Str(input, RecordFields.Origin) ?? "";
             var required = !input.TryGetProperty(RecordFields.Required, out var flag) || flag.ValueKind != JsonValueKind.False;
+            var many = input.TryGetProperty(RecordFields.Many, out var plural) && plural.ValueKind == JsonValueKind.True;
 
             if (name.Length == 0)
             {
                 continue;
             }
 
+            List<EndpointsRenderer.RowField>? rows = null;
+            string? rowType = null;
+
             if (type == "list")
             {
-                skip = $"input '{name}' carries a list, which endpoints do not bind";
-                return null;
+                if (origin != "derived" && binding != "body")
+                {
+                    skip = $"input '{name}' carries a list outside the body, which endpoints do not bind";
+                    return null;
+                }
+
+                if (ListRowsOf(input, name, out skip) is not { } fields)
+                {
+                    return null;
+                }
+
+                rows = fields;
+                rowType = RecordEntries.Str(input, RecordFields.RowType);
+
+                if (rowType is { Length: > 0 } named && EventFieldTypes.IsPartReference(named))
+                {
+                    skip = $"input '{name}' carries a list of rows reusing an aggregate part, which endpoints do not bind";
+                    return null;
+                }
+
+                if (rows.Count > 1 && rowType is not { Length: > 0 })
+                {
+                    skip = $"input '{name}' carries a list of rows with no rowType, which endpoints do not bind";
+                    return null;
+                }
             }
 
             if (type == "map")
@@ -2893,15 +2999,36 @@ static class GeneratePlan
                 return null;
             }
 
+            if (type == "object")
+            {
+                skip = $"input '{name}' carries an object, which endpoints do not bind";
+                return null;
+            }
+
             if (type == "file")
             {
                 fileInput ??= name;
             }
 
-            if (input.TryGetProperty(RecordFields.Many, out var many) && many.ValueKind == JsonValueKind.True)
+            if (many && type != "list")
             {
-                skip = $"input '{name}' holds many values, which endpoints do not bind";
-                return null;
+                if (type == "file")
+                {
+                    skip = $"input '{name}' holds many files, which endpoints do not bind";
+                    return null;
+                }
+
+                if (binding == "claim" && origin != "derived")
+                {
+                    skip = $"input '{name}' holds many values from the claim, which endpoints do not bind";
+                    return null;
+                }
+
+                if (origin != "derived" && binding is "route" or "header")
+                {
+                    skip = $"input '{name}' holds many values on the {binding}, which endpoints do not bind";
+                    return null;
+                }
             }
 
             if (type == "choice" && SetTypeOf(input) is not { Length: > 0 })
@@ -2912,42 +3039,36 @@ static class GeneratePlan
 
             if (binding == "claim" && origin != "derived" && type != "id")
             {
-                skip = $"input '{name}' binds from the claim with type '{type}', which endpoints do not read";
-                return null;
-            }
-
-            if (type == "money")
-            {
-                if (RecordEntries.Str(input, RecordFields.CurrencyHome) is { Length: > 0 } home)
+                if (type is not ("boolean" or "text" or "email" or "integer" or "decimal" or "date" or "instant" or "duration"))
                 {
-                    skip = $"input '{name}' takes its currency from '{home}', which endpoints do not read";
+                    skip = $"input '{name}' binds from the claim with type '{type}', which endpoints do not read";
                     return null;
                 }
 
-                if (RecordEntries.Str(input, RecordFields.CurrencyField) is { Length: > 0 } carrier)
+                if (claimValueReader.Length == 0)
                 {
-                    if (!siblings.Contains(carrier))
-                    {
-                        skip = $"input '{name}' takes its currency from '{carrier}', which no input of the use case carries";
-                        return null;
-                    }
+                    skip = $"input '{name}' binds from the claim and the target names no claimValueReader";
+                    return null;
+                }
+            }
 
-                    if (optional.Contains(carrier))
-                    {
-                        skip = $"input '{name}' takes its currency from optional '{carrier}', which endpoints do not read";
-                        return null;
-                    }
+            if (type == "money" && RecordEntries.Str(input, RecordFields.CurrencyField) is { Length: > 0 } carrier)
+            {
+                if (!siblings.Contains(carrier))
+                {
+                    skip = $"input '{name}' takes its currency from '{carrier}', which no input of the use case carries";
+                    return null;
+                }
+
+                if (optional.Contains(carrier))
+                {
+                    skip = $"input '{name}' takes its currency from optional '{carrier}', which endpoints do not read";
+                    return null;
                 }
             }
 
             var wire = WireNameOf(name, type, binding, RecordEntries.Str(input, RecordFields.RouteParameter));
             var sanitized = GenerateNaming.SanitizeConstName(wire);
-            var size = input.TryGetProperty(RecordFields.Size, out var width)
-                && width.ValueKind == JsonValueKind.Number
-                && width.TryGetInt32(out var bits)
-                && bits == 64
-                ? 64
-                : 32;
 
             inputs.Add(new EndpointsRenderer.BoundInput(
                 name,
@@ -2964,7 +3085,11 @@ static class GeneratePlan
                 origin,
                 RecordEntries.Str(input, RecordFields.Currency),
                 RecordEntries.Str(input, RecordFields.CurrencyField),
-                size));
+                SizeOf(input),
+                Many: many && type != "list",
+                CurrencyHome: RecordEntries.Str(input, RecordFields.CurrencyHome),
+                RowType: rowType,
+                Rows: rows));
         }
 
         if (fileInput is not null && inputs.Any(input => input.Binding == "body"))
@@ -2975,6 +3100,120 @@ static class GeneratePlan
 
         return inputs;
     }
+
+    /// <summary>Reads the row fields of a list input in written order, or the reason the endpoint renders nothing.</summary>
+    /// <param name="input">The list input holding the row shape.</param>
+    /// <param name="name">The input name quoted in the skip reason.</param>
+    /// <param name="skip">The skip reason when a row states something the vocabulary cannot express.</param>
+    /// <returns>The row fields, or null when the endpoint renders nothing.</returns>
+    private static List<EndpointsRenderer.RowField>? ListRowsOf(JsonElement input, string name, out string? skip)
+    {
+        skip = null;
+
+        if (!input.TryGetProperty(RecordFields.RowShape, out var shape)
+            || shape.ValueKind != JsonValueKind.Object
+            || !shape.TryGetProperty(RecordFields.Fields, out var rows)
+            || rows.ValueKind != JsonValueKind.Array
+            || rows.GetArrayLength() == 0)
+        {
+            skip = $"input '{name}' carries a list with no row shape, which endpoints do not bind";
+            return null;
+        }
+
+        var siblings = new HashSet<string>(StringComparer.Ordinal);
+        var optional = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var row in rows.EnumerateArray())
+        {
+            if (row.ValueKind == JsonValueKind.Object
+                && RecordEntries.Str(row, RecordFields.Name) is { Length: > 0 } rowName)
+            {
+                siblings.Add(rowName);
+
+                if (row.TryGetProperty(RecordFields.Required, out var flag) && flag.ValueKind == JsonValueKind.False)
+                {
+                    optional.Add(rowName);
+                }
+            }
+        }
+
+        var fields = new List<EndpointsRenderer.RowField>();
+
+        foreach (var row in rows.EnumerateArray())
+        {
+            var rowName = row.ValueKind == JsonValueKind.Object ? RecordEntries.Str(row, RecordFields.Name) ?? "" : "";
+            var rowType = row.ValueKind == JsonValueKind.Object ? RecordEntries.Str(row, RecordFields.Type) ?? "" : "";
+            var required = row.ValueKind == JsonValueKind.Object
+                && (!row.TryGetProperty(RecordFields.Required, out var flag) || flag.ValueKind != JsonValueKind.False);
+
+            if (rowName.Length == 0 || rowType.Length == 0)
+            {
+                skip = $"input '{name}' carries a list with a row of no known shape, which endpoints do not bind";
+                return null;
+            }
+
+            if (rowType is "list" or "map" or "file" or "object")
+            {
+                skip = $"input '{name}' carries a list whose row '{rowName}' is a {rowType}, which endpoints do not bind";
+                return null;
+            }
+
+            if (row.ValueKind == JsonValueKind.Object
+                && row.TryGetProperty(RecordFields.Many, out var plural)
+                && plural.ValueKind == JsonValueKind.True)
+            {
+                skip = $"input '{name}' carries a list whose row '{rowName}' holds many values, which endpoints do not bind";
+                return null;
+            }
+
+            if (rowType == "choice" && SetTypeOf(row) is not { Length: > 0 })
+            {
+                skip = $"input '{name}' carries a list whose row '{rowName}' names no closed set, which endpoints do not bind";
+                return null;
+            }
+
+            if (rowType == "money" && RecordEntries.Str(row, RecordFields.CurrencyField) is { Length: > 0 } carrier)
+            {
+                if (!siblings.Contains(carrier))
+                {
+                    skip = $"input '{name}' carries a list whose row '{rowName}' takes its currency from '{carrier}', which no row field of the list carries";
+                    return null;
+                }
+
+                if (optional.Contains(carrier))
+                {
+                    skip = $"input '{name}' carries a list whose row '{rowName}' takes its currency from optional '{carrier}', which endpoints do not read";
+                    return null;
+                }
+            }
+
+            fields.Add(new EndpointsRenderer.RowField(
+                rowName,
+                PropertyOf(rowName),
+                rowType,
+                required,
+                RecordEntries.Str(row, RecordFields.Meaning),
+                rowType == "choice" ? SetTypeOf(row) : null,
+                rowType == "id" ? IdentifierTypeOf(RecordEntries.Str(row, RecordFields.Identifies)) : null,
+                RecordEntries.Str(row, RecordFields.Currency),
+                RecordEntries.Str(row, RecordFields.CurrencyField),
+                RecordEntries.Str(row, RecordFields.CurrencyHome),
+                SizeOf(row)));
+        }
+
+        return fields;
+    }
+
+    /// <summary>The stored width in bits of a contract field: 64 for values past the 32-bit span, else 32.</summary>
+    /// <param name="entry">The field entry holding the size fact.</param>
+    /// <returns>The stored width in bits.</returns>
+    private static int SizeOf(JsonElement entry) =>
+        entry.TryGetProperty(RecordFields.Size, out var width)
+        && width.ValueKind == JsonValueKind.Number
+        && width.TryGetInt32(out var bits)
+        && bits == 64
+            ? 64
+            : 32;
 
     /// <summary>The route, query or header name an input travels under: the stated route parameter name for a renamed route input, else its name, with the identity suffix for an id the name does not already carry.</summary>
     /// <param name="name">The input name.</param>

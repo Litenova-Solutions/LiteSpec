@@ -415,6 +415,98 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("carries a map", skip.Reason, StringComparison.Ordinal);
     }
 
+    /// <summary>A use case carrying an object input renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectInputSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: shelfMark
+              meaning: The shelf mark the retirement files the copy under.
+              type: object
+              rowType: ShelfMark
+              rowShape:
+                fields:
+                - name: shelf
+                  meaning: The shelf.
+                  type: text
+                  required: true
+                - name: slot
+                  meaning: The slot on the shelf.
+                  type: integer
+                  required: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("carries an object", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case carrying a list that reuses an aggregate part renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PartRowListSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: renewals
+              meaning: The renewals the retirement files the copy under.
+              type: list
+              rowType: aggregate/lending.loan#renewal
+              rowShape:
+                fields:
+                - name: renewedAt
+                  meaning: The renewal time.
+                  type: instant
+                  required: true
+                - name: note
+                  meaning: The renewal note.
+                  type: text
+                  required: false
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("reusing an aggregate part", skip.Reason, StringComparison.Ordinal);
+    }
+
     /// <summary>An integer input stating size 64 binds as a long.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -543,7 +635,7 @@ public sealed class GenerateEndpointsTests
 
         Assert.Contains("ClaimsPrincipal user", text, StringComparison.Ordinal);
         Assert.Contains("ChangerIsFinance: DeriveChangeReminderPreferenceChangerIsFinance(user)", text, StringComparison.Ordinal);
-        Assert.Contains("static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);", text, StringComparison.Ordinal);
+        Assert.Contains("static partial bool? DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);", text, StringComparison.Ordinal);
     }
 
     /// <summary>An optional body id maps an absent value to null and a carried one through its factory.</summary>
@@ -786,6 +878,571 @@ public sealed class GenerateEndpointsTests
             "Library.Platform.Http.TenantClaims.ReadTenantId");
 
         GenerateGoldens.AssertEqual("endpoints-tenant-dotnet.txt", text);
+    }
+
+    /// <summary>A use case carrying a body list renders a request row record mapping each row to the message row type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListBodyInputBindsRowsToMessage()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: splits
+              meaning: The cost splits of the retirement, one row per cost center.
+              type: list
+              rowShape:
+                fields:
+                - name: costCenter
+                  meaning: The cost center carrying the split.
+                  type: text
+                  required: true
+                - name: share
+                  meaning: The share of the cost the split carries.
+                  type: decimal
+                  required: true
+              rowType: RetireSplit
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("internal sealed partial record RetireCopySplitsRow(string CostCenter, decimal Share);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("RetireCopySplitsRow[] Splits", file.Content, StringComparison.Ordinal);
+        Assert.Contains("var splitsRows = new List<RetireSplit>(request.Splits.Length);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("foreach (var row in request.Splits)", file.Content, StringComparison.Ordinal);
+        Assert.Contains("CostCenter: row.CostCenter,", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Splits: splitsRows", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A list row maps identifiers through their factory and money through the shared object.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListRowWithIdentifierAndFixedMoneyBinds()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: fines
+              meaning: The fines cleared by the retirement, one row per fine.
+              type: list
+              rowShape:
+                fields:
+                - name: copy
+                  meaning: The copy the fine was charged on.
+                  type: id
+                  identifies: aggregate/lending.copy
+                  required: true
+                - name: amount
+                  meaning: The cleared amount.
+                  type: money
+                  currency: EUR
+                  required: false
+              rowType: ClearedFine
+              required: false
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("internal sealed partial record RetireCopyFinesRow(Guid Copy, decimal? Amount);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("List<ClearedFine>? finesRows = null;", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Copy: CopyId.From(row.Copy),", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Amount: row.Amount is null ? null : Money.Create(row.Amount.Value, \"EUR\")", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A single-field list without a row type binds as an array of its wire type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleFieldListBindsArray()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: tags
+              meaning: The labels the retirement is filed under.
+              type: list
+              rowShape:
+                fields:
+                - name: tag
+                  meaning: One label.
+                  type: text
+                  required: true
+              required: false
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("string[]? Tags", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("TagsRow", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Tags: request.Tags", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case carrying a list outside the body renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListOutsideBodySkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var list = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            list,
+            File.ReadAllText(list).Replace(
+                "  classification: personal\noutput:",
+                "  classification: personal\n- name: states\n  meaning: The loan states to list.\n  type: list\n  rowShape:\n    fields:\n    - name: state\n      meaning: One state.\n      type: text\n      required: true\n  required: false\n  origin: caller\n  binding: query\n  classification: internal\noutput:",
+                StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("ListLoansEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.list-loans");
+        Assert.Contains("carries a list outside the body", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A many-valued body input binds as an array.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ManyBodyInputBindsArray()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: labels
+              meaning: The labels the retirement is filed under.
+              type: text
+              many: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("string[] Labels", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Labels: request.Labels", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A many-valued query input binds as a repeated query parameter.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ManyQueryInputBindsRepeatedParameter()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var list = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            list,
+            File.ReadAllText(list).Replace(
+                "  classification: personal\noutput:",
+                "  classification: personal\n- name: states\n  meaning: The loan states to list, all states when absent.\n  type: text\n  many: true\n  required: false\n  origin: caller\n  binding: query\n  classification: internal\noutput:",
+                StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("[FromQuery(Name = \"states\")] string[]? states", file.Content, StringComparison.Ordinal);
+        Assert.Contains("States: states", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>An unlisted label in a many-valued choice answers 400 naming the set before the message runs.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ManyChoiceInputGuardsEachLabel()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.list-loans",
+                "ListLoans",
+                "List loans",
+                null,
+                "query",
+                "GET",
+                "/api/loans",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "states", "States", "states", "states", "choice", "query", false,
+                    "The loan states to list.", "LoanState", null, null, "caller", Many: true)],
+                new Dictionary<string, string>(),
+                true,
+                [],
+                "ListLoansQuery",
+                "Library.Lending.Application.Loans.ListLoans",
+                "ListLoansQueryResult",
+                "ListLoansResponseModel",
+                "Library.Lending.WebApi.Loans.ListLoans",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("[FromQuery(Name = \"states\")] string[]? states", text, StringComparison.Ordinal);
+        Assert.Contains("List<LoanState>? statesItems = null;", text, StringComparison.Ordinal);
+        Assert.Contains("foreach (var statesCode in states)", text, StringComparison.Ordinal);
+        Assert.Contains("if (!LoanState.TryFromCode(statesCode, out var statesMember))", text, StringComparison.Ordinal);
+        Assert.Contains("statesItems.Add(statesMember);", text, StringComparison.Ordinal);
+        Assert.Contains("States: statesItems", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status400BadRequest)", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A money input taking its currency from an aggregate binds the amount as a decimal.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyWithCurrencyHomeBindsDecimal()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: fee
+              meaning: The processing fee of the retirement, in the currency of the copy record.
+              type: money
+              currencyHome: aggregate/lending.copy
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("decimal Fee", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Fee: request.Fee", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Money.Create", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A non-identity claim input reads through the target's claim value reader.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NonIdentityClaimReadsThroughClaimValueReader()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+              claimValueReader: Library.Platform.Http.ClaimValues.ReadClaimValue
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: isStaff
+              meaning: Whether the caller holds a staff role, read from verified claims.
+              type: boolean
+              required: false
+              origin: verified-claim
+              verifiedBy: entry-point/library-app
+              binding: claim
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("using Library.Platform.Http;", file.Content, StringComparison.Ordinal);
+        Assert.Contains("IsStaff: ClaimValues.ReadClaimValue<bool>(user, \"isStaff\")", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A non-identity claim input without a claim value reader renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NonIdentityClaimWithoutValueReaderSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: isStaff
+              meaning: Whether the caller holds a staff role, read from verified claims.
+              type: boolean
+              required: false
+              origin: verified-claim
+              verifiedBy: entry-point/library-app
+              binding: claim
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("names no claimValueReader", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>An endpoints target with an unqualified claim value reader reports and renders nothing.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EndpointsTargetWithUnqualifiedClaimValueReaderReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+              claimValueReader: ClaimValues.ReadClaimValue
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Files);
+        Assert.Contains(plan.Errors, error => error.Contains("claimValueReader", StringComparison.Ordinal));
+    }
+
+    /// <summary>A list row taking its currency from an optional sibling renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RowMoneyWithOptionalSiblingCurrencySkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: fines
+              meaning: The fines cleared by the retirement, one row per fine.
+              type: list
+              rowShape:
+                fields:
+                - name: amount
+                  meaning: The cleared amount.
+                  type: money
+                  currencyField: currency
+                  required: true
+                - name: currency
+                  meaning: The ISO 4217 code of the amount, the fine currency when absent.
+                  type: text
+                  required: false
+              rowType: ClearedFine
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("takes its currency from optional 'currency'", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A multi-field list without a row type renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MultiFieldListWithoutRowTypeSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: splits
+              meaning: The cost splits of the retirement, one row per cost center.
+              type: list
+              rowShape:
+                fields:
+                - name: costCenter
+                  meaning: The cost center carrying the split.
+                  type: text
+                  required: true
+                - name: share
+                  meaning: The share of the cost the split carries.
+                  type: decimal
+                  required: true
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("no rowType", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>An endpoint binding collections, aggregate-currency money, and a claim value renders its golden file.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void BindingCollectionsMatchesGolden()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.retire-copy",
+                "RetireCopy",
+                "Retire copy",
+                null,
+                "command",
+                "POST",
+                "/api/copies:retire",
+                null,
+                [
+                    new EndpointsRenderer.BoundInput(
+                        "labels", "Labels", "labels", "labels", "text", "body", true,
+                        "The labels the retirement is filed under.", null, null, null, "caller", Many: true),
+                    new EndpointsRenderer.BoundInput(
+                        "splits", "Splits", "splits", "splits", "list", "body", true,
+                        "The cost splits of the retirement, one row per cost center.", null, null, null, "caller",
+                        RowType: "RetireSplit",
+                        Rows:
+                        [
+                            new EndpointsRenderer.RowField(
+                                "costCenter", "CostCenter", "text", true,
+                                "The cost center carrying the split.", null, null, null, null, null),
+                            new EndpointsRenderer.RowField(
+                                "share", "Share", "money", true,
+                                "The share of the cost the split carries.", null, null, null, null, "aggregate/lending.copy"),
+                        ]),
+                    new EndpointsRenderer.BoundInput(
+                        "fee", "Fee", "fee", "fee", "money", "body", true,
+                        "The processing fee of the retirement, in the currency of the copy record.", null, null, null, "caller",
+                        CurrencyHome: "aggregate/lending.copy"),
+                    new EndpointsRenderer.BoundInput(
+                        "isStaff", "IsStaff", "isStaff", "isStaff", "boolean", "claim", false,
+                        "Whether the caller holds a staff role, read from verified claims.", null, null, "isStaff", "verified-claim"),
+                ],
+                new Dictionary<string, string>(),
+                false,
+                [409],
+                "RetireCopyCommand",
+                "Library.Lending.Application.Copies.RetireCopy",
+                "RetireCopyCommandResult",
+                "RetireCopyResponseModel",
+                "Library.Lending.WebApi.Copies.RetireCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            [],
+            "",
+            "Library.Lending.WebApi.ActorClaims.ReadClaimValue");
+
+        GenerateGoldens.AssertEqual("endpoints-binding-dotnet.txt", text);
     }
 
     /// <summary>Selects tenancy with the workspace term and declares the term, so use cases imply the tenant key.</summary>

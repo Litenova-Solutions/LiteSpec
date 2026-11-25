@@ -9,7 +9,7 @@ namespace Library.Lending.Application.Loans.ListLoans;
 /// <param name="Rows">The rows group.</param>
 /// <param name="Holds">The holds group.</param>
 /// <param name="NextCursor">The cursor of the next page, when another page follows.</param>
-internal sealed partial record ListLoansQueryResult(RowsGroup Rows, HoldsGroup Holds, string? NextCursor = null)
+internal sealed partial record ListLoansQueryResult(ListLoansQueryResult.RowsGroup Rows, ListLoansQueryResult.HoldsGroup Holds, string? NextCursor = null)
 {
     /// <summary>The rows group.</summary>
     /// <param name="Loans">One row per loan: its identity, copy, reader, and due date.</param>

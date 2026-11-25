@@ -125,6 +125,7 @@ generate:
   path: apps/api/src/Modules/Claimwick.{Module}
   namespace: Claimwick.{Module}
   claimReader: Claimwick.Platform.Http.ActorClaims.ReadActorId
+  claimValueReader: Claimwick.Platform.Http.ActorClaims.ReadClaimValue
   usings:
   - Claimwick.Spending.Contracts.Expenses
   - Claimwick.Spending.Domain.Receipts

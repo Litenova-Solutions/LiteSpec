@@ -117,6 +117,38 @@ public sealed class GenerateDeclarationsTests
         Assert.DoesNotContain("Library.Lending.Contracts.Loans.RenewLoan", content, StringComparison.Ordinal);
     }
 
+    /// <summary>A message declared by a hand file and a generated file resolves from the generated one instead of skipping.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GeneratedMessageElsewhereWinsOverHandFile()
+    {
+        using var temp = ModelFixture.Prepare("declarations-resolution");
+        var folder = Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending.Contracts", "Holds", "MergeHolds");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "MergeHoldsCommand.generated.cs"),
+            """
+            namespace Library.Lending.Contracts.Holds.MergeHolds;
+
+            public sealed record MergeHoldsCommand(Guid HoldId, Guid BranchId);
+            """);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.merge-holds");
+        Assert.Contains("using Library.Lending.Contracts.Holds.MergeHolds;", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Describe<MergeHoldsCommand>", file.Content, StringComparison.Ordinal);
+        Assert.Contains("{command.HoldId}-{command.BranchId}", file.Content, StringComparison.Ordinal);
+    }
+
     /// <summary>A use case whose message or member cannot be resolved skips with the reason instead of rendering code that cannot compile.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]

@@ -10,6 +10,7 @@ namespace Claimwick.Spending.Application.Expenses.ListExpenses;
 
 /// <summary>An employee sees their own expenses with the latest state of each.</summary>
 /// <param name="EmployeeId">The signed-in employee listing their expenses, read from verified claims.</param>
+/// <param name="States">The lifecycle states to list, all states when absent.</param>
 /// <param name="Cursor">The submission time and identity of the last row.</param>
 /// <param name="Limit">The rows per page.</param>
-internal sealed partial record ListExpensesQuery(Guid EmployeeId, string? Cursor = null, int Limit = 25) : IQuery<ListExpensesQueryResult>;
+internal sealed partial record ListExpensesQuery(Guid EmployeeId, IReadOnlyList<string>? States, string? Cursor = null, int Limit = 25) : IQuery<ListExpensesQueryResult>;

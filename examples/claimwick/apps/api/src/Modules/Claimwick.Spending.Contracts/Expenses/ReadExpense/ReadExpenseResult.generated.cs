@@ -6,4 +6,5 @@ namespace Claimwick.Spending.Contracts.Expenses.ReadExpense;
 /// <summary>The Read Expense result.</summary>
 /// <param name="ExpenseId">The read expense.</param>
 /// <param name="State">The latest lifecycle state of the expense.</param>
-public sealed partial record ReadExpenseResult(ExpenseId ExpenseId, string State);
+/// <param name="Total">The stored total of the expense.</param>
+public sealed partial record ReadExpenseResult(ExpenseId ExpenseId, string State, ExpenseTotal Total);

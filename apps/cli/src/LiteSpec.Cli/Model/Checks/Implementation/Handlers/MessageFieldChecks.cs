@@ -41,6 +41,9 @@ internal static class MessageFieldChecks
         /// <summary>The declaring file by type name, or null when missing or ambiguous; filled by the first search.</summary>
         readonly Dictionary<string, string?> files = new(StringComparer.Ordinal);
 
+        /// <summary>The type names with two generated files in different folders, which stay ambiguous.</summary>
+        readonly HashSet<string> ambiguousGenerated = new(StringComparer.Ordinal);
+
         /// <summary>Whether the backend file names were indexed.</summary>
         bool indexed;
 
@@ -58,7 +61,7 @@ internal static class MessageFieldChecks
         /// <returns>The semantic model of the tree, or null.</returns>
         internal SemanticModel? SemanticOf(SyntaxTree tree) => semantics?.ModelFor(tree);
 
-        /// <summary>The file declaring the type: the generated file beside the hint first, then the hand-written file beside it, then the backend roots by file name.</summary>
+        /// <summary>The file declaring the type: the generated file beside the hint first, then a generated file anywhere, then the hand-written file beside the hint, then the backend roots by file name.</summary>
         /// <param name="typeName">The simple type name.</param>
         /// <param name="hintFile">A file in the folder the type usually sits in.</param>
         /// <returns>The declaring file, or null when it is missing or two files declare the name.</returns>
@@ -68,6 +71,8 @@ internal static class MessageFieldChecks
             {
                 return null;
             }
+
+            string? besideHand = null;
 
             if (Path.GetDirectoryName(hintFile) is { } folder)
             {
@@ -84,7 +89,7 @@ internal static class MessageFieldChecks
 
                 if (File.Exists(beside))
                 {
-                    return beside;
+                    besideHand = beside;
                 }
             }
 
@@ -93,7 +98,25 @@ internal static class MessageFieldChecks
                 Index();
             }
 
-            return files.TryGetValue(typeName, out var found) ? found : null;
+            // A generated file wins over a hand-written one wherever each sits: during
+            // adoption the hand file is the stale copy to be deleted, so resolving from
+            // it would drop the catalog entry on members it no longer carries.
+            if (files.TryGetValue(typeName, out var found) && found is not null)
+            {
+                if (found.EndsWith(".generated.cs", StringComparison.Ordinal))
+                {
+                    return found;
+                }
+
+                if (besideHand is not null)
+                {
+                    return besideHand;
+                }
+
+                return found;
+            }
+
+            return besideHand;
         }
 
         /// <summary>Every declaration of the type in the file, for partial types in every part.</summary>
@@ -194,7 +217,7 @@ internal static class MessageFieldChecks
             return null;
         }
 
-        /// <summary>Indexes the backend file names by type: the file for a unique name, null for an ambiguous one. A generated file indexes under its type name without the generated suffix, winning over its hand-written sibling in the same folder.</summary>
+        /// <summary>Indexes the backend file names by type: the file for a unique name, null for an ambiguous one. A generated file indexes under its type name without the generated suffix, winning over hand-written files wherever they sit; two generated files in different folders stay ambiguous.</summary>
         void Index()
         {
             indexed = true;
@@ -230,32 +253,49 @@ internal static class MessageFieldChecks
                         continue;
                     }
 
-                    if (files.TryGetValue(key, out var held))
-                    {
-                        if (held is not null && !string.Equals(held, file, StringComparison.Ordinal))
-                        {
-                            // A generated part beside its hand-written sibling reads as
-                            // one declaration; two files in different folders stay ambiguous.
-                            if (key != name
-                                && string.Equals(Path.GetDirectoryName(held), Path.GetDirectoryName(file), StringComparison.Ordinal))
-                            {
-                                files[key] = file;
-                            }
-                            else if (name == key
-                                && held.EndsWith(".generated.cs", StringComparison.Ordinal)
-                                && string.Equals(Path.GetDirectoryName(held), Path.GetDirectoryName(file), StringComparison.Ordinal))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                files[key] = null;
-                            }
-                        }
-                    }
-                    else
+                    var generated = key.Length != name.Length;
+
+                    if (!files.TryGetValue(key, out var held))
                     {
                         files[key] = file;
+                        continue;
+                    }
+
+                    if (held is null)
+                    {
+                        // Hands alone stay ambiguous, but a first generated file still
+                        // wins over them: it carries the declared fields.
+                        if (generated && !ambiguousGenerated.Contains(key))
+                        {
+                            files[key] = file;
+                        }
+
+                        continue;
+                    }
+
+                    if (string.Equals(held, file, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    var heldGenerated = held.EndsWith(".generated.cs", StringComparison.Ordinal);
+
+                    if (heldGenerated && !generated)
+                    {
+                        continue;
+                    }
+
+                    if (generated && !heldGenerated)
+                    {
+                        files[key] = file;
+                        continue;
+                    }
+
+                    files[key] = null;
+
+                    if (generated)
+                    {
+                        ambiguousGenerated.Add(key);
                     }
                 }
             }
@@ -353,7 +393,7 @@ internal static class MessageFieldChecks
                 continue;
             }
 
-            CheckInput(source, tenant, handler, useCase, findings);
+            CheckInput(source, tenant, handler, useCase, findings, model);
             CheckOutput(source, handler, useCase, findings);
         }
     }
@@ -386,13 +426,14 @@ internal static class MessageFieldChecks
         return tenant;
     }
 
-    /// <summary>Reports the message carrying a property its use case input neither names nor implies, or lacking one the input names.</summary>
+    /// <summary>Reports the message carrying a property its use case input neither names nor implies, lacking one the input names, or lacking the tenant key its tenant scope implies.</summary>
     /// <param name="source">The backend source the message type is read from.</param>
     /// <param name="tenant">The tenant term id the tenancy selection names, or empty.</param>
     /// <param name="handler">The handler whose message is compared.</param>
     /// <param name="useCase">The use case record holding the input.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    static void CheckInput(MessageSource source, string tenant, CodeHandler handler, Record useCase, List<Finding> findings)
+    /// <param name="model">The loaded project model holding the tenant aggregate.</param>
+    static void CheckInput(MessageSource source, string tenant, CodeHandler handler, Record useCase, List<Finding> findings, ProjectModel model)
     {
         var message = handler.MessageType;
 
@@ -412,6 +453,11 @@ internal static class MessageFieldChecks
         var inputs = ContractFields(useCase, RecordFields.Input);
         var drift = Compare(inputs, properties, "input", implied: ImpliedMessage(useCase, tenant));
 
+        if (MissingTenantKey(model, useCase, tenant, properties) is { } tenantKey)
+        {
+            drift.Add(tenantKey);
+        }
+
         if (drift.Count == 0)
         {
             return;
@@ -425,7 +471,7 @@ internal static class MessageFieldChecks
             useCase.Id));
     }
 
-    /// <summary>Reports the result type carrying a property its use case output neither names nor implies, or lacking one the output names.</summary>
+    /// <summary>Reports the result type carrying a property its use case output neither names nor implies, lacking one the output names, or lacking the next cursor its cursor paging implies.</summary>
     /// <param name="source">The backend source the result type is read from.</param>
     /// <param name="handler">The handler whose result type is compared.</param>
     /// <param name="useCase">The use case record holding the output.</param>
@@ -484,6 +530,11 @@ internal static class MessageFieldChecks
         else
         {
             return;
+        }
+
+        if (CursorPaged(useCase) && !properties.ContainsKey("NextCursor"))
+        {
+            drift.Add("no property for paging cursor 'NextCursor'");
         }
 
         if (drift.Count == 0)
@@ -545,11 +596,57 @@ internal static class MessageFieldChecks
         return implied;
     }
 
-    /// <summary>The result properties the use case implies through its other sections, never restated in output: the next page cursor.</summary>
+    /// <summary>The tenant-key clause for a tenant-scoped message carrying no tenant key, or null when the use case implies none, an input identifying the tenant aggregate carries it, or the message carries it under the identity form or the bare term name.</summary>
+    /// <param name="model">The loaded project model holding the tenant aggregate.</param>
+    /// <param name="useCase">The use case record holding the tenant scope and inputs.</param>
+    /// <param name="tenant">The tenant term id the tenancy selection names, or empty.</param>
+    /// <param name="properties">The carried properties by name with their types as written.</param>
+    /// <returns>The drift clause naming the tenant rule, or null.</returns>
+    static string? MissingTenantKey(ProjectModel model, Record useCase, string tenant, Dictionary<string, string> properties)
+    {
+        var scope = useCase.Raw.ValueKind == JsonValueKind.Object
+            && useCase.Raw.TryGetProperty(RecordFields.Access, out var access)
+                ? Str(access, RecordFields.Tenant)
+                : null;
+
+        if (tenant.Length == 0
+            || scope is not ("own" or "all")
+            || !Identifiers.TrySplit(tenant, out _, out _, out var name)
+            || name.Length == 0)
+        {
+            return null;
+        }
+
+        var term = Naming.Pascal(name);
+
+        if (properties.ContainsKey(term) || properties.ContainsKey(term + "Id"))
+        {
+            return null;
+        }
+
+        var aggregate = model.Records
+            .Where(candidate => candidate.Type == RecordTypes.Aggregate)
+            .Where(candidate => Identifiers.TrySplit(candidate.Id, out _, out _, out var aggregateName) && aggregateName == name)
+            .OrderBy(candidate => candidate.Id, StringComparer.Ordinal)
+            .Select(candidate => candidate.Id)
+            .FirstOrDefault();
+
+        if (aggregate is not null
+            && useCase.Raw.TryGetProperty(RecordFields.Input, out var inputs)
+            && inputs.ValueKind == JsonValueKind.Array
+            && inputs.EnumerateArray().Any(input => Str(input, RecordFields.Identifies) == aggregate))
+        {
+            return null;
+        }
+
+        return $"no property for tenant key '{term}Id' though the use case declares tenant '{scope}'";
+    }
+
+    /// <summary>The result properties the use case implies through its other sections, never restated in output: the next page cursor of a cursor-paged query.</summary>
     /// <param name="useCase">The use case record holding the sections.</param>
     /// <returns>The implied property names.</returns>
     static HashSet<string> ImpliedResult(Record useCase) =>
-        Paged(useCase) ? ["NextCursor"] : [];
+        CursorPaged(useCase) ? ["NextCursor"] : [];
 
     /// <summary>Whether the use case pages its rows: it declares paging with a mode other than none.</summary>
     /// <param name="useCase">The use case record holding the paging.</param>
@@ -559,6 +656,17 @@ internal static class MessageFieldChecks
         && useCase.Raw.TryGetProperty(RecordFields.Paging, out var paging)
         && Str(paging, RecordFields.Mode) is { Length: > 0 } mode
         && mode != "none";
+
+    /// <summary>Whether the use case pages its rows by cursor: it declares paging with a stated cursor, so its result carries the next cursor.</summary>
+    /// <param name="useCase">The use case record holding the paging.</param>
+    /// <returns>True when the use case pages by cursor; otherwise false.</returns>
+    static bool CursorPaged(Record useCase) =>
+        useCase.Raw.ValueKind == JsonValueKind.Object
+        && useCase.Raw.TryGetProperty(RecordFields.Paging, out var paging)
+        && paging.ValueKind == JsonValueKind.Object
+        && Str(paging, RecordFields.Mode) is { Length: > 0 } mode
+        && mode != "none"
+        && Str(paging, RecordFields.Cursor) is { Length: > 0 };
 
     /// <summary>Whether an output group is optional: true only when it states required false, so a single optional group renders nested.</summary>
     /// <param name="group">The output group object.</param>

@@ -21,9 +21,15 @@ internal sealed class ReadExpenseQueryHandler : IQueryHandler<ReadExpenseQuery, 
         CancellationToken cancellationToken)
     {
         var expense = await _session.Query<Expense>()
-            .Where(expense => expense.Id == query.ExpenseId)
+            .Where(expense => expense.Id == query.Payout.ExpenseId)
             .FirstOrDefaultAsync(cancellationToken);
-        return expense is null ? null : new ReadExpenseResult(expense.Id, StateName(expense.State));
+        if (expense is null
+            || expense.Total.Amount != query.Payout.Amount
+            || expense.Total.Currency != query.Payout.Currency)
+        {
+            return null;
+        }
+        return new ReadExpenseResult(expense.Id, StateName(expense.State), new ExpenseTotal(expense.Total.Amount, expense.Total.Currency));
     }
 
     private static string StateName(ExpenseState state) => state switch

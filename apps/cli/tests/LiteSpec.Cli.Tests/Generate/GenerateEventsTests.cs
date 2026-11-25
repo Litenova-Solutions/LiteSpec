@@ -297,6 +297,53 @@ public sealed class GenerateEventsTests
         Assert.Empty(tags.Row);
     }
 
+    /// <summary>A single-object carry maps to its named row type, or to a nested row record without one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectCarryMapsToRowType()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "borrower", "type": "object", "rowType": "BorrowerForm", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true}]}}"""),
+            out var named));
+        Assert.Equal("BorrowerForm", named!.Type);
+        Assert.Empty(named.Row);
+
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "borrower", "type": "object", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true}, {"name": "card", "type": "text", "required": false}]}}"""),
+            out var nested));
+        Assert.Equal("BorrowerRow", nested!.Type);
+        Assert.Equal(["Name", "Card"], nested.Row.Select(field => field.Property));
+    }
+
+    /// <summary>A part row type renders qualified when the qualifier resolves it, else the short part name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PartRowTypeQualifiesThroughResolver()
+    {
+        var carry = Carry("""{"name": "renewals", "type": "list", "rowType": "aggregate/lending.loan#renewal", "rowShape": {"fields": [{"name": "renewedAt", "type": "instant", "required": true}]}}""");
+
+        Assert.True(EventFieldTypes.TryMap(carry, out var qualified, qualify: reference => "Library.Lending.Domain.Loans.Parts.Renewal"));
+        Assert.Equal("IReadOnlyList<Library.Lending.Domain.Loans.Parts.Renewal>", qualified!.Type);
+
+        Assert.True(EventFieldTypes.TryMap(carry, out var brief));
+        Assert.Equal("IReadOnlyList<Renewal>", brief!.Type);
+    }
+
+    /// <summary>A row member of type object maps to its named row type, and to nothing without one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NestedObjectRowMapsToNamedType()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "lines", "type": "list", "rowShape": {"fields": [{"name": "copyId", "type": "id", "identifies": "aggregate/lending.copy", "required": true}, {"name": "borrower", "type": "object", "required": true, "rowType": "BorrowerForm", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true}]}}]}}"""),
+            out var lines));
+        Assert.Equal("BorrowerForm", lines!.Row.Single(row => row.Property == "Borrower").Type);
+
+        Assert.False(EventFieldTypes.TryMap(
+            Carry("""{"name": "lines", "type": "list", "rowShape": {"fields": [{"name": "copyId", "type": "id", "identifies": "aggregate/lending.copy", "required": true}, {"name": "borrower", "type": "object", "required": true, "rowShape": {"fields": [{"name": "name", "type": "text", "required": true}]}}]}}"""),
+            out _));
+    }
+
     /// <summary>An untyped row identifier maps to a Guid, and an existing type naming a part maps to the part name.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]

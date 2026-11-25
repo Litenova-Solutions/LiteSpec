@@ -32,6 +32,10 @@ static class EndpointsRenderer
     /// <param name="Currency">The fixed ISO 4217 code a money input moves in, or null when the record states none.</param>
     /// <param name="CurrencyField">The sibling input carrying a money input's currency code, or null when the record states none.</param>
     /// <param name="Size">The stored width in bits of an integer input: 32, or 64 for values past the 32-bit span.</param>
+    /// <param name="Many">Whether the input holds many values of its type, bound as an array.</param>
+    /// <param name="CurrencyHome">The aggregate a money input takes its currency from, or null when the amount carries its own currency.</param>
+    /// <param name="RowType">The message row type a list input maps each row to, or null for a single-field row without one.</param>
+    /// <param name="Rows">The row fields of a list input in written order, or null when the input carries no list.</param>
     public sealed record BoundInput(
         string Name,
         string Property,
@@ -47,6 +51,35 @@ static class EndpointsRenderer
         string Origin,
         string? Currency = null,
         string? CurrencyField = null,
+        int Size = 32,
+        bool Many = false,
+        string? CurrencyHome = null,
+        string? RowType = null,
+        IReadOnlyList<RowField>? Rows = null);
+
+    /// <summary>One row field of a list input, bound from the request row record.</summary>
+    /// <param name="Name">The row field name.</param>
+    /// <param name="Property">The message row property name.</param>
+    /// <param name="Type">The record type.</param>
+    /// <param name="Required">Whether the record requires the row field.</param>
+    /// <param name="Meaning">The meaning the record states, or null when the record states none.</param>
+    /// <param name="SetType">The closed-set type a choice row converts through, or null when the row names no set.</param>
+    /// <param name="IdentifierType">The typed identifier an id row binds as, or null for a Guid.</param>
+    /// <param name="Currency">The fixed ISO 4217 code a money row moves in, or null when the record states none.</param>
+    /// <param name="CurrencyField">The sibling row field carrying a money row's currency code, or null when the record states none.</param>
+    /// <param name="CurrencyHome">The aggregate a money row takes its currency from, or null when the amount carries its own currency.</param>
+    /// <param name="Size">The stored width in bits of an integer row: 32, or 64 for values past the 32-bit span.</param>
+    public sealed record RowField(
+        string Name,
+        string Property,
+        string Type,
+        bool Required,
+        string? Meaning,
+        string? SetType,
+        string? IdentifierType,
+        string? Currency,
+        string? CurrencyField,
+        string? CurrencyHome,
         int Size = 32);
 
     /// <summary>One use-case endpoint the plan renders.</summary>
@@ -101,6 +134,7 @@ static class EndpointsRenderer
     /// <param name="claimReader">The qualified claim reader method, as Namespace.Type.Method.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
     /// <param name="tenantReader">The qualified tenant reader method, as Namespace.Type.Method, or empty when the target names none.</param>
+    /// <param name="claimValueReader">The qualified claim value reader method, as Namespace.Type.Method, or empty when the target names none.</param>
     /// <returns>The file text with LF line endings.</returns>
     public static string RenderDotnet(
         string module,
@@ -108,11 +142,13 @@ static class EndpointsRenderer
         string @namespace,
         string claimReader,
         IReadOnlyList<string> usings,
-        string tenantReader = "")
+        string tenantReader = "",
+        string claimValueReader = "")
     {
         var ordered = endpoints.OrderBy(endpoint => endpoint.UseCaseId, StringComparer.Ordinal).ToList();
         var reader = ReaderOf(claimReader);
         var tenant = ReaderOf(tenantReader);
+        var values = ReaderOf(claimValueReader);
         var lines = new List<string>
         {
             GenerateNaming.HeaderLineFor(GenerateNaming.CurrentVersion()),
@@ -120,7 +156,7 @@ static class EndpointsRenderer
             "",
         };
 
-        foreach (var heading in UsingLines(ordered, @namespace, reader.Namespace, tenant.Namespace, usings))
+        foreach (var heading in UsingLines(ordered, @namespace, reader.Namespace, tenant.Namespace, values.Namespace, usings))
         {
             lines.Add(heading);
         }
@@ -145,7 +181,7 @@ static class EndpointsRenderer
                 lines.Add("");
             }
 
-            EndpointLines(lines, ordered[index], reader, tenant);
+            EndpointLines(lines, ordered[index], reader, tenant, values);
         }
 
         lines.Add("}");
@@ -175,6 +211,7 @@ static class EndpointsRenderer
     /// <param name="namespace">The C# namespace of the generated class.</param>
     /// <param name="readerNamespace">The C# namespace declaring the claim reader type.</param>
     /// <param name="tenantNamespace">The C# namespace declaring the tenant reader type, or empty when the target names none.</param>
+    /// <param name="valuesNamespace">The C# namespace declaring the claim value reader type, or empty when the target names none.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
     /// <returns>The using lines in ordinal order.</returns>
     private static List<string> UsingLines(
@@ -182,6 +219,7 @@ static class EndpointsRenderer
         string @namespace,
         string readerNamespace,
         string tenantNamespace,
+        string valuesNamespace,
         IReadOnlyList<string> usings)
     {
         var names = new SortedSet<string>(StringComparer.Ordinal)
@@ -227,6 +265,11 @@ static class EndpointsRenderer
             names.Add(tenantNamespace);
         }
 
+        if (valuesNamespace.Length > 0)
+        {
+            names.Add(valuesNamespace);
+        }
+
         foreach (var message in endpoints.Select(endpoint => endpoint.MessageNamespace).Distinct(StringComparer.Ordinal))
         {
             if (message.Length > 0)
@@ -265,14 +308,15 @@ static class EndpointsRenderer
     /// <returns>True when the handler takes the caller; otherwise false.</returns>
     private static bool UsesUser(EndpointData endpoint) =>
         endpoint.Tenant is not null
-        || endpoint.Inputs.Any(input => input.Binding == "claim" || (input.Origin == "derived" && input.Type != "instant"));
+        || endpoint.Inputs.Any(input => input.Binding == "claim" || (input.Origin == "derived" && (input.Type != "instant" || input.Many)));
 
     /// <summary>Writes one endpoint: its request record when body inputs exist, its nested endpoint class, and its partial methods.</summary>
     /// <param name="lines">The file lines, appended in place.</param>
     /// <param name="endpoint">The endpoint the plan renders.</param>
     /// <param name="reader">The claim reader call.</param>
     /// <param name="tenant">The tenant reader call.</param>
-    private static void EndpointLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant)
+    /// <param name="values">The claim value reader call.</param>
+    private static void EndpointLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant, Reader values)
     {
         if (endpoint.Inputs.Any(input => input.Binding == "body"))
         {
@@ -301,7 +345,7 @@ static class EndpointsRenderer
         MapLines(lines, endpoint);
         lines.Add("        }");
         lines.Add("");
-        HandleLines(lines, endpoint, reader, tenant);
+        HandleLines(lines, endpoint, reader, tenant, values);
         lines.Add("    }");
 
         var partials = PartialLines(endpoint);
@@ -322,6 +366,12 @@ static class EndpointsRenderer
     /// <param name="endpoint">The endpoint whose body inputs are read.</param>
     private static void RequestLines(List<string> lines, EndpointData endpoint)
     {
+        foreach (var input in endpoint.Inputs.Where(input => input is { Binding: "body", Type: "list" } && NeedsRequestRow(input)))
+        {
+            RequestRowLines(lines, endpoint, input);
+            lines.Add("");
+        }
+
         lines.Add($"    /// <summary>The {endpoint.UseCaseName} request body.</summary>");
 
         foreach (var input in endpoint.Inputs.Where(input => input.Binding == "body"))
@@ -334,9 +384,51 @@ static class EndpointsRenderer
 
         var parameters = string.Join(
             ", ",
-            endpoint.Inputs.Where(input => input.Binding == "body").Select(input => $"{RequestTypeOf(input)} {input.Property}"));
+            endpoint.Inputs.Where(input => input.Binding == "body").Select(input => $"{RequestTypeOf(endpoint, input)} {input.Property}"));
 
         lines.Add($"    internal sealed partial record {endpoint.UseCaseName}Request({parameters});");
+    }
+
+    /// <summary>Writes the request row record carrying one list input's rows on the wire.</summary>
+    /// <param name="lines">The file lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose list input is read.</param>
+    /// <param name="input">The list input whose rows are read.</param>
+    private static void RequestRowLines(List<string> lines, EndpointData endpoint, BoundInput input)
+    {
+        lines.Add($"    /// <summary>One row of {input.Property}.</summary>");
+
+        foreach (var row in input.Rows!)
+        {
+            if (row.Meaning is { Length: > 0 } meaning)
+            {
+                lines.Add($"    /// <param name=\"{row.Property}\">{GenerateNaming.EscapeXml(FlatOf(meaning))}</param>");
+            }
+        }
+
+        var parameters = string.Join(", ", input.Rows!.Select(row => $"{RowWireOf(row)} {row.Property}"));
+
+        lines.Add($"    internal sealed partial record {RequestRowOf(endpoint, input)}({parameters});");
+    }
+
+    /// <summary>The request row record name of one list input: the use case and property with a Row suffix.</summary>
+    /// <param name="endpoint">The endpoint whose use case names the row.</param>
+    /// <param name="input">The list input whose property names the row.</param>
+    /// <returns>The row record name.</returns>
+    private static string RequestRowOf(EndpointData endpoint, BoundInput input) => endpoint.UseCaseName + input.Property + "Row";
+
+    /// <summary>Whether a list input needs a request row record: a multi-field row, whose fields the message row type carries together.</summary>
+    /// <param name="input">The list input whose rows are read.</param>
+    /// <returns>True for a multi-field row; otherwise false.</returns>
+    private static bool NeedsRequestRow(BoundInput input) => (input.Rows?.Count ?? 0) > 1;
+
+    /// <summary>The request property type of one row field: its wire type, nullable when the row states no required.</summary>
+    /// <param name="row">The row field whose type is read.</param>
+    /// <returns>The property type.</returns>
+    private static string RowWireOf(RowField row)
+    {
+        var type = row.Type == "id" ? "Guid" : ScalarWireOf(row.Type, row.Size);
+
+        return row.Required ? type : type + "?";
     }
 
     /// <summary>Writes the route mapping with the operation name, summary, success and failure metadata.</summary>
@@ -378,7 +470,8 @@ static class EndpointsRenderer
     /// <param name="endpoint">The endpoint whose inputs are read.</param>
     /// <param name="reader">The claim reader call.</param>
     /// <param name="tenant">The tenant reader call.</param>
-    private static void HandleLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant)
+    /// <param name="values">The claim value reader call.</param>
+    private static void HandleLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant, Reader values)
     {
         var parameters = new List<string>();
         var requested = false;
@@ -423,7 +516,8 @@ static class EndpointsRenderer
 
         GuardLines(body, endpoint);
         FileLines(body, endpoint);
-        DispatchLines(body, endpoint, reader, tenant);
+        ConversionLines(body, endpoint);
+        DispatchLines(body, endpoint, reader, tenant, values);
         ResponseLines(body, endpoint);
 
         foreach (var line in body)
@@ -434,12 +528,12 @@ static class EndpointsRenderer
         lines.Add("        }");
     }
 
-    /// <summary>Writes the choice guards: an unlisted label answers 400 before the message runs. A derived choice needs no guard: its derivation answers the set member.</summary>
+    /// <summary>Writes the choice guards: an unlisted label answers 400 before the message runs. A derived choice needs no guard: its derivation answers the set member. A many-valued choice guards each label in the conversions.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose choice inputs are read.</param>
     private static void GuardLines(List<string> body, EndpointData endpoint)
     {
-        foreach (var input in endpoint.Inputs.Where(input => input is { Type: "choice", SetType: not null, Origin: not "derived" }))
+        foreach (var input in endpoint.Inputs.Where(input => input is { Type: "choice", SetType: not null, Origin: not "derived", Many: false }))
         {
             var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
             var local = char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
@@ -508,12 +602,217 @@ static class EndpointsRenderer
         }
     }
 
+    /// <summary>Writes the collection conversions: each list row mapped to its message row type, and each many-valued choice label guarded through its closed set. An unlisted label answers 400 before the message runs, as a single choice does.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose collections are read.</param>
+    private static void ConversionLines(List<string> body, EndpointData endpoint)
+    {
+        foreach (var input in endpoint.Inputs.Where(input => input is { Type: "list", Origin: not "derived" } && NeedsRequestRow(input)))
+        {
+            RowLoopLines(body, endpoint, input);
+            body.Add("");
+        }
+
+        foreach (var input in endpoint.Inputs.Where(input =>
+            input is { Origin: not "derived" }
+            && (input is { Type: "choice", SetType: not null, Many: true }
+                || SingleRowOf(input) is { Type: "choice", SetType: not null })))
+        {
+            ChoiceLoopLines(body, endpoint, input);
+            body.Add("");
+        }
+    }
+
+    /// <summary>Writes the row mapping of one multi-field list: each request row built into the message row type, with an unlisted choice label answering 400.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose list input is read.</param>
+    /// <param name="input">The list input whose rows are read.</param>
+    private static void RowLoopLines(List<string> body, EndpointData endpoint, BoundInput input)
+    {
+        var source = $"request.{input.Property}";
+        var rows = input.Local + "Rows";
+        var indent = Nullable(input) ? "    " : "";
+
+        if (!Nullable(input))
+        {
+            body.Add($"var {rows} = new List<{input.RowType}>({source}.Length);");
+        }
+        else
+        {
+            body.Add($"List<{input.RowType}>? {rows} = null;");
+            body.Add($"if ({source} is not null)");
+            body.Add("{");
+            body.Add($"    {rows} = new List<{input.RowType}>({source}.Length);");
+        }
+
+        body.Add($"{indent}foreach (var row in {source})");
+        body.Add($"{indent}{{");
+
+        foreach (var row in input.Rows!)
+        {
+            if (row is { Type: "choice", SetType: not null })
+            {
+                RowGuardLines(body, input, row, indent + "    ");
+                body.Add("");
+            }
+        }
+
+        body.Add($"{indent}    {rows}.Add(new {input.RowType}(");
+
+        for (var index = 0; index < input.Rows!.Count; index++)
+        {
+            var row = input.Rows![index];
+            var last = index == input.Rows!.Count - 1;
+
+            body.Add($"{indent}        {row.Property}: {RowArgumentOf(input, row)}{(last ? "" : ",")}");
+        }
+
+        body.Add($"{indent}    ));");
+        body.Add($"{indent}}}");
+
+        if (Nullable(input))
+        {
+            body.Add("}");
+        }
+    }
+
+    /// <summary>Writes the guard of one choice row field: an unlisted label answers 400 before the message runs.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="input">The list input whose row is read.</param>
+    /// <param name="row">The choice row field whose labels are read.</param>
+    /// <param name="indent">The indentation before each guard line.</param>
+    private static void RowGuardLines(List<string> body, BoundInput input, RowField row, string indent)
+    {
+        var local = input.Local + row.Property;
+        var source = $"row.{row.Property}";
+        var set = SpacedOf(row.SetType!);
+        var name = SpacedOf(row.Name);
+
+        if (row.Required)
+        {
+            body.Add($"{indent}if (!{row.SetType}.TryFromCode({source}, out var {local}))");
+            body.Add($"{indent}{{");
+            body.Add($"{indent}    return TypedResults.Problem(");
+            body.Add($"{indent}        title: \"Unknown {set}.\",");
+            body.Add($"{indent}        detail: $\"The {name} '{{{source}}}' names no {set}.\",");
+            body.Add($"{indent}        statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}}}");
+        }
+        else
+        {
+            body.Add($"{indent}{row.SetType}? {local} = null;");
+            body.Add($"{indent}if ({source} is not null)");
+            body.Add($"{indent}{{");
+            body.Add($"{indent}    if (!{row.SetType}.TryFromCode({source}, out var {local}Parsed))");
+            body.Add($"{indent}    {{");
+            body.Add($"{indent}        return TypedResults.Problem(");
+            body.Add($"{indent}            title: \"Unknown {set}.\",");
+            body.Add($"{indent}            detail: $\"The {name} '{{{source}}}' names no {set}.\",");
+            body.Add($"{indent}            statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}    }}");
+            body.Add("");
+            body.Add($"{indent}    {local} = {local}Parsed;");
+            body.Add($"{indent}}}");
+        }
+    }
+
+    /// <summary>Writes the label conversion of one many-valued choice or single-field choice list: each label guarded through its closed set into the converted items.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose choice collection is read.</param>
+    /// <param name="input">The choice collection whose labels are read.</param>
+    private static void ChoiceLoopLines(List<string> body, EndpointData endpoint, BoundInput input)
+    {
+        var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
+        var items = input.Local + "Items";
+        var code = input.Local + "Code";
+        var member = input.Local + "Member";
+        var row = SingleRowOf(input);
+        var set = input.Type == "choice" ? input.SetType! : row!.SetType!;
+        var element = input.Type == "choice" ? set : input.RowType ?? (row!.Required ? set : set + "?");
+        var display = SpacedOf(set);
+        var name = SpacedOf(row?.Name ?? input.Name);
+        var indent = Nullable(input) ? "    " : "";
+
+        if (!Nullable(input))
+        {
+            body.Add($"var {items} = new List<{element}>({source}.Length);");
+        }
+        else
+        {
+            body.Add($"List<{element}>? {items} = null;");
+            body.Add($"if ({source} is not null)");
+            body.Add("{");
+            body.Add($"    {items} = new List<{element}>({source}.Length);");
+        }
+
+        body.Add($"{indent}foreach (var {code} in {source})");
+        body.Add($"{indent}{{");
+
+        if (row is null || row.Required)
+        {
+            body.Add($"{indent}    if (!{set}.TryFromCode({code}, out var {member}))");
+            body.Add($"{indent}    {{");
+            body.Add($"{indent}        return TypedResults.Problem(");
+            body.Add($"{indent}            title: \"Unknown {display}.\",");
+            body.Add($"{indent}            detail: $\"The {name} '{{{code}}}' names no {display}.\",");
+            body.Add($"{indent}            statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}    }}");
+        }
+        else
+        {
+            body.Add($"{indent}    {set}? {member} = null;");
+            body.Add($"{indent}    if ({code} is not null)");
+            body.Add($"{indent}    {{");
+            body.Add($"{indent}        if (!{set}.TryFromCode({code}, out var {member}Parsed))");
+            body.Add($"{indent}        {{");
+            body.Add($"{indent}            return TypedResults.Problem(");
+            body.Add($"{indent}                title: \"Unknown {display}.\",");
+            body.Add($"{indent}                detail: $\"The {name} '{{{code}}}' names no {display}.\",");
+            body.Add($"{indent}                statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}        }}");
+            body.Add("");
+            body.Add($"{indent}        {member} = {member}Parsed;");
+            body.Add($"{indent}    }}");
+        }
+
+        body.Add("");
+        body.Add($"{indent}    {AddOf(input, items, member)}");
+        body.Add($"{indent}}}");
+
+        if (Nullable(input))
+        {
+            body.Add("}");
+        }
+    }
+
+    /// <summary>The converted item one choice label appends: the set member, or the named row carrying it for a single-field row stating a row type.</summary>
+    /// <param name="input">The choice collection whose labels are read.</param>
+    /// <param name="items">The converted items local name.</param>
+    /// <param name="member">The converted member local name.</param>
+    /// <returns>The append expression.</returns>
+    private static string AddOf(BoundInput input, string items, string member)
+    {
+        if (input.Type == "list" && input.RowType is { Length: > 0 } rowType)
+        {
+            return $"{items}.Add(new {rowType}({SingleRowOf(input)!.Property}: {member}));";
+        }
+
+        return $"{items}.Add({member});";
+    }
+
+    /// <summary>The single row of a single-field list input, or null for any other input.</summary>
+    /// <param name="input">The input whose row is read.</param>
+    /// <returns>The single row, or null.</returns>
+    private static RowField? SingleRowOf(BoundInput input) =>
+        input is { Type: "list", Rows: { Count: 1 } rows } ? rows[0] : null;
+
     /// <summary>Writes the message construction and its dispatch through the mediator: the tenant key first, then each input.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose message is read.</param>
     /// <param name="reader">The claim reader call.</param>
     /// <param name="tenant">The tenant reader call.</param>
-    private static void DispatchLines(List<string> body, EndpointData endpoint, Reader reader, Reader tenant)
+    /// <param name="values">The claim value reader call.</param>
+    private static void DispatchLines(List<string> body, EndpointData endpoint, Reader reader, Reader tenant, Reader values)
     {
         var call = endpoint.Kind == "query" ? "mediator.QueryAsync" : "mediator.SendAsync";
         var assign = endpoint.Projects ? "var result = await " : "await ";
@@ -537,7 +836,7 @@ static class EndpointsRenderer
             var input = endpoint.Inputs[index];
             var last = index == endpoint.Inputs.Count - 1;
 
-            body.Add($"        {input.Property}: {ArgumentOf(endpoint, input, reader)}{(last ? "" : ",")}");
+            body.Add($"        {input.Property}: {ArgumentOf(endpoint, input, reader, values)}{(last ? "" : ",")}");
         }
 
         body.Add("    ),");
@@ -580,7 +879,7 @@ static class EndpointsRenderer
             lines.Add($"    static partial {endpoint.ResponseModel} Shape{endpoint.UseCaseName}Response({endpoint.ResultType} result);");
         }
 
-        foreach (var input in endpoint.Inputs.Where(input => input.Origin == "derived" && input.Type != "instant"))
+        foreach (var input in endpoint.Inputs.Where(input => input.Origin == "derived" && (input.Type != "instant" || input.Many)))
         {
             if (lines.Count > 0)
             {
@@ -598,28 +897,46 @@ static class EndpointsRenderer
     /// <param name="endpoint">The endpoint whose use case names the derivation.</param>
     /// <param name="input">The input whose value is read.</param>
     /// <param name="reader">The claim reader call.</param>
+    /// <param name="values">The claim value reader call.</param>
     /// <returns>The argument expression.</returns>
-    private static string ArgumentOf(EndpointData endpoint, BoundInput input, Reader reader)
+    private static string ArgumentOf(EndpointData endpoint, BoundInput input, Reader reader, Reader values)
     {
         if (input.Origin == "derived")
         {
-            return input.Type == "instant"
+            return input is { Type: "instant", Many: false }
                 ? "DateTimeOffset.UtcNow"
                 : $"Derive{endpoint.UseCaseName}{input.Property}(user)";
         }
 
         if (input.Binding == "claim")
         {
-            return $"{reader.Call}(user, \"{GenerateNaming.EscapeLiteral(input.Actor ?? input.Name)}\")";
+            return input.Type == "id"
+                ? $"{reader.Call}(user, \"{GenerateNaming.EscapeLiteral(input.Actor ?? input.Name)}\")"
+                : $"{values.Call}<{ClaimTypeOf(input)}>(user, \"{GenerateNaming.EscapeLiteral(input.Actor ?? input.Name)}\")";
         }
 
-        if (input is { Type: "choice", SetType: not null })
+        if (input.Type == "list" && NeedsRequestRow(input))
+        {
+            return input.Local + "Rows";
+        }
+
+        if (input is { Type: "choice", SetType: not null, Many: true } || SingleRowOf(input) is { Type: "choice", SetType: not null })
+        {
+            return input.Local + "Items";
+        }
+
+        if (input is { Type: "choice", SetType: not null, Many: false })
         {
             return char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
         }
 
-        if (input.Type == "money")
+        if (input is { Type: "money", Many: false } && SingleRowOf(input) is null)
         {
+            if (input.CurrencyHome is { Length: > 0 })
+            {
+                return input.Binding == "body" ? $"request.{input.Property}" : input.Local;
+            }
+
             var amount = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
             var currency = CurrencyOf(endpoint, input);
 
@@ -628,9 +945,14 @@ static class EndpointsRenderer
                 : $"Money.Create({amount}, {currency})";
         }
 
+        if (input.Many || SingleRowOf(input) is not null)
+        {
+            return CollectionArgumentOf(endpoint, input);
+        }
+
         var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
 
-        if (input is { Type: "id", Binding: "body", IdentifierType: not null })
+        if (input is { Type: "id", Binding: "body", IdentifierType: not null, Many: false })
         {
             return Nullable(input)
                 ? $"{source} is null ? null : {input.IdentifierType}.From({source}.Value)"
@@ -644,6 +966,146 @@ static class EndpointsRenderer
 
         return source;
     }
+
+    /// <summary>The message argument one many-valued input or single-field list renders: its array, with each element converted through its identifier factory or money object.</summary>
+    /// <param name="endpoint">The endpoint whose inputs hold the currency sibling.</param>
+    /// <param name="input">The collection whose values are read.</param>
+    /// <returns>The argument expression.</returns>
+    private static string CollectionArgumentOf(EndpointData endpoint, BoundInput input)
+    {
+        var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
+
+        if (ElementConvertOf(endpoint, input, SingleRowOf(input)) is not { } convert)
+        {
+            return source;
+        }
+
+        var mapped = $"Array.ConvertAll({source}, {convert})";
+
+        return Nullable(input) ? $"{source} is null ? null : {mapped}" : mapped;
+    }
+
+    /// <summary>The element conversion of one many-valued input or single-field list: each wire element built into the message element, or null when the wire value rides as-is.</summary>
+    /// <param name="endpoint">The endpoint whose inputs hold the currency sibling.</param>
+    /// <param name="input">The collection whose values are read.</param>
+    /// <param name="row">The single row of a single-field list, or null for a many-valued input.</param>
+    /// <returns>The conversion lambda, or null.</returns>
+    private static string? ElementConvertOf(EndpointData endpoint, BoundInput input, RowField? row)
+    {
+        var type = row?.Type ?? input.Type;
+
+        string? Value(string target)
+        {
+            if (type == "id" && (row?.IdentifierType ?? (input.Binding == "body" ? input.IdentifierType : null)) is { } identifier)
+            {
+                return $"{identifier}.From({target})";
+            }
+
+            if (type == "money" && (row?.CurrencyHome ?? input.CurrencyHome) is null)
+            {
+                var currency = row is null ? CurrencyOf(endpoint, input) : RowCurrencyOf(input, row);
+
+                return $"Money.Create({target}, {currency})";
+            }
+
+            return null;
+        }
+
+        if (row is null)
+        {
+            return Value("item") is { } converted ? $"item => {converted}" : null;
+        }
+
+        var converts = Value("item") is not null;
+        var wraps = input.RowType is { Length: > 0 };
+
+        if (!converts && !wraps)
+        {
+            return null;
+        }
+
+        var value = Value(row.Required ? "item" : "item.Value") ?? "item";
+
+        if (!row.Required && converts)
+        {
+            value = $"item is null ? null : {value}";
+        }
+
+        if (input.RowType is { Length: > 0 } rowType)
+        {
+            value = $"new {rowType}({row.Property}: {value})";
+        }
+
+        return $"item => {value}";
+    }
+
+    /// <summary>The message row argument one row field renders: its converted wire value.</summary>
+    /// <param name="input">The list input whose row is read.</param>
+    /// <param name="row">The row field whose value is read.</param>
+    /// <returns>The argument expression.</returns>
+    private static string RowArgumentOf(BoundInput input, RowField row)
+    {
+        var source = $"row.{row.Property}";
+
+        if (row is { Type: "choice", SetType: not null })
+        {
+            return input.Local + row.Property;
+        }
+
+        if (row is { Type: "id", IdentifierType: not null })
+        {
+            return row.Required
+                ? $"{row.IdentifierType}.From({source})"
+                : $"{source} is null ? null : {row.IdentifierType}.From({source}.Value)";
+        }
+
+        if (row.Type == "money" && row.CurrencyHome is null)
+        {
+            var currency = RowCurrencyOf(input, row);
+
+            return row.Required
+                ? $"Money.Create({source}, {currency})"
+                : $"{source} is null ? null : Money.Create({source}.Value, {currency})";
+        }
+
+        return source;
+    }
+
+    /// <summary>The currency a money row moves in: the fixed code, or the bound value of the sibling row field carrying the code.</summary>
+    /// <param name="input">The list input whose rows hold the sibling.</param>
+    /// <param name="row">The money row whose currency is read.</param>
+    /// <returns>The currency expression.</returns>
+    private static string RowCurrencyOf(BoundInput input, RowField row)
+    {
+        if (row.Currency is { Length: > 0 } fixedCode)
+        {
+            return $"\"{GenerateNaming.EscapeLiteral(fixedCode)}\"";
+        }
+
+        if (row.CurrencyField is { Length: > 0 } carrier)
+        {
+            var sibling = input.Rows?.FirstOrDefault(candidate => candidate.Name == carrier);
+
+            return $"row.{sibling?.Property ?? GenerateNaming.ConstName(carrier)}";
+        }
+
+        return "\"\"";
+    }
+
+    /// <summary>The claim value type one non-identity claim input reads as: the scalar the value reader answers.</summary>
+    /// <param name="input">The claim input whose type is read.</param>
+    /// <returns>The value type.</returns>
+    private static string ClaimTypeOf(BoundInput input) => input.Type switch
+    {
+        "text" or "email" => "string",
+        "integer" => input.Size == 64 ? "long" : "int",
+        "decimal" => "decimal",
+        "boolean" => "bool",
+        "date" => "DateOnly",
+        "instant" => "DateTimeOffset",
+        "duration" => "TimeSpan",
+        _ => "string",
+    };
 
     /// <summary>The currency a money input moves in: the fixed code, or the bound value of the sibling carrying the code.</summary>
     /// <param name="endpoint">The endpoint whose inputs hold the sibling.</param>
@@ -666,43 +1128,63 @@ static class EndpointsRenderer
         return sibling.Binding == "body" ? $"request.{sibling.Property}" : sibling.Local;
     }
 
-    /// <summary>Whether a bound value may be absent: an optional caller input, the way the message generator reads it. The pipeline supplies claim and derived inputs, so they never are.</summary>
+    /// <summary>Whether a bound value may be absent: an input stating required false, whatever its origin, the way the message generator reads it.</summary>
     /// <param name="input">The input whose value is read.</param>
     /// <returns>True when the value may be absent; otherwise false.</returns>
-    private static bool Nullable(BoundInput input) => !input.Required && input.Origin == "caller";
+    private static bool Nullable(BoundInput input) => !input.Required;
 
-    /// <summary>The handler parameter type one input binds as: its wire type, with a typed identifier parsed from route, query, and header text.</summary>
+    /// <summary>The wire type of one scalar record type: the C# type the value travels as.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="size">The stored width in bits of an integer: 32, or 64 for values past the 32-bit span.</param>
+    /// <returns>The wire type.</returns>
+    private static string ScalarWireOf(string type, int size) => type switch
+    {
+        "text" or "email" or "choice" => "string",
+        "integer" => size == 64 ? "long" : "int",
+        "decimal" or "money" => "decimal",
+        "boolean" => "bool",
+        "date" => "DateOnly",
+        "instant" => "DateTimeOffset",
+        "duration" => "TimeSpan",
+        _ => "string",
+    };
+
+    /// <summary>The handler parameter type one input binds as: its wire type, with a typed identifier parsed from route, query, and header text. A many-valued input binds as an array, which a repeated query parameter fills.</summary>
     /// <param name="input">The input whose type is read.</param>
     /// <returns>The parameter type.</returns>
     private static string ParamTypeOf(BoundInput input)
     {
-        var type = input.Type switch
+        var type = input.Type == "id" ? input.IdentifierType ?? "Guid" : ScalarWireOf(input.Type, input.Size);
+
+        if (input.Many)
         {
-            "text" or "email" or "choice" => "string",
-            "integer" => input.Size == 64 ? "long" : "int",
-            "decimal" => "decimal",
-            "money" => "decimal",
-            "boolean" => "bool",
-            "date" => "DateOnly",
-            "instant" => "DateTimeOffset",
-            "duration" => "TimeSpan",
-            "id" => input.IdentifierType ?? "Guid",
-            _ => "string",
-        };
+            return Nullable(input) ? type + "[]?" : type + "[]";
+        }
 
         return Nullable(input) ? type + "?" : type;
     }
 
-    /// <summary>The request property type one body input binds as: its wire type, with an id converted through its identifier factory at construction.</summary>
+    /// <summary>The request property type one body input binds as: its wire type, with an id converted through its identifier factory at construction. A list binds as an array of its request rows, and a many-valued input as an array of its wire type.</summary>
+    /// <param name="endpoint">The endpoint whose use case names the request row.</param>
     /// <param name="input">The input whose type is read.</param>
     /// <returns>The property type.</returns>
-    private static string RequestTypeOf(BoundInput input)
+    private static string RequestTypeOf(EndpointData endpoint, BoundInput input)
     {
-        var type = input.Type switch
+        if (input.Type == "list")
         {
-            "id" => "Guid",
-            _ => ParamTypeOf(input).TrimEnd('?'),
-        };
+            var row = NeedsRequestRow(input) ? RequestRowOf(endpoint, input) : RowWireOf(input.Rows![0]);
+
+            return Nullable(input) ? row + "[]?" : row + "[]";
+        }
+
+        if (input.Many)
+        {
+            var element = input.Type == "id" ? "Guid" : ScalarWireOf(input.Type, input.Size);
+
+            return Nullable(input) ? element + "[]?" : element + "[]";
+        }
+
+        var type = input.Type == "id" ? "Guid" : ScalarWireOf(input.Type, input.Size);
 
         return Nullable(input) ? type + "?" : type;
     }
@@ -712,23 +1194,55 @@ static class EndpointsRenderer
     /// <returns>The derivation return type.</returns>
     private static string DeriveTypeOf(BoundInput input)
     {
+        if (input.Many)
+        {
+            return $"IReadOnlyList<{DeriveScalarOf(input.Type, input.Size, input.SetType, input.IdentifierType, input.CurrencyHome)}>";
+        }
+
+        if (input.Type == "list")
+        {
+            if (input.RowType is { Length: > 0 } rowType)
+            {
+                return $"IReadOnlyList<{rowType}>";
+            }
+
+            if (SingleRowOf(input) is { } row)
+            {
+                var scalar = DeriveScalarOf(row.Type, row.Size, row.SetType, row.IdentifierType, row.CurrencyHome);
+
+                return $"IReadOnlyList<{scalar}{(row.Required ? "" : "?")}>";
+            }
+
+            return "IReadOnlyList<string>";
+        }
+
         var optional = Nullable(input) ? "?" : "";
 
-        return input.Type switch
-        {
-            "text" or "email" => "string" + optional,
-            "integer" => (input.Size == 64 ? "long" : "int") + optional,
-            "decimal" => "decimal" + optional,
-            "money" => "Money" + optional,
-            "boolean" => "bool" + optional,
-            "date" => "DateOnly" + optional,
-            "duration" => "TimeSpan" + optional,
-            "file" => "byte[]" + optional,
-            "choice" => (input.SetType ?? "string") + optional,
-            "id" => (input.IdentifierType ?? "Guid") + optional,
-            _ => "string" + optional,
-        };
+        return DeriveScalarOf(input.Type, input.Size, input.SetType, input.IdentifierType, input.CurrencyHome) + optional;
     }
+
+    /// <summary>The scalar a derivation partial answers for one record type: the message property type without nullability.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="size">The stored width in bits of an integer: 32, or 64 for values past the 32-bit span.</param>
+    /// <param name="setType">The closed-set type a choice answers, or null when the field names no set.</param>
+    /// <param name="identifierType">The typed identifier an id answers, or null for a Guid.</param>
+    /// <param name="currencyHome">The aggregate a money field takes its currency from, or null when the amount carries its own currency.</param>
+    /// <returns>The scalar type.</returns>
+    private static string DeriveScalarOf(string type, int size, string? setType, string? identifierType, string? currencyHome) => type switch
+    {
+        "text" or "email" => "string",
+        "integer" => size == 64 ? "long" : "int",
+        "decimal" => "decimal",
+        "money" => currencyHome is { Length: > 0 } ? "decimal" : "Money",
+        "boolean" => "bool",
+        "date" => "DateOnly",
+        "instant" => "DateTimeOffset",
+        "duration" => "TimeSpan",
+        "file" => "byte[]",
+        "choice" => setType ?? "string",
+        "id" => identifierType ?? "Guid",
+        _ => "string",
+    };
 
     /// <summary>The binding attribute one input carries: its wire name from the route, query, or header.</summary>
     /// <param name="input">The input whose binding is read.</param>
@@ -768,6 +1282,12 @@ static class EndpointsRenderer
         var statuses = new SortedSet<int>(endpoint.RefusalStatuses);
 
         if (endpoint.Inputs.Any(input => input is { Type: "choice", SetType: not null, Origin: not "derived" }))
+        {
+            statuses.Add(400);
+        }
+
+        if (endpoint.Inputs.Any(input => input is { Type: "list", Origin: not "derived", Rows: not null }
+            && input.Rows!.Any(row => row is { Type: "choice", SetType: not null })))
         {
             statuses.Add(400);
         }

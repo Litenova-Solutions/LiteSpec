@@ -605,6 +605,9 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Output fields and groups state `required` (default true) and render nullable when false; a list of one field keeps its named row type when `rowType` names one.
 - An `endpoints` target may name a `tenantReader` beside its `claimReader`; a use case implying a tenant key then renders its endpoint reading the key from the caller, and without one it still skips with the reason.
 - Integer contract fields state their width in `size` (32 by default, 64 riding `long` and `int64`), and contract fields take a `map` type with `keyType` and `valueType` riding a read-only dictionary and a JSON object; validators judge each map value against its value type.
+- Generated endpoints bind body lists as arrays of request rows, many-valued inputs as arrays from the body or repeated query parameters, and non-identity claims through a generic `claimValueReader`; a `money` input stating `currencyHome` rides a `decimal` the handler joins with the loaded aggregate's currency.
+- Every `required: false` input renders nullable whatever its origin; grouped results qualify their nested group types and compile; a result carries `NextCursor` only when its paging block states the cursor; row fields accept `held: opaque`; the declarations resolver reads the generated message when a hand-written copy also exists; a tenant-scoped message carries its tenant key under a tenancy provision.
+- Contracts take an `object` type with `rowShape` and `rowType` (one JSON object, also one level inside rows), `identifies` naming an entity part (`aggregate/x.y#part`) rendering its identifier type, message and result `rowType` reusing an aggregate part, fully qualified part rows, and row `choice` members rendering the closed set's type.
 
 ### Part U: Provision Changes Since v6.0.0
 

@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Generate;
 ///     Renders the result of one use case as C#: a partial record from its output, with one
 ///     positional property per field, a nested record per output group when the output holds
 ///     several or one optional, a row type per named list, and the next cursor when the query
-///     pages. A hand-written sibling file may add members to the generated type.
+///     pages by cursor. A hand-written sibling file may add members to the generated type.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class ResultsRenderer
@@ -28,7 +28,7 @@ static class ResultsRenderer
     /// <param name="ResultType">The result type name, such as ListLoansQueryResult.</param>
     /// <param name="Fields">The output fields with their C# types, in written order, or an empty list when the output holds several groups.</param>
     /// <param name="Groups">The output groups with their fields, in written order, or an empty list when the output holds no groups.</param>
-    /// <param name="HasNextCursor">True when the query pages and the result carries the next cursor.</param>
+    /// <param name="HasNextCursor">True when the query pages by cursor and the result carries the next cursor.</param>
     /// <param name="Namespace">The C# namespace of the generated record.</param>
     /// <param name="Usings">The C# namespaces the target declares for referenced identifier and value types.</param>
     /// <param name="IsPublic">True when the result answers a public use case from the Contracts project.</param>
@@ -61,7 +61,8 @@ static class ResultsRenderer
     /// <summary>
     ///     Renders one use-case result as C#: a partial record with one positional property per
     ///     output field, or one property per output group with a nested record each when the
-    ///     output holds several groups or one optional, and the next cursor when the query pages.
+    ///     output holds several groups or one optional, each group type qualified by the result
+    ///     type so the header compiles, and the next cursor when the query pages by cursor.
     /// </summary>
     /// <param name="data">The use-case result the plan renders.</param>
     /// <returns>The file text with LF line endings.</returns>
@@ -181,14 +182,14 @@ static class ResultsRenderer
         return string.Join('\n', lines) + "\n";
     }
 
-    /// <summary>The positional parameters of the result: each field or group, with the next cursor last when the query pages. An optional group rides nullable.</summary>
+    /// <summary>The positional parameters of the result: each field or group, with the next cursor last when the query pages by cursor. Each group type is qualified by the result type, since a nested type is not in scope in its own record header. An optional group rides nullable.</summary>
     /// <param name="data">The use-case result the plan renders.</param>
     /// <returns>The parameter texts in order.</returns>
     private static List<string> ParametersOf(ResultData data)
     {
         var parameters = data.Fields.Select(field => $"{field.Type} {field.Property}").ToList();
 
-        parameters.AddRange(data.Groups.Select(group => $"{group.Property}Group{(group.Required ? "" : "?")} {group.Property}"));
+        parameters.AddRange(data.Groups.Select(group => $"{data.ResultType}.{group.Property}Group{(group.Required ? "" : "?")} {group.Property}"));
 
         if (data.HasNextCursor)
         {

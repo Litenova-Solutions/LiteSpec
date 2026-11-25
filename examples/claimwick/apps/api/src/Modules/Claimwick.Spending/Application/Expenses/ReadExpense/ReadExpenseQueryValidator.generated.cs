@@ -20,9 +20,9 @@ internal sealed partial class ReadExpenseQueryValidator : IValidator<ReadExpense
     {
         var failures = new List<ValidationFailure>();
 
-        if (query.ExpenseId == default)
+        if (query.Payout is null)
         {
-            failures.Add(new ValidationFailure("ExpenseId", "required", "An expense is required."));
+            failures.Add(new ValidationFailure("Payout", "required", "A payout is required."));
         }
 
         ValidateExtra(query, failures);

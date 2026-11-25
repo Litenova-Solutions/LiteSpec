@@ -11,4 +11,5 @@ namespace Claimwick.Spending.Application.Expenses.ReimburseExpense;
 /// <summary>Finance pays an approved expense so the employee gets the money back.</summary>
 /// <param name="ExpenseId">The approved expense to reimburse.</param>
 /// <param name="HandledAt">The time the payment runs, read from the clock.</param>
-internal sealed partial record ReimburseExpenseCommand(ExpenseId ExpenseId, DateTimeOffset HandledAt) : ICommand<ReimburseExpenseCommandResult>;
+/// <param name="Fee">The payment fee the reimbursement carries, in the currency of the expense.</param>
+internal sealed partial record ReimburseExpenseCommand(ExpenseId ExpenseId, DateTimeOffset HandledAt, decimal? Fee) : ICommand<ReimburseExpenseCommandResult>;

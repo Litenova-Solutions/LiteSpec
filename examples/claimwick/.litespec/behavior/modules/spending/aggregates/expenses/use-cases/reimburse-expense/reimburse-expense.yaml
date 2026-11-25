@@ -31,8 +31,16 @@ input:
 - name: handledAt
   meaning: The time the payment runs, read from the clock.
   type: instant
-  required: false
+  required: true
   origin: derived
+  classification: internal
+- name: fee
+  meaning: The payment fee the reimbursement carries, in the currency of the expense.
+  type: money
+  currencyHome: aggregate/spending.expense
+  required: false
+  origin: caller
+  binding: body
   classification: internal
 output:
 - name: expenseId

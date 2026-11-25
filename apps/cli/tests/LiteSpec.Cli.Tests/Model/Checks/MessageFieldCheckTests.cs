@@ -582,6 +582,130 @@ public sealed class MessageFieldCheckTests
         Assert.Empty(Run(model, "input-field-drift"));
     }
 
+    /// <summary>A tenant-scoped message carrying no tenant key reports input-field-drift naming the tenant rule.</summary>
+    /// <proves>litespec/ext/tenancy#carry-the-tenant-key-on-every-tenant-scoped-message</proves>
+    [Fact]
+    public void TenantKeyMissingReportsInputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        WriteProject(temp.Path, "term/workspace");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "input": [{"name": "copyId", "type": "id"}]}""");
+        AddTerm(model, temp.Path);
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId);");
+
+        var finding = Assert.Single(Run(model, "input-field-drift"));
+
+        Assert.Equal("input-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: no property for tenant key 'WorkspaceId' though the use case declares tenant 'own'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>An input identifying the tenant aggregate carries the tenant key itself, so no key is implied.</summary>
+    /// <proves>litespec/ext/tenancy#carry-the-tenant-key-on-every-tenant-scoped-message</proves>
+    [Fact]
+    public void TenantKeyCarriedByIdentifyingInputReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        WriteProject(temp.Path, "term/workspace");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "input": [{"name": "home", "type": "id", "identifies": "aggregate/lending.workspace"}]}""");
+        AddTerm(model, temp.Path);
+        AddAggregate(model, temp.Path);
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(HomeId Home);");
+
+        Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>A cursor-paged result carrying no next cursor reports output-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#declare-paging-on-every-collection-query</proves>
+    [Fact]
+    public void CursorPagedResultWithoutNextCursorReportsOutputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(
+            temp.Path,
+            folder,
+            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}}}, "paging": {"mode": "pages", "order": "Due date, soonest first.", "cursor": "The due date and identity of the last row.", "defaultLimit": 25, "maxLimit": 100}}""",
+            "AbsentQuery");
+        WriteSource(folder, "BorrowCopyQueryHandler.cs", """
+            internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
+            {
+                public Task<BorrowCopyQueryResult> HandleAsync(BorrowCopyQuery query, CancellationToken cancellationToken) => throw new InvalidOperationException();
+            }
+            """);
+        WriteSource(folder, "BorrowCopyQueryResult.cs", "internal sealed record BorrowCopyQueryResult(Guid CopyId);");
+
+        var finding = Assert.Single(Run(model, "output-field-drift"));
+
+        Assert.Equal("output-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' result 'BorrowCopyQueryResult' drifts from its declared output: no property for paging cursor 'NextCursor'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>An offset-paged result carrying a next cursor reports output-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#declare-paging-on-every-collection-query</proves>
+    [Fact]
+    public void OffsetPagedResultWithNextCursorReportsOutputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(
+            temp.Path,
+            folder,
+            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}}}, "paging": {"mode": "pages", "order": "Due date, soonest first.", "offset": "The row number the page starts at.", "defaultLimit": 25, "maxLimit": 100}}""",
+            "AbsentQuery");
+        WriteSource(folder, "BorrowCopyQueryHandler.cs", """
+            internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
+            {
+                public Task<BorrowCopyQueryResult> HandleAsync(BorrowCopyQuery query, CancellationToken cancellationToken) => throw new InvalidOperationException();
+            }
+            """);
+        WriteSource(folder, "BorrowCopyQueryResult.cs", "internal sealed record BorrowCopyQueryResult(Guid CopyId, string NextCursor);");
+
+        var finding = Assert.Single(Run(model, "output-field-drift"));
+
+        Assert.Equal("output-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' result 'BorrowCopyQueryResult' drifts from its declared output: extra property 'NextCursor'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>A generated message elsewhere wins over the hand-written file beside the handler.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GeneratedFileElsewhereWinsOverHandBesideHint()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var elsewhere = SiblingFolder(temp.Path);
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId);");
+        WriteSource(elsewhere, "BorrowCopyCommand.generated.cs", "internal sealed partial record BorrowCopyCommand(Guid CopyId, Guid ReaderId);");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        var source = new MessageFieldChecks.MessageSource(model);
+
+        Assert.Equal(
+            Path.Combine(elsewhere, "BorrowCopyCommand.generated.cs"),
+            source.FileOf("BorrowCopyCommand", Path.Combine(folder, "BorrowCopyCommandHandler.cs")));
+    }
+
+    /// <summary>Two generated files in different folders stay ambiguous.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void TwoGeneratedFilesStayAmbiguous()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var elsewhere = SiblingFolder(temp.Path);
+        var hint = HintFolder(temp.Path);
+        WriteSource(folder, "BorrowCopyCommand.generated.cs", "internal sealed partial record BorrowCopyCommand(Guid CopyId);");
+        WriteSource(elsewhere, "BorrowCopyCommand.generated.cs", "internal sealed partial record BorrowCopyCommand(Guid CopyId, Guid ReaderId);");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        var source = new MessageFieldChecks.MessageSource(model);
+
+        Assert.Null(source.FileOf("BorrowCopyCommand", Path.Combine(hint, "BorrowCopyCommandHandler.cs")));
+    }
+
     /// <summary>Runs the message field checks and keeps their findings for one code.</summary>
     /// <param name="model">The project model to check.</param>
     /// <param name="code">The finding code to keep.</param>
@@ -626,6 +750,28 @@ public sealed class MessageFieldCheckTests
         return folder;
     }
 
+    /// <summary>Another Application folder under the same module root, holding the moved message.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <returns>The sibling folder.</returns>
+    static string SiblingFolder(string root)
+    {
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "Shared");
+        Directory.CreateDirectory(folder);
+
+        return folder;
+    }
+
+    /// <summary>An Application folder holding no message file, so the hint resolves nothing beside it.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <returns>The hint folder.</returns>
+    static string HintFolder(string root)
+    {
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "RenewLoan");
+        Directory.CreateDirectory(folder);
+
+        return folder;
+    }
+
     /// <summary>Writes one source file holding the text.</summary>
     /// <param name="folder">The Application folder holding the file.</param>
     /// <param name="file">The source file name.</param>
@@ -657,5 +803,17 @@ public sealed class MessageFieldCheckTests
             "term/workspace",
             Path.Combine(root, ".litespec", "glossary.yaml"),
             """{"term": "workspace", "meaning": "One customer organization sharing the deployment.", "layer": "behavior"}"""));
+    }
+
+    /// <summary>Adds the workspace tenant aggregate to the model.</summary>
+    /// <param name="model">The project model holding the records.</param>
+    /// <param name="root">The fixture root folder.</param>
+    static void AddAggregate(ProjectModel model, string root)
+    {
+        model.Records.Add(TestModel.Record(
+            RecordTypes.Aggregate,
+            "aggregate/lending.workspace",
+            Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "workspaces", "aggregate.yaml"),
+            """{"states": [{"name": "Active", "meaning": "The workspace lends."}]}"""));
     }
 }

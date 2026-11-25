@@ -19,7 +19,7 @@ internal static class ContractChecks
     /// <summary>The contract field types a use-case input or an integration-event payload field may carry.</summary>
     private static readonly HashSet<string> ContractTypes = new(StringComparer.Ordinal)
     {
-        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list", "map",
+        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list", "object", "map",
     };
 
     /// <summary>The input names that carry a claim a provider verifies, never a caller.</summary>
@@ -653,7 +653,7 @@ internal static class ContractChecks
 
         if (output.ValueKind == JsonValueKind.Array)
         {
-            CheckFieldEntries(model, useCase, "Use case", "output", "output field", output, findings);
+            CheckFieldEntries(model, useCase, "Use case", "output", "output field", output, findings, checkRowRefs: true);
             return;
         }
 
@@ -673,7 +673,7 @@ internal static class ContractChecks
                 continue;
             }
 
-            CheckFieldEntries(model, useCase, "Use case", "output group '" + group.Name + "'", "output group '" + group.Name + "' field", fields, findings);
+            CheckFieldEntries(model, useCase, "Use case", "output group '" + group.Name + "'", "output group '" + group.Name + "' field", fields, findings, checkRowRefs: true);
         }
     }
 
@@ -859,6 +859,39 @@ internal static class ContractChecks
         }
     }
 
+    /// <summary>Reports a message or output rowType naming a part of no aggregate, or of a part the aggregate does not declare. A dangling base belongs to the citation check. A value object part needs no identity, so any declared part resolves.</summary>
+    /// <param name="model">The loaded project model that resolves the named aggregate.</param>
+    /// <param name="record">The record holding the list or object field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input, payload or output.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="entry">The contract field object holding the rowType.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckMessageRowTypeRef(ProjectModel model, Record record, string label, string array, string name, JsonElement entry, List<Finding> findings)
+    {
+        if (Str(entry, RecordFields.RowType) is not { Length: > 0 } target || !TrySplitPart(target, out var baseId, out var part))
+        {
+            return;
+        }
+
+        // A dangling base is reference-unknown through the citation check, so one defect draws one finding.
+        if (!model.ById.TryGetValue(baseId, out var aggregate))
+        {
+            return;
+        }
+
+        if (aggregate.Type != RecordTypes.Aggregate)
+        {
+            findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {array} field '{name}' with rowType '{target}', which names a part of '{baseId}', which is no aggregate.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (!DeclaresPart(aggregate, part))
+        {
+            findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {array} field '{name}' with rowType '{target}', which names part '{part}' the aggregate does not declare.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
     /// <summary>Reports each field of one field array whose exact type facts name nothing.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record that holds the field array.</param>
@@ -867,7 +900,8 @@ internal static class ContractChecks
     /// <param name="holder">The field noun each finding names.</param>
     /// <param name="fields">The field array whose entries are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckFieldEntries(ProjectModel model, Record record, string label, string array, string holder, JsonElement fields, List<Finding> findings)
+    /// <param name="checkRowRefs">True when a rowType naming an aggregate part is judged, on use-case outputs only; carried fields judge theirs separately.</param>
+    private static void CheckFieldEntries(ProjectModel model, Record record, string label, string array, string holder, JsonElement fields, List<Finding> findings, bool checkRowRefs = false)
     {
         var siblings = SiblingsOf(fields);
 
@@ -888,9 +922,17 @@ internal static class ContractChecks
 
             CheckFieldFacts(model, record, label, holder, name, type, entry, siblings, findings);
 
-            if (type == "list" && entry.TryGetProperty(RecordFields.RowShape, out var rowShape))
+            if (type is "list" or "object")
             {
-                CheckRowShape(model, record, label, array, name, rowShape, findings);
+                if (entry.TryGetProperty(RecordFields.RowShape, out var rowShape))
+                {
+                    CheckRowShape(model, record, label, array, name, type, rowShape, findings);
+                }
+
+                if (checkRowRefs)
+                {
+                    CheckMessageRowTypeRef(model, record, label, array, name, entry, findings);
+                }
             }
         }
     }
@@ -931,7 +973,7 @@ internal static class ContractChecks
         {
             if (hasRow)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with a rowShape that only list carries.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with a rowShape that only list and object carry.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (!hasId || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
@@ -958,14 +1000,15 @@ internal static class ContractChecks
             return;
         }
 
-        if (type == "list")
+        if (type is "list" or "object")
         {
             if (hasId)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with an identifies that only id carries.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with an identifies that only id carries.", record.File, record.Line, SubjectOf(record)));
             }
 
-            CheckRowShape(model, record, label, array, name, hasRow ? rowShape : default, findings);
+            CheckRowShape(model, record, label, array, name, type, hasRow ? rowShape : default, findings);
+            CheckMessageRowTypeRef(model, record, label, array, name, entry, findings);
             return;
         }
 
@@ -973,7 +1016,7 @@ internal static class ContractChecks
         {
             if (hasRow)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type map with a rowShape that only list carries.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type map with a rowShape that only list and object carry.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (Str(entry, RecordFields.KeyType) is not { Length: > 0 })
@@ -1034,7 +1077,7 @@ internal static class ContractChecks
 
         if (hasRow)
         {
-            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with a rowShape that only list carries.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with a rowShape that only list and object carry.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -1164,25 +1207,26 @@ internal static class ContractChecks
     }
 
     /// <summary>
-    ///     Reports a list-of-rows shape that is no object with a non-empty fields array, a row field with no name, a type outside
+    ///     Reports a list-of-rows or single-object shape that is no object with a non-empty fields array, a row field with no name, a type outside
     ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a nested list row shape that is no scalar row list,
-    ///     a minItems that is no non-negative whole number, and a unique key that names no row field.
+    ///     a nested object row shape that is no scalar object, a minItems that is no non-negative whole number, and a unique key that names no row field.
     /// </summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
-    /// <param name="record">The record whose list field is judged.</param>
+    /// <param name="record">The record whose list or object field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="array">The contract array field name, input, payload or output.</param>
     /// <param name="name">The contract field name quoted in each finding.</param>
-    /// <param name="rowShape">The rowShape object of the list field, or a default element when the field states none.</param>
+    /// <param name="fieldType">The contract field type quoted in each finding: list or object.</param>
+    /// <param name="rowShape">The rowShape object of the list or object field, or a default element when the field states none.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void CheckRowShape(ProjectModel model, Record record, string label, string array, string name, JsonElement rowShape, List<Finding> findings)
+    internal static void CheckRowShape(ProjectModel model, Record record, string label, string array, string name, string fieldType, JsonElement rowShape, List<Finding> findings)
     {
         if (rowShape.ValueKind != JsonValueKind.Object
             || !rowShape.TryGetProperty(RecordFields.Fields, out var rowFields)
             || rowFields.ValueKind != JsonValueKind.Array
             || rowFields.GetArrayLength() == 0)
         {
-            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with no rowShape.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {fieldType} with no rowShape.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -1213,6 +1257,10 @@ internal static class ContractChecks
                 if (rowType == "list")
                 {
                     CheckNestedRowShape(model, record, label, array, name, rowName, row, findings);
+                }
+                else if (rowType == "object")
+                {
+                    CheckNestedObjectShape(model, record, label, array, name, rowName, row, findings);
                 }
             }
 
@@ -1279,6 +1327,66 @@ internal static class ContractChecks
             return;
         }
 
+        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings);
+
+        if (leaves.GetArrayLength() > 1)
+        {
+            if (Str(row, RecordFields.RowType) is not { Length: > 0 } shared)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type list with several fields and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
+        }
+    }
+
+    /// <summary>Reports a nested object row shape that is no scalar object, and a nested object with no rowType or a rowType naming an undeclared part. A nested object names its shared row type with any field count, since a single object never collapses onto its field.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
+    /// <param name="record">The record whose object field is judged.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input, payload or output.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="rowName">The row field name quoted in each finding.</param>
+    /// <param name="row">The row field object holding the nested row shape.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNestedObjectShape(
+        ProjectModel model, Record record, string label, string array, string name, string rowName, JsonElement row, List<Finding> findings)
+    {
+        if (row.ValueKind != JsonValueKind.Object
+            || !row.TryGetProperty(RecordFields.RowShape, out var nested)
+            || nested.ValueKind != JsonValueKind.Object
+            || !nested.TryGetProperty(RecordFields.Fields, out var leaves)
+            || leaves.ValueKind != JsonValueKind.Array
+            || leaves.GetArrayLength() == 0)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type object with no rowShape.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings);
+
+        if (Str(row, RecordFields.RowType) is not { Length: > 0 } shared)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type object with no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
+    }
+
+    /// <summary>Reports a nested row field with no name, a non-scalar type, or no required flag, and a nested row field whose exact type facts name nothing. Rows nest one level at a time, so a nested list or object leaf is reported.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set.</param>
+    /// <param name="record">The record whose list or object field is judged.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input, payload or output.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="rowName">The row field name quoted in each finding.</param>
+    /// <param name="leaves">The nested row fields.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNestedLeaves(
+        ProjectModel model, Record record, string label, string array, string name, string rowName, JsonElement leaves, List<Finding> findings)
+    {
         var siblings = SiblingsOf(leaves);
 
         foreach (var leaf in leaves.EnumerateArray())
@@ -1292,9 +1400,9 @@ internal static class ContractChecks
                 continue;
             }
 
-            if (leafType == "list")
+            if (leafType is "list" or "object")
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type 'list'; rows nest one level at a time.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type '{leafType}'; rows nest one level at a time.", record.File, record.Line, SubjectOf(record)));
             }
             else if (leafType is not { Length: > 0 } || !NestedRowTypes.Contains(leafType))
             {
@@ -1311,17 +1419,6 @@ internal static class ContractChecks
             {
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
             }
-        }
-
-        if (leaves.GetArrayLength() > 1)
-        {
-            if (Str(row, RecordFields.RowType) is not { Length: > 0 } shared)
-            {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type list with several fields and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
-                return;
-            }
-
-            CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
         }
     }
 

@@ -10,8 +10,7 @@ namespace Claimwick.Spending.Application.Expenses.ListExpenses;
 /// <summary>One row of Expenses.</summary>
 /// <param name="ExpenseId">The listed expense.</param>
 /// <param name="EmployeeId">The employee the listed expense belongs to.</param>
-/// <param name="Amount">The exact amount of the expense.</param>
-/// <param name="Currency">The ISO 4217 currency code of the amount.</param>
+/// <param name="Total">The total of the expense.</param>
 /// <param name="State">The latest lifecycle state of the expense.</param>
 /// <param name="SubmittedAt">The time the expense was submitted.</param>
-internal sealed partial record ExpenseSummary(ExpenseId ExpenseId, Guid EmployeeId, decimal Amount, string Currency, string State, DateTimeOffset SubmittedAt);
+internal sealed partial record ExpenseSummary(ExpenseId ExpenseId, Guid EmployeeId, Money Total, string State, DateTimeOffset SubmittedAt);

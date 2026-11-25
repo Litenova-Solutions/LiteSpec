@@ -297,6 +297,10 @@ properties:
           description: 'The qualified static method an endpoints target reads the tenant identity with, as Namespace.Type.Method, taking the caller. Optional; without it, a use case implying a tenant key renders no endpoint; unused for every other kind.'
           type: string
           minLength: 1
+        claimValueReader:
+          description: 'The qualified generic static method an endpoints target reads a non-identity claim value with, as Namespace.Type.Method, taking the caller and the claim name and answering the value parsed as its type argument. Optional; without it, a use case carrying a claim input of no identity type renders no endpoint; unused for every other kind.'
+          type: string
+          minLength: 1
       allOf:
       - if:
           properties:

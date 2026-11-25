@@ -204,7 +204,7 @@ internal static class CallerIdentifierChecks
         return points.Order(StringComparer.Ordinal).ToList();
     }
 
-    /// <summary>The required caller-supplied identifiers of a use case: each required input with origin caller and type id, with the row identifiers of each required list input, except the idempotency key placeholders the caller mints.</summary>
+    /// <summary>The required caller-supplied identifiers of a use case: each required input with origin caller and type id, with the row identifiers of each required list or object input, except the idempotency key placeholders the caller mints.</summary>
     /// <param name="useCase">The use case whose input array is read.</param>
     /// <returns>Each identifier with its field label and identified record, in written order.</returns>
     private static List<(string Field, string Identifies)> CallerIdentifiers(Record useCase)
@@ -242,7 +242,7 @@ internal static class CallerIdentifierChecks
                 continue;
             }
 
-            if (Str(entry, RecordFields.Type) == "list"
+            if (Str(entry, RecordFields.Type) is "list" or "object"
                 && entry.TryGetProperty(RecordFields.RowShape, out var shape)
                 && shape.ValueKind == JsonValueKind.Object
                 && shape.TryGetProperty(RecordFields.Fields, out var rows)
@@ -287,7 +287,7 @@ internal static class CallerIdentifierChecks
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    /// <summary>The identified records a query returns: each identifies of its output fields and list rows.</summary>
+    /// <summary>The identified records a query returns: each identifies of its output fields and list or object rows.</summary>
     /// <param name="query">The query whose output include groups are read.</param>
     /// <returns>Each returned identifies link.</returns>
     private static HashSet<string> ReturnedIdentifies(Record query)
@@ -326,7 +326,7 @@ internal static class CallerIdentifierChecks
                     continue;
                 }
 
-                if (Str(field, RecordFields.Type) == "list"
+                if (Str(field, RecordFields.Type) is "list" or "object"
                     && field.TryGetProperty(RecordFields.RowShape, out var shape)
                     && shape.ValueKind == JsonValueKind.Object
                     && shape.TryGetProperty(RecordFields.Fields, out var rows)

@@ -189,6 +189,30 @@ public sealed class GenerateValidatorsTests
         Assert.Equal("command.Deposit is not null && command.Deposit.Amount < 0m", guarded.Condition);
     }
 
+    /// <summary>A money bound taking its currency from an aggregate compares the decimal directly, guarding null when optional.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyWithCurrencyHomeComparesDecimalDirectly()
+    {
+        var rules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(rules, "Fee", "command", false, Input("""{ "name": "fee", "type": "money", "currencyHome": "aggregate/lending.copy", "bounds": { "min": 0 }, "required": true }"""));
+
+        var rule = Assert.Single(rules);
+
+        Assert.Equal("Fee", rule.Member);
+        Assert.Equal("too-small", rule.Code);
+        Assert.Equal("command.Fee < 0m", rule.Condition);
+
+        var guardedRules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(guardedRules, "Fee", "command", false, Input("""{ "name": "fee", "type": "money", "currencyHome": "aggregate/lending.copy", "bounds": { "min": 0 }, "required": false }"""));
+
+        var guarded = Assert.Single(guardedRules);
+
+        Assert.Equal("command.Fee.HasValue && command.Fee.Value < 0m", guarded.Condition);
+    }
+
     /// <summary>A required map renders a presence rule judging null.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]

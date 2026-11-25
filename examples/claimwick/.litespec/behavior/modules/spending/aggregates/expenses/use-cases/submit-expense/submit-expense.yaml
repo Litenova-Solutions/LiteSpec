@@ -67,11 +67,44 @@ input:
   meaning: The signed-in employee filing the expense, read from verified claims.
   type: id
   identifies: actor/employee
-  required: false
+  required: true
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
   binding: claim
   classification: personal
+- name: labels
+  meaning: The labels the employee files the expense under.
+  type: text
+  many: true
+  required: false
+  origin: caller
+  binding: body
+  classification: internal
+- name: splits
+  meaning: The cost splits of the expense, one row per cost center carrying part of the amount.
+  type: list
+  rowShape:
+    fields:
+    - name: costCenter
+      meaning: The cost center carrying the split.
+      type: text
+      required: true
+    - name: amount
+      meaning: The part of the expense amount the split carries, in the currency of the expense.
+      type: money
+      currencyHome: aggregate/spending.expense
+      required: true
+    - name: category
+      meaning: The kind of cost the split carries, from the expense categories.
+      type: choice
+      set: reference-data/spending.expense-category
+      required: true
+    minItems: 1
+  rowType: ExpenseSplit
+  required: false
+  origin: caller
+  binding: body
+  classification: internal
 output:
 - name: expenseId
   meaning: The submitted expense.

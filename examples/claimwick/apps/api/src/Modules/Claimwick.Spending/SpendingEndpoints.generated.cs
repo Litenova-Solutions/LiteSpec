@@ -57,6 +57,7 @@ internal static partial class SpendingEndpoints
                 new ApproveExpenseCommand(
                     ExpenseId: expenseId,
                     ApproverId: ActorClaims.ReadActorId(user, "manager"),
+                    ApproverIsFinance: ActorClaims.ReadClaimValue<bool>(user, "approverIsFinance"),
                     HandledAt: DateTimeOffset.UtcNow
                 ),
                 cancellationToken);
@@ -244,13 +245,15 @@ internal static partial class SpendingEndpoints
         }
 
         private static async Task<Ok<ListExpensesResponseModel>> HandleAsync(
+            [FromQuery(Name = "states")] string[]? states,
             ClaimsPrincipal user,
             IQueryMediator mediator,
             CancellationToken cancellationToken)
         {
             var result = await mediator.QueryAsync(
                 new ListExpensesQuery(
-                    EmployeeId: ActorClaims.ReadActorId(user, "employee")
+                    EmployeeId: ActorClaims.ReadActorId(user, "employee"),
+                    States: states
                 ),
                 cancellationToken);
 
@@ -295,6 +298,10 @@ internal static partial class SpendingEndpoints
         }
     }
 
+    /// <summary>The ReimburseExpense request body.</summary>
+    /// <param name="Fee">The payment fee the reimbursement carries, in the currency of the expense.</param>
+    internal sealed partial record ReimburseExpenseRequest(decimal? Fee);
+
     /// <summary>Finance pays an approved expense so the employee gets the money back.</summary>
     /// <implements>use-case/spending.reimburse-expense</implements>
     internal sealed partial class ReimburseExpenseEndpoint : IEndpoint
@@ -311,13 +318,15 @@ internal static partial class SpendingEndpoints
 
         private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "expenseId")] ExpenseId expenseId,
+            ReimburseExpenseRequest request,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
             await mediator.SendAsync(
                 new ReimburseExpenseCommand(
                     ExpenseId: expenseId,
-                    HandledAt: DateTimeOffset.UtcNow
+                    HandledAt: DateTimeOffset.UtcNow,
+                    Fee: request.Fee
                 ),
                 cancellationToken);
 
@@ -325,13 +334,21 @@ internal static partial class SpendingEndpoints
         }
     }
 
+    /// <summary>One row of Splits.</summary>
+    /// <param name="CostCenter">The cost center carrying the split.</param>
+    /// <param name="Amount">The part of the expense amount the split carries, in the currency of the expense.</param>
+    /// <param name="Category">The kind of cost the split carries, from the expense categories.</param>
+    internal sealed partial record SubmitExpenseSplitsRow(string CostCenter, decimal Amount, string Category);
+
     /// <summary>The SubmitExpense request body.</summary>
     /// <param name="ExpenseId">The identifier the app mints for one submission attempt, so a retried request finds the same expense.</param>
     /// <param name="Amount">The exact amount of the expense.</param>
     /// <param name="Currency">The ISO 4217 currency code of the amount.</param>
     /// <param name="Category">The kind of cost the expense carries, from the expense categories.</param>
     /// <param name="ReceiptId">The proof of payment, required above the threshold.</param>
-    internal sealed partial record SubmitExpenseRequest(Guid ExpenseId, decimal Amount, string Currency, string Category, Guid? ReceiptId);
+    /// <param name="Labels">The labels the employee files the expense under.</param>
+    /// <param name="Splits">The cost splits of the expense, one row per cost center carrying part of the amount.</param>
+    internal sealed partial record SubmitExpenseRequest(Guid ExpenseId, decimal Amount, string Currency, string Category, Guid? ReceiptId, string[]? Labels, SubmitExpenseSplitsRow[]? Splits);
 
     /// <summary>An employee files a work expense so it can be decided and reimbursed.</summary>
     /// <implements>use-case/spending.submit-expense</implements>
@@ -344,6 +361,7 @@ internal static partial class SpendingEndpoints
                 .WithName("SubmitExpense")
                 .WithSummary("An employee files a work expense so it can be decided and reimbursed.")
                 .Produces<SubmitExpenseResponseModel>(StatusCodes.Status201Created)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -353,6 +371,28 @@ internal static partial class SpendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
+            List<ExpenseSplit>? splitsRows = null;
+            if (request.Splits is not null)
+            {
+                splitsRows = new List<ExpenseSplit>(request.Splits.Length);
+                foreach (var row in request.Splits)
+                {
+                    if (!ExpenseCategory.TryFromCode(row.Category, out var splitsCategory))
+                    {
+                        return TypedResults.Problem(
+                            title: "Unknown expense category.",
+                            detail: $"The category '{row.Category}' names no expense category.",
+                            statusCode: StatusCodes.Status400BadRequest);
+                    }
+
+                    splitsRows.Add(new ExpenseSplit(
+                        CostCenter: row.CostCenter,
+                        Amount: row.Amount,
+                        Category: splitsCategory
+                    ));
+                }
+            }
+
             var result = await mediator.SendAsync(
                 new SubmitExpenseCommand(
                     ExpenseId: ExpenseId.From(request.ExpenseId),
@@ -360,7 +400,9 @@ internal static partial class SpendingEndpoints
                     Currency: request.Currency,
                     Category: request.Category,
                     ReceiptId: request.ReceiptId is null ? null : ReceiptId.From(request.ReceiptId.Value),
-                    EmployeeId: ActorClaims.ReadActorId(user, "employee")
+                    EmployeeId: ActorClaims.ReadActorId(user, "employee"),
+                    Labels: request.Labels,
+                    Splits: splitsRows
                 ),
                 cancellationToken);
 

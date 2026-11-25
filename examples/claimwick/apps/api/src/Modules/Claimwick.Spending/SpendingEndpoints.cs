@@ -21,8 +21,8 @@ internal static partial class SpendingEndpoints
         new(result.Expenses
             .Select(expense => new ExpenseResponseItemModel(
                 expense.ExpenseId.Value,
-                expense.Amount,
-                expense.Currency,
+                expense.Total.Amount,
+                expense.Total.Currency,
                 expense.State,
                 expense.SubmittedAt))
             .ToList());

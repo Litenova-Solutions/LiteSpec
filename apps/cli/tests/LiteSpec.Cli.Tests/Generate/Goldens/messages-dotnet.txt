@@ -21,7 +21,7 @@ namespace Library.Lending.Application.Loans.BorrowCopy;
 /// <param name="ReceiptEmail">The address the receipt goes to.</param>
 /// <param name="Kind">The kind of loan the reader takes.</param>
 /// <param name="Tags">The tags the reader puts on the loan.</param>
-internal sealed partial record BorrowCopyCommand(CopyId CopyId, Guid ReaderId, string Shelf, int LoanDays, decimal Fine, Money Deposit, string DepositCurrency, bool? Notified, DateOnly DueDate, DateTimeOffset BorrowedAt, TimeSpan? LoanPeriod, string? ReceiptEmail, LoanKind Kind, IReadOnlyList<string> Tags) : ICommand<BorrowCopyCommandResult>
+internal sealed partial record BorrowCopyCommand(CopyId CopyId, Guid? ReaderId, string Shelf, int LoanDays, decimal Fine, Money Deposit, string DepositCurrency, bool? Notified, DateOnly DueDate, DateTimeOffset BorrowedAt, TimeSpan? LoanPeriod, string? ReceiptEmail, LoanKind Kind, IReadOnlyList<string> Tags) : ICommand<BorrowCopyCommandResult>
 {
     /// <summary>The idempotency key of this command.</summary>
     public string IdempotencyKey => $"{CopyId}";

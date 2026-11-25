@@ -11,5 +11,6 @@ namespace Claimwick.Spending.Application.Expenses.ApproveExpense;
 /// <summary>A manager decides a submitted expense so the employee learns the outcome.</summary>
 /// <param name="ExpenseId">The submitted expense to approve.</param>
 /// <param name="ApproverId">The signed-in manager deciding the expense, read from verified claims.</param>
+/// <param name="ApproverIsFinance">Whether the approver holds the finance role, read from verified claims.</param>
 /// <param name="HandledAt">The time the decision runs, read from the clock.</param>
-internal sealed partial record ApproveExpenseCommand(ExpenseId ExpenseId, Guid ApproverId, DateTimeOffset HandledAt) : ICommand<ApproveExpenseCommandResult>;
+internal sealed partial record ApproveExpenseCommand(ExpenseId ExpenseId, Guid ApproverId, bool ApproverIsFinance, DateTimeOffset HandledAt) : ICommand<ApproveExpenseCommandResult>;

@@ -4,12 +4,12 @@ Read Expense returns one expense with its current state to the reporting module.
 
 ## Flow
 
-1. Reporting names one expense.
+1. Reporting names one expense and the payout it holds.
 2. Spending returns the expense with its current state.
-3. Spending answers that no expense matches when the identity is unknown.
+3. Spending answers that no expense matches when the identity is unknown or the payout differs.
 
-The answer carries the expense identity and the latest lifecycle state. The query reads the expense as stored and changes nothing.
+The answer carries the expense identity, the latest lifecycle state, and the stored total. The query reads the expense as stored and changes nothing.
 
 ## Example
 
-Cara, in finance, lists the reimbursed expenses of the week. Reporting reads Ava's 48.90 EUR train fare through this query and confirms the fare before it lists the payout to Cara.
+Cara, in finance, lists the reimbursed expenses of the week. Reporting passes the 48.90 EUR fare it holds and reads the expense through this query, confirming the fare before it lists the payout to Cara.

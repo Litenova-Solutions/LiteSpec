@@ -38,7 +38,7 @@ input:
   meaning: The signed-in manager deciding the expense, read from verified claims.
   type: id
   identifies: actor/manager
-  required: false
+  required: true
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
   binding: claim
@@ -46,7 +46,7 @@ input:
 - name: handledAt
   meaning: The time the decision runs, read from the clock.
   type: instant
-  required: false
+  required: true
   origin: derived
   classification: internal
 output:

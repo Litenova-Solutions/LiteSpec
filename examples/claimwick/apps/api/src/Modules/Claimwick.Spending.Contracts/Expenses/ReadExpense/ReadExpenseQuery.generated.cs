@@ -6,5 +6,5 @@ using LiteBus.Queries.Abstractions;
 namespace Claimwick.Spending.Contracts.Expenses.ReadExpense;
 
 /// <summary>Spending returns one expense with its current state so a calling module can confirm the expense before it uses its own copy.</summary>
-/// <param name="ExpenseId">The expense to read.</param>
-public sealed partial record ReadExpenseQuery(ExpenseId ExpenseId) : IQuery<ReadExpenseResult>;
+/// <param name="Payout">The payout reporting holds, to confirm against the stored expense.</param>
+public sealed partial record ReadExpenseQuery(ClaimedPayout Payout) : IQuery<ReadExpenseResult>;

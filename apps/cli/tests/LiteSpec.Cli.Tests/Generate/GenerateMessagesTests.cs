@@ -4,6 +4,8 @@ using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace LiteSpec.Cli.Tests.Generate;
 
@@ -117,7 +119,7 @@ public sealed class GenerateMessagesTests
         var query = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ListLoansQuery.generated.cs", StringComparison.Ordinal)).Content;
         var result = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ListLoansQueryResult.generated.cs", StringComparison.Ordinal)).Content;
 
-        Assert.Contains("Guid ReaderId, string? Cursor = null, int Limit = 25", query, StringComparison.Ordinal);
+        Assert.Contains("Guid? ReaderId, string? Cursor = null, int Limit = 25", query, StringComparison.Ordinal);
         Assert.Contains("The due date and loan identity of the last row.", query, StringComparison.Ordinal);
         Assert.Contains("string? NextCursor = null", result, StringComparison.Ordinal);
     }
@@ -146,7 +148,7 @@ public sealed class GenerateMessagesTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
         var query = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ListLoansQuery.generated.cs", StringComparison.Ordinal)).Content;
 
-        Assert.Contains("Guid ReaderId, int Offset = 0, int Limit = 25", query, StringComparison.Ordinal);
+        Assert.Contains("Guid? ReaderId, int Offset = 0, int Limit = 25", query, StringComparison.Ordinal);
         Assert.Contains("The row number the page starts at.", query, StringComparison.Ordinal);
         Assert.DoesNotContain("Cursor", query, StringComparison.Ordinal);
     }
@@ -169,7 +171,7 @@ public sealed class GenerateMessagesTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
         var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
 
-        Assert.Contains("BorrowCopyCommand(Guid WorkspaceId, CopyId CopyId, Guid ReaderId)", command, StringComparison.Ordinal);
+        Assert.Contains("BorrowCopyCommand(Guid WorkspaceId, CopyId CopyId, Guid? ReaderId)", command, StringComparison.Ordinal);
         Assert.Contains("/// <param name=\"WorkspaceId\">The tenant the call acts in.</param>", command, StringComparison.Ordinal);
     }
 
@@ -203,7 +205,7 @@ public sealed class GenerateMessagesTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
         var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
 
-        Assert.Contains("BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid ReaderId)", command, StringComparison.Ordinal);
+        Assert.Contains("BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid? ReaderId)", command, StringComparison.Ordinal);
     }
 
     /// <summary>An input identifying the tenant aggregate carries the tenant key itself, so no key is implied.</summary>
@@ -243,7 +245,7 @@ public sealed class GenerateMessagesTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
         var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
 
-        Assert.Contains("internal sealed partial record BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid ReaderId);", command, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid? ReaderId);", command, StringComparison.Ordinal);
     }
 
     /// <summary>An integer input stating size 64 rides a long in the message.</summary>
@@ -620,6 +622,41 @@ public sealed class GenerateMessagesTests
         Assert.Equal("byte[]?", absent!.Type);
     }
 
+    /// <summary>A money input taking its currency from an aggregate rides a decimal, while an output keeps the shared object.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyInputWithCurrencyHomeRidesDecimal()
+    {
+        var money = JsonDocument.Parse("""{"name": "fee", "meaning": "The processing fee.", "type": "money", "currencyHome": "aggregate/lending.copy", "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(money, out var amount));
+        Assert.Equal("decimal", amount!.Type);
+
+        var missing = JsonDocument.Parse("""{"name": "fee", "meaning": "The processing fee.", "type": "money", "currencyHome": "aggregate/lending.copy", "required": false, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(missing, out var absent));
+        Assert.Equal("decimal?", absent!.Type);
+
+        var output = JsonDocument.Parse("""{"name": "fee", "meaning": "The processing fee.", "type": "money", "currencyHome": "aggregate/lending.copy", "required": true}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapOutput(output, out var answered));
+        Assert.Equal("Money", answered!.Type);
+    }
+
+    /// <summary>A money row of an input list rides a decimal with a currencyHome, and the shared object on an output list.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyRowWithCurrencyHomeFollowsItsList()
+    {
+        var row = JsonDocument.Parse("""{"name": "share", "meaning": "The share of the split.", "type": "money", "currencyHome": "aggregate/lending.copy", "required": true}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var input, isInput: true));
+        Assert.Equal("decimal", input!.Type);
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var output));
+        Assert.Equal("Money", output!.Type);
+    }
+
     /// <summary>A list of one field keeps its named row type when rowType names one, else it lists the element.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -654,9 +691,111 @@ public sealed class GenerateMessagesTests
 
         Assert.Empty(plan.Errors);
         Assert.Empty(plan.ConfigErrors);
-        Assert.Contains("internal sealed partial record ReadLoanSummaryQueryResult(LoanGroup? Loan)", result, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record ReadLoanSummaryQueryResult(ReadLoanSummaryQueryResult.LoanGroup? Loan)", result, StringComparison.Ordinal);
         Assert.Contains("public sealed partial record LoanGroup(DateOnly DueDate, string? Note, IReadOnlyList<LoanTagRow> Tags);", result, StringComparison.Ordinal);
         Assert.Contains("internal sealed partial record LoanTagRow(string Tag);", row, StringComparison.Ordinal);
+    }
+
+    /// <summary>An optional input rides nullable whatever its origin: derived, claim, or verified claim, including an optional list.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OptionalDerivedAndClaimInputsMapNullable()
+    {
+        var derived = JsonDocument.Parse("""{"name": "handledAt", "meaning": "The time the decision runs.", "type": "instant", "required": false, "origin": "derived"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(derived, out var at));
+        Assert.Equal("DateTimeOffset?", at!.Type);
+
+        var claim = JsonDocument.Parse("""{"name": "readerId", "meaning": "The signed-in reader.", "type": "id", "identifies": "actor/reader", "required": false, "origin": "claim"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(claim, out var reader));
+        Assert.Equal("Guid?", reader!.Type);
+
+        var verified = JsonDocument.Parse("""{"name": "readerId", "meaning": "The signed-in reader.", "type": "id", "identifies": "actor/reader", "required": false, "origin": "verified-claim", "verifiedBy": "entry-point/library-app"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(verified, out var confirmed));
+        Assert.Equal("Guid?", confirmed!.Type);
+
+        var list = JsonDocument.Parse("""{"name": "tags", "meaning": "The tags on the loan.", "type": "list", "required": false, "origin": "derived", "rowShape": {"fields": [{"name": "tag", "type": "text", "required": true, "meaning": "One tag."}], "minItems": 0}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(list, out var tags));
+        Assert.Equal("IReadOnlyList<string>?", tags!.Type);
+
+        var required = JsonDocument.Parse("""{"name": "handledAt", "meaning": "The time the decision runs.", "type": "instant", "required": true, "origin": "derived"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(required, out var always));
+        Assert.Equal("DateTimeOffset", always!.Type);
+    }
+
+    /// <summary>A grouped result compiles: each nested group type is qualified by the result type in the record header.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GroupedResultCompiles()
+    {
+        var text = ResultsRenderer.RenderDotnet(new ResultsRenderer.ResultData(
+            "use-case/lending.list-loans",
+            "List loans",
+            "ListLoansQueryResult",
+            [],
+            [
+                new ResultsRenderer.ResultGroup(
+                    "rows",
+                    "Rows",
+                    [new MessageFieldTypes.MappedField("Loans", "IReadOnlyList<string>", null, [], "One row per loan.")],
+                    true),
+                new ResultsRenderer.ResultGroup(
+                    "holds",
+                    "Holds",
+                    [new MessageFieldTypes.MappedField("Count", "int", null, [], "The waiting holds.")],
+                    false),
+            ],
+            true,
+            "Library.Lending.Application.Loans.ListLoans",
+            ["System.Collections.Generic"],
+            false));
+
+        Assert.Contains("ListLoansQueryResult.RowsGroup Rows", text, StringComparison.Ordinal);
+        Assert.Contains("ListLoansQueryResult.HoldsGroup? Holds", text, StringComparison.Ordinal);
+
+        var tree = CSharpSyntaxTree.ParseText(text, new CSharpParseOptions(LanguageVersion.Latest), cancellationToken: TestContext.Current.CancellationToken);
+        var references = ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))!
+            .Split(Path.PathSeparator)
+            .Select(path => MetadataReference.CreateFromFile(path));
+        var compilation = CSharpCompilation.Create(
+            "GroupedResult",
+            [tree],
+            references,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var errors = compilation.GetDiagnostics(cancellationToken: TestContext.Current.CancellationToken).Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToList();
+
+        Assert.True(errors.Count == 0, string.Join("\n", errors.Select(error => error.ToString())));
+    }
+
+    /// <summary>An offset query result carries no next cursor: only a cursor-paged query answers one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OffsetQueryResultCarriesNoNextCursor()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "cursor: The due date and loan identity of the last row.",
+                "offset: The row number the page starts at.",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: results
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var result = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ListLoansQueryResult.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.DoesNotContain("NextCursor", result, StringComparison.Ordinal);
     }
 
     /// <summary>Generate writes the message and result files, and a second check finds them current.</summary>
@@ -1095,6 +1234,248 @@ public sealed class GenerateMessagesTests
               reason: one loan answers the query
             steps:
             - statement: The desk asks for one loan.
+            """);
+    }
+
+    /// <summary>A single-object input maps to its named row type with its row fields, nullable when optional.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectInputRendersNamedRowType()
+    {
+        var input = JsonDocument.Parse("""{"name": "borrower", "meaning": "The borrower the loan is read for.", "type": "object", "rowType": "BorrowerForm", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true, "meaning": "The borrower name."}, {"name": "card", "type": "text", "required": false, "meaning": "The library card number."}]}, "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(input, out var mapped));
+        Assert.Equal("Borrower", mapped!.Property);
+        Assert.Equal("BorrowerForm", mapped.Type);
+        Assert.Equal("BorrowerForm", mapped.RowType);
+        Assert.Equal(["Name", "Card"], mapped.Row.Select(field => field.Property));
+        Assert.Equal(["string", "string?"], mapped.Row.Select(field => field.Type));
+
+        var missing = JsonDocument.Parse("""{"name": "borrower", "meaning": "The borrower the loan is read for.", "type": "object", "rowType": "BorrowerForm", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true, "meaning": "The borrower name."}]}, "required": false, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(missing, out var absent));
+        Assert.Equal("BorrowerForm?", absent!.Type);
+    }
+
+    /// <summary>A single-object input without a row type maps to nothing, since a single object never collapses onto its field.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectInputWithoutRowTypeRendersNoMapping()
+    {
+        var input = JsonDocument.Parse("""{"name": "borrower", "meaning": "The borrower the loan is read for.", "type": "object", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true, "meaning": "The borrower name."}]}, "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.False(MessageFieldTypes.TryMapInput(input, out _));
+    }
+
+    /// <summary>A list naming an aggregate part in rowType reuses the part type and writes no local row.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListWithPartRowTypeReusesPartType()
+    {
+        var input = JsonDocument.Parse("""{"name": "renewals", "meaning": "The renewals of the loan.", "type": "list", "rowType": "aggregate/lending.loan#renewal", "rowShape": {"fields": [{"name": "renewedAt", "type": "instant", "required": true, "meaning": "The renewal time."}, {"name": "note", "type": "text", "required": false, "meaning": "The renewal note."}]}, "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(input, out var mapped));
+        Assert.Equal("IReadOnlyList<Renewal>", mapped!.Type);
+        Assert.Null(mapped.RowType);
+        Assert.Empty(mapped.Row);
+    }
+
+    /// <summary>A part row type renders qualified when the qualifier resolves it, else the short part name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PartRowTypeQualifiesThroughResolver()
+    {
+        var input = JsonDocument.Parse("""{"name": "renewals", "meaning": "The renewals of the loan.", "type": "list", "rowType": "aggregate/lending.loan#renewal", "rowShape": {"fields": [{"name": "renewedAt", "type": "instant", "required": true, "meaning": "The renewal time."}]}, "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(input, out var qualified, qualify: reference => "Library.Lending.Domain.Loans.Parts.Renewal"));
+        Assert.Equal("IReadOnlyList<Library.Lending.Domain.Loans.Parts.Renewal>", qualified!.Type);
+
+        Assert.True(MessageFieldTypes.TryMapInput(input, out var brief, qualify: _ => null));
+        Assert.Equal("IReadOnlyList<Renewal>", brief!.Type);
+    }
+
+    /// <summary>A row member of type object maps to its named row type, and to nothing without one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NestedObjectRowRendersNamedType()
+    {
+        var row = JsonDocument.Parse("""{"name": "borrower", "type": "object", "required": true, "rowType": "BorrowerForm", "rowShape": {"fields": [{"name": "name", "type": "text", "required": true}]}, "meaning": "The borrower."}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
+        Assert.Equal("Borrower", mapped!.Property);
+        Assert.Equal("BorrowerForm", mapped.Type);
+
+        var missing = JsonDocument.Parse("""{"name": "borrower", "type": "object", "required": true, "rowShape": {"fields": [{"name": "name", "type": "text", "required": true}]}, "meaning": "The borrower."}""").RootElement;
+
+        Assert.False(MessageFieldTypes.TryMapRow(missing, out _));
+    }
+
+    /// <summary>A row choice naming a closed set rides the closed-set type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RowChoiceWithSetRendersClosedSet()
+    {
+        var row = JsonDocument.Parse("""{"name": "kind", "type": "choice", "set": "reference-data/lending.loan-kind", "required": true, "meaning": "The kind of loan."}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
+        Assert.Equal("LoanKind", mapped!.Type);
+    }
+
+    /// <summary>An id identifying an entity inside an aggregate rides the part identifier.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EntityIdentifiesRendersPartIdentifier()
+    {
+        var input = JsonDocument.Parse("""{"name": "renewalId", "meaning": "The renewal to read.", "type": "id", "identifies": "aggregate/lending.loan#renewal", "required": true, "origin": "caller"}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapInput(input, out var mapped));
+        Assert.Equal("RenewalId", mapped!.Type);
+
+        var row = JsonDocument.Parse("""{"name": "renewalId", "type": "id", "identifies": "aggregate/lending.loan#renewal", "required": true, "meaning": "The renewal."}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var member));
+        Assert.Equal("RenewalId", member!.Type);
+    }
+
+    /// <summary>A use case taking a single object renders its message member with a row file beside it.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectInputRendersMessageMemberAndRowFile()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteReadRenewals(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var query = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ReadRenewalsQuery.generated.cs", StringComparison.Ordinal)).Content;
+        var row = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("RenewalFilter.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Contains("internal sealed partial record ReadRenewalsQuery(RenewalFilter Filter);", query, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record RenewalFilter(DateOnly From, DateOnly? To);", row, StringComparison.Ordinal);
+    }
+
+    /// <summary>Two same-named parts in different aggregates render fully qualified, each from its own declaring namespace.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SameNamedPartRowsRenderQualified()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteRenewalParts(temp.Path);
+        WriteReadRenewals(temp.Path);
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "read-renewals", "read-renewals.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "rowType: RenewalFilter",
+                "rowType: aggregate/lending.loan#renewal",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var query = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ReadRenewalsQuery.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Contains("ReadRenewalsQuery(Library.Lending.Domain.Loans.Parts.Renewal Filter)", query, StringComparison.Ordinal);
+        Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.EndsWith("RenewalFilter.generated.cs", StringComparison.Ordinal));
+    }
+
+    /// <summary>Writes a query taking one filter object with a from and an optional to date.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteReadRenewals(string root)
+    {
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "read-renewals");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "read-renewals.yaml"),
+            """
+            type: use-case
+            id: use-case/lending.read-renewals
+            title: Read renewals
+            summary: Lending reads the renewals of a loan within a date span so the desk sees the renewal history.
+            kind: query
+            access:
+              grant: permission/read-loans
+              tenant: own
+            input:
+            - name: filter
+              meaning: The date span to read renewals within.
+              type: object
+              rowType: RenewalFilter
+              rowShape:
+                fields:
+                - name: from
+                  meaning: The first day to read renewals from.
+                  type: date
+                  required: true
+                - name: to
+                  meaning: The last day to read renewals to.
+                  type: date
+                  required: false
+              required: true
+              origin: caller
+              classification: internal
+            output:
+              include:
+                renewals:
+                  fields:
+                  - name: renewedAt
+                    meaning: The renewal time.
+                    type: instant
+                  classification: internal
+                  reads:
+                  - aggregate/lending.loan
+                  freshness:
+                    mode: immediate
+            paging:
+              mode: none
+              reason: the renewals of one loan fit one answer
+            steps:
+            - statement: The desk asks for the renewals.
+            """);
+    }
+
+    /// <summary>Declares the renewal part on the loan and hold aggregates and writes each declaring type, so two parts share one name.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteRenewalParts(string root)
+    {
+        File.AppendAllText(
+            Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"),
+            "\nparts:\n- name: renewal\n  identity: false\n");
+        File.AppendAllText(
+            Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "aggregate.yaml"),
+            "\nparts:\n- name: renewal\n  identity: false\n");
+        var loans = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Domain", "Loans", "Parts");
+        var holds = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Domain", "Holds", "Parts");
+        Directory.CreateDirectory(loans);
+        Directory.CreateDirectory(holds);
+        File.WriteAllText(
+            Path.Combine(loans, "Renewal.cs"),
+            """
+            namespace Library.Lending.Domain.Loans.Parts;
+
+            internal sealed record Renewal(DateTimeOffset RenewedAt);
+            """);
+        File.WriteAllText(
+            Path.Combine(holds, "Renewal.cs"),
+            """
+            namespace Library.Lending.Domain.Holds.Parts;
+
+            internal sealed record Renewal(DateTimeOffset RenewedAt);
             """);
     }
 

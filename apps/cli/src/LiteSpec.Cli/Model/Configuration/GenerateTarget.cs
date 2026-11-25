@@ -27,6 +27,7 @@ namespace LiteSpec.Cli.Model.Configuration;
 /// <param name="Visibility">The use cases a messages or results target renders: public for the use cases another module reaches, anything else for the module's own.</param>
 /// <param name="ClaimReader">The qualified static method an endpoints target reads an actor identity with, as Namespace.Type.Method; empty when the declaration names none.</param>
 /// <param name="TenantReader">The qualified static method an endpoints target reads the tenant identity with, as Namespace.Type.Method; empty when the declaration names none.</param>
+/// <param name="ClaimValueReader">The qualified generic static method an endpoints target reads a non-identity claim value with, as Namespace.Type.Method, taking the caller and the claim name; empty when the declaration names none.</param>
 sealed record GenerateTarget(
     string Kind,
     string Stack,
@@ -49,4 +50,5 @@ sealed record GenerateTarget(
     string QueryInterface = "",
     string Visibility = "",
     string ClaimReader = "",
-    string TenantReader = "");
+    string TenantReader = "",
+    string ClaimValueReader = "");

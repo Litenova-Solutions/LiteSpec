@@ -681,6 +681,7 @@ $defs:
     - choice
     - id
     - list
+    - object
     - map
     - file
   contractScalarType:
@@ -766,10 +767,11 @@ $defs:
       name:
         $ref: '#/$defs/nonEmptyString'
       type:
-        description: 'The row value shape: one of the scalar types, or a list of one more row shape holding scalar fields.'
+        description: 'The row value shape: one of the scalar types, a list of one more row shape holding scalar fields, or a single object of one more row shape holding scalar fields.'
         anyOf:
         - $ref: '#/$defs/contractScalarType'
         - const: list
+        - const: object
       required:
         type: boolean
       meaning:
@@ -778,6 +780,10 @@ $defs:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      held:
+        description: How the module keeps the identifier the field names. Opaque states the module stores and passes the identifier but never loads, queries, or reasons about the named aggregate.
+        enum:
+        - opaque
       rowShape:
         $ref: '#/$defs/contractListShape'
       rowType:
@@ -813,6 +819,21 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
     allOf:
     - $ref: '#/$defs/contractValueRules'
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: object
+      then:
+        required:
+        - rowType
+    - if:
+        required:
+        - held
+      then:
+        required:
+        - identifies
   contractListShape:
     description: "The rows of a list value: each field of a row with its type, its requiredness and its meaning, the number of rows at least, and the fields that must be unique across rows."
     type: object
@@ -834,17 +855,29 @@ $defs:
         uniqueItems: true
         items:
           $ref: '#/$defs/nonEmptyString'
+  contractObjectShape:
+    description: "The fields of a single object value: each field with its type, its requiredness and its meaning."
+    type: object
+    additionalProperties: false
+    required:
+    - fields
+    properties:
+      fields:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/contractRowField'
   contractRowType:
     description: The C# row type a multi-field list renders, as a PascalCase type name.
     type: string
     pattern: '^[A-Z][A-Za-z0-9]*$'
   contractExistingType:
-    description: 'An existing type a carried event field reuses instead of a generated one: an aggregate part as aggregate/<module>.<aggregate>#<part>, or the C# type name.'
+    description: 'An existing type a field reuses instead of a generated one: an aggregate part as aggregate/<module>.<aggregate>#<part>, or the C# type name.'
     anyOf:
     - $ref: '#/$defs/aggregatePartRef'
     - $ref: '#/$defs/contractRowType'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape and keeps its row type in rowType, a choice names its closed set in set, a money field names its currency source, a decimal states its scale, a map names its key type in keyType with its value type in valueType, and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it. An integer field may state its stored width in size. A map value takes the facts a scalar of its type takes.
+    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape and keeps its row type in rowType, a single object names its fields in rowShape and keeps its row type in rowType, a choice names its closed set in set, a money field names its currency source, a decimal states its scale, a map names its key type in keyType with its value type in valueType, and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it. An integer field may state its stored width in size. A map value takes the facts a scalar of its type takes.
     allOf:
     - if:
         required:
@@ -858,6 +891,18 @@ $defs:
         properties:
           rowShape:
             $ref: '#/$defs/contractListShape'
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: object
+      then:
+        required:
+        - rowShape
+        properties:
+          rowShape:
+            $ref: '#/$defs/contractObjectShape'
     - if:
         required:
         - type
@@ -899,7 +944,9 @@ $defs:
         - type
         properties:
           type:
-            const: list
+            enum:
+            - list
+            - object
       else:
         not:
           required:
@@ -909,7 +956,9 @@ $defs:
         - type
         properties:
           type:
-            const: list
+            enum:
+            - list
+            - object
       else:
         not:
           required:
@@ -1123,7 +1172,9 @@ $defs:
       rowShape:
         $ref: '#/$defs/contractListShape'
       rowType:
-        $ref: '#/$defs/contractRowType'
+        $ref: '#/$defs/contractExistingType'
+        x-reads-as: takes rows from
+        x-read-back-as: gives rows to
       set:
         $ref: '#/$defs/contractClosedSet'
         x-reads-as: takes values from
@@ -1180,6 +1231,15 @@ $defs:
             properties:
               fields:
                 minItems: 2
+      then:
+        required:
+        - rowType
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: object
       then:
         required:
         - rowType
@@ -2485,7 +2545,9 @@ $defs:
       rowShape:
         $ref: '#/$defs/contractListShape'
       rowType:
-        $ref: '#/$defs/contractRowType'
+        $ref: '#/$defs/contractExistingType'
+        x-reads-as: takes rows from
+        x-read-back-as: gives rows to
       set:
         $ref: '#/$defs/contractClosedSet'
         x-reads-as: takes values from
@@ -2570,6 +2632,15 @@ $defs:
             properties:
               fields:
                 minItems: 2
+      then:
+        required:
+        - rowType
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: object
       then:
         required:
         - rowType

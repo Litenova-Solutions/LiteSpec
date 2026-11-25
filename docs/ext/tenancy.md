@@ -96,6 +96,22 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Reviewed for:** Does any tenant resolver path accept a tenant identifier from request data? Check the tenant resolver code.
 
+### Carry the Tenant Key on Every Tenant-Scoped Message
+
+**ID:** `litespec/ext/tenancy#carry-the-tenant-key-on-every-tenant-scoped-message`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, query-handler
+
+**Statement:** Each message of a use case declaring tenant `own` or `all` MUST carry the tenant key, unless an input identifying the tenant aggregate carries it.
+
+**Rationale:** A tenant-scoped call without its key on the message forces each layer to recover the tenant from elsewhere: the handler reads ambient state, the audit guesses, and a test cannot see the scope in the call. Carrying the key on the message keeps the scope in the call from the endpoint to the handler. The generator writes the key first from the tenancy selection, and a hand-written message carries it under the identity form or the bare term name.
+
+**Example:** The library borrow-copy command declares tenant `own`, so its message carries `WorkspaceId` first. A use case taking the workspace identifier as an input carries the key in that input instead.
+
+**Checked by:** `litespec model check` reports `input-field-drift` for a tenant-scoped message carrying no tenant key.
+
 ### Verify Actor and Target Tenancy
 
 **ID:** `litespec/ext/tenancy#verify-actor-and-target-tenancy`

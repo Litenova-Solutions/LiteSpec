@@ -24,11 +24,19 @@ input:
   meaning: The signed-in employee listing their expenses, read from verified claims.
   type: id
   identifies: actor/employee
-  required: false
+  required: true
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
   binding: claim
   classification: personal
+- name: states
+  meaning: The lifecycle states to list, all states when absent.
+  type: text
+  many: true
+  required: false
+  origin: caller
+  binding: query
+  classification: internal
 output:
   include:
     rows:
@@ -48,15 +56,22 @@ output:
             type: id
             identifies: actor/employee
             required: true
-          - name: amount
-            meaning: The exact amount of the expense.
-            type: decimal
-            scale: 2
-            required: true
-          - name: currency
-            meaning: The ISO 4217 currency code of the amount.
-            type: text
-            maxLength: 3
+          - name: total
+            meaning: The total of the expense.
+            type: object
+            rowType: Money
+            rowShape:
+              fields:
+              - name: amount
+                meaning: The exact amount of the expense.
+                type: decimal
+                scale: 2
+                required: true
+              - name: currency
+                meaning: The ISO 4217 currency code of the amount.
+                type: text
+                maxLength: 3
+                required: true
             required: true
           - name: state
             meaning: The latest lifecycle state of the expense.
