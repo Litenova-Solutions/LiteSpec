@@ -1,0 +1,33 @@
+type: use-case
+id: use-case/lending.extend-loan
+title: Extend Loan
+kind: command
+access:
+  grant: permission/borrow-copy
+  tenant: own
+  recentSignIn: PT4H
+input:
+- name: loanId
+  meaning: The loan the reader extends.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+- name: days
+  meaning: The extra days the reader asks for.
+  type: integer
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: none
+  reason: Each call extends its own loan, and extending past the loan limit is refused.
+audit:
+  level: optional
+  category: personal-data-read
+  targetKind: aggregate/lending.loan
+steps:
+- statement: The reader extends the loan at the desk.

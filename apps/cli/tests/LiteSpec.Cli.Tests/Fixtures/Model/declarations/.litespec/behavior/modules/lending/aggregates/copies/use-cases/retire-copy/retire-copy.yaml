@@ -1,0 +1,24 @@
+type: use-case
+id: use-case/lending.retire-copy
+title: Retire Copy
+kind: command
+access:
+  grant: system
+  tenant: own
+input:
+- name: copyId
+  meaning: The copy the collection retires.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: state
+  recognizedBy: the copy already retired from the catalog
+  replay: refuses
+audit:
+  exemptBecause: Retirements trail in the catalog states.
+steps:
+- statement: The collection retires the copy.

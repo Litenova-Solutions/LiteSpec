@@ -181,11 +181,11 @@ public sealed class DefinitionCheckTests
     /// <summary>An authorization definition without the RecentSignIn policy the record requires reports definition-drift.</summary>
     /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
-    public void RecentSignInLimitWithoutPolicyReportsDrift()
+    public void RecentSignInWithoutPolicyReportsDrift()
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "signed-in", "tenant": "own", "recentSignInLimit": "setting/security.recent-sign-in-window"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "signed-in", "tenant": "own", "recentSignIn": "setting/security.recent-sign-in-window"}}""");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized()");
 
         var finding = Assert.Single(Run(model));

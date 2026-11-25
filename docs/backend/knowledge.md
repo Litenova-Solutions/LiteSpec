@@ -23,7 +23,7 @@ The knowledge model defines the types of one area: rows, closed sets, roles, typ
 
 ### Knowledge Set
 
-A knowledge set holds the values for one variant of an area: the rows, effective dates, and sources for one country or one branch. It holds no logic and builds rows only through the model's constructors. Claimwick ships one set per country, such as `Claimwick.Travel.Germany` and `Claimwick.Travel.Netherlands`; the library product ships one set per branch. Only a host references a set, to register it with the model at startup.
+A knowledge set holds the values for one variant of an area: the rows, effective dates, and sources for one country or one branch. It holds no logic and builds rows only through the model's constructors. Claimwick ships one set per country, such as `Claimwick.Travel.Germany` and `Claimwick.Travel.Netherlands`; the library product ships one set per branch. Only a host references a set, to register it with the model at startup. When the project declares a `knowledge-sets` generate target, `litespec generate` writes each set's table classes from the reference-data rows, and the set reads those tables instead of listing rows by hand.
 
 ### Variant Dimension
 

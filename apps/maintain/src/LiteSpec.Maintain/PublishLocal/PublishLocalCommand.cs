@@ -9,14 +9,15 @@ namespace LiteSpec.Maintain.PublishLocal;
 
 /// <summary>
 ///     The <c>litespec-maintain publish-local</c> command: packs the checkout's CLI and analyzers
-///     at one dev version into a local feed, moves a consumer onto that build, and restores its tool.
+///     at one dev version into a local feed, moves a consumer onto that build, and restores its tool,
+///     or pins the consumer to a CI-published dev version instead of packing locally.
 /// </summary>
 /// <follows>litespec/core/release#run-one-litespec-build</follows>
 static class PublishLocalCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec-maintain publish-local --consumer <path> [--feed <dir>] [--help]
+        Usage: litespec-maintain publish-local --consumer <path> [--feed <dir>] [--from-ci <run>] [--help]
 
         Hands the current checkout's CLI and analyzers to a consumer without waiting for
         NuGet: it packs LiteSpec.Cli and LiteSpec.Analyzers at one dev version, the manifest
@@ -27,9 +28,19 @@ static class PublishLocalCommand
         package, the framework-dependent package, and the native package of the
         machine the command runs on, which is what the restore installs.
 
+        With --from-ci <run>, the command packs nothing: it pins the consumer to the
+        manifest release with a -dev.<run> suffix, the build the dev-feed workflow
+        published to GitHub Packages, leaving the feed and the NuGet config alone,
+        and runs dotnet tool restore in the consumer. The restore needs the
+        repository's GitHub Packages source, which the consumer's CI carries in a
+        CI-only NuGet config.
+
           --consumer    The consumer folder holding .litespec/project.yaml. Required.
           --feed        The package feed folder. Defaults to .agents/local-feed under
                         the consumer; a relative path resolves under the consumer.
+                        Cannot be combined with --from-ci.
+          --from-ci     The CI run number whose published build the consumer takes,
+                        instead of a locally packed one.
           --help        Print this text and exit.
 
         Exit codes: 0 published, 1 a publish step failed, 2 usage error or unreadable input.
@@ -46,7 +57,7 @@ static class PublishLocalCommand
     /// <returns>The exit code: 0 published, 1 a publish step failed, 2 usage error or unreadable input.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--consumer", "--feed"]);
+        var parsed = CliArgs.Parse(args, [], ["--consumer", "--feed", "--from-ci"]);
 
         if (parsed.Help)
         {
@@ -86,6 +97,31 @@ static class PublishLocalCommand
             return 2;
         }
 
+        var runOption = parsed.Value("--from-ci");
+
+        if (runOption is not null && runOption.Length == 0)
+        {
+            Console.Error.WriteLine("Option --from-ci needs a value.");
+            Console.Error.WriteLine(Usage);
+            return 2;
+        }
+
+        if (runOption is not null && !PublishLocal.IsRunNumber(runOption))
+        {
+            Console.Error.WriteLine($"Option --from-ci needs a CI run number, not '{runOption}'.");
+            Console.Error.WriteLine(Usage);
+            return 2;
+        }
+
+        if (runOption is not null && feedOption is not null)
+        {
+            Console.Error.WriteLine("Options --feed and --from-ci cannot be combined: a CI build restores from GitHub Packages, not a local feed.");
+            Console.Error.WriteLine(Usage);
+            return 2;
+        }
+
+        var fromCi = runOption is not null;
+
         string consumer;
 
         try
@@ -113,19 +149,23 @@ static class PublishLocalCommand
             return 2;
         }
 
-        string feed;
+        // A CI build restores from GitHub Packages, so --from-ci names no feed.
+        string feed = "";
 
-        try
+        if (!fromCi)
         {
-            feed = feedOption is null
-                ? Path.Combine(consumer, ".agents", "local-feed")
-                : Path.GetFullPath(Path.IsPathRooted(feedOption) ? feedOption : Path.Combine(consumer, feedOption));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException)
-        {
-            Console.Error.WriteLine($"Invalid feed '{feedOption}'.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            try
+            {
+                feed = feedOption is null
+                    ? Path.Combine(consumer, ".agents", "local-feed")
+                    : Path.GetFullPath(Path.IsPathRooted(feedOption) ? feedOption : Path.Combine(consumer, feedOption));
+            }
+            catch (Exception exception) when (exception is ArgumentException or NotSupportedException)
+            {
+                Console.Error.WriteLine($"Invalid feed '{feedOption}'.");
+                Console.Error.WriteLine(Usage);
+                return 2;
+            }
         }
 
         string root;
@@ -169,7 +209,9 @@ static class PublishLocalCommand
             return 2;
         }
 
-        var version = PublishLocal.DevVersion(baseVersion, DateTime.UtcNow);
+        var version = fromCi
+            ? PublishLocal.CiDevVersion(baseVersion, runOption!)
+            : PublishLocal.DevVersion(baseVersion, DateTime.UtcNow);
 
         // Every consumer file is read and rewritten in memory before the first pack runs,
         // so a broken manifest or config fails fast instead of after minutes of packing.
@@ -183,9 +225,19 @@ static class PublishLocalCommand
         try
         {
             toolsText = ReadIfExists(Path.Combine(consumer, ".config", "dotnet-tools.json"));
-            configText = ReadIfExists(NuGetConfig(consumer));
             (toolsNew, toolsChanged) = PublishLocal.SetToolVersion(toolsText, version);
-            (configNew, configChanged) = PublishLocal.EnsureFeedSource(configText, PublishLocal.FeedValueFor(feed, consumer));
+
+            if (fromCi)
+            {
+                configText = null;
+                configNew = "";
+                configChanged = false;
+            }
+            else
+            {
+                configText = ReadIfExists(NuGetConfig(consumer));
+                (configNew, configChanged) = PublishLocal.EnsureFeedSource(configText, PublishLocal.FeedValueFor(feed, consumer));
+            }
         }
         catch (InvalidOperationException exception)
         {
@@ -229,63 +281,77 @@ static class PublishLocalCommand
         }
 
         Console.WriteLine($"Consumer: {consumer}");
-        Console.WriteLine($"Feed: {feed}");
-        Console.WriteLine($"Version: {version}");
 
-        try
+        // A CI build is already packed and published; the command only pins the consumer to it.
+        if (fromCi)
         {
-            Directory.CreateDirectory(feed);
+            Console.WriteLine($"Version: {version}");
+            Console.WriteLine($"Build: the dev-feed workflow run {runOption}.");
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        else
         {
-            Console.Error.WriteLine($"Cannot create the feed '{feed}': {exception.Message}");
-            return 1;
-        }
-
-        var before = FeedPackages(feed);
-
-        if (Pack(root, analyzersProject, version, feed, []) is { } analyzersFailure)
-        {
-            Console.Error.WriteLine(analyzersFailure);
-            return 1;
+            Console.WriteLine($"Feed: {feed}");
+            Console.WriteLine($"Version: {version}");
         }
 
-        if (Pack(root, cliProject, version, feed, ["-p:TopLevelToolPackage=true"]) is { } toolFailure)
+        if (!fromCi)
         {
-            Console.Error.WriteLine(toolFailure);
-            return 1;
-        }
-
-        if (Pack(root, cliProject, version, feed, ["--runtime", "any", "-p:PublishAot=false"]) is { } runtimeFailure)
-        {
-            Console.Error.WriteLine(runtimeFailure);
-            return 1;
-        }
-
-        // The restore installs the native package of its own machine, so the feed holds this machine's build too.
-        // Its restore adds runtime assets the committed lock files do not cover, so their bytes are held aside
-        // and written back after the pack, leaving the checkout exactly as it was.
-        var locks = SnapshotLockFiles(root);
-
-        try
-        {
-            if (Pack(root, cliProject, version, feed, ["--runtime", RuntimeInformation.RuntimeIdentifier]) is { } nativeFailure)
+            try
             {
-                Console.Error.WriteLine(nativeFailure);
+                Directory.CreateDirectory(feed);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                Console.Error.WriteLine($"Cannot create the feed '{feed}': {exception.Message}");
                 return 1;
             }
-        }
-        finally
-        {
-            RestoreLockFiles(locks);
+
+            var before = FeedPackages(feed);
+
+            if (Pack(root, analyzersProject, version, feed, []) is { } analyzersFailure)
+            {
+                Console.Error.WriteLine(analyzersFailure);
+                return 1;
+            }
+
+            if (Pack(root, cliProject, version, feed, ["-p:TopLevelToolPackage=true"]) is { } toolFailure)
+            {
+                Console.Error.WriteLine(toolFailure);
+                return 1;
+            }
+
+            if (Pack(root, cliProject, version, feed, ["--runtime", "any", "-p:PublishAot=false"]) is { } runtimeFailure)
+            {
+                Console.Error.WriteLine(runtimeFailure);
+                return 1;
+            }
+
+            // The restore installs the native package of its own machine, so the feed holds this machine's build too.
+            // Its restore adds runtime assets the committed lock files do not cover, so their bytes are held aside
+            // and written back after the pack, leaving the checkout exactly as it was.
+            var locks = SnapshotLockFiles(root);
+
+            try
+            {
+                if (Pack(root, cliProject, version, feed, ["--runtime", RuntimeInformation.RuntimeIdentifier]) is { } nativeFailure)
+                {
+                    Console.Error.WriteLine(nativeFailure);
+                    return 1;
+                }
+            }
+            finally
+            {
+                RestoreLockFiles(locks);
+            }
+
+            foreach (var package in FeedPackages(feed).Except(before, StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal))
+            {
+                Console.WriteLine($"Packed {package}.");
+            }
         }
 
-        foreach (var package in FeedPackages(feed).Except(before, StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal))
-        {
-            Console.WriteLine($"Packed {package}.");
-        }
-
-        if (!WriteIfChanged(consumer, NuGetConfig(consumer), configText, configNew, configChanged, "the feed source", out var configError))
+        // A CI build restores from GitHub Packages, so --from-ci leaves the NuGet config alone.
+        if (!fromCi && !WriteIfChanged(consumer, NuGetConfig(consumer), configText, configNew, configChanged, "the feed source", out var configError))
         {
             Console.Error.WriteLine(configError);
             return 1;
@@ -330,6 +396,11 @@ static class PublishLocalCommand
             Console.WriteLine($"{Relative(consumer, file)} still references LiteSpec.Analyzers {pinned}; move it to {version}.");
         }
 
+        if (fromCi)
+        {
+            Console.WriteLine($"The consumer restores {version} from GitHub Packages: its CI carries the feed source in a CI-only NuGet config, as docs/maintain/publish-local.md describes.");
+        }
+
         var restore = Run("dotnet", ["tool", "restore"], consumer, TimeSpan.FromMinutes(RestoreTimeoutMinutes));
 
         if (restore.TimedOut)
@@ -341,6 +412,12 @@ static class PublishLocalCommand
         if (restore.Status != 0)
         {
             Console.Error.WriteLine($"dotnet tool restore failed in '{consumer}':{LastLine(restore)}");
+
+            if (fromCi)
+            {
+                Console.Error.WriteLine("A CI build restores from GitHub Packages: the machine needs that source in its NuGet config.");
+            }
+
             return 1;
         }
 

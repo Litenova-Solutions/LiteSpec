@@ -3,6 +3,7 @@ using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
@@ -25,6 +26,9 @@ internal static class MessageFieldChecks
         /// <summary>The loaded project model that names the backend roots.</summary>
         readonly ProjectModel model;
 
+        /// <summary>The compilation the backend read was built from, or null when the syntax-only path ran.</summary>
+        readonly BackendSemantics? semantics;
+
         /// <summary>The backend roots the type files are searched under.</summary>
         readonly IReadOnlyList<string> roots;
 
@@ -45,10 +49,16 @@ internal static class MessageFieldChecks
         internal MessageSource(ProjectModel model)
         {
             this.model = model;
+            semantics = model.BackendSemantics;
             roots = SourceRoots.BackendRoots(model.Config);
         }
 
-        /// <summary>The file declaring the type: the same folder as the hint first, then the backend roots by file name.</summary>
+        /// <summary>The semantic model of one tree, or null when the syntax-only path ran or the tree is not part of the read.</summary>
+        /// <param name="tree">The parsed syntax tree.</param>
+        /// <returns>The semantic model of the tree, or null.</returns>
+        internal SemanticModel? SemanticOf(SyntaxTree tree) => semantics?.ModelFor(tree);
+
+        /// <summary>The file declaring the type: the generated file beside the hint first, then the hand-written file beside it, then the backend roots by file name.</summary>
         /// <param name="typeName">The simple type name.</param>
         /// <param name="hintFile">A file in the folder the type usually sits in.</param>
         /// <returns>The declaring file, or null when it is missing or two files declare the name.</returns>
@@ -61,6 +71,15 @@ internal static class MessageFieldChecks
 
             if (Path.GetDirectoryName(hintFile) is { } folder)
             {
+                // The generated part carries the declared fields; a hand-written
+                // sibling beside it carries only hand members, which stay unchecked.
+                var generated = Path.Combine(folder, typeName + ".generated.cs");
+
+                if (File.Exists(generated))
+                {
+                    return generated;
+                }
+
                 var beside = Path.Combine(folder, typeName + ".cs");
 
                 if (File.Exists(beside))
@@ -83,6 +102,11 @@ internal static class MessageFieldChecks
         /// <returns>Each declaration with its tree, or an empty list when the file does not read or declares none.</returns>
         internal IReadOnlyList<(SyntaxTree Tree, TypeDeclarationSyntax Declared)> TypesIn(string file, string typeName)
         {
+            if (semantics is not null && semantics.TryTypesIn(file, typeName, out var shared))
+            {
+                return shared;
+            }
+
             if (unreadable.Contains(file))
             {
                 return [];
@@ -131,6 +155,16 @@ internal static class MessageFieldChecks
                 return null;
             }
 
+            foreach (var (tree, declared) in parts)
+            {
+                if (SemanticOf(tree) is { } model
+                    && model.GetDeclaredSymbol(declared) is INamedTypeSymbol symbol
+                    && HandlerInterfaces.Of(symbol) is { Result: { Length: > 0 } result })
+                {
+                    return result;
+                }
+            }
+
             foreach (var (_, declared) in parts)
             {
                 if (declared.BaseList is not null)
@@ -160,7 +194,7 @@ internal static class MessageFieldChecks
             return null;
         }
 
-        /// <summary>Indexes the backend file names by type: the file for a unique name, null for an ambiguous one.</summary>
+        /// <summary>Indexes the backend file names by type: the file for a unique name, null for an ambiguous one. A generated file indexes under its type name without the generated suffix, winning over its hand-written sibling in the same folder.</summary>
         void Index()
         {
             indexed = true;
@@ -187,16 +221,41 @@ internal static class MessageFieldChecks
                         continue;
                     }
 
-                    if (files.TryGetValue(name, out var held))
+                    var key = name.EndsWith(".generated", StringComparison.Ordinal)
+                        ? name[..^".generated".Length]
+                        : name;
+
+                    if (key.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    if (files.TryGetValue(key, out var held))
                     {
                         if (held is not null && !string.Equals(held, file, StringComparison.Ordinal))
                         {
-                            files[name] = null;
+                            // A generated part beside its hand-written sibling reads as
+                            // one declaration; two files in different folders stay ambiguous.
+                            if (key != name
+                                && string.Equals(Path.GetDirectoryName(held), Path.GetDirectoryName(file), StringComparison.Ordinal))
+                            {
+                                files[key] = file;
+                            }
+                            else if (name == key
+                                && held.EndsWith(".generated.cs", StringComparison.Ordinal)
+                                && string.Equals(Path.GetDirectoryName(held), Path.GetDirectoryName(file), StringComparison.Ordinal))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                files[key] = null;
+                            }
                         }
                     }
                     else
                     {
-                        files[name] = file;
+                        files[key] = file;
                     }
                 }
             }
@@ -349,7 +408,7 @@ internal static class MessageFieldChecks
             return;
         }
 
-        var properties = PropertiesOf(parts);
+        var properties = PropertiesOf(source, parts);
         var inputs = ContractFields(useCase, RecordFields.Input);
         var drift = Compare(inputs, properties, "input", implied: ImpliedMessage(useCase, tenant));
 
@@ -392,7 +451,7 @@ internal static class MessageFieldChecks
             return;
         }
 
-        var properties = PropertiesOf(parts);
+        var properties = PropertiesOf(source, parts);
         List<string> drift;
 
         if (output.ValueKind == JsonValueKind.Array)
@@ -511,7 +570,7 @@ internal static class MessageFieldChecks
     static bool TryNestedDrift(
         MessageSource source,
         string hintFile,
-        List<(string Name, List<(string Name, string Type)> Fields)> groups,
+        List<(string Name, List<(string Name, string Type, string CurrencyField, bool Many)> Fields)> groups,
         Dictionary<string, string> properties,
         out List<string> drift)
     {
@@ -547,10 +606,34 @@ internal static class MessageFieldChecks
                 continue;
             }
 
-            drift.AddRange(Compare(fields, PropertiesOf(declarations), "output field", name));
+            drift.AddRange(Compare(fields, PropertiesOf(source, declarations), "output field", name));
         }
 
         return true;
+    }
+
+    /// <summary>The element type a read-only list holds: the type between its brackets, or null when the type lists nothing.</summary>
+    /// <param name="type">The property type as written.</param>
+    /// <returns>The element type as written, or null.</returns>
+    static string? ListElementOf(string type)
+    {
+        var name = type.Trim().TrimEnd('?', '!');
+
+        if (name.StartsWith("global::", StringComparison.Ordinal))
+        {
+            name = name["global::".Length..];
+        }
+
+        var open = name.IndexOf("IReadOnlyList<", StringComparison.Ordinal);
+
+        if (open < 0 || !name.EndsWith('>'))
+        {
+            return null;
+        }
+
+        var element = name[(open + "IReadOnlyList<".Length)..^1];
+
+        return element.Length > 0 ? element : null;
     }
 
     /// <summary>The nested type a group property holds: its simple name, or null for a generic or missing type.</summary>
@@ -578,21 +661,21 @@ internal static class MessageFieldChecks
     /// <param name="implied">The property names the record implies through its other sections, never reported as extra.</param>
     /// <returns>The drift clauses, in field then property order.</returns>
     static List<string> Compare(
-        List<(string Name, string Type)> fields, Dictionary<string, string> properties, string label, string part = "", HashSet<string>? implied = null)
+        List<(string Name, string Type, string CurrencyField, bool Many)> fields, Dictionary<string, string> properties, string label, string part = "", HashSet<string>? implied = null)
     {
         var drift = new List<string>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
         var mistyped = new List<string>();
 
-        foreach (var (name, type) in fields)
+        foreach (var (name, type, currencyField, many) in fields)
         {
             var shown = part.Length == 0 ? name : part + "." + name;
 
-            if (!MatchField(name, type, properties, consumed))
+            if (!MatchField(name, type, currencyField, properties, consumed))
             {
                 drift.Add($"no property for {label} '{shown}'");
             }
-            else if (MismatchOf(name, shown, type, properties, consumed, label) is { } mismatch)
+            else if (MismatchOf(name, shown, type, many, properties, consumed, label) is { } mismatch)
             {
                 mistyped.Add(mismatch);
             }
@@ -616,10 +699,11 @@ internal static class MessageFieldChecks
     /// <summary>Matches one declared field against the carried properties, consuming what it matches.</summary>
     /// <param name="name">The declared field name.</param>
     /// <param name="type">The declared record type.</param>
+    /// <param name="currencyField">The sibling field carrying a money field's currency, or empty when the record states none.</param>
     /// <param name="properties">The carried properties by name with their types as written.</param>
     /// <param name="consumed">The property names matched so far.</param>
     /// <returns>True when a property matches the field.</returns>
-    static bool MatchField(string name, string type, Dictionary<string, string> properties, HashSet<string> consumed)
+    static bool MatchField(string name, string type, string currencyField, Dictionary<string, string> properties, HashSet<string> consumed)
     {
         var expected = Naming.Pascal(name);
 
@@ -629,12 +713,15 @@ internal static class MessageFieldChecks
 
             // A money field may ride as an amount with its currency beside it: the pair
             // answers the field together, as ChangeReceiptThreshold carries Threshold with Currency.
-            if (type == "money"
-                && properties.TryGetValue("Currency", out var currency)
-                && IsText(currency)
-                && IsDecimal(properties[expected]))
+            // The record names the sibling in currencyField; Currency answers when it states none.
+            if (type == "money" && IsDecimal(properties[expected]))
             {
-                consumed.Add("Currency");
+                var pair = currencyField.Length > 0 ? Naming.Pascal(currencyField) : "Currency";
+
+                if (properties.TryGetValue(pair, out var currency) && IsText(currency))
+                {
+                    consumed.Add(pair);
+                }
             }
 
             return true;
@@ -659,12 +746,13 @@ internal static class MessageFieldChecks
     /// <param name="name">The declared field name.</param>
     /// <param name="shown">The field name the clause shows, qualified by its group when nested.</param>
     /// <param name="type">The declared record type.</param>
+    /// <param name="many">True when the field holds a list of values of its type.</param>
     /// <param name="properties">The carried properties by name with their types as written.</param>
     /// <param name="consumed">The property names matched so far.</param>
     /// <param name="label">The field label the clause names.</param>
     /// <returns>The mistyped clause, or null.</returns>
     static string? MismatchOf(
-        string name, string shown, string type, Dictionary<string, string> properties, HashSet<string> consumed, string label)
+        string name, string shown, string type, bool many, Dictionary<string, string> properties, HashSet<string> consumed, string label)
     {
         string? property = null;
 
@@ -682,14 +770,31 @@ internal static class MessageFieldChecks
             return null;
         }
 
-        var actual = SimpleType(properties[property]);
+        var written = properties[property];
+
+        if (many)
+        {
+            if (ListElementOf(written) is not { } element)
+            {
+                return $"property '{property}' is '{SimpleType(written)}' for {label} '{shown}' of type '{type}' holding many";
+            }
+
+            written = element;
+        }
+
+        var actual = SimpleType(written);
 
         var matches = type switch
         {
-            "text" => IsText(properties[property]),
+            "text" or "email" => IsText(written),
+            "integer" => IsIntegral(actual),
             "date" => actual == "DateOnly",
-            "decimal" or "money" => IsDecimal(properties[property]) || IsMoney(properties[property]),
+            "instant" => actual == "DateTimeOffset",
+            "duration" => actual == "TimeSpan",
+            "decimal" or "money" => IsDecimal(written) || IsMoney(written),
             "boolean" => actual is "bool" or "Boolean",
+            "id" => IsIdentifier(actual),
+            "choice" => IsClosedSet(actual),
             _ => true,
         };
 
@@ -717,11 +822,11 @@ internal static class MessageFieldChecks
         return [expected];
     }
 
-    /// <summary>The declared fields of a contract array: each entry with a name, with its type.</summary>
+    /// <summary>The declared fields of a contract array: each entry with a name, with its type, currency field, and many flag.</summary>
     /// <param name="record">The record holding the array.</param>
     /// <param name="field">The array field name.</param>
     /// <returns>The declared fields with their record types, in written order.</returns>
-    static List<(string Name, string Type)> ContractFields(Record record, string field)
+    static List<(string Name, string Type, string CurrencyField, bool Many)> ContractFields(Record record, string field)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
             || !record.Raw.TryGetProperty(field, out var array)
@@ -736,7 +841,7 @@ internal static class MessageFieldChecks
     /// <summary>The declared fields of one output group.</summary>
     /// <param name="group">The output group object.</param>
     /// <returns>The declared fields with their record types, in written order.</returns>
-    static List<(string Name, string Type)> FieldsIn(JsonElement group)
+    static List<(string Name, string Type, string CurrencyField, bool Many)> FieldsIn(JsonElement group)
     {
         if (!group.TryGetProperty(RecordFields.Fields, out var array) || array.ValueKind != JsonValueKind.Array)
         {
@@ -749,9 +854,9 @@ internal static class MessageFieldChecks
     /// <summary>The declared fields of a contract array element.</summary>
     /// <param name="array">The contract array.</param>
     /// <returns>The declared fields with their record types, in written order.</returns>
-    static List<(string Name, string Type)> FieldsOf(JsonElement array)
+    static List<(string Name, string Type, string CurrencyField, bool Many)> FieldsOf(JsonElement array)
     {
-        var fields = new List<(string Name, string Type)>();
+        var fields = new List<(string Name, string Type, string CurrencyField, bool Many)>();
 
         foreach (var entry in array.EnumerateArray())
         {
@@ -767,23 +872,30 @@ internal static class MessageFieldChecks
                 && kind.ValueKind == JsonValueKind.String
                     ? kind.GetString() ?? ""
                     : "";
+            var currencyField = entry.TryGetProperty(RecordFields.CurrencyField, out var carrier)
+                && carrier.ValueKind == JsonValueKind.String
+                    ? carrier.GetString() ?? ""
+                    : "";
+            var many = entry.TryGetProperty(RecordFields.Many, out var count)
+                && count.ValueKind == JsonValueKind.True;
 
-            fields.Add((text, type));
+            fields.Add((text, type, currencyField, many));
         }
 
         return fields;
     }
 
-    /// <summary>The carried properties by name with their types as written, across every part of a partial type.</summary>
+    /// <summary>The carried properties by name with their resolved types, across every part of a partial type.</summary>
+    /// <param name="source">The backend source each declaration is read from.</param>
     /// <param name="parts">Each declaration of the type with its tree.</param>
     /// <returns>The carried properties by name.</returns>
-    static Dictionary<string, string> PropertiesOf(IReadOnlyList<(SyntaxTree Tree, TypeDeclarationSyntax Declared)> parts)
+    static Dictionary<string, string> PropertiesOf(MessageSource source, IReadOnlyList<(SyntaxTree Tree, TypeDeclarationSyntax Declared)> parts)
     {
         var properties = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        foreach (var (_, declared) in parts)
+        foreach (var (tree, declared) in parts)
         {
-            foreach (var property in MessageProperties.Of(declared))
+            foreach (var property in MessageProperties.Of(declared, source.SemanticOf(tree)))
             {
                 properties.TryAdd(property.Name, property.Type);
             }
@@ -812,6 +924,26 @@ internal static class MessageFieldChecks
     /// <param name="type">The type as written.</param>
     /// <returns>True when the simple name ends with Money.</returns>
     static bool IsMoney(string type) => SimpleType(type).EndsWith("Money", StringComparison.Ordinal);
+
+    /// <summary>Whether a simple type name is an integral number.</summary>
+    /// <param name="actual">The simple type name.</param>
+    /// <returns>True for the integral C# types and their framework names.</returns>
+    static bool IsIntegral(string actual) => actual is "int" or "Int32" or "long" or "Int64"
+        or "short" or "Int16" or "byte" or "Byte" or "uint" or "UInt32" or "ulong" or "UInt64"
+        or "ushort" or "UInt16" or "sbyte" or "SByte";
+
+    /// <summary>Whether a simple type name is identifier-shaped: a Guid or a typed identifier.</summary>
+    /// <param name="actual">The simple type name.</param>
+    /// <returns>True for Guid or a name ending in Id.</returns>
+    static bool IsIdentifier(string actual) => actual is "Guid" || actual.EndsWith("Id", StringComparison.Ordinal);
+
+    /// <summary>Whether a simple type name is a closed-set type rather than a scalar the set never rides as.</summary>
+    /// <param name="actual">The simple type name.</param>
+    /// <returns>False for the scalar types; true for every named type.</returns>
+    static bool IsClosedSet(string actual) => actual is not ("string" or "String"
+        or "decimal" or "Decimal" or "double" or "Double" or "float" or "Single"
+        or "bool" or "Boolean" or "DateOnly" or "DateTime" or "DateTimeOffset" or "TimeSpan" or "Guid")
+        && !IsIntegral(actual);
 
     /// <summary>Reads the simple name of a type as written, without qualification, generic arguments or nullability.</summary>
     /// <param name="type">The type as written.</param>

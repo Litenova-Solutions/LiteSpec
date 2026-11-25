@@ -101,7 +101,7 @@ Rules cite the table instead of stating its values: a use case names it in `read
 
 A table can take its values from an external pack file, such as a country pack, instead of writing each row by hand. The `pack` field names a file relative to the consumer root, such as `data/country-pack.csv`; the file must exist, and its rows still carry their effective dates and their sources.
 
-A table holds one value column: the `value` each row carries, which behavior reads. That column is the table's meaning column. A table whose meaning column changes behavior lists every allowed value in `choices`, so a value outside the list is reported instead of interpreted by each caller. A table whose values are open counts or amounts carries no `choices`.
+A table holds one value column: the `value` each row carries, which behavior reads. That column is the table's meaning column. A table whose meaning column changes behavior lists every allowed value in `choices`, so a value outside the list is reported instead of interpreted by each caller. A table whose values are open counts or amounts carries no `choices`. A table with `choices` states what each value means in `valueMeanings`, keyed by the written choice text, so the generated closed set documents each case; every key names a listed choice.
 
 A table lists in `requiredRoles` the roles its citing rules read, and each row names the role it plays in `role`. A row carries a stable `key` within its table, and a row reads a row of another table in `refersTo` as `reference-data/<home>.<table>#<key>`. Callers ask the table for a role; the table says which row plays it.
 
@@ -109,12 +109,16 @@ A table whose rows differ by variant states the dimension in `variation`, such a
 
 The rows of each variant cover every date the product reads: consecutive rows of one variant leave no date without a row in force, and where the cast declares `today`, a row of each variant covers it. A released row is never edited: a new value arrives as a new row, and the old row takes an end date.
 
+A knowledge table whose sets the project generates states how each row builds: `row` names the qualified model row type with its static factory, and `columns` maps one row column to one factory parameter with how the value renders. A column renders as a literal of its kind (`string`, `number`, `boolean`), a `date` construction, a `money` construction with its currency, a typed `key` through the model's factory, a `member` of the model's closed set, or a `map` of row values to literals. Every row of a generated table that varies names its variant, so each set builds from its own rows. A table without the mapping keeps hand-written sets. Claimwick's per-diem table builds one `PerDiemRate` per row, mapping the variant to the country, the value to a money amount, and the role to its member.
+
 | Field | Meaning |
 |:---|:---|
 | `summary`, `unit` | What values the table holds and who reads them, and the unit of each value, such as EUR. |
 | `choices`, `requiredRoles` | The closed set of allowed row values, and the roles the citing rules read, each played by a row. Both optional. |
+| `valueMeanings` | What each allowed value means, keyed by its choice text. Optional; stated only with `choices`. |
 | `variation` | The dimension the rows vary by, such as country, stated when rows name a variant. Knowledge tables only; optional. |
 | `pack` | The path of an external file whose values this table copies, relative to the consumer root. Optional; the named file must exist. |
+| `row`, `columns` | How each row builds: the qualified model row type with its static factory, and the column-to-parameter mapping with how each value renders. Knowledge tables only; optional. |
 | `rows` | One entry per dated value, each with its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. |
 | `key`, `role`, `variant`, `refersTo` | Row fields: the stable key of the row, the role the row plays, the variant the row belongs to, and the row of another table the row reads. |
 

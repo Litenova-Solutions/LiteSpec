@@ -16,6 +16,8 @@ Each endpoint implements the platform-owned `IEndpoint` contract, which has one 
 
 One global handler maps each thrown failure to its HTTP status and Problem Details body. Endpoints carry no error mapping of their own.
 
+A project may generate its endpoints with the `endpoints` kind of `litespec generate`: one partial class per module holds one nested endpoint class per use case, with a partial shaping method per projected response and a partial derivation method per value the clock rule does not cover, each implemented in a hand-written sibling file.
+
 ### Operation Metadata
 
 The OpenAPI generator builds the published contract from metadata declared on each operation:
@@ -93,17 +95,17 @@ At startup, the platform scans every module assembly the host adds through its e
 
 **Statement:** WebApi MUST map each refusal code to its HTTP status in one global handler.
 
-**Rationale:** The specification records each refusal with its stable `code` and no transport status, so each stack derives the status its transport needs. The outcome-to-status assignment is stated in `litespec/backend/api#use-consistent-status-codes`; this provision binds it for .NET.
+**Rationale:** The specification records each written refusal with its stable `code` and the status it answers with, as `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites` states, so each stack maps the code to its recorded status. The outcome-to-status assignment is stated in `litespec/backend/api#use-consistent-status-codes`; this provision binds it for .NET.
 
 The handler uses ASP.NET Core `AddProblemDetails` with one `IExceptionHandler`:
 
 - Validation failures answer 400.
 - Missing targets answer through the operation's 404 policy.
 - Forbidden failures answer 403 or the declared 404 disclosure policy.
-- Conflicts and state rejections answer 409.
+- The derived `conflict` and `rule-not-stated` refusals answer 409, and each written refusal answers its recorded status.
 - Unexpected failures answer 500 with code `internal_error`.
 
-The derived `invalid-input` refusal answers 400 under the project's `refusals.invalidInput` code, and the derived `forbidden` refusal answers 403 or the declared 404 under the project's `refusals.forbidden` code. The derived `rule-not-stated` refusal answers 409. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error.
+The derived `invalid-input` refusal answers 400 under the project's `refusals.invalidInput` code, and the derived `forbidden` refusal answers 403 or the declared 404 under the project's `refusals.forbidden` code. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error.
 
 **Example:** The handler registers through the framework's Problem Details services:
 

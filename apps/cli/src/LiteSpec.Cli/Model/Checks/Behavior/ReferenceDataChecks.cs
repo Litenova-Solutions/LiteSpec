@@ -8,12 +8,13 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The reference-data checks: every row value stays within its table's closed set, every cross-reference names a row key its table holds, every required role is played by a row, the rows leave no date uncovered, and the use cases computing one value agree on its sign.</summary>
+/// <summary>The reference-data checks: every row value stays within its table's closed set, every stated value meaning names a listed value, every cross-reference names a row key its table holds, every required role is played by a row, the rows leave no date uncovered, the use cases computing one value agree on its sign, and every column mapping names columns its rows hold with the rendering their values need.</summary>
 /// <follows>litespec/core/domain-model#close-the-value-set-of-every-meaning-column</follows>
 /// <follows>litespec/backend/knowledge#name-a-role-not-a-row</follows>
 /// <follows>litespec/backend/knowledge#validate-reference-data-before-serving</follows>
 /// <follows>litespec/core/domain-model#cover-every-date-in-use</follows>
 /// <follows>litespec/core/domain-model#state-the-sign-of-every-amount</follows>
+/// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 internal static class ReferenceDataChecks
 {
     /// <summary>Gets the name of the `requiredRoles` field.</summary>
@@ -25,11 +26,46 @@ internal static class ReferenceDataChecks
     /// <summary>Gets the name of the `sign` field.</summary>
     const string Sign = "sign";
 
+    /// <summary>Gets the name of the `row` field.</summary>
+    const string Row = "row";
+
+    /// <summary>Gets the name of the `columns` field.</summary>
+    const string Columns = "columns";
+
+    /// <summary>Gets the name of the `column` field.</summary>
+    const string Column = "column";
+
+    /// <summary>Gets the name of the `parameter` field.</summary>
+    const string Parameter = "parameter";
+
+    /// <summary>Gets the name of the `as` field.</summary>
+    const string As = "as";
+
+    /// <summary>Gets the name of the `factory` field.</summary>
+    const string Factory = "factory";
+
+    /// <summary>Gets the name of the `literals` field.</summary>
+    const string Literals = "literals";
+
     /// <summary>The sign conventions an amount field states.</summary>
     private static readonly string[] AmountSigns = ["money-in-positive", "money-out-positive"];
 
     /// <summary>The field types that may state a sign convention.</summary>
     private static readonly string[] AmountTypes = ["money", "decimal"];
+
+    /// <summary>The row columns a column mapping reads.</summary>
+    private static readonly string[] MappingColumns =
+    [
+        RecordFields.Value, RecordFields.Key, RecordFields.Role, RecordFields.Variant,
+        RefersTo, RecordFields.EffectiveFrom, RecordFields.EffectiveTo, RecordFields.Source,
+    ];
+
+    /// <summary>The renderings a column mapping states.</summary>
+    private static readonly string[] MappingRenderings =
+        ["string", "number", "boolean", "date", "money", "key", "member", "map"];
+
+    /// <summary>The static factories a typed key builds through.</summary>
+    private static readonly string[] KeyFactories = ["Parse", "From", "FromCode", "Of", "Create"];
 
     /// <summary>A kebab-case row key or role: a lowercase letter or digit opening, then lowercase letters, digits or hyphens.</summary>
     private static readonly Regex KebabName = new("^[a-z0-9][a-z0-9-]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -82,6 +118,60 @@ internal static class ReferenceDataChecks
                 }
 
                 index++;
+            }
+        }
+    }
+
+    /// <summary>Reports a reference-data table whose value meanings name a value outside the closed set its table lists in choices, or hold a meaning that is not a sentence.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunValueMeanings(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (table.Raw.ValueKind != JsonValueKind.Object
+                || !table.Raw.TryGetProperty(RecordFields.ValueMeanings, out var meanings))
+            {
+                continue;
+            }
+
+            if (meanings.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds value meanings that are not a map.", table.File, table.Line, SubjectOf(table)));
+                continue;
+            }
+
+            var choices = ClosedSets.ChoiceTexts(table);
+
+            if (choices is null)
+            {
+                continue;
+            }
+
+            var allowed = choices.ToHashSet(StringComparer.Ordinal);
+
+            foreach (var entry in meanings.EnumerateObject().OrderBy(entry => entry.Name, StringComparer.Ordinal))
+            {
+                if (!allowed.Contains(entry.Name))
+                {
+                    findings.Add(new Finding(
+                        "record-invalid",
+                        $"Reference data '{table.Id}' holds a value meaning for '{entry.Name}', which its choices do not list.",
+                        table.File,
+                        table.Line,
+                        SubjectOf(table)));
+                }
+                else if (entry.Value.ValueKind != JsonValueKind.String || entry.Value.GetString() is not { Length: > 0 })
+                {
+                    findings.Add(new Finding(
+                        "record-invalid",
+                        $"Reference data '{table.Id}' holds a value meaning for '{entry.Name}' that is not a sentence.",
+                        table.File,
+                        table.Line,
+                        SubjectOf(table)));
+                }
             }
         }
     }
@@ -363,6 +453,340 @@ internal static class ReferenceDataChecks
                     SubjectOf(rule)));
             }
         }
+    }
+
+    /// <summary>Reports a reference-data table whose row construction its rows cannot build: a half mapping, a table no knowledge area owns, a column no row holds, a shared parameter, a missing model type, currency or value map, a variant the map skips, or a value of the wrong kind.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record and knowledge area.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunColumnMapping(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (table.Raw.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var hasRow = table.Raw.TryGetProperty(Row, out var row);
+            var hasColumns = table.Raw.TryGetProperty(Columns, out var columns);
+
+            if (!hasRow && !hasColumns)
+            {
+                continue;
+            }
+
+            if (hasRow != hasColumns)
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' states `{(hasRow ? Row : Columns)}` without `{(hasRow ? Columns : Row)}`; state both together.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+                continue;
+            }
+
+            if (!IsKnowledgeTable(model, table))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' states row construction while no knowledge area owns it; only knowledge tables generate sets.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+                continue;
+            }
+
+            CheckRowConstruction(table, row, findings);
+            CheckColumnEntries(table, columns, findings);
+        }
+    }
+
+    /// <summary>Whether a knowledge area owns the table: the table identifier names a home holding a knowledge-area record.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="table">The reference-data record whose home is read.</param>
+    /// <returns>True when a knowledge-area record owns the table's home.</returns>
+    private static bool IsKnowledgeTable(ProjectModel model, Record table) =>
+        Identifiers.TrySplit(table.Id, out _, out var home, out _)
+        && home is not null
+        && model.ById.ContainsKey($"{RecordTypes.KnowledgeArea}/{home}");
+
+    /// <summary>Reports a row construction that names no qualified model row type.</summary>
+    /// <param name="table">The reference-data record whose row construction is judged.</param>
+    /// <param name="row">The row construction as written.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRowConstruction(Record table, JsonElement row, List<Finding> findings)
+    {
+        if (row.ValueKind != JsonValueKind.Object)
+        {
+            findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds `row` that is not an object.", table.File, table.Line, SubjectOf(table)));
+            return;
+        }
+
+        if (Str(row, RecordFields.Type) is not { } type || !IsQualified(type))
+        {
+            findings.Add(new Finding(
+                "reference-data-column-invalid",
+                $"Reference data '{table.Id}' holds `row` without a qualified model row type; name the row type with its namespace.",
+                table.File,
+                table.Line,
+                SubjectOf(table)));
+        }
+    }
+
+    /// <summary>Reports each column entry that names no row column, shares its parameter, misses the rendering its kind needs, or reads values of the wrong kind.</summary>
+    /// <param name="table">The reference-data record whose column entries are judged.</param>
+    /// <param name="columns">The column entries as written.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckColumnEntries(Record table, JsonElement columns, List<Finding> findings)
+    {
+        if (columns.ValueKind != JsonValueKind.Array)
+        {
+            findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds `columns` that are not a list.", table.File, table.Line, SubjectOf(table)));
+            return;
+        }
+
+        var entries = columns.EnumerateArray().ToList();
+        var seen = new Dictionary<string, int>(StringComparer.Ordinal);
+        var index = 0;
+
+        foreach (var entry in entries)
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds column entry {index} that is not an object.", table.File, table.Line, SubjectOf(table)));
+                index++;
+                continue;
+            }
+
+            var column = Str(entry, Column);
+            var parameter = Str(entry, Parameter);
+            var rendering = Str(entry, As);
+
+            if (column is null || parameter is null || rendering is null)
+            {
+                findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds column entry {index} without a column, a parameter or a rendering.", table.File, table.Line, SubjectOf(table)));
+                index++;
+                continue;
+            }
+
+            if (!MappingColumns.Contains(column, StringComparer.Ordinal))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds column entry {index} reading column '{column}', which no row holds.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+                index++;
+                continue;
+            }
+
+            if (!MappingRenderings.Contains(rendering, StringComparer.Ordinal))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds column entry {index} with rendering '{rendering}' outside string, number, boolean, date, money, key, member, map.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+                index++;
+                continue;
+            }
+
+            if (seen.TryGetValue(parameter, out var first))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds parameter '{parameter}' on column entries {first} and {index}.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+            else
+            {
+                seen.Add(parameter, index);
+            }
+
+            CheckColumnExtras(table, entry, index, rendering, findings);
+            CheckColumnValues(table, entry, index, column, rendering, findings);
+            index++;
+        }
+
+        CheckRowVariants(table, findings);
+    }
+
+    /// <summary>Reports a column entry missing the model type, currency or value map its rendering needs.</summary>
+    /// <param name="table">The reference-data record holding the column entry.</param>
+    /// <param name="entry">The column entry as written.</param>
+    /// <param name="index">The column entry index.</param>
+    /// <param name="rendering">The rendering the entry states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckColumnExtras(Record table, JsonElement entry, int index, string rendering, List<Finding> findings)
+    {
+        if (rendering is "money" or "key" or "member")
+        {
+            if (Str(entry, RecordFields.Type) is not { } type || !IsQualified(type))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds column entry {index} without a qualified model type; name the {rendering} type with its namespace.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+        }
+
+        if (rendering == "money")
+        {
+            if (Str(entry, RecordFields.Currency) is not { Length: 3 } currency)
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds column entry {index} without a three-letter currency.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+            else if (currency.Any(character => !char.IsAsciiLetterUpper(character)))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds column entry {index} with currency '{currency}' outside three uppercase letters.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+        }
+
+        if (rendering == "key"
+            && Str(entry, Factory) is { } factory
+            && !KeyFactories.Contains(factory, StringComparer.Ordinal))
+        {
+            findings.Add(new Finding(
+                "reference-data-column-invalid",
+                $"Reference data '{table.Id}' holds column entry {index} with key factory '{factory}' outside Parse, From, FromCode, Of, Create.",
+                table.File,
+                table.Line,
+                SubjectOf(table)));
+        }
+
+        if (rendering == "map"
+            && (!entry.TryGetProperty(Literals, out var values)
+                || values.ValueKind != JsonValueKind.Object
+                || !values.EnumerateObject().Any()))
+        {
+            findings.Add(new Finding(
+                "reference-data-column-invalid",
+                $"Reference data '{table.Id}' holds column entry {index} without a value map; map each row value to its literal.",
+                table.File,
+                table.Line,
+                SubjectOf(table)));
+        }
+    }
+
+    /// <summary>Reports each row the column entry cannot read: a value of the wrong kind, or a value the map skips.</summary>
+    /// <param name="table">The reference-data record holding the rows.</param>
+    /// <param name="entry">The column entry as written.</param>
+    /// <param name="index">The column entry index.</param>
+    /// <param name="column">The row column the entry reads.</param>
+    /// <param name="rendering">The rendering the entry states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckColumnValues(Record table, JsonElement entry, int index, string column, string rendering, List<Finding> findings)
+    {
+        var mapped = rendering == "map"
+            && entry.TryGetProperty(Literals, out var values)
+            && values.ValueKind == JsonValueKind.Object
+            ? values.EnumerateObject().Select(property => property.Name).ToHashSet(StringComparer.Ordinal)
+            : null;
+        var rowIndex = 0;
+
+        foreach (var row in RowsOf(table))
+        {
+            if (!row.TryGetProperty(column, out var value))
+            {
+                rowIndex++;
+                continue;
+            }
+
+            if (!FitsRendering(value, rendering))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds row {rowIndex} with {column} {Show(value)} of the wrong kind for a {rendering} column.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+            else if (mapped is not null
+                && value.ValueKind == JsonValueKind.String
+                && value.GetString() is { } text
+                && !mapped.Contains(text))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds row {rowIndex} with {column} '{text}' the value map of entry {index} skips.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+
+            rowIndex++;
+        }
+    }
+
+    /// <summary>Reports each row naming no variant in a table that varies: a set builds from one variant, so every row of a generated table names its variant.</summary>
+    /// <param name="table">The reference-data record whose rows are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRowVariants(Record table, List<Finding> findings)
+    {
+        if (table.Raw.ValueKind != JsonValueKind.Object
+            || !table.Raw.TryGetProperty(RecordFields.Variation, out var variation)
+            || variation.ValueKind != JsonValueKind.String
+            || variation.GetString() is not { } dimension)
+        {
+            return;
+        }
+
+        var rowIndex = 0;
+
+        foreach (var row in RowsOf(table))
+        {
+            if (!row.TryGetProperty(RecordFields.Variant, out _))
+            {
+                findings.Add(new Finding(
+                    "reference-data-column-invalid",
+                    $"Reference data '{table.Id}' holds row {rowIndex} naming no variant while the table varies by '{dimension}'; name the variant of each row.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+
+            rowIndex++;
+        }
+    }
+
+    /// <summary>Whether the value renders under the rendering: numbers for number and money, a boolean for boolean, and a string for the rest.</summary>
+    /// <param name="value">The row value as written.</param>
+    /// <param name="rendering">The rendering the entry states.</param>
+    /// <returns>True when the value fits the rendering.</returns>
+    private static bool FitsRendering(JsonElement value, string rendering) => rendering switch
+    {
+        "money" or "number" => value.ValueKind == JsonValueKind.Number,
+        "boolean" => value.ValueKind is JsonValueKind.True or JsonValueKind.False,
+        _ => value.ValueKind == JsonValueKind.String,
+    };
+
+    /// <summary>Whether the type name carries its namespace: two or more dot-separated segments.</summary>
+    /// <param name="type">The type name as written.</param>
+    /// <returns>True when the name holds a namespace.</returns>
+    private static bool IsQualified(string type)
+    {
+        var parts = type.Split('.');
+
+        return parts.Length > 1 && parts.All(part => part.Length > 0);
     }
 
     /// <summary>The validity span of one reference-data row: its parsed dates with their written text, its row index and its variant.</summary>

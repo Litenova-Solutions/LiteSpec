@@ -8,7 +8,7 @@ Start with:
 
 - The `audit` extension selected in the consumer's `.litespec/project.yaml`.
 - The audit adoption decision that `litespec/ext/audit#record-the-audit-adoption-decision` requires.
-- The `audit` field on each command record. The record schema requires it with no default: a level of `required`, `optional`, or `none` with its target kind, or `exemptBecause` with its justification.
+- The `audit` field on each command record. The record schema requires it with no default: a level of `required`, `optional`, or `none` with its target kind, its category when audited, and the input naming the audited record when the command changes one, or `exemptBecause` with its justification.
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
 - The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.yaml`.

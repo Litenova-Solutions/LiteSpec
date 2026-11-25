@@ -75,7 +75,7 @@ A section marked optional is removed when it has nothing to say; every other sec
 | entry-point | Audience, Authentication, Excludes (optional) | Audience: audience; Authentication: authentication, session, reauthenticationTriggers; Excludes: excludes |
 | screen | Task, States, Example | Task: task; States: displayStates; Example: none, illustration only |
 | permission-set | Risk, Boundaries (optional) | Risk: the risk of each permission; Boundaries: excludes |
-| setting | Defaults, Changes (optional) | Defaults: default, range, unit; Changes: setBy |
+| setting | Defaults, Changes (optional) | Defaults: default, range, unit, choices, valueMeanings; Changes: setBy |
 | runbook | Prerequisites, Steps, Verification, Recovery | Prerequisites: prerequisites; Steps: procedure; Verification: verification; Recovery: recovery |
 | waiver | Provision, Reason, Risk, Expiry | Provision: waives; Reason: reason; Risk: consequences; Expiry: expiresOn, exitWhen |
 

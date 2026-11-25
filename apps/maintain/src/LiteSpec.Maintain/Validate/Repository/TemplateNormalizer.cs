@@ -83,10 +83,12 @@ internal static class TemplateNormalizer
         ["currencyCode"] = "EUR",
         ["timeZoneName"] = "Europe/Amsterdam",
         ["refusalId"] = "refusal/sample.entry",
+        ["httpRoute"] = "/sample",
         ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",
         ["genericRecordId"] = "sample/entry",
         ["grantValue"] = "permission/sample",
         ["configurationKey"] = "Sample:Key",
+        ["qualifiedTypeName"] = "Sample.Model.Row",
     };
 
     // The fallback pool for an inline pattern the map names no definition for. The

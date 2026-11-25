@@ -1202,13 +1202,6 @@ internal static class SchemaChecks
             {
                 findings.Add(new Finding("record-invalid", $"Use case '{record.Id}' output field '{name}' states no type.", record.File, record.Line, SubjectOf(record)));
             }
-
-            if (output.ValueKind == JsonValueKind.Object
-                && Str(output, RecordFields.Type) == "list"
-                && output.TryGetProperty(RecordFields.RowShape, out var rows))
-            {
-                Behavior.ContractChecks.CheckRowShape(record, "Use case", "output", Str(output, RecordFields.Name) ?? "(no name)", rows, findings);
-            }
         }
     }
 

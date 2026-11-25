@@ -15,6 +15,9 @@ reachedThrough:
 - entry-point/claimwick-app
 raises:
 - domain-event/receipt.attached
+http:
+  method: POST
+  route: /api/receipts
 input:
 - name: expense
   meaning: The submitted expense the receipt supports.
@@ -22,6 +25,7 @@ input:
   identifies: aggregate/spending.expense
   required: true
   origin: caller
+  binding: query
   classification: internal
 - name: receipt
   meaning: The identifier the app mints for the receipt, so a retried request attaches the same receipt.
@@ -29,13 +33,23 @@ input:
   identifies: aggregate/spending.receipt
   required: true
   origin: caller
+  binding: query
   classification: internal
 - name: attachedAt
   meaning: The time the receipt attaches, read from the clock.
-  type: date-time
+  type: instant
   required: false
   origin: derived
   classification: internal
+output:
+- name: expenseId
+  meaning: The submitted expense the receipt supports.
+  type: id
+  identifies: aggregate/spending.expense
+- name: receiptId
+  meaning: The attached receipt.
+  type: id
+  identifies: aggregate/spending.receipt
 writes:
 - aggregate/spending.expense
 - aggregate/spending.receipt
@@ -50,6 +64,8 @@ idempotency:
   key: "{receipt}"
   keyScope: account
   replay: returns-first-result
+audit:
+  exemptBecause: Attachments leave their trail in the expense and receipt states.
 steps:
 - statement: The employee sends the receipt for a submitted expense.
   cites:

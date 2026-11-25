@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The contract checks: each use-case input and each integration-event payload field holds a known type and its required flag, a claim-shaped input is not taken from a caller of an authenticated entry point, a module event selects only fields its translated domain event carries, each entry point states a known auth kind, and each identifies naming an aggregate part resolves to a declared identified part.</summary>
+/// <summary>The contract checks: each use-case input and each integration-event payload field holds a known type and its required flag, every contract field states the exact type facts and constraints its type needs, a claim-shaped input is not taken from a caller of an authenticated entry point, a module event selects only fields its translated domain event carries, each entry point states a known auth kind, and each identifies naming an aggregate part resolves to a declared identified part.</summary>
 /// <follows>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</follows>
 /// <follows>litespec/core/use-cases#mark-every-provider-verified-input</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
@@ -17,13 +17,13 @@ internal static class ContractChecks
     /// <summary>The contract field types a use-case input or an integration-event payload field may carry.</summary>
     private static readonly HashSet<string> ContractTypes = new(StringComparer.Ordinal)
     {
-        "text", "integer", "decimal", "money", "boolean", "date", "date-time", "duration", "email", "choice", "id", "file", "list",
+        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list",
     };
 
     /// <summary>The input names that carry a claim a provider verifies, never a caller.</summary>
     private static readonly string[] ClaimNames = ["subject", "tenant", "verified"];
 
-    /// <summary>Reports a use-case input or an integration-event payload field outside its typed shape, a claim-shaped input a caller supplies, and a module-event field or integration-event payload field its translated domain event does not carry.</summary>
+    /// <summary>Reports a use-case input or an integration-event payload field outside its typed shape, a contract field whose exact type facts name nothing, a claim-shaped input a caller supplies, and a module-event field or integration-event payload field its translated domain event does not carry.</summary>
     /// <param name="model">The loaded project model that holds every use case, module event and integration event record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTypedInputs(ProjectModel model, List<Finding> findings)
@@ -32,6 +32,17 @@ internal static class ContractChecks
         {
             CheckContractFields(model, useCase, "input", "Use case", findings);
             CheckClaimOrigins(model, useCase, findings);
+            CheckOutputFields(model, useCase, findings);
+        }
+
+        foreach (var readModel in model.Records.Where(record => record.Type == RecordTypes.ReadModel))
+        {
+            CheckFieldArray(model, readModel, RecordFields.Fields, "Read model", "read-model", findings);
+        }
+
+        foreach (var domainEvent in model.Records.Where(record => record.Type == RecordTypes.DomainEvent))
+        {
+            CheckFieldArray(model, domainEvent, RecordFields.Carries, "Domain event", "carries", findings);
         }
 
         foreach (var system in model.Records.Where(record => record.Type == RecordTypes.ExternalSystem))
@@ -496,6 +507,8 @@ internal static class ContractChecks
             return;
         }
 
+        var siblings = SiblingsOf(fields);
+
         foreach (var entry in fields.EnumerateArray())
         {
             if (entry.ValueKind != JsonValueKind.Object)
@@ -525,10 +538,122 @@ internal static class ContractChecks
             }
 
             CheckContractOf(model, record, label, array, name, type, entry, findings);
+            CheckFieldFacts(model, record, label, array + " field", name, type, entry, siblings, findings);
         }
     }
 
-    /// <summary>Reports an identifies that names no record for an id, a choice with no choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither.</summary>
+    /// <summary>Reports a use-case output field whose exact type facts name nothing, in both the field list and the include-group forms.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
+    /// <param name="useCase">The use case record whose output is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckOutputFields(ProjectModel model, Record useCase, List<Finding> findings)
+    {
+        if (useCase.Raw.ValueKind != JsonValueKind.Object
+            || !useCase.Raw.TryGetProperty(RecordFields.Output, out var output))
+        {
+            return;
+        }
+
+        if (output.ValueKind == JsonValueKind.Array)
+        {
+            CheckFieldEntries(model, useCase, "Use case", "output", "output field", output, findings);
+            return;
+        }
+
+        if (output.ValueKind != JsonValueKind.Object
+            || !output.TryGetProperty(RecordFields.Include, out var include)
+            || include.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        foreach (var group in include.EnumerateObject())
+        {
+            if (group.Value.ValueKind != JsonValueKind.Object
+                || !group.Value.TryGetProperty(RecordFields.Fields, out var fields)
+                || fields.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            CheckFieldEntries(model, useCase, "Use case", "output group '" + group.Name + "'", "output group '" + group.Name + "' field", fields, findings);
+        }
+    }
+
+    /// <summary>Reports a read-model field or a carried domain-event field whose exact type facts name nothing.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
+    /// <param name="record">The read model or domain event record whose fields are judged.</param>
+    /// <param name="array">The field array name, fields or carries.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="noun">The array noun each finding names, read-model or carries.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFieldArray(ProjectModel model, Record record, string array, string label, string noun, List<Finding> findings)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(array, out var fields)
+            || fields.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        CheckFieldEntries(model, record, label, noun, noun + " field", fields, findings);
+    }
+
+    /// <summary>Reports each field of one field array whose exact type facts name nothing.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
+    /// <param name="record">The record that holds the field array.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The array noun the row-shape findings name.</param>
+    /// <param name="holder">The field noun each finding names.</param>
+    /// <param name="fields">The field array whose entries are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFieldEntries(ProjectModel model, Record record, string label, string array, string holder, JsonElement fields, List<Finding> findings)
+    {
+        var siblings = SiblingsOf(fields);
+
+        foreach (var entry in fields.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var name = Str(entry, RecordFields.Name) ?? "(no name)";
+            var type = Str(entry, RecordFields.Type);
+
+            if (type is not { Length: > 0 } || !ContractTypes.Contains(type))
+            {
+                continue;
+            }
+
+            CheckFieldFacts(model, record, label, holder, name, type, entry, siblings, findings);
+
+            if (type == "list" && entry.TryGetProperty(RecordFields.RowShape, out var rowShape))
+            {
+                CheckRowShape(model, record, label, array, name, rowShape, findings);
+            }
+        }
+    }
+
+    /// <summary>The field names of one field array with the type each states, for sibling checks.</summary>
+    /// <param name="fields">The field array whose entries are read.</param>
+    /// <returns>Each named entry with its stated type, or null when it states none.</returns>
+    private static Dictionary<string, string?> SiblingsOf(JsonElement fields)
+    {
+        var siblings = new Dictionary<string, string?>(StringComparer.Ordinal);
+
+        foreach (var entry in fields.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.Object && Str(entry, RecordFields.Name) is { Length: > 0 } name)
+            {
+                siblings.TryAdd(name, Str(entry, RecordFields.Type));
+            }
+        }
+
+        return siblings;
+    }
+
+    /// <summary>Reports an identifies that names no record for an id, a choice with inline choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither.</summary>
     /// <param name="model">The loaded project model that resolves the id field target.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -565,9 +690,9 @@ internal static class ContractChecks
 
         if (type == "choice")
         {
-            if (!entry.TryGetProperty(RecordFields.Choices, out var choices) || choices.ValueKind != JsonValueKind.Array || choices.GetArrayLength() == 0)
+            if (entry.TryGetProperty(RecordFields.Choices, out _))
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type choice with no choices.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type choice with inline choices; name the closed set in set.", record.File, record.Line, SubjectOf(record)));
             }
 
             RefuseShapes(record, label, array, name, type, hasId, hasRow, findings);
@@ -581,7 +706,7 @@ internal static class ContractChecks
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type list with an identifies that only id carries.", record.File, record.Line, SubjectOf(record)));
             }
 
-            CheckRowShape(record, label, array, name, hasRow ? rowShape : default, findings);
+            CheckRowShape(model, record, label, array, name, hasRow ? rowShape : default, findings);
             return;
         }
 
@@ -624,17 +749,119 @@ internal static class ContractChecks
         }
     }
 
+    /// <summary>Reports a contract field whose closed set, currency home, currency field, length span, or numeric span names nothing or contradicts itself.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
+    /// <param name="record">The record that holds the contract field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="holder">The field noun each finding names.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="type">The contract field type that decides which facts are judged.</param>
+    /// <param name="entry">The contract field object whose facts are judged.</param>
+    /// <param name="siblings">The field names beside the entry with the type each states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFieldFacts(ProjectModel model, Record record, string label, string holder, string name, string type, JsonElement entry, Dictionary<string, string?> siblings, List<Finding> findings)
+    {
+        if (type == "choice")
+        {
+            if (Str(entry, RecordFields.Set) is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' of type choice with no set.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            var set = Str(entry, RecordFields.Set)!;
+            var baseId = Identifiers.BaseId(set);
+
+            if (!model.ById.TryGetValue(baseId, out var target))
+            {
+                findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (target.Type != RecordTypes.ReferenceData && target.Type != RecordTypes.Setting)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which is a {target.Type}.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (!HoldsChoices(target))
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which holds no choices.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+
+        if (type == "money")
+        {
+            if (Str(entry, RecordFields.CurrencyHome) is { Length: > 0 } home
+                && !model.ById.ContainsKey(Identifiers.BaseId(home)))
+            {
+                findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {holder} '{name}' with currencyHome '{home}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (Str(entry, RecordFields.CurrencyField) is { Length: > 0 } currencyField)
+            {
+                if (currencyField == name)
+                {
+                    findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with currencyField '{currencyField}', which names the field itself.", record.File, record.Line, SubjectOf(record)));
+                }
+                else if (!siblings.TryGetValue(currencyField, out var siblingType))
+                {
+                    findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with currencyField '{currencyField}', which names no sibling field.", record.File, record.Line, SubjectOf(record)));
+                }
+                else if (siblingType is { Length: > 0 } && siblingType != "text")
+                {
+                    findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with currencyField '{currencyField}' naming '{currencyField}' of type '{siblingType}', which is no text.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
+        }
+
+        if (entry.TryGetProperty(RecordFields.MinLength, out var minLength)
+            && entry.TryGetProperty(RecordFields.MaxLength, out var maxLength)
+            && minLength.TryGetInt32(out var min)
+            && maxLength.TryGetInt32(out var max)
+            && min > max)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with minLength {min} above maxLength {max}.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (entry.TryGetProperty(RecordFields.Bounds, out var bounds)
+            && bounds.ValueKind == JsonValueKind.Object
+            && bounds.TryGetProperty(RecordFields.Min, out var lower)
+            && bounds.TryGetProperty(RecordFields.Max, out var upper)
+            && lower.ValueKind == JsonValueKind.Number
+            && upper.ValueKind == JsonValueKind.Number
+            && lower.TryGetDecimal(out var floor)
+            && upper.TryGetDecimal(out var ceiling)
+            && floor > ceiling)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with bounds min {lower.GetRawText()} above max {upper.GetRawText()}.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Whether a closed-set record holds the choices a choice field takes.</summary>
+    /// <param name="target">The reference-data or setting record the set names.</param>
+    /// <returns>True when reference data lists choices, or a choice setting lists them.</returns>
+    private static bool HoldsChoices(Record target)
+    {
+        if (target.Raw.ValueKind != JsonValueKind.Object
+            || !target.Raw.TryGetProperty(RecordFields.Choices, out var choices)
+            || choices.ValueKind != JsonValueKind.Array
+            || choices.GetArrayLength() == 0)
+        {
+            return false;
+        }
+
+        return target.Type != RecordTypes.Setting || Str(target.Raw, RecordFields.ValueType) == "choice";
+    }
+
     /// <summary>
     ///     Reports a list-of-rows shape that is no object with a non-empty fields array, a row field with no name, a type outside
-    ///     the contract types, or no required flag, a minItems that is no non-negative whole number, and a unique key that names no row field.
+    ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a minItems that is no non-negative whole number, and a unique key that names no row field.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record whose list field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
     /// <param name="array">The contract array field name, input, payload or output.</param>
     /// <param name="name">The contract field name quoted in each finding.</param>
     /// <param name="rowShape">The rowShape object of the list field, or a default element when the field states none.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void CheckRowShape(Record record, string label, string array, string name, JsonElement rowShape, List<Finding> findings)
+    internal static void CheckRowShape(ProjectModel model, Record record, string label, string array, string name, JsonElement rowShape, List<Finding> findings)
     {
         if (rowShape.ValueKind != JsonValueKind.Object
             || !rowShape.TryGetProperty(RecordFields.Fields, out var rowFields)
@@ -646,6 +873,7 @@ internal static class ContractChecks
         }
 
         var rowNames = new HashSet<string>(StringComparer.Ordinal);
+        var siblings = SiblingsOf(rowFields);
 
         foreach (var row in rowFields.EnumerateArray())
         {
@@ -663,6 +891,10 @@ internal static class ContractChecks
             if (rowType is not { Length: > 0 } || !ContractTypes.Contains(rowType))
             {
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with type '{rowType ?? "none"}' outside the contract types.", record.File, record.Line, SubjectOf(record)));
+            }
+            else
+            {
+                CheckFieldFacts(model, record, label, "row field of " + array + " field '" + name + "'", rowName, rowType, row, siblings, findings);
             }
 
             if (row.ValueKind != JsonValueKind.Object

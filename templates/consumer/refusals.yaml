@@ -8,3 +8,7 @@ records:
 - id: refusal/<module>.<name>
   title: <Title in Title Case>
   meaning: <what happened, in one sentence>
+  status: <the HTTP status this refusal answers with when an HTTP-reached use case cites it, or remove this line>
+  # parameters: when the message varies per failure; each names a {name} in meaning
+  # - name: <valueName>
+  #   meaning: <what the value says, in one sentence>

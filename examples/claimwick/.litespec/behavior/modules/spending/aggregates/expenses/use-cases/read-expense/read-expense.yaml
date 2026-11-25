@@ -41,6 +41,8 @@ paging:
   reason: one expense answers the query
 reads:
 - aggregate/spending.expense
+audit:
+  exemptBecause: Reads trail nothing.
 steps:
 - statement: Reporting names one expense.
   cites:

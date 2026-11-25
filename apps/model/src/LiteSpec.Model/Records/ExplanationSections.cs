@@ -53,12 +53,12 @@ public static class ExplanationSections
             [RecordTypes.ModuleEvent] = Of(("Consumers", false, []), ("Compatibility", false, new[] { "compatibility" }), ("Example", true, [])),
             [RecordTypes.IntegrationEvent] = Of(("Consumers", false, []), ("Compatibility", false, new[] { "compatibility" }), ("Example", false, [])),
             [RecordTypes.ReadModel] = Of(("Sources", false, new[] { "fields", "keyedBy" }), ("Freshness", false, new[] { "freshness" }), ("Example", true, [])),
-            [RecordTypes.ReferenceData] = Of(("Values", false, new[] { "unit", "rows" }), ("Example", true, [])),
+            [RecordTypes.ReferenceData] = Of(("Values", false, new[] { "unit", "rows", "row", "columns", "choices", "valueMeanings" }), ("Example", true, [])),
             [RecordTypes.ExternalSystem] = Of(("Use", false, new[] { "summary" }), ("Data Shared", false, new[] { "processes", "erasure" }), ("Failure Handling", false, new[] { "operations" })),
             [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticationTriggers" }), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.Screen] = Of(("Task", false, new[] { "task" }), ("States", false, new[] { "displayStates" }), ("Example", false, [])),
             [RecordTypes.PermissionSet] = Of(("Risk", false, new[] { "risk" }), ("Boundaries", true, new[] { "excludes" })),
-            [RecordTypes.Setting] = Of(("Defaults", false, new[] { "default", "range", "unit" }), ("Changes", true, new[] { "setBy" })),
+            [RecordTypes.Setting] = Of(("Defaults", false, new[] { "default", "range", "unit", "choices", "valueMeanings" }), ("Changes", true, new[] { "setBy" })),
 
             // Implementation and Governance
             [RecordTypes.Runbook] = Of(("Prerequisites", false, new[] { "prerequisites" }), ("Steps", false, new[] { "procedure" }), ("Verification", false, new[] { "verification" }), ("Recovery", false, new[] { "recovery" })),

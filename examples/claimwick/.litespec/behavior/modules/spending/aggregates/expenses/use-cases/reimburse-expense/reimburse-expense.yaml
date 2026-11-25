@@ -7,6 +7,7 @@ kind: command
 access:
   grant: permission/post-reimbursement
   tenant: own
+  recentSignIn: PT15M
 serves:
 - step/submit-and-reimburse.reimburse-expense
 fulfills:
@@ -15,6 +16,9 @@ reachedThrough:
 - entry-point/claimwick-app
 raises:
 - domain-event/expense.reimbursed
+http:
+  method: POST
+  route: /api/expenses/{expenseId}:reimburse
 input:
 - name: expense
   meaning: The approved expense to reimburse.
@@ -22,13 +26,19 @@ input:
   identifies: aggregate/spending.expense
   required: true
   origin: caller
+  binding: route
   classification: internal
 - name: handledAt
   meaning: The time the payment runs, read from the clock.
-  type: date-time
+  type: instant
   required: false
   origin: derived
   classification: internal
+output:
+- name: expenseId
+  meaning: The reimbursed expense.
+  type: id
+  identifies: aggregate/spending.expense
 writes:
 - aggregate/spending.expense
 idempotency:
@@ -36,6 +46,8 @@ idempotency:
   reason: the first payment moves the expense to reimbursed, so the aggregate refuses a second payment
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
+audit:
+  exemptBecause: Payments leave their trail in the expense states and the payout batch.
 steps:
 - statement: Finance picks an approved expense.
   cites:

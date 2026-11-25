@@ -4,3 +4,4 @@ records:
 - id: refusal/spending.expense-decided
   title: Expense Decided
   meaning: The expense is already decided.
+  status: 422

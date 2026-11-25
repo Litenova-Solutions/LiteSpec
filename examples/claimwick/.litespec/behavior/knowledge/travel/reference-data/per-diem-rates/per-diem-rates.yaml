@@ -7,6 +7,38 @@ requiredRoles:
 - full-day
 - partial-day
 variation: country
+row:
+  type: Claimwick.Travel.PerDiem.PerDiemRate
+  factory: Create
+columns:
+- column: variant
+  parameter: country
+  as: map
+  literals:
+    germany: DE
+    netherlands: NL
+- column: key
+  parameter: key
+  as: key
+  type: Claimwick.Travel.PerDiem.PerDiemRateKey
+- column: role
+  parameter: role
+  as: member
+  type: Claimwick.Travel.PerDiem.PerDiemRole
+- column: value
+  parameter: dailyAmount
+  as: money
+  type: Claimwick.Kernel.Values.Money
+  currency: EUR
+- column: effectiveFrom
+  parameter: validFrom
+  as: date
+- column: effectiveTo
+  parameter: validTo
+  as: date
+- column: source
+  parameter: source
+  as: string
 rows:
 - value: 28
   key: de-full-day-2025

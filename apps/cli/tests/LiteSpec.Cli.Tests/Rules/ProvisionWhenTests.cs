@@ -52,9 +52,10 @@ public sealed class ProvisionWhenTests
             Assert.DoesNotContain(id, returned);
         }
 
+        // Claimwick selects the audit extension, whose 6 handler provisions join the 34 base lines.
         Assert.True(
-            JudgmentLines(result.Output) <= 34,
-            "The judgment groups hold more than 34 lines.");
+            JudgmentLines(result.Output) <= 40,
+            "The judgment groups hold more than 40 lines.");
     }
 
     /// <summary>A use case taking a receipt keeps the upload provisions.</summary>

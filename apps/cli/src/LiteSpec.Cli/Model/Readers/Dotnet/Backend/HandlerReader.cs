@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Model;
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -20,6 +21,7 @@ static class HandlerReader
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     public static void ReadHandler(
         string file,
         SyntaxTree tree,
@@ -30,20 +32,21 @@ static class HandlerReader
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         QualifiedKinds qualified,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         var useCase = ElementReader.SingleMark(marks, "use-case/") ?? "";
 
         Identifiers.TrySplit(useCase, out _, out var home, out var name);
 
-        var message = ClassDetailsReader.MessageTypeOf(declared);
+        var message = ClassDetailsReader.MessageTypeOf(declared, tree, semantics);
         var qualifiedName = DotnetNames.QualifiedNameOf(declared);
-        var handlesQuery = ImplementsFace(declared, "IQueryHandler") || qualified.QueryHandlers.Contains(qualifiedName);
-        var handlesCommand = ImplementsFace(declared, "ICommandHandler") || qualified.CommandHandlers.Contains(qualifiedName);
+        var handlesQuery = ImplementsFace(declared, "IQueryHandler", tree, semantics) || qualified.QueryHandlers.Contains(qualifiedName);
+        var handlesCommand = ImplementsFace(declared, "ICommandHandler", tree, semantics) || qualified.CommandHandlers.Contains(qualifiedName);
         var kind = handlesQuery && !handlesCommand
             ? "query"
             : "command";
-        var details = ClassDetailsReader.HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query", qualified, constants);
+        var details = ClassDetailsReader.HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query", qualified, constants, semantics);
 
         model.Handlers.Add(new CodeHandler(
             useCase,
@@ -79,6 +82,7 @@ static class HandlerReader
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     public static void ReadReaction(
         string file,
         SyntaxTree tree,
@@ -88,7 +92,8 @@ static class HandlerReader
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> holders,
         QualifiedKinds qualified,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         model.Reactions.Add(new CodeReaction(
             declared.Identifier.ValueText,
@@ -97,20 +102,29 @@ static class HandlerReader
             ElementReader.SingleMark(marks, "use-case/"),
             ElementReader.SingleMark(marks, "reaction/"),
             ClassDetailsReader.RepositoriesOf(declared, tree, file),
-            ClassDetailsReader.RefusalsOf(declared, tree, file, constants),
-            ClassDetailsReader.ThrownOf(declared, tree, file),
+            ClassDetailsReader.RefusalsOf(declared, tree, file, constants, semantics),
+            ClassDetailsReader.ThrownOf(declared, tree, file, semantics),
             DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified),
             ClassDetailsReader.DependencyCountOf(declared),
             ClassActivityReader.CollaboratorsOf(declared, tree, file, holders),
             ClassActivityReader.LoopReadsOf(declared, tree, file),
-            EventTypeOf(declared)));
+            EventTypeOf(declared, tree, semantics)));
     }
 
     /// <summary>The event a handler subscribes to: the first event-handler interface's type argument, or its Handle method's first parameter.</summary>
     /// <param name="declared">The event handler declaration.</param>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     /// <returns>The simple name of the subscribed event type, or empty when the handler names none.</returns>
-    private static string EventTypeOf(TypeDeclarationSyntax declared)
+    private static string EventTypeOf(TypeDeclarationSyntax declared, SyntaxTree tree, BackendSemantics? semantics)
     {
+        if (semantics?.ModelFor(tree) is { } model
+            && model.GetDeclaredSymbol(declared) is INamedTypeSymbol symbol
+            && HandlerInterfaces.EventOf(symbol) is { Length: > 0 } subscribed)
+        {
+            return subscribed;
+        }
+
         if (declared.BaseList is not null)
         {
             foreach (var baseType in declared.BaseList.Types)
@@ -126,7 +140,7 @@ static class HandlerReader
             }
         }
 
-        return DotnetNames.SimpleName(ClassDetailsReader.MessageTypeOf(declared));
+        return DotnetNames.SimpleName(ClassDetailsReader.MessageTypeOf(declared, tree, semantics));
     }
 
     /// <summary>Reads one job host: its job mark, and a use-case mark when one sits beside it.</summary>
@@ -139,6 +153,7 @@ static class HandlerReader
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     public static void ReadJob(
         string file,
         SyntaxTree tree,
@@ -148,7 +163,8 @@ static class HandlerReader
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> holders,
         QualifiedKinds qualified,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         var dispatches = DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified);
 
@@ -168,8 +184,8 @@ static class HandlerReader
             ElementReader.SingleMark(marks, "use-case/"),
             ElementReader.SingleMark(marks, "job/"),
             ClassDetailsReader.RepositoriesOf(declared, tree, file),
-            ClassDetailsReader.RefusalsOf(declared, tree, file, constants),
-            ClassDetailsReader.ThrownOf(declared, tree, file),
+            ClassDetailsReader.RefusalsOf(declared, tree, file, constants, semantics),
+            ClassDetailsReader.ThrownOf(declared, tree, file, semantics),
             dispatches,
             ClassDetailsReader.DependencyCountOf(declared),
             ClassActivityReader.CollaboratorsOf(declared, tree, file, holders),
@@ -226,13 +242,24 @@ static class HandlerReader
         return message;
     }
 
-    /// <summary>Whether the type lists the interface among its bases, generic or not.</summary>
+    /// <summary>Whether the type lists the interface among its bases, generic or not, or implements it through a base type.</summary>
     /// <param name="declared">The type declaration.</param>
     /// <param name="face">The interface name.</param>
-    /// <returns>True when the type lists the interface among its bases.</returns>
-    public static bool ImplementsFace(TypeDeclarationSyntax declared, string face) =>
-        declared.BaseList is not null
-        && declared.BaseList.Types
-            .Select(type => DotnetNames.BaseName(type.Type))
-            .Any(baseName => baseName == face || baseName.StartsWith(face + "<", StringComparison.Ordinal));
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
+    /// <returns>True when the type lists or implements the interface.</returns>
+    public static bool ImplementsFace(TypeDeclarationSyntax declared, string face, SyntaxTree tree, BackendSemantics? semantics)
+    {
+        if (semantics?.ModelFor(tree) is { } model
+            && model.GetDeclaredSymbol(declared) is INamedTypeSymbol symbol
+            && HandlerInterfaces.Implements(symbol, face))
+        {
+            return true;
+        }
+
+        return declared.BaseList is not null
+            && declared.BaseList.Types
+                .Select(type => DotnetNames.BaseName(type.Type))
+                .Any(baseName => baseName == face || baseName.StartsWith(face + "<", StringComparison.Ordinal));
+    }
 }

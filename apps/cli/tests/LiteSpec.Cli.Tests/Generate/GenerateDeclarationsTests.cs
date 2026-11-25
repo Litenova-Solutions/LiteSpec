@@ -1,0 +1,376 @@
+using LiteSpec.Cli.Generate;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Checks.Implementation;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Model.Checks;
+using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Tests.Generate;
+
+/// <summary>Proves the declarations generator: one catalog source per module from the use case records, with skipped messages listed.</summary>
+public sealed class GenerateDeclarationsTests
+{
+    /// <summary>Declarations render the golden catalog source for the fixture's lending use cases.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void DeclarationsDotnetMatchesGolden()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.EndsWith("LendingDeclarations.generated.cs", file.AbsolutePath, StringComparison.Ordinal);
+        GenerateGoldens.AssertEqual("declarations-dotnet.txt", file.Content);
+        Assert.Equal(
+            new List<string>
+            {
+                "use-case/lending.merge-holds",
+                "use-case/lending.transfer-hold",
+                "use-case/lending.waive-fine",
+            },
+            plan.Skips.Select(skip => skip.UseCaseId).ToList());
+    }
+
+    /// <summary>Generate lists each skipped use case with its reason and still writes the catalog.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GenerateListsSkippedMessagesWithReasons()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("LendingDeclarations.generated.cs", result.Stdout, StringComparison.Ordinal);
+        Assert.Contains("skipped use-case/lending.merge-holds: authorization condition 'rule/hold.single-active-hold' names a guard check the policy vocabulary cannot state.", result.Stdout, StringComparison.Ordinal);
+        Assert.Contains("skipped use-case/lending.transfer-hold: access states tenant 'cross', which no authorization policy names.", result.Stdout, StringComparison.Ordinal);
+        Assert.Contains("skipped use-case/lending.waive-fine: audit level 'none' states no exemption rationale.", result.Stdout, StringComparison.Ordinal);
+        Assert.Contains("1 files rewritten.", result.Stdout, StringComparison.Ordinal);
+        Assert.True(File.Exists(Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending", "LendingDeclarations.generated.cs")));
+    }
+
+    /// <summary>A declarations target for a TypeScript stack is invalid and generate exits 1 naming it.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DeclarationsTargetNeedsDotnetStack()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: svelte
+              path: apps/web/src/generated
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var error = Assert.Single(plan.Errors);
+
+        Assert.Contains("needs a .NET stack, not 'svelte'", error, StringComparison.Ordinal);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(1, result.Status);
+        Assert.Contains("needs a .NET stack", result.Stderr, StringComparison.Ordinal);
+    }
+
+    /// <summary>A policy form without its placeholders is invalid, naming the field and the missing placeholder.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PolicyFormWithoutPlaceholdersIsInvalid()
+    {
+        Assert.Contains(
+            "holds neither {permission} nor {name}",
+            PlanError("  permissionPolicy: constant"),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "holds no {policy}",
+            PlanError("  selfPolicy: Self"),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "holds no {window}",
+            PlanError("  recentSignInPolicy: RecentSignIn({policy})"),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "holds no {policy}",
+            PlanError("  runsAsPolicy: SystemOr"),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>Custom policy forms render through every grant and wrap of the fixture.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CustomPolicyFormsRender()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              permissionPolicy: "{name}-policy"
+              signedInPolicy: in
+              anonymousPolicy: anon
+              systemPolicy: sys
+              selfPolicy: Own({policy})
+              recentSignInPolicy: Fresh({policy},{window})
+              runsAsPolicy: Sys({policy})
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.Contains(".Authorized(\"Fresh(borrow-copy-policy,PT4H)\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"Sys(place-hold-policy)\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"Own(borrow-copy-policy)\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"Own(read-loans-policy)\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"Sys(Fresh(Own(borrow-copy-policy),PT30M))\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"in\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"anon\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".Authorized(\"sys\")", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A key template renders as an interpolated expression over the message's properties, with literals escaped.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void KeyTemplateRendersAsAnInterpolatedExpression()
+    {
+        var call = DeclarationsRenderer.KeyedIdempotencyCall(
+            "SubmitExpenseCommand",
+            "command",
+            [
+                new DeclarationsRenderer.KeyPart("a\"b\\{c}", null),
+                new DeclarationsRenderer.KeyPart(null, "ExpenseId"),
+            ],
+            "account",
+            false);
+
+        Assert.Equal(
+            @".Declare(IdempotencyDeclaration.KeyedBy<SubmitExpenseCommand>(command => $""a\""b\\{{c}}{command.ExpenseId}"") with { Scope = ""account"", ReplayResult = false })",
+            call);
+    }
+
+    /// <summary>A key template without placeholders renders as a plain literal.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ConstantKeyRendersAsALiteral()
+    {
+        var call = DeclarationsRenderer.KeyedIdempotencyCall(
+            "SubmitExpenseCommand",
+            "command",
+            [new DeclarationsRenderer.KeyPart("fixed", null)],
+            "tenant",
+            true);
+
+        Assert.Contains("(command => \"fixed\")", call, StringComparison.Ordinal);
+        Assert.Contains("ReplayResult = true", call, StringComparison.Ordinal);
+    }
+
+    /// <summary>An audit target on an identifier converts through ToString, and on text reads as is.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AuditTargetSelectorFollowsThePropertyType()
+    {
+        Assert.Equal(
+            @".Declare<AuditDeclaration>(AuditDeclaration.Audited(""use-case/lending.borrow-copy"", category: ""personal-data-read"", targetKind: ""aggregate/lending.copy"").WithTargetFrom<BorrowCopyCommand>(command => command.CopyId.ToString()))",
+            DeclarationsRenderer.AuditedWithTargetCall(
+                "use-case/lending.borrow-copy", "personal-data-read", "aggregate/lending.copy",
+                "BorrowCopyCommand", "command", "CopyId", targetIsText: false));
+
+        Assert.Equal(
+            @".Declare<AuditDeclaration>(AuditDeclaration.Audited(""use-case/lending.tag-copy"").WithTargetFrom<TagCopyCommand>(command => command.Tag))",
+            DeclarationsRenderer.AuditedWithTargetCall(
+                "use-case/lending.tag-copy", null, null,
+                "TagCopyCommand", "command", "Tag", targetIsText: true));
+    }
+
+    /// <summary>A message with one declaration renders on one line, and a catalog without audit imports no auditing namespace.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleCallMessageRendersOnOneLine()
+    {
+        var text = DeclarationsRenderer.RenderDotnet(
+            "lending",
+            [
+                new DeclarationsRenderer.DeclaredMessage(
+                    "use-case/lending.list-loans", "ListLoansQuery", "Library.Lending.Application.ListLoans", "query",
+                    DeclarationsRenderer.AuthorizedCall("signed-in"), null, null),
+            ],
+            "Library.Lending");
+
+        Assert.Contains("internal sealed partial class LendingDeclarations : IMultiMessageDefinition", text, StringComparison.Ordinal);
+        Assert.Contains(".Describe<ListLoansQuery>(declarations => declarations.Authorized(\"signed-in\"));", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Auditing", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A module whose every use case skips writes no file, and generate still lists each skip.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AllSkippedModuleWritesNoFile()
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+
+        foreach (var folder in new[]
+            {
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "return-copy"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "extend-loan"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "renew-loan"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "use-cases", "place-hold"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "use-cases", "cancel-hold"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "register-copy"),
+                Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy"),
+            })
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Files);
+        Assert.Equal(3, plan.Skips.Count);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("0 files rewritten.", result.Stdout, StringComparison.Ordinal);
+        Assert.Contains("skipped use-case/lending.waive-fine: ", result.Stdout, StringComparison.Ordinal);
+    }
+
+    /// <summary>A message without its own definition files reports nothing when a declarations target covers the project.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void MissingDefinitionsWithDeclarationsTargetReportNothing()
+    {
+        using var temp = TestCli.Temp("generate");
+        var folder = ApplicationFolder(temp.Path);
+        var model = CatalogModel(
+            temp.Path,
+            folder,
+            """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "audit": {"exemptBecause": "Reads trail nothing."}, "idempotency": {"mode": "none", "reason": "Each call lends its own copy."}}""");
+
+        Assert.Empty(RunDefinitionChecks(model));
+    }
+
+    /// <summary>A definition file that exists beside a declarations target is still judged against its record.</summary>
+    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact]
+    public void DriftingDefinitionWithDeclarationsTargetStillReportsDrift()
+    {
+        using var temp = TestCli.Temp("generate");
+        var folder = ApplicationFolder(temp.Path);
+        var model = CatalogModel(
+            temp.Path,
+            folder,
+            """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        File.WriteAllText(
+            Path.Combine(folder, "BorrowCopyCommandAuthorizationDefinition.cs"),
+            "internal sealed class BorrowCopyCommandAuthorizationDefinition\n{\n    public string Policy => AuthorizationDeclaration.Authorized(\"permission/other-thing\").ToString();\n}\n");
+
+        var finding = Assert.Single(RunDefinitionChecks(model));
+
+        Assert.Equal("definition-drift", finding.Code);
+        Assert.Equal("Authorization definition 'BorrowCopyCommandAuthorizationDefinition' declares no permission 'approve-expense' for 'use-case/lending.borrow-copy'.", finding.Message);
+    }
+
+    /// <summary>The single target error a declarations target carrying the field reports.</summary>
+    /// <param name="field">The target field line, indented two spaces.</param>
+    /// <returns>The target error.</returns>
+    static string PlanError(string field)
+    {
+        using var temp = ModelFixture.Prepare("declarations");
+        AppendGenerate(
+            temp.Path,
+            "generate:\n- kind: declarations\n  stack: dotnet\n  path: apps/api/src/Modules/Library.{Module}\n  namespace: Library.{Module}\n" + field + "\n");
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        return Assert.Single(plan.Errors);
+    }
+
+    /// <summary>Runs the definition check and keeps its findings.</summary>
+    /// <param name="model">The project model to check.</param>
+    /// <returns>The definition findings.</returns>
+    static List<Finding> RunDefinitionChecks(ProjectModel model)
+    {
+        var findings = new List<Finding>();
+        DefinitionChecks.Run(model, findings);
+
+        return findings.Where(finding => finding.Code is "definition-drift" or "definition-missing").ToList();
+    }
+
+    /// <summary>A model with a declarations target, the use case record and its handler in the Application folder.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="folder">The Application folder holding the handler.</param>
+    /// <param name="json">The use case record fields as a JSON object.</param>
+    /// <returns>The project model holding the target, the record and its handler.</returns>
+    static ProjectModel CatalogModel(string root, string folder, string json)
+    {
+        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
+        File.WriteAllText(
+            Path.Combine(root, ".litespec", "project.yaml"),
+            """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var model = TestModel.Model(
+            TestModel.Config(root),
+            TestModel.Record(RecordTypes.UseCase, "use-case/lending.borrow-copy", Path.Combine(root, ".litespec", "borrow-copy.yaml"), json));
+        model.Code.Handlers.Add(new CodeHandler(
+            "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command",
+            Path.Combine(folder, "BorrowCopyCommandHandler.cs"),
+            "BorrowCopyCommandHandler",
+            MessageType: "BorrowCopyCommand"));
+
+        return model;
+    }
+
+    /// <summary>The use case Application folder holding the handler.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <returns>The created folder.</returns>
+    static string ApplicationFolder(string root)
+    {
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Application", "Loans", "BorrowCopy");
+        Directory.CreateDirectory(folder);
+
+        return folder;
+    }
+
+    /// <summary>Appends a generate block to the fixture project file.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="yaml">The generate block YAML.</param>
+    static void AppendGenerate(string root, string yaml) =>
+        File.AppendAllText(Path.Combine(root, ".litespec", "project.yaml"), "\n" + yaml + "\n");
+}

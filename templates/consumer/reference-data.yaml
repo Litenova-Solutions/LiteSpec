@@ -7,9 +7,22 @@ summary: <what values the table holds and who reads them>
 unit: <the unit of each value, such as EUR, or remove this line>
 choices:
 - <an allowed value, or remove this line>
+valueMeanings:
+  <an allowed value>: <what the value means, or remove this line>
 requiredRoles:
 - <a role the citing rules read, or remove this line>
 variation: <the dimension the rows vary by, such as country, or remove this line>
+row:
+  type: <the qualified model row type, or remove row with columns>
+  factory: <the static factory method building one row, or remove this line for Create>
+columns:
+- column: <value, key, role, variant, refersTo, effectiveFrom, effectiveTo or source>
+  parameter: <the factory parameter name>
+  as: <string, number, boolean, date, money, key, member or map>
+  type: <the qualified model type for money, key or member, or remove this line>
+  factory: <the static factory building the key, or remove this line for From>
+  currency: <the three-letter currency code for money, or remove this line>
+  literals: { <a row value>: <its literal> }
 rows:
 - value: <the value in force>
   key: <the stable key of the row, or remove this line>

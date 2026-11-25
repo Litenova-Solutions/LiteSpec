@@ -4,7 +4,7 @@ Say what values this table holds, who reads them, and what changes when a new ro
 
 ## Values
 
-Say what each row holds, when it takes effect, and where its value comes from. Name the roles the rows play, the variant each row belongs to, and the values the table allows, where the record states them.
+Say what each row holds, when it takes effect, and where its value comes from. Name the roles the rows play, the variant each row belongs to, and the values the table allows, where the record states them. Where the record states `row` and `columns`, name the model row type the sets build from the table.
 
 ## Example
 

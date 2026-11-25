@@ -15,11 +15,44 @@ A reaction answers a domain event of its own module, a module event, or an inbou
 
 Only an endpoint, an event handler, and a job hold the command mediator. A command handler, query handler, reaction, or job holds the query mediator only to send another module's public query with a declared `queries` edge. A validator, step, or domain type sends nothing, no type in a module project publishes an event, and no type outside the platform holds the event mediator.
 
+A project with a `messages` generate target writes each command and query from its use case record: an internal sealed partial record with one positional property per input, the idempotency key, paging members, and tenant key the record implies, and the LiteBus interface over its result. A project with a `results` target writes each result beside its message: one property per output field, a nested record per output group, a row record per multi-field list, and the next cursor when the query pages. Hand-written members live in a sibling partial file.
+
 In Claimwick, approving an expense sends `ApproveExpenseCommand` through `ICommandMediator`: validators check the input, the pipeline authorizes the approver, the handler records the approval, and one commit stores it.
 
 ### Validity Findings
 
-A validator checks structural input, such as an empty title or a malformed identifier, before Domain runs. Each finding names the input member, a stable reason code, and a caller-safe message. The pipeline runs every validator for the message and merges the findings, so the caller learns about all input problems in one answer instead of fixing them one round trip at a time.
+A validator checks structural input, such as an empty title or a malformed identifier, before Domain runs. Each finding names the input member, a stable reason code, and a caller-safe message. The pipeline runs every validator for the message and merges the findings, so the caller learns about all input problems in one answer instead of fixing them one round trip at a time. A project with a `validators` generate target writes each validator from its use case record: one rule per constraint with the member, the reason code, and the message, refused through the derived `invalid-input` result, with hand-written checks in the partial hook after the generated rules.
+
+### Message Declarations
+
+Each message states its pipeline positions, authorization, audit, and idempotency, in one generated catalog source per module. A project with a `declarations` generate target declares every command and query through that file: an internal sealed partial class implementing the LiteBus `IMultiMessageDefinition` that calls `catalog.Describe` once per message with the authorization, audit, and idempotency its use case record states. Hand-written definition classes beside the message remain only where no catalog covers the project, or for a message the catalog skips.
+
+Authorization declarations name one policy per message, and the project's guard evaluates the name. The default vocabulary reads the permission id for a permission grant, `signed-in`, `anonymous`, and `system` for each grant, and wraps the policy for a self grant or self scope as `Self(...)`, for a recent sign-in as `RecentSignIn(...,window)`, and for a use case the system also runs as `SystemOr(...)`. A project whose guard speaks another vocabulary names its own forms on the target. The guard parses each name and evaluates it against the caller: a permission check, a self check over the message's subject, a sign-in age against the window, or either a person grant or a system run.
+
+In Claimwick, the spending catalog authorizes submit-expense under `permission/request-expense`, reimburse-expense under `RecentSignIn(permission/post-reimbursement,PT15M)`, and list-expenses under `Self(permission/list-expenses)`; every message trails its exemption reason through `NotAudited`, and submit-expense keys by its expense identity.
+
+### Record Field Types in C#
+
+A contract field maps to exactly one C# type, so a generator writes the same property type from the record on every message, result, event, and read model, and the field-drift check holds each hand-written property to it. The table states the mapping; each row follows the provision owning the C# form.
+
+| Record type | C# type |
+|:---|:---|
+| `text`, `email` | `string` |
+| `integer` | `int` |
+| `decimal` | `decimal` |
+| `money` | `Money`, or `decimal` with its currency beside it |
+| `boolean` | `bool` |
+| `date` | `DateOnly` |
+| `instant` | `DateTimeOffset` |
+| `duration` | `TimeSpan` |
+| `choice` | The closed-set record the `set` names |
+| `id` | The typed identifier of what `identifies` names |
+| `list` | `IReadOnlyList<T>` with `T` from the row shape |
+| `file` | No single type: the endpoint binds the multipart upload |
+
+A money field rides as the shared `Money` object, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states. A money field with a fixed `currency` rides as a `decimal` alone, and one with `currencyField` rides as a `decimal` with the sibling carrying the code. An id field identifying an aggregate rides as its typed identifier struct, as `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers` states, and one identifying an actor rides as a `Guid`. A choice field rides as the closed-set record hierarchy, as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` states. A list row of several fields rides as a nested record. A file field states its media types and size for the endpoint and the validator; its message form follows the upload flow, so the drift check does not judge it. The constraints exist so validators enforce them from the record.
+
+In Claimwick, the submit-expense command carries an `ExpenseId`, a `decimal` amount with a `string` currency, and a `DateTimeOffset` handled time from its record.
 
 ## Standards
 
@@ -257,10 +290,10 @@ internal sealed class EraseExpiredPersonalDataHost
 **Rationale:** One pinned binding per position keeps every project's pipeline identical:
 
 - The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`.
-- Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.AuthorizationGuard<TMessage>`, which reads the declaration through `DeclarationGuard<TMessage, TValue>`. The guard reads the declaration from the message's `{Message}AuthorizationDefinition`, which implements `IAuthorizationDefinition<TMessage>` beside the message under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. The project's `AuthorizeAsync(policy, message, cancellationToken)` answers whether the caller holds the declared policy; LiteBus carries the policy and never evaluates it.
-- Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in the message's `{Message}AuditDefinition`, which implements `IAuditDefinition<TCommand>` from `LiteBus.Messaging.Abstractions.Auditing`, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
+- Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.AuthorizationGuard<TMessage>`, which reads the declaration through `DeclarationGuard<TMessage, TValue>`. The guard reads the declaration from the generated module catalog, or from the message's `{Message}AuthorizationDefinition`, which implements `IAuthorizationDefinition<TMessage>` beside the message where no catalog covers the project, under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. The project's `AuthorizeAsync(policy, message, cancellationToken)` answers whether the caller holds the declared policy; LiteBus carries the policy and never evaluates it.
+- Audit runs through `Audited` and `NotAudited` calls in the generated module catalog, or through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in the message's `{Message}AuditDefinition`, which implements `IAuditDefinition<TCommand>` from `LiteBus.Messaging.Abstractions.Auditing` where no catalog covers the project, declaring the target and reason beside the message under `litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message`.
 - The audit chain runs through `AddAuditing(auditing => auditing.UseMartenStore().UseHashChain(chain => ...))`, with `UseMartenStore` from `LiteBus.Auditing.Storage.Marten`. The chain writes its records in the Marten session of the business unit of work, so a captured record commits or rolls back with the change. `StoreAs<TDocument, TMapper>()` names the stored document and its `IAuditRecordMapper<TDocument>`, `SegmentBy<TSegmenter>()` the `IAuditSegmenter<TDocument>`, `SignCheckpointsWith<TSigner>()` the `ICheckpointSigner`, `CheckpointWhen(...)` the `ICheckpointPolicy`, `PublishCheckpointsTo<TPublisher>()` the `ICheckpointPublisher`, and `VerifyAgainst<TSource>()` the `ICheckpointSource`. The Marten store registers its `IAuditCanonicalizer<TDocument>` as a replaceable default.
-- Idempotency runs through the message's `{Message}IdempotencyDefinition`, which implements `IIdempotencyDefinition<TMessage>`, declaring the message's idempotency beside the message. A record of mode `key` keys the message with its key template. A record of mode `key` with `replay: returns-first-result` declares `replayResult: true`, so a repeat returns the first result; with `replay: refuses` or `replay: acts-again` it declares `replayResult: false`, so a repeat brings no stored result. A keyed declaration that omits the flag replays nothing, so `model check` reports `idempotency-replay-drift` when its record states `returns-first-result`. A record of mode `state` or `none` declares an exemption: a state command recognizes the repeat by the state its `recognizedBy` names, and a pipeline key would outlive that state, so a grant, a revoke and a second grant would replay the first answer.
+- Idempotency runs through the generated module catalog, which keys or exempts each message, or through the message's `{Message}IdempotencyDefinition`, which implements `IIdempotencyDefinition<TMessage>` beside the message where no catalog covers the project. A record of mode `key` keys the message with its key template. A record of mode `key` with `replay: returns-first-result` declares `replayResult: true`, so a repeat returns the first result; with `replay: refuses` or `replay: acts-again` it declares `replayResult: false`, so a repeat brings no stored result. A keyed declaration that omits the flag replays nothing, so `model check` reports `idempotency-replay-drift` when its record states `returns-first-result`. A record of mode `state` or `none` declares an exemption: a state command recognizes the repeat by the state its `recognizedBy` names, and a pipeline key would outlive that state, so a grant, a revoke and a second grant would replay the first answer.
 - Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
 - Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately, one envelope per subscribed handler so one failing handler retries alone, under `litespec/ext/outbox#give-each-handler-its-own-delivery`.
 - Event staging runs through `outbox.StageCollectedEvents()`, which drains the facts `IDomainEventCollector` holds and stages them in the same commit as the aggregate change. Harvesting moves the domain events an aggregate raised into that collector before the drain, so a handler does not call `Collect` for them:
@@ -272,7 +305,7 @@ internal sealed class EraseExpiredPersonalDataHost
 - Immediate dispatch runs through `outbox.EnableImmediateDispatch(...)` with `[DispatchImmediately]` on the handlers the caller reads when the command returns, under `litespec/backend/dotnet/application#dispatch-read-model-projections-immediately`.
 - The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#read-time-from-the-scoped-clock`.
 
-Each message declares its pipeline positions in definition classes in its use case `Application/` folder: `{Message}AuthorizationDefinition`, `{Message}AuditDefinition`, and `{Message}IdempotencyDefinition`, each in its own file and implementing exactly one definition interface. LiteBus verifies at composition through `RequireDeclaration` that every message carries them. A definition carries no LiteSpec mark; the handler carries the use case mark. A project declares authorization, audit, and idempotency only through definitions, never through attributes or custom guards. Settled by [decision/0103-dotnet-stack-binding](decision/0103-dotnet-stack-binding).
+A project with a `declarations` generate target declares every message through its generated module catalog, one partial class per module implementing `IMultiMessageDefinition`. Where no catalog covers the project, each message declares its pipeline positions in definition classes in its use case `Application/` folder: `{Message}AuthorizationDefinition`, `{Message}AuditDefinition`, and `{Message}IdempotencyDefinition`, each in its own file and implementing exactly one definition interface. A message the catalog skips keeps its hand-written definition files. LiteBus verifies at composition through `RequireDeclaration` that every message carries its positions. A definition carries no LiteSpec mark; the handler carries the use case mark. A project declares authorization, audit, and idempotency only through the catalog or definitions, never through attributes or custom guards. Settled by [decision/0103-dotnet-stack-binding](decision/0103-dotnet-stack-binding).
 
 **Example:** A Marten project composes its pipeline as follows:
 
@@ -288,7 +321,7 @@ outbox.EnablePerHandlerDelivery();
 outbox.StageCollectedEvents();
 ```
 
-Claimwick's reimburse-expense command carries `ReimburseExpenseCommandAuthorizationDefinition`, `ReimburseExpenseCommandAuditDefinition`, and `ReimburseExpenseCommandIdempotencyDefinition` in its use case `Application/` folder, each implementing its one definition interface.
+Claimwick declares every spending and reporting message through its generated catalogs: `SpendingDeclarations` authorizes reimburse-expense under `RecentSignIn(permission/post-reimbursement,PT15M)` and exempts its audit and idempotency from the record, with no per-message definition files.
 
 **Reviewed for:** Does every pipeline position use its pinned LiteBus API? Check the command pipeline composition.
 

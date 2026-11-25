@@ -14,6 +14,9 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
+http:
+  method: PUT
+  route: /api/reminder-preferences/{managerId}
 input:
 - name: manager
   meaning: The manager the preference belongs to.
@@ -21,18 +24,21 @@ input:
   identifies: actor/manager
   required: true
   origin: caller
+  binding: route
   classification: personal
 - name: receivesReminders
   meaning: Whether the manager gets an approval reminder for a waiting expense.
   type: boolean
   required: true
   origin: caller
+  binding: query
   classification: internal
 - name: reason
   meaning: Why the manager skips reminders, kept with the preference.
   type: text
   required: false
   origin: caller
+  binding: query
   classification: internal
 - name: changer
   meaning: The signed-in caller changing the preference, the manager the preference belongs to or finance, read from verified claims.
@@ -41,6 +47,7 @@ input:
   required: false
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
+  binding: claim
   classification: personal
 - name: changerIsFinance
   meaning: Whether the changer holds the finance role, computed from the changer's verified roles.
@@ -50,10 +57,18 @@ input:
   classification: internal
 - name: handledAt
   meaning: The time the change runs, read from the clock.
-  type: date-time
+  type: instant
   required: false
   origin: derived
   classification: internal
+output:
+- name: manager
+  meaning: The manager the preference belongs to.
+  type: id
+  identifies: actor/manager
+- name: receivesReminders
+  meaning: Whether the manager gets an approval reminder for a waiting expense.
+  type: boolean
 writes:
 - aggregate/spending.reminder-preference
 idempotency:
@@ -61,6 +76,8 @@ idempotency:
   reason: a repeat sets the same choice for the same manager, leaving the same preference in place
   replay: acts-again
   recognizedBy: the aggregate state already holds the outcome this command sets
+audit:
+  exemptBecause: The preference holds its choice; the change trails nothing further.
 steps:
 - statement: The manager sends whether they get reminders.
   cites:

@@ -750,7 +750,7 @@ Malformed caller input stays with Application validators, which report it as val
 public sealed partial class ExpenseReceiptMissingException : DomainException
 {
     public ExpenseReceiptMissingException()
-        : base("An expense above the receipt threshold carries no receipt.")
+        : base("The expense is above the receipt threshold and carries no receipt.")
     {
     }
 }

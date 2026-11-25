@@ -44,7 +44,7 @@ public sealed class ModuleEventCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/expense.reimbursed", Path.Combine(temp.Path, "expense.yaml"), """{"meaning": "An expense was reimbursed.", "carries": [{"name": "expenseId", "type": "text"}]}"""),
-            TestModel.Record("integration-event", "integration-event/expense-reimbursed", Path.Combine(temp.Path, "reimbursed.yaml"), """{"action": "send", "translates": "domain-event/expense.reimbursed", "payload": [{"name": "expenseId", "meaning": "The reimbursed expense.", "type": "text", "required": true}, {"name": "paidAt", "meaning": "When the expense was paid.", "type": "date-time", "required": true}]}"""));
+            TestModel.Record("integration-event", "integration-event/expense-reimbursed", Path.Combine(temp.Path, "reimbursed.yaml"), """{"action": "send", "translates": "domain-event/expense.reimbursed", "payload": [{"name": "expenseId", "meaning": "The reimbursed expense.", "type": "text", "required": true}, {"name": "paidAt", "meaning": "When the expense was paid.", "type": "instant", "required": true}]}"""));
 
         Assert.Contains("event-field-uncarried", TestModel.Codes(model));
         Assert.DoesNotContain("integration-event-field-uncarried", TestModel.Codes(model));

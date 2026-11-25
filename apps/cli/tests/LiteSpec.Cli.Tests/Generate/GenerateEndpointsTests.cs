@@ -1,0 +1,399 @@
+using LiteSpec.Cli.Generate;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Tests.Generate;
+
+/// <summary>Proves the endpoints generator writes one module endpoints class mapping each use case route.</summary>
+public sealed class GenerateEndpointsTests
+{
+    /// <summary>Every HTTP-reached use case renders its golden nested endpoint class in the module file.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void EndpointsDotnetMatchesGolden()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Equal(
+            "apps/api/src/Modules/Library.Lending/LendingEndpoints.generated.cs",
+            Path.GetRelativePath(temp.Path, file.AbsolutePath).Replace('\\', '/'));
+
+        GenerateGoldens.AssertEqual("endpoints-dotnet.txt", file.Content);
+    }
+
+    /// <summary>Generate writes the endpoints file, and a second check finds it current.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GenerateWritesEndpointsFiles()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Modules", "Library.Lending", "LendingEndpoints.generated.cs");
+        Assert.True(File.Exists(file), "endpoints file");
+        Assert.Contains("internal static partial class LendingEndpoints", File.ReadAllText(file), StringComparison.Ordinal);
+        Assert.Equal(0, TestCli.Run("generate", "--root", temp.Path, "--check").Status);
+    }
+
+    /// <summary>An endpoints target without a claim reader reports and renders nothing.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EndpointsTargetWithoutClaimReaderReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Files);
+        Assert.Contains(plan.Errors, error => error.Contains("claimReader", StringComparison.Ordinal));
+    }
+
+    /// <summary>An endpoints target with an unqualified claim reader reports and renders nothing.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EndpointsTargetWithUnqualifiedClaimReaderReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Files);
+        Assert.Contains(plan.Errors, error => error.Contains("qualified", StringComparison.Ordinal));
+    }
+
+    /// <summary>An endpoints target for a TypeScript stack reports and renders nothing.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EndpointsTargetForTypeScriptReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: svelte
+              path: apps/web/src/generated
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Files);
+        Assert.Contains(plan.Errors, error => error.Contains("'dotnet'", StringComparison.Ordinal));
+    }
+
+    /// <summary>A use case opting out with generated false renders no endpoint and lists no skip.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OptedOutUseCaseRendersNothing()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var borrow = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        File.WriteAllText(borrow, File.ReadAllText(borrow).Replace(
+            "  route: /api/loans\n",
+            "  route: /api/loans\n  generated: false\n",
+            StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("BorrowCopyEndpoint", file.Content, StringComparison.Ordinal);
+        Assert.Contains("ReturnCopyEndpoint", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case carrying a file input renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void FileInputSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: photo
+              meaning: The photo of the retired copy.
+              type: file
+              contentTypes:
+              - image/jpeg
+              maxSize: 5MB
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("file", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A command stating a created location answers 201 with the location over the shaped result.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CreatedCommandRendersLocationAndShape()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [CreatedEndpoint()],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            ["Claimwick.Spending.Contracts.Expenses"]);
+
+        Assert.Contains(".Produces<SubmitExpenseResponseModel>(StatusCodes.Status201Created)", text, StringComparison.Ordinal);
+        Assert.Contains("return TypedResults.Created(", text, StringComparison.Ordinal);
+        Assert.Contains("$\"/api/expenses/{result.ExpenseId}\"", text, StringComparison.Ordinal);
+        Assert.Contains("ShapeSubmitExpenseResponse(result)", text, StringComparison.Ordinal);
+        Assert.Contains("static partial SubmitExpenseResponseModel ShapeSubmitExpenseResponse(SubmitExpenseCommandResult result);", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>An unlisted choice label answers 400 naming the set before the message runs.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ChoiceGuardRefusesUnknownLabel()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/spending.submit-expense",
+                "SubmitExpense",
+                "Submit Expense",
+                null,
+                "command",
+                "POST",
+                "/api/expenses",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "category", "Category", "category", "category", "choice", "body", true,
+                    "The kind of cost.", "ExpenseCategory", null, null, "caller")],
+                new Dictionary<string, string>(),
+                false,
+                [422],
+                "SubmitExpenseCommand",
+                "Claimwick.Spending.Application.Expenses.SubmitExpense",
+                "SubmitExpenseCommandResult",
+                "SubmitExpenseResponseModel",
+                "Claimwick.Spending.WebApi.Expenses.SubmitExpense",
+                MarkStyle.Xml)],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("if (!ExpenseCategory.TryFromCode(request.Category, out var category))", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Unknown expense category.\"", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status400BadRequest)", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status422UnprocessableEntity)", text, StringComparison.Ordinal);
+        Assert.Contains("Category: category", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A derived value the clock rule does not cover renders a derivation partial the sibling implements.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DerivedValueRendersDerivationPartial()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/spending.change-reminder-preference",
+                "ChangeReminderPreference",
+                "Change Reminder Preference",
+                null,
+                "command",
+                "PUT",
+                "/api/reminder-preferences/{managerId}",
+                null,
+                [
+                    new EndpointsRenderer.BoundInput(
+                        "manager", "ManagerId", "managerId", "managerId", "id", "route", true,
+                        "The manager the preference belongs to.", null, null, null, "caller"),
+                    new EndpointsRenderer.BoundInput(
+                        "changerIsFinance", "ChangerIsFinance", "changerIsFinance", "changerIsFinance", "boolean", "derived", false,
+                        "Whether the changer holds the finance role.", null, null, null, "derived"),
+                ],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "ChangeReminderPreferenceCommand",
+                "Claimwick.Spending.Application.ReminderPreferences.ChangeReminderPreference",
+                "ChangeReminderPreferenceCommandResult",
+                "ChangeReminderPreferenceResponseModel",
+                "Claimwick.Spending.WebApi.ReminderPreferences.ChangeReminderPreference",
+                MarkStyle.Xml)],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("ClaimsPrincipal user", text, StringComparison.Ordinal);
+        Assert.Contains("ChangerIsFinance: DeriveChangeReminderPreferenceChangerIsFinance(user)", text, StringComparison.Ordinal);
+        Assert.Contains("static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>An optional body id maps an absent value to null and a carried one through its factory.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OptionalBodyIdMapsNull()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/spending.submit-expense",
+                "SubmitExpense",
+                "Submit Expense",
+                null,
+                "command",
+                "POST",
+                "/api/expenses",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "receipt", "ReceiptId", "receiptId", "receiptId", "id", "body", false,
+                    "The proof of payment.", null, "ReceiptId", null, "caller")],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "SubmitExpenseCommand",
+                "Claimwick.Spending.Application.Expenses.SubmitExpense",
+                "SubmitExpenseCommandResult",
+                "SubmitExpenseResponseModel",
+                "Claimwick.Spending.WebApi.Expenses.SubmitExpense",
+                MarkStyle.Xml)],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("internal sealed partial record SubmitExpenseRequest(Guid? ReceiptId);", text, StringComparison.Ordinal);
+        Assert.Contains("ReceiptId: request.ReceiptId is null ? null : ReceiptId.From(request.ReceiptId.Value)", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A project with attribute marks renders the use case mark as an attribute.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AttributeMarksRenderAsAttributes()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.borrow-copy",
+                "BorrowCopy",
+                "Borrow copy",
+                null,
+                "command",
+                "POST",
+                "/api/loans",
+                null,
+                [],
+                new Dictionary<string, string>(),
+                false,
+                [409],
+                "BorrowCopyCommand",
+                "Library.Lending.Application.Loans.BorrowCopy",
+                "BorrowCopyCommandResult",
+                "BorrowCopyResponseModel",
+                "Library.Lending.WebApi.Loans.BorrowCopy",
+                MarkStyle.Attribute)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("[Implements(\"use-case/lending.borrow-copy\")]", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("<implements>", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>One submit endpoint stating a created location, for the created-response test.</summary>
+    /// <returns>The endpoint the plan would read from the submit-expense record.</returns>
+    static EndpointsRenderer.EndpointData CreatedEndpoint() =>
+        new(
+            "use-case/spending.submit-expense",
+            "SubmitExpense",
+            "Submit Expense",
+            "An employee files a work expense so it can be decided and reimbursed.",
+            "command",
+            "POST",
+            "/api/expenses",
+            "/api/expenses/{expenseId}",
+            [
+                new EndpointsRenderer.BoundInput(
+                    "expenseId", "ExpenseId", "expenseId", "expenseId", "id", "body", true,
+                    "The identifier the app mints for one submission attempt.", null, "ExpenseId", null, "caller"),
+                new EndpointsRenderer.BoundInput(
+                    "employee", "EmployeeId", "employeeId", "employeeId", "id", "claim", false,
+                    "The signed-in employee filing the expense.", null, null, "employee", "verified-claim"),
+            ],
+            new Dictionary<string, string> { ["expenseId"] = "ExpenseId" },
+            true,
+            [422],
+            "SubmitExpenseCommand",
+            "Claimwick.Spending.Application.Expenses.SubmitExpense",
+            "SubmitExpenseCommandResult",
+            "SubmitExpenseResponseModel",
+            "Claimwick.Spending.WebApi.Expenses.SubmitExpense",
+            MarkStyle.Xml);
+
+    /// <summary>Appends a generate block to the fixture project file.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="yaml">The generate block YAML.</param>
+    static void AppendGenerate(string root, string yaml) =>
+        File.AppendAllText(Path.Combine(root, ".litespec", "project.yaml"), "\n" + yaml + "\n");
+}

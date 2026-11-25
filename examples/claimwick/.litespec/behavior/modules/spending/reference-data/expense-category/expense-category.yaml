@@ -1,0 +1,31 @@
+type: reference-data
+id: reference-data/spending.expense-category
+title: Expense Category
+summary: The kinds of cost an expense carries, read at submit.
+choices:
+- travel
+- meals
+- lodging
+- other
+valueMeanings:
+  travel: A trip to a client.
+  meals: Food on a work day.
+  lodging: A night away.
+  other: A cost of no other kind.
+rows:
+- value: travel
+  key: travel
+  effectiveFrom: 2026-01-01
+  source: decision/0006-expense-categories
+- value: meals
+  key: meals
+  effectiveFrom: 2026-01-01
+  source: decision/0006-expense-categories
+- value: lodging
+  key: lodging
+  effectiveFrom: 2026-01-01
+  source: decision/0006-expense-categories
+- value: other
+  key: other
+  effectiveFrom: 2026-01-01
+  source: decision/0006-expense-categories

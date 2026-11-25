@@ -356,6 +356,13 @@ internal sealed record PathContext(
     /// <returns>The layer and artifact.</returns>
     static (string Layer, string Artifact) BackendScope(string[] segments, string name, string text)
     {
+        // A generated file carries the role of the file it replaces, so the
+        // `.generated` infix is stripped before the role suffixes match.
+        if (name.EndsWith(".generated.cs", StringComparison.Ordinal))
+        {
+            name = name[..(name.Length - ".generated.cs".Length)] + ".cs";
+        }
+
         if (HasSegment(segments, "Migrations") || name.EndsWith("Migration.cs", StringComparison.Ordinal) || name.EndsWith("Snapshot.cs", StringComparison.Ordinal))
         {
             return ("infrastructure", "migration");

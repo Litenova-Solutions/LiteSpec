@@ -1,0 +1,24 @@
+type: use-case
+id: use-case/lending.return-copy
+title: Return Copy
+kind: command
+access:
+  grant: self(permission/borrow-copy)
+  tenant: own
+input:
+- name: loanId
+  meaning: The loan the reader returns.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: state
+  recognizedBy: the loan already closed by an earlier return
+  replay: refuses
+audit:
+  exemptBecause: Returns trail in the loan states.
+steps:
+- statement: The reader returns the copy to the desk.

@@ -573,6 +573,18 @@ Checks now compare code with the record field by field, generated code replaces 
 - The analyzers treat a knowledge model as its own layer: it may reference dependency injection, logging and options for its composition and startup validation, and LS1005 does not apply there, while the domain value rules still do. Only an assembly under `Knowledge/` that references its model counts as a knowledge set, so LS2038 no longer reports third-party packages.
 - New agent provisions: `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`, `litespec/core/agent#check-your-own-change-before-handing-it-back` and `litespec/core/agent#follow-the-record-not-the-neighbour`, and for maintainers `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`.
 
+### Part BF: Records That Determine the Code
+
+Records now hold every fact the structure of a slice depends on, and `litespec generate` writes that structure, so hand-written code is left to logic, adapters and screens.
+
+- Field facts: each input and output field maps to one code type per stack (typed identifier from `identifies`, closed set through `set`, money with its currency, decimal `scale`, text `maxLength`, list rows, nullability from `required`), with the mapping tables on the .NET stack page and the web data page, and carries machine-readable constraints (`minLength`, `maxLength`, `range`, `pattern`, `set`). The field-drift checks compare exact types when a field states them.
+- Access facts: `access` states `recentSignIn`, `scope: self` with its `identityInput`, and `preconditions`, each checked.
+- Audit and HTTP facts: `audit.category` and `audit.target`; an `http` block with method, route and a `binding` per input for use cases reached through an api or browser entry point; a `status` on each refusal cited over HTTP; eight checks hold them.
+- New generator kinds: `messages` and `results` (partial records from `input` and `output`), `declarations` (one partial declaration catalog per module for authorization, audit and idempotency), `domain-events` and `module-events`, `exceptions` (one partial exception per refusal), `validators` (rules from field constraints with a hook for hand-written checks), `endpoints` (one partial route map per module, with an opt-out for special endpoints), `knowledge-sets` (set tables from reference-data rows, so the record stays the one source of each value), and `closed-sets` as full types (abstract record, sealed cases, `Code`, `FromCode`, `TryFromCode`, `All`). Every generated type is partial; hand-written members live in a sibling file. Claimwick adopts each kind.
+- Generator safety: every renderer ships with golden-file tests, each generated header names the LiteSpec version, and a target inside a frontend's client output folder or two targets writing one file is a configuration error.
+- The .NET backend reader builds a Roslyn compilation when the consumer has build output (semantic mode) and reads constants, typed identifiers and calls through symbols; it falls back to syntax-only reading otherwise, and `model check` names the mode that ran. The native tool keeps semantic mode.
+- Each green release-branch build publishes the CLI and analyzers to GitHub Packages as `<version>-dev.<run>`; `litespec-maintain publish-local --from-ci <run>` pins a consumer to one, so its CI restores the build its developers use.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -595,7 +607,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (347):
+Added (356):
 
 - `litespec/backend/api#map-every-failure-to-its-declared-status`
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
@@ -692,8 +704,10 @@ Added (347):
 - `litespec/core/access#describe-every-served-content-entry-with-its-serving-fields`
 - `litespec/core/access#evaluate-access-in-one-order`
 - `litespec/core/access#keep-permission-sets-to-entries`
-- `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
+- `litespec/core/access#limit-the-age-of-a-sign-in`
 - `litespec/core/access#model-a-hosted-sign-in-as-use-cases`
+- `litespec/core/access#name-every-authorization-precondition`
+- `litespec/core/access#name-the-caller-identity-of-a-self-scope`
 - `litespec/core/agent#check-your-own-change-before-handing-it-back`
 - `litespec/core/agent#exercise-changed-use-cases-through-the-running-stack`
 - `litespec/core/agent#follow-the-record-not-the-neighbour`
@@ -788,11 +802,13 @@ Added (347):
 - `litespec/core/model#generate-record-determined-code-from-the-records`
 - `litespec/core/model#hold-module-rules-in-rule-folders`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`
+- `litespec/core/model#keep-generate-targets-outside-other-tools-output-folders`
 - `litespec/core/model#keep-the-whole-specification-in-the-records`
 - `litespec/core/model#name-records-in-prose-by-their-identifiers`
 - `litespec/core/model#name-the-field-to-use-instead-in-schema-errors`
 - `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
 - `litespec/core/model#point-every-link-up`
+- `litespec/core/model#prove-every-generator-with-golden-tests`
 - `litespec/core/model#report-one-shape-in-schema-errors`
 - `litespec/core/model#serve-every-flow-step`
 - `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`
@@ -813,7 +829,11 @@ Added (347):
 - `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`
 - `litespec/core/use-cases#declare-each-aggregates-refusals-once`
 - `litespec/core/use-cases#declare-each-modules-refusals-once`
+- `litespec/core/use-cases#declare-the-binding-of-every-input-of-an-http-reached-use-case`
+- `litespec/core/use-cases#declare-the-created-location-of-every-command-that-creates-a-resource`
+- `litespec/core/use-cases#declare-the-http-surface-of-every-http-reached-use-case`
 - `litespec/core/use-cases#declare-the-result-a-scenario-ends-in`
+- `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites`
 - `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
 - `litespec/core/use-cases#give-every-tenant-setting-a-change-use-case`
 - `litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit`
@@ -833,6 +853,7 @@ Added (347):
 - `litespec/core/use-cases#summarize-every-use-case`
 - `litespec/core/use-cases#tie-every-setting-default-to-a-requirement`
 - `litespec/core/use-cases#type-every-output-field`
+- `litespec/core/use-cases#write-special-endpoints-by-hand`
 - `litespec/core/waivers#cover-each-finding-with-one-waiver`
 - `litespec/core/waivers#deviate-from-advice-without-a-record`
 - `litespec/core/waivers#name-the-records-that-close-a-gap`

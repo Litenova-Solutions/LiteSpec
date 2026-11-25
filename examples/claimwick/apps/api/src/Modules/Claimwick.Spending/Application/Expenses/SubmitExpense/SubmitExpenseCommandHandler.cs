@@ -26,6 +26,7 @@ internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpens
             command.ExpenseId,
             command.EmployeeId,
             Money.Create(command.Amount, command.Currency),
+            ExpenseCategory.FromCode(command.Category),
             command.ReceiptId,
             policy.ReceiptThreshold);
         _expenses.Store(expense);

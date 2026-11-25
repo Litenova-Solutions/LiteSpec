@@ -1,0 +1,24 @@
+type: use-case
+id: use-case/lending.waive-fine
+title: Waive Fine
+kind: command
+access:
+  grant: permission/manage-loans
+  tenant: own
+input:
+- name: loanId
+  meaning: The loan whose fine is waived.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: none
+  reason: Each call waives its own fine, and waiving a paid fine is refused.
+audit:
+  level: none
+  targetKind: aggregate/lending.loan
+steps:
+- statement: The librarian waives the fine on the loan.

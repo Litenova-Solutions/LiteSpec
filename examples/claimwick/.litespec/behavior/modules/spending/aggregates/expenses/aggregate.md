@@ -10,16 +10,17 @@ Each state says who acts next: a Submitted expense waits for a manager, and an A
 
 ## Data and Retention
 
-The expense holds four fields: the employee field is personal data, and the other three are business facts that the tax file keeps.
+The expense holds five fields: the employee field is personal data, and the other four are business facts that the tax file keeps.
 
 | Field | Sensitivity | Data class | Kept for |
 |:---|:---|:---|:---|
 | `employee` | personal | `submitter-contact` | 7 years, then pseudonymized |
 | `amount` | internal | `expense-ledger` | 7 years, then kept |
 | `receipt` | internal | `expense-ledger` | 7 years, then kept |
+| `category` | internal | `expense-ledger` | 7 years, then kept |
 | `state` | internal | `expense-ledger` | 7 years, then kept |
 
-When its retention ends, the employee field is pseudonymized, so the name no longer identifies the employee. The job `job/spending.erase-expired-personal-data` performs the erasure. The amount, the receipt and the state stay on file, because the tax file must stay defensible. The 7 years count from the reimbursement of the expense, which the data classes name as their period start.
+When its retention ends, the employee field is pseudonymized, so the name no longer identifies the employee. The job `job/spending.erase-expired-personal-data` performs the erasure. The amount, the receipt, the category and the state stay on file, because the tax file must stay defensible. The 7 years count from the reimbursement of the expense, which the data classes name as their period start.
 
 ## Example
 

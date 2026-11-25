@@ -48,6 +48,83 @@ generate:
   stack: dotnet
   path: apps/api/src/Modules/Claimwick.{Module}
   namespace: Claimwick.{Module}
+- kind: closed-sets
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+- kind: knowledge-sets
+  stack: dotnet
+  path: apps/api/src/Knowledge/Claimwick.{Area}.{Variant}
+  namespace: Claimwick.{Area}.{Variant}
+- kind: exceptions
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}/Domain/{Aggregate}/Exceptions
+  namespace: Claimwick.{Module}.Domain.{Aggregate}.Exceptions
+  baseType: Claimwick.Kernel.Domain.DomainException
+- kind: domain-events
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}/Domain/{Aggregate}/Events
+  namespace: Claimwick.{Module}.Domain.{Aggregate}.Events
+  markerType: Claimwick.Kernel.Domain.IDomainEvent
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+  - Claimwick.Spending.Domain.Receipts
+- kind: module-events
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}.Contracts/{Aggregate}
+  namespace: Claimwick.{Module}.Contracts.{Aggregate}
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+- kind: declarations
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+- kind: validators
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+  usings:
+  - Claimwick.Spending.Contracts.Expenses.ReadExpense
+- kind: messages
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}/Application/{Aggregate}/{UseCase}
+  namespace: Claimwick.{Module}.Application.{Aggregate}.{UseCase}
+  commandInterface: LiteBus.Commands.Abstractions.ICommand
+  queryInterface: LiteBus.Queries.Abstractions.IQuery
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+  - Claimwick.Spending.Domain.Receipts
+- kind: messages
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}.Contracts/{Aggregate}/{UseCase}
+  namespace: Claimwick.{Module}.Contracts.{Aggregate}.{UseCase}
+  commandInterface: LiteBus.Commands.Abstractions.ICommand
+  queryInterface: LiteBus.Queries.Abstractions.IQuery
+  visibility: public
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+- kind: results
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}/Application/{Aggregate}/{UseCase}
+  namespace: Claimwick.{Module}.Application.{Aggregate}.{UseCase}
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+  - Claimwick.Spending.Domain.Receipts
+- kind: results
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}.Contracts/{Aggregate}/{UseCase}
+  namespace: Claimwick.{Module}.Contracts.{Aggregate}.{UseCase}
+  visibility: public
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+- kind: endpoints
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+  claimReader: Claimwick.Platform.Http.ActorClaims.ReadActorId
+  usings:
+  - Claimwick.Spending.Contracts.Expenses
+  - Claimwick.Spending.Domain.Receipts
 frontends:
 - name: web
   path: apps/web
@@ -70,7 +147,9 @@ ui:
     designContract: packages/ui/DESIGN.md
     publicExports:
     - '@claimwick/ui/expenses'
-selectedExtensions: []
+selectedExtensions:
+- id: audit
+  criterion: Finance staff act inside employee expense data, so a later reviewer must establish who attempted what.
 dependencies:
   licenses:
   - MIT

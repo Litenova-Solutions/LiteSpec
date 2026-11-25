@@ -61,10 +61,10 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "reference-unknown", "cites 'aggregate/inventory.no-such-room', which no record holds"));
     }
 
-    /// <summary>Use Case Choice Input Without Choices Reports.</summary>
+    /// <summary>Use Case Choice Input Without Set Reports.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
-    public void UseCaseChoiceInputWithoutChoicesReports()
+    public void UseCaseChoiceInputWithoutSetReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -72,7 +72,7 @@ public sealed class BehaviorContractCheckTests
             TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
 
-        Assert.True(Reports(model, "record-invalid", "of type choice with no choices"));
+        Assert.True(Reports(model, "record-invalid", "of type choice with no set"));
     }
 
     /// <summary>Typed Inputs With Type Required And Identifies Pass.</summary>
@@ -84,7 +84,8 @@ public sealed class BehaviorContractCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/inventory.room", Path.Combine(temp.Path, "room.yaml"), """{"states": [{"name": "Free", "meaning": "The room is free."}]}"""),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "identifies": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "choices": ["single", "double"], "required": false}]}"""));
+            TestModel.Record("reference-data", "reference-data/booking.bed-shape", Path.Combine(temp.Path, "bed-shape.yaml"), """{"title": "Bed Shape", "choices": ["single", "double"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "identifies": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "set": "reference-data/booking.bed-shape", "required": false}]}"""));
 
         Assert.False(Reports(model, "record-invalid", "holds input field"));
     }

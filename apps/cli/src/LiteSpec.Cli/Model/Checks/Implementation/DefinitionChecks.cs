@@ -17,11 +17,15 @@ internal static class DefinitionChecks
     ///     idempotency declaration against idempotency. Definitions carry no mark; each use case's definitions
     ///     are found from the message type its handler handles, in the handler's own Application folder.
     ///     A use case without a handler keeps no definition rule, and a query keeps only authorization.
+    ///     A project with a declarations target declares through its generated catalog instead, so a
+    ///     message without its own files keeps no missing finding; a file that exists is still judged.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and each handler with its message type.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
+        var cataloged = CoveredByCatalog(model);
+
         foreach (var handler in model.Code.Handlers)
         {
             if (handler.UseCaseId.Length == 0 || handler.MessageType.Length == 0)
@@ -43,19 +47,26 @@ internal static class DefinitionChecks
                 continue;
             }
 
-            CheckAuthorization(model, handler, record, folder, findings);
-            CheckAudit(handler, record, folder, findings);
-            CheckIdempotency(handler, record, folder, findings);
+            CheckAuthorization(model, handler, record, folder, cataloged, findings);
+            CheckAudit(handler, record, folder, cataloged, findings);
+            CheckIdempotency(handler, record, folder, cataloged, findings);
         }
     }
+
+    /// <summary>Whether a declarations target covers the project: every module declares through its generated catalog.</summary>
+    /// <param name="model">The loaded project model holding the generate targets.</param>
+    /// <returns>True when a .NET declarations target is declared; otherwise false.</returns>
+    private static bool CoveredByCatalog(ProjectModel model) =>
+        model.Config.Generate.Any(target => target.Kind == "declarations" && target.Stack is "dotnet" or "blazor" or "android");
 
     /// <summary>Reports the missing authorization definition, and the authorization policy that misses the record's grant.</summary>
     /// <param name="model">The loaded project model that holds the permission records.</param>
     /// <param name="handler">The handler whose message names the definition.</param>
     /// <param name="record">The use case record holding access.grant.</param>
     /// <param name="folder">The Application folder holding the handler and its definitions.</param>
+    /// <param name="cataloged">True when a declarations target covers the project, so a missing file keeps no finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckAuthorization(ProjectModel model, CodeHandler handler, Record record, string folder, List<Finding> findings)
+    private static void CheckAuthorization(ProjectModel model, CodeHandler handler, Record record, string folder, bool cataloged, List<Finding> findings)
     {
         var message = handler.MessageType;
         var definition = message + "AuthorizationDefinition";
@@ -63,6 +74,11 @@ internal static class DefinitionChecks
 
         if (!File.Exists(file))
         {
+            if (cataloged)
+            {
+                return;
+            }
+
             findings.Add(new Finding(
                 "definition-missing",
                 $"Message '{message}' has no Authorization definition for '{record.Id}'.",
@@ -183,7 +199,7 @@ internal static class DefinitionChecks
             }
         }
 
-        if (RecentSignInLimitOf(record) is not null && !text.Contains("RecentSignIn", StringComparison.Ordinal))
+        if (RecentSignInOf(record) is not null && !text.Contains("RecentSignIn", StringComparison.Ordinal))
         {
             findings.Add(new Finding(
                 "definition-drift",
@@ -198,8 +214,9 @@ internal static class DefinitionChecks
     /// <param name="handler">The handler whose message names the definition.</param>
     /// <param name="record">The use case record holding audit.</param>
     /// <param name="folder">The Application folder holding the handler and its definitions.</param>
+    /// <param name="cataloged">True when a declarations target covers the project, so a missing file keeps no finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckAudit(CodeHandler handler, Record record, string folder, List<Finding> findings)
+    private static void CheckAudit(CodeHandler handler, Record record, string folder, bool cataloged, List<Finding> findings)
     {
         if (!record.Has(RecordFields.Audit))
         {
@@ -212,6 +229,11 @@ internal static class DefinitionChecks
 
         if (!File.Exists(file))
         {
+            if (cataloged)
+            {
+                return;
+            }
+
             findings.Add(new Finding(
                 "definition-missing",
                 $"Message '{message}' has no Audit definition for '{record.Id}'.",
@@ -304,8 +326,9 @@ internal static class DefinitionChecks
     /// <param name="handler">The handler whose message names the definition.</param>
     /// <param name="record">The use case record holding idempotency.</param>
     /// <param name="folder">The Application folder holding the handler and its definitions.</param>
+    /// <param name="cataloged">True when a declarations target covers the project, so a missing file keeps no finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckIdempotency(CodeHandler handler, Record record, string folder, List<Finding> findings)
+    private static void CheckIdempotency(CodeHandler handler, Record record, string folder, bool cataloged, List<Finding> findings)
     {
         if (!record.Has(RecordFields.Idempotency))
         {
@@ -318,6 +341,11 @@ internal static class DefinitionChecks
 
         if (!File.Exists(file))
         {
+            if (cataloged)
+            {
+                return;
+            }
+
             findings.Add(new Finding(
                 "definition-missing",
                 $"Message '{message}' has no Idempotency definition for '{record.Id}'.",
@@ -485,13 +513,13 @@ internal static class DefinitionChecks
 
     /// <summary>The recent sign-in window the use case record states, or null when it states none.</summary>
     /// <param name="record">The use case record.</param>
-    /// <returns>The setting id, or null.</returns>
-    private static string? RecentSignInLimitOf(Record record)
+    /// <returns>The window duration or setting id, or null.</returns>
+    private static string? RecentSignInOf(Record record)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
             || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
             || access.ValueKind != JsonValueKind.Object
-            || !access.TryGetProperty("recentSignInLimit", out var window)
+            || !access.TryGetProperty(RecordFields.RecentSignIn, out var window)
             || window.ValueKind != JsonValueKind.String)
         {
             return null;

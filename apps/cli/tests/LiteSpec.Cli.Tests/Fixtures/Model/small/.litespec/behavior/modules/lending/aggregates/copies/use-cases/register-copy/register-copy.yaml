@@ -12,6 +12,9 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/copy.copy-registered
+http:
+  method: POST
+  route: /api/copies
 input:
 - name: copyId
   meaning: The identity of the copy the librarian registers.
@@ -19,12 +22,14 @@ input:
   identifies: aggregate/lending.copy
   required: true
   origin: caller
+  binding: body
   classification: internal
 - name: shelf
   meaning: The home shelf where the copy belongs.
   type: text
   required: true
   origin: caller
+  binding: body
   classification: internal
 idempotency:
   mode: none

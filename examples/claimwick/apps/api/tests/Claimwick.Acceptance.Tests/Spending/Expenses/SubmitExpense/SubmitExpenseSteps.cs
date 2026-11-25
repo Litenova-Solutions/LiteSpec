@@ -11,8 +11,10 @@ public sealed class SubmitExpenseSteps
         ExpensesWorld.SignInAs(employee);
         await ExpensesWorld.PostAsync("/api/expenses", new
         {
+            expenseId = ExpensesWorld.IdOf("expense-1"),
             amount = 48.90m,
             currency = "EUR",
+            category = "travel",
             receiptId = ExpensesWorld.IdOf("receipt-1"),
         });
 
@@ -25,8 +27,10 @@ public sealed class SubmitExpenseSteps
         ExpensesWorld.SignInAs(employee);
         await ExpensesWorld.PostAsync("/api/expenses", new
         {
+            expenseId = ExpensesWorld.IdOf("expense-2"),
             amount = 48.90m,
             currency = "EUR",
+            category = "travel",
         });
     }
 

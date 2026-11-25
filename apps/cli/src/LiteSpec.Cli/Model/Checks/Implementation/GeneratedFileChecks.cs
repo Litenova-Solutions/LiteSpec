@@ -23,7 +23,10 @@ internal static class GeneratedFileChecks
 
         // An invalid target renders nothing: the project schema owns its shape, and
         // generate names its error when it runs. The check judges the files that render.
+        // A release candidate and its final release compare equal: the header stamps the
+        // package version, and the comparison drops the candidate suffix from both sides.
         var plan = GeneratePlan.Build(model);
+        var release = LiteSpecHome.Version ?? "";
 
         foreach (var file in plan.Files)
         {
@@ -51,7 +54,10 @@ internal static class GeneratedFileChecks
                 current = "";
             }
 
-            if (current != file.Content)
+            if (!string.Equals(
+                    ReleaseVersion.WithoutCandidateSuffix(current, release),
+                    ReleaseVersion.WithoutCandidateSuffix(file.Content, release),
+                    StringComparison.Ordinal))
             {
                 findings.Add(new Finding(
                     "generated-drift",

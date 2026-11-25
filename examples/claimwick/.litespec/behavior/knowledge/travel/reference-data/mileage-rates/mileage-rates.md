@@ -9,7 +9,7 @@ The table holds six rows playing the `car`, `motorcycle`, and `bicycle` roles, e
 - Germany: 0.30 EUR per km for a car, 0.20 EUR per km for a motorcycle, and 0.10 EUR per km for a bicycle, each from 2026-01-01.
 - Netherlands: 0.25 EUR per km for a car, 0.15 EUR per km for a motorcycle, and 0.10 EUR per km for a bicycle, each from 2026-01-01.
 
-The figures are example rates. A new row takes effect on its date, and the old row carries its end date.
+The figures are example rates. A new row takes effect on its date, and the old row carries its end date. The Germany and Netherlands sets build their `MileageRate` rows from this table through the `knowledge-sets` target.
 
 ## Example
 

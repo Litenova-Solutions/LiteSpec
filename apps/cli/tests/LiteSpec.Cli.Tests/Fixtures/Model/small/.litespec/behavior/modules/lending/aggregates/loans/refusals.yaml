@@ -4,9 +4,12 @@ records:
 - id: refusal/lending.copy-not-available
   title: Copy Not Available
   meaning: The copy is on loan or on hold for another reader.
+  status: 409
 - id: refusal/lending.extension-refused
   title: Extension Refused
   meaning: The loan is not due within the extension window.
+  status: 422
 - id: refusal/lending.loan-not-active
   title: Loan Not Active
   meaning: The loan is already returned.
+  status: 409

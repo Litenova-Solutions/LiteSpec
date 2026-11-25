@@ -1,0 +1,25 @@
+type: use-case
+id: use-case/lending.merge-holds
+title: Merge Holds
+kind: command
+access:
+  grant: permission/place-hold
+  tenant: own
+  conditions:
+  - rule/hold.single-active-hold
+input:
+- name: holdId
+  meaning: The hold the librarian merges.
+  type: id
+  identifies: aggregate/lending.hold
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: none
+  reason: Each call merges its own holds, and merging ended holds is refused.
+audit:
+  exemptBecause: Merges trail in the hold states.
+steps:
+- statement: The librarian merges the duplicate holds.

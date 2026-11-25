@@ -40,11 +40,14 @@ public static class MessageProperties
     ///     parameters first, then the public property members. A static member, a non-public member
     ///     and an explicit interface implementation declare no property of the message. Members an
     ///     inherited base type declares are never read here, so a platform base adds no property.
+    ///     With a semantic model each type reads resolved, so an aliased or qualified type names
+    ///     what the compiler knows; without one each type reads as written.
     /// </summary>
     /// <param name="declared">The type declaration to read.</param>
+    /// <param name="semanticModel">The semantic model of the declaration, or null to read types as written.</param>
     /// <returns>The declared public instance properties, in source order, without duplicates.</returns>
     /// <exception cref="ArgumentNullException">The declaration is null.</exception>
-    public static IReadOnlyList<MessageProperty> Of(TypeDeclarationSyntax declared)
+    public static IReadOnlyList<MessageProperty> Of(TypeDeclarationSyntax declared, SemanticModel? semanticModel = null)
     {
         if (declared is null)
         {
@@ -82,8 +85,46 @@ public static class MessageProperties
             Add(found, seen, property.Identifier.ValueText, property.Type.ToString());
         }
 
+        if (semanticModel is not null && semanticModel.GetDeclaredSymbol(declared) is INamedTypeSymbol symbol)
+        {
+            for (var index = 0; index < found.Count; index++)
+            {
+                if (PropertyOf(symbol, found[index].Name) is { } property)
+                {
+                    found[index] = new MessageProperty(property.Name, DisplayType(property.Type));
+                }
+            }
+        }
+
         return found;
     }
+
+    /// <summary>The declared public instance property of the name, or null when the type declares none.</summary>
+    /// <param name="symbol">The type symbol to read.</param>
+    /// <param name="name">The property name.</param>
+    /// <returns>The matching property symbol, or null.</returns>
+    private static IPropertySymbol? PropertyOf(INamedTypeSymbol symbol, string name)
+    {
+        foreach (var member in symbol.GetMembers(name))
+        {
+            if (member is IPropertySymbol property
+                && !property.IsStatic
+                && property.DeclaredAccessibility == Accessibility.Public
+                && property.ExplicitInterfaceImplementations.Length == 0
+                && SymbolEqualityComparer.Default.Equals(property.ContainingType, symbol))
+            {
+                return property;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The property type as the compiler knows it: minimally qualified, with language keywords for special types.</summary>
+    /// <param name="type">The property type symbol.</param>
+    /// <returns>The resolved type text.</returns>
+    private static string DisplayType(ITypeSymbol type) =>
+        type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 
     /// <summary>Adds one property when no property with its name was added before.</summary>
     /// <param name="found">The properties read so far, appended in place.</param>

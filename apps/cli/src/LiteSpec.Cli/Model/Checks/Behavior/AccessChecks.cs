@@ -6,9 +6,12 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The access checks: each role scope has a glossary term that states its reach, and each permission name opens with a use-case verb.</summary>
+/// <summary>The access checks: role scopes have their glossary terms, permission names open with a use-case verb, and use-case access declares its window, self scope, and preconditions.</summary>
 /// <follows>litespec/core/access#define-each-scope-level-in-the-glossary</follows>
 /// <follows>litespec/core/access#name-each-permission-by-a-use-case-verb</follows>
+/// <follows>litespec/core/access#limit-the-age-of-a-sign-in</follows>
+/// <follows>litespec/core/access#name-the-caller-identity-of-a-self-scope</follows>
+/// <follows>litespec/core/access#name-every-authorization-precondition</follows>
 internal static class AccessChecks
 {
     /// <summary>The prefix every permission identifier carries before its name.</summary>
@@ -34,12 +37,15 @@ internal static class AccessChecks
 
     /// <summary>
     ///     Reports a grant outside its forms or naming no permission record, a system grant reached through an outside entry point,
-    ///     a recentSignInLimit that names no setting, and a device entry point whose kind is not device.
+    ///     a sign-in window naming no duration setting, a self scope without its verified caller input, a precondition naming
+    ///     no cited precondition rule, and a device entry point whose kind is not device.
     /// </summary>
     /// <param name="model">The loaded project model that holds every use case, permission, setting and entry point.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseAccess(ProjectModel model, List<Finding> findings)
     {
+        var applied = GraphChecks.AppliedByUseCase(model);
+
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase && !record.Derived))
         {
             if (useCase.Raw.ValueKind != JsonValueKind.Object || !useCase.Raw.TryGetProperty(RecordFields.Access, out var access) || access.ValueKind != JsonValueKind.Object)
@@ -71,11 +77,9 @@ internal static class AccessChecks
                 }
             }
 
-            if (Str(access, RecordFields.RecentSignInLimit) is { } window
-                && (!window.StartsWith(RecordTypes.Setting + "/", StringComparison.Ordinal) || !model.ById.TryGetValue(window, out var setting) || setting.Type != RecordTypes.Setting))
-            {
-                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignInLimit '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
-            }
+            CheckRecentSignIn(model, useCase, access, findings);
+            CheckSelfScope(model, useCase, access, findings);
+            CheckPreconditions(model, useCase, access, applied, findings);
 
             foreach (var id in reached)
             {
@@ -86,6 +90,123 @@ internal static class AccessChecks
                 {
                     findings.Add(new Finding("record-invalid", $"Entry point '{point.Id}' states auth device but its kind is '{point.Field(RecordFields.Kind)}', not device.", point.File, point.Line, SubjectOf(point)));
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports a sign-in window that names no duration setting: a record of another type,
+    ///     or a setting of another value type. A dangling setting identifier belongs to the
+    ///     citation check, and a duration window reads from the schema, which holds its shape.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <param name="useCase">The use case record whose access window is judged.</param>
+    /// <param name="access">The access object of the use case.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRecentSignIn(ProjectModel model, Record useCase, JsonElement access, List<Finding> findings)
+    {
+        if (Str(access, RecordFields.RecentSignIn) is not { } window
+            || !window.StartsWith(RecordTypes.Setting + "/", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!model.ById.TryGetValue(window, out var setting))
+        {
+            return;
+        }
+
+        if (setting.Type != RecordTypes.Setting)
+        {
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            return;
+        }
+
+        if (setting.Field(RecordFields.ValueType) is { } valueType && valueType != "duration")
+        {
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no duration setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+        }
+    }
+
+    /// <summary>
+    ///     Reports a self scope whose identity input names no input, carries another origin than
+    ///     verified-claim, or identifies no actor. The schema pairs scope with its identity input.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every actor record.</param>
+    /// <param name="useCase">The use case record whose self scope is judged.</param>
+    /// <param name="access">The access object of the use case.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSelfScope(ProjectModel model, Record useCase, JsonElement access, List<Finding> findings)
+    {
+        if (Str(access, RecordFields.Scope) is null || Str(access, RecordFields.IdentityInput) is not { } name)
+        {
+            return;
+        }
+
+        var input = useCase.Objects(RecordFields.Input)
+            .FirstOrDefault(entry => Str(entry, RecordFields.Name) == name);
+
+        if (input.ValueKind != JsonValueKind.Object)
+        {
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names identity input '{name}', which is no input of the use case.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            return;
+        }
+
+        if (Str(input, RecordFields.Origin) is { } origin && origin != "verified-claim")
+        {
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names identity input '{name}', which takes origin '{origin}', not verified-claim.", useCase.File, useCase.Line, SubjectOf(useCase)));
+        }
+
+        if (Str(input, RecordFields.Identifies) is not { } identifies)
+        {
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names identity input '{name}', which identifies no actor.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            return;
+        }
+
+        // A dangling identifies is reference-unknown, so only a resolving record that is no actor is reported here.
+        if (ContractChecks.IdentifiesResolves(model, identifies)
+            && (!model.ById.TryGetValue(Identifiers.BaseId(identifies), out var identified) || identified.Type != RecordTypes.Actor))
+        {
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names identity input '{name}', which identifies '{identifies}', not an actor.", useCase.File, useCase.Line, SubjectOf(useCase)));
+        }
+    }
+
+    /// <summary>
+    ///     Reports a precondition naming no rule of kind precondition, or a rule the use case
+    ///     cites nowhere in its steps, inputs, or results. A dangling rule identifier belongs
+    ///     to the citation check.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every rule record.</param>
+    /// <param name="useCase">The use case record whose preconditions are judged.</param>
+    /// <param name="access">The access object of the use case.</param>
+    /// <param name="applied">The rule identifiers each use case applies, by use case identifier.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckPreconditions(ProjectModel model, Record useCase, JsonElement access, Dictionary<string, HashSet<string>> applied, List<Finding> findings)
+    {
+        var cited = applied.TryGetValue(useCase.Id, out var rules) ? rules : new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var precondition in LinkStrings(access, RecordFields.Preconditions))
+        {
+            if (!model.ById.TryGetValue(precondition, out var rule))
+            {
+                continue;
+            }
+
+            if (rule.Type != RecordTypes.Rule)
+            {
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names precondition '{precondition}', which is no rule.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                continue;
+            }
+
+            if (rule.Field(RecordFields.Kind) is { } kind && kind != "precondition")
+            {
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names precondition '{precondition}', which is a rule of kind '{kind}', not a precondition.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                continue;
+            }
+
+            if (!cited.Contains(precondition))
+            {
+                findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names precondition '{precondition}', which the use case cites nowhere in its steps, inputs, or results.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }

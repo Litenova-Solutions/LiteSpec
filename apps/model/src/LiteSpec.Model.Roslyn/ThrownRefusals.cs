@@ -54,14 +54,16 @@ public static class ThrownRefusals
 
     /// <summary>
     ///     Reads the refusal types the method body constructs, in line order: each object creation
-    ///     whose simple type name ends with <c>Exception</c>, <c>Failure</c> or <c>Refusal</c>. A
-    ///     target-typed creation names no type and reads nothing here.
+    ///     whose simple type name ends with <c>Exception</c>, <c>Failure</c> or <c>Refusal</c>. With
+    ///     a semantic model a target-typed creation reads its resolved type; without one it names
+    ///     no type and reads nothing here.
     /// </summary>
     /// <param name="method">The method to read.</param>
     /// <param name="tree">The parsed syntax tree, for line numbers.</param>
+    /// <param name="semanticModel">The semantic model of the method, or null to read types as written.</param>
     /// <returns>The constructed refusal types, in line order, without duplicates.</returns>
     /// <exception cref="ArgumentNullException">The method or tree is null.</exception>
-    public static IReadOnlyList<ThrownType> OfMethod(MethodDeclarationSyntax method, SyntaxTree tree)
+    public static IReadOnlyList<ThrownType> OfMethod(MethodDeclarationSyntax method, SyntaxTree tree, SemanticModel? semanticModel = null)
     {
         if (method is null)
         {
@@ -76,9 +78,9 @@ public static class ThrownRefusals
         var found = new List<ThrownType>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var creation in method.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        foreach (var creation in method.DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
         {
-            if (SimpleName(creation.Type) is not string name || !IsRefusalType(name))
+            if (CreationName(creation, semanticModel) is not string name || !IsRefusalType(name))
             {
                 continue;
             }
@@ -99,17 +101,20 @@ public static class ThrownRefusals
     ///     type: each argument that is a string literal matching the refusal-code grammar in
     ///     full, or a member access or identifier that resolves through the constants map to
     ///     such a value. A bare identifier reads the constant of that name in the enclosing
-    ///     type. A target-typed creation names no type and reads nothing here.
+    ///     type. With a semantic model an argument the map misses reads its constant value, and
+    ///     a target-typed creation reads its resolved type; without one both read nothing here.
     /// </summary>
     /// <param name="method">The method to read.</param>
     /// <param name="tree">The parsed syntax tree, for line numbers.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semanticModel">The semantic model of the method, or null to read through the map only.</param>
     /// <returns>The directly passed refusal codes, in line order, without duplicates.</returns>
     /// <exception cref="ArgumentNullException">The method, tree or constants are null.</exception>
     public static IReadOnlyList<ThrownCode> CodesOf(
         MethodDeclarationSyntax method,
         SyntaxTree tree,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        SemanticModel? semanticModel = null)
     {
         if (method is null)
         {
@@ -130,9 +135,9 @@ public static class ThrownRefusals
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var enclosing = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault()?.Identifier.ValueText;
 
-        foreach (var creation in method.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        foreach (var creation in method.DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
         {
-            if (SimpleName(creation.Type) is not string name || !IsRefusalType(name))
+            if (CreationName(creation, semanticModel) is not string name || !IsRefusalType(name))
             {
                 continue;
             }
@@ -144,7 +149,7 @@ public static class ThrownRefusals
 
             foreach (var argument in creation.ArgumentList.Arguments)
             {
-                if (ResolveCode(argument.Expression, enclosing, constants) is { } code && seen.Add(code))
+                if (ResolveCode(argument.Expression, enclosing, constants, semanticModel) is { } code && seen.Add(code))
                 {
                     found.Add(new ThrownCode(code, tree.GetLineSpan(argument.Span).StartLinePosition.Line + 1));
                 }
@@ -156,12 +161,29 @@ public static class ThrownRefusals
         return found;
     }
 
-    /// <summary>Resolves an argument to the refusal code it holds: a literal reads directly, a member access or identifier reads through the constants map.</summary>
+    /// <summary>The simple name of the constructed type: resolved through the model when one reads, else as written.</summary>
+    /// <param name="creation">The object creation.</param>
+    /// <param name="semanticModel">The semantic model of the method, or null to read the type as written.</param>
+    /// <returns>The simple type name, or null when the creation names none.</returns>
+    private static string? CreationName(BaseObjectCreationExpressionSyntax creation, SemanticModel? semanticModel)
+    {
+        var written = creation is ObjectCreationExpressionSyntax explicitCreation ? SimpleName(explicitCreation.Type) : null;
+
+        if (semanticModel is not null && semanticModel.GetTypeInfo(creation).Type is INamedTypeSymbol resolved && resolved.Name.Length > 0)
+        {
+            return resolved.Name;
+        }
+
+        return written;
+    }
+
+    /// <summary>Resolves an argument to the refusal code it holds: a literal reads directly, a member access or identifier reads through the constants map, and anything the map misses reads its constant value with a semantic model.</summary>
     /// <param name="expression">The argument holding the code.</param>
     /// <param name="enclosing">The simple name of the enclosing type, for a bare identifier, or null outside any type.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semanticModel">The semantic model of the method, or null to read through the map only.</param>
     /// <returns>The refusal code, or null when the argument holds none.</returns>
-    private static string? ResolveCode(ExpressionSyntax expression, string? enclosing, IReadOnlyDictionary<string, string> constants)
+    private static string? ResolveCode(ExpressionSyntax expression, string? enclosing, IReadOnlyDictionary<string, string> constants, SemanticModel? semanticModel)
     {
         var current = expression;
 
@@ -179,6 +201,16 @@ public static class ThrownRefusals
                 && constants.TryGetValue(enclosing + "." + identifier.Identifier.ValueText, out var named) => named,
             _ => null,
         };
+
+        if (value is null && semanticModel is not null)
+        {
+            var constant = semanticModel.GetConstantValue(current);
+
+            if (constant.HasValue && constant.Value is string held)
+            {
+                value = held;
+            }
+        }
 
         if (value is null)
         {

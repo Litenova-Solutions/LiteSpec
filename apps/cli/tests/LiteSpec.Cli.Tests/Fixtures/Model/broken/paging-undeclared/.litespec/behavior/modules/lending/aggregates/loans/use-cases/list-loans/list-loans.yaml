@@ -42,6 +42,7 @@ output:
             type: date
             required: true
             meaning: The day the loan is due.
+        rowType: LoansRow
       classification: internal
       reads:
       - aggregate/lending.loan

@@ -1,3 +1,3 @@
 namespace Library.Lending.Application.Copies.RegisterCopy;
 
-public sealed record RegisterCopyCommand(string CopyId, string Shelf);
+public sealed record RegisterCopyCommand(Guid CopyId, string Shelf);

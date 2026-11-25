@@ -30,6 +30,7 @@ static class ElementReader
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     public static void ReadElements(
         string file,
         SyntaxTree tree,
@@ -41,7 +42,8 @@ static class ElementReader
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         QualifiedKinds qualified,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         foreach (var element in elements)
         {
@@ -69,18 +71,18 @@ static class ElementReader
 
                 model.Elements.Add(new MarkedElement(
                     kind, element.Name, null, file, element.Line, marks, false,
-                    RuntimeValueOf(declared, kind, constants)));
+                    RuntimeValueOf(declared, kind, constants, tree, semantics)));
 
                 switch (kind)
                 {
                     case CodeKind.Handler:
-                        HandlerReader.ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, qualified, constants);
+                        HandlerReader.ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, qualified, constants, semantics);
                         break;
                     case CodeKind.EventHandler:
-                        HandlerReader.ReadReaction(file, tree, declared, marks, model, helpers, holders, qualified, constants);
+                        HandlerReader.ReadReaction(file, tree, declared, marks, model, helpers, holders, qualified, constants, semantics);
                         break;
                     case CodeKind.Job:
-                        HandlerReader.ReadJob(file, tree, declared, marks, model, helpers, holders, qualified, constants);
+                        HandlerReader.ReadJob(file, tree, declared, marks, model, helpers, holders, qualified, constants, semantics);
                         break;
                     case CodeKind.DomainEvent:
                         model.Events.Add(new CodeDomainEvent(
@@ -194,8 +196,10 @@ static class ElementReader
     /// <param name="declared">The type declaration.</param>
     /// <param name="kind">The code kind of the type.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     /// <returns>The hand-written runtime value the type declares, or null when it declares none.</returns>
-    public static string? RuntimeValueOf(TypeDeclarationSyntax declared, CodeKind kind, IReadOnlyDictionary<string, string> constants)
+    public static string? RuntimeValueOf(TypeDeclarationSyntax declared, CodeKind kind, IReadOnlyDictionary<string, string> constants, SyntaxTree tree, BackendSemantics? semantics)
     {
         string[] wanted = kind switch
         {
@@ -274,9 +278,13 @@ static class ElementReader
                 return text;
             }
 
-            return expression is null
-                ? null
-                : ConstRefusalCodes.Lookup(expression, declared.Identifier.ValueText, constants);
+            if (expression is null)
+            {
+                return null;
+            }
+
+            return ConstRefusalCodes.Lookup(expression, declared.Identifier.ValueText, constants)
+                ?? (semantics?.ModelFor(tree) is { } model ? ConstRefusalCodes.LookupSemantic(model, expression) : null);
         }
     }
 }

@@ -59,6 +59,29 @@ A refusal renders through the shared problem alert beside the refused record or 
 
 Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library` respectively. The dictionary library and the form entry point for each stack follow `litespec/frontend/web/data#resolve-copy-through-the-stack-dictionary-library` and `litespec/frontend/web/data#build-a-web-form-on-the-shared-form-entry-point`, and each stack page names its component state and frame root in its Concepts.
 
+### Record Field Types in TypeScript
+
+A contract field maps to exactly one TypeScript type through the published OpenAPI document, so the generated client carries the same shape the backend publishes. The table states the mapping from the record type to the OpenAPI schema and the generated TypeScript.
+
+| Record type | OpenAPI | TypeScript |
+|:---|:---|:---|
+| `text`, `email` | `type: string` | `string` |
+| `integer` | `type: integer` | `number` |
+| `decimal` | `type: number` | `number` |
+| `money` | object with `amount` and `currency` | `{ amount: string; currency: string }` |
+| `boolean` | `type: boolean` | `boolean` |
+| `date` | `type: string`, `format: date` | `string` |
+| `instant` | `type: string`, `format: date-time` | `string` |
+| `duration` | `type: string`, `format: duration` | `string` |
+| `choice` | `type: string` with the codes as enum | Union of string literals |
+| `id` | `type: string`, `format: uuid` | `string` |
+| `list` | `type: array` | `T[]` with `T` from the row shape |
+| `file` | `type: string`, `format: binary` | The generator binary type |
+
+A money amount travels as a string, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states, so no reader parses it as binary floating point. An identifier travels as a UUID string, as `litespec/backend/dotnet/domain#keep-id-representations-aligned-at-every-boundary` states. The record constraints map to the matching OpenAPI facets, which the zod plugin turns into the generated schema a form validates against, per `litespec/frontend/data#validate-a-form-with-the-generated-schema`.
+
+In Claimwick, the generated client reads an expense amount as a string with its currency and the handled time as an ISO string.
+
 ## Standards
 
 ### Add the Stack Query Plugin to the Client Generator

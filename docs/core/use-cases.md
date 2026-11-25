@@ -15,8 +15,8 @@ Each use case links back to the Intent it carries, as `litespec/core/model#conne
 
 | Field | Meaning |
 |:---|:---|
-| `access` | `{ grant, tenant, runsAs }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. `runsAs: system` states that a reaction or job also runs the use case beside the person grant. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `authentication`, as [Access](access.md) states. |
-| `input` | Entries of `{ name, meaning, type, identifies, rowShape, choices, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `identifies` field names the record an `id` refers to, or an identified part of an aggregate as `aggregate/<module>.<aggregate>#<part>`, and `rowShape` names the row shape of a `list`. The `choices` field names the allowed values of a `choice`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `rowShape` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
+| `access` | `{ grant, tenant, recentSignIn, scope, identityInput, preconditions, runsAs }`. The grant is `permission/<name>`, `self(permission/<name>)`, `signed-in`, `anonymous`, or `system`. The tenant scope is `own`, `cross`, `public`, or `none`. `recentSignIn` states the sign-in window as an ISO 8601 duration or a `setting/` identifier. `scope: self` narrows the call to records identifying the caller, with `identityInput` naming the verified-claim input carrying the caller identity. `preconditions` names the precondition rules the authorization evaluates. `runsAs: system` states that a reaction or job also runs the use case beside the person grant. Each use case declares its grant and tenant scope in `access`, as `litespec/core/access#declare-access-on-every-use-case` states. The entry point the call arrives through declares `authentication`, as [Access](access.md) states. |
+| `input` | Entries of `{ name, meaning, type, identifies, rowShape, set, currency, currencyField, currencyHome, scale, minLength, maxLength, bounds, matches, many, required, rules, origin, verifiedBy, classification, contentTypes, maxSize }`. The `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `instant`, `duration`, `email`, `choice`, `file`, `list`, or `id`. The `identifies` field names the record an `id` refers to, or an identified part of an aggregate as `aggregate/<module>.<aggregate>#<part>`, and `rowShape` names the row shape of a `list`. The `set` field names the closed set a `choice` takes its values from. A `money` field names its currency in `currency`, `currencyField`, or `currencyHome`, and a `decimal` field states its `scale`. A `text` or `email` field may state `minLength`, `maxLength`, or `matches`, and an `integer`, `decimal`, or `money` field may state `bounds`. A `file` field carries `contentTypes` with its media types and `maxSize` with its limit. A `list` field carries in `rowShape` the row shape with each row field's name, type, required flag, and meaning, with `minItems` and the `unique` key fields. A multi-field list names its row type in `rowType`. The `many` flag is true when the field holds a list of values of its type. The `required` flag states whether the caller sends the field. The `rules` field names the `rule/` identifiers bounding the value. The origin is `caller`, `claim`, `verified-claim`, or `derived`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`. |
 | `writes`, `reads` | The id of the one aggregate written, and the ids of aggregates, read models, and settings read. A read model is the module's own copy of another module's state, as [Automation](automation.md) states. A command whose `writes` names more than one aggregate is allowed only when its consistency `boundBy` rule states the invariant needing both in one transaction and names its decision in `basedOn`. A command changing no aggregate declares `writes: []`. |
 | `consistency` | `{ mode, boundBy, guards }`, on a command writing two or more aggregates or reading an aggregate whose rule guards its write. The mode is `atomic` or `per-record`. An atomic write across aggregates cites its `atomicity` rule in `boundBy`, and the rule names in `basedOn` the decision recording why the invariant needs one transaction. The `guards` field lists the aggregates the command reads, and does not write, whose rule named in `boundBy` must still hold when the command commits. Mode `atomic` with `guards` means the guard holds at commit. A query carries no `consistency`. |
 | `effects` | Entries of `{ sends / calls / queries / commands, timing, onFailure, onExhausted, before, forEach }` with exactly one verb. The timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A `queries` entry names the public query use case of another module the behavior reads and carries `inline` timing: the read runs within the handling. A `commands` entry names the public command use case of another module the behavior sends and carries `inline` timing: the send runs within the handling. A use case runs no other use case, declares no `commands` edge, and declares no integration event. A reaction runs the follow-on work, and an outbound integration event names the event it translates. The effect graph holds no cycle except through a domain event with a stated end condition, as `litespec/core/principles#end-every-effect-cycle-in-a-domain-event` states. |
@@ -53,7 +53,7 @@ A command may declare its output as a list of `{ name, meaning, type }`.
 
 | Field | Meaning |
 |:---|:---|
-| `output.include` | Named groups of `{ fields, classification, reads, freshness, visibleWhen, widenedBy }`. Each field carries `name`, `meaning`, and `type`. |
+| `output.include` | Named groups of `{ fields, classification, reads, freshness, visibleWhen, widenedBy }`. Each field carries `name`, `meaning`, and `type`. A multi-field list names its row type in `rowType`. |
 | `visibleWhen`, `widenedBy` | The optional visibility condition, and the requirement widening visibility beyond the aggregates in `reads`. |
 | `paging` | `{ "mode": "pages", order, cursor | offset, defaultLimit, maxLimit }`, or `{ "mode": "none", "reason": "..." }`. |
 
@@ -118,7 +118,7 @@ A reaction takes its name from its trigger, and a job from the use case it runs,
 
 Each use case ends in named results. A result is a child record with an `outcome` of `success` or `refusal`. A success carries `meaning`. A refusal names its refusal in `refusal` by the refusal's id and keeps the `sentence` a person reads, with one sentence per interface language beside it in `sentences`.
 
-Each aggregate declares the refusals its rules raise once in its own `refusals.yaml`, as [Declare Each Aggregate's Refusals Once](#declare-each-aggregates-refusals-once) states, and the module's `refusals.yaml` keeps only the refusals no aggregate raises, as [Declare Each Module's Refusals Once](#declare-each-modules-refusals-once) states. Each refusal entry carries its `id` and `title` like every other entry; the code is the id's name, so `refusal/spending.receipt-missing` carries the code `spending.receipt-missing`. The set owns each refusal and its meaning; the book joins the meaning onto each result citing the refusal. A result's `refusal` names a refusal from its aggregate's set, or from the module's set for a refusal no aggregate raises. A rule's `refusal` names the same refusal, and every result carrying it is the rule's refusal in that use case. The problem type of a code is the project's `problemTypeBase` followed by the code's part after its module, or that part alone as a short name where the project declares no base.
+Each aggregate declares the refusals its rules raise once in its own `refusals.yaml`, as [Declare Each Aggregate's Refusals Once](#declare-each-aggregates-refusals-once) states, and the module's `refusals.yaml` keeps only the refusals no aggregate raises, as [Declare Each Module's Refusals Once](#declare-each-modules-refusals-once) states. Each refusal entry carries its `id` and `title` like every other entry; the code is the id's name, so `refusal/spending.receipt-missing` carries the code `spending.receipt-missing`. The set owns each refusal and its meaning; the book joins the meaning onto each result citing the refusal. A refusal whose message varies per failure lists the values in `parameters`, each named in the meaning as `{name}`, so the generated exception takes them as constructor parameters. A result's `refusal` names a refusal from its aggregate's set, or from the module's set for a refusal no aggregate raises. A rule's `refusal` names the same refusal, and every result carrying it is the rule's refusal in that use case. The problem type of a code is the project's `problemTypeBase` followed by the code's part after its module, or that part alone as a short name where the project declares no base.
 
 Refusals stand in precedence order with the derived refusals first, as [Order Every Refusal List by Precedence](#order-every-refusal-list-by-precedence) states. A code in use is retired with its replacement named and never reused, as [Retire Refusal Codes with Their Replacements](#retire-refusal-codes-with-their-replacements) states.
 
@@ -163,7 +163,7 @@ A use case, reaction, or job names the settings it reads in `reads`.
 | Field | Meaning |
 |:---|:---|
 | `valueType` | One of `integer`, `duration`, `money`, `boolean`, `text`, or `choice`. A money setting holds an amount with an ISO 4217 currency, as the [Record Language](language.md) states. |
-| `default`, `range`, `unit` | The default in the setting's `valueType`, the min-max or choices, and the unit. A money default holds an amount with its currency, a duration default holds an ISO 8601 duration, and a choice default names one of its `choices`. |
+| `default`, `range`, `unit` | The default in the setting's `valueType`, the min-max or choices, and the unit. A money default holds an amount with its currency, a duration default holds an ISO 8601 duration, and a choice default names one of its `choices`. A choice setting states what each value means in `valueMeanings`, keyed by its choice text. |
 | `dated` | `true` when each value applies from a date and never changes a posted record. |
 | `setBy` | `product`, `operator`, or `tenant`. |
 | `configurationPath` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`. Operator settings name it, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states. |
@@ -323,11 +323,13 @@ A use case, reaction, or job names the settings it reads in `reads`.
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each use-case input MUST declare its name, meaning, type, origin, and classification.
+**Statement:** Each use-case input MUST declare its name, meaning, type, origin, and classification, with the exact type facts its type needs.
 
-**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type, the origin, and the classification states what arrives, what it is, and how far to trust it.
+**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type, the origin, and the classification states what arrives, what it is, and how far to trust it. The exact type facts state what a generator and a validator need beyond the type: the closed set a choice takes, the currency a money field moves in, and the bounds a value keeps.
 
-The type comes from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `file`, `list`, and `id`. The origin is `caller`, `claim`, `verified-claim`, or `derived`. An `id` field names the record it refers to in `identifies`, or an identified part of an aggregate as `aggregate/<module>.<aggregate>#<part>` when the aggregate declares that part with `identity: true`, a `choice` field names its allowed values in `choices`, a `file` field names its media types in `contentTypes` with its limit in `maxSize`, and a `list` field names its row shape in `rowShape`. Other types carry no `identifies`, no `rowShape`, and no `choices`. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. The `rules` field names the `rule/` identifiers bounding the value, and `required` states whether the caller sends the field. A money field carries an amount with an ISO 4217 currency, as [Record Language](language.md) states.
+The type comes from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `instant`, `duration`, `email`, `choice`, `file`, `list`, and `id`. A `date` is a calendar day, and an `instant` is a point in time. The origin is `caller`, `claim`, `verified-claim`, or `derived`. An `id` field names the record it refers to in `identifies`, or an identified part of an aggregate as `aggregate/<module>.<aggregate>#<part>` when the aggregate declares that part with `identity: true`. A `choice` field names the closed set it takes its values from in `set`: a reference-data table holding `choices`, or a setting with `valueType: choice`. A `money` field names its currency in exactly one of `currency` holding a fixed ISO 4217 code, `currencyField` naming the sibling text field carrying the code, or `currencyHome` naming the aggregate whose stored money gives the currency. A `decimal` field states the decimal places it keeps in `scale`. A `file` field names its media types in `contentTypes` with its limit in `maxSize`, and a `list` field names its row shape in `rowShape`, with a multi-field list naming its row type in `rowType`. Other types carry no `identifies`, no `rowShape`, no `set`, no currency source, no `scale`, and no constraint their type does not take. A `verified-claim` input names the entry point or external system that validated it in `verifiedBy`, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. The `rules` field names the `rule/` identifiers bounding the value, and `required` states whether the caller sends the field. A money field carries an amount with an ISO 4217 currency, as [Record Language](language.md) states.
+
+A `text` or `email` field may bound its length in `minLength` and `maxLength` and its shape in `matches` holding a regular expression. An `integer`, `decimal`, or `money` field may bound its span in `bounds` holding `min` and `max` with `inclusive`. A field carrying a constraint names the rule requiring it in `rules` beside the other rules bounding the value; on a money or access path the citation is required, as [Bound Every Caller-Supplied Input Value](#bound-every-caller-supplied-input-value) states. Each type maps to exactly one code type per stack: the [.NET Application Layer](../backend/dotnet/application.md) maps each type to its C# form, and [Web Data and State](../frontend/web/data.md) maps each type to its TypeScript form.
 
 A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
@@ -336,12 +338,12 @@ A type on each field lets the builder compare the records with the generated con
 ```json
 "input": [
   { "name": "expenseId", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller" },
-  { "name": "amount", "type": "money", "rules": ["rule/spending.positive-amount"], "origin": "caller" },
-  { "name": "lines", "type": "list", "rowShape": { "fields": [{ "name": "amount", "type": "money", "required": true, "meaning": "The line amount." }], "minItems": 1 }, "origin": "caller" }
+  { "name": "threshold", "type": "money", "currencyField": "currency", "bounds": { "min": 0 }, "rules": ["rule/policy.threshold-never-negative"], "origin": "caller" },
+  { "name": "lines", "type": "list", "rowShape": { "fields": [{ "name": "amount", "type": "money", "currency": "EUR", "required": true, "meaning": "The line amount." }], "minItems": 1 }, "origin": "caller" }
 ]
 ```
 
-**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `identifies` on an `id` field, without `rowShape` on a `list` field, without `choices` on a `choice` field, or with `identifies`, `rowShape`, or `choices` on another type, and `reference-unknown` for an `identifies` naming an aggregate part the aggregate does not declare with identity.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `identifies` on an `id` field, without `set` on a `choice` field, without exactly one of `currency`, `currencyField`, or `currencyHome` on a `money` field, without `scale` on a `decimal` field, without `rowShape` on a `list` field, without `rowType` on a multi-field `list` field, with a fact or constraint its type does not take, with `minLength` above `maxLength`, with `bounds` min above max, or with `currencyField` naming no sibling text field, `reference-unknown` for an `identifies` naming an aggregate part the aggregate does not declare with identity, a `set` naming no closed set, or a `currencyHome` naming no aggregate, and `input-field-drift` for a message property whose C# type differs from the mapped type.
 
 ### Bound Every Caller-Supplied Input Value
 
@@ -589,11 +591,91 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Applies to:** artifact: record:use-case; when: command
 
-**Statement:** Each command MUST declare its audit level and target kind, or its exemption with its justification in `exemptBecause`, when the project selects the `audit` extension.
+**Statement:** Each command MUST declare its audit level and target kind, its category when audited, and its target when audited and changing a record, or its exemption with its justification in `exemptBecause`, when the project selects the `audit` extension.
 
-**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level with its target kind, or the exemption with its justification, states the audit beside the change. The level is `required`, `optional`, or `none`, and the exemption carries its justification in `exemptBecause`. A level of `none` is not audited, and async work audits at request time. The `audit` extension owns the field, as `litespec/ext/audit#declare-which-commands-are-audited` states, so a command in a project without that extension declares no `audit`.
+**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level with its target kind, or the exemption with its justification, states the audit beside the change. The level is `required`, `optional`, or `none`, and the exemption carries its justification in `exemptBecause`. A level of `none` is not audited, and async work audits at request time. An audited command names its category from the fixed vocabulary, as `litespec/ext/audit#use-a-fixed-category-vocabulary` states. An audited command that changes a record names in `target` the input identifying the audited record, and the target kind states what that input identifies, so a reader sees the kind beside the command while the check holds it to the input. The `audit` extension owns the field, as `litespec/ext/audit#declare-which-commands-are-audited` states, so a command in a project without that extension declares no `audit`.
 
-**Checked by:** `litespec model check` reports `audit-missing` for a command without an audit level and target kind or an exemption with its justification when the project selects the `audit` extension, and `field-extension-unselected` for `audit` written while the extension is not selected.
+**Checked by:** `litespec model check` reports `audit-missing` for a command without an audit level and target kind or an exemption with its justification when the project selects the `audit` extension, `record-invalid` for an audited command without its category, `audit-target-missing` for an audited command changing a record with no target, `audit-target-unknown` for a target naming no input or an input with no `identifies`, and `audit-target-kind-drift` for a target kind differing from what the target input identifies, and `field-extension-unselected` for `audit` written while the extension is not selected.
+
+### Declare the HTTP Surface of Every HTTP-Reached Use Case
+
+**ID:** `litespec/core/use-cases#declare-the-http-surface-of-every-http-reached-use-case`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each use case reached through an `api` or `browser` entry point MUST declare its HTTP method and route template in `http`.
+
+**Rationale:** An HTTP-reached use case is one reached through an `api` or `browser` entry point. An endpoint without a declared method and route is drawn from code: each stack guesses the call shape, and the guess drifts per stack. Declaring the method and the route template beside the use case states the call shape once, so every stack and every generated client follows it. A use case reached only through other modules or through another entry-point kind declares no `http`. The method is `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`, and the route template carries each route input as `{name}`. Each parameter names the `route` input it carries, by input name, or by input name plus `Id` where an `id` input names its record while the parameter names its identity, as path parameters name resource identity under `litespec/backend/api#name-path-parameters-per-resource`.
+
+**Example:** The approve-expense command declares `POST` with `/api/expenses/{expenseId}:approve`. Its parameter `{expenseId}` names the `expense` input by identity.
+
+**Checked by:** `litespec model check` reports `http-surface-missing` for a use case reached through an `api` or `browser` entry point with no `http`, `http-route-param-unknown` for a route parameter naming no `route` input, and `record-invalid` for an `http` block without its method and route.
+
+### Declare the Binding of Every Input of an HTTP-Reached Use Case
+
+**ID:** `litespec/core/use-cases#declare-the-binding-of-every-input-of-an-http-reached-use-case`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each input of an HTTP-reached use case MUST declare where it travels in `binding`, except an input with `origin: derived`, which declares none.
+
+**Rationale:** An input without a binding travels wherever the endpoint author put it: one stack reads it from the route while another reads it from the body, and callers fail per stack. Declaring the binding states the placement beside the input: `route`, `query`, `body`, `claim`, or `header`. A `claim` input travels in the verified claims, so it takes `origin: verified-claim`, as [Mark Every Provider-Verified Input](#mark-every-provider-verified-input) states. A derived input is computed, never sent, so it states no binding.
+
+**Example:** The approve-expense command binds `expense` from the route and `approver` from the claim, and states no binding on `handledAt`, which the clock derives.
+
+**Checked by:** `litespec model check` reports `input-binding-missing` for an input of an HTTP-reached use case with no binding, and `input-binding-invalid` for a claim binding without origin `verified-claim` or any binding on a derived input.
+
+### Declare the Status of Every Refusal an HTTP-Reached Use Case Cites
+
+**ID:** `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites`
+
+**Strength:** required
+
+**Applies to:** artifact: record:refusal-set
+
+**Statement:** Each refusal cited by a result of an HTTP-reached use case MUST carry the HTTP status it answers with in `status`.
+
+**Rationale:** A refusal without a recorded status is mapped per stack: one handler answers 409 while another answers 422 for the same breach, and callers branch on status before reading the body. Carrying the status on the refusal states the answer beside the breach, so every stack and the global handler answer alike, as `litespec/backend/api#map-every-failure-to-its-declared-status` states. The derived generic refusals keep their fixed statuses instead, as [Derive Generic Refusals Instead of Writing Them](#derive-generic-refusals-instead-of-writing-them) states, so no result writes them.
+
+**Example:** The expense refusals carry 422, the status the Claimwick API answers for each.
+
+**Checked by:** `litespec model check` reports `refusal-status-missing` for a refusal cited by a result of an HTTP-reached use case with no status.
+
+### Declare the Created Location of Every Command That Creates a Resource
+
+**ID:** `litespec/core/use-cases#declare-the-created-location-of-every-command-that-creates-a-resource`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each command that creates a resource MUST state the location of the created resource in `http.created`.
+
+**Rationale:** A creation without a recorded location answers wherever the endpoint author put it: one stack answers 201 with the resource address while another answers 200 with no address, and callers cannot reach what was created. Stating the location template beside the call shape states the answer once, so every stack answers 201 with the address and the generated endpoint interpolates it from the result. Each parameter names the output field it carries, by field name, or by field name plus `Id` where an `id` output names its record while the parameter names its identity. A command that creates nothing states no `created` and answers 204 with no body, as `litespec/backend/api#use-consistent-status-codes` states.
+
+**Example:** The submit-expense command states `/api/expenses/{expenseId}`. Its parameter `{expenseId}` names the `expenseId` output.
+
+**Checked by:** `litespec model check` reports `http-location-param-unknown` for a created-location parameter naming no output field of the command.
+
+### Write Special Endpoints by Hand
+
+**ID:** `litespec/core/use-cases#write-special-endpoints-by-hand`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** A use case whose endpoint is written by hand MUST state `generated: false` in `http`.
+
+**Rationale:** Some endpoints map nothing the records state: an upload streams bytes the record bounds but never carries, a download serves a stored file, and a sign-in redirect leaves the API. Without the opt-out the generator lists the use case as skipped on every run, and a reader cannot tell a planned hand-written endpoint from a record the vocabulary cannot express yet. Stating `generated: false` marks the endpoint as intentionally hand-written, so the generator leaves it out silently.
+
+**Example:** A receipt-photo upload, which streams bytes instead of mapping inputs, states `generated: false`, and the generator leaves its hand-written endpoint alone.
+
+**Reviewed for:** Does every hand-written endpoint's use case state `generated: false`? Look at the hand-written endpoints beside their use cases.
 
 ### Declare Every Query Output
 
@@ -663,13 +745,13 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each output field MUST carry its value type.
+**Statement:** Each output field MUST carry its value type, with the exact type facts its type needs.
 
-**Rationale:** An output field without a type returns whatever its author fetched. Readers and screens guess the shape from code. Carrying the value type from the input types on every field of an `include` group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. A list of rows takes `type: list` with its row shape in `rowShape`, as the input types state. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
+**Rationale:** An output field without a type returns whatever its author fetched. Readers and screens guess the shape from code. Carrying the value type from the input types on every field of an `include` group and of a command output states the shape beside the promise, so the builder compares the records with the generated contract. An output field carries the same exact type facts an input of its type carries, as [Describe Every Use Case Input with Origin and Classification](#describe-every-use-case-input-with-origin-and-classification) states: an `id` field names its record in `identifies`, a `choice` field its closed set in `set`, a `money` field its currency source, a `decimal` field its `scale`, and a list of rows takes `type: list` with its row shape in `rowShape`, with a multi-field list naming its row type in `rowType`. Output fields take no `required`: every output field is always present. Settled by [decision/0073-type-every-output-and-declare-refusal-sets](decision/0073-type-every-output-and-declare-refusal-sets).
 
-**Example:** The list-expenses query types its amount field `money`. It types its lines field `list` with the row shape in `rowShape`.
+**Example:** The list-expenses query types its amount field `decimal` with `scale: 2`. It types its expenses field `list` with the row shape in `rowShape` and the row type in `rowType`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an output field without `type`.
+**Checked by:** `litespec model check` reports `record-invalid` for an output field without `type`, without the exact type facts its type needs, or with `rowType` missing on a multi-field list or present on anything else, `reference-unknown` for a `set` naming no closed set or a `currencyHome` naming no aggregate, and `output-field-drift` for a result property whose C# type differs from the mapped type.
 
 ### Declare Each Aggregate's Refusals Once
 
@@ -997,7 +1079,7 @@ The verb is `sends`, `calls`, `queries`, or `commands`. The timing is `inline`, 
 
 **Rationale:** A default no requirement holds is a figure nobody stated: a delay, a timeout, or a batch size nobody decided. Declaring the value type, the range, the unit, the setter, and the bound behavior states the tunable beside its promise.
 
-A setting holds configuration read by the running system. A business value a person changes through their work is aggregate data instead: its range is a rule with a refusal, and its change is a use case with access and audit. The setter is product, operator, or tenant; a tenant setting is changed by a `change-*` use case. The bound behavior is `refuse`, `truncate`, or `degrade`. The default takes the setting's `valueType`: a duration default holds an ISO 8601 duration, a money default holds an amount with its currency, and a choice default names one of its `choices`. A setting whose values apply from a date carries `dated: true`, and no value change touches a posted record. The `setting-requirement-missing` check reports a default with no cited requirement.
+A setting holds configuration read by the running system. A business value a person changes through their work is aggregate data instead: its range is a rule with a refusal, and its change is a use case with access and audit. The setter is product, operator, or tenant; a tenant setting is changed by a `change-*` use case. The bound behavior is `refuse`, `truncate`, or `degrade`. The default takes the setting's `valueType`: a duration default holds an ISO 8601 duration, a money default holds an amount with its currency, and a choice default names one of its `choices`. A choice setting states what each value means in `valueMeanings`, keyed by the written choice text, so the generated closed set documents each case; every key names a listed choice. A setting whose values apply from a date carries `dated: true`, and no value change touches a posted record. The `setting-requirement-missing` check reports a default with no cited requirement.
 
 **Example:** The approval reminder delay declares a duration with an operator-set default of `PT72H`, citing the requirement that each expense is decided within five days.
 

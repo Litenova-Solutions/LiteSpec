@@ -13,11 +13,12 @@ namespace Claimwick.Spending.Domain.Expenses;
 /// <implements>aggregate/spending.expense</implements>
 internal sealed class Expense : AggregateRoot<ExpenseId>
 {
-    private Expense(ExpenseId id, Guid employeeId, Money total, Guid? receiptId)
+    private Expense(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, Guid? receiptId)
     {
         Id = id;
         EmployeeId = employeeId;
         Total = total;
+        Category = category;
         ReceiptId = receiptId;
         State = new ExpenseSubmittedState();
     }
@@ -28,6 +29,9 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
     /// <summary>The exact amount with its currency.</summary>
     public Money Total { get; }
 
+    /// <summary>The kind of cost the expense carries.</summary>
+    public ExpenseCategory Category { get; }
+
     /// <summary>The attached receipt, when one is attached.</summary>
     public Guid? ReceiptId { get; private set; }
 
@@ -36,14 +40,14 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
 
     /// <summary>Submits one expense, refusing one above the receipt threshold that carries no receipt.</summary>
     /// <implements>use-case/spending.submit-expense</implements>
-    public static Expense Submit(ExpenseId id, Guid employeeId, Money total, Guid? receiptId, Money receiptThreshold)
+    public static Expense Submit(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, Guid? receiptId, Money receiptThreshold)
     {
         if (receiptId is null && total.Amount > receiptThreshold.Amount)
         {
             throw new ExpenseReceiptMissingException();
         }
 
-        var expense = new Expense(id, employeeId, total, receiptId);
+        var expense = new Expense(id, employeeId, total, category, receiptId);
         expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(id, total.Amount, total.Currency, employeeId));
         return expense;
     }
@@ -67,7 +71,7 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
     {
         if (approverId == EmployeeId)
         {
-            throw new ExpenseApproverIsSubmitterException();
+            throw new ExpenseOwnExpenseException();
         }
 
         if (State is not ExpenseSubmittedState)

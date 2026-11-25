@@ -11,7 +11,9 @@ carries:
   identifies: actor/employee
 - name: amount
   type: decimal
+  scale: 2
 - name: currency
   type: text
+  maxLength: 3
 - name: reimbursedAt
-  type: date-time
+  type: instant

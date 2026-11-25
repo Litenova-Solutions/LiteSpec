@@ -7,6 +7,8 @@ kind: query
 access:
   grant: permission/list-expenses
   tenant: own
+  scope: self
+  identityInput: employee
 serves:
 - step/submit-and-reimburse.watch-expenses
 fulfills:
@@ -14,6 +16,9 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
+http:
+  method: GET
+  route: /api/expenses
 input:
 - name: employee
   meaning: The signed-in employee listing their expenses, read from verified claims.
@@ -22,6 +27,7 @@ input:
   required: false
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
+  binding: claim
   classification: personal
 output:
   include:
@@ -37,13 +43,20 @@ output:
             type: id
             identifies: aggregate/spending.expense
             required: true
+          - name: employeeId
+            meaning: The employee the listed expense belongs to.
+            type: id
+            identifies: actor/employee
+            required: true
           - name: amount
             meaning: The exact amount of the expense.
             type: decimal
+            scale: 2
             required: true
           - name: currency
             meaning: The ISO 4217 currency code of the amount.
             type: text
+            maxLength: 3
             required: true
           - name: state
             meaning: The latest lifecycle state of the expense.
@@ -51,10 +64,11 @@ output:
             required: true
           - name: submittedAt
             meaning: The time the expense was submitted.
-            type: date-time
+            type: instant
             required: true
           unique:
           - expenseId
+        rowType: ExpenseSummary
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -68,6 +82,8 @@ paging:
   maxLimit: 100
 reads:
 - aggregate/spending.expense
+audit:
+  exemptBecause: Reads trail nothing.
 steps:
 - statement: The employee lists their own expenses.
   cites:

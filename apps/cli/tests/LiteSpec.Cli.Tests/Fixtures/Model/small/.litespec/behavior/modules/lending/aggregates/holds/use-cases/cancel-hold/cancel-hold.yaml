@@ -12,6 +12,9 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/hold.hold-canceled
+http:
+  method: POST
+  route: /api/holds/{holdId}:cancel
 input:
 - name: holdId
   meaning: The waiting hold the reader cancels.
@@ -19,6 +22,7 @@ input:
   identifies: aggregate/lending.hold
   required: true
   origin: caller
+  binding: route
   classification: internal
 idempotency:
   mode: none

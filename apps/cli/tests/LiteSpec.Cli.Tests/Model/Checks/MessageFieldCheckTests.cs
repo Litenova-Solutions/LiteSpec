@@ -112,14 +112,14 @@ public sealed class MessageFieldCheckTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
-    /// <summary>A property whose type the check cannot judge reports nothing.</summary>
+    /// <summary>An instant input riding as a DateTimeOffset reports nothing.</summary>
     /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
-    public void UncertainTypeReportsNothing()
+    public void InstantTypeMatchesDateTimeOffset()
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "borrowedAt", "type": "date-time"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "borrowedAt", "type": "instant"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(DateTimeOffset BorrowedAt);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -465,6 +465,50 @@ public sealed class MessageFieldCheckTests
         var drift = Assert.Single(Run(model, "input-field-drift"));
 
         Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: extra property 'WorkspaceId'.", drift.Message);
+    }
+
+    /// <summary>A message carrying a read-only list for a many-valued input reports nothing.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void ManyValuedInputReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "tags", "type": "text", "many": true}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(IReadOnlyList<string> Tags);");
+
+        Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>A message carrying a single value for a many-valued input reports input-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void ManyValuedInputWithSingleValueReportsInputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "tags", "type": "text", "many": true}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(string Tags);");
+
+        var finding = Assert.Single(Run(model, "input-field-drift"));
+
+        Assert.Equal("input-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: property 'Tags' is 'string' for input 'tags' of type 'text' holding many.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>A message split into a generated part and a hand-written sibling is judged from the generated part.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void GeneratedPartWinsOverSibling()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}]}""");
+        WriteSource(folder, "BorrowCopyCommand.generated.cs", "internal sealed partial record BorrowCopyCommand(Guid CopyId);");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed partial record BorrowCopyCommand\n{\n    public string Label => \"borrow\";\n}");
+
+        Assert.Empty(Run(model, "input-field-drift"));
     }
 
     /// <summary>Runs the message field checks and keeps their findings for one code.</summary>

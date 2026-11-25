@@ -444,7 +444,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
 | `dataClasses.periodStartsAt` | aggregate | domain event, module event, integration event, aggregate field | starts at | starts the period of |
 | `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
-| `access.recentSignInLimit` | use case | setting | is limited by | limits |
+| `access.recentSignIn` | use case | setting | is limited by | limits |
+| `access.preconditions` | use case | rule | is authorized under | authorizes |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `fulfills` | use case, reaction, job, notification, screen, setting, rule | requirement | fulfills | is fulfilled by |
 | `computedBy` | use case | rule | is computed by | computes |
@@ -481,6 +482,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `erasure.event` | external system | published event | is erased through | carries the erasure of |
 | `basedOn` | external system | decision, requirement | is based on | is a basis for |
 | `payload.identifies` | integration event | identifies | identifies | is identified by |
+| `payload.set` | integration event | reference data, setting | takes values from | gives values to |
+| `payload.currencyHome` | integration event | aggregate | takes its currency from | gives its currency to |
 | `through` | integration event | external system | travels through | carries |
 | `arrivesThrough` | integration event | entry point, external system | arrives through | receives |
 | `requires` | integration event | permission | requires | is required by |
@@ -501,6 +504,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `cites` | rule | constraint, research | cites | is cited by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `carries.identifies` | domain event | identifies | identifies | is identified by |
+| `carries.set` | domain event | reference data, setting | takes values from | gives values to |
+| `carries.currencyHome` | domain event | aggregate | takes its currency from | gives its currency to |
 | `rows.refersTo` | reference data | reference data row | refers to | is referred to by |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 | `records.terms` | refusal set | term | uses | is used by |
@@ -1744,6 +1749,38 @@ The figures below render from the retention schedule at build time.
 **Example:** The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs `litespec generate` and the exceptions read the new constant.
 
 **Checked by:** `litespec model check` reports `generated-drift` for each file `litespec generate` writes that is missing or differs from what the records render now.
+
+### Prove Every Generator with Golden Tests
+
+**ID:** `litespec/core/model#prove-every-generator-with-golden-tests`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every generator MUST ship with golden tests, one per renderer and stack, proving each renderer byte for byte.
+
+**Rationale:** A renderer change without a golden passes silently and rewrites every consumer's files on the next generate. A golden holds the exact bytes the renderer wrote for known records, so a change to the renderer breaks the golden first and forces a review of every byte it moves.
+
+**Example:** The spending refusal codes renderer has a golden file holding the exact class it writes for the spending refusals. When the renderer gains the LiteSpec version in its header, the golden breaks and the change reviews the new header byte before accepting it.
+
+**Reviewed for:** Does every generator ship with golden tests, one per renderer and stack? Look at the expected files beside the renderers.
+
+### Keep Generate Targets Outside Other Tools' Output Folders
+
+**ID:** `litespec/core/model#keep-generate-targets-outside-other-tools-output-folders`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A generate target MUST sit outside every other tool's output folder and write no file another generate target writes.
+
+**Rationale:** A target inside another tool's folder loses its files when that tool regenerates: a client generator wipes the folder and the litespec files go with it. Two targets writing one file leave the last write standing and the other silently lost. One file has one writer, so every generated file survives its own tool's next run.
+
+**Example:** Claimwick's spending targets write to apps/api/src/Modules/Claimwick.{Module}, outside the web frontend's generated client folder packages/api/src/generated. When a second target names the same file, the check names both so each keeps its own file.
+
+**Checked by:** `litespec model check` reports `generate-target-invalid` for each generate target inside another tool's output folder and for each file two targets write.
 
 ### State What Happens in Every Behavior Statement
 

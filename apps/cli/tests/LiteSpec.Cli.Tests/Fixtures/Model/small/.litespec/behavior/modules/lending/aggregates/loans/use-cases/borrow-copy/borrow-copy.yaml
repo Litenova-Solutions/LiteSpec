@@ -12,6 +12,9 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-borrowed
+http:
+  method: POST
+  route: /api/loans
 input:
 - name: copyId
   meaning: The copy the reader borrows.
@@ -19,6 +22,7 @@ input:
   identifies: aggregate/lending.copy
   required: true
   origin: caller
+  binding: body
   classification: internal
 - name: readerId
   meaning: The signed-in reader borrowing the copy, read from verified claims.
@@ -27,6 +31,7 @@ input:
   required: false
   origin: verified-claim
   verifiedBy: entry-point/library-app
+  binding: claim
   classification: personal
 idempotency:
   mode: none

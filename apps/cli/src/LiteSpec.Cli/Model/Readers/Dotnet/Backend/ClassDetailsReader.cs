@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Model;
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -19,6 +20,7 @@ static class ClassDetailsReader
     /// <param name="isQuery">Whether the handler handles a query.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     /// <returns>The collected details of the handler class.</returns>
     public static ClassDetails HandlerDetailsOf(
         BaseTypeDeclarationSyntax declared,
@@ -29,16 +31,17 @@ static class ClassDetailsReader
         HashSet<string> holders,
         bool isQuery,
         QualifiedKinds qualified,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         return new ClassDetails(
             declared.Identifier.ValueText,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
             RepositoriesOf(declared, tree, file),
-            RefusalsOf(declared, tree, file, constants),
-            ThrownOf(declared, tree, file),
+            RefusalsOf(declared, tree, file, constants, semantics),
+            ThrownOf(declared, tree, file, semantics),
             DispatchReader.DispatchesOf(declared, tree, file, helpers, qualified),
-            MessageTypeOf(declared),
+            MessageTypeOf(declared, tree, semantics),
             DependencyCountOf(declared),
             AggregateCallReader.AggregateCallsOf(declared, tree, file, aggregateRoots),
             AggregateCallReader.FactoryCallsOf(declared, tree, file, aggregateRoots),
@@ -112,8 +115,9 @@ static class ClassDetailsReader
     /// <param name="tree">The parsed syntax tree.</param>
     /// <param name="file">The file.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     /// <returns>The refusal codes the class produces, earliest line first.</returns>
-    public static List<CodeRefusal> RefusalsOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file, IReadOnlyDictionary<string, string> constants)
+    public static List<CodeRefusal> RefusalsOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file, IReadOnlyDictionary<string, string> constants, BackendSemantics? semantics)
     {
         var found = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -133,6 +137,8 @@ static class ClassDetailsReader
             }
         }
 
+        var model = semantics?.ModelFor(tree);
+
         foreach (var expression in RefusalLiterals.ConstantCandidates(declared))
         {
             if (!RefusalLiterals.Declares(expression))
@@ -140,7 +146,10 @@ static class ClassDetailsReader
                 continue;
             }
 
-            if (ConstRefusalCodes.Resolve(expression, declared.Identifier.ValueText, constants) is { } code)
+            var code = ConstRefusalCodes.Resolve(expression, declared.Identifier.ValueText, constants)
+                ?? (model is not null ? ConstRefusalCodes.ResolveSemantic(model, expression) : null);
+
+            if (code is not null)
             {
                 found.TryAdd(code, tree.GetLineSpan(expression.Span).StartLinePosition.Line + 1);
             }
@@ -156,15 +165,19 @@ static class ClassDetailsReader
     /// <param name="declared">The class declaration.</param>
     /// <param name="tree">The parsed syntax tree.</param>
     /// <param name="file">The file.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     /// <returns>The exception and failure types the class constructs, earliest line first.</returns>
-    public static List<CodeThrown> ThrownOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file)
+    public static List<CodeThrown> ThrownOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file, BackendSemantics? semantics)
     {
         var found = new Dictionary<string, int>(StringComparer.Ordinal);
+        var model = semantics?.ModelFor(tree);
 
-        foreach (var creation in declared.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        foreach (var creation in declared.DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
         {
-            var name = DotnetNames.SimpleTypeName(creation.Type);
-            var simple = name.Contains('<') ? name[..name.IndexOf('<')] : name;
+            if (ThrownName(creation, model) is not { } simple)
+            {
+                continue;
+            }
 
             if (simple.EndsWith("Exception", StringComparison.Ordinal)
                 || simple.EndsWith("Failure", StringComparison.Ordinal)
@@ -180,11 +193,42 @@ static class ClassDetailsReader
             .Select(entry => new CodeThrown(entry.Key, file, entry.Value))];
     }
 
-    /// <summary>The message a handler handles: the first parameter type of its Handle method, or empty.</summary>
-    /// <param name="declared">The handler declaration.</param>
-    /// <returns>The message a handler handles, or empty when it handles none.</returns>
-    public static string MessageTypeOf(BaseTypeDeclarationSyntax declared)
+    /// <summary>The simple name of the constructed type: resolved through the model when one reads, else as written.</summary>
+    /// <param name="creation">The object creation.</param>
+    /// <param name="model">The semantic model of the creation, or null to read the type as written.</param>
+    /// <returns>The simple type name, or null when the creation names none.</returns>
+    static string? ThrownName(BaseObjectCreationExpressionSyntax creation, SemanticModel? model)
     {
+        if (model is not null && model.GetTypeInfo(creation).Type is INamedTypeSymbol resolved && resolved.Name.Length > 0)
+        {
+            return resolved.Name;
+        }
+
+        if (creation is not ObjectCreationExpressionSyntax explicitCreation)
+        {
+            return null;
+        }
+
+        var name = DotnetNames.SimpleTypeName(explicitCreation.Type);
+
+        return name.Contains('<') ? name[..name.IndexOf('<')] : name;
+    }
+
+    /// <summary>The message a handler handles: its handler interface message first, else the first parameter type of its Handle method, or empty.</summary>
+    /// <param name="declared">The handler declaration.</param>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
+    /// <returns>The message a handler handles, or empty when it handles none.</returns>
+    public static string MessageTypeOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, BackendSemantics? semantics)
+    {
+        if (semantics?.ModelFor(tree) is { } model
+            && declared is TypeDeclarationSyntax shaped
+            && model.GetDeclaredSymbol(shaped) is INamedTypeSymbol symbol
+            && HandlerInterfaces.Of(symbol) is { Message: { Length: > 0 } handled })
+        {
+            return handled;
+        }
+
         if (declared is not TypeDeclarationSyntax typed)
         {
             return "";

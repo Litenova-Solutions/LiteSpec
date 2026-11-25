@@ -1,0 +1,202 @@
+using System.Collections.Concurrent;
+using LiteSpec.Cli.Model.Configuration;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
+
+/// <summary>
+///     The semantic model of one backend read: the compilation built from the parsed trees with
+///     framework and package references, so checks read what the compiler knows instead of
+///     guessing from syntax. A null holder wherever one is kept means the syntax-only path ran.
+/// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+sealed class BackendSemantics
+{
+    /// <summary>The syntax-only reader mode: no compilation was built.</summary>
+    public const string SyntaxMode = "syntax";
+
+    /// <summary>The semantic reader mode: a compilation was built from build output.</summary>
+    public const string SemanticMode = "semantic";
+
+    /// <summary>The environment variable forcing a reader mode: syntax or semantic, anything else for automatic.</summary>
+    const string ModeVariable = "LITESPEC_BACKEND_READER";
+
+    /// <summary>The cached framework references, shared by every read in the process.</summary>
+    static IReadOnlyList<MetadataReference>? framework;
+
+    /// <summary>The gate guarding the framework cache.</summary>
+    static readonly object FrameworkGate = new();
+
+    /// <summary>The compilation built from the read trees.</summary>
+    readonly CSharpCompilation compilation;
+
+    /// <summary>The read trees by file path.</summary>
+    readonly Dictionary<string, SyntaxTree> trees;
+
+    /// <summary>The semantic model by tree path, built once per tree.</summary>
+    readonly ConcurrentDictionary<string, SemanticModel> models = new(StringComparer.Ordinal);
+
+    /// <summary>Initializes a new instance of the <see cref="BackendSemantics" /> class.</summary>
+    /// <param name="compilation">The compilation built from the read trees.</param>
+    /// <param name="evidence">The build output the read was built from.</param>
+    BackendSemantics(CSharpCompilation compilation, IReadOnlyList<string> evidence)
+    {
+        this.compilation = compilation;
+        trees = compilation.SyntaxTrees.ToDictionary(tree => tree.FilePath, StringComparer.Ordinal);
+        Evidence = evidence;
+    }
+
+    /// <summary>Gets the build output the read was built from: the project assets files and binaries found.</summary>
+    public IReadOnlyList<string> Evidence { get; }
+
+    /// <summary>The semantic model of one tree, or null when the tree is not part of the read.</summary>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <returns>The semantic model of the tree, or null.</returns>
+    public SemanticModel? ModelFor(SyntaxTree tree)
+    {
+        if (!trees.TryGetValue(tree.FilePath, out var owned))
+        {
+            return null;
+        }
+
+        return models.GetOrAdd(tree.FilePath, _ => compilation.GetSemanticModel(owned));
+    }
+
+    /// <summary>The semantic model of one file, or null when the file is not part of the read.</summary>
+    /// <param name="file">The file path.</param>
+    /// <returns>The semantic model of the file, or null.</returns>
+    public SemanticModel? ModelFor(string file) =>
+        trees.TryGetValue(file, out var tree) ? ModelFor(tree) : null;
+
+    /// <summary>Whether the file is part of the read, with every declaration of the type it holds.</summary>
+    /// <param name="file">The file to read.</param>
+    /// <param name="typeName">The simple type name.</param>
+    /// <param name="parts">Each declaration with its tree, or empty when the file is not part of the read.</param>
+    /// <returns>True when the file is part of the read; otherwise false.</returns>
+    public bool TryTypesIn(string file, string typeName, out IReadOnlyList<(SyntaxTree Tree, TypeDeclarationSyntax Declared)> parts)
+    {
+        parts = [];
+
+        if (!trees.TryGetValue(file, out var tree))
+        {
+            return false;
+        }
+
+        parts =
+        [
+            .. tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+                .Where(declared => declared.Identifier.ValueText == typeName)
+                .Select(declared => (tree, declared)),
+        ];
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Builds the semantics of one read: a compilation when the backend has build output,
+    ///     else null for the syntax-only path. The mode variable forces either path.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="trees">The parsed syntax trees by file path.</param>
+    /// <returns>The read semantics, or null when the syntax-only path runs.</returns>
+    public static BackendSemantics? TryCreate(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees) =>
+        TryCreate(config, trees, CliHost.Variable(ModeVariable));
+
+    /// <summary>
+    ///     Builds the semantics of one read with an explicit mode: syntax forces the
+    ///     syntax-only path, semantic forces a build, and anything else builds only when the
+    ///     backend has build output. A build that fails falls back to the syntax-only path.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="trees">The parsed syntax trees by file path.</param>
+    /// <param name="mode">The forced mode, or null for automatic.</param>
+    /// <returns>The read semantics, or null when the syntax-only path runs.</returns>
+    internal static BackendSemantics? TryCreate(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees, string? mode)
+    {
+        if (mode == SyntaxMode)
+        {
+            return null;
+        }
+
+        var evidence = ProjectAssets.Evidence(config);
+
+        if (mode != SemanticMode && evidence.Count == 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            var references = new List<MetadataReference>();
+            references.AddRange(FrameworkReferences());
+            references.AddRange(ProjectAssets.PackageReferences(config));
+            var compilation = CSharpCompilation.Create(
+                "LiteSpecBackendRead",
+                trees.Values,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            return new BackendSemantics(compilation, evidence);
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or IOException or UnauthorizedAccessException or BadImageFormatException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>The framework assemblies of the running runtime, as metadata references, cached per process.</summary>
+    /// <returns>The framework references that exist on disk.</returns>
+    static IReadOnlyList<MetadataReference> FrameworkReferences()
+    {
+        if (framework is not null)
+        {
+            return framework;
+        }
+
+        lock (FrameworkGate)
+        {
+            framework ??= LoadFramework();
+        }
+
+        return framework;
+    }
+
+    /// <summary>
+    ///     Loads the two framework assemblies symbol resolution needs that exist on disk, skipping
+    ///     the rest: the core library defines the predefined types, and the runtime forwards them.
+    ///     Every other framework member a check reads falls back to its syntax guess, which names
+    ///     no source file either way.
+    /// </summary>
+    /// <returns>The core library and runtime references that exist on disk.</returns>
+    static List<MetadataReference> LoadFramework()
+    {
+        var found = new List<MetadataReference>();
+
+        if (AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") is not string list)
+        {
+            return found;
+        }
+
+        foreach (var path in list.Split(';'))
+        {
+            if (Path.GetFileName(path) is not ("System.Private.CoreLib.dll" or "System.Runtime.dll")
+                || !File.Exists(path))
+            {
+                continue;
+            }
+
+            try
+            {
+                found.Add(MetadataReference.CreateFromFile(path));
+            }
+            catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException or BadImageFormatException)
+            {
+                continue;
+            }
+        }
+
+        return found;
+    }
+}

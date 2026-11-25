@@ -18,7 +18,7 @@ payload:
 - name: <field name>
   meaning: <what the field holds>
   classification: <public|internal|personal|sensitive>
-  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+  type: <text|integer|decimal|money|boolean|date|instant|duration|email|choice|id|list|file>
   many: <true|false, or remove this line>
   required: <true|false, or remove this line>
 # A choice field carries choices, and a file field carries contentTypes and maxSize.

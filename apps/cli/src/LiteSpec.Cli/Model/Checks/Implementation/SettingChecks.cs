@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -5,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
-/// <summary>The setting-key and template-store checks: every operator setting names its configuration path, every pathed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
+/// <summary>The setting-key and template-store checks: every operator setting names its configuration path, every stated value meaning names a listed choice, every pathed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
 /// <follows>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</follows>
 /// <follows>litespec/core/use-cases#give-every-tenant-setting-a-change-use-case</follows>
 /// <follows>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</follows>
@@ -13,7 +14,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <follows>litespec/core/edges#use-every-declared-template-parameter</follows>
 internal static class SettingChecks
 {
-    /// <summary>Reports setting-key-missing, setting-unimplemented, setting-key-drift, template-unimplemented, template-unrecorded and template-param-drift.</summary>
+    /// <summary>Reports setting-key-missing, setting-unimplemented, setting-key-drift, template-unimplemented, template-unrecorded, template-param-drift and record-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -21,7 +22,62 @@ internal static class SettingChecks
         CheckSettingKeyMissing(model, findings);
         CheckTenantSettingChange(model, findings);
         CheckSettingBound(model, findings);
+        CheckValueMeanings(model, findings);
         CheckTemplates(model, findings);
+    }
+
+    /// <summary>Reports a setting whose value meanings name a value outside the closed set its choices list, or hold a meaning that is not a sentence.</summary>
+    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckValueMeanings(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var setting in model.Records
+            .Where(record => record.Type == RecordTypes.Setting)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (setting.Raw.ValueKind != JsonValueKind.Object
+                || !setting.Raw.TryGetProperty(RecordFields.ValueMeanings, out var meanings))
+            {
+                continue;
+            }
+
+            if (meanings.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds value meanings that are not a map.", setting.File, setting.Line, SubjectOf(setting)));
+                continue;
+            }
+
+            var choices = ClosedSets.ChoiceTexts(setting);
+
+            if (choices is null)
+            {
+                continue;
+            }
+
+            var allowed = choices.ToHashSet(StringComparer.Ordinal);
+
+            foreach (var entry in meanings.EnumerateObject().OrderBy(entry => entry.Name, StringComparer.Ordinal))
+            {
+                if (!allowed.Contains(entry.Name))
+                {
+                    findings.Add(new Finding(
+                        "record-invalid",
+                        $"Setting '{setting.Id}' holds a value meaning for '{entry.Name}', which its choices do not list.",
+                        setting.File,
+                        setting.Line,
+                        SubjectOf(setting)));
+                }
+                else if (entry.Value.ValueKind != JsonValueKind.String || entry.Value.GetString() is not { Length: > 0 })
+                {
+                    findings.Add(new Finding(
+                        "record-invalid",
+                        $"Setting '{setting.Id}' holds a value meaning for '{entry.Name}' that is not a sentence.",
+                        setting.File,
+                        setting.Line,
+                        SubjectOf(setting)));
+                }
+            }
+        }
     }
 
     /// <summary>Reports a tenant setting that no change use case changes.</summary>

@@ -16,6 +16,33 @@ public sealed class PublishLocalTests
             PublishLocalEdits.DevVersion("7.0.0", new DateTime(2026, 11, 24, 9, 0, 0, DateTimeKind.Utc)));
     }
 
+    /// <summary>CiDevVersion names the CI build from the run number.</summary>
+    /// <proves>litespec/core/release#run-one-litespec-build</proves>
+    [Fact]
+    public void CiDevVersionNamesTheCiBuildFromTheRunNumber()
+    {
+        Assert.Equal("7.0.0-dev.42", PublishLocalEdits.CiDevVersion("7.0.0", "42"));
+    }
+
+    /// <summary>IsRunNumber accepts a positive whole number and refuses the rest.</summary>
+    /// <param name="value">The option value.</param>
+    /// <param name="expected">Whether the value names a CI run.</param>
+    /// <proves>litespec/core/release#run-one-litespec-build</proves>
+    [Theory]
+    [InlineData("1", true)]
+    [InlineData("42", true)]
+    [InlineData("", false)]
+    [InlineData("0", false)]
+    [InlineData("00", false)]
+    [InlineData("-1", false)]
+    [InlineData("4a", false)]
+    [InlineData("4.2", false)]
+    [InlineData(" 42", false)]
+    public void IsRunNumberAcceptsAPositiveWholeNumberAndRefusesTheRest(string value, bool expected)
+    {
+        Assert.Equal(expected, PublishLocalEdits.IsRunNumber(value));
+    }
+
     /// <summary>FeedValueFor names a feed under the consumer by its relative path.</summary>
     /// <proves>litespec/core/release#run-one-litespec-build</proves>
     [Fact]

@@ -19,19 +19,21 @@ static class GenerateCommand
         Usage: litespec generate [--root <consumer>] [--check] [--help]
 
         Writes the code the records fully determine: the refusal codes, permission ids,
-        domain event decisions and closed value sets the generate targets name. With
-        --check it writes nothing and exits 1 when any file would change.
+        domain event decisions, closed value sets, knowledge sets, refusal
+        exceptions, domain and module events, message declarations, use-case
+        messages, use-case results, and HTTP endpoints the generate targets
+        name. With --check it writes nothing and exits 1 when any file would change.
 
           --root      The consumer repository to read. Defaults to the working directory.
           --check     Write nothing; list each file that would change and exit 1 when any would.
           --help      Print this text and exit.
 
-        Exit codes: 0 the files are written, or --check found every file current, 1 a file would change with --check, the records cannot be read, or a file cannot be written, 2 the options are invalid or the project file is missing.
+        Exit codes: 0 the files are written, or --check found every file current, 1 a file would change with --check, a target is invalid, the records cannot be read, or a file cannot be written, 2 the options are invalid, the project file is missing, a record file does not parse, or a generate target writes inside another tool's output folder or the same file as another target.
         """;
 
     /// <summary>Runs the generate command.</summary>
     /// <param name="args">The command arguments.</param>
-    /// <returns>The exit code: 0 written or current, 1 drift with --check or an unreadable record, 2 usage error or unreadable consumer.</returns>
+    /// <returns>The exit code: 0 written or current, 1 drift with --check, an invalid target or an unreadable record, 2 usage error, an unreadable consumer or a misconfigured target.</returns>
     public static int Run(string[] args)
     {
         if (args is ["--help"] or ["-h"] or ["help"])
@@ -88,6 +90,16 @@ static class GenerateCommand
 
         var plan = GeneratePlan.Build(model);
 
+        if (plan.ConfigErrors.Count > 0)
+        {
+            foreach (var configError in plan.ConfigErrors)
+            {
+                CliHost.Error.WriteLine(configError);
+            }
+
+            return 2;
+        }
+
         if (plan.Errors.Count > 0)
         {
             foreach (var targetError in plan.Errors)
@@ -98,8 +110,9 @@ static class GenerateCommand
             return 1;
         }
 
+        var release = LiteSpecHome.Version ?? "";
         var changed = plan.Files
-            .Where(file => !File.Exists(file.AbsolutePath) || File.ReadAllText(file.AbsolutePath) != file.Content)
+            .Where(file => !File.Exists(file.AbsolutePath) || !Current(file.AbsolutePath, file.Content, release))
             .ToList();
         var check = parsed.Has("--check");
 
@@ -128,6 +141,11 @@ static class GenerateCommand
             CliHost.Out.WriteLine(PathText.Relative(config.Root, file.AbsolutePath));
         }
 
+        foreach (var skip in plan.Skips)
+        {
+            CliHost.Out.WriteLine($"skipped {skip.UseCaseId}: {skip.Reason}.");
+        }
+
         CliHost.Out.WriteLine(check ? $"{changed.Count} files would change." : $"{changed.Count} files rewritten.");
         return check && changed.Count > 0 ? 1 : 0;
     }
@@ -138,4 +156,15 @@ static class GenerateCommand
     private static bool IsParseFailure(Finding finding) =>
         finding.Message.Contains("could not be read", StringComparison.Ordinal)
         || finding.Message.StartsWith("The glossary is not YAML", StringComparison.Ordinal);
+
+    /// <summary>Whether the file on disk matches what the records render, ignoring a release candidate suffix on the stamped version.</summary>
+    /// <param name="path">The absolute file path.</param>
+    /// <param name="rendered">The rendered file text.</param>
+    /// <param name="release">The base version of the carried release, or empty when none is readable.</param>
+    /// <returns>True when the file matches the rendered text up to the candidate suffix.</returns>
+    private static bool Current(string path, string rendered, string release) =>
+        string.Equals(
+            ReleaseVersion.WithoutCandidateSuffix(File.ReadAllText(path), release),
+            ReleaseVersion.WithoutCandidateSuffix(rendered, release),
+            StringComparison.Ordinal);
 }

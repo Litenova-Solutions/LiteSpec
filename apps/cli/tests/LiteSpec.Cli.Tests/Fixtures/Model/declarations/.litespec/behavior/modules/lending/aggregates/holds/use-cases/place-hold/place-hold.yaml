@@ -1,0 +1,33 @@
+type: use-case
+id: use-case/lending.place-hold
+title: Place Hold
+kind: command
+access:
+  grant: permission/place-hold
+  tenant: own
+  runsAs: system
+input:
+- name: copyId
+  meaning: The copy the reader holds.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+- name: readerId
+  meaning: The reader placing the hold.
+  type: id
+  identifies: actor/reader
+  required: true
+  origin: caller
+  binding: body
+  classification: personal
+idempotency:
+  mode: state
+  recognizedBy: the hold already placed for the reader and copy
+  replay: acts-again
+audit:
+  exemptBecause: Holds trail in the hold states.
+steps:
+- statement: The reader places a hold on the copy.

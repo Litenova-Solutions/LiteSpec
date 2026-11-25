@@ -227,11 +227,10 @@ public sealed class RulesCommandTests
     [Fact]
     public void RulesFullPrintsRationaleAndExample()
     {
-        var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
         var result = TestCli.Run(
             "rules",
-            "--root", root,
-            "apps/api/src/Modules/Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs",
+            "--root", TestCli.Fixture("rules-basic"),
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs",
             "--full");
 
         Assert.Equal(0, result.Status);

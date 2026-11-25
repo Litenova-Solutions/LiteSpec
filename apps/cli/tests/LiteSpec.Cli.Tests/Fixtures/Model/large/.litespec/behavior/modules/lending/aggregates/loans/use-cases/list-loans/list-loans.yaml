@@ -13,6 +13,9 @@ fulfills:
 reachedThrough:
 - entry-point/library-app
 raises: []
+http:
+  method: GET
+  route: /api/loans
 input:
 - name: readerId
   meaning: The signed-in reader whose loans are listed, read from verified claims.
@@ -21,6 +24,7 @@ input:
   required: false
   origin: verified-claim
   verifiedBy: entry-point/library-app
+  binding: claim
   classification: personal
 output:
   include:
@@ -49,6 +53,7 @@ output:
             type: date
             required: true
             meaning: The day the loan is due.
+        rowType: LoansRow
       classification: internal
       reads:
       - aggregate/lending.loan
@@ -71,6 +76,7 @@ output:
             identifies: aggregate/lending.copy
             required: true
             meaning: The copy on hold.
+        rowType: HoldsRow
       classification: internal
       reads:
       - aggregate/lending.hold
