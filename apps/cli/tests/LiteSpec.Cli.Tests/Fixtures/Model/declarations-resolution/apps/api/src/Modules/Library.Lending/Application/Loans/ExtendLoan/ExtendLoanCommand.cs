@@ -1,0 +1,3 @@
+namespace Library.Lending.Application.Loans.ExtendLoan;
+
+public sealed record ExtendLoanCommand(Guid LoanId, DateOnly ExtendedTo);

@@ -1,0 +1,32 @@
+type: use-case
+id: use-case/lending.extend-loan
+title: Extend Loan
+kind: command
+access:
+  grant: permission/borrow-copy
+  tenant: own
+input:
+- name: loanId
+  meaning: The loan the reader extends.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+- name: extendedTo
+  meaning: The new due day the reader asks for.
+  type: date
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: key
+  key: "{loanId}-{extendedTo}"
+  keyScope: tenant
+  replay: refuses
+audit:
+  exemptBecause: Extensions trail in the loan states.
+steps:
+- statement: The reader extends the loan at the desk.

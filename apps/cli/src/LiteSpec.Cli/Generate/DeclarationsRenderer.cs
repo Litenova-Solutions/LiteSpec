@@ -28,7 +28,8 @@ static class DeclarationsRenderer
     /// <summary>One part of an idempotency key template: literal text or one message property.</summary>
     /// <param name="Literal">The literal text, or null when the part names a property.</param>
     /// <param name="Property">The message property name, or null when the part is literal text.</param>
-    public sealed record KeyPart(string? Literal, string? Property);
+    /// <param name="Format">The interpolation format of the property, such as O for a date, or null for the default rendering.</param>
+    public sealed record KeyPart(string? Literal, string? Property, string? Format = null);
 
     /// <summary>The authorization call for a message the records authorize under a policy.</summary>
     /// <param name="policy">The policy name the project's guard evaluates.</param>
@@ -142,6 +143,13 @@ static class DeclarationsRenderer
             "",
         };
 
+        if (ordered.Any(message =>
+            message.Idempotency is not null
+            && message.Idempotency.Contains("FormattableString.Invariant", StringComparison.Ordinal)))
+        {
+            lines.Add("using System;");
+        }
+
         if (ordered.Any(message => message.Audit is not null))
         {
             lines.Add("using LiteBus.Auditing.Abstractions;");
@@ -151,6 +159,7 @@ static class DeclarationsRenderer
 
         foreach (var messageNamespace in ordered
             .Select(message => message.MessageNamespace)
+            .Where(candidate => candidate.Length > 0)
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal))
         {
@@ -229,7 +238,7 @@ static class DeclarationsRenderer
         return arguments;
     }
 
-    /// <summary>The key selector body: a plain literal when the template names no property, else an interpolated string over the message's properties.</summary>
+    /// <summary>The key selector body: a plain literal when the template names no property, else an interpolated string over the message's properties, formatted culture-invariant so two runs compute the same key in any locale.</summary>
     /// <param name="parameter">The lambda parameter name: command.</param>
     /// <param name="parts">The key template parts in template order.</param>
     /// <returns>The selector body text.</returns>
@@ -242,11 +251,13 @@ static class DeclarationsRenderer
 
         var body = string.Concat(parts.Select(part =>
             part.Property is not null
-                ? $"{{{parameter}.{part.Property}}}"
+                ? part.Format is { Length: > 0 }
+                    ? $"{{{parameter}.{part.Property}:{part.Format}}}"
+                    : $"{{{parameter}.{part.Property}}}"
                 : GenerateNaming.EscapeLiteral(part.Literal ?? "")
                     .Replace("{", "{{", StringComparison.Ordinal)
                     .Replace("}", "}}", StringComparison.Ordinal)));
 
-        return $"$\"{body}\"";
+        return $"FormattableString.Invariant($\"{body}\")";
     }
 }

@@ -14,15 +14,22 @@ requiredRoles:
 variation: <the dimension the rows vary by, such as country, or remove this line>
 row:
   type: <the qualified model row type, or remove row with columns>
-  factory: <the static factory method building one row, or remove this line for Create>
+  factory: <the static factory method building one row, or remove this line for the constructor>
 columns:
-- column: <value, key, role, variant, refersTo, effectiveFrom, effectiveTo or source>
-  parameter: <the factory parameter name>
-  as: <string, number, boolean, date, money, key, member or map>
-  type: <the qualified model type for money, key or member, or remove this line>
+- column: <a row field the parameter reads>
+  parameter: <the row parameter name>
+  as: <string, number, boolean, date, money, decimal, key, member, case or map>
+  type: <the qualified model type for money, key, member or case, or remove this line>
   factory: <the static factory building the key, or remove this line for From>
   currency: <the three-letter currency code for money, or remove this line>
   literals: { <a row value>: <its literal> }
+- parameter: <the nested object parameter name, or remove this entry>
+  as: object
+  type: <the qualified model type of the nested object>
+  columns:
+  - column: <a row field the nested parameter reads>
+    parameter: <the nested parameter name>
+    as: <string, number, boolean, date, money, decimal, key, member, case or map>
 rows:
 - value: <the value in force>
   key: <the stable key of the row, or remove this line>
@@ -32,3 +39,4 @@ rows:
   effectiveFrom: <date the value takes effect, such as 2026-01-01>
   effectiveTo: <date the value stops applying, or remove this line>
   source: <constraint, research or decision id behind the value>
+  <an extra field the columns read>: <its value, or remove this line>

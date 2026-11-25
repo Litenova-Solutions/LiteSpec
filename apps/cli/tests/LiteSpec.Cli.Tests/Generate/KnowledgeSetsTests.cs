@@ -35,7 +35,164 @@ public sealed class KnowledgeSetsTests
         }
     }
 
-    /// <summary>Generate writes one table class per variant with a factory call per row, rendering each column as its mapping states.</summary>
+    /// <summary>Each new column kind renders byte for byte as its golden file: a decimal rate, a nested closed-set case, and a nested object.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void GeneratedNewColumnKindsMatchGoldens()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteNewKindRecords(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: knowledge-sets
+              stack: dotnet
+              path: apps/api/src/Knowledge/Library.{Area}.{Variant}
+              namespace: Library.{Area}.{Variant}
+            """);
+
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+        var files = GeneratePlan.Build(model).Files
+            .OrderBy(file => file.AbsolutePath, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Equal(NewKindGoldens.Count, files.Count);
+
+        foreach (var file in files)
+        {
+            Assert.True(
+                NewKindGoldens.TryGetValue(Path.GetFileName(file.AbsolutePath), out var golden),
+                $"No golden names '{Path.GetFileName(file.AbsolutePath)}'.");
+            GenerateGoldens.AssertEqual(golden, file.Content);
+        }
+    }
+
+    /// <summary>Rows build through the constructor when the table names no factory, and through the factory when it names one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RowsBuildThroughConstructorWithoutAFactory()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"value": 21, "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+        var mappings = new List<KnowledgeSetsRenderer.ColumnMapping>
+        {
+            new("value", "maxDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+        };
+
+        var built = KnowledgeSetsRenderer.RenderDotnet(
+            "lending", "central", "loan-limits", "reference-data/lending.loan-limits",
+            "Library.Lending.LoanLimit", null, mappings, rows, "Library.Lending.Central");
+        var factored = KnowledgeSetsRenderer.RenderDotnet(
+            "lending", "central", "loan-limits", "reference-data/lending.loan-limits",
+            "Library.Lending.LoanLimit", "Create", mappings, rows, "Library.Lending.Central");
+
+        Assert.Contains("new LoanLimit(", built);
+        Assert.DoesNotContain("LoanLimit.Create(", built);
+        Assert.Contains("LoanLimit.Create(", factored);
+    }
+
+    /// <summary>A case column renders a new nested case, and null when the row states no value.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CaseRendersNewCaseAndNull()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"role": "standard-loan", "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"},
+            {"key": "b-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "loan-classes",
+            "reference-data/lending.loan-classes",
+            "Library.Lending.LoanTerm",
+            null,
+            [
+                new("role", "kind", "case", "Library.Lending.LoanKind", "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("kind: new LoanKind.StandardLoan()", text);
+        Assert.Contains("kind: null", text);
+        Assert.Contains("using Library.Lending;", text);
+    }
+
+    /// <summary>A decimal column renders its suffix, and a literal when the value states no number.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DecimalRendersSuffixed()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"ratePercent": 19, "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"},
+            {"ratePercent": "high", "key": "b-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "fine-rates",
+            "reference-data/lending.fine-rates",
+            "Library.Lending.FineRate",
+            null,
+            [
+                new("ratePercent", "rate", "decimal", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("rate: 19m", text);
+        Assert.Contains("rate: \"high\"", text);
+    }
+
+    /// <summary>An object column renders null without a model type, whatever fields the row states.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectWithoutTypeRendersNull()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"windowDays": 3, "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "renewal-rules",
+            "reference-data/lending.renewal-rules",
+            "Library.Lending.RenewalRule",
+            null,
+            [
+                new(
+                    "",
+                    "window",
+                    "object",
+                    null,
+                    "From",
+                    null,
+                    new Dictionary<string, string>(StringComparer.Ordinal),
+                    [new("windowDays", "days", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), [])]),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("window: null", text);
+    }
+
+    /// <summary>Generate writes one table class per variant with a constructor call per row, rendering each column as its mapping states.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void GenerateWritesKnowledgeSets()
@@ -62,7 +219,7 @@ public sealed class KnowledgeSetsTests
         Assert.Contains("namespace Library.Lending.Central;", text);
         Assert.Contains("public static partial class CentralLoanLimits", text);
         Assert.Contains("public static IReadOnlyList<LoanLimit> Rows", text);
-        Assert.Contains("LoanLimit.Create(", text);
+        Assert.Contains("new LoanLimit(", text);
         Assert.Contains("branch: \"CT\",", text);
         Assert.Contains("key: LoanLimitKey.From(\"central-standard-2026\"),", text);
         Assert.Contains("maxDays: 21,", text);
@@ -137,8 +294,8 @@ public sealed class KnowledgeSetsTests
             "Library.Lending.LoanLimit",
             "Create",
             [
-                new("value", "maxDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal)),
-                new("key", "key", "string", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal)),
+                new("value", "maxDays", "number", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+                new("key", "key", "string", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
             ],
             rows,
             "Library.Lending.Central");
@@ -171,7 +328,7 @@ public sealed class KnowledgeSetsTests
             "Library.Lending.LoanLimit",
             "Create",
             [
-                new("effectiveTo", "validTo", "date", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal)),
+                new("effectiveTo", "validTo", "date", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
             ],
             rows,
             "Library.Lending.Central");
@@ -200,9 +357,9 @@ public sealed class KnowledgeSetsTests
             "Library.Lending.LoanLimit",
             "Create",
             [
-                new("value", "maxDays", "furlong", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal)),
-                new("value", "amount", "money", "Library.Kernel.Money", "From", "EUR", new Dictionary<string, string>(StringComparer.Ordinal)),
-                new("variant", "branch", "map", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal) { ["central"] = "CT" }),
+                new("value", "maxDays", "furlong", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal), []),
+                new("value", "amount", "money", "Library.Kernel.Money", "From", "EUR", new Dictionary<string, string>(StringComparer.Ordinal), []),
+                new("variant", "branch", "map", null, "From", null, new Dictionary<string, string>(StringComparer.Ordinal) { ["central"] = "CT" }, []),
             ],
             rows,
             "Library.Lending.Central");
@@ -232,6 +389,14 @@ public sealed class KnowledgeSetsTests
         ["GermanyPerDiemRates.generated.cs"] = "knowledge-sets-dotnet-germany-per-diem-rates.txt",
         ["NetherlandsMileageRates.generated.cs"] = "knowledge-sets-dotnet-netherlands-mileage-rates.txt",
         ["NetherlandsPerDiemRates.generated.cs"] = "knowledge-sets-dotnet-netherlands-per-diem-rates.txt",
+    };
+
+    /// <summary>The golden file by generated file name, one per new column kind.</summary>
+    static readonly IReadOnlyDictionary<string, string> NewKindGoldens = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["CentralFineRates.generated.cs"] = "knowledge-sets-dotnet-central-fine-rates.txt",
+        ["CentralLoanClasses.generated.cs"] = "knowledge-sets-dotnet-central-loan-classes.txt",
+        ["CentralRenewalRules.generated.cs"] = "knowledge-sets-dotnet-central-renewal-rules.txt",
     };
 
     /// <summary>Writes a knowledge area with one loan limit table into the fixture consumer.</summary>
@@ -300,6 +465,159 @@ public sealed class KnowledgeSetsTests
               effectiveFrom: 2026-01-01
               source: decision/0001-loan-period
             """);
+    }
+
+    /// <summary>Writes a knowledge area with one table per new column kind into the fixture consumer.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteNewKindRecords(string root)
+    {
+        var area = Path.Combine(root, ".litespec", "behavior", "knowledge", "lending");
+        Directory.CreateDirectory(area);
+        File.WriteAllText(
+            Path.Combine(area, "knowledge-area.yaml"),
+            """
+            type: knowledge-area
+            id: knowledge-area/lending
+            title: Lending
+            meaning: The loan rules the library looks up by branch.
+            variants:
+            - central
+            """);
+        WriteTable(
+            area,
+            "fine-rates",
+            """
+            type: reference-data
+            id: reference-data/lending.fine-rates
+            title: Fine Rates
+            summary: The daily fine per overdue day.
+            unit: EUR per day
+            row:
+              type: Library.Lending.FineRate
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.FineRateKey
+              factory: Parse
+            - column: value
+              parameter: dailyRate
+              as: decimal
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 0.50
+              key: central-standard-2026
+              variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+        WriteTable(
+            area,
+            "loan-classes",
+            """
+            type: reference-data
+            id: reference-data/lending.loan-classes
+            title: Loan Classes
+            summary: The longest loan per class.
+            row:
+              type: Library.Lending.LoanTerm
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.LoanTermKey
+            - column: role
+              parameter: kind
+              as: case
+              type: Library.Lending.LoanKind
+            - column: value
+              parameter: maxDays
+              as: number
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 21
+              key: central-standard-2026
+              role: standard-loan
+              variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            - value: 7
+              key: central-short-2026
+              variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+        WriteTable(
+            area,
+            "renewal-rules",
+            """
+            type: reference-data
+            id: reference-data/lending.renewal-rules
+            title: Renewal Rules
+            summary: When each loan renews.
+            row:
+              type: Library.Lending.RenewalRule
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.RenewalRuleKey
+            - parameter: window
+              as: object
+              type: Library.Lending.RenewalWindow
+              columns:
+              - column: windowDays
+                parameter: days
+                as: number
+              - column: windowEndsOn
+                parameter: endsOn
+                as: date
+              - parameter: grace
+                as: object
+                type: Library.Lending.RenewalGrace
+                columns:
+                - column: graceDays
+                  parameter: days
+                  as: number
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 1
+              key: central-open-2026
+              variant: central
+              windowDays: 3
+              windowEndsOn: 2026-12-31
+              graceDays: 1
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            - value: 1
+              key: central-plain-2026
+              variant: central
+              windowDays: 5
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            - value: 1
+              key: central-closed-2026
+              variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+    }
+
+    /// <summary>Writes one reference-data table into the fixture knowledge area.</summary>
+    /// <param name="area">The fixture knowledge area folder.</param>
+    /// <param name="table">The table name.</param>
+    /// <param name="yaml">The table record YAML.</param>
+    static void WriteTable(string area, string table, string yaml)
+    {
+        var folder = Path.Combine(area, "reference-data", table);
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(Path.Combine(folder, table + ".yaml"), yaml);
     }
 
     /// <summary>Appends a generate block to the fixture project file.</summary>

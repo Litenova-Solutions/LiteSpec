@@ -43,6 +43,106 @@ public sealed class GenerateDeclarationsTests
             plan.Skips.Select(skip => skip.UseCaseId).ToList());
     }
 
+    /// <summary>Resolved declarations render the golden catalog source for the resolution fixture's lending use cases.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void ResolutionDotnetMatchesGolden()
+    {
+        using var temp = ModelFixture.Prepare("declarations-resolution");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var file = Assert.Single(plan.Files);
+
+        Assert.EndsWith("LendingDeclarations.generated.cs", file.AbsolutePath, StringComparison.Ordinal);
+        GenerateGoldens.AssertEqual("declarations-resolution-dotnet.txt", file.Content);
+        Assert.Equal(
+            new List<string>
+            {
+                "use-case/lending.cancel-hold",
+                "use-case/lending.merge-holds",
+            },
+            plan.Skips.Select(skip => skip.UseCaseId).ToList());
+    }
+
+    /// <summary>A message declared outside its use case folder renders with its real namespace, not the conventional one.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MessageInAnotherNamespaceRendersRealUsing()
+    {
+        var content = ResolutionCatalog();
+
+        Assert.Contains("using Library.Lending.Contracts.Loans.ReadLoan;", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Library.Lending.Application.Loans.ReadLoan", content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A key template and an audit target render through the message's real member when it differs from the input name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void InputMapsToRealMember()
+    {
+        var content = ResolutionCatalog();
+
+        Assert.Contains("(command => FormattableString.Invariant($\"{command.Copy}-for-{command.ReaderId}\"))", content, StringComparison.Ordinal);
+        Assert.Contains("(command => command.Copy.ToString())", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("command.CopyId", content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A date in a key template renders round-trip inside the culture-invariant expression.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DateKeyRendersCultureInvariant()
+    {
+        var content = ResolutionCatalog();
+
+        Assert.Contains("(command => FormattableString.Invariant($\"{command.LoanId}-{command.ExtendedTo:O}\"))", content, StringComparison.Ordinal);
+        Assert.Contains("using System;", content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A message declared twice resolves beside its handler instead of skipping as ambiguous.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AmbiguousMessageResolvesBesideItsHandler()
+    {
+        var content = ResolutionCatalog();
+
+        Assert.Contains("using Library.Lending.Application.Loans.RenewLoan;", content, StringComparison.Ordinal);
+        Assert.Contains(".Describe<RenewLoanCommand>", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Library.Lending.Contracts.Loans.RenewLoan", content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case whose message or member cannot be resolved skips with the reason instead of rendering code that cannot compile.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UnresolvableMembersSkipWithReasons()
+    {
+        using var temp = ModelFixture.Prepare("declarations-resolution");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Equal(
+            new List<(string, string)>
+            {
+                ("use-case/lending.cancel-hold", "message 'CancelHoldCommand' resolves to no single declaring file in the backend source"),
+                ("use-case/lending.merge-holds", "key template names 'branchId', which matches no member of message 'MergeHoldsCommand'"),
+            },
+            plan.Skips.Select(skip => (skip.UseCaseId, skip.Reason)).ToList());
+    }
+
     /// <summary>Generate lists each skipped use case with its reason and still writes the catalog.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -149,7 +249,7 @@ public sealed class GenerateDeclarationsTests
         Assert.Contains(".Authorized(\"sys\")", file.Content, StringComparison.Ordinal);
     }
 
-    /// <summary>A key template renders as an interpolated expression over the message's properties, with literals escaped.</summary>
+    /// <summary>A key template renders as a culture-invariant interpolated expression over the message's properties, with literals escaped.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void KeyTemplateRendersAsAnInterpolatedExpression()
@@ -165,7 +265,28 @@ public sealed class GenerateDeclarationsTests
             false);
 
         Assert.Equal(
-            @".Declare(IdempotencyDeclaration.KeyedBy<SubmitExpenseCommand>(command => $""a\""b\\{{c}}{command.ExpenseId}"") with { Scope = ""account"", ReplayResult = false })",
+            @".Declare(IdempotencyDeclaration.KeyedBy<SubmitExpenseCommand>(command => FormattableString.Invariant($""a\""b\\{{c}}{command.ExpenseId}"")) with { Scope = ""account"", ReplayResult = false })",
+            call);
+    }
+
+    /// <summary>A date key part renders with its round-trip format inside the culture-invariant expression.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DateKeyPartRendersItsFormat()
+    {
+        var call = DeclarationsRenderer.KeyedIdempotencyCall(
+            "ExtendLoanCommand",
+            "command",
+            [
+                new DeclarationsRenderer.KeyPart(null, "LoanId"),
+                new DeclarationsRenderer.KeyPart("-", null),
+                new DeclarationsRenderer.KeyPart(null, "ExtendedTo", "O"),
+            ],
+            "tenant",
+            false);
+
+        Assert.Equal(
+            @".Declare(IdempotencyDeclaration.KeyedBy<ExtendLoanCommand>(command => FormattableString.Invariant($""{command.LoanId}-{command.ExtendedTo:O}"")) with { Scope = ""tenant"", ReplayResult = false })",
             call);
     }
 
@@ -480,6 +601,24 @@ public sealed class GenerateDeclarationsTests
         Directory.CreateDirectory(folder);
 
         return folder;
+    }
+
+    /// <summary>Renders the resolution fixture's catalog source for the declarations target.</summary>
+    /// <returns>The rendered catalog text.</returns>
+    static string ResolutionCatalog()
+    {
+        using var temp = ModelFixture.Prepare("declarations-resolution");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        return Assert.Single(plan.Files).Content;
     }
 
     /// <summary>Appends a generate block to the fixture project file.</summary>

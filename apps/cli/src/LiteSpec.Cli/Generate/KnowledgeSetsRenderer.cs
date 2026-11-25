@@ -7,19 +7,21 @@ namespace LiteSpec.Cli.Generate;
 /// <summary>
 ///     Renders the knowledge sets the records declare as C#: per area and variant one
 ///     static partial class per table, with a Rows list building each row of the variant
-///     through the model factory with named arguments from the column mapping.
+///     through the model constructor, or the factory the table names, with named arguments
+///     from the column mapping.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class KnowledgeSetsRenderer
 {
     /// <summary>One column-to-parameter mapping of a reference-data table, as the generator reads it.</summary>
-    /// <param name="Column">The row column the parameter reads.</param>
-    /// <param name="Parameter">The factory parameter name.</param>
-    /// <param name="Rendering">How the column value renders: string, number, boolean, date, money, key, member or map.</param>
-    /// <param name="Type">The qualified model type of a money, key or member column, or null when the entry states none.</param>
+    /// <param name="Column">The row field the parameter reads, or empty when the entry builds a nested object.</param>
+    /// <param name="Parameter">The row parameter name.</param>
+    /// <param name="Rendering">How the column value renders: string, number, boolean, date, money, decimal, key, member, case, object or map.</param>
+    /// <param name="Type">The qualified model type of a money, key, member, case or object column, or null when the entry states none.</param>
     /// <param name="Factory">The static factory building a typed key.</param>
     /// <param name="Currency">The three-letter currency code of a money column, or null when the entry states none.</param>
     /// <param name="Literals">The literal by row value of a map column.</param>
+    /// <param name="Nested">The sub-columns building a nested object, or empty when the entry states none.</param>
     public sealed record ColumnMapping(
         string Column,
         string Parameter,
@@ -27,20 +29,22 @@ static class KnowledgeSetsRenderer
         string? Type,
         string Factory,
         string? Currency,
-        IReadOnlyDictionary<string, string> Literals);
+        IReadOnlyDictionary<string, string> Literals,
+        IReadOnlyList<ColumnMapping> Nested);
 
     /// <summary>
     ///     Renders one variant's rows of one table as C#: a public static partial class with a
-    ///     Rows list holding one factory call per row, the rows in key order. A row value the
-    ///     mapping cannot build renders as a literal, and the column check reports it; a column
-    ///     the row does not state renders as null.
+    ///     Rows list holding one constructor call per row, or one factory call when the table
+    ///     names a factory, the rows in key order. A row value the mapping cannot build renders
+    ///     as a literal, and the column check reports it; a column the row does not state renders
+    ///     as null, as does a nested object none of whose fields the row states.
     /// </summary>
     /// <param name="area">The knowledge area name.</param>
     /// <param name="variant">The variant the rows belong to.</param>
     /// <param name="table">The table name, the name segment of the record identifier.</param>
     /// <param name="recordId">The identifier of the record declaring the table.</param>
     /// <param name="rowType">The qualified model row type.</param>
-    /// <param name="factory">The static factory method building one row.</param>
+    /// <param name="factory">The static factory method building one row, or null when rows build through the constructor.</param>
     /// <param name="mappings">The column mappings in written order.</param>
     /// <param name="rows">The variant's row objects.</param>
     /// <param name="namespace">The C# namespace of the generated class.</param>
@@ -51,7 +55,7 @@ static class KnowledgeSetsRenderer
         string table,
         string recordId,
         string rowType,
-        string factory,
+        string? factory,
         IReadOnlyList<ColumnMapping> mappings,
         IReadOnlyList<JsonElement> rows,
         string @namespace)
@@ -108,10 +112,10 @@ static class KnowledgeSetsRenderer
         return string.Join('\n', lines) + "\n";
     }
 
-    /// <summary>Renders one row: a factory call with one named argument per mapping, in mapping order.</summary>
+    /// <summary>Renders one row: a constructor call with one named argument per mapping, in mapping order, or a factory call when the table names one.</summary>
     /// <param name="row">The row object as written.</param>
     /// <param name="shortRow">The model row type name without its namespace.</param>
-    /// <param name="factory">The static factory method building one row.</param>
+    /// <param name="factory">The static factory method building one row, or null when rows build through the constructor.</param>
     /// <param name="mappings">The column mappings in written order.</param>
     /// <param name="used">The model namespaces the rendered arguments use, appended in place.</param>
     /// <param name="dateUsed">Whether a rendered argument builds a date, set in place.</param>
@@ -119,28 +123,112 @@ static class KnowledgeSetsRenderer
     private static List<string> RenderRow(
         JsonElement row,
         string shortRow,
-        string factory,
+        string? factory,
         IReadOnlyList<ColumnMapping> mappings,
         HashSet<string> used,
         ref bool dateUsed)
     {
+        var head = factory is { Length: > 0 } ? $"{shortRow}.{factory}" : $"new {shortRow}";
+
         if (mappings.Count == 0)
         {
-            return [$"        {shortRow}.{factory}(),"];
+            return [$"        {head}(),"];
         }
 
-        var lines = new List<string> { $"        {shortRow}.{factory}(" };
+        var lines = new List<string> { $"        {head}(" };
 
         for (var index = 0; index < mappings.Count; index++)
         {
-            var mapping = mappings[index];
             var comma = index + 1 < mappings.Count ? "," : "";
-            lines.Add($"            {mapping.Parameter}: {Expression(mapping, row, used, ref dateUsed)}{comma}");
+            lines.AddRange(ArgumentLines(mappings[index], row, "            ", comma, used, ref dateUsed));
         }
 
         lines.Add("        ),");
 
         return lines;
+    }
+
+    /// <summary>Renders one named argument: one line for a column value, or one block for a nested object.</summary>
+    /// <param name="mapping">The column mapping.</param>
+    /// <param name="row">The row object as written.</param>
+    /// <param name="indent">The indentation opening the argument.</param>
+    /// <param name="comma">The comma closing the argument, or empty for the last argument of its call.</param>
+    /// <param name="used">The model namespaces the rendered arguments use, appended in place.</param>
+    /// <param name="dateUsed">Whether a rendered argument builds a date, set in place.</param>
+    /// <returns>The argument lines.</returns>
+    private static List<string> ArgumentLines(
+        ColumnMapping mapping,
+        JsonElement row,
+        string indent,
+        string comma,
+        HashSet<string> used,
+        ref bool dateUsed)
+    {
+        if (mapping.Rendering == "object")
+        {
+            return ObjectLines(mapping, row, indent, comma, used, ref dateUsed);
+        }
+
+        return [$"{indent}{mapping.Parameter}: {Expression(mapping, row, used, ref dateUsed)}{comma}"];
+    }
+
+    /// <summary>Renders one nested object: a constructor call over its sub-columns, or null when the row states none of its fields.</summary>
+    /// <param name="mapping">The object mapping with its sub-columns.</param>
+    /// <param name="row">The row object as written.</param>
+    /// <param name="indent">The indentation opening the argument.</param>
+    /// <param name="comma">The comma closing the argument, or empty for the last argument of its call.</param>
+    /// <param name="used">The model namespaces the rendered arguments use, appended in place.</param>
+    /// <param name="dateUsed">Whether a rendered argument builds a date, set in place.</param>
+    /// <returns>The argument lines.</returns>
+    private static List<string> ObjectLines(
+        ColumnMapping mapping,
+        JsonElement row,
+        string indent,
+        string comma,
+        HashSet<string> used,
+        ref bool dateUsed)
+    {
+        if (mapping.Type is not { Length: > 0 } || !AnyStated(mapping, row))
+        {
+            return [$"{indent}{mapping.Parameter}: null{comma}"];
+        }
+
+        if (NamespaceOf(mapping.Type) is { } space)
+        {
+            used.Add(space);
+        }
+
+        if (mapping.Nested.Count == 0)
+        {
+            return [$"{indent}{mapping.Parameter}: new {ShortName(mapping.Type)}(){comma}"];
+        }
+
+        var lines = new List<string> { $"{indent}{mapping.Parameter}: new {ShortName(mapping.Type)}(" };
+        var nested = indent + "    ";
+
+        for (var index = 0; index < mapping.Nested.Count; index++)
+        {
+            var nestedComma = index + 1 < mapping.Nested.Count ? "," : "";
+            lines.AddRange(ArgumentLines(mapping.Nested[index], row, nested, nestedComma, used, ref dateUsed));
+        }
+
+        lines.Add($"{indent}){comma}");
+
+        return lines;
+    }
+
+    /// <summary>Whether the row states any field the mapping reads: its own column, or any leaf beneath a nested object.</summary>
+    /// <param name="mapping">The column mapping.</param>
+    /// <param name="row">The row object as written.</param>
+    /// <returns>True when the row states at least one field the mapping reads.</returns>
+    private static bool AnyStated(ColumnMapping mapping, JsonElement row)
+    {
+        if (mapping.Rendering == "object")
+        {
+            return mapping.Nested.Any(child => AnyStated(child, row));
+        }
+
+        return mapping.Column.Length > 0 && row.TryGetProperty(mapping.Column, out _);
     }
 
     /// <summary>Renders one argument: the row column under the mapping's rendering, null when the row does not state it.</summary>
@@ -167,8 +255,10 @@ static class KnowledgeSetsRenderer
             },
             "date" => DateExpression(value, ref dateUsed),
             "money" => MoneyExpression(mapping, value, used),
+            "decimal" => DecimalExpression(value),
             "key" => KeyExpression(mapping, value, used),
             "member" => MemberExpression(mapping, value, used),
+            "case" => CaseExpression(mapping, value, used),
             "map" => MapExpression(mapping, value),
             _ => Literal(value),
         };
@@ -223,6 +313,19 @@ static class KnowledgeSetsRenderer
         return Literal(value);
     }
 
+    /// <summary>Renders one decimal column with its suffix, or a literal when the value states no number.</summary>
+    /// <param name="value">The row value as written.</param>
+    /// <returns>The decimal expression.</returns>
+    private static string DecimalExpression(JsonElement value)
+    {
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetDecimal(out var amount))
+        {
+            return $"{amount.ToString(CultureInfo.InvariantCulture)}m";
+        }
+
+        return Literal(value);
+    }
+
     /// <summary>Renders one typed key through the model's factory with the key text, or a literal when the entry or value states less.</summary>
     /// <param name="mapping">The column mapping.</param>
     /// <param name="value">The row value as written.</param>
@@ -260,6 +363,26 @@ static class KnowledgeSetsRenderer
             used.Add(space);
 
             return $"{ShortName(type)}.{GenerateNaming.ConstName(text)}";
+        }
+
+        return Literal(value);
+    }
+
+    /// <summary>Renders one closed-set value as a new case of its nested set, or a literal when the entry or value states less.</summary>
+    /// <param name="mapping">The column mapping.</param>
+    /// <param name="value">The row value as written.</param>
+    /// <param name="used">The model namespaces the rendered arguments use, appended in place.</param>
+    /// <returns>The case expression.</returns>
+    private static string CaseExpression(ColumnMapping mapping, JsonElement value, HashSet<string> used)
+    {
+        if (mapping.Type is { } type
+            && NamespaceOf(type) is { } space
+            && value.ValueKind == JsonValueKind.String
+            && value.GetString() is { } text)
+        {
+            used.Add(space);
+
+            return $"new {ShortName(type)}.{GenerateNaming.ConstName(text)}()";
         }
 
         return Literal(value);

@@ -261,6 +261,167 @@ public sealed class ReferenceDataColumnsCheckTests
         Assert.Contains("without a qualified model row type", finding.Message);
     }
 
+    /// <summary>A knowledge table mapping extra fields through decimal, case and object columns passes.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ValidExtraAndObjectPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "key", "parameter": "key", "as": "key", "type": "Claimwick.Travel.PerDiem.PerDiemRateKey", "factory": "Parse"}, """
+                + """{"column": "role", "parameter": "role", "as": "case", "type": "Claimwick.Travel.PerDiem.PerDiemRole"}, """
+                + """{"column": "ratePercent", "parameter": "rate", "as": "decimal"}, """
+                + """{"parameter": "window", "as": "object", "type": "Claimwick.Travel.PerDiem.RenewalWindow", "columns": ["""
+                + """{"column": "windowDays", "parameter": "days", "as": "number"}, """
+                + """{"column": "windowEndsOn", "parameter": "endsOn", "as": "date"}]}, """
+                + """{"column": "source", "parameter": "source", "as": "string"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "ratePercent": 19, "windowDays": 3, "windowEndsOn": "2026-12-31", "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        Assert.Empty(Findings(model, "reference-data-column-invalid"));
+    }
+
+    /// <summary>A leaf entry without a column reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void LeafWithoutColumnReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(temp.Path, """{"parameter": "dailyAmount", "as": "number"}""", Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("without a column", finding.Message);
+    }
+
+    /// <summary>A case column without a model type reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CaseWithoutTypeReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(temp.Path, """{"column": "role", "parameter": "role", "as": "case"}""", Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("without a qualified model type", finding.Message);
+    }
+
+    /// <summary>An object entry without a model type reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectWithoutTypeReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"parameter": "window", "as": "object", "columns": [{"column": "value", "parameter": "days", "as": "number"}]}""",
+                Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("name the object type with its namespace", finding.Message);
+    }
+
+    /// <summary>An object entry without sub-columns reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectWithoutSubColumnsReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"parameter": "window", "as": "object", "type": "Claimwick.Travel.PerDiem.RenewalWindow"}""",
+                Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("without sub-columns", finding.Message);
+    }
+
+    /// <summary>An object entry naming a row field reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ObjectNamingColumnReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "value", "parameter": "window", "as": "object", "type": "Claimwick.Travel.PerDiem.RenewalWindow", "columns": [{"column": "value", "parameter": "days", "as": "number"}]}""",
+                Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("which no object reads", finding.Message);
+    }
+
+    /// <summary>An extra row field no column reads reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void UnreadExtraFieldReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "value", "parameter": "dailyAmount", "as": "number"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "labelNl": "Dagvergoeding", "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("extra field 'labelNl' no column reads", finding.Message);
+    }
+
+    /// <summary>Two sub-columns sharing one parameter report reference-data-column-invalid with their dotted entries.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NestedDuplicateParameterReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"parameter": "window", "as": "object", "type": "Claimwick.Travel.PerDiem.RenewalWindow", "columns": [{"column": "value", "parameter": "days", "as": "number"}, {"column": "key", "parameter": "days", "as": "string"}]}""",
+                Row(30, "de-full-day-2026", "full-day", "germany")));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("on column entries 0.0 and 0.1", finding.Message);
+    }
+
+    /// <summary>A decimal column reading a text value reports reference-data-column-invalid.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DecimalOnTextValueReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "value", "parameter": "rate", "as": "decimal"}""",
+                """{"value": "high", "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("of the wrong kind for a decimal column", finding.Message);
+    }
+
     /// <summary>The findings of a model that carry one code.</summary>
     /// <param name="model">The model under test.</param>
     /// <param name="code">The finding code.</param>

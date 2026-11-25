@@ -1,0 +1,26 @@
+type: use-case
+id: use-case/lending.renew-loan
+title: Renew Loan
+kind: command
+access:
+  grant: permission/borrow-copy
+  tenant: own
+input:
+- name: loanId
+  meaning: The loan the reader renews.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: none
+  reason: Each call renews its own loan, and renewing past the loan limit is refused.
+audit:
+  level: required
+  category: personal-data-read
+  target: loanId
+  targetKind: aggregate/lending.loan
+steps:
+- statement: The reader renews the loan.

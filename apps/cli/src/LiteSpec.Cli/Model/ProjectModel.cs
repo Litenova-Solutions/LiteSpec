@@ -54,6 +54,9 @@ sealed partial class ProjectModel
     /// <summary>Gets or sets the compilation the backend read was built from, or null when the syntax-only path ran.</summary>
     public BackendSemantics? BackendSemantics { get; set; }
 
+    /// <summary>Gets or sets why semantic mode was unavailable, or null when syntax was not a fallback.</summary>
+    public string? SemanticUnavailableReason { get; set; }
+
     /// <summary>Gets which backend reader mode ran: semantic when a compilation was built, else syntax.</summary>
     public string BackendReaderMode => BackendSemantics is null ? BackendSemantics.SyntaxMode : BackendSemantics.SemanticMode;
     /// <summary>Gets the route screens the frontend readers found.</summary>

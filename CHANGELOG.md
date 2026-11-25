@@ -587,6 +587,8 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - `audit.target` also takes a list of inputs forming a composite target with its `kind`, or `from: output` naming the output field that carries a target the handler determines.
 - An input bound from the route may name its route parameter (`routeParameter`) when the URL names it apart from the input.
 - A refusal reporting an upstream system that refuses or is unreachable answers 503; 500 stays out of refusal statuses, since a server fault is never a refusal.
+- The `declarations` generator resolves each message type with its namespace and members from the backend source; a use case whose message, key placeholder or audit target resolves to nothing is skipped with the reason, and idempotency keys render culture-invariant with dates round-trip.
+- Knowledge-set rows build through the row constructor unless the table names a factory, and reference-data columns render `decimal` values, nested closed-set cases (`case`) and nested objects from sub-columns fed by extra row fields.
 
 ### Part U: Provision Changes Since v6.0.0
 

@@ -4871,7 +4871,12 @@ $defs:
     - $ref: '#/$defs/settingDefaultRules'
   referenceDataRow:
     type: object
-    additionalProperties: false
+    additionalProperties:
+      description: An extra scalar field a generated table's columns read. Tables without row construction state no extra field.
+      anyOf:
+      - $ref: '#/$defs/nonEmptyString'
+      - type: number
+      - type: boolean
     required:
     - value
     - effectiveFrom
@@ -4910,31 +4915,11 @@ $defs:
         - $ref: '#/$defs/decisionId'
         x-reads-as: rests on
         x-read-back-as: is the source for
-  referenceDataRowConstruction:
-    description: 'How one reference-data table builds its knowledge rows: the qualified model row type and its static factory method.'
-    type: object
-    additionalProperties: false
-    required:
-    - type
-    properties:
-      type:
-        description: The qualified model row type the factory builds.
-        $ref: '#/$defs/qualifiedTypeName'
-      factory:
-        description: The static factory method building one row. Defaults to Create.
-        type: string
-        pattern: '^[A-Z][A-Za-z0-9]*$'
-  referenceDataColumn:
-    description: 'One column-to-parameter mapping of a reference-data table: the row column one factory parameter reads and how its value renders.'
-    type: object
-    additionalProperties: false
-    required:
-    - column
-    - parameter
-    - as
-    properties:
-      column:
-        description: The row column the parameter reads.
+  referenceDataClosedRow:
+    description: 'One row of a table without row construction: the fixed row fields with no extra field.'
+    allOf:
+    - $ref: '#/$defs/referenceDataRow'
+    - propertyNames:
         enum:
         - value
         - key
@@ -4944,23 +4929,52 @@ $defs:
         - effectiveFrom
         - effectiveTo
         - source
+  referenceDataRowConstruction:
+    description: 'How one reference-data table builds its knowledge rows: the qualified model row type, built through the constructor or the named static factory method.'
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    properties:
+      type:
+        description: The qualified model row type the constructor or factory builds.
+        $ref: '#/$defs/qualifiedTypeName'
+      factory:
+        description: The static factory method building one row. When absent, rows build through the constructor.
+        type: string
+        pattern: '^[A-Z][A-Za-z0-9]*$'
+  referenceDataColumn:
+    description: 'One column-to-parameter mapping of a reference-data table: the row field one row parameter reads and how its value renders, or the sub-columns building one nested object.'
+    type: object
+    additionalProperties: false
+    required:
+    - parameter
+    - as
+    properties:
+      column:
+        description: 'The row field the parameter reads: a fixed row field or an extra field the rows state. An object entry states none.'
+        type: string
+        pattern: '^[a-z][A-Za-z0-9]*$'
       parameter:
-        description: The factory parameter name.
+        description: The row parameter name.
         type: string
         pattern: '^[a-z][A-Za-z0-9]*$'
       as:
-        description: 'How the column value renders: a literal of its kind, a date construction, a money construction, a typed key through the model factory, a member of the model closed set, or a mapped literal.'
+        description: 'How the column value renders: a literal of its kind, a date construction, a money construction, a decimal, a typed key through the model factory, a member of the model closed set, a case of the model nested closed set, a nested object from its sub-columns, or a mapped literal.'
         enum:
         - string
         - number
         - boolean
         - date
         - money
+        - decimal
         - key
         - member
+        - case
+        - object
         - map
       type:
-        description: The qualified model type of a money, key or member column.
+        description: The qualified model type of a money, key, member, case or object column.
         $ref: '#/$defs/qualifiedTypeName'
       factory:
         description: The static factory method building a typed key. Defaults to From.
@@ -4981,6 +4995,12 @@ $defs:
         additionalProperties:
           type: string
           minLength: 1
+      columns:
+        description: The sub-columns building a nested object, one entry per nested parameter. Only an object entry states it.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/referenceDataColumn'
   referenceDataPage:
     type: object
     additionalProperties: false
@@ -5035,7 +5055,7 @@ $defs:
         description: How the table builds its knowledge rows through the model factory. Only knowledge tables state it, together with `columns`.
         $ref: '#/$defs/referenceDataRowConstruction'
       columns:
-        description: The column-to-parameter mapping building each row, one entry per factory parameter. Only knowledge tables state it, together with `row`.
+        description: The column-to-parameter mapping building each row, one entry per row parameter. Only knowledge tables state it, together with `row`.
         type: array
         minItems: 1
         items:
@@ -5052,6 +5072,15 @@ $defs:
       then:
         required:
         - choices
+    - if:
+        required:
+        - row
+      then: {}
+      else:
+        properties:
+          rows:
+            items:
+              $ref: '#/$defs/referenceDataClosedRow'
   refusalSetPage:
     type: object
     additionalProperties: false

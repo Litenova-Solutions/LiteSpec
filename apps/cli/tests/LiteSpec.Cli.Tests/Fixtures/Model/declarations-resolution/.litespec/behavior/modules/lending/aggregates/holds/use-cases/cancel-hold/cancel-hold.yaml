@@ -1,0 +1,21 @@
+type: use-case
+id: use-case/lending.cancel-hold
+title: Cancel Hold
+kind: command
+access:
+  grant: signed-in
+  tenant: own
+input:
+- name: holdId
+  meaning: The hold the reader cancels.
+  type: id
+  identifies: aggregate/lending.hold
+  required: true
+  origin: caller
+  binding: body
+  classification: internal
+idempotency:
+  mode: none
+  reason: Each call cancels its own hold, and canceling an ended hold is refused.
+steps:
+- statement: The reader cancels the hold.

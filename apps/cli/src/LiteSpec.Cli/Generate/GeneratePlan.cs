@@ -3,9 +3,13 @@ using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Checks;
 using LiteSpec.Cli.Model.Checks.Behavior;
+using LiteSpec.Cli.Model.Checks.Implementation.Handlers;
+using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
+using LiteSpec.Model.Roslyn;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Generate;
@@ -1267,10 +1271,10 @@ static class GeneratePlan
     /// <summary>Gets the name of the `columns` field: the column-to-parameter mapping building each row.</summary>
     private const string ColumnsField = "columns";
 
-    /// <summary>Gets the name of the `column` field: the row column one factory parameter reads.</summary>
+    /// <summary>Gets the name of the `column` field: the row field one row parameter reads.</summary>
     private const string ColumnField = "column";
 
-    /// <summary>Gets the name of the `parameter` field: the factory parameter name.</summary>
+    /// <summary>Gets the name of the `parameter` field: the row parameter name.</summary>
     private const string ParameterField = "parameter";
 
     /// <summary>Gets the name of the `as` field: how the column value renders.</summary>
@@ -1346,15 +1350,15 @@ static class GeneratePlan
         return files;
     }
 
-    /// <summary>Reads how a table builds its rows: the qualified row type with its factory, defaulting to Create.</summary>
+    /// <summary>Reads how a table builds its rows: the qualified row type with its factory, or none when rows build through the constructor.</summary>
     /// <param name="table">The reference-data record whose row construction is read.</param>
     /// <param name="rowType">The qualified model row type, or empty when the table states none.</param>
-    /// <param name="factory">The static factory method building one row.</param>
+    /// <param name="factory">The static factory method building one row, or null when the table names none.</param>
     /// <returns>True when the table states a row type; otherwise false.</returns>
-    private static bool RowConstructionOf(Record table, out string rowType, out string factory)
+    private static bool RowConstructionOf(Record table, out string rowType, out string? factory)
     {
         rowType = "";
-        factory = "Create";
+        factory = null;
 
         if (table.Raw.ValueKind != JsonValueKind.Object
             || !table.Raw.TryGetProperty(RowField, out var row)
@@ -1365,12 +1369,12 @@ static class GeneratePlan
         }
 
         rowType = type;
-        factory = RecordEntries.Str(row, FactoryField) is { Length: > 0 } named ? named : "Create";
+        factory = RecordEntries.Str(row, FactoryField) is { Length: > 0 } named ? named : null;
 
         return true;
     }
 
-    /// <summary>Reads the column mappings of a table: one entry per factory parameter, in written order.</summary>
+    /// <summary>Reads the column mappings of a table: one entry per row parameter, in written order.</summary>
     /// <param name="table">The reference-data record whose column entries are read.</param>
     /// <returns>The well-shaped mappings; a malformed entry renders nothing, and the column check reports it.</returns>
     private static List<KnowledgeSetsRenderer.ColumnMapping> MappingsOf(Record table)
@@ -1386,38 +1390,64 @@ static class GeneratePlan
 
         foreach (var entry in columns.EnumerateArray())
         {
-            if (entry.ValueKind != JsonValueKind.Object
-                || RecordEntries.Str(entry, ColumnField) is not { } column
-                || RecordEntries.Str(entry, ParameterField) is not { } parameter
-                || RecordEntries.Str(entry, AsField) is not { } rendering)
+            if (MappingOf(entry) is { } mapping)
             {
-                continue;
+                mappings.Add(mapping);
             }
-
-            var values = new Dictionary<string, string>(StringComparer.Ordinal);
-
-            if (entry.TryGetProperty(LiteralsField, out var map) && map.ValueKind == JsonValueKind.Object)
-            {
-                foreach (var property in map.EnumerateObject())
-                {
-                    if (property.Value.ValueKind == JsonValueKind.String && property.Value.GetString() is { } literal)
-                    {
-                        values[property.Name] = literal;
-                    }
-                }
-            }
-
-            mappings.Add(new KnowledgeSetsRenderer.ColumnMapping(
-                column,
-                parameter,
-                rendering,
-                RecordEntries.Str(entry, RecordFields.Type),
-                RecordEntries.Str(entry, FactoryField) is { Length: > 0 } factory ? factory : "From",
-                RecordEntries.Str(entry, RecordFields.Currency),
-                values));
         }
 
         return mappings;
+    }
+
+    /// <summary>Reads one column entry with the sub-columns building its nested object.</summary>
+    /// <param name="entry">The column entry as written.</param>
+    /// <returns>The mapping, or null when the entry states no parameter or rendering; the column check reports it.</returns>
+    private static KnowledgeSetsRenderer.ColumnMapping? MappingOf(JsonElement entry)
+    {
+        if (entry.ValueKind != JsonValueKind.Object
+            || RecordEntries.Str(entry, ParameterField) is not { } parameter
+            || RecordEntries.Str(entry, AsField) is not { } rendering)
+        {
+            return null;
+        }
+
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (entry.TryGetProperty(LiteralsField, out var map) && map.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var property in map.EnumerateObject())
+            {
+                if (property.Value.ValueKind == JsonValueKind.String && property.Value.GetString() is { } literal)
+                {
+                    values[property.Name] = literal;
+                }
+            }
+        }
+
+        var nested = new List<KnowledgeSetsRenderer.ColumnMapping>();
+
+        if (rendering == "object"
+            && entry.TryGetProperty(ColumnsField, out var columns)
+            && columns.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var child in columns.EnumerateArray())
+            {
+                if (MappingOf(child) is { } mapping)
+                {
+                    nested.Add(mapping);
+                }
+            }
+        }
+
+        return new KnowledgeSetsRenderer.ColumnMapping(
+            RecordEntries.Str(entry, ColumnField) ?? "",
+            parameter,
+            rendering,
+            RecordEntries.Str(entry, RecordFields.Type),
+            RecordEntries.Str(entry, FactoryField) is { Length: > 0 } factory ? factory : "From",
+            RecordEntries.Str(entry, RecordFields.Currency),
+            values,
+            nested);
     }
 
     /// <summary>Groups a table's rows by variant in variant order, skipping rows that name none.</summary>
@@ -1483,6 +1513,10 @@ static class GeneratePlan
         var uses = model.Records
             .Where(record => record.Type == RecordTypes.UseCase && !record.Derived && record.Module is not null)
             .Select(record => (record.Module!, record));
+        var handlers = model.Code.Handlers
+            .GroupBy(handler => handler.UseCaseId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => (IReadOnlyList<CodeHandler>)group.ToList(), StringComparer.Ordinal);
+        var source = new MessageFieldChecks.MessageSource(model);
 
         foreach (var (module, entries) in ByModule(uses))
         {
@@ -1491,7 +1525,7 @@ static class GeneratePlan
 
             foreach (var record in entries.OrderBy(entry => entry.Id, StringComparer.Ordinal))
             {
-                var message = DeclaredMessageOf(record, target, resolved, out var skip);
+                var message = DeclaredMessageOf(model, source, handlers, record, target, out var skip);
 
                 if (skip is not null)
                 {
@@ -1520,15 +1554,19 @@ static class GeneratePlan
     }
 
     /// <summary>Reads one use case record as the message its catalog source declares, or the reason it renders nothing.</summary>
+    /// <param name="model">The built project model holding the backend source.</param>
+    /// <param name="source">The backend source the message type is read from.</param>
+    /// <param name="handlers">The handlers by use case id.</param>
     /// <param name="record">The use case record.</param>
     /// <param name="target">The validated target holding the policy forms.</param>
-    /// <param name="resolvedNamespace">The target namespace with the module resolved.</param>
-    /// <param name="skip">The skip reason when the record states something the vocabulary cannot express.</param>
+    /// <param name="skip">The skip reason when the record states something the vocabulary cannot express, or the message cannot be resolved from the code.</param>
     /// <returns>The declared message, or null when the record renders nothing.</returns>
     private static DeclarationsRenderer.DeclaredMessage? DeclaredMessageOf(
+        ProjectModel model,
+        MessageFieldChecks.MessageSource source,
+        Dictionary<string, IReadOnlyList<CodeHandler>> handlers,
         Record record,
         GenerateTarget target,
-        string resolvedNamespace,
         out string? skip)
     {
         skip = null;
@@ -1551,11 +1589,30 @@ static class GeneratePlan
             return null;
         }
 
-        var messageName = Naming.Pascal(useCaseName);
-        var messageType = messageName + (kind == "query" ? "Query" : "Command");
-        var parameter = kind == "query" ? "query" : "command";
+        if (AuditVocabularySkipOf(record) is { } auditSkip)
+        {
+            skip = auditSkip;
+            return null;
+        }
 
-        var audit = AuditCallOf(record, messageType, parameter);
+        if (IdempotencyVocabularySkipOf(record) is { } idempotencySkip)
+        {
+            skip = idempotencySkip;
+            return null;
+        }
+
+        var messageName = Naming.Pascal(useCaseName);
+        var expected = messageName + (kind == "query" ? "Query" : "Command");
+        var parameter = kind == "query" ? "query" : "command";
+        handlers.TryGetValue(record.Id, out var useCaseHandlers);
+
+        if (DeclarationMessageOf(model, source, useCaseHandlers, expected, out var messageSkip) is not { } declared)
+        {
+            skip = messageSkip;
+            return null;
+        }
+
+        var audit = AuditCallOf(record, declared, parameter);
 
         if (audit.Skip is not null)
         {
@@ -1563,7 +1620,7 @@ static class GeneratePlan
             return null;
         }
 
-        var idempotency = IdempotencyCallOf(record, messageType);
+        var idempotency = IdempotencyCallOf(record, declared);
 
         if (idempotency.Skip is not null)
         {
@@ -1573,12 +1630,103 @@ static class GeneratePlan
 
         return new DeclarationsRenderer.DeclaredMessage(
             record.Id,
-            messageType,
-            MessageNamespaceOf(resolvedNamespace, record, messageName),
+            declared.Type,
+            declared.Namespace,
             kind,
             DeclarationsRenderer.AuthorizedCall(policy),
             audit.Call,
             idempotency.Call);
+    }
+
+    /// <summary>One message resolved from the backend source: its type with its namespace and its carried members.</summary>
+    /// <param name="Type">The simple message type name.</param>
+    /// <param name="Namespace">The C# namespace declaring the message type.</param>
+    /// <param name="Members">The carried member names by property with their types as written.</param>
+    private sealed record DeclarationMessage(string Type, string Namespace, Dictionary<string, string> Members);
+
+    /// <summary>Resolves the message of a use case from the backend source: the type its handler handles, or the conventional name, with the namespace and members of its declaring file.</summary>
+    /// <param name="model">The built project model holding the consumer root.</param>
+    /// <param name="source">The backend source the message type is read from.</param>
+    /// <param name="useCaseHandlers">The handlers of the use case, or null when the backend declares none.</param>
+    /// <param name="expected">The conventional message type name from the use case name and kind.</param>
+    /// <param name="skip">The skip reason when the message cannot be resolved.</param>
+    /// <returns>The resolved message, or null with the skip reason when no single declaring file resolves.</returns>
+    private static DeclarationMessage? DeclarationMessageOf(
+        ProjectModel model,
+        MessageFieldChecks.MessageSource source,
+        IReadOnlyList<CodeHandler>? useCaseHandlers,
+        string expected,
+        out string? skip)
+    {
+        skip = null;
+
+        var type = expected;
+        var hint = "";
+
+        if (useCaseHandlers is { Count: > 0 })
+        {
+            hint = useCaseHandlers[0].File;
+
+            foreach (var handler in useCaseHandlers)
+            {
+                if (handler.MessageType.Length > 0)
+                {
+                    type = handler.MessageType;
+                    hint = handler.File;
+                    break;
+                }
+            }
+        }
+
+        if (source.FileOf(type, hint) is not { } file)
+        {
+            skip = $"message '{type}' resolves to no single declaring file in the backend source";
+            return null;
+        }
+
+        var parts = source.TypesIn(file, type);
+
+        if (parts.Count == 0)
+        {
+            skip = $"file '{PathText.Relative(model.Config.Root, file)}' declares no message type '{type}'";
+            return null;
+        }
+
+        var members = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var (tree, found) in parts)
+        {
+            foreach (var property in MessageProperties.Of(found, source.SemanticOf(tree)))
+            {
+                members.TryAdd(property.Name, property.Type);
+            }
+        }
+
+        return new DeclarationMessage(type, DotnetNames.NamespaceOf(parts[0].Declared), members);
+    }
+
+    /// <summary>The real member an input reads: its PascalCase name, or the name with the identity suffix for an id, as the message declares it.</summary>
+    /// <param name="declared">The resolved message holding the carried members.</param>
+    /// <param name="name">The input name.</param>
+    /// <param name="type">The input type, or null when the record states none.</param>
+    /// <returns>The member name the message declares, or null when no candidate matches.</returns>
+    private static string? MemberOf(DeclarationMessage declared, string name, string? type)
+    {
+        var expected = Naming.Pascal(name);
+
+        if (declared.Members.ContainsKey(expected))
+        {
+            return expected;
+        }
+
+        if ((type == "id" || type is null)
+            && !expected.EndsWith("Id", StringComparison.Ordinal)
+            && declared.Members.ContainsKey(expected + "Id"))
+        {
+            return expected + "Id";
+        }
+
+        return null;
     }
 
     /// <summary>One declaration position a record reads: its call, its skip reason, or neither when the record states nothing usable.</summary>
@@ -1670,12 +1818,60 @@ static class GeneratePlan
         return policy;
     }
 
-    /// <summary>The audit call one use case record states, or the reason it renders nothing.</summary>
+    /// <summary>The vocabulary reason an audit block renders nothing for, read before any code: an audit level of none without its exemption rationale.</summary>
     /// <param name="record">The use case record whose audit block is read.</param>
-    /// <param name="messageType">The simple message type name the target selector reads.</param>
+    /// <returns>The skip reason, or null when the audit block states nothing the vocabulary cannot express.</returns>
+    private static string? AuditVocabularySkipOf(Record record)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Audit, out var audit)
+            || audit.ValueKind != JsonValueKind.Object
+            || RecordEntries.Str(audit, RecordFields.ExemptBecause) is { Length: > 0 })
+        {
+            return null;
+        }
+
+        return RecordEntries.Str(audit, RecordFields.Level) == "none"
+            ? "audit level 'none' states no exemption rationale"
+            : null;
+    }
+
+    /// <summary>The vocabulary reason an idempotency block renders nothing for, read before any code: a mode of none or state without its rationale.</summary>
+    /// <param name="record">The use case record whose idempotency block is read.</param>
+    /// <returns>The skip reason, or null when the idempotency block states nothing the vocabulary cannot express.</returns>
+    private static string? IdempotencyVocabularySkipOf(Record record)
+    {
+        if (record.Field(RecordFields.Kind) != "command"
+            || record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Idempotency, out var idempotency)
+            || idempotency.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var mode = RecordEntries.Str(idempotency, RecordFields.Mode);
+
+        if (mode == "none" && RecordEntries.Str(idempotency, RecordFields.Reason) is not { Length: > 0 })
+        {
+            return "idempotency mode 'none' states no reason";
+        }
+
+        if (mode == "state"
+            && RecordEntries.Str(idempotency, RecordFields.RecognizedBy) is not { Length: > 0 }
+            && RecordEntries.Str(idempotency, RecordFields.Reason) is not { Length: > 0 })
+        {
+            return "idempotency mode 'state' states no recognized repeat";
+        }
+
+        return null;
+    }
+
+    /// <summary>The audit call one use case record states, or the reason its target renders nothing. The record passed the vocabulary gate, so a level of none never reaches here.</summary>
+    /// <param name="record">The use case record whose audit block is read.</param>
+    /// <param name="declared">The resolved message the target selector reads.</param>
     /// <param name="parameter">The lambda parameter name: command or query.</param>
     /// <returns>The audit position: its call, its skip reason, or neither.</returns>
-    private static DeclarationPosition AuditCallOf(Record record, string messageType, string parameter)
+    private static DeclarationPosition AuditCallOf(Record record, DeclarationMessage declared, string parameter)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
             || !record.Raw.TryGetProperty(RecordFields.Audit, out var audit)
@@ -1690,16 +1886,6 @@ static class GeneratePlan
         }
 
         var level = RecordEntries.Str(audit, RecordFields.Level);
-
-        if (level is null)
-        {
-            return new DeclarationPosition(null, null);
-        }
-
-        if (level == "none")
-        {
-            return new DeclarationPosition(null, "audit level 'none' states no exemption rationale");
-        }
 
         if (level is not ("required" or "optional"))
         {
@@ -1723,7 +1909,12 @@ static class GeneratePlan
             {
                 if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { Length: > 0 } name)
                 {
-                    parts.Add(TargetPropertyOf(record, name));
+                    if (TargetPropertyOf(record, declared, name) is not { } part)
+                    {
+                        return new DeclarationPosition(null, $"audit target '{name}' matches no member of message '{declared.Type}'");
+                    }
+
+                    parts.Add(part);
                 }
             }
 
@@ -1733,7 +1924,7 @@ static class GeneratePlan
             }
 
             return new DeclarationPosition(
-                DeclarationsRenderer.AuditedWithCompositeTargetCall(record.Id, category, targetKind, messageType, parameter, parts),
+                DeclarationsRenderer.AuditedWithCompositeTargetCall(record.Id, category, targetKind, declared.Type, parameter, parts),
                 null);
         }
 
@@ -1747,18 +1938,21 @@ static class GeneratePlan
             return new DeclarationPosition(DeclarationsRenderer.AuditedCall(record.Id, category, targetKind), null);
         }
 
-        var (property, isText) = TargetPropertyOf(record, target);
+        if (TargetPropertyOf(record, declared, target) is not { } single)
+        {
+            return new DeclarationPosition(null, $"audit target '{target}' matches no member of message '{declared.Type}'");
+        }
 
         return new DeclarationPosition(
-            DeclarationsRenderer.AuditedWithTargetCall(record.Id, category, targetKind, messageType, parameter, property, isText),
+            DeclarationsRenderer.AuditedWithTargetCall(record.Id, category, targetKind, declared.Type, parameter, single.Property, single.IsText),
             null);
     }
 
-    /// <summary>The idempotency call one use case record states, or the reason it renders nothing.</summary>
+    /// <summary>The idempotency call one use case record states, or the reason its key renders nothing. The record passed the vocabulary gate, so a mode of none or state carries its rationale.</summary>
     /// <param name="record">The use case record whose idempotency block is read.</param>
-    /// <param name="messageType">The simple message type name the key selector reads.</param>
+    /// <param name="declared">The resolved message the key selector reads.</param>
     /// <returns>The idempotency position: its call, its skip reason, or neither.</returns>
-    private static DeclarationPosition IdempotencyCallOf(Record record, string messageType)
+    private static DeclarationPosition IdempotencyCallOf(Record record, DeclarationMessage declared)
     {
         if (record.Field(RecordFields.Kind) != "command")
         {
@@ -1781,24 +1975,16 @@ static class GeneratePlan
 
         if (mode == "none")
         {
-            if (RecordEntries.Str(idempotency, RecordFields.Reason) is not { Length: > 0 } reason)
-            {
-                return new DeclarationPosition(null, "idempotency mode 'none' states no reason");
-            }
-
-            return new DeclarationPosition(DeclarationsRenderer.IdempotencyExemptCall(reason), null);
+            return new DeclarationPosition(
+                DeclarationsRenderer.IdempotencyExemptCall(RecordEntries.Str(idempotency, RecordFields.Reason) ?? ""),
+                null);
         }
 
         if (mode == "state")
         {
             var rationale = RecordEntries.Str(idempotency, RecordFields.RecognizedBy) is { Length: > 0 } recognized
                 ? $"recognized by state: {recognized}"
-                : RecordEntries.Str(idempotency, RecordFields.Reason);
-
-            if (rationale is not { Length: > 0 })
-            {
-                return new DeclarationPosition(null, "idempotency mode 'state' states no recognized repeat");
-            }
+                : RecordEntries.Str(idempotency, RecordFields.Reason) ?? "";
 
             return new DeclarationPosition(DeclarationsRenderer.IdempotencyExemptCall(rationale), null);
         }
@@ -1811,8 +1997,13 @@ static class GeneratePlan
         var scope = RecordEntries.Str(idempotency, RecordFields.KeyScope) ?? "";
         var replay = RecordEntries.Str(idempotency, RecordFields.Replay) == "returns-first-result";
 
+        if (KeyPartsOf(record, declared, RecordEntries.Str(idempotency, RecordFields.Key) ?? "", out var missing) is not { } parts)
+        {
+            return new DeclarationPosition(null, $"key template names '{missing}', which matches no member of message '{declared.Type}'");
+        }
+
         return new DeclarationPosition(
-            DeclarationsRenderer.KeyedIdempotencyCall(messageType, "command", KeyPartsOf(record, RecordEntries.Str(idempotency, RecordFields.Key) ?? ""), scope, replay),
+            DeclarationsRenderer.KeyedIdempotencyCall(declared.Type, "command", parts, scope, replay),
             null);
     }
 
@@ -1884,31 +2075,43 @@ static class GeneratePlan
         return null;
     }
 
-    /// <summary>The message property an audit target reads: the PascalCase input name with the identity suffix the message check expects.</summary>
+    /// <summary>The message property an audit target reads: the real member the input names, or null when the message declares no member for it.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
+    /// <param name="declared">The resolved message the target selector reads.</param>
     /// <param name="target">The input name the audit block states.</param>
-    /// <returns>The property name with whether it already reads as text.</returns>
-    private static (string Property, bool IsText) TargetPropertyOf(Record record, string target)
+    /// <returns>The property name with whether it already reads as text, or null when the message declares no member for the input.</returns>
+    private static (string Property, bool IsText)? TargetPropertyOf(Record record, DeclarationMessage declared, string target)
     {
+        var type = null as string;
+
         foreach (var input in record.Objects(RecordFields.Input))
         {
             if (RecordEntries.Str(input, RecordFields.Name) == target)
             {
-                var type = RecordEntries.Str(input, RecordFields.Type);
-
-                return (PropertyOf(target, type), type == "text");
+                type = RecordEntries.Str(input, RecordFields.Type);
+                break;
             }
         }
 
-        return (Naming.Pascal(target), false);
+        if (MemberOf(declared, target, type) is not { } property)
+        {
+            return null;
+        }
+
+        return (property, IsTextMember(declared.Members[property]));
     }
 
-    /// <summary>The key template parts in template order: literal text with the message property each placeholder names.</summary>
+    /// <summary>The key template parts in template order: literal text with the real member each placeholder names, or null with the first placeholder the message declares no member for.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
+    /// <param name="declared">The resolved message the key selector reads.</param>
     /// <param name="template">The key template as the record states it.</param>
-    /// <returns>The template parts.</returns>
-    private static List<DeclarationsRenderer.KeyPart> KeyPartsOf(Record record, string template)
+    /// <param name="missing">The first placeholder the message declares no member for, or null when every placeholder resolves.</param>
+    /// <returns>The template parts, or null when a placeholder resolves to no member.</returns>
+    private static List<DeclarationsRenderer.KeyPart>? KeyPartsOf(
+        Record record, DeclarationMessage declared, string template, out string? missing)
     {
+        missing = null;
+
         var parts = new List<DeclarationsRenderer.KeyPart>();
         var inputs = new Dictionary<string, string?>(StringComparer.Ordinal);
 
@@ -1932,7 +2135,14 @@ static class GeneratePlan
             var name = match.Groups["name"].Value.Trim();
 
             inputs.TryGetValue(name, out var type);
-            parts.Add(new DeclarationsRenderer.KeyPart(null, PropertyOf(name, type)));
+
+            if (MemberOf(declared, name, type) is not { } property)
+            {
+                missing = name;
+                return null;
+            }
+
+            parts.Add(new DeclarationsRenderer.KeyPart(null, property, IsDateMember(declared.Members[property]) ? "O" : null));
             written = match.Index + match.Length;
         }
 
@@ -1942,6 +2152,42 @@ static class GeneratePlan
         }
 
         return parts;
+    }
+
+    /// <summary>Whether a member already reads as text, so a target selector needs no conversion.</summary>
+    /// <param name="type">The member type as written.</param>
+    /// <returns>True for a string member; otherwise false.</returns>
+    private static bool IsTextMember(string type) =>
+        SimpleMemberType(type) is "string" or "String";
+
+    /// <summary>Whether a member renders as an ISO date in a key, so the selector formats it round-trip.</summary>
+    /// <param name="type">The member type as written.</param>
+    /// <returns>True for a date member; otherwise false.</returns>
+    private static bool IsDateMember(string type) =>
+        SimpleMemberType(type) is "DateOnly" or "DateTime" or "DateTimeOffset";
+
+    /// <summary>Reads the simple name of a member type as written, without qualification, generic arguments or nullability.</summary>
+    /// <param name="type">The member type as written.</param>
+    /// <returns>The simple name.</returns>
+    private static string SimpleMemberType(string type)
+    {
+        var name = type.Trim().TrimEnd('?', '!');
+
+        if (name.StartsWith("global::", StringComparison.Ordinal))
+        {
+            name = name["global::".Length..];
+        }
+
+        var generic = name.IndexOf('<');
+
+        if (generic >= 0)
+        {
+            name = name[..generic];
+        }
+
+        var dot = name.LastIndexOf('.');
+
+        return dot >= 0 ? name[(dot + 1)..] : name;
     }
 
     /// <summary>The message property an input reads: its PascalCase name, with the identity suffix for an id the name does not already carry.</summary>

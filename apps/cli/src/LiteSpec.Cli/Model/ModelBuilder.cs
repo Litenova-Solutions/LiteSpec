@@ -68,6 +68,7 @@ static partial class ModelBuilder
 
             model.Code = backendRead.Code;
             model.BackendSemantics = backendRead.Semantics;
+            model.SemanticUnavailableReason = backendRead.SemanticUnavailableReason;
             model.Problems.AddRange(backendRead.Problems);
 
             var screens = ReadScreens(config, stacks, model.Code);
