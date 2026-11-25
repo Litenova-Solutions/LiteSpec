@@ -542,9 +542,9 @@ properties:
     type: string
     pattern: '^https?://.+/$'
   reviewedLiteSpecVersion:
-    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1.
+    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1; a dev-feed build names its timestamp suffix, such as 7.0.0-dev.20261125215523.
     type: string
-    pattern: '^\d+\.\d+\.\d+(-rc\.\d+)?$'
+    pattern: '^\d+\.\d+\.\d+(-(rc|dev)\.\d+)?$'
   paths:
     type: object
     additionalProperties: false
