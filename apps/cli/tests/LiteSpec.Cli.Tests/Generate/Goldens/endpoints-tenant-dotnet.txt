@@ -44,7 +44,7 @@ internal static partial class LendingEndpoints
         {
             await mediator.SendAsync(
                 new BorrowCopyCommand(
-                    WorkspaceId: TenantClaims.ReadTenantId(user),
+                    WorkspaceId: TenantClaims.ReadTenantId<WorkspaceId>(user),
                     CopyId: CopyId.From(request.CopyId),
                     ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader")
                 ),

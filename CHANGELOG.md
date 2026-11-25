@@ -619,6 +619,7 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - `reviewedLiteSpecVersion` accepts a `-dev.<digits>` suffix beside `-rc.<digits>`, so a consumer pinned to a dev-feed build validates against the project schema.
 - Generated endpoints declare their partial shaping and derivation methods `private static partial`, and place optional paging and form parameters after the required ones, so the endpoints file compiles.
 - The test suite compiles the whole Claimwick backend, hand-written and generated files together, against the framework, the ASP.NET Core reference pack, Marten and faithful LiteBus stubs, and Claimwick's missing usings are fixed.
+- Generated endpoints call the `tenantReader` with the tenant key's type as a type argument, so a reader in a shared platform project needs no reference to the module that declares the identifier.
 
 ### Part U: Provision Changes Since v6.0.0
 

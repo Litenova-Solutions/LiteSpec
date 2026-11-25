@@ -150,7 +150,7 @@ static class EndpointsRenderer
     /// <param name="namespace">The C# namespace of the generated class.</param>
     /// <param name="claimReader">The qualified generic claim reader method, as Namespace.Type.Method, answering the identity as its type argument.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
-    /// <param name="tenantReader">The qualified tenant reader method, as Namespace.Type.Method, or empty when the target names none.</param>
+    /// <param name="tenantReader">The qualified generic tenant reader method, as Namespace.Type.Method, answering the tenant key as its type argument, or empty when the target names none.</param>
     /// <param name="claimValueReader">The qualified claim value reader method, as Namespace.Type.Method, or empty when the target names none.</param>
     /// <returns>The file text with LF line endings.</returns>
     public static string RenderDotnet(
@@ -1039,7 +1039,7 @@ static class EndpointsRenderer
 
         if (endpoint.Tenant is { } tenantKey)
         {
-            arguments.Add($"{tenantKey.Property}: {tenant.Call}(user)");
+            arguments.Add($"{tenantKey.Property}: {tenant.Call}<{tenantKey.Type}>(user)");
         }
 
         arguments.AddRange(endpoint.Inputs.Select(input => $"{input.Property}: {ArgumentOf(endpoint, input, reader, values)}"));

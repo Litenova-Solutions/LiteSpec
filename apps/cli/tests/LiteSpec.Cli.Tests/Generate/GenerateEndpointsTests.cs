@@ -353,7 +353,7 @@ public sealed class GenerateEndpointsTests
         var file = Assert.Single(plan.Files);
         Assert.Contains("using Library.Platform.Http;", file.Content, StringComparison.Ordinal);
         Assert.Contains("ClaimsPrincipal user", file.Content, StringComparison.Ordinal);
-        Assert.Contains("WorkspaceId: TenantClaims.ReadTenantId(user),", file.Content, StringComparison.Ordinal);
+        Assert.Contains("WorkspaceId: TenantClaims.ReadTenantId<Guid>(user),", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>An endpoints target with an unqualified tenant reader reports and renders nothing.</summary>
