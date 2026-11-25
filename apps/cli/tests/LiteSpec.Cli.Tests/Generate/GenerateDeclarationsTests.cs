@@ -419,6 +419,55 @@ public sealed class GenerateDeclarationsTests
             call);
     }
 
+    /// <summary>A dotted key part renders through the member path inside the culture-invariant expression.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DottedKeyPartRendersThroughTheMemberPath()
+    {
+        var call = DeclarationsRenderer.KeyedIdempotencyCall(
+            "ExtendLoanCommand",
+            "command",
+            [
+                new DeclarationsRenderer.KeyPart(null, "LoanId.Branch"),
+                new DeclarationsRenderer.KeyPart("-", null),
+                new DeclarationsRenderer.KeyPart(null, "ExtendedTo", "O"),
+            ],
+            "tenant",
+            false);
+
+        Assert.Equal(
+            @".Declare(IdempotencyDeclaration.KeyedBy<ExtendLoanCommand>(command => FormattableString.Invariant($""{command.LoanId.Branch}-{command.ExtendedTo:O}"")) with { Scope = ""tenant"", ReplayResult = false })",
+            call);
+    }
+
+    /// <summary>A dotted key placeholder resolves its head to the message member and renders through the member path.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DottedKeyPlaceholderResolvesThroughTheMessageMember()
+    {
+        using var temp = ModelFixture.Prepare("declarations-resolution");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "extend-loan", "extend-loan.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "key: \"{loanId}-{extendedTo}\"",
+                "key: \"{loanId.branch}-{extendedTo}\"",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: declarations
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var content = Assert.Single(plan.Files).Content;
+
+        Assert.DoesNotContain("use-case/lending.extend-loan", plan.Skips.Select(skip => skip.UseCaseId));
+        Assert.Contains("(command => FormattableString.Invariant($\"{command.LoanId.Branch}-{command.ExtendedTo:O}\"))", content, StringComparison.Ordinal);
+    }
+
     /// <summary>A key template without placeholders renders as a plain literal.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]

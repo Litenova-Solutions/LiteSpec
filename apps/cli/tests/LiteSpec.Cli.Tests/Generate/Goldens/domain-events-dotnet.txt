@@ -8,10 +8,11 @@ namespace Library.Lending.Domain.Loans.Events;
 
 /// <summary>A copy was lent to a reader.</summary>
 /// <implements>domain-event/loan.loan-borrowed</implements>
-internal sealed partial record LoanLoanBorrowedDomainEvent(LoanId LoanId, CopyId CopyId, Guid ReaderId, string Shelf, int Renewals, decimal Fine, Money Deposit, bool Notified, DateOnly DueDate, DateTimeOffset BorrowedAt, TimeSpan LoanPeriod, string ReceiptEmail, LoanKind Kind, IReadOnlyList<string> Tags, IReadOnlyList<LinesRow> Lines, string? Note, Guid SessionId, Renewal LatestRenewal, DueSlip? Slip, IReadOnlyList<Renewal> Renewals) : IDomainEvent
+internal sealed partial record LoanLoanBorrowedDomainEvent(LoanId LoanId, CopyId CopyId, Guid ReaderId, string Shelf, int Renewals, decimal Fine, Money Deposit, bool Notified, DateOnly DueDate, DateTimeOffset BorrowedAt, TimeSpan LoanPeriod, string ReceiptEmail, LoanKind Kind, IReadOnlyList<string> Tags, IReadOnlyList<LinesRow> Lines, string? Note, Guid SessionId, Renewal LatestRenewal, DueSlip? Slip, IReadOnlyList<Renewal> Renewals, byte[]? SlipScan) : IDomainEvent
 {
     /// <summary>One row of Lines.</summary>
     /// <param name="CopyId">The copy the line lends.</param>
     /// <param name="Note">The line note, when one is kept.</param>
-    public sealed partial record LinesRow(CopyId CopyId, string? Note);
+    /// <param name="RemindedAt">The times a reminder went out for the line.</param>
+    public sealed partial record LinesRow(CopyId CopyId, string? Note, IReadOnlyList<DateTimeOffset> RemindedAt);
 }

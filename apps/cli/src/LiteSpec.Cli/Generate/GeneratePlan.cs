@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Checks;
@@ -795,12 +796,12 @@ static class GeneratePlan
                     record.Field(RecordFields.Summary), inputs, TenantPropertyOf(model, record),
                     PagingOf(record), key, @namespace, messageInterface, usings, wantPublic))));
 
-            foreach (var row in inputs.Where(input => input.RowType is not null && input.Row.Count > 0))
+            foreach (var row in SharedRowsOf(inputs.Where(input => input.RowType is not null && input.Row.Count > 0)))
             {
                 files.Add(new GeneratedFile(
                     Path.Combine(resolved, $"{row.RowType}.generated.cs"),
                     ResultsRenderer.RenderRowDotnet(new ResultsRenderer.RowData(
-                        row.RowType!, row.Property, row.Row, @namespace, usings, wantPublic))));
+                        row.RowType, row.ListProperties, row.Fields, @namespace, usings, wantPublic))));
             }
         }
 
@@ -849,16 +850,53 @@ static class GeneratePlan
             var rows = fields.Concat(groups.SelectMany(group => group.Fields))
                 .Where(field => field.RowType is not null && field.Row.Count > 0);
 
-            foreach (var row in rows)
+            foreach (var row in SharedRowsOf(rows))
             {
                 files.Add(new GeneratedFile(
                     Path.Combine(resolved, $"{row.RowType}.generated.cs"),
                     ResultsRenderer.RenderRowDotnet(new ResultsRenderer.RowData(
-                        row.RowType!, row.Property, row.Row, @namespace, usings, wantPublic))));
+                        row.RowType, row.ListProperties, row.Fields, @namespace, usings, wantPublic))));
             }
         }
 
         return files;
+    }
+
+    /// <summary>One row type to render, with every list property that names it.</summary>
+    /// <param name="RowType">The row type name the record states in rowType.</param>
+    /// <param name="ListProperties">The list properties sharing the row, joined for the summary.</param>
+    /// <param name="Fields">The row fields of the first list naming the row type.</param>
+    private sealed record SharedRow(string RowType, string ListProperties, IReadOnlyList<MessageFieldTypes.MappedField> Fields);
+
+    /// <summary>
+    /// Collapses list fields naming the same row type with the same members into one row, so one use case may
+    /// reuse a row type across several lists. Lists naming one row type with different members stay apart, and
+    /// the duplicate-file check reports them.
+    /// </summary>
+    /// <param name="lists">The list fields stating a row type and row fields, in written order.</param>
+    /// <returns>The rows to render, in first-written order.</returns>
+    private static List<SharedRow> SharedRowsOf(IEnumerable<MessageFieldTypes.MappedField> lists)
+    {
+        var shared = new List<SharedRow>();
+
+        foreach (var sameType in lists.GroupBy(list => list.RowType!, StringComparer.Ordinal))
+        {
+            var signatures = sameType
+                .Select(list => string.Join(",", list.Row.Select(field => $"{field.Type} {field.Property}")))
+                .Distinct(StringComparer.Ordinal)
+                .Count();
+
+            if (signatures == 1)
+            {
+                var first = sameType.First();
+                shared.Add(new SharedRow(first.RowType!, string.Join(" and ", sameType.Select(list => list.Property)), first.Row));
+                continue;
+            }
+
+            shared.AddRange(sameType.Select(list => new SharedRow(list.RowType!, list.Property, list.Row)));
+        }
+
+        return shared;
     }
 
     /// <summary>Whether a use case is public: another module reaches it through its reachedThrough.</summary>
@@ -991,12 +1029,20 @@ static class GeneratePlan
             }
 
             var name = match.Groups["name"].Value.Trim();
+            var segments = name.Split('.');
+            var head = segments[0].Trim();
 
-            if (!properties.TryGetValue(name, out var property))
+            if (!properties.TryGetValue(head, out var property)
+                || segments.Skip(1).Any(segment => segment.Trim().Length == 0))
             {
                 key = null;
 
                 return false;
+            }
+
+            if (segments.Length > 1)
+            {
+                property += "." + string.Join(".", segments.Skip(1).Select(segment => Naming.Pascal(segment.Trim())));
             }
 
             parts.Add((null, property));
@@ -1163,7 +1209,7 @@ static class GeneratePlan
         return fields;
     }
 
-    /// <summary>The published fields of a module event with their C# types from the translated domain event, in written order.</summary>
+    /// <summary>The published fields of a module event with their C# types from the translated domain event, in written order, rendering a field's own type when it states one.</summary>
     /// <param name="model">The built project model resolving the translated domain event.</param>
     /// <param name="record">The module event record whose fields are read.</param>
     /// <returns>The mapped fields, or null when the translation or any field resolves to no known shape; the record check reports it.</returns>
@@ -1206,11 +1252,23 @@ static class GeneratePlan
 
         foreach (var entry in names.EnumerateArray())
         {
-            if (entry.ValueKind != JsonValueKind.String
-                || entry.GetString() is not { Length: > 0 } name
-                || !carried.TryGetValue(name, out var carry)
-                || !EventFieldTypes.TryMap(carry, out var field)
-                || field is null)
+            if (FieldNameOf(entry) is not { Length: > 0 } name
+                || !carried.TryGetValue(name, out var carry))
+            {
+                return null;
+            }
+
+            EventFieldTypes.MappedField? field;
+
+            if (entry.ValueKind == JsonValueKind.Object
+                && RecordEntries.Str(entry, RecordFields.Type) is { Length: > 0 } overrideType)
+            {
+                if (!TryOverride(carry, overrideType, RecordEntries.Str(entry, RecordFields.Identifies), out field) || field is null)
+                {
+                    return null;
+                }
+            }
+            else if (!EventFieldTypes.TryMap(carry, out field) || field is null)
             {
                 return null;
             }
@@ -1219,6 +1277,50 @@ static class GeneratePlan
         }
 
         return fields;
+    }
+
+    /// <summary>The published name of one module event field entry: the string itself, or the name of an entry stating its own type.</summary>
+    /// <param name="entry">The fields entry as written.</param>
+    /// <returns>The published field name, or null when the entry states none.</returns>
+    private static string? FieldNameOf(JsonElement entry)
+    {
+        if (entry.ValueKind == JsonValueKind.String)
+        {
+            return entry.GetString() is { Length: > 0 } name ? name : null;
+        }
+
+        return entry.ValueKind == JsonValueKind.Object ? RecordEntries.Str(entry, RecordFields.Name) : null;
+    }
+
+    /// <summary>Maps one domain carry through a module event field's own type: the override renders instead of the copied type, with the domain nullability kept.</summary>
+    /// <param name="carry">The translated domain carry the field publishes.</param>
+    /// <param name="type">The type the module event field states.</param>
+    /// <param name="identifies">The identifies the module event field states, or null for an untyped identifier.</param>
+    /// <param name="field">The mapped property, or null when the override states no known shape.</param>
+    /// <returns>True when the override maps; otherwise false, and the event renders no file.</returns>
+    private static bool TryOverride(JsonElement carry, string type, string? identifies, out EventFieldTypes.MappedField? field)
+    {
+        field = null;
+
+        if (JsonNode.Parse(carry.GetRawText()) is not JsonObject overlay)
+        {
+            return false;
+        }
+
+        overlay[RecordFields.Type] = type;
+
+        if (identifies is { Length: > 0 })
+        {
+            overlay[RecordFields.Identifies] = identifies;
+        }
+        else
+        {
+            overlay.Remove(RecordFields.Identifies);
+        }
+
+        using var document = JsonDocument.Parse(overlay.ToJsonString());
+
+        return EventFieldTypes.TryMap(document.RootElement, out field);
     }
 
     /// <summary>The aggregate folder holding an event record: the folder under aggregates its file sits in.</summary>
@@ -2269,7 +2371,7 @@ static class GeneratePlan
         return (property, IsTextMember(declared.Members[property]));
     }
 
-    /// <summary>The key template parts in template order: literal text with the real member each placeholder names, or null with the first placeholder the message declares no member for.</summary>
+    /// <summary>The key template parts in template order: literal text with the real member each placeholder names, following a dotted placeholder through the member path, or null with the first placeholder the message declares no member for.</summary>
     /// <param name="record">The use case record whose inputs are read.</param>
     /// <param name="declared">The resolved message the key selector reads.</param>
     /// <param name="template">The key template as the record states it.</param>
@@ -2301,16 +2403,33 @@ static class GeneratePlan
             }
 
             var name = match.Groups["name"].Value.Trim();
+            var segments = name.Split('.');
+            var head = segments[0].Trim();
 
-            inputs.TryGetValue(name, out var type);
+            inputs.TryGetValue(head, out var type);
 
-            if (MemberOf(declared, name, type) is not { } property)
+            if (MemberOf(declared, head, type) is not { } property)
             {
                 missing = name;
                 return null;
             }
 
-            parts.Add(new DeclarationsRenderer.KeyPart(null, property, IsDateMember(declared.Members[property]) ? "O" : null));
+            if (segments.Length > 1)
+            {
+                if (segments.Skip(1).Any(segment => segment.Trim().Length == 0))
+                {
+                    missing = name;
+                    return null;
+                }
+
+                property += "." + string.Join(".", segments.Skip(1).Select(segment => Naming.Pascal(segment.Trim())));
+                parts.Add(new DeclarationsRenderer.KeyPart(null, property));
+            }
+            else
+            {
+                parts.Add(new DeclarationsRenderer.KeyPart(null, property, IsDateMember(declared.Members[property]) ? "O" : null));
+            }
+
             written = match.Index + match.Length;
         }
 

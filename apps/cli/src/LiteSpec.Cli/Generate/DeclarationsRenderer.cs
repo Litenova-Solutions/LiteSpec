@@ -25,9 +25,9 @@ static class DeclarationsRenderer
         string? Audit,
         string? Idempotency);
 
-    /// <summary>One part of an idempotency key template: literal text or one message property.</summary>
+    /// <summary>One part of an idempotency key template: literal text or one message property path.</summary>
     /// <param name="Literal">The literal text, or null when the part names a property.</param>
-    /// <param name="Property">The message property name, or null when the part is literal text.</param>
+    /// <param name="Property">The message property name with its member path for a dotted placeholder, or null when the part is literal text.</param>
     /// <param name="Format">The interpolation format of the property, such as O for a date, or null for the default rendering.</param>
     public sealed record KeyPart(string? Literal, string? Property, string? Format = null);
 

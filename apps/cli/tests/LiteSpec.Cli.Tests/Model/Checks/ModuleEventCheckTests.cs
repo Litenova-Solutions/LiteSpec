@@ -50,6 +50,94 @@ public sealed class ModuleEventCheckTests
         Assert.DoesNotContain("integration-event-field-uncarried", TestModel.Codes(model));
     }
 
+    /// <summary>A module event field stating its own untyped identifier passes where the domain carries the identifier typed.</summary>
+    /// <proves>litespec/core/automation#publish-every-module-event-from-the-event-it-translates</proves>
+    [Fact]
+    public void ModuleEventFieldOverrideUntypedIdPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id", "identifies": "aggregate/lending.loan"}]}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-receipt", Path.Combine(temp.Path, "loan-receipt.yaml"), """{"summary": "A loan receipt.", "translates": "domain-event/loan.loan-borrowed", "fields": [{"name": "loanId", "type": "id"}]}"""));
+
+        Assert.DoesNotContain("event-field-uncarried", TestModel.Codes(model));
+        Assert.False(Reports(model, "record-invalid", "carries as"));
+    }
+
+    /// <summary>A module event field stating its own type differing from the translated carry reports.</summary>
+    /// <proves>litespec/core/automation#publish-every-module-event-from-the-event-it-translates</proves>
+    [Fact]
+    public void ModuleEventFieldOverrideMismatchReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"meaning": "A copy was lent.", "carries": [{"name": "shelf", "type": "text"}]}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-receipt", Path.Combine(temp.Path, "loan-receipt.yaml"), """{"summary": "A loan receipt.", "translates": "domain-event/loan.loan-borrowed", "fields": [{"name": "shelf", "type": "id"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "publishes field 'shelf' with type 'id' that its translated domain event 'domain-event/loan.loan-borrowed' carries as 'text'"));
+    }
+
+    /// <summary>A module event field identifying another record than the translated carry reports.</summary>
+    /// <proves>litespec/core/automation#publish-every-module-event-from-the-event-it-translates</proves>
+    [Fact]
+    public void ModuleEventFieldOverrideIdentifiesMismatchReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "copy.yaml"), """{"states": [{"name": "Open", "meaning": "The copy lends."}]}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id", "identifies": "aggregate/lending.loan"}]}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-receipt", Path.Combine(temp.Path, "loan-receipt.yaml"), """{"summary": "A loan receipt.", "translates": "domain-event/loan.loan-borrowed", "fields": [{"name": "loanId", "type": "id", "identifies": "aggregate/lending.copy"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "identifying 'aggregate/lending.copy' that its translated domain event 'domain-event/loan.loan-borrowed' carries as 'aggregate/lending.loan'"));
+    }
+
+    /// <summary>A module event field identifying no record reports.</summary>
+    /// <proves>litespec/core/automation#publish-every-module-event-from-the-event-it-translates</proves>
+    [Fact]
+    public void ModuleEventFieldOverrideDanglingIdentifiesReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id"}]}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-receipt", Path.Combine(temp.Path, "loan-receipt.yaml"), """{"summary": "A loan receipt.", "translates": "domain-event/loan.loan-borrowed", "fields": [{"name": "loanId", "type": "id", "identifies": "aggregate/lending.no-such-loan"}]}"""));
+
+        Assert.True(Reports(model, "reference-unknown", "identifying 'aggregate/lending.no-such-loan', which no record holds"));
+    }
+
+    /// <summary>A module event publishing one field twice, as a name and as an entry, reports.</summary>
+    /// <proves>litespec/core/automation#publish-every-module-event-from-the-event-it-translates</proves>
+    [Fact]
+    public void ModuleEventFieldPublishedTwiceReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id"}]}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-receipt", Path.Combine(temp.Path, "loan-receipt.yaml"), """{"summary": "A loan receipt.", "translates": "domain-event/loan.loan-borrowed", "fields": ["loanId", {"name": "loanId", "type": "id"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "publishes field 'loanId' more than once"));
+    }
+
+    /// <summary>A module event entry naming a field its domain event does not carry reports event-field-uncarried.</summary>
+    /// <proves>litespec/core/automation#publish-every-module-event-from-the-event-it-translates</proves>
+    [Fact]
+    public void ModuleEventObjectFieldNotCarriedReportsUncarried()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id"}]}"""),
+            TestModel.Record("module-event", "module-event/lending.loan-receipt", Path.Combine(temp.Path, "loan-receipt.yaml"), """{"summary": "A loan receipt.", "translates": "domain-event/loan.loan-borrowed", "fields": [{"name": "shelf", "type": "text"}]}"""));
+
+        Assert.Contains("event-field-uncarried", TestModel.Codes(model));
+    }
+
     /// <summary>A module event with empty fields passes the uncarried rule, because no field is published.</summary>
     /// <proves>litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives</proves>
     [Fact]

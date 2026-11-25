@@ -65,7 +65,7 @@ static class MessageFieldTypes
         return TryMap(output, name, type, nullable: false, out field);
     }
 
-    /// <summary>Maps one list-row entry to its C# property: a scalar of its record type, nullable when the row states no required.</summary>
+    /// <summary>Maps one list-row entry to its C# property: a scalar of its record type, or a read-only list for a row field of type list, nullable when the row states no required.</summary>
     /// <param name="row">The row entry holding the field name and its record type.</param>
     /// <param name="field">The mapped property, or null when the entry states no known shape.</param>
     /// <returns>True when the entry maps; otherwise false, and the row renders no file.</returns>
@@ -79,19 +79,35 @@ static class MessageFieldTypes
             return false;
         }
 
-        if (ScalarOf(row, type) is not { } scalar)
-        {
-            return false;
-        }
+        string scalar;
 
-        if (IsMany(row))
+        if (type == "list")
         {
-            scalar = $"IReadOnlyList<{scalar}>";
-        }
+            if (!TryNestedList(row, out var nested) || nested is null)
+            {
+                return false;
+            }
 
-        if (!IsRequired(row))
+            scalar = nested;
+        }
+        else
         {
-            scalar += "?";
+            if (ScalarOf(row, type) is not { } single)
+            {
+                return false;
+            }
+
+            scalar = single;
+
+            if (IsMany(row))
+            {
+                scalar = $"IReadOnlyList<{scalar}>";
+            }
+
+            if (!IsRequired(row))
+            {
+                scalar += "?";
+            }
         }
 
         field = new MappedField(
@@ -102,6 +118,58 @@ static class MessageFieldTypes
             RecordEntries.Str(row, RecordFields.Meaning));
 
         return true;
+    }
+
+    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row. Inner rows hold scalars only, one level at a time.</summary>
+    /// <param name="row">The row field entry holding the nested row shape.</param>
+    /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
+    /// <returns>True when the nested shape maps; otherwise false.</returns>
+    private static bool TryNestedList(JsonElement row, out string? type)
+    {
+        type = null;
+
+        if (!row.TryGetProperty(RecordFields.RowShape, out var shape)
+            || shape.ValueKind != JsonValueKind.Object
+            || !shape.TryGetProperty(RecordFields.Fields, out var leaves)
+            || leaves.ValueKind != JsonValueKind.Array
+            || leaves.GetArrayLength() == 0)
+        {
+            return false;
+        }
+
+        var members = new List<string>();
+
+        foreach (var leaf in leaves.EnumerateArray())
+        {
+            if (leaf.ValueKind != JsonValueKind.Object
+                || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType
+                || leafType == "list"
+                || ScalarOf(leaf, leafType) is not { } scalar)
+            {
+                return false;
+            }
+
+            members.Add(IsRequired(leaf) ? scalar : scalar + "?");
+        }
+
+        var optional = !IsRequired(row);
+
+        if (members.Count == 1)
+        {
+            type = $"IReadOnlyList<{members[0]}>" + (optional ? "?" : "");
+
+            return true;
+        }
+
+        if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType
+            && EventFieldTypes.ObjectTypeOf(rowType) is { } shared)
+        {
+            type = $"IReadOnlyList<{shared}>" + (optional ? "?" : "");
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>Maps one contract field entry to its C# property.</summary>

@@ -55,7 +55,7 @@ public sealed class GenerateEventsTests
             Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("LoanLoanBorrowedDomainEvent.generated.cs", StringComparison.Ordinal)).Content);
     }
 
-    /// <summary>Each module event renders its golden payload file in its fact folder.</summary>
+    /// <summary>Each module event renders its golden payload file in its fact folder, with a field stating its own untyped identifier where the contracts project cannot see the domain type.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
     [Fact]
@@ -76,7 +76,8 @@ public sealed class GenerateEventsTests
             summary: A loan receipt announces a lent copy and its due date.
             fields:
             - loanId
-            - copyId
+            - name: copyId
+              type: id
             - dueDate
             - note
             translates: domain-event/loan.loan-borrowed
@@ -311,6 +312,53 @@ public sealed class GenerateEventsTests
             out _));
     }
 
+    /// <summary>A carried file maps to the bytes, nullable when the event may arrive without it.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CarriedFileMapsToBytes()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "slipScan", "type": "file", "contentTypes": ["application/pdf"], "maxSize": "5 MB"}"""),
+            out var stored));
+        Assert.Equal("byte[]", stored!.Type);
+
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "slipScan", "type": "file", "contentTypes": ["application/pdf"], "maxSize": "5 MB", "required": false}"""),
+            out var missing));
+        Assert.Equal("byte[]?", missing!.Type);
+    }
+
+    /// <summary>A row field holding a list maps to a read-only list of its inner row, and a multi-field inner row maps to its named row type.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NestedRowListsMap()
+    {
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "lines", "type": "list", "rowShape": {"fields": [{"name": "copyId", "type": "id", "identifies": "aggregate/lending.copy", "required": true}, {"name": "remindedAt", "type": "list", "required": true, "rowShape": {"fields": [{"name": "sentAt", "type": "instant", "required": true}]}}]}}"""),
+            out var lines));
+        Assert.Equal("IReadOnlyList<LinesRow>", lines!.Type);
+        Assert.Equal("IReadOnlyList<DateTimeOffset>", lines.Row.Single(row => row.Property == "RemindedAt").Type);
+
+        Assert.True(EventFieldTypes.TryMap(
+            Carry("""{"name": "boxes", "type": "list", "rowShape": {"fields": [{"name": "code", "type": "text", "required": true}, {"name": "periods", "type": "list", "required": true, "rowShape": {"fields": [{"name": "start", "type": "date", "required": true}, {"name": "end", "type": "date", "required": true}]}, "rowType": "aggregate/lending.loan#renewal"}]}}"""),
+            out var boxes));
+        Assert.Equal("IReadOnlyList<BoxesRow>", boxes!.Type);
+        Assert.Equal("IReadOnlyList<Renewal>", boxes.Row.Single(row => row.Property == "Periods").Type);
+    }
+
+    /// <summary>A nested row shape maps to nothing when its multi-field rows name no row type, or when rows nest deeper than one level.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void InvalidNestedRowShapesMapToNothing()
+    {
+        Assert.False(EventFieldTypes.TryMap(
+            Carry("""{"name": "boxes", "type": "list", "rowShape": {"fields": [{"name": "code", "type": "text", "required": true}, {"name": "periods", "type": "list", "required": true, "rowShape": {"fields": [{"name": "start", "type": "date", "required": true}, {"name": "end", "type": "date", "required": true}]}}]}}"""),
+            out _));
+        Assert.False(EventFieldTypes.TryMap(
+            Carry("""{"name": "boxes", "type": "list", "rowShape": {"fields": [{"name": "periods", "type": "list", "required": true, "rowShape": {"fields": [{"name": "spans", "type": "list", "required": true, "rowShape": {"fields": [{"name": "start", "type": "date", "required": true}]}}]}}]}}"""),
+            out _));
+    }
+
     /// <summary>A project with attribute marks renders the event mark as an attribute.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -488,6 +536,16 @@ public sealed class GenerateEventsTests
                   meaning: The line note, when one is kept.
                   type: text
                   required: false
+                - name: remindedAt
+                  meaning: The times a reminder went out for the line.
+                  type: list
+                  required: true
+                  rowShape:
+                    fields:
+                    - name: sentAt
+                      meaning: When the reminder went out.
+                      type: instant
+                      required: true
             - name: note
               type: text
               required: false
@@ -511,6 +569,12 @@ public sealed class GenerateEventsTests
                   type: text
                   required: false
               rowType: aggregate/lending.loan#renewal
+            - name: slipScan
+              type: file
+              contentTypes:
+              - application/pdf
+              maxSize: 5 MB
+              required: false
             ignored: true
             """);
 

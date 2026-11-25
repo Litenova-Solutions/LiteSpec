@@ -595,6 +595,10 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - The declarations generator renders the grant's policy for use cases whose tenant reach is `cross`, `public` or `none`; a target may wrap it per reach with `crossPolicy`, `publicPolicy` or `nonePolicy`.
 - A partial type is one code element carrying the marks of all its declarations, so a mark on the generated half satisfies the hand-written half; the model check and LS5003 share one counting rule.
 - Every generated exception carries its rule mark, from the rule naming the refusal or the single rule a use-case step cites beside it; a refusal with no rule, or several, is skipped with the reason.
+- A `file` value carried in an event payload maps to its bytes: `byte[]` in C#, a base64 `string` in TypeScript and JSON; message inputs keep the upload form.
+- Idempotency key placeholders reach a member of a carry naming an aggregate part with a dotted path (`{carry.member}`).
+- A `rowType` or object-carry `type` naming a C# type names a type declared outside the event; a row field may be a list one level deep; a module event field may state its own `type` and `identifies`.
+- Lists of one result or message naming the same row type with the same members render one row file.
 
 ### Part U: Provision Changes Since v6.0.0
 

@@ -8,9 +8,9 @@ namespace LiteSpec.Cli.Generate;
 ///     The C# types the event generators write for record fields: one mapped property per
 ///     carried field, from the coarse record type the way the message field checks read it.
 ///     An <c>id</c> becomes the typed identifier of what it identifies, or a <c>Guid</c>
-///     with no <c>identifies</c>, a <c>choice</c> the closed set it names, an object field
-///     the part or code type its <c>type</c> names, and every other type its fixed .NET form.
-///     A field with <c>required: false</c> rides nullable.
+///     with no <c>identifies</c>, a <c>choice</c> the closed set it names, a <c>file</c> the
+///     carried bytes, an object field the part or code type its <c>type</c> names, and every
+///     other type its fixed .NET form. A field with <c>required: false</c> rides nullable.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class EventFieldTypes
@@ -91,20 +91,39 @@ static class EventFieldTypes
         {
             if (row.ValueKind != JsonValueKind.Object
                 || RecordEntries.Str(row, RecordFields.Name) is not { Length: > 0 } name
-                || RecordEntries.Str(row, RecordFields.Type) is not { Length: > 0 } type
-                || ScalarOf(row, type) is not { } scalar)
+                || RecordEntries.Str(row, RecordFields.Type) is not { Length: > 0 } type)
             {
                 return false;
             }
 
             var named = GenerateNaming.ConstName(name);
+            string member;
 
-            if (!IsRequired(row))
+            if (type == "list")
             {
-                scalar += "?";
+                if (!TryNestedList(row, out var nested) || nested is null)
+                {
+                    return false;
+                }
+
+                member = nested;
+            }
+            else
+            {
+                if (ScalarOf(row, type) is not { } scalar)
+                {
+                    return false;
+                }
+
+                member = scalar;
+
+                if (!IsRequired(row))
+                {
+                    member += "?";
+                }
             }
 
-            fields.Add(new MappedField(named, scalar, [], new Dictionary<string, string>(StringComparer.Ordinal)));
+            fields.Add(new MappedField(named, member, [], new Dictionary<string, string>(StringComparer.Ordinal)));
 
             if (RecordEntries.Str(row, RecordFields.Meaning) is { Length: > 0 } meaning)
             {
@@ -144,6 +163,58 @@ static class EventFieldTypes
         return true;
     }
 
+    /// <summary>Maps one list row field to its read-only list type: the row element for a single-field inner row, or the named row type for a multi-field inner row. Inner rows hold scalars only, one level at a time.</summary>
+    /// <param name="row">The row field entry holding the nested row shape.</param>
+    /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
+    /// <returns>True when the nested shape maps; otherwise false.</returns>
+    private static bool TryNestedList(JsonElement row, out string? type)
+    {
+        type = null;
+
+        if (!row.TryGetProperty(RecordFields.RowShape, out var shape)
+            || shape.ValueKind != JsonValueKind.Object
+            || !shape.TryGetProperty(RecordFields.Fields, out var leaves)
+            || leaves.ValueKind != JsonValueKind.Array
+            || leaves.GetArrayLength() == 0)
+        {
+            return false;
+        }
+
+        var members = new List<string>();
+
+        foreach (var leaf in leaves.EnumerateArray())
+        {
+            if (leaf.ValueKind != JsonValueKind.Object
+                || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType
+                || leafType == "list"
+                || ScalarOf(leaf, leafType) is not { } scalar)
+            {
+                return false;
+            }
+
+            members.Add(IsRequired(leaf) ? scalar : scalar + "?");
+        }
+
+        var optional = !IsRequired(row);
+
+        if (members.Count == 1)
+        {
+            type = $"IReadOnlyList<{members[0]}>" + (optional ? "?" : "");
+
+            return true;
+        }
+
+        if (RecordEntries.Str(row, RecordFields.RowType) is { Length: > 0 } rowType
+            && ObjectTypeOf(rowType) is { } shared)
+        {
+            type = $"IReadOnlyList<{shared}>" + (optional ? "?" : "");
+
+            return true;
+        }
+
+        return false;
+    }
+
     /// <summary>Maps one scalar record type to its C# type.</summary>
     /// <param name="entry">The field entry holding the type facts.</param>
     /// <param name="type">The coarse record type.</param>
@@ -158,7 +229,7 @@ static class EventFieldTypes
         "date" => "DateOnly",
         "instant" => "DateTimeOffset",
         "duration" => "TimeSpan",
-        "file" => "string",
+        "file" => "byte[]",
         "choice" => SetOf(entry),
         "id" => IdentifierOf(entry),
         _ => null,
@@ -182,7 +253,7 @@ static class EventFieldTypes
     /// <summary>The C# type an existing type reference names: the part name for an aggregate part, or the named code type.</summary>
     /// <param name="reference">The carried type or rowType value.</param>
     /// <returns>The C# type, or null when the value names neither a part nor a code type.</returns>
-    private static string? ObjectTypeOf(string reference)
+    internal static string? ObjectTypeOf(string reference)
     {
         if (IsCodeTypeName(reference))
         {

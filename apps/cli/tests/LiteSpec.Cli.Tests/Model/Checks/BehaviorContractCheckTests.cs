@@ -160,6 +160,75 @@ public sealed class BehaviorContractCheckTests
         Assert.False(Reports(model, "record-invalid", "holds auth"));
     }
 
+    /// <summary>Nested Row List With Scalar Rows Passes.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void NestedRowListWithScalarRowsPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "code", "meaning": "The box code.", "type": "text", "required": true}, {"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "night", "meaning": "One night held.", "type": "date", "required": true}]}}]}}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "row field 'nights'"));
+    }
+
+    /// <summary>Nested Row List Without Row Shape Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void NestedRowListWithoutRowShapeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "code", "meaning": "The box code.", "type": "text", "required": true}, {"name": "nights", "meaning": "The nights held.", "type": "list", "required": true}]}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds row field 'nights' of input field 'boxes' of type list with no rowShape"));
+    }
+
+    /// <summary>Nested Row List Deeper Than One Level Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void NestedRowListDeeperThanOneLevelReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "spans", "meaning": "The spans.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "night", "meaning": "One night held.", "type": "date", "required": true}]}}]}}]}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "rows nest one level at a time"));
+    }
+
+    /// <summary>Multi Field Nested Row List Without Row Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void MultiFieldNestedRowListWithoutRowTypeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "code", "meaning": "The box code.", "type": "text", "required": true}, {"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "start", "meaning": "The first night.", "type": "date", "required": true}, {"name": "end", "meaning": "The last night.", "type": "date", "required": true}]}}]}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "with several fields and no rowType"));
+    }
+
+    /// <summary>Nested Row Type Naming A Missing Part Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void NestedRowTypeNamingAMissingPartReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/booking.hold", Path.Combine(temp.Path, "hold-aggregate.yaml"), """{"states": [{"name": "Open", "meaning": "The hold runs."}], "parts": [{"name": "night"}]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "boxes", "meaning": "The boxes to hold.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "code", "meaning": "The box code.", "type": "text", "required": true}, {"name": "nights", "meaning": "The nights held.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "start", "meaning": "The first night.", "type": "date", "required": true}, {"name": "end", "meaning": "The last night.", "type": "date", "required": true}]}, "rowType": "aggregate/booking.hold#no-such-part"}]}}]}"""));
+
+        Assert.True(Reports(model, "reference-unknown", "names part 'no-such-part' the aggregate does not declare"));
+    }
+
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>
     /// <param name="code">The finding code to look for.</param>

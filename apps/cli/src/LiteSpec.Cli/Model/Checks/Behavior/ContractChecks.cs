@@ -1,6 +1,8 @@
 using System.Text.Json;
+using LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
@@ -40,10 +42,12 @@ internal static class ContractChecks
             CheckFieldArray(model, readModel, RecordFields.Fields, "Read model", "read-model", findings);
         }
 
+        var types = new MessageFieldChecks.MessageSource(model);
+
         foreach (var domainEvent in model.Records.Where(record => record.Type == RecordTypes.DomainEvent))
         {
             CheckFieldArray(model, domainEvent, RecordFields.Carries, "Domain event", "carries", findings);
-            CheckCarryTypeRefs(model, domainEvent, findings);
+            CheckCarryTypeRefs(model, types, domainEvent, findings);
         }
 
         foreach (var system in model.Records.Where(record => record.Type == RecordTypes.ExternalSystem))
@@ -413,7 +417,7 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports a module-event field that its translated domain event does not carry.</summary>
+    /// <summary>Reports a module-event field that its translated domain event does not carry, a field published twice, and a field whose own type differs from the translated carry.</summary>
     /// <param name="model">The loaded project model that resolves the translated domain event.</param>
     /// <param name="published">The module event record whose fields are compared with the domain event it translates.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -424,6 +428,17 @@ internal static class ContractChecks
             || fields.ValueKind != JsonValueKind.Array)
         {
             return;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var reported = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var entry in fields.EnumerateArray())
+        {
+            if (ModuleFieldName(entry) is { Length: > 0 } name && !seen.Add(name) && reported.Add(name))
+            {
+                findings.Add(new Finding("record-invalid", $"Module event '{published.Id}' publishes field '{name}' more than once.", published.File, published.Line, SubjectOf(published)));
+            }
         }
 
         foreach (var domainId in published.Ids(RecordFields.Translates))
@@ -437,20 +452,101 @@ internal static class ContractChecks
                 continue;
             }
 
-            var carried = carries.EnumerateArray()
-                .Select(entry => Str(entry, RecordFields.Name))
-                .Where(name => name is { Length: > 0 })
-                .ToHashSet(StringComparer.Ordinal);
+            var carried = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+
+            foreach (var carry in carries.EnumerateArray())
+            {
+                if (carry.ValueKind == JsonValueKind.Object
+                    && Str(carry, RecordFields.Name) is { Length: > 0 } name)
+                {
+                    carried.TryAdd(name, carry);
+                }
+            }
 
             foreach (var entry in fields.EnumerateArray())
             {
-                if (entry.ValueKind == JsonValueKind.String
-                    && entry.GetString() is { Length: > 0 } field
-                    && !carried.Contains(field))
+                if (ModuleFieldName(entry) is not { Length: > 0 } field)
+                {
+                    continue;
+                }
+
+                if (!carried.TryGetValue(field, out var carry))
                 {
                     findings.Add(new Finding("event-field-uncarried", $"Module event '{published.Id}' publishes field '{field}' that its translated domain event '{domain.Id}' does not carry.", published.File, published.Line, SubjectOf(published)));
+                    continue;
+                }
+
+                if (entry.ValueKind == JsonValueKind.Object)
+                {
+                    CheckModuleFieldOverride(model, published, domain, field, carry, entry, findings);
                 }
             }
+        }
+    }
+
+    /// <summary>The published name of one module event field entry: the string itself, or the name of an entry stating its own type.</summary>
+    /// <param name="entry">The fields entry as written.</param>
+    /// <returns>The published field name, or null when the entry states none.</returns>
+    private static string? ModuleFieldName(JsonElement entry)
+    {
+        if (entry.ValueKind == JsonValueKind.String)
+        {
+            return entry.GetString() is { Length: > 0 } name ? name : null;
+        }
+
+        return entry.ValueKind == JsonValueKind.Object ? Str(entry, RecordFields.Name) : null;
+    }
+
+    /// <summary>Reports a module-event field whose own type differs from the translated carry: an identifier carried untyped on the module side reads as the same value.</summary>
+    /// <param name="model">The loaded project model that resolves the identifies target.</param>
+    /// <param name="published">The module event record whose fields are compared with the domain event it translates.</param>
+    /// <param name="domain">The translated domain event record.</param>
+    /// <param name="field">The published field name quoted in each finding.</param>
+    /// <param name="carry">The translated domain carry the field publishes.</param>
+    /// <param name="entry">The fields entry stating its own type.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckModuleFieldOverride(
+        ProjectModel model, Record published, Record domain, string field, JsonElement carry, JsonElement entry, List<Finding> findings)
+    {
+        if (Str(entry, RecordFields.Type) is not { Length: > 0 } overrideType)
+        {
+            return;
+        }
+
+        var domainType = Str(carry, RecordFields.Type);
+
+        if (overrideType != domainType)
+        {
+            findings.Add(new Finding("record-invalid", $"Module event '{published.Id}' publishes field '{field}' with type '{overrideType}' that its translated domain event '{domain.Id}' carries as '{domainType ?? "none"}'.", published.File, published.Line, SubjectOf(published)));
+            return;
+        }
+
+        if (overrideType != "id")
+        {
+            return;
+        }
+
+        var overrideIdentifies = Str(entry, RecordFields.Identifies);
+
+        if (overrideIdentifies is null)
+        {
+            return;
+        }
+
+        if (!model.ById.ContainsKey(Identifiers.BaseId(overrideIdentifies)))
+        {
+            findings.Add(new Finding("reference-unknown", $"Module event '{published.Id}' publishes field '{field}' identifying '{overrideIdentifies}', which no record holds.", published.File, published.Line, SubjectOf(published)));
+            return;
+        }
+
+        var domainIdentifies = Str(carry, RecordFields.Identifies);
+
+        if (overrideIdentifies != domainIdentifies)
+        {
+            findings.Add(new Finding("record-invalid", domainIdentifies is { Length: > 0 }
+                ? $"Module event '{published.Id}' publishes field '{field}' identifying '{overrideIdentifies}' that its translated domain event '{domain.Id}' carries as '{domainIdentifies}'."
+                : $"Module event '{published.Id}' publishes field '{field}' identifying '{overrideIdentifies}' that its translated domain event '{domain.Id}' carries with no identifies.",
+                published.File, published.Line, SubjectOf(published)));
         }
     }
 
@@ -600,11 +696,12 @@ internal static class ContractChecks
         CheckFieldEntries(model, record, label, noun, noun + " field", fields, findings);
     }
 
-    /// <summary>Reports a carried field whose type or rowType names an aggregate part no aggregate declares.</summary>
+    /// <summary>Reports a carried field whose type or rowType names an aggregate part no aggregate declares, or a C# type nested inside the event.</summary>
     /// <param name="model">The loaded project model that resolves each named aggregate part.</param>
+    /// <param name="source">The backend source the event declarations are read from.</param>
     /// <param name="domainEvent">The domain event record whose carries are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckCarryTypeRefs(ProjectModel model, Record domainEvent, List<Finding> findings)
+    private static void CheckCarryTypeRefs(ProjectModel model, MessageFieldChecks.MessageSource source, Record domainEvent, List<Finding> findings)
     {
         if (domainEvent.Raw.ValueKind != JsonValueKind.Object
             || !domainEvent.Raw.TryGetProperty(RecordFields.Carries, out var fields)
@@ -625,14 +722,110 @@ internal static class ContractChecks
             if (Str(entry, RecordFields.Type) is { Length: > 0 } type)
             {
                 CheckPartTypeRef(model, domainEvent, name, "type", type, findings);
+                CheckNestedTypeRef(model, source, domainEvent, name, "type", type, findings);
             }
 
             if (Str(entry, RecordFields.RowType) is { Length: > 0 } rowType)
             {
                 CheckPartTypeRef(model, domainEvent, name, RecordFields.RowType, rowType, findings);
+                CheckNestedTypeRef(model, source, domainEvent, name, RecordFields.RowType, rowType, findings);
+            }
+
+            if (entry.TryGetProperty(RecordFields.RowShape, out var shape)
+                && shape.ValueKind == JsonValueKind.Object
+                && shape.TryGetProperty(RecordFields.Fields, out var rows)
+                && rows.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var row in rows.EnumerateArray())
+                {
+                    if (row.ValueKind == JsonValueKind.Object
+                        && Str(row, RecordFields.Name) is { Length: > 0 } rowName
+                        && Str(row, RecordFields.RowType) is { Length: > 0 } nested)
+                    {
+                        CheckNestedTypeRef(model, source, domainEvent, name + "." + rowName, RecordFields.RowType, nested, findings);
+                    }
+                }
             }
         }
     }
+
+    /// <summary>Reports a carried row or object type naming a C# type that resolves only as a nested type of the event, which the generated positional record cannot see.</summary>
+    /// <param name="model">The loaded project model that holds the backend events.</param>
+    /// <param name="source">The backend source the event declarations are read from.</param>
+    /// <param name="domainEvent">The domain event record holding the carries field.</param>
+    /// <param name="name">The carries field name quoted in each finding.</param>
+    /// <param name="holder">The field holding the reference: type or rowType.</param>
+    /// <param name="target">The reference value under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNestedTypeRef(
+        ProjectModel model,
+        MessageFieldChecks.MessageSource source,
+        Record domainEvent,
+        string name,
+        string holder,
+        string target,
+        List<Finding> findings)
+    {
+        if (!IsCodeTypeName(target)
+            || !Identifiers.TrySplit(domainEvent.Id, out _, out var aggregate, out var fact)
+            || aggregate is null)
+        {
+            return;
+        }
+
+        var eventType = Naming.Pascal(aggregate) + Naming.Pascal(fact) + "DomainEvent";
+        var eventFiles = model.Code.Events
+            .Where(@event => string.Equals(@event.EventId, domainEvent.Id, StringComparison.Ordinal))
+            .Select(@event => @event.File)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (eventFiles.Count == 0)
+        {
+            return;
+        }
+
+        var nested = false;
+        var shared = false;
+
+        foreach (var file in eventFiles)
+        {
+            foreach (var (_, declared) in source.TypesIn(file, target))
+            {
+                if (declared.Ancestors().OfType<TypeDeclarationSyntax>().Any(ancestor => ancestor.Identifier.ValueText == eventType))
+                {
+                    nested = true;
+                }
+                else if (!declared.Ancestors().OfType<TypeDeclarationSyntax>().Any())
+                {
+                    shared = true;
+                }
+            }
+        }
+
+        if (!nested || shared)
+        {
+            return;
+        }
+
+        if (source.FileOf(target, "") is { } outside
+            && !eventFiles.Contains(outside, StringComparer.Ordinal)
+            && source.TypesIn(outside, target)
+                .Any(candidate => !candidate.Declared.Ancestors().OfType<TypeDeclarationSyntax>().Any()))
+        {
+            return;
+        }
+
+        findings.Add(new Finding("record-invalid", $"Domain event '{domainEvent.Id}' holds carries field '{name}' with {holder} '{target}', which names a type nested inside '{eventType}'; the generated record cannot see it, so declare the row as an aggregate part and name it as aggregate/<module>.<aggregate>#<part>.", domainEvent.File, domainEvent.Line, SubjectOf(domainEvent)));
+    }
+
+    /// <summary>Whether a carried type names a C# type: one PascalCase word of letters and digits.</summary>
+    /// <param name="reference">The carried type value.</param>
+    /// <returns>True for a PascalCase name; otherwise false.</returns>
+    private static bool IsCodeTypeName(string reference) =>
+        reference.Length > 0
+        && reference[0] is >= 'A' and <= 'Z'
+        && reference.All(character => character is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z') or (>= '0' and <= '9'));
 
     /// <summary>Reports an existing type reference naming a part of no record, of no aggregate, or of a part the aggregate does not declare. A value object part needs no identity, so any declared part resolves.</summary>
     /// <param name="model">The loaded project model that resolves the named aggregate.</param>
@@ -918,7 +1111,8 @@ internal static class ContractChecks
 
     /// <summary>
     ///     Reports a list-of-rows shape that is no object with a non-empty fields array, a row field with no name, a type outside
-    ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a minItems that is no non-negative whole number, and a unique key that names no row field.
+    ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a nested list row shape that is no scalar row list,
+    ///     a minItems that is no non-negative whole number, and a unique key that names no row field.
     /// </summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record whose list field is judged.</param>
@@ -961,6 +1155,11 @@ internal static class ContractChecks
             else
             {
                 CheckFieldFacts(model, record, label, "row field of " + array + " field '" + name + "'", rowName, rowType, row, siblings, findings);
+
+                if (rowType == "list")
+                {
+                    CheckNestedRowShape(model, record, label, array, name, rowName, row, findings);
+                }
             }
 
             if (row.ValueKind != JsonValueKind.Object
@@ -994,6 +1193,116 @@ internal static class ContractChecks
             {
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds unique key '{key.ToString()}' on {array} field '{name}', which names no row field.", record.File, record.Line, SubjectOf(record)));
             }
+        }
+    }
+
+    /// <summary>The scalar types a nested row field may carry: rows nest one level at a time.</summary>
+    private static readonly HashSet<string> NestedRowTypes = new(StringComparer.Ordinal)
+    {
+        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id",
+    };
+
+    /// <summary>Reports a nested list row shape that is no scalar row list, a nested row field with no name, a non-scalar type, or no required flag, and a multi-field nested list with no rowType or a rowType naming an undeclared part.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
+    /// <param name="record">The record whose list field is judged.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input, payload or output.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="rowName">The row field name quoted in each finding.</param>
+    /// <param name="row">The row field object holding the nested row shape.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNestedRowShape(
+        ProjectModel model, Record record, string label, string array, string name, string rowName, JsonElement row, List<Finding> findings)
+    {
+        if (row.ValueKind != JsonValueKind.Object
+            || !row.TryGetProperty(RecordFields.RowShape, out var nested)
+            || nested.ValueKind != JsonValueKind.Object
+            || !nested.TryGetProperty(RecordFields.Fields, out var leaves)
+            || leaves.ValueKind != JsonValueKind.Array
+            || leaves.GetArrayLength() == 0)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type list with no rowShape.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        var siblings = SiblingsOf(leaves);
+
+        foreach (var leaf in leaves.EnumerateArray())
+        {
+            var leafName = Str(leaf, RecordFields.Name);
+            var leafType = Str(leaf, RecordFields.Type);
+
+            if (leafName is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds a row field of row field '{rowName}' of {array} field '{name}' with no name.", record.File, record.Line, SubjectOf(record)));
+                continue;
+            }
+
+            if (leafType == "list")
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type 'list'; rows nest one level at a time.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (leafType is not { Length: > 0 } || !NestedRowTypes.Contains(leafType))
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type '{leafType ?? "none"}' outside the scalar types.", record.File, record.Line, SubjectOf(record)));
+            }
+            else
+            {
+                CheckFieldFacts(model, record, label, "row field of row field '" + rowName + "' of " + array + " field '" + name + "'", leafName, leafType, leaf, siblings, findings);
+            }
+
+            if (leaf.ValueKind != JsonValueKind.Object
+                || !leaf.TryGetProperty(RecordFields.Required, out var required)
+                || required.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+
+        if (leaves.GetArrayLength() > 1)
+        {
+            if (Str(row, RecordFields.RowType) is not { Length: > 0 } shared)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' of type list with several fields and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
+        }
+    }
+
+    /// <summary>Reports a nested rowType naming a part of no record, of no aggregate, or of a part the aggregate does not declare. A value object part needs no identity, so any declared part resolves.</summary>
+    /// <param name="model">The loaded project model that resolves the named aggregate.</param>
+    /// <param name="record">The record holding the nested list field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input, payload or output.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="rowName">The row field name quoted in each finding.</param>
+    /// <param name="target">The rowType value under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckNestedRowTypeRef(
+        ProjectModel model, Record record, string label, string array, string name, string rowName, string target, List<Finding> findings)
+    {
+        if (!TrySplitPart(target, out var baseId, out var part))
+        {
+            return;
+        }
+
+        if (!model.ById.TryGetValue(baseId, out var aggregate))
+        {
+            findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with rowType '{target}', which names a part of '{baseId}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (aggregate.Type != RecordTypes.Aggregate)
+        {
+            findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with rowType '{target}', which names a part of '{baseId}', which is no aggregate.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (!DeclaresPart(aggregate, part))
+        {
+            findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds row field '{rowName}' of {array} field '{name}' with rowType '{target}', which names part '{part}' the aggregate does not declare.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

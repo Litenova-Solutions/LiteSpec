@@ -5,4 +5,4 @@ namespace Library.Lending.Contracts.Loans.OnLoanReceipt;
 
 /// <summary>A loan receipt announces a lent copy and its due date.</summary>
 /// <implements>module-event/lending.loan-receipt</implements>
-public sealed partial record LoanReceiptModuleEvent(LoanId LoanId, CopyId CopyId, DateOnly DueDate, string? Note);
+public sealed partial record LoanReceiptModuleEvent(LoanId LoanId, Guid CopyId, DateOnly DueDate, string? Note);

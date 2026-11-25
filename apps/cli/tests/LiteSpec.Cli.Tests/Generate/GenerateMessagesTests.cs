@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LiteSpec.Cli.Generate;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
@@ -326,6 +327,44 @@ public sealed class GenerateMessagesTests
         Assert.DoesNotContain(plan.Files, file => file.AbsolutePath.Contains("BorrowCopy", StringComparison.Ordinal));
     }
 
+    /// <summary>A command keying on a dotted placeholder renders its key through the member path.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CommandWithDottedKeyPlaceholderRendersMemberPath()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "  mode: none\n  reason: Each call lends its own copy, and lending an unavailable copy is refused.",
+                "  mode: key\n  key: \"{copyId.branch}\"\n  keyScope: account\n  replay: returns-first-result",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var content = Assert.Single(plan.Files, file => file.AbsolutePath.Contains("BorrowCopy", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("public string IdempotencyKey => $\"{CopyId.Branch}\";", content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A message row field holding a list maps to a read-only list of its inner row.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NestedMessageRowListMaps()
+    {
+        var row = JsonDocument.Parse("""{"name": "remindedAt", "type": "list", "required": true, "rowShape": {"fields": [{"name": "sentAt", "type": "instant", "required": true}]}}""").RootElement;
+
+        Assert.True(MessageFieldTypes.TryMapRow(row, out var mapped));
+        Assert.Equal("IReadOnlyList<DateTimeOffset>", mapped!.Type);
+    }
+
     /// <summary>Generate writes the message and result files, and a second check finds them current.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -603,6 +642,111 @@ public sealed class GenerateMessagesTests
               reason: one loan answers the query
             steps:
             - statement: The catalog names one loan.
+            """);
+    }
+
+    /// <summary>Two lists of one result naming the same row type with the same members render one row file naming both lists.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListsSharingOneRowTypeRenderOneRowFile()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteShelfReport(temp.Path, secondRowAmount: "integer");
+        AppendGenerate(temp.Path, ShelfResultsTarget);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var row = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ReadShelvesRow.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Empty(plan.ConfigErrors);
+        Assert.Contains("/// <summary>One row of Open and Closed.</summary>", row, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record ReadShelvesRow(string Shelf, int Count);", row, StringComparison.Ordinal);
+    }
+
+    /// <summary>Two lists naming the same row type with different members keep apart, and the duplicate-file check reports them.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ListsSharingOneRowTypeWithDifferentMembersReport()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteShelfReport(temp.Path, secondRowAmount: "text");
+        AppendGenerate(temp.Path, ShelfResultsTarget);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Contains(plan.ConfigErrors, error => error.Contains("ReadShelvesRow.generated.cs' twice", StringComparison.Ordinal));
+    }
+
+    /// <summary>The results target the shared-row tests render through.</summary>
+    const string ShelfResultsTarget = """
+        generate:
+        - kind: results
+          stack: dotnet
+          path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+          namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+        """;
+
+    /// <summary>Writes a query whose output holds two lists naming one row type.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="secondRowAmount">The type of the count field in the second list's row.</param>
+    static void WriteShelfReport(string root, string secondRowAmount)
+    {
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "read-shelves");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "read-shelves.yaml"),
+            $$"""
+            type: use-case
+            id: use-case/lending.read-shelves
+            title: Read shelves
+            summary: Lending lists the open and the closed shelves with their loan counts so the desk sees where loans gather.
+            kind: query
+            access:
+              grant: permission/read-loans
+              tenant: own
+            output:
+              include:
+                shelves:
+                  fields:
+                  - name: open
+                    meaning: The open shelves with their loan counts.
+                    type: list
+                    rowType: ReadShelvesRow
+                    rowShape:
+                      fields:
+                      - name: shelf
+                        type: text
+                        required: true
+                        meaning: The shelf.
+                      - name: count
+                        type: integer
+                        required: true
+                        meaning: The loans on the shelf.
+                      minItems: 0
+                  - name: closed
+                    meaning: The closed shelves with their loan counts.
+                    type: list
+                    rowType: ReadShelvesRow
+                    rowShape:
+                      fields:
+                      - name: shelf
+                        type: text
+                        required: true
+                        meaning: The shelf.
+                      - name: count
+                        type: {{secondRowAmount}}
+                        required: true
+                        meaning: The loans on the shelf.
+                      minItems: 0
+                  classification: internal
+                  reads:
+                  - aggregate/lending.loan
+                  freshness:
+                    mode: immediate
+            paging:
+              mode: none
+              reason: the shelves of one branch fit one answer
+            steps:
+            - statement: The desk asks for the shelves.
             """);
     }
 

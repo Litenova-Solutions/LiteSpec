@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
@@ -88,6 +89,82 @@ public sealed class DomainEventCarryCheckTests
 
         Assert.False(Reports(model, "reference-unknown", "holds carries field"));
         Assert.False(Reports(model, "record-invalid", "holds carries field"));
+    }
+
+    /// <summary>Carry Row Type Nested Only In The Event Reports.</summary>
+    /// <proves>litespec/core/domain-model#state-each-event-with-meaning-and-carries</proves>
+    [Fact]
+    public void CarryRowTypeNestedOnlyInEventReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = EventsFolder(temp.Path);
+        var file = WriteSource(folder, "LoanLoanBorrowedDomainEvent.cs",
+            "internal sealed partial record LoanLoanBorrowedDomainEvent(Guid LoanId)\n{\n    public sealed record CoveredLine(string Code);\n}");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"carries": [{"name": "lines", "type": "list", "rowShape": {"fields": [{"name": "code", "type": "text", "required": true, "meaning": "The line code."}, {"name": "note", "type": "text", "required": false, "meaning": "The line note."}]}, "rowType": "CoveredLine"}]}"""));
+        model.Code.Events.Add(new CodeDomainEvent("LoanLoanBorrowedDomainEvent", file, 1, "domain-event/loan.loan-borrowed"));
+
+        Assert.True(Reports(model, "record-invalid", "with rowType 'CoveredLine', which names a type nested inside 'LoanLoanBorrowedDomainEvent'"));
+    }
+
+    /// <summary>Carry Row Type Declared Outside The Event Passes.</summary>
+    /// <proves>litespec/core/domain-model#state-each-event-with-meaning-and-carries</proves>
+    [Fact]
+    public void CarryRowTypeDeclaredOutsideEventPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = EventsFolder(temp.Path);
+        var file = WriteSource(folder, "LoanLoanBorrowedDomainEvent.cs",
+            "internal sealed partial record LoanLoanBorrowedDomainEvent(Guid LoanId);\n");
+        WriteSource(folder, "CoveredLine.cs", "internal sealed record CoveredLine(string Code);\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"carries": [{"name": "lines", "type": "list", "rowShape": {"fields": [{"name": "code", "type": "text", "required": true, "meaning": "The line code."}, {"name": "note", "type": "text", "required": false, "meaning": "The line note."}]}, "rowType": "CoveredLine"}]}"""));
+        model.Code.Events.Add(new CodeDomainEvent("LoanLoanBorrowedDomainEvent", file, 1, "domain-event/loan.loan-borrowed"));
+
+        Assert.False(Reports(model, "record-invalid", "nested inside"));
+    }
+
+    /// <summary>Carry Object Type Nested Only In The Event Reports.</summary>
+    /// <proves>litespec/core/domain-model#state-each-event-with-meaning-and-carries</proves>
+    [Fact]
+    public void CarryObjectTypeNestedOnlyInEventReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = EventsFolder(temp.Path);
+        var file = WriteSource(folder, "LoanLoanBorrowedDomainEvent.cs",
+            "internal sealed partial record LoanLoanBorrowedDomainEvent(Guid LoanId)\n{\n    public sealed record DueSlip(string Branch);\n}");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan-borrowed.yaml"), """{"carries": [{"name": "slip", "type": "DueSlip"}]}"""));
+        model.Code.Events.Add(new CodeDomainEvent("LoanLoanBorrowedDomainEvent", file, 1, "domain-event/loan.loan-borrowed"));
+
+        Assert.True(Reports(model, "record-invalid", "with type 'DueSlip', which names a type nested inside 'LoanLoanBorrowedDomainEvent'"));
+    }
+
+    /// <summary>The domain events folder holding the event sources.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <returns>The events folder.</returns>
+    static string EventsFolder(string root)
+    {
+        var folder = Path.Combine(root, "apps", "api", "src", "Modules", "Library.Lending", "Domain", "Loans", "Events");
+        Directory.CreateDirectory(folder);
+
+        return folder;
+    }
+
+    /// <summary>Writes one source file holding the text.</summary>
+    /// <param name="folder">The events folder holding the file.</param>
+    /// <param name="file">The source file name.</param>
+    /// <param name="text">The file text.</param>
+    /// <returns>The written file path.</returns>
+    static string WriteSource(string folder, string file, string text)
+    {
+        var path = Path.Combine(folder, file);
+        File.WriteAllText(path, text);
+
+        return path;
     }
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>

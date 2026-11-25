@@ -134,7 +134,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 | Field | Meaning |
 |:---|:---|
 | `meaning` | What happened, in one sentence. |
-| `carries` | The typed fields arriving with the event, each with `name` and `type` from the input value types. A field with `required: false` may be absent; a missing flag reads as required. A field carrying a nested object names the existing type in `type`: an aggregate part as `aggregate/<module>.<aggregate>#<part>`, or the C# type name. A multi-field list may name the existing row type in `rowType`: an aggregate part or a C# type name. An integration event publishes only fields its translated domain event carries. |
+| `carries` | The typed fields arriving with the event, each with `name` and `type` from the input value types. A field with `required: false` may be absent; a missing flag reads as required. A field carrying a nested object names the existing type in `type`: an aggregate part as `aggregate/<module>.<aggregate>#<part>`, or the C# type name. A multi-field list may name the existing row type in `rowType`: an aggregate part or a C# type name. A C# type name in `type` or `rowType` names a type declared outside the event. An integration event publishes only fields its translated domain event carries. |
 | `ignored` | True when no reaction answers the event and no module or integration event translates it, left out otherwise. |
 
 ## Standards
@@ -481,7 +481,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** An event without a meaning is a name every reaction interprets alone, while facts without a carries list are reconstructed from code at each reaction. Stating the meaning with the typed `carries` fields lets each reaction trust what happened and what arrived with it. An integration event publishes only fields its translated domain event carries.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an event record without `meaning` or `carries`, `event-field-uncarried` for an integration-event payload field its translated domain event does not carry, and `reference-unknown` for a `type` or `rowType` naming an aggregate part no aggregate declares.
+**Checked by:** `litespec model check` reports `record-invalid` for an event record without `meaning` or `carries`, and for a `type` or `rowType` naming a C# type nested inside the event, `event-field-uncarried` for an integration-event payload field its translated domain event does not carry, and `reference-unknown` for a `type` or `rowType` naming an aggregate part no aggregate declares.
 
 ### Name Every Event in the Past Tense
 

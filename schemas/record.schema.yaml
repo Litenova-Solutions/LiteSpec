@@ -754,7 +754,10 @@ $defs:
       name:
         $ref: '#/$defs/nonEmptyString'
       type:
-        $ref: '#/$defs/contractScalarType'
+        description: 'The row value shape: one of the scalar types, or a list of one more row shape holding scalar fields.'
+        anyOf:
+        - $ref: '#/$defs/contractScalarType'
+        - const: list
       required:
         type: boolean
       meaning:
@@ -763,6 +766,12 @@ $defs:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
+      rowShape:
+        $ref: '#/$defs/contractListShape'
+      rowType:
+        $ref: '#/$defs/contractExistingType'
+        x-reads-as: takes rows from
+        x-read-back-as: gives rows to
       set:
         $ref: '#/$defs/contractClosedSet'
         x-reads-as: takes values from
@@ -790,6 +799,21 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
     allOf:
     - $ref: '#/$defs/contractValueRules'
+    - if:
+        required:
+        - type
+        - rowShape
+        properties:
+          type:
+            const: list
+          rowShape:
+            properties:
+              fields:
+                minItems: 2
+      else:
+        not:
+          required:
+          - rowType
   contractListShape:
     description: "The rows of a list value: each field of a row with its type, its requiredness and its meaning, the number of rows at least, and the fields that must be unique across rows."
     type: object
@@ -4173,6 +4197,33 @@ $defs:
       then:
         required:
         - basedOn
+  moduleEventField:
+    description: One field of the translated domain event that the module event publishes, with the type the module event carries when the contracts project cannot see the domain member's type.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    properties:
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      type:
+        description: The carried value shape the module event renders instead of the copied domain type.
+        $ref: '#/$defs/contractValueType'
+      identifies:
+        $ref: '#/$defs/identifiesId'
+        x-reads-as: identifies
+        x-read-back-as: is identified by
+    allOf:
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: id
+      else:
+        not:
+          required:
+          - identifies
   moduleEventPage:
     description: A fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox.
     type: object
@@ -4200,13 +4251,15 @@ $defs:
       records:
         $ref: '#/$defs/recordsArray'
       fields:
-        description: The names of the fields of the translated domain event that the module event publishes.
+        description: The fields of the translated domain event that the module event publishes, each as a name or as a field stating its own type.
         type: array
         minItems: 1
         uniqueItems: true
         items:
-          type: string
-          pattern: '^[a-z][a-zA-Z0-9]*$'
+          anyOf:
+          - type: string
+            pattern: '^[a-z][a-zA-Z0-9]*$'
+          - $ref: '#/$defs/moduleEventField'
       translates:
         $ref: '#/$defs/domainEventId'
         x-reads-as: translates

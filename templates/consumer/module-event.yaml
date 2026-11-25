@@ -6,5 +6,6 @@ terms:
 - <term id, or remove this line>
 fields:
 - <field name of the translated domain event>
+# A field whose domain member type the contracts project cannot see states its own type: { name: <field name>, type: id } with identifies, or without it for an untyped identifier.
 translates: domain-event/<aggregate>.<name>
 compatibility: <how the contract stays stable when the event changes, in one to three sentences>
