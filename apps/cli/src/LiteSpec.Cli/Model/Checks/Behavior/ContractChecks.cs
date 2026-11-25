@@ -1210,7 +1210,7 @@ internal static class ContractChecks
     /// <summary>
     ///     Reports a list-of-rows or single-object shape that is no object with a non-empty fields array, a row field with no name, a type outside
     ///     the contract types, or no required flag, a row field whose exact type facts name nothing, a nested list row shape that is no scalar row list,
-    ///     a nested object row shape that is no scalar object, a minItems that is no non-negative whole number, and a unique key that names no row field.
+    ///     a nested object row shape that is no scalar object with at most one more list, a minItems that is no non-negative whole number, and a unique key that names no row field.
     /// </summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record whose list or object field is judged.</param>
@@ -1299,13 +1299,13 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>The scalar and file types a nested row field may carry: rows nest one level at a time.</summary>
+    /// <summary>The scalar and file types a nested row field may carry: a nested list holds these only, and a nested object these with one more list.</summary>
     private static readonly HashSet<string> NestedRowTypes = new(StringComparer.Ordinal)
     {
         "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file",
     };
 
-    /// <summary>Reports a nested list row shape that is no scalar row list, a nested row field with no name, a non-scalar type, or no required flag, and a multi-field nested list with no rowType or a rowType naming an undeclared part.</summary>
+    /// <summary>Reports a nested list row shape that is no scalar row list, a nested row field with no name, a non-scalar type, or no required flag, and a multi-field nested list with no rowType or a rowType naming an undeclared part. A nested list holds scalar fields only; only a nested object holds one more list.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
     /// <param name="record">The record whose list field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1328,7 +1328,7 @@ internal static class ContractChecks
             return;
         }
 
-        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings);
+        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings, allowLists: false);
 
         if (leaves.GetArrayLength() > 1)
         {
@@ -1342,7 +1342,7 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports a nested object row shape that is no scalar object, and a nested object with no rowType or a rowType naming an undeclared part. A nested object names its shared row type with any field count, since a single object never collapses onto its field.</summary>
+    /// <summary>Reports a nested object row shape that is no scalar object with at most one more list, and a nested object with no rowType or a rowType naming an undeclared part. A nested object names its shared row type with any field count, since a single object never collapses onto its field.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
     /// <param name="record">The record whose object field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1365,7 +1365,7 @@ internal static class ContractChecks
             return;
         }
 
-        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings);
+        CheckNestedLeaves(model, record, label, array, name, rowName, leaves, findings, allowLists: true);
 
         if (Str(row, RecordFields.RowType) is not { Length: > 0 } shared)
         {
@@ -1376,7 +1376,7 @@ internal static class ContractChecks
         CheckNestedRowTypeRef(model, record, label, array, name, rowName, shared, findings);
     }
 
-    /// <summary>Reports a nested row field with no name, a non-scalar type, or no required flag, and a nested row field whose exact type facts name nothing. Rows nest one level at a time, so a nested list or object leaf is reported.</summary>
+    /// <summary>Reports a nested row field with no name, a non-scalar type, or no required flag, and a nested row field whose exact type facts name nothing. A nested list holds scalar fields only; a nested object holds scalar fields with one more list, whose rows hold scalar fields only.</summary>
     /// <param name="model">The loaded project model that resolves each closed set.</param>
     /// <param name="record">The record whose list or object field is judged.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1385,8 +1385,9 @@ internal static class ContractChecks
     /// <param name="rowName">The row field name quoted in each finding.</param>
     /// <param name="leaves">The nested row fields.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <param name="allowLists">True when a leaf may be one more list, on a nested object shape only.</param>
     private static void CheckNestedLeaves(
-        ProjectModel model, Record record, string label, string array, string name, string rowName, JsonElement leaves, List<Finding> findings)
+        ProjectModel model, Record record, string label, string array, string name, string rowName, JsonElement leaves, List<Finding> findings, bool allowLists)
     {
         var siblings = SiblingsOf(leaves);
 
@@ -1401,9 +1402,17 @@ internal static class ContractChecks
                 continue;
             }
 
-            if (leafType is "list" or "object")
+            if (leafType == "list" && allowLists)
             {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type '{leafType}'; rows nest one level at a time.", record.File, record.Line, SubjectOf(record)));
+                CheckThirdLevelList(model, record, label, array, name, rowName, leafName, leaf, findings);
+            }
+            else if (leafType == "list")
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type 'list'; a nested list holds scalar fields only.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (leafType == "object")
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with type 'object'; a nested row holds no object.", record.File, record.Line, SubjectOf(record)));
             }
             else if (leafType is not { Length: > 0 } || !NestedRowTypes.Contains(leafType))
             {
@@ -1420,6 +1429,44 @@ internal static class ContractChecks
             {
                 findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
             }
+        }
+    }
+
+    /// <summary>Reports a list inside a nested object whose rows are no scalar rows, and a multi-field one with no rowType or a rowType naming an undeclared part. The rows hold scalar fields only, so nesting stops one list inside an object.</summary>
+    /// <param name="model">The loaded project model that resolves each closed set and named part.</param>
+    /// <param name="record">The record whose object field is judged.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input, payload or output.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="rowName">The row field name quoted in each finding.</param>
+    /// <param name="leafName">The nested object member holding the list, quoted in each finding.</param>
+    /// <param name="leaf">The list member object holding the row shape.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckThirdLevelList(
+        ProjectModel model, Record record, string label, string array, string name, string rowName, string leafName, JsonElement leaf, List<Finding> findings)
+    {
+        if (leaf.ValueKind != JsonValueKind.Object
+            || !leaf.TryGetProperty(RecordFields.RowShape, out var nested)
+            || nested.ValueKind != JsonValueKind.Object
+            || !nested.TryGetProperty(RecordFields.Fields, out var cells)
+            || cells.ValueKind != JsonValueKind.Array
+            || cells.GetArrayLength() == 0)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' of type list with no rowShape.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        CheckNestedLeaves(model, record, label, array, name, rowName + "." + leafName, cells, findings, allowLists: false);
+
+        if (cells.GetArrayLength() > 1)
+        {
+            if (Str(leaf, RecordFields.RowType) is not { Length: > 0 } shared)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds row field '{leafName}' of row field '{rowName}' of {array} field '{name}' of type list with several fields and no rowType; name the shared row type.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            CheckNestedRowTypeRef(model, record, label, array, name, rowName + "." + leafName, shared, findings);
         }
     }
 

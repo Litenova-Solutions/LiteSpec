@@ -316,7 +316,7 @@ static class EventFieldTypes
         return false;
     }
 
-    /// <summary>Maps one single-object row field to its row type: the named row type, qualified when it names an aggregate part the qualifier resolves. Object rows hold scalars only, one level at a time, and always name their row type, since a single object never collapses onto its field.</summary>
+    /// <summary>Maps one single-object row field to its row type: the named row type, qualified when it names an aggregate part the qualifier resolves. Object rows hold scalars with one more list, and always name their row type, since a single object never collapses onto its field.</summary>
     /// <param name="row">The row field entry holding the nested row shape.</param>
     /// <param name="qualify">The qualified C# type of one aggregate part reference, or null when the reference resolves to no single declaring type.</param>
     /// <param name="type">The mapped C# type, or null when the nested shape states no known shape.</param>
@@ -340,8 +340,22 @@ static class EventFieldTypes
         {
             if (leaf.ValueKind != JsonValueKind.Object
                 || RecordEntries.Str(leaf, RecordFields.Type) is not { Length: > 0 } leafType
-                || leafType is "list" or "object"
-                || ScalarOf(leaf, leafType) is null)
+                || leafType == "object")
+            {
+                return false;
+            }
+
+            if (leafType == "list")
+            {
+                if (!TryNestedList(leaf, qualify, out _))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (ScalarOf(leaf, leafType) is null)
             {
                 return false;
             }

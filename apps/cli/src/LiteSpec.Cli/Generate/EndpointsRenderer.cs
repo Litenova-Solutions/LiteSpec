@@ -7,11 +7,11 @@ namespace LiteSpec.Cli.Generate;
 /// <summary>
 ///     Renders the HTTP endpoints the records declare as C#: per module a partial static
 ///     class holding one nested endpoint class per use case, each mapping its route with
-///     its method, binding each input from its source, reading the tenant key from the
-///     caller when the use case implies one, sending the message through the LiteBus
-///     mediator, and answering the success status with the refusal statuses. A hand-written
-///     sibling file shapes each response the record projects and derives each value the
-///     clock rule does not cover.
+///     its method, binding each input from its source with the paging from the query,
+///     reading the tenant key from the caller when the use case implies one, sending the
+///     message through the LiteBus mediator, and answering the success status with the
+///     failure statuses the record implies. A hand-written sibling file shapes each
+///     response the record projects and derives each value the clock rule does not cover.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class EndpointsRenderer
@@ -36,6 +36,7 @@ static class EndpointsRenderer
     /// <param name="CurrencyHome">The aggregate a money input takes its currency from, or null when the amount carries its own currency.</param>
     /// <param name="RowType">The message row type a list input maps each row to, or null for a single-field row without one.</param>
     /// <param name="Rows">The row fields of a list input in written order, or null when the input carries no list.</param>
+    /// <param name="CurrencyFromOptional">Whether a money input takes its currency from an optional sibling, so the message carries the decimal amount and the handler joins the currency.</param>
     public sealed record BoundInput(
         string Name,
         string Property,
@@ -55,7 +56,8 @@ static class EndpointsRenderer
         bool Many = false,
         string? CurrencyHome = null,
         string? RowType = null,
-        IReadOnlyList<RowField>? Rows = null);
+        IReadOnlyList<RowField>? Rows = null,
+        bool CurrencyFromOptional = false);
 
     /// <summary>One row field of a list input, bound from the request row record, or from one form part per row for a single file row.</summary>
     /// <param name="Name">The row field name.</param>
@@ -69,6 +71,7 @@ static class EndpointsRenderer
     /// <param name="CurrencyField">The sibling row field carrying a money row's currency code, or null when the record states none.</param>
     /// <param name="CurrencyHome">The aggregate a money row takes its currency from, or null when the amount carries its own currency.</param>
     /// <param name="Size">The stored width in bits of an integer row: 32, or 64 for values past the 32-bit span.</param>
+    /// <param name="CurrencyFromOptional">Whether a money row takes its currency from an optional sibling row, so the message row carries the decimal amount and the handler joins the currency.</param>
     public sealed record RowField(
         string Name,
         string Property,
@@ -80,7 +83,8 @@ static class EndpointsRenderer
         string? Currency,
         string? CurrencyField,
         string? CurrencyHome,
-        int Size = 32);
+        int Size = 32,
+        bool CurrencyFromOptional = false);
 
     /// <summary>One use-case endpoint the plan renders.</summary>
     /// <param name="UseCaseId">The use case identifier.</param>
@@ -102,6 +106,8 @@ static class EndpointsRenderer
     /// <param name="ResponseNamespace">The C# namespace declaring the response model.</param>
     /// <param name="Marks">The mark style the project declares.</param>
     /// <param name="Tenant">The tenant key the message carries first, or null when the use case implies none.</param>
+    /// <param name="Paging">The paging the endpoint binds from the query, or null when the use case pages nothing.</param>
+    /// <param name="RequiresAuth">Whether the use case grant requires a signed-in actor, so the endpoint lists authentication problems.</param>
     public sealed record EndpointData(
         string UseCaseId,
         string UseCaseName,
@@ -121,7 +127,16 @@ static class EndpointsRenderer
         string ResponseModel,
         string ResponseNamespace,
         MarkStyle Marks,
-        MessagesRenderer.TenantKey? Tenant = null);
+        MessagesRenderer.TenantKey? Tenant = null,
+        EndpointPaging? Paging = null,
+        bool RequiresAuth = false);
+
+    /// <summary>The paging a collection endpoint binds from the query: the cursor or offset with the limit.</summary>
+    /// <param name="Cursor">The cursor text the record states, or null when the query pages by offset.</param>
+    /// <param name="Offset">The offset text the record states, or null when the query pages by cursor.</param>
+    /// <param name="DefaultLimit">The rows per page the record states.</param>
+    /// <param name="MaxLimit">The most rows per page the record allows.</param>
+    public sealed record EndpointPaging(string? Cursor, string? Offset, int DefaultLimit, int MaxLimit);
 
     /// <summary>
     ///     Renders one module's endpoints as C#: an internal static partial class with one
@@ -230,7 +245,8 @@ static class EndpointsRenderer
             "Microsoft.AspNetCore.Routing",
         };
 
-        if (endpoints.Any(endpoint => endpoint.Inputs.Any(input => input.Binding is "route" or "query" or "header")))
+        if (endpoints.Any(endpoint => endpoint.Paging is not null
+            || endpoint.Inputs.Any(input => input.Binding is "route" or "query" or "header")))
         {
             names.Add("Microsoft.AspNetCore.Mvc");
         }
@@ -367,7 +383,9 @@ static class EndpointsRenderer
     /// <param name="endpoint">The endpoint whose body inputs are read.</param>
     private static void RequestLines(List<string> lines, EndpointData endpoint)
     {
-        foreach (var input in endpoint.Inputs.Where(input => input is { Binding: "body", Type: "list" } && NeedsRequestRow(input)))
+        foreach (var input in endpoint.Inputs.Where(input =>
+            input is { Binding: "body", Rows: not null }
+            && (input.Type == "object" || (input.Type == "list" && NeedsRequestRow(input)))))
         {
             RequestRowLines(lines, endpoint, input);
             lines.Add("");
@@ -390,10 +408,10 @@ static class EndpointsRenderer
         lines.Add($"    internal sealed partial record {endpoint.UseCaseName}Request({parameters});");
     }
 
-    /// <summary>Writes the request row record carrying one list input's rows on the wire.</summary>
+    /// <summary>Writes the request row record carrying one list input's rows or one object input on the wire.</summary>
     /// <param name="lines">The file lines, appended in place.</param>
-    /// <param name="endpoint">The endpoint whose list input is read.</param>
-    /// <param name="input">The list input whose rows are read.</param>
+    /// <param name="endpoint">The endpoint whose list or object input is read.</param>
+    /// <param name="input">The list or object input whose rows are read.</param>
     private static void RequestRowLines(List<string> lines, EndpointData endpoint, BoundInput input)
     {
         lines.Add($"    /// <summary>One row of {input.Property}.</summary>");
@@ -432,18 +450,26 @@ static class EndpointsRenderer
         return row.Required ? type : type + "?";
     }
 
-    /// <summary>Writes the route mapping with the operation name, summary, success and failure metadata.</summary>
+    /// <summary>Writes the route mapping with the operation name, summary, description, success and failure metadata.</summary>
     /// <param name="lines">The file lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose call shape is read.</param>
     private static void MapLines(List<string> lines, EndpointData endpoint)
     {
         var map = MapMethodOf(endpoint.Method);
 
-        var summary = endpoint.Summary is { Length: > 0 } stated ? FlatOf(stated) : endpoint.Title;
-
         lines.Add($"            endpoints.{map}(\"{GenerateNaming.EscapeLiteral(endpoint.Route)}\", HandleAsync)");
-        lines.Add($"                .WithName(\"{GenerateNaming.EscapeLiteral(endpoint.UseCaseName)}\")");
-        lines.Add($"                .WithSummary(\"{GenerateNaming.EscapeLiteral(summary)}\")");
+        lines.Add($"                .WithName(\"{GenerateNaming.EscapeLiteral(OperationIdOf(endpoint.UseCaseName))}\")");
+        lines.Add($"                .WithSummary(\"{GenerateNaming.EscapeLiteral(endpoint.Title)}\")");
+
+        if (endpoint.Summary is { Length: > 0 } stated)
+        {
+            lines.Add($"                .WithDescription(\"{GenerateNaming.EscapeLiteral(FlatOf(stated))}\")");
+        }
+
+        if (endpoint is { Method: "PATCH" } && endpoint.Inputs.Any(input => input.Binding == "body"))
+        {
+            lines.Add($"                .Accepts<{endpoint.UseCaseName}Request>(\"application/merge-patch+json\")");
+        }
 
         if (endpoint is { Projects: true, Created: { Length: > 0 } })
         {
@@ -505,6 +531,21 @@ static class EndpointsRenderer
             }
         }
 
+        if (endpoint.Paging is { } paging)
+        {
+            if (paging.Cursor is { Length: > 0 })
+            {
+                parameters.Add("[FromQuery(Name = \"cursor\")] string? cursor = null");
+            }
+
+            if (paging.Offset is { Length: > 0 })
+            {
+                parameters.Add("[FromQuery(Name = \"offset\")] int? offset = null");
+            }
+
+            parameters.Add("[FromQuery(Name = \"limit\")] int? limit = null");
+        }
+
         if (UsesUser(endpoint))
         {
             parameters.Add("ClaimsPrincipal user");
@@ -520,9 +561,11 @@ static class EndpointsRenderer
         var body = new List<string>();
 
         GuardLines(body, endpoint);
+        PagingLines(body, endpoint);
         FileLines(body, endpoint);
         FileListLines(body, endpoint);
         ConversionLines(body, endpoint);
+        ObjectLines(body, endpoint);
         DispatchLines(body, endpoint, reader, tenant, values);
         ResponseLines(body, endpoint);
 
@@ -573,6 +616,40 @@ static class EndpointsRenderer
                 body.Add("}");
             }
 
+            body.Add("");
+        }
+    }
+
+    /// <summary>Writes the paging validation: the limit defaults to the declared default and answers 400 past the declared maximum or below one, and the offset defaults to zero and answers 400 when negative. The cursor passes through: the query decodes it.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose paging is read.</param>
+    private static void PagingLines(List<string> body, EndpointData endpoint)
+    {
+        if (endpoint.Paging is not { } paging)
+        {
+            return;
+        }
+
+        body.Add($"var effectiveLimit = limit ?? {paging.DefaultLimit};");
+        body.Add($"if (effectiveLimit < 1 || effectiveLimit > {paging.MaxLimit})");
+        body.Add("{");
+        body.Add("    return TypedResults.Problem(");
+        body.Add("        title: \"Invalid limit.\",");
+        body.Add($"        detail: $\"The limit '{{limit}}' is outside 1 to {paging.MaxLimit}.\",");
+        body.Add("        statusCode: StatusCodes.Status400BadRequest);");
+        body.Add("}");
+        body.Add("");
+
+        if (paging.Offset is { Length: > 0 })
+        {
+            body.Add("var effectiveOffset = offset ?? 0;");
+            body.Add("if (effectiveOffset < 0)");
+            body.Add("{");
+            body.Add("    return TypedResults.Problem(");
+            body.Add("        title: \"Invalid offset.\",");
+            body.Add("        detail: $\"The offset '{offset}' is negative.\",");
+            body.Add("        statusCode: StatusCodes.Status400BadRequest);");
+            body.Add("}");
             body.Add("");
         }
     }
@@ -730,13 +807,14 @@ static class EndpointsRenderer
 
     /// <summary>Writes the guard of one choice row field: an unlisted label answers 400 before the message runs.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
-    /// <param name="input">The list input whose row is read.</param>
+    /// <param name="input">The list or object input whose row is read.</param>
     /// <param name="row">The choice row field whose labels are read.</param>
     /// <param name="indent">The indentation before each guard line.</param>
-    private static void RowGuardLines(List<string> body, BoundInput input, RowField row, string indent)
+    /// <param name="sourcePrefix">The expression the row hangs off: the loop row for a list, the request object for a single object.</param>
+    private static void RowGuardLines(List<string> body, BoundInput input, RowField row, string indent, string sourcePrefix = "row")
     {
         var local = input.Local + row.Property;
-        var source = $"row.{row.Property}";
+        var source = $"{sourcePrefix}.{row.Property}";
         var set = SpacedOf(row.SetType!);
         var name = SpacedOf(row.Name);
 
@@ -852,13 +930,73 @@ static class EndpointsRenderer
         return $"{items}.Add({member});";
     }
 
+    /// <summary>Writes the object conversions: each body object built from its request row into the message row type, with an unlisted choice label answering 400.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose objects are read.</param>
+    private static void ObjectLines(List<string> body, EndpointData endpoint)
+    {
+        foreach (var input in endpoint.Inputs.Where(input =>
+            input is { Type: "object", Binding: "body", Origin: not "derived", Rows: not null, RowType: not null }))
+        {
+            var source = $"request.{input.Property}";
+
+            if (!Nullable(input))
+            {
+                foreach (var row in input.Rows!.Where(row => row is { Type: "choice", SetType: not null }))
+                {
+                    RowGuardLines(body, input, row, "", source);
+                    body.Add("");
+                }
+
+                body.Add($"var {input.Local} = new {input.RowType}(");
+
+                for (var index = 0; index < input.Rows!.Count; index++)
+                {
+                    var row = input.Rows![index];
+                    var last = index == input.Rows!.Count - 1;
+
+                    body.Add($"    {row.Property}: {RowArgumentOf(input, row, source)}{(last ? "" : ",")}");
+                }
+
+                body.Add(");");
+            }
+            else
+            {
+                body.Add($"{input.RowType}? {input.Local} = null;");
+                body.Add($"if ({source} is not null)");
+                body.Add("{");
+
+                foreach (var row in input.Rows!.Where(row => row is { Type: "choice", SetType: not null }))
+                {
+                    RowGuardLines(body, input, row, "    ", source);
+                    body.Add("");
+                }
+
+                body.Add($"    {input.Local} = new {input.RowType}(");
+
+                for (var index = 0; index < input.Rows!.Count; index++)
+                {
+                    var row = input.Rows![index];
+                    var last = index == input.Rows!.Count - 1;
+
+                    body.Add($"        {row.Property}: {RowArgumentOf(input, row, source)}{(last ? "" : ",")}");
+                }
+
+                body.Add("    );");
+                body.Add("}");
+            }
+
+            body.Add("");
+        }
+    }
+
     /// <summary>The single row of a single-field list input, or null for any other input.</summary>
     /// <param name="input">The input whose row is read.</param>
     /// <returns>The single row, or null.</returns>
     private static RowField? SingleRowOf(BoundInput input) =>
         input is { Type: "list", Rows: { Count: 1 } rows } ? rows[0] : null;
 
-    /// <summary>Writes the message construction and its dispatch through the mediator: the tenant key first, then each input.</summary>
+    /// <summary>Writes the message construction and its dispatch through the mediator: the tenant key first, then each input, then the paging members.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose message is read.</param>
     /// <param name="reader">The claim reader call.</param>
@@ -868,8 +1006,31 @@ static class EndpointsRenderer
     {
         var call = endpoint.Kind == "query" ? "mediator.QueryAsync" : "mediator.SendAsync";
         var assign = endpoint.Projects ? "var result = await " : "await ";
+        var arguments = new List<string>();
 
-        if (endpoint.Tenant is null && endpoint.Inputs.Count == 0)
+        if (endpoint.Tenant is { } tenantKey)
+        {
+            arguments.Add($"{tenantKey.Property}: {tenant.Call}(user)");
+        }
+
+        arguments.AddRange(endpoint.Inputs.Select(input => $"{input.Property}: {ArgumentOf(endpoint, input, reader, values)}"));
+
+        if (endpoint.Paging is { } paging)
+        {
+            if (paging.Cursor is { Length: > 0 })
+            {
+                arguments.Add("Cursor: cursor");
+            }
+
+            if (paging.Offset is { Length: > 0 })
+            {
+                arguments.Add("Offset: effectiveOffset");
+            }
+
+            arguments.Add("Limit: effectiveLimit");
+        }
+
+        if (arguments.Count == 0)
         {
             body.Add($"{assign}{call}(new {endpoint.MessageType}(), cancellationToken);");
             return;
@@ -878,17 +1039,9 @@ static class EndpointsRenderer
         body.Add($"{assign}{call}(");
         body.Add($"    new {endpoint.MessageType}(");
 
-        if (endpoint.Tenant is { } tenantKey)
+        for (var index = 0; index < arguments.Count; index++)
         {
-            body.Add($"        {tenantKey.Property}: {tenant.Call}(user){(endpoint.Inputs.Count == 0 ? "" : ",")}");
-        }
-
-        for (var index = 0; index < endpoint.Inputs.Count; index++)
-        {
-            var input = endpoint.Inputs[index];
-            var last = index == endpoint.Inputs.Count - 1;
-
-            body.Add($"        {input.Property}: {ArgumentOf(endpoint, input, reader, values)}{(last ? "" : ",")}");
+            body.Add($"        {arguments[index]}{(index == arguments.Count - 1 ? "" : ",")}");
         }
 
         body.Add("    ),");
@@ -972,6 +1125,11 @@ static class EndpointsRenderer
             return input.Local + "Rows";
         }
 
+        if (input is { Type: "object", Binding: "body", Origin: not "derived" })
+        {
+            return input.Local;
+        }
+
         if (input is { Type: "choice", SetType: not null, Many: true } || SingleRowOf(input) is { Type: "choice", SetType: not null })
         {
             return input.Local + "Items";
@@ -984,7 +1142,7 @@ static class EndpointsRenderer
 
         if (input is { Type: "money", Many: false } && SingleRowOf(input) is null)
         {
-            if (input.CurrencyHome is { Length: > 0 })
+            if (input.CurrencyHome is { Length: > 0 } || input.CurrencyFromOptional)
             {
                 return input.Binding == "body" ? $"request.{input.Property}" : input.Local;
             }
@@ -1058,7 +1216,11 @@ static class EndpointsRenderer
                 return $"{identifier}.From({target})";
             }
 
-            if (type == "money" && (row?.CurrencyHome ?? input.CurrencyHome) is null)
+            var joins = row is null
+                ? input.CurrencyHome is { Length: > 0 } || input.CurrencyFromOptional
+                : row.CurrencyHome is { Length: > 0 } || row.CurrencyFromOptional;
+
+            if (type == "money" && !joins)
             {
                 var currency = row is null ? CurrencyOf(endpoint, input) : RowCurrencyOf(input, row);
 
@@ -1097,12 +1259,13 @@ static class EndpointsRenderer
     }
 
     /// <summary>The message row argument one row field renders: its converted wire value.</summary>
-    /// <param name="input">The list input whose row is read.</param>
+    /// <param name="input">The list or object input whose row is read.</param>
     /// <param name="row">The row field whose value is read.</param>
+    /// <param name="sourcePrefix">The expression the row hangs off: the loop row for a list, the request object for a single object.</param>
     /// <returns>The argument expression.</returns>
-    private static string RowArgumentOf(BoundInput input, RowField row)
+    private static string RowArgumentOf(BoundInput input, RowField row, string sourcePrefix = "row")
     {
-        var source = $"row.{row.Property}";
+        var source = $"{sourcePrefix}.{row.Property}";
 
         if (row is { Type: "choice", SetType: not null })
         {
@@ -1116,7 +1279,7 @@ static class EndpointsRenderer
                 : $"{source} is null ? null : {row.IdentifierType}.From({source}.Value)";
         }
 
-        if (row.Type == "money" && row.CurrencyHome is null)
+        if (row.Type == "money" && row.CurrencyHome is null && !row.CurrencyFromOptional)
         {
             var currency = RowCurrencyOf(input, row);
 
@@ -1234,6 +1397,13 @@ static class EndpointsRenderer
             return Nullable(input) ? row + "[]?" : row + "[]";
         }
 
+        if (input.Type == "object")
+        {
+            var row = RequestRowOf(endpoint, input);
+
+            return Nullable(input) ? row + "?" : row;
+        }
+
         if (input.Many)
         {
             var element = input.Type == "id" ? "Guid" : ScalarWireOf(input.Type, input.Size);
@@ -1271,6 +1441,11 @@ static class EndpointsRenderer
             }
 
             return "IReadOnlyList<string>";
+        }
+
+        if (input.Type == "object" && input.RowType is { Length: > 0 } objectRow)
+        {
+            return objectRow + (Nullable(input) ? "?" : "");
         }
 
         var optional = Nullable(input) ? "?" : "";
@@ -1331,26 +1506,43 @@ static class EndpointsRenderer
         return FailureStatuses(endpoint).Count > 0 ? $"Results<{success}, ProblemHttpResult>" : success;
     }
 
-    /// <summary>The failure statuses the endpoint declares: 400 for a guarded choice with each cited refusal status, distinct and ascending.</summary>
+    /// <summary>The failure statuses the endpoint declares, distinct and ascending: 400 for caller inputs or paging the endpoint validates, 401 and 403 for a grant requiring a signed-in actor, 404 for a route identifier loading an aggregate, with each cited refusal status.</summary>
     /// <param name="endpoint">The endpoint whose failures are read.</param>
     /// <returns>The declared statuses.</returns>
     private static List<int> FailureStatuses(EndpointData endpoint)
     {
         var statuses = new SortedSet<int>(endpoint.RefusalStatuses);
 
-        if (endpoint.Inputs.Any(input => input is { Type: "choice", SetType: not null, Origin: not "derived" }))
+        if (endpoint.Paging is not null
+            || endpoint.Inputs.Any(input => input.Origin == "caller")
+            || endpoint.Inputs.Any(input => input is { Type: "choice", SetType: not null, Origin: not "derived" })
+            || endpoint.Inputs.Any(input => input is { Type: "list", Origin: not "derived", Rows: not null }
+                && input.Rows!.Any(row => row is { Type: "choice", SetType: not null }))
+            || endpoint.Inputs.Any(input => input is { Type: "object", Origin: not "derived", Rows: not null }
+                && input.Rows!.Any(row => row is { Type: "choice", SetType: not null })))
         {
             statuses.Add(400);
         }
 
-        if (endpoint.Inputs.Any(input => input is { Type: "list", Origin: not "derived", Rows: not null }
-            && input.Rows!.Any(row => row is { Type: "choice", SetType: not null })))
+        if (endpoint.RequiresAuth)
         {
-            statuses.Add(400);
+            statuses.Add(401);
+            statuses.Add(403);
+        }
+
+        if (endpoint.Inputs.Any(input => input is { Binding: "route", Type: "id", IdentifierType: not null }))
+        {
+            statuses.Add(404);
         }
 
         return [.. statuses];
     }
+
+    /// <summary>The operation id of a use case: its PascalCase name in camelCase, the usual OpenAPI convention client generators derive method names from.</summary>
+    /// <param name="useCaseName">The use case name in PascalCase, without its message suffix.</param>
+    /// <returns>The operation id.</returns>
+    private static string OperationIdOf(string useCaseName) =>
+        useCaseName.Length == 0 ? useCaseName : char.ToLowerInvariant(useCaseName[0]) + useCaseName[1..];
 
     /// <summary>The minimal API mapping of an HTTP method.</summary>
     /// <param name="method">The HTTP method.</param>

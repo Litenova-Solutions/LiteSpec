@@ -706,6 +706,115 @@ public sealed class MessageFieldCheckTests
         Assert.Null(source.FileOf("BorrowCopyCommand", Path.Combine(hint, "BorrowCopyCommandHandler.cs")));
     }
 
+    /// <summary>A shared row shape matching its backend type reports nothing.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void SharedRowMatchingBackendReportsNothing()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var shared = SiblingFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "lines", "type": "list", "rowType": "CopyLine", "rowShape": {"fields": [{"name": "copyCode", "type": "text"}, {"name": "loanDays", "type": "integer"}]}}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(IReadOnlyList<CopyLine> Lines);");
+        WriteSource(shared, "CopyLine.cs", "public sealed record CopyLine(string CopyCode, int LoanDays);");
+
+        Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>A shared row shape missing a member of its backend type reports input-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void SharedRowDriftReportsInputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var shared = SiblingFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "lines", "type": "list", "rowType": "CopyLine", "rowShape": {"fields": [{"name": "copyCode", "type": "text"}, {"name": "loanDays", "type": "integer"}]}}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(IReadOnlyList<CopyLine> Lines);");
+        WriteSource(shared, "CopyLine.cs", "public sealed record CopyLine(string CopyCode);");
+
+        var finding = Assert.Single(Run(model, "input-field-drift"));
+
+        Assert.Equal("input-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: no property for row field 'lines.loanDays'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>A row type resolving only to a generated file skips the row comparison.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void GeneratedRowFileSkipsRowComparison()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "lines", "type": "list", "rowType": "CopyLine", "rowShape": {"fields": [{"name": "copyCode", "type": "text"}, {"name": "loanDays", "type": "integer"}]}}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(IReadOnlyList<CopyLine> Lines);");
+        WriteSource(folder, "CopyLine.generated.cs", "internal sealed partial record CopyLine(string Wrong);");
+
+        Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>A row type the backend does not declare skips the row comparison.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UnresolvedRowTypeSkipsRowComparison()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "lines", "type": "list", "rowType": "BreakValue", "rowShape": {"fields": [{"name": "value", "type": "text"}]}}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(IReadOnlyList<BreakValue> Lines);");
+
+        Assert.Empty(Run(model, "input-field-drift"));
+    }
+
+    /// <summary>A nested shared row shape missing a member of its backend type reports input-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void NestedSharedRowDriftReportsInputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var shared = SiblingFolder(temp.Path);
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "lines", "type": "list", "rowShape": {"fields": [{"name": "total", "type": "object", "rowType": "ChargeTotal", "rowShape": {"fields": [{"name": "amount", "type": "decimal", "scale": 2}]}}]}}]}""");
+        WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(IReadOnlyList<string> Lines);");
+        WriteSource(shared, "ChargeTotal.cs", "public sealed record ChargeTotal();");
+
+        var finding = Assert.Single(Run(model, "input-field-drift"));
+
+        Assert.Equal("input-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' message 'BorrowCopyCommand' drifts from its declared input: no property for row field 'lines.total.amount'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>A shared output row shape missing a member of its backend type reports output-field-drift.</summary>
+    /// <proves>litespec/core/use-cases#type-every-output-field</proves>
+    [Fact]
+    public void SharedOutputRowDriftReportsOutputFieldDrift()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = ApplicationFolder(temp.Path);
+        var shared = SiblingFolder(temp.Path);
+        var model = FieldModel(
+            temp.Path,
+            folder,
+            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "lines", "type": "list", "rowType": "CopyLine", "rowShape": {"fields": [{"name": "copyCode", "type": "text"}, {"name": "loanDays", "type": "integer"}]}}]}}}}""",
+            "AbsentQuery");
+        WriteSource(folder, "BorrowCopyQueryHandler.cs", """
+            internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
+            {
+                public Task<BorrowCopyQueryResult> HandleAsync(BorrowCopyQuery query, CancellationToken cancellationToken) => throw new InvalidOperationException();
+            }
+            """);
+        WriteSource(folder, "BorrowCopyQueryResult.cs", "internal sealed record BorrowCopyQueryResult(IReadOnlyList<CopyLine> Lines);");
+        WriteSource(shared, "CopyLine.cs", "public sealed record CopyLine(string CopyCode);");
+
+        var finding = Assert.Single(Run(model, "output-field-drift"));
+
+        Assert.Equal("output-field-drift", finding.Code);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' result 'BorrowCopyQueryResult' drifts from its declared output: no property for row field 'loan.lines.loanDays'.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
     /// <summary>Runs the message field checks and keeps their findings for one code.</summary>
     /// <param name="model">The project model to check.</param>
     /// <param name="code">The finding code to keep.</param>

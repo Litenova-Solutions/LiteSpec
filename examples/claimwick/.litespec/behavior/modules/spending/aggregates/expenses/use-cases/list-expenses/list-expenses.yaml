@@ -81,6 +81,18 @@ output:
             meaning: The time the expense was submitted.
             type: instant
             required: true
+          - name: receiptUris
+            meaning: The stored locations of the expense receipt scans.
+            type: list
+            required: true
+            rowType: Uri
+            rowShape:
+              fields:
+              - name: location
+                meaning: One stored scan location.
+                type: text
+                maxLength: 2048
+                required: true
           unique:
           - expenseId
         rowType: ExpenseSummary

@@ -135,7 +135,7 @@ input:
       currencyHome: aggregate/spending.expense
       required: true
     minItems: 1
-  rowType: SubmittedLine
+  rowType: ExpenseLine
   required: true
   origin: caller
   binding: body

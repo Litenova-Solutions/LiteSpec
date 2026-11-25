@@ -11,6 +11,7 @@ using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Claimwick.Reporting.WebApi;
@@ -26,16 +27,36 @@ internal static partial class ReportingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet("/api/reimbursed-expenses", HandleAsync)
-                .WithName("ListReimbursedExpenses")
-                .WithSummary("Finance lists the reimbursed expenses with the employee each one was paid to.")
-                .Produces<ListReimbursedExpensesResponseModel>(StatusCodes.Status200OK);
+                .WithName("listReimbursedExpenses")
+                .WithSummary("List Reimbursed Expenses")
+                .WithDescription("Finance lists the reimbursed expenses with the employee each one was paid to.")
+                .Produces<ListReimbursedExpensesResponseModel>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden);
         }
 
-        private static async Task<Ok<ListReimbursedExpensesResponseModel>> HandleAsync(
+        private static async Task<Results<Ok<ListReimbursedExpensesResponseModel>, ProblemHttpResult>> HandleAsync(
+            [FromQuery(Name = "cursor")] string? cursor = null,
+            [FromQuery(Name = "limit")] int? limit = null,
             IQueryMediator mediator,
             CancellationToken cancellationToken)
         {
-            var result = await mediator.QueryAsync(new ListReimbursedExpensesQuery(), cancellationToken);
+            var effectiveLimit = limit ?? 25;
+            if (effectiveLimit < 1 || effectiveLimit > 100)
+            {
+                return TypedResults.Problem(
+                    title: "Invalid limit.",
+                    detail: $"The limit '{limit}' is outside 1 to 100.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            var result = await mediator.QueryAsync(
+                new ListReimbursedExpensesQuery(
+                    Cursor: cursor,
+                    Limit: effectiveLimit
+                ),
+                cancellationToken);
 
             return TypedResults.Ok(ShapeListReimbursedExpensesResponse(result));
         }

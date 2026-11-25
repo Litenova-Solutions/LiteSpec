@@ -14,7 +14,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
-/// <summary>The message field checks: every command or query type carries the fields its use case input names or implies, and every result type carries the fields its output names or implies.</summary>
+/// <summary>The message field checks: every command or query type carries the fields its use case input names or implies, every result type carries the fields its output names or implies, and every shared row shape matches the backend type its rowType names.</summary>
 /// <follows>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</follows>
 /// <follows>litespec/core/use-cases#type-every-output-field</follows>
 /// <follows>litespec/core/language#resolve-every-identifier-citation</follows>
@@ -40,6 +40,12 @@ internal static class MessageFieldChecks
 
         /// <summary>The declaring file by type name, or null when missing or ambiguous; filled by the first search.</summary>
         readonly Dictionary<string, string?> files = new(StringComparer.Ordinal);
+
+        /// <summary>The type names a hand-written backend file carries, without the files <c>litespec generate</c> wrote; filled by the first search.</summary>
+        readonly HashSet<string> handWritten = new(StringComparer.Ordinal);
+
+        /// <summary>The type names a generated backend file carries; filled by the first search.</summary>
+        readonly HashSet<string> generatedNames = new(StringComparer.Ordinal);
 
         /// <summary>The type names with two generated files in different folders, which stay ambiguous.</summary>
         readonly HashSet<string> ambiguousGenerated = new(StringComparer.Ordinal);
@@ -117,6 +123,24 @@ internal static class MessageFieldChecks
             }
 
             return besideHand;
+        }
+
+        /// <summary>Whether the backend declares the type in a hand-written file and in no generated one, so a message or result row reuses it instead of writing a local row. A hand-written sibling beside a generated row keeps the row local, as does a stale generated row the record no longer renders, until its file is deleted.</summary>
+        /// <param name="typeName">The simple type name.</param>
+        /// <returns>True when a hand-written file carries the name and no generated file does; otherwise false.</returns>
+        internal bool HasHandWritten(string typeName)
+        {
+            if (typeName.Length == 0)
+            {
+                return false;
+            }
+
+            if (!indexed)
+            {
+                Index();
+            }
+
+            return handWritten.Contains(typeName) && !generatedNames.Contains(typeName);
         }
 
         /// <summary>Every declaration of the type in the file, for partial types in every part.</summary>
@@ -254,6 +278,15 @@ internal static class MessageFieldChecks
                     }
 
                     var generated = key.Length != name.Length;
+
+                    if (generated)
+                    {
+                        generatedNames.Add(key);
+                    }
+                    else
+                    {
+                        handWritten.Add(key);
+                    }
 
                     if (!files.TryGetValue(key, out var held))
                     {
@@ -458,6 +491,13 @@ internal static class MessageFieldChecks
             drift.Add(tenantKey);
         }
 
+        if (useCase.Raw.ValueKind == JsonValueKind.Object
+            && useCase.Raw.TryGetProperty(RecordFields.Input, out var entries)
+            && entries.ValueKind == JsonValueKind.Array)
+        {
+            AddSharedRowDrift(source, file, entries, "", drift);
+        }
+
         if (drift.Count == 0)
         {
             return;
@@ -537,6 +577,8 @@ internal static class MessageFieldChecks
             drift.Add("no property for paging cursor 'NextCursor'");
         }
 
+        AddOutputRowDrift(source, file, useCase, drift);
+
         if (drift.Count == 0)
         {
             return;
@@ -548,6 +590,110 @@ internal static class MessageFieldChecks
             file,
             LineOf(parts[0]),
             useCase.Id));
+    }
+
+    /// <summary>Compares each shared row shape of the use-case output with the backend type its rowType names, in both the field list and the include-group forms.</summary>
+    /// <param name="source">The backend source each named row type is read from.</param>
+    /// <param name="hintFile">The result file the named row types are searched beside.</param>
+    /// <param name="useCase">The use case record holding the output.</param>
+    /// <param name="drift">The drift clauses the row comparison appends to.</param>
+    static void AddOutputRowDrift(MessageSource source, string hintFile, Record useCase, List<string> drift)
+    {
+        if (useCase.Raw.ValueKind != JsonValueKind.Object
+            || !useCase.Raw.TryGetProperty(RecordFields.Output, out var output))
+        {
+            return;
+        }
+
+        if (output.ValueKind == JsonValueKind.Array)
+        {
+            AddSharedRowDrift(source, hintFile, output, "", drift);
+            return;
+        }
+
+        if (output.ValueKind != JsonValueKind.Object
+            || !output.TryGetProperty(RecordFields.Include, out var include)
+            || include.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        foreach (var group in include.EnumerateObject())
+        {
+            if (group.Value.ValueKind == JsonValueKind.Object
+                && group.Value.TryGetProperty(RecordFields.Fields, out var fields)
+                && fields.ValueKind == JsonValueKind.Array)
+            {
+                AddSharedRowDrift(source, hintFile, fields, group.Name, drift);
+            }
+        }
+    }
+
+    /// <summary>Compares each shared row shape with the backend type its rowType names, descending into nested row shapes, so a stated shape that drifts from its code type is reported beside the message drift. A row type naming an aggregate part, a row the backend does not declare, or a generated row file is left unchecked: parts are domain-owned, external types resolve nowhere, and generated-drift covers generated rows.</summary>
+    /// <param name="source">The backend source each named row type is read from.</param>
+    /// <param name="hintFile">The message or result file the named row types are searched beside.</param>
+    /// <param name="fields">The contract fields whose row shapes are compared.</param>
+    /// <param name="prefix">The dotted path of the enclosing field, or empty at the top.</param>
+    /// <param name="drift">The drift clauses the row comparison appends to.</param>
+    static void AddSharedRowDrift(MessageSource source, string hintFile, JsonElement fields, string prefix, List<string> drift)
+    {
+        foreach (var entry in fields.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object
+                || Str(entry, RecordFields.Name) is not { Length: > 0 } name
+                || Str(entry, RecordFields.Type) is not ("list" or "object")
+                || !entry.TryGetProperty(RecordFields.RowShape, out var shape)
+                || shape.ValueKind != JsonValueKind.Object
+                || !shape.TryGetProperty(RecordFields.Fields, out var rows)
+                || rows.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            var shown = prefix.Length > 0 ? prefix + "." + name : name;
+
+            if (Str(entry, RecordFields.RowType) is { Length: > 0 } rowType && !IsPartReference(rowType))
+            {
+                AddRowDrift(source, hintFile, rowType, rows, shown, drift);
+            }
+
+            AddSharedRowDrift(source, hintFile, rows, shown, drift);
+        }
+    }
+
+    /// <summary>Compares one stated row shape with the members of the backend type its rowType names, when the type resolves outside the generated files.</summary>
+    /// <param name="source">The backend source the named row type is read from.</param>
+    /// <param name="hintFile">The message or result file the named row type is searched beside.</param>
+    /// <param name="rowType">The row type name the record states.</param>
+    /// <param name="rows">The stated row fields.</param>
+    /// <param name="shown">The field path the clauses show, qualified by its groups and rows.</param>
+    /// <param name="drift">The drift clauses the row comparison appends to.</param>
+    static void AddRowDrift(MessageSource source, string hintFile, string rowType, JsonElement rows, string shown, List<string> drift)
+    {
+        if (NestedName(rowType) is not { Length: > 0 } simple
+            || source.FileOf(simple, hintFile) is not { } file
+            || file.EndsWith(".generated.cs", StringComparison.Ordinal)
+            || source.TypesIn(file, simple) is not { Count: > 0 } declarations)
+        {
+            return;
+        }
+
+        drift.AddRange(Compare(FieldsOf(rows), PropertiesOf(source, declarations), "row field", shown));
+    }
+
+    /// <summary>Whether a rowType value names an aggregate part: an aggregate reference with a part after a number sign, as the contract checks read it.</summary>
+    /// <param name="reference">The rowType value.</param>
+    /// <returns>True when the value names a part of an aggregate; otherwise false.</returns>
+    static bool IsPartReference(string reference)
+    {
+        if (!reference.StartsWith("aggregate/", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var hash = reference.IndexOf('#');
+
+        return hash > 0 && hash < reference.Length - 1;
     }
 
     /// <summary>The message properties the use case implies through its other sections, never restated in input: the idempotency key, the paging cursor and limit, and the tenant identifier.</summary>

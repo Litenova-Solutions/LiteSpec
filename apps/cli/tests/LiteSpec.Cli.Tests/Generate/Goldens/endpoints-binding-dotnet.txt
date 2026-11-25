@@ -33,9 +33,12 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/copies:retire", HandleAsync)
-                .WithName("RetireCopy")
+                .WithName("retireCopy")
                 .WithSummary("Retire copy")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 

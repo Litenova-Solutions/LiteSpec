@@ -37,9 +37,12 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/loans", HandleAsync)
-                .WithName("BorrowCopy")
+                .WithName("borrowCopy")
                 .WithSummary("Borrow copy")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 
@@ -68,9 +71,13 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/holds/{holdId}:cancel", HandleAsync)
-                .WithName("CancelHold")
+                .WithName("cancelHold")
                 .WithSummary("Cancel hold")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 
@@ -97,9 +104,13 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/loans/{loanId}:extend", HandleAsync)
-                .WithName("ExtendLoan")
+                .WithName("extendLoan")
                 .WithSummary("Extend loan")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -128,19 +139,35 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet("/api/loans", HandleAsync)
-                .WithName("ListLoans")
+                .WithName("listLoans")
                 .WithSummary("List loans")
-                .Produces<ListLoansResponseModel>(StatusCodes.Status200OK);
+                .Produces<ListLoansResponseModel>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden);
         }
 
-        private static async Task<Ok<ListLoansResponseModel>> HandleAsync(
+        private static async Task<Results<Ok<ListLoansResponseModel>, ProblemHttpResult>> HandleAsync(
+            [FromQuery(Name = "cursor")] string? cursor = null,
+            [FromQuery(Name = "limit")] int? limit = null,
             ClaimsPrincipal user,
             IQueryMediator mediator,
             CancellationToken cancellationToken)
         {
+            var effectiveLimit = limit ?? 25;
+            if (effectiveLimit < 1 || effectiveLimit > 100)
+            {
+                return TypedResults.Problem(
+                    title: "Invalid limit.",
+                    detail: $"The limit '{limit}' is outside 1 to 100.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             var result = await mediator.QueryAsync(
                 new ListLoansQuery(
-                    ReaderId: ActorClaims.ReadActorId(user, "reader")
+                    ReaderId: ActorClaims.ReadActorId(user, "reader"),
+                    Cursor: cursor,
+                    Limit: effectiveLimit
                 ),
                 cancellationToken);
 
@@ -163,9 +190,12 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/holds", HandleAsync)
-                .WithName("PlaceHold")
+                .WithName("placeHold")
                 .WithSummary("Place hold")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 
@@ -199,9 +229,12 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/copies", HandleAsync)
-                .WithName("RegisterCopy")
+                .WithName("registerCopy")
                 .WithSummary("Register copy")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 
@@ -229,9 +262,12 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/copies:retire", HandleAsync)
-                .WithName("RetireCopy")
+                .WithName("retireCopy")
                 .WithSummary("Retire copy")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 
@@ -266,9 +302,13 @@ internal static partial class LendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/loans/{loanId}:return", HandleAsync)
-                .WithName("ReturnCopy")
+                .WithName("returnCopy")
                 .WithSummary("Return copy")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status409Conflict);
         }
 

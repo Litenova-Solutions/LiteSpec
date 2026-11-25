@@ -13,4 +13,5 @@ namespace Claimwick.Spending.Application.Expenses.ListExpenses;
 /// <param name="Total">The total of the expense.</param>
 /// <param name="State">The latest lifecycle state of the expense.</param>
 /// <param name="SubmittedAt">The time the expense was submitted.</param>
-internal sealed partial record ExpenseSummary(ExpenseId ExpenseId, Guid EmployeeId, Money Total, string State, DateTimeOffset SubmittedAt);
+/// <param name="ReceiptUris">The stored locations of the expense receipt scans.</param>
+internal sealed partial record ExpenseSummary(ExpenseId ExpenseId, Guid EmployeeId, Money Total, string State, DateTimeOffset SubmittedAt, IReadOnlyList<Uri> ReceiptUris);

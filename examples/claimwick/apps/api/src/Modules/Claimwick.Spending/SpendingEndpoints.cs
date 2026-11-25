@@ -24,7 +24,8 @@ internal static partial class SpendingEndpoints
                 expense.Total.Amount,
                 expense.Total.Currency,
                 expense.State,
-                expense.SubmittedAt))
+                expense.SubmittedAt,
+                expense.ReceiptUris.Select(uri => uri.ToString()).ToList()))
             .ToList());
 
     /// <summary>Shapes the Export Expenses response.</summary>

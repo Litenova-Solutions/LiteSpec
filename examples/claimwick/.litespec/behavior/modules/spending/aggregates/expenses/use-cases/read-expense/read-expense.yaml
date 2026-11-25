@@ -64,6 +64,33 @@ output:
             type: text
             maxLength: 3
             required: true
+      - name: subtotals
+        meaning: The per-category subtotals of the expense with its total.
+        type: object
+        rowType: ExpenseSubtotals
+        rowShape:
+          fields:
+          - name: categories
+            meaning: The subtotal per cost category.
+            type: list
+            required: true
+            rowType: CategoryTotal
+            rowShape:
+              fields:
+              - name: category
+                meaning: The kind of cost the subtotal covers.
+                type: text
+                required: true
+              - name: amount
+                meaning: The subtotal amount.
+                type: money
+                currencyHome: aggregate/spending.expense
+                required: true
+          - name: total
+            meaning: The grand total.
+            type: money
+            currencyHome: aggregate/spending.expense
+            required: true
       classification: internal
       reads:
       - aggregate/spending.expense

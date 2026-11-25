@@ -22,11 +22,11 @@ A project may generate its endpoints with the `endpoints` kind of `litespec gene
 
 The OpenAPI generator builds the published contract from metadata declared on each operation:
 
-- A stable `operationId`, which generated clients use to name their calls.
+- A stable `operationId` in camelCase, which generated clients use to name their calls.
 - The authorization policies that guard the operation.
 - The request and success shapes.
 - The failure statuses the operation can answer.
-- A summary.
+- A summary with its description.
 
 Comments on route lambdas do not reach the contract, so this metadata is declared explicitly with typed results or `Produces` entries.
 

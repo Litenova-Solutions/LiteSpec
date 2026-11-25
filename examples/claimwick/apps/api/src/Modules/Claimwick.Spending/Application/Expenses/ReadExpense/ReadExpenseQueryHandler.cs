@@ -1,3 +1,5 @@
+using Claimwick.Kernel.Values;
+using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Contracts.Expenses.ReadExpense;
 using Claimwick.Spending.Domain.Expenses;
 using Claimwick.Spending.Domain.Expenses.Parts;
@@ -29,7 +31,11 @@ internal sealed class ReadExpenseQueryHandler : IQueryHandler<ReadExpenseQuery, 
         {
             return null;
         }
-        return new ReadExpenseResult(expense.Id, StateName(expense.State), new ExpenseTotal(expense.Total.Amount, expense.Total.Currency));
+        var subtotals = expense.Lines
+            .GroupBy(line => line.Category)
+            .Select(group => new CategoryTotal(group.Key, Money.Create(group.Sum(line => line.Amount.Amount), expense.Total.Currency)))
+            .ToList();
+        return new ReadExpenseResult(expense.Id, StateName(expense.State), new ExpenseTotal(expense.Total.Amount, expense.Total.Currency), new ExpenseSubtotals(subtotals, expense.Total));
     }
 
     private static string StateName(ExpenseState state) => state switch

@@ -41,9 +41,14 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/expenses/{expenseId}:approve", HandleAsync)
-                .WithName("ApproveExpense")
-                .WithSummary("A manager decides a submitted expense so the employee learns the outcome.")
+                .WithName("approveExpense")
+                .WithSummary("Approve Expense")
+                .WithDescription("A manager decides a submitted expense so the employee learns the outcome.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -74,9 +79,13 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/receipts", HandleAsync)
-                .WithName("AttachReceipt")
-                .WithSummary("An employee adds a receipt to a submitted expense so it can be decided.")
+                .WithName("attachReceipt")
+                .WithSummary("Attach Receipt")
+                .WithDescription("An employee adds a receipt to a submitted expense so it can be decided.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -116,9 +125,13 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPut("/api/policies/receipt-threshold", HandleAsync)
-                .WithName("ChangeReceiptThreshold")
-                .WithSummary("A manager sets the receipt threshold so small expenses stay light to submit.")
+                .WithName("changeReceiptThreshold")
+                .WithSummary("Change Receipt Threshold")
+                .WithDescription("A manager sets the receipt threshold so small expenses stay light to submit.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -147,9 +160,13 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPut("/api/reminder-preferences/{id}", HandleAsync)
-                .WithName("ChangeReminderPreference")
-                .WithSummary("A manager sets whether they get an approval reminder for a waiting expense.")
+                .WithName("changeReminderPreference")
+                .WithSummary("Change Reminder Preference")
+                .WithDescription("A manager sets whether they get an approval reminder for a waiting expense.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -187,9 +204,14 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/expenses/{expenseId}:erase", HandleAsync)
-                .WithName("ErasePersonalData")
-                .WithSummary("Finance erases the personal data of an old expense so nothing personal is kept past its need.")
+                .WithName("erasePersonalData")
+                .WithSummary("Erase Personal Data")
+                .WithDescription("Finance erases the personal data of an old expense so nothing personal is kept past its need.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -216,9 +238,12 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/expenses:export", HandleAsync)
-                .WithName("ExportExpenses")
-                .WithSummary("Finance collects the approved expenses so the payout batch can run.")
+                .WithName("exportExpenses")
+                .WithSummary("Export Expenses")
+                .WithDescription("Finance collects the approved expenses so the payout batch can run.")
                 .Produces<ExportExpensesResponseModel>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -243,21 +268,38 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet("/api/expenses", HandleAsync)
-                .WithName("ListExpenses")
-                .WithSummary("An employee sees their own expenses with the latest state of each.")
-                .Produces<ListExpensesResponseModel>(StatusCodes.Status200OK);
+                .WithName("listExpenses")
+                .WithSummary("List Expenses")
+                .WithDescription("An employee sees their own expenses with the latest state of each.")
+                .Produces<ListExpensesResponseModel>(StatusCodes.Status200OK)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden);
         }
 
-        private static async Task<Ok<ListExpensesResponseModel>> HandleAsync(
+        private static async Task<Results<Ok<ListExpensesResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromQuery(Name = "states")] string[]? states,
+            [FromQuery(Name = "cursor")] string? cursor = null,
+            [FromQuery(Name = "limit")] int? limit = null,
             ClaimsPrincipal user,
             IQueryMediator mediator,
             CancellationToken cancellationToken)
         {
+            var effectiveLimit = limit ?? 25;
+            if (effectiveLimit < 1 || effectiveLimit > 100)
+            {
+                return TypedResults.Problem(
+                    title: "Invalid limit.",
+                    detail: $"The limit '{limit}' is outside 1 to 100.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             var result = await mediator.QueryAsync(
                 new ListExpensesQuery(
                     EmployeeId: ActorClaims.ReadActorId(user, "employee"),
-                    States: states
+                    States: states,
+                    Cursor: cursor,
+                    Limit: effectiveLimit
                 ),
                 cancellationToken);
 
@@ -276,9 +318,14 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/expenses/{expenseId}:refuse", HandleAsync)
-                .WithName("RefuseExpense")
-                .WithSummary("A manager turns down a submitted expense that falls outside the policy.")
+                .WithName("refuseExpense")
+                .WithSummary("Refuse Expense")
+                .WithDescription("A manager turns down a submitted expense that falls outside the policy.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -314,9 +361,14 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/expenses/{expenseId}:reimburse", HandleAsync)
-                .WithName("ReimburseExpense")
-                .WithSummary("Finance pays an approved expense so the employee gets the money back.")
+                .WithName("reimburseExpense")
+                .WithSummary("Reimburse Expense")
+                .WithDescription("Finance pays an approved expense so the employee gets the money back.")
                 .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -370,10 +422,13 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/api/expenses", HandleAsync)
-                .WithName("SubmitExpense")
-                .WithSummary("An employee files a work expense so it can be decided and reimbursed.")
+                .WithName("submitExpense")
+                .WithSummary("Submit Expense")
+                .WithDescription("An employee files a work expense so it can be decided and reimbursed.")
                 .Produces<SubmitExpenseResponseModel>(StatusCodes.Status201Created)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
@@ -405,10 +460,10 @@ internal static partial class SpendingEndpoints
                 }
             }
 
-            var linesRows = new List<SubmittedLine>(request.Lines.Length);
+            var linesRows = new List<ExpenseLine>(request.Lines.Length);
             foreach (var row in request.Lines)
             {
-                linesRows.Add(new SubmittedLine(
+                linesRows.Add(new ExpenseLine(
                     Category: row.Category,
                     Amount: row.Amount
                 ));

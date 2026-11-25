@@ -120,6 +120,7 @@ generate:
   visibility: public
   usings:
   - Claimwick.Spending.Contracts.Expenses
+  - Claimwick.Kernel.Values
 - kind: endpoints
   stack: dotnet
   path: apps/api/src/Modules/Claimwick.{Module}

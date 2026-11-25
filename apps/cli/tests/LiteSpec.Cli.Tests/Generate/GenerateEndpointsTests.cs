@@ -415,10 +415,10 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("carries a map", skip.Reason, StringComparison.Ordinal);
     }
 
-    /// <summary>A use case carrying an object input renders no endpoint and lists the skip with its reason.</summary>
+    /// <summary>A use case carrying an object input binds it from the body as one request row mapped to the message row type.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
-    public void ObjectInputSkipsWithReason()
+    public void ObjectInputBindsSingleRowFromBody()
     {
         using var temp = ModelFixture.Prepare("small");
         AppendGenerate(temp.Path, """
@@ -455,10 +455,13 @@ public sealed class GenerateEndpointsTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
 
         Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
         var file = Assert.Single(plan.Files);
-        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
-        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
-        Assert.Contains("carries an object", skip.Reason, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record RetireCopyShelfMarkRow(string Shelf, int Slot);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("RetireCopyShelfMarkRow ShelfMark", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Shelf: request.ShelfMark.Shelf,", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Slot: request.ShelfMark.Slot", file.Content, StringComparison.Ordinal);
+        Assert.Contains("ShelfMark: shelfMark", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A use case carrying a list that reuses an aggregate part renders no endpoint and lists the skip with its reason.</summary>
@@ -736,7 +739,10 @@ public sealed class GenerateEndpointsTests
                 "ChangeReminderPreferenceCommandResult",
                 "ChangeReminderPreferenceResponseModel",
                 "Claimwick.Spending.WebApi.ReminderPreferences.ChangeReminderPreference",
-                MarkStyle.Xml)],
+                MarkStyle.Xml,
+                null,
+                null,
+                true)],
             "Claimwick.Spending.WebApi",
             "Claimwick.Platform.Http.ActorClaims.ReadActorId",
             []);
@@ -871,7 +877,9 @@ public sealed class GenerateEndpointsTests
                 "BorrowCopyResponseModel",
                 "Library.Lending.WebApi.Loans.BorrowCopy",
                 MarkStyle.Xml,
-                new MessagesRenderer.TenantKey("WorkspaceId", "WorkspaceId"))],
+                new MessagesRenderer.TenantKey("WorkspaceId", "WorkspaceId"),
+                null,
+                true)],
             "Library.Lending.WebApi",
             "Library.Lending.WebApi.ActorClaims.ReadActorId",
             [],
@@ -1293,10 +1301,10 @@ public sealed class GenerateEndpointsTests
         Assert.Contains(plan.Errors, error => error.Contains("claimValueReader", StringComparison.Ordinal));
     }
 
-    /// <summary>A list row taking its currency from an optional sibling renders no endpoint and lists the skip with its reason.</summary>
+    /// <summary>A list row taking its currency from an optional sibling binds the amount as a decimal the handler joins.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
-    public void RowMoneyWithOptionalSiblingCurrencySkipsWithReason()
+    public void RowMoneyWithOptionalSiblingCurrencyBindsDecimal()
     {
         using var temp = ModelFixture.Prepare("small");
         AppendGenerate(temp.Path, """
@@ -1334,10 +1342,12 @@ public sealed class GenerateEndpointsTests
         var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
 
         Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
         var file = Assert.Single(plan.Files);
-        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
-        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
-        Assert.Contains("takes its currency from optional 'currency'", skip.Reason, StringComparison.Ordinal);
+        Assert.Contains("internal sealed partial record RetireCopyFinesRow(decimal Amount, string? Currency);", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Amount: row.Amount,", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Currency: row.Currency", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Money.Create", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A multi-field list without a row type renders no endpoint and lists the skip with its reason.</summary>
@@ -1435,7 +1445,10 @@ public sealed class GenerateEndpointsTests
                 "RetireCopyCommandResult",
                 "RetireCopyResponseModel",
                 "Library.Lending.WebApi.Copies.RetireCopy",
-                MarkStyle.Xml)],
+                MarkStyle.Xml,
+                null,
+                null,
+                true)],
             "Library.Lending.WebApi",
             "Library.Lending.WebApi.ActorClaims.ReadActorId",
             [],
@@ -1658,6 +1671,301 @@ public sealed class GenerateEndpointsTests
         Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
         var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
         Assert.Contains("is a file beside other fields", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A paged query binds its cursor and limit from the query, applies the default limit, and refuses a limit past the maximum.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PagedQueryBindsCursorAndLimitFromQuery()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("[FromQuery(Name = \"cursor\")] string? cursor = null", file.Content, StringComparison.Ordinal);
+        Assert.Contains("[FromQuery(Name = \"limit\")] int? limit = null", file.Content, StringComparison.Ordinal);
+        Assert.Contains("limit ?? 25", file.Content, StringComparison.Ordinal);
+        Assert.Contains("effectiveLimit > 100", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Cursor: cursor", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Limit: effectiveLimit", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>Every operation id is the camelCase use case name.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OperationIdUsesCamelCaseUseCaseName()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains(".WithName(\"borrowCopy\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".WithName(\"listLoans\")", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain(".WithName(\"BorrowCopy\")", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>The summary carries the record title and the description carries the purpose sentence.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SummaryCarriesTitleAndDescriptionCarriesPurpose()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [CreatedEndpoint()],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            ["Claimwick.Spending.Contracts.Expenses"]);
+
+        Assert.Contains(".WithSummary(\"Submit Expense\")", text, StringComparison.Ordinal);
+        Assert.Contains(".WithDescription(\"An employee files a work expense so it can be decided and reimbursed.\")", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>Problem responses derive from the record: 400 for caller inputs, 401 and 403 for the grant, 404 for a route aggregate id, and each refusal status.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ProblemResponsesDeriveFromInputsAccessRouteAndRefusals()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.renew-loan",
+                "RenewLoan",
+                "Renew loan",
+                null,
+                "command",
+                "POST",
+                "/api/loans/{loanId}:renew",
+                null,
+                [
+                    new EndpointsRenderer.BoundInput(
+                        "loan", "LoanId", "loanId", "loanId", "id", "route", true,
+                        "The loan the reader renews.", null, "LoanId", null, "caller"),
+                    new EndpointsRenderer.BoundInput(
+                        "note", "Note", "note", "note", "text", "query", false,
+                        "Why the reader renews.", null, null, null, "caller"),
+                ],
+                new Dictionary<string, string>(),
+                false,
+                [409],
+                "RenewLoanCommand",
+                "Library.Lending.Application.Loans.RenewLoan",
+                "RenewLoanCommandResult",
+                "RenewLoanResponseModel",
+                "Library.Lending.WebApi.Loans.RenewLoan",
+                MarkStyle.Xml,
+                null,
+                null,
+                true)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains(".ProducesProblem(StatusCodes.Status400BadRequest)", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status401Unauthorized)", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status403Forbidden)", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status404NotFound)", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status409Conflict)", text, StringComparison.Ordinal);
+        Assert.Contains("Results<NoContent, ProblemHttpResult>", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case open to anonymous callers lists no authentication problems.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AnonymousUseCaseOmitsAuthenticationProblems()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.search-catalog",
+                "SearchCatalog",
+                "Search catalog",
+                null,
+                "query",
+                "GET",
+                "/api/catalog",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "term", "Term", "term", "term", "text", "query", false,
+                    "The words to search for.", null, null, null, "caller")],
+                new Dictionary<string, string>(),
+                true,
+                [],
+                "SearchCatalogQuery",
+                "Library.Lending.Application.Catalog.SearchCatalog",
+                "SearchCatalogQueryResult",
+                "SearchCatalogResponseModel",
+                "Library.Lending.WebApi.Catalog.SearchCatalog",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains(".ProducesProblem(StatusCodes.Status400BadRequest)", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Status401Unauthorized", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Status403Forbidden", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A PATCH endpoint with a body declares the merge-patch media type it reads.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void PatchEndpointDeclaresMergePatchAccepts()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.change-loan-note",
+                "ChangeLoanNote",
+                "Change loan note",
+                null,
+                "command",
+                "PATCH",
+                "/api/loans/{loanId}/note",
+                null,
+                [
+                    new EndpointsRenderer.BoundInput(
+                        "loan", "LoanId", "loanId", "loanId", "id", "route", true,
+                        "The loan whose note changes.", null, "LoanId", null, "caller"),
+                    new EndpointsRenderer.BoundInput(
+                        "note", "Note", "note", "note", "text", "body", false,
+                        "The new note.", null, null, null, "caller"),
+                ],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "ChangeLoanNoteCommand",
+                "Library.Lending.Application.Loans.ChangeLoanNote",
+                "ChangeLoanNoteCommandResult",
+                "ChangeLoanNoteResponseModel",
+                "Library.Lending.WebApi.Loans.ChangeLoanNote",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("MapPatch(\"/api/loans/{loanId}/note\", HandleAsync)", text, StringComparison.Ordinal);
+        Assert.Contains(".Accepts<ChangeLoanNoteRequest>(\"application/merge-patch+json\")", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A money input taking its currency from an optional sibling binds the amount as a decimal the handler joins.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyWithOptionalSiblingCurrencyBindsDecimal()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: fee
+              meaning: The processing fee of the retirement, in the stated currency or the copy currency.
+              type: money
+              currencyField: feeCurrency
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            - name: feeCurrency
+              meaning: The ISO 4217 currency code of the fee, the copy currency when absent.
+              type: text
+              maxLength: 3
+              required: false
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("LendingEndpoints.generated.cs", StringComparison.Ordinal));
+        Assert.Contains("decimal Fee", file.Content, StringComparison.Ordinal);
+        Assert.Contains("string? FeeCurrency", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Fee: request.Fee", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Money.Create", file.Content, StringComparison.Ordinal);
+        var message = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("RetireCopyCommand.generated.cs", StringComparison.Ordinal));
+        Assert.Contains("decimal Fee", message.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>An explicit tenant input keeps the message member name in the endpoint named arguments.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ExplicitTenantInputKeepsMessageMemberNames()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteTenancy(temp.Path);
+        var folder = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "workspaces");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "aggregate.yaml"),
+            """
+            type: aggregate
+            id: aggregate/lending.workspace
+            title: Workspace
+            states:
+            - name: Active
+              meaning: The workspace lends.
+            """);
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "- name: copyId",
+                "- name: workspace\n  meaning: The workspace the loan belongs to.\n  type: id\n  identifies: aggregate/lending.workspace\n  required: true\n  origin: caller\n  binding: body\n  classification: internal\n- name: copyId",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.borrow-copy");
+        var file = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("LendingEndpoints.generated.cs", StringComparison.Ordinal));
+        Assert.Contains("Workspace: WorkspaceId.From(request.Workspace)", file.Content, StringComparison.Ordinal);
+        var message = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal));
+        Assert.Contains("WorkspaceId Workspace", message.Content, StringComparison.Ordinal);
     }
 
     /// <summary>Appends a generate block to the fixture project file.</summary>

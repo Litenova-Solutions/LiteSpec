@@ -415,7 +415,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Rationale:** The `operationId` names an operation for client code, cased for method names, so it is not the record identifier. Carrying the identifier itself in an extension, which the OpenAPI specification reserves for this kind of metadata, lets an integrator, a gateway log, or a support person go from an operation straight to its specification page. The value comes from the generated map of operation names to use cases, so it is written once, in the endpoint's mark.
 
-**Example:** The Claimwick operation `SubmitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
+**Example:** The Claimwick operation `submitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
 
 **Checked by:** `litespec model check` reports `operation-use-case-drift` (level S) for an operation in the committed contract whose `x-litespec-use-case` is missing or differs from the use case its endpoint's mark names.
 
@@ -559,7 +559,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** A use case that reads one way in its record, another in its message type, and a third in its audit action forces every trace across layers through a translation table only the author holds. The record id is the name; the message type, the endpoint operation id, and the audit action repeat it in their own casing, so a reader follows one name from the page to the wire to the audit log.
 
-**Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
+**Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `reimburseExpense`, and audit action `reimburse-expense`; an operation id of `payExpense` is reported.
 
 **Reviewed for:** Does every message type, operation id, and audit action carry its use case name? Look at each use case's message type, operation id, and audit action.
 

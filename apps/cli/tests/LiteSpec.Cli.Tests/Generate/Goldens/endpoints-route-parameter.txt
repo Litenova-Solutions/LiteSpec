@@ -23,12 +23,15 @@ internal static partial class SpendingEndpoints
         public void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPut("/api/reminder-preferences/{id}", HandleAsync)
-                .WithName("ChangeReminderPreference")
+                .WithName("changeReminderPreference")
                 .WithSummary("Change Reminder Preference")
-                .Produces(StatusCodes.Status204NoContent);
+                .Produces(StatusCodes.Status204NoContent)
+                .ProducesProblem(StatusCodes.Status400BadRequest)
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden);
         }
 
-        private static async Task<NoContent> HandleAsync(
+        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "id")] Guid id,
             ICommandMediator mediator,
             CancellationToken cancellationToken)

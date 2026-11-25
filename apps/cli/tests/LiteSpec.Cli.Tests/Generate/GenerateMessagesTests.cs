@@ -865,7 +865,6 @@ public sealed class GenerateMessagesTests
                 "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ReimburseExpense/ReimburseExpenseCommandResult.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommand.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandResult.generated.cs",
-                "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmittedLine.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Policies/ChangeReceiptThreshold/ChangeReceiptThresholdCommand.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Policies/ChangeReceiptThreshold/ChangeReceiptThresholdCommandResult.generated.cs",
                 "apps/api/src/Modules/Claimwick.Spending/Application/Receipts/AttachReceipt/AttachReceiptCommand.generated.cs",
