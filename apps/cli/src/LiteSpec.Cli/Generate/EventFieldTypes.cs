@@ -9,8 +9,10 @@ namespace LiteSpec.Cli.Generate;
 ///     carried field, from the coarse record type the way the message field checks read it.
 ///     An <c>id</c> becomes the typed identifier of what it identifies, or a <c>Guid</c>
 ///     with no <c>identifies</c>, a <c>choice</c> the closed set it names, a <c>file</c> the
-///     carried bytes, an object field the part or code type its <c>type</c> names, and every
-///     other type its fixed .NET form. A field with <c>required: false</c> rides nullable.
+///     carried bytes, an <c>integer</c> with size 64 a <c>long</c>, a <c>map</c> a read-only
+///     dictionary of its value type by its key type, an object field the part or code type its
+///     <c>type</c> names, and every other type its fixed .NET form. A field with
+///     <c>required: false</c> rides nullable.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class EventFieldTypes
@@ -234,7 +236,7 @@ static class EventFieldTypes
     private static string? ScalarOf(JsonElement entry, string type) => type switch
     {
         "text" or "email" => "string",
-        "integer" => "int",
+        "integer" => IntegerOf(entry),
         "decimal" => "decimal",
         "money" => "Money",
         "boolean" => "bool",
@@ -244,8 +246,47 @@ static class EventFieldTypes
         "file" => "byte[]",
         "choice" => SetOf(entry),
         "id" => IdentifierOf(entry),
+        "map" => MapOf(entry),
         _ => null,
     };
+
+    /// <summary>The C# type an integer field rides as: a long with size 64, else an int.</summary>
+    /// <param name="entry">The field entry holding the size fact.</param>
+    /// <returns>The integer type.</returns>
+    private static string IntegerOf(JsonElement entry) =>
+        entry.TryGetProperty(RecordFields.Size, out var size)
+        && size.ValueKind == JsonValueKind.Number
+        && size.TryGetInt32(out var bits)
+        && bits == 64
+            ? "long"
+            : "int";
+
+    /// <summary>The read-only dictionary a map field rides as, keyed by its key type over its value type.</summary>
+    /// <param name="entry">The field entry holding the key and value types.</param>
+    /// <returns>The dictionary type, or null when either side states no known shape.</returns>
+    private static string? MapOf(JsonElement entry)
+    {
+        if (RecordEntries.Str(entry, RecordFields.KeyType) is not { Length: > 0 } key
+            || RecordEntries.Str(entry, RecordFields.ValueType) is not { Length: > 0 } value
+            || value is "map" or "list")
+        {
+            return null;
+        }
+
+        var keyType = key switch
+        {
+            "text" => "string",
+            "integer" => "int",
+            _ => null,
+        };
+
+        if (keyType is null || ScalarOf(entry, value) is not { } valueType)
+        {
+            return null;
+        }
+
+        return $"IReadOnlyDictionary<{keyType}, {valueType}>";
+    }
 
     /// <summary>The closed-set type a choice field takes its values from, or a string when the field names no set.</summary>
     /// <param name="entry">The field entry holding the set reference.</param>

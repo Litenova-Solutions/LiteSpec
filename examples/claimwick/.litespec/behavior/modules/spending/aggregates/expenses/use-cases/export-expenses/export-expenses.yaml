@@ -52,6 +52,11 @@ output:
           unique:
           - expenseId
         rowType: ExportedExpenseRow
+      - name: countByCurrency
+        meaning: The approved expenses counted by currency code, so the payout batch reconciles each currency.
+        type: map
+        keyType: text
+        valueType: integer
       classification: internal
       reads:
       - aggregate/spending.expense

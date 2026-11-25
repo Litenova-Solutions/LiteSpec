@@ -603,6 +603,8 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - A message carries the tenant key first with the tenant aggregate's identifier type (`Guid` when no aggregate carries the tenancy term), and an input identifying the tenant aggregate carries the key itself.
 - Money fields carry the shared `Money` type, and file fields the bytes, in messages and results as in events; endpoints bind the multipart upload to the bytes.
 - Output fields and groups state `required` (default true) and render nullable when false; a list of one field keeps its named row type when `rowType` names one.
+- An `endpoints` target may name a `tenantReader` beside its `claimReader`; a use case implying a tenant key then renders its endpoint reading the key from the caller, and without one it still skips with the reason.
+- Integer contract fields state their width in `size` (32 by default, 64 riding `long` and `int64`), and contract fields take a `map` type with `keyType` and `valueType` riding a read-only dictionary and a JSON object; validators judge each map value against its value type.
 
 ### Part U: Provision Changes Since v6.0.0
 

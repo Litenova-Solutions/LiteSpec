@@ -229,6 +229,103 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "reference-unknown", "names part 'no-such-part' the aggregate does not declare"));
     }
 
+    /// <summary>Use Case Map Input Without Key Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputWithoutKeyTypeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "nightsByRoom", "meaning": "The nights held by room.", "type": "map", "valueType": "integer", "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "of type map with no keyType"));
+    }
+
+    /// <summary>Use Case Map Input Without Value Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputWithoutValueTypeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "nightsByRoom", "meaning": "The nights held by room.", "type": "map", "keyType": "text", "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "of type map with no valueType"));
+    }
+
+    /// <summary>Use Case Map Input With Choice Values Without Set Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputWithChoiceValuesWithoutSetReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "bedByRoom", "meaning": "The bed shape by room.", "type": "map", "keyType": "text", "valueType": "choice", "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "of type map with choice values and no set"));
+    }
+
+    /// <summary>Use Case Map Input With Choice Values Naming No Record Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputWithChoiceValuesNamingNoRecordReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "bedByRoom", "meaning": "The bed shape by room.", "type": "map", "keyType": "text", "valueType": "choice", "set": "reference-data/booking.no-such-set", "required": true}]}"""));
+
+        Assert.True(Reports(model, "reference-unknown", "cites 'reference-data/booking.no-such-set', which no record holds"));
+    }
+
+    /// <summary>Use Case Map Input Identifying No Record Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputIdentifyingNoRecordReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "holdByRoom", "meaning": "The hold by room.", "type": "map", "keyType": "text", "valueType": "id", "identifies": "aggregate/booking.no-such-room", "required": true}]}"""));
+
+        Assert.True(Reports(model, "reference-unknown", "cites 'aggregate/booking.no-such-room', which no record holds"));
+    }
+
+    /// <summary>Use Case Map Input With Row Shape Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputWithRowShapeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "nightsByRoom", "meaning": "The nights held by room.", "type": "map", "keyType": "text", "valueType": "integer", "rowShape": {"fields": [{"name": "night", "meaning": "One night.", "type": "date", "required": true}]}, "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "of type map with a rowShape that only list carries"));
+    }
+
+    /// <summary>Use Case Map Input With Key And Value Types Passes.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseMapInputWithKeyAndValueTypesPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "exposure": "Ana the manager holds a room for a guest.", "steps": [{"statement": "Ana holds the room for the guest."}], "input": [{"name": "nightsByRoom", "meaning": "The nights held by room.", "type": "map", "keyType": "text", "valueType": "integer", "required": true}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "of type map"));
+    }
+
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>
     /// <param name="code">The finding code to look for.</param>

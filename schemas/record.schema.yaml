@@ -681,6 +681,7 @@ $defs:
     - choice
     - id
     - list
+    - map
     - file
   contractScalarType:
     enum:
@@ -695,6 +696,17 @@ $defs:
     - email
     - choice
     - id
+  contractMapKeyType:
+    description: 'The scalar type of a map field''s keys: text for names, or integer for numbered keys.'
+    enum:
+    - text
+    - integer
+  contractIntegerSize:
+    description: 'The stored width in bits of an integer field: 32, or 64 for values past the 32-bit span.'
+    type: integer
+    enum:
+    - 32
+    - 64
   contractFieldChoices:
     type: array
     minItems: 1
@@ -787,6 +799,8 @@ $defs:
       scale:
         type: integer
         minimum: 0
+      size:
+        $ref: '#/$defs/contractIntegerSize'
       minLength:
         type: integer
         minimum: 0
@@ -830,7 +844,7 @@ $defs:
     - $ref: '#/$defs/aggregatePartRef'
     - $ref: '#/$defs/contractRowType'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape and keeps its row type in rowType, a choice names its closed set in set, a money field names its currency source, a decimal states its scale and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it.
+    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape and keeps its row type in rowType, a choice names its closed set in set, a money field names its currency source, a decimal states its scale, a map names its key type in keyType with its value type in valueType, and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it. An integer field may state its stored width in size. A map value takes the facts a scalar of its type takes.
     allOf:
     - if:
         required:
@@ -849,7 +863,33 @@ $defs:
         - type
         properties:
           type:
-            const: id
+            const: map
+      then:
+        required:
+        - keyType
+        - valueType
+      else:
+        not:
+          anyOf:
+          - required:
+            - keyType
+          - required:
+            - valueType
+    - if:
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              const: id
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              const: id
       else:
         not:
           required:
@@ -875,11 +915,20 @@ $defs:
           required:
           - rowType
     - if:
-        required:
-        - type
-        properties:
-          type:
-            const: choice
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              const: choice
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              const: choice
       then:
         required:
         - set
@@ -905,11 +954,20 @@ $defs:
           - required:
             - maxSize
     - if:
-        required:
-        - type
-        properties:
-          type:
-            const: money
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              const: money
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              const: money
       then:
         oneOf:
         - required:
@@ -928,11 +986,20 @@ $defs:
           - required:
             - currencyHome
     - if:
-        required:
-        - type
-        properties:
-          type:
-            const: decimal
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              const: decimal
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              const: decimal
       then:
         required:
         - scale
@@ -941,13 +1008,24 @@ $defs:
           required:
           - scale
     - if:
-        required:
-        - type
-        properties:
-          type:
-            enum:
-            - text
-            - email
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              enum:
+              - text
+              - email
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              enum:
+              - text
+              - email
       else:
         not:
           anyOf:
@@ -958,18 +1036,49 @@ $defs:
           - required:
             - matches
     - if:
-        required:
-        - type
-        properties:
-          type:
-            enum:
-            - integer
-            - decimal
-            - money
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              enum:
+              - integer
+              - decimal
+              - money
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              enum:
+              - integer
+              - decimal
+              - money
       else:
         not:
           required:
           - bounds
+    - if:
+        anyOf:
+        - required:
+          - type
+          properties:
+            type:
+              const: integer
+        - required:
+          - type
+          - valueType
+          properties:
+            type:
+              const: map
+            valueType:
+              const: integer
+      else:
+        not:
+          required:
+          - size
   moneyValue:
     type: object
     additionalProperties: false
@@ -1030,6 +1139,12 @@ $defs:
       scale:
         type: integer
         minimum: 0
+      size:
+        $ref: '#/$defs/contractIntegerSize'
+      keyType:
+        $ref: '#/$defs/contractMapKeyType'
+      valueType:
+        $ref: '#/$defs/contractScalarType'
       minLength:
         type: integer
         minimum: 0
@@ -1911,6 +2026,12 @@ $defs:
       scale:
         type: integer
         minimum: 0
+      size:
+        $ref: '#/$defs/contractIntegerSize'
+      keyType:
+        $ref: '#/$defs/contractMapKeyType'
+      valueType:
+        $ref: '#/$defs/contractScalarType'
       minLength:
         type: integer
         minimum: 0
@@ -1976,6 +2097,12 @@ $defs:
       scale:
         type: integer
         minimum: 0
+      size:
+        $ref: '#/$defs/contractIntegerSize'
+      keyType:
+        $ref: '#/$defs/contractMapKeyType'
+      valueType:
+        $ref: '#/$defs/contractScalarType'
       minLength:
         type: integer
         minimum: 0
@@ -2374,6 +2501,12 @@ $defs:
       scale:
         type: integer
         minimum: 0
+      size:
+        $ref: '#/$defs/contractIntegerSize'
+      keyType:
+        $ref: '#/$defs/contractMapKeyType'
+      valueType:
+        $ref: '#/$defs/contractScalarType'
       minLength:
         type: integer
         minimum: 0
@@ -4430,6 +4563,12 @@ $defs:
       scale:
         type: integer
         minimum: 0
+      size:
+        $ref: '#/$defs/contractIntegerSize'
+      keyType:
+        $ref: '#/$defs/contractMapKeyType'
+      valueType:
+        $ref: '#/$defs/contractScalarType'
       minLength:
         type: integer
         minimum: 0

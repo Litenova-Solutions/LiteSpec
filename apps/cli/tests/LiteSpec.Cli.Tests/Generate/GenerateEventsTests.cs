@@ -484,6 +484,62 @@ public sealed class GenerateEventsTests
                 .Order(StringComparer.Ordinal));
     }
 
+    /// <summary>An integer carry stating size 64 rides a long in the domain event.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SizedIntegerCarryRendersLong()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "- name: dueDate\n  type: text\n",
+                "- name: dueDate\n  type: text\n- name: renewals\n  type: integer\n  size: 64\n",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: domain-events
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Domain/{Aggregate}/Events
+              namespace: Library.{Module}.Domain.{Aggregate}.Events
+              markerType: Library.Kernel.Domain.IDomainEvent
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var @event = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("LoanLoanBorrowedDomainEvent.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("long Renewals", @event, StringComparison.Ordinal);
+    }
+
+    /// <summary>A map carry rides a read-only dictionary of its value type by its key type in the domain event.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapCarryRendersDictionary()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "- name: dueDate\n  type: text\n",
+                "- name: dueDate\n  type: text\n- name: countsByState\n  type: map\n  keyType: text\n  valueType: integer\n",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: domain-events
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Domain/{Aggregate}/Events
+              namespace: Library.{Module}.Domain.{Aggregate}.Events
+              markerType: Library.Kernel.Domain.IDomainEvent
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var @event = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("LoanLoanBorrowedDomainEvent.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("IReadOnlyDictionary<string, int> CountsByState", @event, StringComparison.Ordinal);
+    }
+
     /// <summary>Rewrites the small fixture's loan-borrowed event with one carry per mapped shape.</summary>
     /// <param name="root">The prepared fixture folder.</param>
     static void WriteRichLoanBorrowed(string root) =>

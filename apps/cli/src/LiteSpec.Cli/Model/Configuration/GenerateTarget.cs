@@ -26,6 +26,7 @@ namespace LiteSpec.Cli.Model.Configuration;
 /// <param name="QueryInterface">The C# message interface a messages target implements on queries, such as IQuery; empty when the declaration names none.</param>
 /// <param name="Visibility">The use cases a messages or results target renders: public for the use cases another module reaches, anything else for the module's own.</param>
 /// <param name="ClaimReader">The qualified static method an endpoints target reads an actor identity with, as Namespace.Type.Method; empty when the declaration names none.</param>
+/// <param name="TenantReader">The qualified static method an endpoints target reads the tenant identity with, as Namespace.Type.Method; empty when the declaration names none.</param>
 sealed record GenerateTarget(
     string Kind,
     string Stack,
@@ -47,4 +48,5 @@ sealed record GenerateTarget(
     string CommandInterface = "",
     string QueryInterface = "",
     string Visibility = "",
-    string ClaimReader = "");
+    string ClaimReader = "",
+    string TenantReader = "");

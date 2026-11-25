@@ -34,6 +34,7 @@ static class ValidatorsRenderer
     /// <param name="Rules">The generated rules in written input order.</param>
     /// <param name="UsesGuid">True when a rule compares against Guid.Empty.</param>
     /// <param name="UsesRegex">True when a rule matches a regular expression.</param>
+    /// <param name="UsesLinq">True when a rule reads map values through Linq.</param>
     public sealed record ValidatorData(
         string UseCaseName,
         string Kind,
@@ -42,7 +43,8 @@ static class ValidatorsRenderer
         IReadOnlyList<string> Usings,
         IReadOnlyList<ValidationRule> Rules,
         bool UsesGuid,
-        bool UsesRegex);
+        bool UsesRegex,
+        bool UsesLinq);
 
     /// <summary>The validator type name: the message type with a Validator suffix.</summary>
     /// <param name="messageType">The simple message type name.</param>
@@ -120,6 +122,11 @@ static class ValidatorsRenderer
 
         lines.Add("using System.Collections.Generic;");
 
+        if (data.UsesLinq)
+        {
+            lines.Add("using System.Linq;");
+        }
+
         if (data.UsesRegex)
         {
             lines.Add("using System.Text.RegularExpressions;");
@@ -150,8 +157,8 @@ static class ValidatorsRenderer
     /// <param name="parameter">The validate parameter name: command or query.</param>
     /// <param name="domainOwned">True when a cited rule states a refusal, so Domain refuses the constraints.</param>
     /// <param name="input">The input field as the record states it.</param>
-    /// <returns>Whether the appended rules compare against Guid.Empty or match a regular expression.</returns>
-    internal static (bool UsesGuid, bool UsesRegex) AddRulesFor(
+    /// <returns>Whether the appended rules compare against Guid.Empty, match a regular expression, or read map values through Linq.</returns>
+    internal static (bool UsesGuid, bool UsesRegex, bool UsesLinq) AddRulesFor(
         List<ValidationRule> rules, string member, string parameter, bool domainOwned, JsonElement input)
     {
         var usesGuid = false;
@@ -166,7 +173,7 @@ static class ValidatorsRenderer
 
         if (type is null || many)
         {
-            return (false, false);
+            return (false, false, false);
         }
 
         var display = DisplayOf(member);
@@ -177,9 +184,9 @@ static class ValidatorsRenderer
             rules.Add(new ValidationRule(member, "required", presence, $"{ArticleFor(display)} {display} is required."));
         }
 
-        if (domainOwned || type is not ("text" or "email" or "integer" or "decimal" or "money"))
+        if (domainOwned || type is not ("text" or "email" or "integer" or "decimal" or "money" or "map"))
         {
-            return (usesGuid, false);
+            return (usesGuid, false, false);
         }
 
         if (type is "text" or "email")
@@ -214,7 +221,15 @@ static class ValidatorsRenderer
                     $"The {display} must match the required format."));
             }
 
-            return (usesGuid, usesRegex);
+            return (usesGuid, usesRegex, false);
+        }
+
+        if (type == "map")
+        {
+            var before = rules.Count;
+            var mapRegex = AddMapRulesFor(rules, member, parameter, required, display, input);
+
+            return (usesGuid, usesRegex || mapRegex, rules.Count > before);
         }
 
         if (input.TryGetProperty(RecordFields.Bounds, out var bounds) && bounds.ValueKind == JsonValueKind.Object)
@@ -242,7 +257,93 @@ static class ValidatorsRenderer
             }
         }
 
-        return (usesGuid, false);
+        return (usesGuid, false, false);
+    }
+
+    /// <summary>Appends the rules one map input field states: one rule per constraint, judging each value of the map.</summary>
+    /// <param name="rules">The rules, appended in place.</param>
+    /// <param name="member">The message property judging the field.</param>
+    /// <param name="parameter">The validate parameter name: command or query.</param>
+    /// <param name="required">True when the caller always sends the field.</param>
+    /// <param name="display">The field display name the messages name.</param>
+    /// <param name="input">The input field as the record states it.</param>
+    /// <returns>True when an appended rule matches a regular expression.</returns>
+    private static bool AddMapRulesFor(
+        List<ValidationRule> rules, string member, string parameter, bool required, string display, JsonElement input)
+    {
+        var usesRegex = false;
+        var valueType = RecordEntries.Str(input, RecordFields.ValueType);
+        var values = $"{parameter}.{member}.Values";
+        var absent = required ? null : $"{parameter}.{member} is not null";
+
+        string Condition(string test) =>
+            absent is null ? $"{values}.Any(value => {test})" : $"{absent} && {values}.Any(value => {test})";
+
+        if (valueType is "text" or "email")
+        {
+            if (NumberOf(input, RecordFields.MinLength) is { } minimum)
+            {
+                rules.Add(new ValidationRule(
+                    member,
+                    "too-short",
+                    Condition($"value.Length < {minimum}"),
+                    $"The {display} must each be at least {minimum} characters long."));
+            }
+
+            if (NumberOf(input, RecordFields.MaxLength) is { } maximum)
+            {
+                rules.Add(new ValidationRule(
+                    member,
+                    "too-long",
+                    Condition($"value.Length > {maximum}"),
+                    $"The {display} must each be at most {maximum} characters long."));
+            }
+
+            if (RecordEntries.Str(input, RecordFields.Matches) is { Length: > 0 } pattern)
+            {
+                usesRegex = true;
+                rules.Add(new ValidationRule(
+                    member,
+                    "invalid-format",
+                    Condition($"!Regex.IsMatch(value, \"{GenerateNaming.EscapeLiteral(pattern)}\")"),
+                    $"The {display} must each match the required format."));
+            }
+
+            return usesRegex;
+        }
+
+        if (valueType is not ("integer" or "decimal" or "money"))
+        {
+            return false;
+        }
+
+        if (input.TryGetProperty(RecordFields.Bounds, out var bounds) && bounds.ValueKind == JsonValueKind.Object)
+        {
+            var exclusive = bounds.TryGetProperty(RecordFields.Inclusive, out var inclusive)
+                && inclusive.ValueKind == JsonValueKind.False;
+            var literal = valueType == "integer" ? string.Empty : "m";
+            var amount = valueType == "money" ? "value.Amount" : "value";
+
+            if (NumberOf(bounds, RecordFields.Min) is { } min)
+            {
+                rules.Add(new ValidationRule(
+                    member,
+                    "too-small",
+                    Condition($"{amount} {ComparisonOf("<", exclusive)} {min}{literal}"),
+                    exclusive ? $"The {display} must each be more than {min}." : $"The {display} must each be at least {min}."));
+            }
+
+            if (NumberOf(bounds, RecordFields.Max) is { } max)
+            {
+                rules.Add(new ValidationRule(
+                    member,
+                    "too-large",
+                    Condition($"{amount} {ComparisonOf(">", exclusive)} {max}{literal}"),
+                    exclusive ? $"The {display} must each be less than {max}." : $"The {display} must each be at most {max}."));
+            }
+        }
+
+        return usesRegex;
     }
 
     /// <summary>The presence condition of a required field, or null when the mapped type is always present.</summary>
@@ -258,7 +359,7 @@ static class ValidatorsRenderer
             && identifies.StartsWith("actor/", StringComparison.Ordinal)
             ? $"{parameter}.{member} == Guid.Empty"
             : $"{parameter}.{member} == default",
-        "choice" or "list" => $"{parameter}.{member} is null",
+        "choice" or "list" or "map" => $"{parameter}.{member} is null",
         _ => null,
     };
 
@@ -275,9 +376,7 @@ static class ValidatorsRenderer
     private static string BoundCondition(
         string member, string parameter, bool required, string direction, string bound, string literal, bool exclusive, bool money)
     {
-        var comparison = direction == "<"
-            ? (exclusive ? "<=" : "<")
-            : (exclusive ? ">=" : ">");
+        var comparison = ComparisonOf(direction, exclusive);
 
         if (required)
         {
@@ -290,6 +389,14 @@ static class ValidatorsRenderer
             ? $"{parameter}.{member} is not null && {parameter}.{member}.Amount {comparison} {bound}{literal}"
             : $"{parameter}.{member}.HasValue && {parameter}.{member}.Value {comparison} {bound}{literal}";
     }
+
+    /// <summary>The comparison operator a bound breaks with: the bound itself breaks an exclusive bound.</summary>
+    /// <param name="direction">The comparison direction: &lt; for a minimum, &gt; for a maximum.</param>
+    /// <param name="exclusive">True when the bound itself breaks the rule.</param>
+    /// <returns>The operator text.</returns>
+    private static string ComparisonOf(string direction, bool exclusive) => direction == "<"
+        ? (exclusive ? "<=" : "<")
+        : (exclusive ? ">=" : ">");
 
     /// <summary>The number a constraint states: its raw text, or null when the property holds no number.</summary>
     /// <param name="element">The object holding the constraint.</param>

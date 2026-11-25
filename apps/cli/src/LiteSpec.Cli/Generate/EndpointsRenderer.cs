@@ -7,10 +7,11 @@ namespace LiteSpec.Cli.Generate;
 /// <summary>
 ///     Renders the HTTP endpoints the records declare as C#: per module a partial static
 ///     class holding one nested endpoint class per use case, each mapping its route with
-///     its method, binding each input from its source, sending the message through the
-///     LiteBus mediator, and answering the success status with the refusal statuses.
-///     A hand-written sibling file shapes each response the record projects and derives
-///     each value the clock rule does not cover.
+///     its method, binding each input from its source, reading the tenant key from the
+///     caller when the use case implies one, sending the message through the LiteBus
+///     mediator, and answering the success status with the refusal statuses. A hand-written
+///     sibling file shapes each response the record projects and derives each value the
+///     clock rule does not cover.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 static class EndpointsRenderer
@@ -30,6 +31,7 @@ static class EndpointsRenderer
     /// <param name="Origin">The input origin: caller, verified-claim, or derived.</param>
     /// <param name="Currency">The fixed ISO 4217 code a money input moves in, or null when the record states none.</param>
     /// <param name="CurrencyField">The sibling input carrying a money input's currency code, or null when the record states none.</param>
+    /// <param name="Size">The stored width in bits of an integer input: 32, or 64 for values past the 32-bit span.</param>
     public sealed record BoundInput(
         string Name,
         string Property,
@@ -44,7 +46,8 @@ static class EndpointsRenderer
         string? Actor,
         string Origin,
         string? Currency = null,
-        string? CurrencyField = null);
+        string? CurrencyField = null,
+        int Size = 32);
 
     /// <summary>One use-case endpoint the plan renders.</summary>
     /// <param name="UseCaseId">The use case identifier.</param>
@@ -65,6 +68,7 @@ static class EndpointsRenderer
     /// <param name="ResponseModel">The simple response model name, such as BorrowCopyResponseModel.</param>
     /// <param name="ResponseNamespace">The C# namespace declaring the response model.</param>
     /// <param name="Marks">The mark style the project declares.</param>
+    /// <param name="Tenant">The tenant key the message carries first, or null when the use case implies none.</param>
     public sealed record EndpointData(
         string UseCaseId,
         string UseCaseName,
@@ -83,7 +87,8 @@ static class EndpointsRenderer
         string ResultType,
         string ResponseModel,
         string ResponseNamespace,
-        MarkStyle Marks);
+        MarkStyle Marks,
+        MessagesRenderer.TenantKey? Tenant = null);
 
     /// <summary>
     ///     Renders one module's endpoints as C#: an internal static partial class with one
@@ -95,16 +100,19 @@ static class EndpointsRenderer
     /// <param name="namespace">The C# namespace of the generated class.</param>
     /// <param name="claimReader">The qualified claim reader method, as Namespace.Type.Method.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
+    /// <param name="tenantReader">The qualified tenant reader method, as Namespace.Type.Method, or empty when the target names none.</param>
     /// <returns>The file text with LF line endings.</returns>
     public static string RenderDotnet(
         string module,
         IReadOnlyList<EndpointData> endpoints,
         string @namespace,
         string claimReader,
-        IReadOnlyList<string> usings)
+        IReadOnlyList<string> usings,
+        string tenantReader = "")
     {
         var ordered = endpoints.OrderBy(endpoint => endpoint.UseCaseId, StringComparer.Ordinal).ToList();
-        var reader = ClaimReaderOf(claimReader);
+        var reader = ReaderOf(claimReader);
+        var tenant = ReaderOf(tenantReader);
         var lines = new List<string>
         {
             GenerateNaming.HeaderLineFor(GenerateNaming.CurrentVersion()),
@@ -112,7 +120,7 @@ static class EndpointsRenderer
             "",
         };
 
-        foreach (var heading in UsingLines(ordered, @namespace, reader.Namespace, usings))
+        foreach (var heading in UsingLines(ordered, @namespace, reader.Namespace, tenant.Namespace, usings))
         {
             lines.Add(heading);
         }
@@ -137,7 +145,7 @@ static class EndpointsRenderer
                 lines.Add("");
             }
 
-            EndpointLines(lines, ordered[index], reader);
+            EndpointLines(lines, ordered[index], reader, tenant);
         }
 
         lines.Add("}");
@@ -145,33 +153,35 @@ static class EndpointsRenderer
         return string.Join('\n', lines) + "\n";
     }
 
-    /// <summary>The qualified claim reader method split into the call and its namespace.</summary>
+    /// <summary>The qualified reader method split into the call and its namespace.</summary>
     /// <param name="Call">The type and method the endpoint calls, such as ActorClaims.ReadActorId.</param>
     /// <param name="Namespace">The C# namespace declaring the reader type.</param>
-    private sealed record ClaimReader(string Call, string Namespace);
+    private sealed record Reader(string Call, string Namespace);
 
-    /// <summary>Splits the qualified claim reader method the target names into its call and namespace.</summary>
-    /// <param name="claimReader">The qualified method, as Namespace.Type.Method.</param>
+    /// <summary>Splits a qualified reader method the target names into its call and namespace.</summary>
+    /// <param name="qualified">The qualified method, as Namespace.Type.Method.</param>
     /// <returns>The type and method call with the declaring namespace.</returns>
-    private static ClaimReader ClaimReaderOf(string claimReader)
+    private static Reader ReaderOf(string qualified)
     {
-        var parts = claimReader.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        var parts = qualified.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
         return parts.Length >= 3
-            ? new ClaimReader(parts[^2] + "." + parts[^1], string.Join(".", parts[..^2]))
-            : new ClaimReader(claimReader, "");
+            ? new Reader(parts[^2] + "." + parts[^1], string.Join(".", parts[..^2]))
+            : new Reader(qualified, "");
     }
 
     /// <summary>The using lines the file opens with: the claims, mediator, message, response and reader namespaces with the target usings, ordered, without the file's own namespace or an enclosing one.</summary>
     /// <param name="endpoints">The module's endpoints in use case order.</param>
     /// <param name="namespace">The C# namespace of the generated class.</param>
     /// <param name="readerNamespace">The C# namespace declaring the claim reader type.</param>
+    /// <param name="tenantNamespace">The C# namespace declaring the tenant reader type, or empty when the target names none.</param>
     /// <param name="usings">The C# namespaces the target declares.</param>
     /// <returns>The using lines in ordinal order.</returns>
     private static List<string> UsingLines(
         IReadOnlyList<EndpointData> endpoints,
         string @namespace,
         string readerNamespace,
+        string tenantNamespace,
         IReadOnlyList<string> usings)
     {
         var names = new SortedSet<string>(StringComparer.Ordinal)
@@ -212,6 +222,11 @@ static class EndpointsRenderer
             names.Add(readerNamespace);
         }
 
+        if (tenantNamespace.Length > 0)
+        {
+            names.Add(tenantNamespace);
+        }
+
         foreach (var message in endpoints.Select(endpoint => endpoint.MessageNamespace).Distinct(StringComparer.Ordinal))
         {
             if (message.Length > 0)
@@ -245,17 +260,19 @@ static class EndpointsRenderer
         return [.. names.Select(candidate => $"using {candidate};")];
     }
 
-    /// <summary>Whether the endpoint reads the caller: a claim input or a derived value the sibling reads off the caller.</summary>
+    /// <summary>Whether the endpoint reads the caller: a tenant key, a claim input, or a derived value the sibling reads off the caller.</summary>
     /// <param name="endpoint">The endpoint whose inputs are read.</param>
     /// <returns>True when the handler takes the caller; otherwise false.</returns>
     private static bool UsesUser(EndpointData endpoint) =>
-        endpoint.Inputs.Any(input => input.Binding == "claim" || (input.Origin == "derived" && input.Type != "instant"));
+        endpoint.Tenant is not null
+        || endpoint.Inputs.Any(input => input.Binding == "claim" || (input.Origin == "derived" && input.Type != "instant"));
 
     /// <summary>Writes one endpoint: its request record when body inputs exist, its nested endpoint class, and its partial methods.</summary>
     /// <param name="lines">The file lines, appended in place.</param>
     /// <param name="endpoint">The endpoint the plan renders.</param>
     /// <param name="reader">The claim reader call.</param>
-    private static void EndpointLines(List<string> lines, EndpointData endpoint, ClaimReader reader)
+    /// <param name="tenant">The tenant reader call.</param>
+    private static void EndpointLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant)
     {
         if (endpoint.Inputs.Any(input => input.Binding == "body"))
         {
@@ -284,7 +301,7 @@ static class EndpointsRenderer
         MapLines(lines, endpoint);
         lines.Add("        }");
         lines.Add("");
-        HandleLines(lines, endpoint, reader);
+        HandleLines(lines, endpoint, reader, tenant);
         lines.Add("    }");
 
         var partials = PartialLines(endpoint);
@@ -360,7 +377,8 @@ static class EndpointsRenderer
     /// <param name="lines">The file lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose inputs are read.</param>
     /// <param name="reader">The claim reader call.</param>
-    private static void HandleLines(List<string> lines, EndpointData endpoint, ClaimReader reader)
+    /// <param name="tenant">The tenant reader call.</param>
+    private static void HandleLines(List<string> lines, EndpointData endpoint, Reader reader, Reader tenant)
     {
         var parameters = new List<string>();
         var requested = false;
@@ -405,7 +423,7 @@ static class EndpointsRenderer
 
         GuardLines(body, endpoint);
         FileLines(body, endpoint);
-        DispatchLines(body, endpoint, reader);
+        DispatchLines(body, endpoint, reader, tenant);
         ResponseLines(body, endpoint);
 
         foreach (var line in body)
@@ -490,16 +508,17 @@ static class EndpointsRenderer
         }
     }
 
-    /// <summary>Writes the message construction and its dispatch through the mediator.</summary>
+    /// <summary>Writes the message construction and its dispatch through the mediator: the tenant key first, then each input.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose message is read.</param>
     /// <param name="reader">The claim reader call.</param>
-    private static void DispatchLines(List<string> body, EndpointData endpoint, ClaimReader reader)
+    /// <param name="tenant">The tenant reader call.</param>
+    private static void DispatchLines(List<string> body, EndpointData endpoint, Reader reader, Reader tenant)
     {
         var call = endpoint.Kind == "query" ? "mediator.QueryAsync" : "mediator.SendAsync";
         var assign = endpoint.Projects ? "var result = await " : "await ";
 
-        if (endpoint.Inputs.Count == 0)
+        if (endpoint.Tenant is null && endpoint.Inputs.Count == 0)
         {
             body.Add($"{assign}{call}(new {endpoint.MessageType}(), cancellationToken);");
             return;
@@ -507,6 +526,11 @@ static class EndpointsRenderer
 
         body.Add($"{assign}{call}(");
         body.Add($"    new {endpoint.MessageType}(");
+
+        if (endpoint.Tenant is { } tenantKey)
+        {
+            body.Add($"        {tenantKey.Property}: {tenant.Call}(user){(endpoint.Inputs.Count == 0 ? "" : ",")}");
+        }
 
         for (var index = 0; index < endpoint.Inputs.Count; index++)
         {
@@ -575,7 +599,7 @@ static class EndpointsRenderer
     /// <param name="input">The input whose value is read.</param>
     /// <param name="reader">The claim reader call.</param>
     /// <returns>The argument expression.</returns>
-    private static string ArgumentOf(EndpointData endpoint, BoundInput input, ClaimReader reader)
+    private static string ArgumentOf(EndpointData endpoint, BoundInput input, Reader reader)
     {
         if (input.Origin == "derived")
         {
@@ -655,7 +679,7 @@ static class EndpointsRenderer
         var type = input.Type switch
         {
             "text" or "email" or "choice" => "string",
-            "integer" => "int",
+            "integer" => input.Size == 64 ? "long" : "int",
             "decimal" => "decimal",
             "money" => "decimal",
             "boolean" => "bool",
@@ -693,7 +717,7 @@ static class EndpointsRenderer
         return input.Type switch
         {
             "text" or "email" => "string" + optional,
-            "integer" => "int" + optional,
+            "integer" => (input.Size == 64 ? "long" : "int") + optional,
             "decimal" => "decimal" + optional,
             "money" => "Money" + optional,
             "boolean" => "bool" + optional,

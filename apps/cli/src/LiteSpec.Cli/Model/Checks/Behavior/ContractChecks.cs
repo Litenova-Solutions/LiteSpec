@@ -19,7 +19,7 @@ internal static class ContractChecks
     /// <summary>The contract field types a use-case input or an integration-event payload field may carry.</summary>
     private static readonly HashSet<string> ContractTypes = new(StringComparer.Ordinal)
     {
-        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list",
+        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list", "map",
     };
 
     /// <summary>The input names that carry a claim a provider verifies, never a caller.</summary>
@@ -913,7 +913,7 @@ internal static class ContractChecks
         return siblings;
     }
 
-    /// <summary>Reports an identifies that names no record for an id, a choice with inline choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither. An id field with no identifies reads as an untyped identifier and reports nothing.</summary>
+    /// <summary>Reports an identifies that names no record for an id or a map with id values, a choice with inline choices, a list with no row shape, a file with no content types and size, and an identifies or rowShape on a type that carries neither. An id field with no identifies reads as an untyped identifier and reports nothing.</summary>
     /// <param name="model">The loaded project model that resolves the id field target.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -966,6 +966,36 @@ internal static class ContractChecks
             }
 
             CheckRowShape(model, record, label, array, name, hasRow ? rowShape : default, findings);
+            return;
+        }
+
+        if (type == "map")
+        {
+            if (hasRow)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type map with a rowShape that only list carries.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (Str(entry, RecordFields.KeyType) is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type map with no keyType.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (Str(entry, RecordFields.ValueType) is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type map with no valueType.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (!hasId || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
+            {
+                return;
+            }
+
+            if (!model.ById.ContainsKey(Identifiers.BaseId(target)))
+            {
+                findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {array} field '{name}' of '{target}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+
             return;
         }
 
@@ -1028,24 +1058,21 @@ internal static class ContractChecks
                 return;
             }
 
-            var set = Str(entry, RecordFields.Set)!;
-            var baseId = Identifiers.BaseId(set);
-
-            if (!model.ById.TryGetValue(baseId, out var target))
-            {
-                findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which no record holds.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (target.Type != RecordTypes.ReferenceData && target.Type != RecordTypes.Setting)
-            {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which is a {target.Type}.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (!HoldsChoices(target))
-            {
-                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which holds no choices.", record.File, record.Line, SubjectOf(record)));
-            }
+            CheckValueSet(model, record, label, holder, name, entry, findings);
         }
 
-        if (type == "money")
+        if (type == "map" && Str(entry, RecordFields.ValueType) == "choice")
+        {
+            if (Str(entry, RecordFields.Set) is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' of type map with choice values and no set.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            CheckValueSet(model, record, label, holder, name, entry, findings);
+        }
+
+        if (type == "money" || (type == "map" && Str(entry, RecordFields.ValueType) == "money"))
         {
             if (Str(entry, RecordFields.CurrencyHome) is { Length: > 0 } home
                 && !model.ById.ContainsKey(Identifiers.BaseId(home)))
@@ -1090,6 +1117,33 @@ internal static class ContractChecks
             && floor > ceiling)
         {
             findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with bounds min {lower.GetRawText()} above max {upper.GetRawText()}.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a closed set a choice field or a map with choice values names that no record holds, that is no closed set, or that holds no choices.</summary>
+    /// <param name="model">The loaded project model that resolves the closed set.</param>
+    /// <param name="record">The record that holds the contract field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="holder">The field noun each finding names.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="entry">The contract field object holding the set reference.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckValueSet(ProjectModel model, Record record, string label, string holder, string name, JsonElement entry, List<Finding> findings)
+    {
+        var set = Str(entry, RecordFields.Set)!;
+        var baseId = Identifiers.BaseId(set);
+
+        if (!model.ById.TryGetValue(baseId, out var target))
+        {
+            findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (target.Type != RecordTypes.ReferenceData && target.Type != RecordTypes.Setting)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which is a {target.Type}.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (!HoldsChoices(target))
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with set '{set}', which holds no choices.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

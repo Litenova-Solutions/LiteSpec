@@ -38,7 +38,7 @@ A contract field maps to exactly one C# type, so a generator writes the same pro
 | Record type | C# type |
 |:---|:---|
 | `text`, `email` | `string` |
-| `integer` | `int` |
+| `integer` | `int`, or `long` with `size: 64` |
 | `decimal` | `decimal` |
 | `money` | `Money` |
 | `boolean` | `bool` |
@@ -48,11 +48,12 @@ A contract field maps to exactly one C# type, so a generator writes the same pro
 | `choice` | The closed-set record the `set` names |
 | `id` | The typed identifier of what `identifies` names, or `Guid` with no `identifies` |
 | `list` | `IReadOnlyList<T>` with `T` from the row shape or the named row type |
+| `map` | `IReadOnlyDictionary<K, V>` with `K` from `keyType` and `V` from `valueType` |
 | `file` | `byte[]`, with the endpoint binding the multipart upload |
 
-A money field rides as the shared `Money` object, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states. The currency facts state which currency the value moves in, and a validator compares the amount. An id field identifying an aggregate rides as its typed identifier struct, as `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers` states, and one identifying an actor rides as a `Guid`, as does one with no `identifies`. Each member takes the PascalCase field name: an author wanting an `Id` member names the field with the suffix. A choice field rides as the closed-set record hierarchy, as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` states. A list rides as a read-only list of its row element for one field, or of the named row type when the field states `rowType`; a multi-field message list always states one. A carried field naming an aggregate part rides as the part name in PascalCase, and one naming a C# type rides as that type. A file field rides as the carried bytes in `byte[]`, and states its media types and size for the endpoint, which binds the multipart upload and maps it to the bytes. The constraints exist so validators enforce them from the record.
+A money field rides as the shared `Money` object, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states. The currency facts state which currency the value moves in, and a validator compares the amount. An id field identifying an aggregate rides as its typed identifier struct, as `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers` states, and one identifying an actor rides as a `Guid`, as does one with no `identifies`. Each member takes the PascalCase field name: an author wanting an `Id` member names the field with the suffix. A choice field rides as the closed-set record hierarchy, as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` states. An integer field rides as an `int`, or as a `long` when the field states `size: 64` for values past the 32-bit span. A list rides as a read-only list of its row element for one field, or of the named row type when the field states `rowType`; a multi-field message list always states one. A map field rides as a read-only dictionary of its value type by its key type: a `text` key rides as a `string` and an `integer` key as an `int`, and the value rides as a scalar of its `valueType` with the facts the field states for it. A carried field naming an aggregate part rides as the part name in PascalCase, and one naming a C# type rides as that type. A file field rides as the carried bytes in `byte[]`, and states its media types and size for the endpoint, which binds the multipart upload and maps it to the bytes. The constraints exist so validators enforce them from the record.
 
-In Claimwick, the submit-expense command carries an `ExpenseId`, a `decimal` amount with a `string` currency, and a `DateTimeOffset` handled time from its record.
+In Claimwick, the submit-expense command carries an `ExpenseId`, a `decimal` amount with a `string` currency, and a `DateTimeOffset` handled time from its record. The attach result carries the scan's byte size as a `long`, and the export result counts the approved expenses by currency in a read-only dictionary.
 
 ## Standards
 

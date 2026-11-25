@@ -293,6 +293,10 @@ properties:
           description: 'The qualified static method an endpoints target reads an actor identity with, as Namespace.Type.Method, taking the caller and the actor name. Required for an endpoints target; unused for every other kind.'
           type: string
           minLength: 1
+        tenantReader:
+          description: 'The qualified static method an endpoints target reads the tenant identity with, as Namespace.Type.Method, taking the caller. Optional; without it, a use case implying a tenant key renders no endpoint; unused for every other kind.'
+          type: string
+          minLength: 1
       allOf:
       - if:
           properties:

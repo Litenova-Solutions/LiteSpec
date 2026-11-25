@@ -8,13 +8,13 @@ Export Expenses gives finance a file of the approved expenses since the last exp
 2. Spending refuses the export with `spending.nothing-approved` when none awaits it.
 3. Spending writes one file with one row per approved expense.
 
-Each row holds the expense identity, the amount, the currency, the approver and the approval time, and the file classifies its data as internal. The file holds every approved expense of the period, so the records set no paging. The records state no row limit or file size either.
+Each row holds the expense identity, the amount, the currency, the approver and the approval time, and the file classifies its data as internal. The answer also counts the approved expenses by currency code, so the payout batch reconciles each currency. The file holds every approved expense of the period, so the records set no paging. The records state no row limit or file size either.
 
 ## Example
 
-Cara exports the expenses approved this week: Ava's 48.90 EUR train fare, approved by Ben, and one other expense from the same week.
+Cara exports the expenses approved this week: Ava's 48.90 EUR train fare, approved by Ben, and one other EUR expense from the same week.
 
-The file holds two rows, each giving the expense identity, the amount and currency, Ben as the approver, and the time of approval. The records do not say how the last export is marked, so this example shows no second export.
+The file holds two rows, each giving the expense identity, the amount and currency, Ben as the approver, and the time of approval. The EUR count is two. The records do not say how the last export is marked, so this example shows no second export.
 
 ## Edge Cases
 

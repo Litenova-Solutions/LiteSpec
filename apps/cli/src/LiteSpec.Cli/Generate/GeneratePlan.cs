@@ -397,6 +397,13 @@ static class GeneratePlan
             return false;
         }
 
+        if (target.Kind == "endpoints" && target.TenantReader.Length > 0
+            && target.TenantReader.Split('.', StringSplitOptions.RemoveEmptyEntries) is not { Length: >= 3 })
+        {
+            error = $"Generate target 'endpoints' for stack '{target.Stack}' names tenantReader '{target.TenantReader}', which is no qualified method; use Namespace.Type.Method.";
+            return false;
+        }
+
         return true;
     }
 
@@ -2569,7 +2576,7 @@ static class GeneratePlan
                 continue;
             }
 
-            var (rules, usesGuid, usesRegex) = ValidatorRulesOf(model, record);
+            var (rules, usesGuid, usesRegex, usesLinq) = ValidatorRulesOf(model, record);
 
             if (rules.Count == 0)
             {
@@ -2591,7 +2598,8 @@ static class GeneratePlan
                     usings,
                     rules,
                     usesGuid,
-                    usesRegex))));
+                    usesRegex,
+                    usesLinq))));
         }
 
         return files;
@@ -2600,13 +2608,14 @@ static class GeneratePlan
     /// <summary>The rules one use case record states: one presence rule per required field the type admits missing, with one rule per constraint Domain refuses nothing for.</summary>
     /// <param name="model">The built project model resolving the rules each constraint cites.</param>
     /// <param name="record">The use case record whose inputs are read.</param>
-    /// <returns>The rules in written input order, with whether any compares against Guid.Empty or matches a regular expression.</returns>
-    private static (List<ValidatorsRenderer.ValidationRule> Rules, bool UsesGuid, bool UsesRegex) ValidatorRulesOf(
+    /// <returns>The rules in written input order, with whether any compares against Guid.Empty, matches a regular expression, or reads map values through Linq.</returns>
+    private static (List<ValidatorsRenderer.ValidationRule> Rules, bool UsesGuid, bool UsesRegex, bool UsesLinq) ValidatorRulesOf(
         ProjectModel model, Record record)
     {
         var rules = new List<ValidatorsRenderer.ValidationRule>();
         var usesGuid = false;
         var usesRegex = false;
+        var usesLinq = false;
         var parameter = record.Field(RecordFields.Kind) == "query" ? "query" : "command";
 
         foreach (var input in record.Objects(RecordFields.Input))
@@ -2618,14 +2627,15 @@ static class GeneratePlan
                 continue;
             }
 
-            var (guid, regex) = ValidatorsRenderer.AddRulesFor(
+            var (guid, regex, linq) = ValidatorsRenderer.AddRulesFor(
                 rules, PropertyOf(name), parameter, CitesRefusalRule(model, input), input);
 
             usesGuid = usesGuid || guid;
             usesRegex = usesRegex || regex;
+            usesLinq = usesLinq || linq;
         }
 
-        return (rules, usesGuid, usesRegex);
+        return (rules, usesGuid, usesRegex, usesLinq);
     }
 
     /// <summary>Whether an input cites a rule stating a refusal, so Domain refuses its constraints through the written result.</summary>
@@ -2694,7 +2704,7 @@ static class GeneratePlan
 
             foreach (var record in entries.OrderBy(entry => entry.Id, StringComparer.Ordinal))
             {
-                var endpoint = EndpointOf(model, record, resolved, model.Config.Marks, out var skip);
+                var endpoint = EndpointOf(model, record, resolved, model.Config.Marks, target.TenantReader, out var skip);
 
                 if (skip is not null)
                 {
@@ -2717,7 +2727,7 @@ static class GeneratePlan
 
             files.Add(new GeneratedFile(
                 Path.Combine(folder, $"{name}Endpoints.generated.cs"),
-                EndpointsRenderer.RenderDotnet(module, endpoints, resolved + ".WebApi", target.ClaimReader, usings)));
+                EndpointsRenderer.RenderDotnet(module, endpoints, resolved + ".WebApi", target.ClaimReader, usings, target.TenantReader)));
         }
 
         return files;
@@ -2728,6 +2738,7 @@ static class GeneratePlan
     /// <param name="record">The use case record.</param>
     /// <param name="resolvedNamespace">The target namespace with the module resolved.</param>
     /// <param name="marks">The mark style the project declares.</param>
+    /// <param name="tenantReader">The qualified tenant reader method, or empty when the target names none.</param>
     /// <param name="skip">The skip reason when the record states something the vocabulary cannot express.</param>
     /// <returns>The endpoint, or null when the record renders nothing.</returns>
     private static EndpointsRenderer.EndpointData? EndpointOf(
@@ -2735,6 +2746,7 @@ static class GeneratePlan
         Record record,
         string resolvedNamespace,
         MarkStyle marks,
+        string tenantReader,
         out string? skip)
     {
         skip = null;
@@ -2783,9 +2795,13 @@ static class GeneratePlan
             return null;
         }
 
-        if (TenantKeyOf(model, record) is not null)
+        var tenant = TenantKeyOf(model, record) is { } implied
+            ? new MessagesRenderer.TenantKey(implied.Name, implied.Type)
+            : null;
+
+        if (tenant is not null && tenantReader.Length == 0)
         {
-            skip = "implies a tenant key, which endpoints do not bind";
+            skip = "implies a tenant key and the target names no tenantReader";
             return null;
         }
 
@@ -2821,7 +2837,8 @@ static class GeneratePlan
             messageType + "Result",
             messageName + "ResponseModel",
             ResponseNamespaceOf(resolvedNamespace, record, messageName),
-            marks);
+            marks,
+            tenant);
     }
 
     /// <summary>Reads the bound inputs of a use case in written order, or the reason the endpoint renders nothing.</summary>
@@ -2867,6 +2884,12 @@ static class GeneratePlan
             if (type == "list")
             {
                 skip = $"input '{name}' carries a list, which endpoints do not bind";
+                return null;
+            }
+
+            if (type == "map")
+            {
+                skip = $"input '{name}' carries a map, which endpoints do not bind";
                 return null;
             }
 
@@ -2919,6 +2942,12 @@ static class GeneratePlan
 
             var wire = WireNameOf(name, type, binding, RecordEntries.Str(input, RecordFields.RouteParameter));
             var sanitized = GenerateNaming.SanitizeConstName(wire);
+            var size = input.TryGetProperty(RecordFields.Size, out var width)
+                && width.ValueKind == JsonValueKind.Number
+                && width.TryGetInt32(out var bits)
+                && bits == 64
+                ? 64
+                : 32;
 
             inputs.Add(new EndpointsRenderer.BoundInput(
                 name,
@@ -2934,7 +2963,8 @@ static class GeneratePlan
                 binding == "claim" ? ActorOf(input, name) : null,
                 origin,
                 RecordEntries.Str(input, RecordFields.Currency),
-                RecordEntries.Str(input, RecordFields.CurrencyField)));
+                RecordEntries.Str(input, RecordFields.CurrencyField),
+                size));
         }
 
         if (fileInput is not null && inputs.Any(input => input.Binding == "body"))

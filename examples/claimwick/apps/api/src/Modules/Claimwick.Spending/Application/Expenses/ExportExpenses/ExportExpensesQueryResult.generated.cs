@@ -9,4 +9,5 @@ namespace Claimwick.Spending.Application.Expenses.ExportExpenses;
 
 /// <summary>The Export Expenses result.</summary>
 /// <param name="Rows">The set of rows with one row per approved expense.</param>
-internal sealed partial record ExportExpensesQueryResult(IReadOnlyList<ExportedExpenseRow> Rows);
+/// <param name="CountByCurrency">The approved expenses counted by currency code, so the payout batch reconciles each currency.</param>
+internal sealed partial record ExportExpensesQueryResult(IReadOnlyList<ExportedExpenseRow> Rows, IReadOnlyDictionary<string, int> CountByCurrency);

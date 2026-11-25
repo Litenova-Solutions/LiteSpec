@@ -246,6 +246,127 @@ public sealed class GenerateMessagesTests
         Assert.Contains("internal sealed partial record BorrowCopyCommand(WorkspaceId WorkspaceId, CopyId CopyId, Guid ReaderId);", command, StringComparison.Ordinal);
     }
 
+    /// <summary>An integer input stating size 64 rides a long in the message.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SizedIntegerRendersLong()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "extend-loan", "extend-loan.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "- name: days\n  meaning: The number of days the loan is extended.\n  type: integer\n",
+                "- name: days\n  meaning: The number of days the loan is extended.\n  type: integer\n  size: 64\n",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ExtendLoanCommand.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("long Days", command, StringComparison.Ordinal);
+    }
+
+    /// <summary>A map input rides a read-only dictionary of its value type by its key type in the message.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapInputRendersDictionary()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(path, "\n" + """
+            input:
+            - name: countsByState
+              meaning: The retired copies counted by lifecycle state.
+              type: map
+              keyType: text
+              valueType: integer
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("RetireCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("IReadOnlyDictionary<string, int> CountsByState", command, StringComparison.Ordinal);
+    }
+
+    /// <summary>A map output field rides a read-only dictionary of its value type by its key type in the result.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapOutputRendersDictionary()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "list-loans", "list-loans.yaml");
+        File.WriteAllText(
+            path,
+            File.ReadAllText(path).Replace(
+                "        rowType: LoansRow\n      classification: internal",
+                "        rowType: LoansRow\n      - name: countsByState\n        type: map\n        meaning: The loans counted by lifecycle state.\n        keyType: text\n        valueType: integer\n        required: true\n      classification: internal",
+                StringComparison.Ordinal));
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: results
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var result = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("ListLoansQueryResult.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("IReadOnlyDictionary<string, int> CountsByState", result, StringComparison.Ordinal);
+    }
+
+    /// <summary>A map input with decimal values rides a read-only dictionary of decimals carrying its scale fact.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapDecimalValuesRenderDictionary()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        var path = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(path, "\n" + """
+            input:
+            - name: priceByState
+              meaning: The retired copy price by lifecycle state.
+              type: map
+              keyType: text
+              valueType: decimal
+              scale: 2
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: messages
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}/Application/{Aggregate}/{UseCase}
+              namespace: Library.{Module}.Application.{Aggregate}.{UseCase}
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+        var command = Assert.Single(plan.Files, file => file.AbsolutePath.EndsWith("RetireCopyCommand.generated.cs", StringComparison.Ordinal)).Content;
+
+        Assert.Contains("IReadOnlyDictionary<string, decimal> PriceByState", command, StringComparison.Ordinal);
+    }
+
     /// <summary>Selects tenancy with the workspace term and declares the term, so messages imply the tenant key.</summary>
     /// <param name="root">The prepared fixture folder.</param>
     static void WriteTenancy(string root)

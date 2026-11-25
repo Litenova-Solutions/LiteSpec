@@ -932,6 +932,12 @@ public static class RecordFields
     /// <summary>Gets the name of the `scale` field.</summary>
     public const string Scale = "scale";
 
+    /// <summary>Gets the name of the `size` field: the stored width in bits of an integer field.</summary>
+    public const string Size = "size";
+
+    /// <summary>Gets the name of the `keyType` field: the scalar type of a map field's keys.</summary>
+    public const string KeyType = "keyType";
+
     /// <summary>Gets the name of the `minLength` field.</summary>
     public const string MinLength = "minLength";
 

@@ -8,7 +8,7 @@ Attach Receipt lets an employee add a receipt to a submitted expense. It concern
 2. Spending refuses the receipt with `spending.expense-decided` when the expense is decided.
 3. Spending attaches the receipt and raises the attached event.
 
-An audit entry is stored for the receipt within its expense. Each request attaches a new receipt with a new identity, while a repeated request returns the first result instead: the receiptId key recognizes the repeat. The scan uploads the receipt as PNG, JPEG, or PDF up to 10 MB.
+An audit entry is stored for the receipt within its expense. Each request attaches a new receipt with a new identity, while a repeated request returns the first result instead: the receiptId key recognizes the repeat. The scan uploads the receipt as PNG, JPEG, or PDF up to 10 MB. The answer reports the stored scan's byte size.
 
 ## Example
 

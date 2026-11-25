@@ -62,6 +62,10 @@ output:
   meaning: The attached receipt.
   type: id
   identifies: aggregate/spending.receipt
+- name: sizeBytes
+  meaning: The stored scan's byte size.
+  type: integer
+  size: 64
 writes:
 - aggregate/spending.expense
 - aggregate/spending.receipt

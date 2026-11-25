@@ -22,7 +22,7 @@ internal static class IdempotencyKeyChecks
     /// <summary>The contract value types, which hold no member a dotted placeholder could reach.</summary>
     private static readonly HashSet<string> ValueTypes = new(StringComparer.Ordinal)
     {
-        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list",
+        "text", "integer", "decimal", "money", "boolean", "date", "instant", "duration", "email", "choice", "id", "file", "list", "map",
     };
 
     /// <summary>Reports each key placeholder that no input or triggering event carries.</summary>

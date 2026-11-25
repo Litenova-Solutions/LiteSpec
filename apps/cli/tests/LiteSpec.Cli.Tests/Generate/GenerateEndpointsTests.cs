@@ -292,7 +292,7 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("Deposit: Money.Create(deposit, depositCurrency)", file.Content, StringComparison.Ordinal);
     }
 
-    /// <summary>A use case implying a tenant key renders no endpoint and lists the skip with its reason.</summary>
+    /// <summary>A use case implying a tenant key renders no endpoint without a tenantReader and lists the skip with its reason.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void TenantImpliedEndpointSkipsWithReason()
@@ -326,6 +326,124 @@ public sealed class GenerateEndpointsTests
         Assert.Empty(plan.Errors);
         var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.borrow-copy");
         Assert.Contains("implies a tenant key", skip.Reason, StringComparison.Ordinal);
+        Assert.Contains("tenantReader", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A use case implying a tenant key renders its endpoint reading the key from the caller through the tenantReader.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void TenantImpliedEndpointRendersThroughTenantReader()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteTenancy(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+              tenantReader: Library.Platform.Http.TenantClaims.ReadTenantId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("using Library.Platform.Http;", file.Content, StringComparison.Ordinal);
+        Assert.Contains("ClaimsPrincipal user", file.Content, StringComparison.Ordinal);
+        Assert.Contains("WorkspaceId: TenantClaims.ReadTenantId(user),", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>An endpoints target with an unqualified tenant reader reports and renders nothing.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EndpointsTargetWithUnqualifiedTenantReaderReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+              tenantReader: TenantClaims.ReadTenantId
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Files);
+        Assert.Contains(plan.Errors, error => error.Contains("tenantReader", StringComparison.Ordinal));
+    }
+
+    /// <summary>A use case carrying a map input renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapInputSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: countsByState
+              meaning: The retired copies counted by lifecycle state.
+              type: map
+              keyType: text
+              valueType: integer
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var file = Assert.Single(plan.Files);
+        Assert.DoesNotContain("RetireCopyEndpoint", file.Content, StringComparison.Ordinal);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("carries a map", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>An integer input stating size 64 binds as a long.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SizedIntegerBindsLong()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var loan = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "extend-loan", "extend-loan.yaml");
+        File.WriteAllText(
+            loan,
+            File.ReadAllText(loan).Replace(
+                "- name: days\n  meaning: The number of days the loan is extended.\n  type: integer\n",
+                "- name: days\n  meaning: The number of days the loan is extended.\n  type: integer\n  size: 64\n",
+                StringComparison.Ordinal));
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("[FromQuery(Name = \"days\")] long days", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Days: days", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A command stating a created location answers 201 with the location over the shaped result.</summary>
@@ -626,6 +744,69 @@ public sealed class GenerateEndpointsTests
             "SubmitExpenseResponseModel",
             "Claimwick.Spending.WebApi.Expenses.SubmitExpense",
             MarkStyle.Xml);
+
+    /// <summary>An endpoint reading its tenant key from the caller renders its golden file.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#prove-every-generator-with-golden-tests</proves>
+    [Fact]
+    public void TenantEndpointMatchesGolden()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.borrow-copy",
+                "BorrowCopy",
+                "Borrow copy",
+                null,
+                "command",
+                "POST",
+                "/api/loans",
+                null,
+                [
+                    new EndpointsRenderer.BoundInput(
+                        "copyId", "CopyId", "copyId", "copyId", "id", "body", true,
+                        "The copy the reader borrows.", null, "CopyId", null, "caller"),
+                    new EndpointsRenderer.BoundInput(
+                        "readerId", "ReaderId", "readerId", "readerId", "id", "claim", false,
+                        "The signed-in reader borrowing the copy, read from verified claims.", null, null, "reader", "verified-claim"),
+                ],
+                new Dictionary<string, string>(),
+                false,
+                [409],
+                "BorrowCopyCommand",
+                "Library.Lending.Application.Loans.BorrowCopy",
+                "BorrowCopyCommandResult",
+                "BorrowCopyResponseModel",
+                "Library.Lending.WebApi.Loans.BorrowCopy",
+                MarkStyle.Xml,
+                new MessagesRenderer.TenantKey("WorkspaceId", "WorkspaceId"))],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            [],
+            "Library.Platform.Http.TenantClaims.ReadTenantId");
+
+        GenerateGoldens.AssertEqual("endpoints-tenant-dotnet.txt", text);
+    }
+
+    /// <summary>Selects tenancy with the workspace term and declares the term, so use cases imply the tenant key.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteTenancy(string root)
+    {
+        var project = Path.Combine(root, ".litespec", "project.yaml");
+        File.WriteAllText(
+            project,
+            File.ReadAllText(project).Replace(
+                "selectedExtensions: []",
+                "selectedExtensions:\n- id: tenancy\n  criterion: Independent customers share one deployment.\n  tenant: term/workspace",
+                StringComparison.Ordinal));
+        var glossary = Path.Combine(root, ".litespec", "glossary.yaml");
+        File.WriteAllText(
+            glossary,
+            File.ReadAllText(glossary).Replace(
+                "- id: term/loan",
+                "- id: term/workspace\n  term: workspace\n  meaning: One customer organization sharing the deployment.\n  layer: behavior\n- id: term/loan",
+                StringComparison.Ordinal));
+    }
 
     /// <summary>Appends a generate block to the fixture project file.</summary>
     /// <param name="root">The prepared fixture folder.</param>

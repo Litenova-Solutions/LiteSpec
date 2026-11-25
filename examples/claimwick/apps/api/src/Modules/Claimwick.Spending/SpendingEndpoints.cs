@@ -36,7 +36,8 @@ internal static partial class SpendingEndpoints
                 row.Currency,
                 row.ApproverId,
                 row.ApprovedAt))
-            .ToList());
+            .ToList(),
+            result.CountByCurrency);
 
     /// <summary>Derives ChangerIsFinance for Change Reminder Preference.</summary>
     static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user) =>

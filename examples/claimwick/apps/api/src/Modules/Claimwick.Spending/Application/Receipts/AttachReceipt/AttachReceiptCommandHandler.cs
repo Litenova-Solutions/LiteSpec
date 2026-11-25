@@ -24,6 +24,6 @@ internal sealed class AttachReceiptCommandHandler : ICommandHandler<AttachReceip
         expense.AttachReceipt(command.ReceiptId);
         _expenses.Store(expense);
         _receipts.Store(Receipt.Attach(command.ReceiptId, command.ExpenseId, command.AttachedAt));
-        return new AttachReceiptCommandResult(expense.Id, command.ReceiptId);
+        return new AttachReceiptCommandResult(expense.Id, command.ReceiptId, command.Scan.Length);
     }
 }

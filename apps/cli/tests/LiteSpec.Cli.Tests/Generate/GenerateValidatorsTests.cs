@@ -189,6 +189,69 @@ public sealed class GenerateValidatorsTests
         Assert.Equal("command.Deposit is not null && command.Deposit.Amount < 0m", guarded.Condition);
     }
 
+    /// <summary>A required map renders a presence rule judging null.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapPresenceRendersNullCheck()
+    {
+        AssertRule(
+            Input("""{ "name": "versions", "type": "map", "keyType": "text", "valueType": "integer", "required": true }"""),
+            "Versions",
+            "command.Versions is null");
+    }
+
+    /// <summary>Map bounds judge each value through Linq, guarding null when optional.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapBoundsJudgeEachValue()
+    {
+        var rules = new List<ValidatorsRenderer.ValidationRule>();
+
+        var (_, _, usesLinq) = ValidatorsRenderer.AddRulesFor(
+            rules, "Versions", "command", false,
+            Input("""{ "name": "versions", "type": "map", "keyType": "text", "valueType": "integer", "bounds": { "min": 1, "max": 5 }, "required": true }"""));
+
+        Assert.True(usesLinq);
+        Assert.Equal(3, rules.Count);
+        Assert.Equal("command.Versions is null", rules[0].Condition);
+        Assert.Equal("too-small", rules[1].Code);
+        Assert.Equal("command.Versions.Values.Any(value => value < 1)", rules[1].Condition);
+        Assert.Equal("The versions must each be at least 1.", rules[1].Message);
+        Assert.Equal("too-large", rules[2].Code);
+        Assert.Equal("command.Versions.Values.Any(value => value > 5)", rules[2].Condition);
+
+        var guardedRules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(
+            guardedRules, "Versions", "command", false,
+            Input("""{ "name": "versions", "type": "map", "keyType": "text", "valueType": "integer", "bounds": { "max": 5 }, "required": false }"""));
+
+        var guarded = Assert.Single(guardedRules);
+
+        Assert.Equal("command.Versions is not null && command.Versions.Values.Any(value => value > 5)", guarded.Condition);
+    }
+
+    /// <summary>Map text constraints judge each value, matching the pattern with a regular expression.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MapTextConstraintsJudgeEachValue()
+    {
+        var rules = new List<ValidatorsRenderer.ValidationRule>();
+
+        var (_, usesRegex, usesLinq) = ValidatorsRenderer.AddRulesFor(
+            rules, "Labels", "command", false,
+            Input("""{ "name": "labels", "type": "map", "keyType": "text", "valueType": "text", "maxLength": 20, "matches": "^[a-z]+$", "required": true }"""));
+
+        Assert.True(usesLinq);
+        Assert.True(usesRegex);
+        Assert.Equal(3, rules.Count);
+        Assert.Equal("too-long", rules[1].Code);
+        Assert.Equal("command.Labels.Values.Any(value => value.Length > 20)", rules[1].Condition);
+        Assert.Equal("The labels must each be at most 20 characters long.", rules[1].Message);
+        Assert.Equal("invalid-format", rules[2].Code);
+        Assert.Equal("command.Labels.Values.Any(value => !Regex.IsMatch(value, \"^[a-z]+$\"))", rules[2].Condition);
+    }
+
     /// <summary>Field display names drop the identity suffix and read as lowercase words.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
