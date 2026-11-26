@@ -85,3 +85,4 @@ public sealed class OutboxDecision : IEquatable<OutboxDecision>
     /// <returns>True when they hold different values.</returns>
     public static bool operator !=(OutboxDecision? left, OutboxDecision? right) => !(left == right);
 }
+

@@ -5,8 +5,7 @@ terms:
 - <term id, or remove this line>
 summary: <what this aggregate keeps true, or remove this line>
 parts:
-- name: <child entity or value object name, or remove this line>
-  identity: <true when the part carries its own identity, or remove this line>
+- <child entity or value object name, or remove this line>
 states:
 - name: <State>
   meaning: <what makes it true>

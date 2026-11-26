@@ -20,7 +20,7 @@ public sealed class RulesContractCardTests
         Assert.Contains("Contract: use-case/spending.submit-expense - Submit Expense", result.Output);
         Assert.Contains("kind: command; access: grant=permission/request-expense tenant=own", result.Output);
         Assert.Contains("input amount: decimal, required", result.Output);
-        Assert.Contains("input receiptId: id, optional", result.Output);
+        Assert.Contains("input receipt: id, optional", result.Output);
         Assert.Contains("result result/submit-expense.submitted: success - Submitted", result.Output);
         Assert.Contains("refusal result/submit-expense.receipt-missing: spending.receipt-missing - Attach the receipt for this expense, then submit again.", result.Output);
         Assert.Contains("raises: domain-event/expense.submitted", result.Output);

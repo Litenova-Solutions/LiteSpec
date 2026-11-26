@@ -13,9 +13,6 @@ fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:
 - entry-point/claimwick-app
-http:
-  method: POST
-  route: /api/expenses:export
 output:
   include:
     file:
@@ -33,30 +30,22 @@ output:
           - name: amount
             meaning: The exact amount of the expense.
             type: decimal
-            scale: 2
             required: true
           - name: currency
             meaning: The ISO 4217 currency code of the amount.
             type: text
-            maxLength: 3
             required: true
-          - name: approverId
+          - name: approver
             meaning: The manager who approved the expense.
             type: id
             identifies: actor/manager
             required: true
           - name: approvedAt
             meaning: The time the expense was approved.
-            type: instant
+            type: date-time
             required: true
           unique:
           - expenseId
-        rowType: ExportedExpenseRow
-      - name: countByCurrency
-        meaning: The approved expenses counted by currency code, so the payout batch reconciles each currency.
-        type: map
-        keyType: text
-        valueType: integer
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -67,8 +56,6 @@ paging:
   reason: one file holds every approved expense of the period
 reads:
 - aggregate/spending.expense
-audit:
-  exemptBecause: Reads trail nothing.
 steps:
 - statement: Finance asks for the approved expenses of the period.
   cites:

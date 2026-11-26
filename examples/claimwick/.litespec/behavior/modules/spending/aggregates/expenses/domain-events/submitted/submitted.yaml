@@ -8,31 +8,17 @@ carries:
   identifies: aggregate/spending.expense
 - name: amount
   type: decimal
-  scale: 2
 - name: currency
   type: text
-  maxLength: 3
 - name: employeeId
   type: id
   identifies: actor/employee
-- name: note
-  type: text
-  maxLength: 280
-  required: false
-- name: importId
-  type: id
-  required: false
-- name: lines
+- name: lineItemIds
   type: list
   rowShape:
     fields:
-    - name: category
-      meaning: The kind of cost the line carries.
-      type: text
+    - name: lineItemId
+      meaning: One line of the submitted expense.
+      type: id
+      identifies: aggregate/spending.expense#line-item
       required: true
-    - name: amount
-      meaning: The line amount.
-      type: money
-      currencyHome: aggregate/spending.expense
-      required: true
-  rowType: aggregate/spending.expense#line-item

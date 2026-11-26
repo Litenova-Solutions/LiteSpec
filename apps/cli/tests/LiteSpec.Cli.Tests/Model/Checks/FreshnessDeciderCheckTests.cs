@@ -123,7 +123,7 @@ public sealed class FreshnessDeciderCheckTests
     [Fact]
     public void SchemaAcceptsDecidedByWithSnapshotFreshness()
     {
-        const string json = """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal", "scale": 2, "from": "integration-event/expense-reimbursed#amount", "classification": "internal"}], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": "use-case/spending.reimburse-expense"}}""";
+        const string json = """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal", "from": "integration-event/expense-reimbursed#amount", "classification": "internal"}], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": "use-case/spending.reimburse-expense"}}""";
 
         Assert.Empty(SchemaProblems("read-model", "read-model/reporting.reimbursed-expense", json));
     }
@@ -133,7 +133,7 @@ public sealed class FreshnessDeciderCheckTests
     [Fact]
     public void SchemaRejectsDecidedByWithImmediateFreshness()
     {
-        const string json = """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal", "scale": 2, "from": "integration-event/expense-reimbursed#amount", "classification": "internal"}], "freshness": {"mode": "immediate", "decidedBy": "use-case/spending.reimburse-expense"}}""";
+        const string json = """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal", "from": "integration-event/expense-reimbursed#amount", "classification": "internal"}], "freshness": {"mode": "immediate", "decidedBy": "use-case/spending.reimburse-expense"}}""";
 
         Assert.NotEmpty(SchemaProblems("read-model", "read-model/reporting.reimbursed-expense", json));
     }
@@ -143,7 +143,7 @@ public sealed class FreshnessDeciderCheckTests
     [Fact]
     public void SchemaRejectsDecidedByNamingNeitherUseCaseNorAggregate()
     {
-        const string json = """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal", "scale": 2, "from": "integration-event/expense-reimbursed#amount", "classification": "internal"}], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": "rule/spending.positive-amount"}}""";
+        const string json = """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal", "from": "integration-event/expense-reimbursed#amount", "classification": "internal"}], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": "rule/spending.positive-amount"}}""";
 
         Assert.NotEmpty(SchemaProblems("read-model", "read-model/reporting.reimbursed-expense", json));
     }

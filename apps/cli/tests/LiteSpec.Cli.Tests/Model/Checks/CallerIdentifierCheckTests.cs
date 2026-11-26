@@ -195,44 +195,6 @@ public sealed class CallerIdentifierCheckTests
         Assert.Empty(findings);
     }
 
-    /// <summary>Command Taking Object Row Part Identifier Returned Through Same Entry Point Passes.</summary>
-    /// <proves>litespec/core/use-cases#return-every-caller-supplied-identifier-from-a-reachable-query</proves>
-    [Fact]
-    public void CommandTakingObjectRowPartIdentifierReturnedThroughSameEntryPointPasses()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "renewal", "identity": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "renewal", "meaning": "The renewal to extend.", "type": "object", "required": true, "origin": "caller", "classification": "internal", "rowType": "RenewalForm", "rowShape": {"fields": [{"name": "renewalId", "meaning": "The renewal.", "type": "id", "identifies": "aggregate/lending.loan#renewal", "required": true}]}}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "output": {"include": {"loan": {"fields": [{"name": "renewal", "meaning": "The latest renewal.", "type": "object", "rowType": "RenewalForm", "rowShape": {"fields": [{"name": "renewalId", "meaning": "The renewal.", "type": "id", "identifies": "aggregate/lending.loan#renewal", "required": true}]}}]}}}}"""));
-
-        var findings = new List<Finding>();
-        CallerIdentifierChecks.Run(model, findings);
-
-        Assert.DoesNotContain(findings, finding => finding.Code == "caller-identifier-unreachable");
-    }
-
-    /// <summary>Command Taking Object Row Identifier With No Read Reports.</summary>
-    /// <proves>litespec/core/use-cases#return-every-caller-supplied-identifier-from-a-reachable-query</proves>
-    [Fact]
-    public void CommandTakingObjectRowIdentifierWithNoReadReports()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "renewal", "meaning": "The renewal to extend.", "type": "object", "required": true, "origin": "caller", "classification": "internal", "rowType": "RenewalForm", "rowShape": {"fields": [{"name": "loanId", "meaning": "The loan.", "type": "id", "identifies": "aggregate/lending.loan", "required": true}]}}]}"""));
-
-        var findings = new List<Finding>();
-        CallerIdentifierChecks.Run(model, findings);
-
-        var finding = Assert.Single(findings, found => found.Code == "caller-identifier-unreachable");
-        Assert.Equal("use-case/lending.renew-loan", finding.Subject);
-    }
-
     /// <summary>One use case file in the lending module.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <param name="file">The file name.</param>

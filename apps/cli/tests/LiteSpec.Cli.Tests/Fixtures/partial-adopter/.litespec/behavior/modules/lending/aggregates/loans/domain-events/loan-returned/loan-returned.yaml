@@ -7,5 +7,5 @@ carries:
   type: id
   identifies: aggregate/lending.loan
 - name: returnedAt
-  type: instant
+  type: date-time
 ignored: true

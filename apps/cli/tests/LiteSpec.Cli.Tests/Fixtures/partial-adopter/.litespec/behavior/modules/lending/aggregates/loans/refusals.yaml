@@ -4,8 +4,6 @@ records:
 - id: refusal/lending.copy-not-available
   title: Copy Not Available
   meaning: The copy is unavailable.
-  status: 409
 - id: refusal/lending.loan-not-active
   title: Loan Not Active
   meaning: The loan is inactive.
-  status: 409

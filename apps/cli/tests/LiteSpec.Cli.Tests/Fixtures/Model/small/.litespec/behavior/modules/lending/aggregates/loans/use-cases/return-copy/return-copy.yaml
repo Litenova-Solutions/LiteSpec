@@ -12,9 +12,6 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-returned
-http:
-  method: POST
-  route: /api/loans/{loanId}:return
 input:
 - name: loanId
   meaning: The loan whose copy the reader returns.
@@ -22,7 +19,6 @@ input:
   identifies: aggregate/lending.loan
   required: true
   origin: caller
-  binding: route
   classification: internal
 idempotency:
   mode: none

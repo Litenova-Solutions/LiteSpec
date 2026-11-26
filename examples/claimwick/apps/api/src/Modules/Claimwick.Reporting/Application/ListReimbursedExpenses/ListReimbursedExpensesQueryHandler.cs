@@ -22,13 +22,13 @@ internal sealed class ListReimbursedExpensesQueryHandler : IQueryHandler<ListRei
         CancellationToken cancellationToken)
     {
         var expenses = await _readModel.ListAsync(cancellationToken);
-        var confirmed = new List<ReimbursedExpenseRow>();
+        var confirmed = new List<ReimbursedExpense>();
 
         foreach (var expense in expenses)
         {
-            if (await _queries.QueryAsync(new ReadExpenseQuery(new ClaimedPayout(expense.Id, expense.Amount, expense.Currency)), cancellationToken) is not null)
+            if (await _queries.QueryAsync(new ReadExpenseQuery(expense.Id), cancellationToken) is not null)
             {
-                confirmed.Add(new ReimbursedExpenseRow(expense.Id, expense.EmployeeId, expense.Amount, expense.Currency, expense.ReimbursedAt));
+                confirmed.Add(expense);
             }
         }
 

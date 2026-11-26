@@ -36,9 +36,9 @@ internal sealed class ExpenseRepository : IExpenseRepository
     {
         var cutoff = DateTimeOffset.UtcNow.AddYears(-7);
         return await _session.Query<Expense>()
-            .Where(expense => expense.State is ExpenseApprovedState && ((ExpenseApprovedState)expense.State).DecidedAt < cutoff
-                || expense.State is ExpenseRefusedState && ((ExpenseRefusedState)expense.State).DecidedAt < cutoff
-                || expense.State is ExpenseReimbursedState && ((ExpenseReimbursedState)expense.State).ReimbursedAt < cutoff)
+            .Where(expense => expense.State is ExpenseApprovedState approved && approved.DecidedAt < cutoff
+                || expense.State is ExpenseRefusedState refused && refused.DecidedAt < cutoff
+                || expense.State is ExpenseReimbursedState reimbursed && reimbursed.ReimbursedAt < cutoff)
             .Select(expense => expense.Id)
             .ToListAsync(cancellationToken);
     }

@@ -229,12 +229,6 @@ static class ModelCommand
 
                     payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
                     payload["covered"] = new JsonArray([.. covered.Select(finding => (JsonNode?)AsCoveredJson(config, finding))]);
-                    payload["backendReader"] = model.BackendReaderMode;
-
-                    if (model.SemanticUnavailableReason is { Length: > 0 } unavailable)
-                    {
-                        payload["backendReaderNote"] = unavailable;
-                    }
 
                     CliHost.Out.WriteLine(CliJson.Serialize(payload));
                 }
@@ -278,11 +272,6 @@ static class ModelCommand
                         }
                     }
 
-                    CliHost.Out.WriteLine(model.BackendSemantics is { } semantics
-                        ? $"Backend reader: {model.BackendReaderMode} ({semantics.ReferenceSummary})."
-                        : model.SemanticUnavailableReason is { Length: > 0 } reason
-                            ? $"Backend reader: {model.BackendReaderMode} (semantic unavailable: {reason})."
-                            : $"Backend reader: {model.BackendReaderMode}.");
                     CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
 
                     if (incomplete is not null)

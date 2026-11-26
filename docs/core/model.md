@@ -444,8 +444,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
 | `dataClasses.periodStartsAt` | aggregate | domain event, module event, integration event, aggregate field | starts at | starts the period of |
 | `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
-| `access.recentSignIn` | use case | setting | is limited by | limits |
-| `access.preconditions` | use case | rule | is authorized under | authorizes |
+| `access.recentSignInLimit` | use case | setting | is limited by | limits |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `fulfills` | use case, reaction, job, notification, screen, setting, rule | requirement | fulfills | is fulfilled by |
 | `computedBy` | use case | rule | is computed by | computes |
@@ -482,8 +481,6 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `erasure.event` | external system | published event | is erased through | carries the erasure of |
 | `basedOn` | external system | decision, requirement | is based on | is a basis for |
 | `payload.identifies` | integration event | identifies | identifies | is identified by |
-| `payload.set` | integration event | reference data, setting | takes values from | gives values to |
-| `payload.currencyHome` | integration event | aggregate | takes its currency from | gives its currency to |
 | `through` | integration event | external system | travels through | carries |
 | `arrivesThrough` | integration event | entry point, external system | arrives through | receives |
 | `requires` | integration event | permission | requires | is required by |
@@ -504,9 +501,6 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `cites` | rule | constraint, research | cites | is cited by |
 | `releasedBy` | rule | use case | is released by | releases |
 | `carries.identifies` | domain event | identifies | identifies | is identified by |
-| `carries.rowType` | domain event | aggregate part | takes rows from | gives rows to |
-| `carries.set` | domain event | reference data, setting | takes values from | gives values to |
-| `carries.currencyHome` | domain event | aggregate | takes its currency from | gives its currency to |
 | `rows.refersTo` | reference data | reference data row | refers to | is referred to by |
 | `rows.source` | reference data | constraint, research, decision | rests on | is the source for |
 | `records.terms` | refusal set | term | uses | is used by |
@@ -583,9 +577,9 @@ This page is the one home of the mark rules: the marks table below states the ma
 | Operations | Deployment, proxy, host, or CI workflow file listed in `paths.operations` | One or more `follows` marks in the file's `#` comments, such as `# <follows>decision/<number>-<name></follows>` |
 | Operations | Alert rule in a file listed in `paths.alerts` | A `requirement` label naming a quality requirement and a `runbook` label naming a runbook |
 | Tests | Test | The lowest record it verifies: `scenario/<parent>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<feature>.<name>` or `requirement/<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep; `<project>/conventions#<slug>` for a project convention the code must keep |
-| Application, Infrastructure or API | Technical class: a top-level class that declares a method, or an options class that binds a setting, and takes no other mark. Nested types, records, interfaces, generated code, migrations, and model snapshots are never technical classes | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>`, `waiver/<name>`, or `<project>/conventions#<slug>` in a `follows` mark. A validator and an endpoints container beside its generated file carry no mark |
+| Application, Infrastructure or API | Technical class: a top-level class that declares a method, or an options class that binds a setting, and takes no other mark. Nested types, records, interfaces, generated code, migrations, and model snapshots are never technical classes | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>`, `waiver/<name>`, or `<project>/conventions#<slug>` in a `follows` mark |
 
-A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as a hand-written input validator names its use case and a repository names its aggregate. A validator beside its generated file carries no mark; the handler beside it carries the use case mark.
+A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository names its aggregate.
 
 Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, the waiver that allows it, or the project convention that states it. Any other code element may carry a `follows` mark as well.
 
@@ -608,8 +602,6 @@ Mark style belongs to the language. C# marks use the one style the project decla
 One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports.
 
 A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
-
-A partial type is one code element: it carries the marks of every declaration, generated or hand-written, and the count rule applies to their union. The mark sits on one declaration only: naming the same record twice reports, whether both namings sit on one declaration or on two halves.
 
 A development seed or fixture names each cast entry it uses with a `seeds` mark: `<seeds>person/ava</seeds>` in a C# documentation tag, or `// litespec: seeds person/ava` in a TypeScript line comment. A seeds mark stands on no code element of a kind, so the element readers leave it out and the cast checks read it. `mark-unknown` reports a seeds mark that names no party, person, occasion, or figure. The [writing page](writing.md) states where cast names may appear.
 
@@ -1141,7 +1133,7 @@ Three findings cover the three gaps: `step-use-case-missing` names a step no use
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** An `input`, `output`, or `steps` entry of a use case MUST name a record of another module only when the use case's module lists that module in `dependsOn` or when the entry is an input or output field, or a row field of one, stating `held: opaque` for an identifier the module stores and passes without loading, querying, or reasoning about the named aggregate.
+**Statement:** An `input`, `output`, or `steps` entry of a use case MUST name a record of another module only when the use case's module lists that module in `dependsOn` or when the entry is an input or output field stating `held: opaque` for an identifier the module stores and passes without loading, querying, or reasoning about the named aggregate.
 
 **Rationale:** The link checks read a use case's top-level links, but an entry inside `input`, `output`, or `steps` can name another module's record without appearing in any of them. Such a reference is a dependency the record graph does not declare, so the module seam stays invisible to a reader and to a check. Naming the dependency in `dependsOn` states the tie where module ties belong; a module event, an integration event, or a public edge states the crossing when the two modules should not depend on each other. A module that only stores and passes an identifier needs no tie to the owning module: the value arrives through an event, a public query result, or the caller, and the module never follows it into the aggregate. Declaring `dependsOn` for such a carried identifier would tie modules that never call each other and can close a dependency cycle. The field states `held: opaque` to record the carrying, and it still states how the value arrives: an input keeps its `origin`, and a query output group keeps its `reads`. The exemption ends where use begins: a use case that also reads or writes the named aggregate, or whose step cites it, still declares the dependency.
 
@@ -1752,38 +1744,6 @@ The figures below render from the retention schedule at build time.
 **Example:** The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs `litespec generate` and the exceptions read the new constant.
 
 **Checked by:** `litespec model check` reports `generated-drift` for each file `litespec generate` writes that is missing or differs from what the records render now.
-
-### Prove Every Generator with Golden Tests
-
-**ID:** `litespec/core/model#prove-every-generator-with-golden-tests`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Every generator MUST ship with golden tests, one per renderer and stack, proving each renderer byte for byte.
-
-**Rationale:** A renderer change without a golden passes silently and rewrites every consumer's files on the next generate. A golden holds the exact bytes the renderer wrote for known records, so a change to the renderer breaks the golden first and forces a review of every byte it moves.
-
-**Example:** The spending refusal codes renderer has a golden file holding the exact class it writes for the spending refusals. When the renderer gains the LiteSpec version in its header, the golden breaks and the change reviews the new header byte before accepting it.
-
-**Reviewed for:** Does every generator ship with golden tests, one per renderer and stack? Look at the expected files beside the renderers.
-
-### Keep Generate Targets Outside Other Tools' Output Folders
-
-**ID:** `litespec/core/model#keep-generate-targets-outside-other-tools-output-folders`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A generate target MUST sit outside every other tool's output folder and write no file another generate target writes.
-
-**Rationale:** A target inside another tool's folder loses its files when that tool regenerates: a client generator wipes the folder and the litespec files go with it. Two targets writing one file leave the last write standing and the other silently lost. One file has one writer, so every generated file survives its own tool's next run.
-
-**Example:** Claimwick's spending targets write to apps/api/src/Modules/Claimwick.{Module}, outside the web frontend's generated client folder packages/api/src/generated. When a second target names the same file, the check names both so each keeps its own file.
-
-**Checked by:** `litespec model check` reports `generate-target-invalid` for each generate target inside another tool's output folder and for each file two targets write.
 
 ### State What Happens in Every Behavior Statement
 

@@ -14,7 +14,7 @@ internal static class KnowledgeChecks
     /// <summary>A kebab-case dimension or variant name: a lowercase letter or digit opening, then lowercase letters, digits or hyphens.</summary>
     private static readonly Regex KebabName = new("^[a-z0-9][a-z0-9-]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>Reports a reference-data table whose rows name a variant while the table states no variation dimension, and the misshapen variation a table states: a dimension or variant outside kebab-case, variation on a module-owned table, a stated dimension with rows but no varying row, and rows with and without variant in one table. A table with no rows yet states its dimension for the rows to come.</summary>
+    /// <summary>Reports a reference-data table whose rows name a variant while the table states no variation dimension, and the misshapen variation a table states: a dimension or variant outside kebab-case, variation on a module-owned table, a stated dimension with no varying row, and rows with and without variant in one table.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunVariationUndeclared(ProjectModel model, List<Finding> findings)
@@ -47,7 +47,7 @@ internal static class KnowledgeChecks
                     SubjectOf(table)));
             }
 
-            if (declared && named == 0 && rows.Count > 0)
+            if (declared && named == 0)
             {
                 findings.Add(new Finding(
                     "record-invalid",

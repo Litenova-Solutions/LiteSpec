@@ -11,12 +11,9 @@ public sealed class SubmitExpenseSteps
         ExpensesWorld.SignInAs(employee);
         await ExpensesWorld.PostAsync("/api/expenses", new
         {
-            expenseId = ExpensesWorld.IdOf("expense-1"),
             amount = 48.90m,
             currency = "EUR",
-            category = "travel",
             receiptId = ExpensesWorld.IdOf("receipt-1"),
-            lines = new[] { new { category = "travel", amount = 48.90m } },
         });
 
         var created = await ExpensesWorld.LastResponse!.Content.ReadFromJsonAsync<SubmittedExpense>();
@@ -28,11 +25,8 @@ public sealed class SubmitExpenseSteps
         ExpensesWorld.SignInAs(employee);
         await ExpensesWorld.PostAsync("/api/expenses", new
         {
-            expenseId = ExpensesWorld.IdOf("expense-2"),
             amount = 48.90m,
             currency = "EUR",
-            category = "travel",
-            lines = new[] { new { category = "travel", amount = 48.90m } },
         });
     }
 

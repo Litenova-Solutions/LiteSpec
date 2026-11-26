@@ -34,13 +34,8 @@
         machine of that operating system; and dotnet pack -r any -p:PublishAot=false makes the
         framework-dependent package that serves every other platform.
         IL3000: Roslyn's command-line compiler driver, CommonCompiler.GetAssemblyLocation, reads
-        Assembly.Location. The CLI never runs that driver, and it finds its own folder through
-        AppContext.BaseDirectory.
-        IL2091: the compilation the semantic backend reader builds reaches five generic
-        annotation warnings inside Roslyn itself (pooled delegate callbacks and the lazy
-        initializer), which no caller can annotate away. The native and framework builds
-        report identical findings on Claimwick in both reader modes and on a larger project
-        in semantic mode, so the warnings mark no behavior the CLI uses.
+        Assembly.Location. The CLI only parses syntax trees and never runs that driver, and it
+        finds its own folder through AppContext.BaseDirectory.
     -->
     <PropertyGroup>
         <EnableAotAnalyzer>true</EnableAotAnalyzer>
@@ -48,7 +43,7 @@
         <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
         <InvariantGlobalization>true</InvariantGlobalization>
         <ToolPackageRuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;linux-musl-x64;linux-musl-arm64;osx-x64;osx-arm64;any</ToolPackageRuntimeIdentifiers>
-        <NoWarn>$(NoWarn);IL3000;IL2091</NoWarn>
+        <NoWarn>$(NoWarn);IL3000</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(RuntimeIdentifier)' != '' or '$(TopLevelToolPackage)' == 'true'">

@@ -14,18 +14,16 @@ fields:
 - name: amount
   meaning: The exact amount paid.
   type: decimal
-  scale: 2
   from: module-event/spending.expense-reimbursed#amount
   classification: internal
 - name: currency
   meaning: The ISO 4217 currency code of the amount.
   type: text
-  maxLength: 3
   from: module-event/spending.expense-reimbursed#currency
   classification: internal
 - name: reimbursedAt
   meaning: The time the payment was posted.
-  type: instant
+  type: date-time
   from: module-event/spending.expense-reimbursed#reimbursedAt
   classification: internal
 freshness:

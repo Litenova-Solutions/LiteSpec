@@ -147,7 +147,7 @@ internal static class GraphChecks
         }
     }
 
-    /// <summary>Reports a reference-data table whose rows of one variant and one key overlap in time or end no later than they start, naming both rows and the overlap. Rows of different variants run on their own timelines, as do rows of different keys, or of different roles when rows carry no key, so they never overlap each other.</summary>
+    /// <summary>Reports a reference-data table whose rows of one variant and one key overlap in time or end no later than they start. Rows of different variants run on their own timelines, as do rows of different keys, or of different roles when rows carry no key, so they never overlap each other.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReferenceOverlap(ProjectModel model, List<Finding> findings)
@@ -219,7 +219,7 @@ internal static class GraphChecks
 
                         findings.Add(new Finding(
                             "reference-data-period-invalid",
-                            $"Reference data '{table.Id}' holds rows {spans[left].Index} and {spans[right].Index}{whose} overlapping{OverlapText(spans[left], spans[right])}.",
+                            $"Reference data '{table.Id}' holds rows {spans[left].Index} and {spans[right].Index}{whose} overlapping in time.",
                             table.File,
                             table.Line,
                             SubjectOf(table)));
@@ -273,30 +273,6 @@ internal static class GraphChecks
     private static bool Overlap((string From, string? To, int Index, string? Variant, string? Key, string? Role) left, (string From, string? To, int Index, string? Variant, string? Key, string? Role) right) =>
         (right.To is null || string.Compare(left.From, right.To, StringComparison.Ordinal) < 0)
         && (left.To is null || string.Compare(right.From, left.To, StringComparison.Ordinal) < 0);
-
-    /// <summary>The overlap two effective periods share as finding text: the shared range, open when neither period ends it, or no range when a start is missing.</summary>
-    /// <param name="left">The first period.</param>
-    /// <param name="right">The second period.</param>
-    /// <returns>The overlap text opening with a space, naming the shared range.</returns>
-    private static string OverlapText((string From, string? To, int Index, string? Variant, string? Key, string? Role) left, (string From, string? To, int Index, string? Variant, string? Key, string? Role) right)
-    {
-        var start = string.Compare(left.From, right.From, StringComparison.Ordinal) >= 0 ? left.From : right.From;
-
-        if (start.Length == 0)
-        {
-            return " in time";
-        }
-
-        var end = (left.To, right.To) switch
-        {
-            (null, null) => null,
-            (null, { } only) => only,
-            ({ } only, null) => only,
-            ({ } first, { } second) => string.Compare(first, second, StringComparison.Ordinal) <= 0 ? first : second,
-        };
-
-        return end is null ? $" in time from '{start}' on" : $" in time from '{start}' to '{end}'";
-    }
 
     /// <summary>The timeline a row runs on: its key, or its role when the row carries no key.</summary>
     /// <param name="span">The period.</param>
@@ -517,7 +493,7 @@ internal static class GraphChecks
     /// </summary>
     /// <param name="model">The loaded project model that holds every use case, result and rule.</param>
     /// <returns>Each use case identifier with the rule identifiers it applies.</returns>
-    internal static Dictionary<string, HashSet<string>> AppliedByUseCase(ProjectModel model)
+    private static Dictionary<string, HashSet<string>> AppliedByUseCase(ProjectModel model)
     {
         var refusing = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 

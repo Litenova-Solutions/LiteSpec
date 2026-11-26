@@ -6,9 +6,9 @@ namespace Claimwick.Spending.Domain.Receipts;
 
 /// <summary>Proof of payment attached to an expense.</summary>
 /// <implements>aggregate/spending.receipt</implements>
-internal sealed class Receipt : AggregateRoot<ReceiptId>
+internal sealed class Receipt : AggregateRoot<Guid>
 {
-    private Receipt(ReceiptId id, ExpenseId expenseId, DateTimeOffset attachedAt)
+    private Receipt(Guid id, ExpenseId expenseId, DateTimeOffset attachedAt)
     {
         Id = id;
         State = new ReceiptAttachedState(expenseId, attachedAt);
@@ -19,6 +19,6 @@ internal sealed class Receipt : AggregateRoot<ReceiptId>
 
     /// <summary>Attaches one receipt to an expense.</summary>
     /// <implements>use-case/spending.attach-receipt</implements>
-    public static Receipt Attach(ReceiptId id, ExpenseId expenseId, DateTimeOffset attachedAt) =>
+    public static Receipt Attach(Guid id, ExpenseId expenseId, DateTimeOffset attachedAt) =>
         new(id, expenseId, attachedAt);
 }

@@ -13,27 +13,10 @@ reachedThrough:
 - module/reporting
 raises: []
 input:
-- name: payout
-  meaning: The payout reporting holds, to confirm against the stored expense.
-  type: object
-  rowType: ClaimedPayout
-  rowShape:
-    fields:
-    - name: expenseId
-      meaning: The expense to read.
-      type: id
-      identifies: aggregate/spending.expense
-      required: true
-    - name: amount
-      meaning: The payout amount reporting holds.
-      type: decimal
-      scale: 2
-      required: true
-    - name: currency
-      meaning: The ISO 4217 currency code of the payout amount.
-      type: text
-      maxLength: 3
-      required: true
+- name: expense
+  meaning: The expense to read.
+  type: id
+  identifies: aggregate/spending.expense
   required: true
   origin: caller
   classification: internal
@@ -48,49 +31,6 @@ output:
       - name: state
         meaning: The latest lifecycle state of the expense.
         type: text
-      - name: total
-        meaning: The stored total of the expense.
-        type: object
-        rowType: ExpenseTotal
-        rowShape:
-          fields:
-          - name: amount
-            meaning: The exact amount of the expense.
-            type: decimal
-            scale: 2
-            required: true
-          - name: currency
-            meaning: The ISO 4217 currency code of the amount.
-            type: text
-            maxLength: 3
-            required: true
-      - name: subtotals
-        meaning: The per-category subtotals of the expense with its total.
-        type: object
-        rowType: ExpenseSubtotals
-        rowShape:
-          fields:
-          - name: categories
-            meaning: The subtotal per cost category.
-            type: list
-            required: true
-            rowType: CategoryTotal
-            rowShape:
-              fields:
-              - name: category
-                meaning: The kind of cost the subtotal covers.
-                type: text
-                required: true
-              - name: amount
-                meaning: The subtotal amount.
-                type: money
-                currencyHome: aggregate/spending.expense
-                required: true
-          - name: total
-            meaning: The grand total.
-            type: money
-            currencyHome: aggregate/spending.expense
-            required: true
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -101,17 +41,15 @@ paging:
   reason: one expense answers the query
 reads:
 - aggregate/spending.expense
-audit:
-  exemptBecause: Reads trail nothing.
 steps:
-- statement: Reporting names one expense and the payout it holds.
+- statement: Reporting names one expense.
   cites:
   - aggregate/spending.expense
 - statement: Spending returns the expense with its current state.
   cites:
   - result/read-expense.read
   - aggregate/spending.expense
-- statement: Spending answers that no expense matches when the identity is unknown or the payout differs.
+- statement: Spending answers that no expense matches when the identity is unknown.
   cites:
   - result/read-expense.unknown
 records:

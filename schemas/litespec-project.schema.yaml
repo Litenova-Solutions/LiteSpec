@@ -175,7 +175,7 @@ properties:
     additionalProperties:
       type: object
   generate:
-    description: 'The files `litespec generate` writes from the records: one target per kind and stack, each naming the folder the files go in. A file the records render that is missing or differs is a `generated-drift` finding. A target inside another tool output folder, or two targets writing the same file, is a `generate-target-invalid` finding.'
+    description: 'The files `litespec generate` writes from the records: one target per kind and stack, each naming the folder the files go in. A file the records render that is missing or differs is a `generated-drift` finding.'
     type: array
     uniqueItems: true
     items:
@@ -187,24 +187,15 @@ properties:
       - path
       properties:
         kind:
-          description: 'The record facts the target writes: refusal codes, permission ids, domain event decisions, closed value sets, knowledge sets, refusal exceptions, domain and module events, message declarations, input validators, use-case messages, use-case results, or HTTP endpoints.'
+          description: 'The record facts the target writes: refusal codes, permission ids, domain event decisions, or closed value sets.'
           type: string
           enum:
           - refusal-codes
           - permissions
           - event-decisions
           - closed-sets
-          - knowledge-sets
-          - exceptions
-          - domain-events
-          - module-events
-          - declarations
-          - validators
-          - messages
-          - results
-          - endpoints
         stack:
-          description: 'The stack the target writes for: dotnet, blazor or android write C#, react or svelte write TypeScript. Event decisions, closed sets, knowledge sets, exceptions, domain events, module events, declarations, validators, messages, results and endpoints need a .NET stack.'
+          description: 'The stack the target writes for: dotnet, blazor or android write C#, react or svelte write TypeScript. Event decisions and closed sets need a .NET stack.'
           type: string
           enum:
           - dotnet
@@ -213,100 +204,10 @@ properties:
           - blazor
           - android
         path:
-          description: 'The folder the target writes into, relative to the consumer root. For a .NET stack the path may hold {module} for the record module name or {Module} for the same name in PascalCase, and each module writes its file into its own resolved folder; without a placeholder each module writes into <path>/<Module>/. A knowledge-sets target holds {area} and {variant} (or {Area} and {Variant}) instead, and each area and variant writes its files into its own resolved folder; without a placeholder each area and variant writes into <path>/<Area>.<Variant>/. An exceptions, domain-events or module-events target holds {aggregate} or {Aggregate} for the aggregate folder, and each aggregate writes its files into its own resolved folder; a module event writes into an On{Fact} folder under it. A validators target writes each validator into the Application folder of its use case under the resolved path. A messages or results target holds {aggregate} or {Aggregate} for the aggregate folder and {useCase} or {UseCase} for the use-case folder, and each use case writes its files into its own resolved folder; a module-level use case drops the aggregate segment. For a TypeScript stack the target writes one file into the folder.'
+          description: 'The folder the target writes into, relative to the consumer root. For a .NET stack the path may hold {module} for the record module name or {Module} for the same name in PascalCase, and each module writes its file into its own resolved folder; without a placeholder each module writes into <path>/<Module>/. For a TypeScript stack the target writes one file into the folder.'
           $ref: '#/$defs/projectPath'
         namespace:
-          description: 'The C# namespace of the generated files, with {module} or {Module} for the module name, {area} and {variant} (or {Area} and {Variant}) for a knowledge-sets target, {aggregate} and {Aggregate} for an exceptions, domain-events or module-events target, or {aggregate}, {Aggregate}, {useCase} and {UseCase} for a messages or results target. Required for a .NET stack; unused for a TypeScript stack.'
-          type: string
-          minLength: 1
-        baseType:
-          description: 'The C# base type an exceptions target derives from, such as DomainException. Required for an exceptions target; unused for every other kind.'
-          type: string
-          minLength: 1
-        markerType:
-          description: 'The C# marker interface an event target implements, such as IDomainEvent. Required for a domain-events target; optional for a module-events target, which implements none when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        usings:
-          description: 'The C# namespaces an event, messages, results or endpoints target imports for referenced identifier and value types, or a validators target for messages outside their use case folder. Used by a domain-events, module-events, validators, messages, results or endpoints target; unused for every other kind.'
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            type: string
-            minLength: 1
-        permissionPolicy:
-          description: 'How a declarations target turns a permission grant into a policy name, with {permission} for the permission id or {name} for the name after the prefix. Optional; the permission id itself when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        signedInPolicy:
-          description: 'The policy name a declarations target writes for a signed-in grant. Optional; signed-in when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        anonymousPolicy:
-          description: 'The policy name a declarations target writes for an anonymous grant. Optional; anonymous when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        systemPolicy:
-          description: 'The policy name a declarations target writes for a system grant. Optional; system when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        selfPolicy:
-          description: 'How a declarations target wraps a policy for a self grant or a self scope, with {policy} for the wrapped policy. Optional; Self({policy}) when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        recentSignInPolicy:
-          description: 'How a declarations target wraps a policy for a recent sign-in, with {policy} for the wrapped policy and {window} for the window as the record states it. Optional; RecentSignIn({policy},{window}) when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        runsAsPolicy:
-          description: 'How a declarations target wraps a policy for a use case the system also runs, with {policy} for the wrapped policy. Optional; SystemOr({policy}) when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        crossPolicy:
-          description: 'How a declarations target wraps a policy for a use case reaching across tenants, with {policy} for the grant policy. Optional; the grant policy unwrapped when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        publicPolicy:
-          description: 'How a declarations target wraps a policy for a use case working beyond tenant boundaries, with {policy} for the grant policy. Optional; the grant policy unwrapped when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        nonePolicy:
-          description: 'How a declarations target wraps a policy for a use case touching no tenant data, with {policy} for the grant policy. Optional; the grant policy unwrapped when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        commandInterface:
-          description: 'The C# message interface a messages target implements on commands, such as LiteBus.Commands.Abstractions.ICommand, with the result type as its argument. Optional; a command implements none when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        queryInterface:
-          description: 'The C# message interface a messages target implements on queries, such as LiteBus.Queries.Abstractions.IQuery, with the result type as its argument. Optional; a query implements none when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        commandValidatorInterface:
-          description: 'The C# validator interface a validators target implements on commands, such as LiteBus.Commands.Abstractions.ICommandValidator. Optional; the LiteBus command validator when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        queryValidatorInterface:
-          description: 'The C# validator interface a validators target implements on queries, such as LiteBus.Queries.Abstractions.IQueryValidator. Optional; the LiteBus query validator when the target names none; unused for every other kind.'
-          type: string
-          minLength: 1
-        visibility:
-          description: 'The use cases a messages or results target renders: public for the use cases another module reaches, internal for the use cases of the module. Optional; internal when the target names none; unused for every other kind.'
-          type: string
-          enum:
-          - internal
-          - public
-        claimReader:
-          description: 'The qualified static method an endpoints target reads an actor identity with, as Namespace.Type.Method, taking the caller and the actor name. Required for an endpoints target; unused for every other kind.'
-          type: string
-          minLength: 1
-        tenantReader:
-          description: 'The qualified static method an endpoints target reads the tenant identity with, as Namespace.Type.Method, taking the caller. Optional; without it, a use case implying a tenant key renders no endpoint; unused for every other kind.'
-          type: string
-          minLength: 1
-        claimValueReader:
-          description: 'The qualified generic static method an endpoints target reads a non-identity claim value with, as Namespace.Type.Method, taking the caller and the claim name and answering the value parsed as its type argument. Optional; without it, a use case carrying a claim input of no identity type renders no endpoint; unused for every other kind.'
+          description: 'The C# namespace of the generated files, with {module} or {Module} for the module name. Required for a .NET stack; unused for a TypeScript stack.'
           type: string
           minLength: 1
       allOf:
@@ -322,33 +223,6 @@ properties:
         then:
           required:
           - namespace
-      - if:
-          properties:
-            kind:
-              const: exceptions
-          required:
-          - kind
-        then:
-          required:
-          - baseType
-      - if:
-          properties:
-            kind:
-              const: domain-events
-          required:
-          - kind
-        then:
-          required:
-          - markerType
-      - if:
-          properties:
-            kind:
-              const: endpoints
-          required:
-          - kind
-        then:
-          required:
-          - claimReader
   frontends:
     type: array
     items:
@@ -542,9 +416,9 @@ properties:
     type: string
     pattern: '^https?://.+/$'
   reviewedLiteSpecVersion:
-    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1; a dev-feed build names its timestamp suffix, such as 7.0.0-dev.20261125215523.
+    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1.
     type: string
-    pattern: '^\d+\.\d+\.\d+(-(rc|dev)\.\d+)?$'
+    pattern: '^\d+\.\d+\.\d+(-rc\.\d+)?$'
   paths:
     type: object
     additionalProperties: false

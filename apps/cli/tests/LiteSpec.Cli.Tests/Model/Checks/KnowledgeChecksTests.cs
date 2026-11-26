@@ -171,24 +171,6 @@ public sealed class KnowledgeChecksTests
         Assert.Empty(SetFindings(model));
     }
 
-    /// <summary>A varying table with no rows yet passes: no variant owes rows before any row is stated.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
-    [Fact]
-    public void EmptyVaryingTablePasses()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TravelArea(temp.Path),
-            PerDiemRates(temp.Path, true));
-
-        Assert.Empty(SetFindings(model));
-        Assert.Empty(VariationFindings(model));
-        Assert.DoesNotContain(
-            Checker.Check(model).Findings,
-            found => found.Subject == "reference-data/travel.per-diem-rates" && found.Message.Contains("but no row names a variant"));
-    }
-
     /// <summary>The knowledge-set-missing findings of a model.</summary>
     /// <param name="model">The model under test.</param>
     /// <returns>The findings whose code is knowledge-set-missing.</returns>

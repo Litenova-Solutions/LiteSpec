@@ -15,64 +15,27 @@ reachedThrough:
 - entry-point/claimwick-app
 raises:
 - domain-event/receipt.attached
-http:
-  method: POST
-  route: /api/receipts
 input:
-- name: expenseId
+- name: expense
   meaning: The submitted expense the receipt supports.
   type: id
   identifies: aggregate/spending.expense
   required: true
   origin: caller
-  binding: query
   classification: internal
-- name: receiptId
+- name: receipt
   meaning: The identifier the app mints for the receipt, so a retried request attaches the same receipt.
   type: id
   identifies: aggregate/spending.receipt
   required: true
   origin: caller
-  binding: query
-  classification: internal
-- name: scans
-  meaning: The scanned receipt pages the employee uploads as proof of payment.
-  type: list
-  rowShape:
-    fields:
-    - name: scan
-      meaning: One scanned receipt page.
-      type: file
-      contentTypes:
-      - image/png
-      - image/jpeg
-      - application/pdf
-      maxSize: 10 MB
-      required: true
-    minItems: 1
-  required: true
-  origin: caller
-  binding: body
   classification: internal
 - name: attachedAt
   meaning: The time the receipt attaches, read from the clock.
-  type: instant
-  required: true
+  type: date-time
+  required: false
   origin: derived
   classification: internal
-output:
-- name: expenseId
-  meaning: The submitted expense the receipt supports.
-  type: id
-  identifies: aggregate/spending.expense
-- name: receiptId
-  meaning: The attached receipt.
-  type: id
-  identifies: aggregate/spending.receipt
-- name: sizeBytes
-  meaning: The total byte size of the stored scans.
-  type: integer
-  size: 64
 writes:
 - aggregate/spending.expense
 - aggregate/spending.receipt
@@ -84,16 +47,9 @@ consistency:
   - rule/spending.receipt-attached-atomically
 idempotency:
   mode: key
-  key: "{receiptId}"
+  key: "{receipt}"
   keyScope: account
   replay: returns-first-result
-audit:
-  level: required
-  category: monetary-action
-  target:
-  - expenseId
-  - receiptId
-  targetKind: aggregate/spending.receipt
 steps:
 - statement: The employee sends the receipt for a submitted expense.
   cites:

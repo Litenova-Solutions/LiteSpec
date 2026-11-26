@@ -4,19 +4,18 @@ Submit Expense is how an employee files a work cost so that a manager can decide
 
 ## Flow
 
-1. The employee sends the amount, currency, category, receipt, labels, splits, note and lines, with the import batch when the expense arrived in one.
+1. The employee sends the amount, currency and receipt.
 2. Spending checks the receipt rule against the threshold.
-3. Spending checks the category against the expense-category table.
-4. Spending refuses the submission with `spending.receipt-missing` when the receipt is missing.
-5. Spending stores the expense as Submitted and raises the submitted event.
+3. Spending refuses the submission with `spending.receipt-missing` when the receipt is missing.
+4. Spending stores the expense as Submitted and raises the submitted event.
 
-Each request creates a new expense with a new identity, while a repeated request returns the first result instead: the expenseId key recognizes the repeat. An audit entry is stored for the created expense, with the handler contributing its identity.
+Each request creates a new expense with a new identity, while a repeated request returns the first result instead: the expenseId key recognizes the repeat.
 
 ## Example
 
 Ava, an employee at Harbor and Pine, took the train to a client visit. She paid 48.90 EUR for the fare and kept the ticket receipt.
 
-Ava submits the 48.90 EUR fare as travel with the receipt attached. She files it with no labels and no splits, adds no note, and the fare arrived in no import batch. She itemizes the one train-fare line. The fare is above the 25 EUR threshold, so the receipt is required, and it is present. The expense is stored as Submitted, and it waits for Ben, her manager, to decide. Ben decides within days.
+Ava submits the 48.90 EUR fare with the receipt attached. The fare is above the 25 EUR threshold, so the receipt is required, and it is present. The expense is stored as Submitted, and it waits for Ben, her manager, to decide. Ben decides within days.
 
 ## Edge Cases
 

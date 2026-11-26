@@ -538,16 +538,16 @@ public void Publish(DateTimeOffset publishedAt) => PublishedAt = publishedAt;
 
 **Applies to:** artifact: value-object
 
-**Statement:** A monetary amount MUST use `decimal` inside one shared `Money` value object constructed as `new Money(amount, currency)`, carrying an ISO 4217 currency code and serializing as `{ "amount": "12.50", "currency": "EUR" }`.
+**Statement:** A monetary amount MUST use `decimal` inside one shared `Money` value object carrying an ISO 4217 currency code and serializing as `{ "amount": "12.50", "currency": "EUR" }`.
 
-**Rationale:** Binary floating point cannot represent most decimal amounts exactly, so money computed in `double` drifts by cents. The shared `Money` object keeps a `decimal` amount with an ISO 4217 currency code. The object constructs through its public constructor taking the amount and the code, the form every generator renders. The owning module record defines supported currencies, scale, rounding, sign rules, and cross-currency arithmetic. Infrastructure maps that precision explicitly. A use case fixed to one currency accepts an amount alone while stating that currency in its record. This provision binds `litespec/backend/domain#model-money-with-exact-decimal-values` for .NET.
+**Rationale:** Binary floating point cannot represent most decimal amounts exactly, so money computed in `double` drifts by cents. The shared `Money` object keeps a `decimal` amount with an ISO 4217 currency code. The owning module record defines supported currencies, scale, rounding, sign rules, and cross-currency arithmetic. Infrastructure maps that precision explicitly. A use case fixed to one currency accepts an amount alone while stating that currency in its record. This provision binds `litespec/backend/domain#model-money-with-exact-decimal-values` for .NET.
 
 **Example:**
 
 ```csharp
 public sealed record Money
 {
-    public Money(decimal amount, string currency)
+    private Money(decimal amount, string currency)
     {
         Amount = amount;
         Currency = currency;
@@ -556,6 +556,8 @@ public sealed record Money
     public decimal Amount { get; }
 
     public string Currency { get; }
+
+    public static Money Create(decimal amount, string currency) => new(amount, currency);
 
     public override string ToString() => $"{Amount} {Currency}";
 }
@@ -585,7 +587,7 @@ Serializing the amount as a string keeps every reader from parsing it as binary 
 
 ```csharp
 // Required: a rate applied to a Money amount is a decimal.
-public Money ApplyRate(decimal rate) => new Money(Amount * rate, Currency);
+public Money ApplyRate(decimal rate) => Create(Amount * rate, Currency);
 ```
 
 **Checked by:** `dotnet build` reports `LS1008` for a `double` or `float` type in Domain.
@@ -748,7 +750,7 @@ Malformed caller input stays with Application validators, which report it as val
 public sealed partial class ExpenseReceiptMissingException : DomainException
 {
     public ExpenseReceiptMissingException()
-        : base("The expense is above the receipt threshold and carries no receipt.")
+        : base("An expense above the receipt threshold carries no receipt.")
     {
     }
 }

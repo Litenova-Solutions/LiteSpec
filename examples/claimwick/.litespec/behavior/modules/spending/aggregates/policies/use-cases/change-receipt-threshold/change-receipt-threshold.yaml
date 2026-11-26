@@ -14,39 +14,13 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
-http:
-  method: PUT
-  route: /api/policies/receipt-threshold
 input:
 - name: threshold
   meaning: The new receipt threshold with its currency.
   type: money
-  currencyField: currency
-  bounds:
-    min: 0
-  required: true
-  rules:
-  - rule/policy.threshold-never-negative
-  origin: caller
-  binding: query
-  classification: internal
-- name: currency
-  meaning: The ISO 4217 currency code of the threshold.
-  type: text
-  maxLength: 3
   required: true
   origin: caller
-  binding: query
   classification: internal
-output:
-- name: threshold
-  meaning: The new receipt threshold with its currency.
-  type: money
-  currencyField: currency
-- name: currency
-  meaning: The ISO 4217 currency code of the threshold.
-  type: text
-  maxLength: 3
 writes:
 - aggregate/spending.policy
 idempotency:
@@ -54,8 +28,6 @@ idempotency:
   reason: a repeat sets the same threshold on the policy, leaving the same value in place
   replay: acts-again
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  exemptBecause: The policy holds its threshold; the change trails nothing further.
 steps:
 - statement: The manager sends the new threshold with its currency.
   cites:

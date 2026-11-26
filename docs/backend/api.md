@@ -21,15 +21,13 @@ Some endpoints belong to no use case, so they have no handler. The host keeps th
 
 In Claimwick, the submit-expense endpoint reads the HTTP request, maps it to the submit command, dispatches it through the command mediator, and maps the result to the response. It checks no business rule and catches no failure.
 
-A project may generate its endpoints from the use-case records with `litespec generate` instead of writing them: the `endpoints` kind maps each route from the `http` its use case declares, as the [generate page](../tools/generate.md) states. A use case whose endpoint stays hand-written states `generated: false`, as `litespec/core/use-cases#write-special-endpoints-by-hand` states.
-
 ### Errors as Problem Details
 
 Every error response uses RFC 9457 Problem Details: a standard body carrying a stable application `code`, the current `traceId`, and one `errors` entry per field failure. The stable code lets a client branch on the failure without parsing prose, and the trace identifier connects the response to its diagnostics.
 
 One global handler produces every error response. It maps every validation, domain, or use-case failure to its status and body. Because the mapping lives in one place, the same failure answers the same status and code from every endpoint.
 
-In Claimwick, reimbursing an expense that is not approved answers 422 with the code `spending.not-approved`, whatever endpoint received the request. The endpoint catches nothing.
+In Claimwick, reimbursing an expense that is not approved answers 409 with the code `spending.not-approved`, whatever endpoint received the request. The endpoint catches nothing.
 
 ### The Generated Contract
 
@@ -140,15 +138,15 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 
 WebApi maps Application member names to their public JSON field names. `traceId` carries the trace identifier from the current [W3C Trace Context](https://www.w3.org/TR/trace-context/) `traceparent`, with the request identifier as fallback. The same shape applies to authentication and authorization failures.
 
-The global handler maps validation failures to 400 and missing targets through the operation's disclosure policy. It maps forbidden failures to 403 or the declared 404. The derived `invalid-input` refusal answers 400, the derived `forbidden` refusal answers 403 or the declared 404, and the derived `conflict` and `rule-not-stated` refusals answer 409. Each written refusal answers the status its refusal record states. Unexpected failures answer 500 with code `internal-error`. It maps each known domain failure individually. It does not report cancellation from a disconnected request as an application error.
+The global handler maps validation failures to 400 and missing targets through the operation's disclosure policy. It maps forbidden failures to 403 or the declared 404. The derived `invalid-input` refusal answers 400, the derived `forbidden` refusal answers 403 or the declared 404, and the derived `rule-not-stated` refusal answers 409. It maps conflicts and state rejections to 409, and unexpected failures to 500 with code `internal-error`. It maps each known domain failure individually. It does not report cancellation from a disconnected request as an application error.
 
-In the Claimwick product, reimbursing an expense that is not approved ends with `result/reimburse-expense.not-approved`, which carries the code `spending.not-approved` and the status 422. For example, the global handler answers:
+In the Claimwick product, reimbursing an expense that is not approved ends with `result/reimburse-expense.not-approved`, which carries the code `spending.not-approved` and the status 409. For example, the global handler answers:
 
 ```json
 {
-  "type": "https://example.test/problems/not-approved",
+  "type": "https://example.test/problems/conflict",
   "title": "Not approved",
-  "status": 422,
+  "status": 409,
   "detail": "The expense is not approved.",
   "instance": "/api/expenses",
   "code": "spending.not-approved",
@@ -172,14 +170,13 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Statement:** A WebApi operation MUST return the status the outcome table assigns to its result.
 
-**Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack reads the status from the use-case result: each written refusal carries the status it answers with on its refusal record, as `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites` states, and each derived generic refusal maps to exactly one fixed status. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 answers only an unexpected fault. The operation returns exactly that status.
+**Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack derives the status from the use-case result: each success and refusal kind maps to exactly one status, with no status recorded on the record, and the operation returns exactly that status.
 
 **Example:**
 
 | Outcome | Status |
 |:---|:---:|
 | Successful read | 200 |
-| Successful command with a response body | 200 |
 | Successful creation of a readable resource | 201 with the resource location |
 | Successful creation without a read route | 201 |
 | Successful command without a response body | 204 |
@@ -187,10 +184,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Missing or invalid authentication | 401 |
 | Authenticated but forbidden | 403 |
 | Resource unavailable under the disclosure policy | 404 |
-| Absent details of a single-resource query | 404 |
-| Generic conflict or unstated rule | 409 |
-| Written refusal | The status its refusal record states |
-| Upstream refusal | 503 |
+| State, version, or idempotency conflict | 409 |
 | Abuse limit exceeded | 429 with a `Retry-After` header |
 | Accepted background operation | 202 with status location |
 | Unexpected failure | 500 |
@@ -417,7 +411,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Rationale:** The `operationId` names an operation for client code, cased for method names, so it is not the record identifier. Carrying the identifier itself in an extension, which the OpenAPI specification reserves for this kind of metadata, lets an integrator, a gateway log, or a support person go from an operation straight to its specification page. The value comes from the generated map of operation names to use cases, so it is written once, in the endpoint's mark.
 
-**Example:** The Claimwick operation `submitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
+**Example:** The Claimwick operation `SubmitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
 
 **Checked by:** `litespec model check` reports `operation-use-case-drift` (level S) for an operation in the committed contract whose `x-litespec-use-case` is missing or differs from the use case its endpoint's mark names.
 
@@ -561,7 +555,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** A use case that reads one way in its record, another in its message type, and a third in its audit action forces every trace across layers through a translation table only the author holds. The record id is the name; the message type, the endpoint operation id, and the audit action repeat it in their own casing, so a reader follows one name from the page to the wire to the audit log.
 
-**Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `reimburseExpense`, and audit action `reimburse-expense`; an operation id of `payExpense` is reported.
+**Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
 
 **Reviewed for:** Does every message type, operation id, and audit action carry its use case name? Look at each use case's message type, operation id, and audit action.
 
@@ -575,11 +569,11 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Statement:** The one global error handler MUST map an unknown record to 404 with a problem detail, a malformed identifier or value to 400, each domain refusal to its declared status, and only an unexpected fault to 500, with the exception type and message in a 500 problem detail only when the host runs in the Development environment.
 
-**Rationale:** A caller-caused failure answered as 500 reads as a broken server: alerts fire, retries repeat a request that was never going to work, and the caller learns nothing. The map keeps each cause on its status: an unknown record answers 404 with a problem detail carrying the stable code, a malformed identifier or value answers 400, and each domain refusal answers the status its record declares, including 503 for an upstream refusing or unreachable. Only an unexpected fault answers 500, so a 500 always means the server failed.
+**Rationale:** A caller-caused failure answered as 500 reads as a broken server: alerts fire, retries repeat a request that was never going to work, and the caller learns nothing. The map keeps each cause on its status: an unknown record answers 404 with a problem detail carrying the stable code, a malformed identifier or value answers 400, and each domain refusal answers the status its record declares. Only an unexpected fault answers 500, so a 500 always means the server failed.
 
-**Example:** In the Claimwick product, reading an expense that does not exist answers 404 with a problem detail carrying the missing-resource code; submitting an expense with a malformed identifier answers 400; reimbursing an expense that is not approved answers 422 under `result/reimburse-expense.not-approved`; a payout the bank leaves unreachable answers 503; and only a fault no refusal covers answers 500.
+**Example:** In the Claimwick product, reading an expense that does not exist answers 404 with a problem detail carrying the missing-resource code; submitting an expense with a malformed identifier answers 400; reimbursing an expense that is not approved answers 409 under `result/reimburse-expense.not-approved`; and only a fault no refusal covers answers 500.
 
-**Reviewed for:** Does every caller-caused failure answer its declared status with only an unexpected fault answering 500? Look at the global handler map beside the refusal records.
+**Reviewed for:** Does every caller-caused failure answer below 500 with its declared status, with only an unexpected fault answering 500? Look at the global handler map beside the refusal records.
 
 ## Conventions
 

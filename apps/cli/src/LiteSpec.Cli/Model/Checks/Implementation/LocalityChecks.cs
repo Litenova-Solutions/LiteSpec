@@ -92,7 +92,7 @@ internal static class LocalityChecks
         }
     }
 
-    /// <summary>The records a use case holds opaque: the identifies of its input and output fields and their row fields stating held opaque.</summary>
+    /// <summary>The records a use case holds opaque: the identifies of its input and output fields stating held opaque.</summary>
     /// <param name="useCase">The use-case record whose contract fields are read.</param>
     /// <returns>Each base record identifier held opaque, once.</returns>
     private static HashSet<string> HeldOpaqueIds(Record useCase)
@@ -113,39 +113,15 @@ internal static class LocalityChecks
 
             foreach (var entry in entries.EnumerateArray())
             {
-                CollectHeld(entry, held);
+                if (string.Equals(RecordEntries.Str(entry, "held"), "opaque", StringComparison.Ordinal)
+                    && RecordEntries.Str(entry, "identifies") is { Length: > 0 } named)
+                {
+                    held.Add(Identifiers.BaseId(named));
+                }
             }
         }
 
         return held;
-    }
-
-    /// <summary>Collects the identifies a contract field and its row fields hold opaque, through nested row shapes.</summary>
-    /// <param name="field">The contract field or row field holding the facts.</param>
-    /// <param name="held">The base record identifiers held opaque, collected in place.</param>
-    private static void CollectHeld(JsonElement field, HashSet<string> held)
-    {
-        if (field.ValueKind != JsonValueKind.Object)
-        {
-            return;
-        }
-
-        if (string.Equals(RecordEntries.Str(field, "held"), "opaque", StringComparison.Ordinal)
-            && RecordEntries.Str(field, "identifies") is { Length: > 0 } named)
-        {
-            held.Add(Identifiers.BaseId(named));
-        }
-
-        if (field.TryGetProperty(RecordFields.RowShape, out var shape)
-            && shape.ValueKind == JsonValueKind.Object
-            && shape.TryGetProperty(RecordFields.Fields, out var rows)
-            && rows.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var row in rows.EnumerateArray())
-            {
-                CollectHeld(row, held);
-            }
-        }
     }
 
     /// <summary>The records a use case reads, writes, or cites: its reads, its writes, and the records its steps name.</summary>

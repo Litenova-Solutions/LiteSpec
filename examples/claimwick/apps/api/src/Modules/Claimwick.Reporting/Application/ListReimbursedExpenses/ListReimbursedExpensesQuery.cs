@@ -1,0 +1,3 @@
+namespace Claimwick.Reporting.Application.ListReimbursedExpenses;
+
+internal sealed record ListReimbursedExpensesQuery;

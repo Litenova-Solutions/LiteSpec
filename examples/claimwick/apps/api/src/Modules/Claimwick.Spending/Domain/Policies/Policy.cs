@@ -25,7 +25,7 @@ internal sealed class Policy : AggregateRoot<Guid>
     {
         if (threshold.Amount < 0)
         {
-            throw new PolicyNegativeThresholdException(threshold.ToString());
+            throw new PolicyNegativeThresholdException();
         }
 
         return new Policy(threshold);
@@ -37,7 +37,7 @@ internal sealed class Policy : AggregateRoot<Guid>
     {
         if (threshold.Amount < 0)
         {
-            throw new PolicyNegativeThresholdException(threshold.ToString());
+            throw new PolicyNegativeThresholdException();
         }
 
         State = new PolicyActiveState(threshold);

@@ -1,6 +1,5 @@
 using Claimwick.Spending.Domain.Expenses.Events;
 using Claimwick.Spending.Ports.MailRelay;
-using LiteBus.Events.Abstractions;
 
 namespace Claimwick.Spending.Application.Notifications.ApprovalReminder;
 

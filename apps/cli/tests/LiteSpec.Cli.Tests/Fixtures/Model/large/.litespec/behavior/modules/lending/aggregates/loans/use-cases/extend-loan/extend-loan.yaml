@@ -14,9 +14,6 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-extended
-http:
-  method: POST
-  route: /api/loans/{loanId}:extend
 input:
 - name: loanId
   meaning: The loan the reader extends.
@@ -24,14 +21,12 @@ input:
   identifies: aggregate/lending.loan
   required: true
   origin: caller
-  binding: route
   classification: internal
 - name: days
   meaning: The number of days the loan is extended.
   type: integer
   required: true
   origin: caller
-  binding: query
   classification: internal
 idempotency:
   mode: none

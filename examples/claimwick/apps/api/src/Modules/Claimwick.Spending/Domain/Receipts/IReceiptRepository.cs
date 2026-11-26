@@ -4,7 +4,7 @@ namespace Claimwick.Spending.Domain.Receipts;
 internal interface IReceiptRepository
 {
     /// <summary>Loads one receipt by its identity.</summary>
-    Task<Receipt> GetAsync(ReceiptId id, CancellationToken cancellationToken);
+    Task<Receipt> GetAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>Stages a new or changed receipt for the pipeline's one commit.</summary>
     void Store(Receipt receipt);

@@ -153,9 +153,9 @@ internal static class RefusalDeclarationChecks
 
         var calls = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var (tree, declared) in own)
+        foreach (var (_, declared) in own)
         {
-            foreach (var call in MethodCalls.OfClass(declared, roots, source.SemanticOf(tree)))
+            foreach (var call in MethodCalls.OfClass(declared, roots))
             {
                 if (!calls.Add(call.Type + "." + call.Method))
                 {
@@ -210,7 +210,7 @@ internal static class RefusalDeclarationChecks
 
                 var span = tree.GetLineSpan(candidate.Span);
 
-                foreach (var thrown in ThrownRefusals.OfMethod(candidate, tree, source.SemanticOf(tree)))
+                foreach (var thrown in ThrownRefusals.OfMethod(candidate, tree))
                 {
                     if (!declaring.TryGetValue(thrown.Name, out var codes))
                     {

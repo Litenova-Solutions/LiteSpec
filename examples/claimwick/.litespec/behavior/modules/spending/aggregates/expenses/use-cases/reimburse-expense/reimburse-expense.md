@@ -4,7 +4,7 @@ Reimburse Expense pays an approved expense back to the employee who submitted it
 
 ## Flow
 
-1. Finance picks an approved expense, stating the payment fee when the payout carries one.
+1. Finance picks an approved expense.
 2. Spending refuses the payment with `spending.not-approved` when the expense is not approved.
 3. Spending refuses the payment with `spending.already-reimbursed` when the expense is reimbursed.
 4. Spending moves the expense to Reimbursed and raises the reimbursed event.
@@ -13,7 +13,7 @@ The payout batch then carries the expense to `external-system/payout-bank`. No a
 
 ## Example
 
-Ben approved Ava's 48.90 EUR train fare earlier in the week, and Cara pays it on Friday. The payout carries no fee. The expense moves to Reimbursed, `domain-event/expense.reimbursed` is raised with the 48.90 EUR amount, and the payout batch carries the payment to the payout bank.
+Ben approved Ava's 48.90 EUR train fare earlier in the week, and Cara pays it on Friday. The expense moves to Reimbursed, `domain-event/expense.reimbursed` is raised with the 48.90 EUR amount, and the payout batch carries the payment to the payout bank.
 
 The next Friday, Cara tries to pay the same expense again. Spending refuses with `spending.already-reimbursed`, so Ava receives the 48.90 EUR once.
 

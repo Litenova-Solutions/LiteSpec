@@ -3,7 +3,7 @@
 <!-- generated:agent-protocol -->
 When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 
-This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions audit.
+This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
 Before a task, read the LiteSpec pages of this release at ../../docs and open only the pages the task touches.
 Read this release only: never substitute another version when a page is missing.

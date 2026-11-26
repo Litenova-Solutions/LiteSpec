@@ -1,5 +1,4 @@
 using Claimwick.Spending.Contracts.Expenses.OnExpenseReimbursed;
-using LiteBus.Events.Abstractions;
 using Marten;
 
 namespace Claimwick.Reporting.Application.ReadModels.ReimbursedExpenses;

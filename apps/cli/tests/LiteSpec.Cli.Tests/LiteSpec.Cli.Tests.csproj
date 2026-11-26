@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Marten" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="xunit.v3" />
     </ItemGroup>
 
@@ -27,4 +25,5 @@
         <Compile Remove="Fixtures/**" />
         <None Remove="Fixtures/**" />
     </ItemGroup>
+
 </Project>

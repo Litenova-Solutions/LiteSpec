@@ -3,8 +3,4 @@ summary: The refusals the policy aggregate raises.
 records:
 - id: refusal/spending.negative-threshold
   title: Negative Threshold
-  meaning: The threshold of {threshold} is negative.
-  status: 422
-  parameters:
-  - name: threshold
-    meaning: The rejected threshold.
+  meaning: The threshold is negative.

@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.CompletionStages;
@@ -118,185 +117,8 @@ static class RefusalSetReader
                 continue;
             }
 
-            if (!TryReadParameters(item, id, file, meaning, problems, out var parameters))
-            {
-                continue;
-            }
-
-            entries.Add(new RefusalEntry(module, home + "." + name, meaning, file, aggregate, item.Line)
-            {
-                Parameters = parameters,
-                Status = NumberOf(item, RecordFields.Status),
-            });
+            entries.Add(new RefusalEntry(module, home + "." + name, meaning, file, aggregate, item.Line));
         }
-    }
-
-    /// <summary>Reads one refusal's parameter list, reporting a list that is malformed or disagrees with the meaning.</summary>
-    /// <param name="item">The refusal entry holding the parameters.</param>
-    /// <param name="id">The refusal identifier, for the finding message.</param>
-    /// <param name="file">The refusal set file path.</param>
-    /// <param name="meaning">The refusal meaning naming each parameter as <c>{name}</c>.</param>
-    /// <param name="problems">The findings a malformed list is reported into.</param>
-    /// <param name="parameters">The read parameters, in written order.</param>
-    /// <returns>True when the list reads and matches the meaning; otherwise false.</returns>
-    private static bool TryReadParameters(JsonText item, string id, string file, string meaning, List<Finding> problems, out List<RefusalParameter> parameters)
-    {
-        parameters = [];
-
-        if (!item.TryGetProperty(RecordFields.Parameters, out var list))
-        {
-            foreach (var named in PlaceholdersOf(meaning))
-            {
-                problems.Add(new Finding(
-                    "record-invalid",
-                    $"Refusal '{id}' in '{file}' names '{{{named}}}' in its meaning but declares no parameters list.",
-                    file,
-                    item.Line,
-                    null));
-                return false;
-            }
-
-            return true;
-        }
-
-        if (list.Kind != JsonKind.Array)
-        {
-            problems.Add(new Finding(
-                "record-invalid",
-                $"Refusal '{id}' in '{file}' holds parameters that are no list of values.",
-                file,
-                item.Line,
-                null));
-            return false;
-        }
-
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var entry in list.Items)
-        {
-            var name = TextOf(entry, "name");
-
-            if (!IsIdentifier(name))
-            {
-                problems.Add(new Finding(
-                    "record-invalid",
-                    $"Refusal '{id}' in '{file}' names parameter '{name}' that is no identifier.",
-                    file,
-                    entry.Line,
-                    null));
-                return false;
-            }
-
-            if (!seen.Add(name))
-            {
-                problems.Add(new Finding(
-                    "record-invalid",
-                    $"Refusal '{id}' in '{file}' declares parameter '{name}' twice.",
-                    file,
-                    entry.Line,
-                    null));
-                return false;
-            }
-
-            parameters.Add(new RefusalParameter(name, TextOf(entry, RecordFields.Meaning)));
-        }
-
-        foreach (var named in PlaceholdersOf(meaning))
-        {
-            if (!seen.Contains(named))
-            {
-                problems.Add(new Finding(
-                    "record-invalid",
-                    $"Refusal '{id}' in '{file}' names '{{{named}}}' in its meaning that its parameters list does not declare.",
-                    file,
-                    item.Line,
-                    null));
-                return false;
-            }
-        }
-
-        foreach (var declared in parameters)
-        {
-            if (!PlaceholdersOf(meaning).Contains(declared.Name, StringComparer.Ordinal))
-            {
-                problems.Add(new Finding(
-                    "record-invalid",
-                    $"Refusal '{id}' in '{file}' declares parameter '{declared.Name}' its meaning never names.",
-                    file,
-                    item.Line,
-                    null));
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>The placeholder names a meaning states: each <c>{name}</c> outside a <c>{{</c> or <c>}}</c> escape, in order.</summary>
-    /// <param name="meaning">The refusal meaning.</param>
-    /// <returns>The placeholder names, in order of appearance.</returns>
-    private static List<string> PlaceholdersOf(string meaning)
-    {
-        var names = new List<string>();
-
-        for (var at = 0; at < meaning.Length; at++)
-        {
-            if (meaning[at] == '{' && at + 1 < meaning.Length && meaning[at + 1] == '{')
-            {
-                at++;
-                continue;
-            }
-
-            if (meaning[at] == '}' && at + 1 < meaning.Length && meaning[at + 1] == '}')
-            {
-                at++;
-                continue;
-            }
-
-            if (meaning[at] != '{')
-            {
-                continue;
-            }
-
-            var end = meaning.IndexOf('}', at + 1);
-
-            if (end < 0)
-            {
-                break;
-            }
-
-            var token = meaning.Substring(at + 1, end - at - 1);
-
-            if (token.Length > 0)
-            {
-                names.Add(token);
-            }
-
-            at = end;
-        }
-
-        return names;
-    }
-
-    /// <summary>Whether the name reads as a C# identifier: a letter or underscore opening letters, digits or underscores.</summary>
-    /// <param name="name">The parameter name.</param>
-    /// <returns>True when the name reads as an identifier; otherwise false.</returns>
-    private static bool IsIdentifier(string name)
-    {
-        if (name.Length == 0 || (name[0] != '_' && !char.IsLetter(name[0])))
-        {
-            return false;
-        }
-
-        for (var index = 1; index < name.Length; index++)
-        {
-            if (name[index] != '_' && !char.IsLetterOrDigit(name[index]))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /// <summary>The problem type of a refusal code: the project's base followed by the code's part after its module.</summary>
@@ -315,7 +137,7 @@ static class RefusalSetReader
     /// <summary>
     ///     The generic refusals a use case derives: <c>forbidden</c> when it names a grant other than anonymous or
     ///     system, <c>unauthenticated</c> for <c>signed-in</c>, <c>sign-in-too-old</c> when it sets
-    ///     <c>recentSignIn</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
+    ///     <c>recentSignInLimit</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
     ///     id of an aggregate, <c>conflict</c> when a command declares <c>conflicts</c>, and <c>rule-not-stated</c>
     ///     when the use case reads knowledge with no rule in force for the asked key or day.
     /// </summary>
@@ -337,7 +159,7 @@ static class RefusalSetReader
             codes.Add("unauthenticated");
         }
 
-        if (AccessHas(useCase, RecordFields.RecentSignIn))
+        if (AccessHas(useCase, RecordFields.RecentSignInLimit))
         {
             codes.Add("sign-in-too-old");
         }
@@ -663,16 +485,4 @@ static class RefusalSetReader
         && value.GetString() is { } text
             ? text
             : "";
-
-    /// <summary>Reads one integer member of a parsed YAML object, or null when it is missing or not an integer.</summary>
-    /// <param name="entry">The parsed object to read.</param>
-    /// <param name="name">The member name.</param>
-    /// <returns>The integer value, or null.</returns>
-    private static int? NumberOf(JsonText entry, string name) =>
-        entry.Kind == JsonKind.Object
-        && entry.TryGetProperty(name, out var value)
-        && value.GetNumber() is { } text
-        && int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var number)
-            ? number
-            : null;
 }

@@ -3,7 +3,6 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
-using LiteSpec.Model.Roslyn;
 using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 using static LiteSpec.Cli.Model.Checks.Implementation.Placement.NamespacePlacement;
@@ -13,7 +12,6 @@ namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 
 /// <summary>The backend placement check: every backend mark sits under the code folder its record's placement names, with a namespace that names the same path.</summary>
 /// <follows>litespec/core/model#match-each-backend-mark-to-its-folder</follows>
-/// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
 /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
@@ -31,8 +29,7 @@ internal static class BackendPlacementChecks
     ///     an event or rule mark outside its module or aggregate, an external-system mark outside its module, and any of those with a namespace that names another path.
     ///     A mark naming no record, a record of another type, or a record its kind does not take is
     ///     <c>mark-unknown</c>, not drift. A host endpoint, a technical class, an aggregate method and a
-    ///     frontend element carry no backend placement, so they are left out. A generated endpoint marks its
-    ///     use case from the module endpoints file, so the generator owns its placement and it is left out too.
+    ///     frontend element carry no backend placement, so they are left out.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -804,7 +801,7 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Whether the element carries a backend placement: not a test, a frontend element, an
-    ///     aggregate method, a technical class, a host endpoint, or a generated endpoint. A technical class that carries a
+    ///     aggregate method, a technical class or a host endpoint. A technical class that carries a
     ///     read model mark is the one technical class with a placement, its module ReadModels folder.
     /// </summary>
     /// <param name="config">The project configuration naming the host roots.</param>
@@ -816,6 +813,5 @@ internal static class BackendPlacementChecks
                 or CodeKind.FrontendModule or CodeKind.FrontendRoute
                 or CodeKind.AggregateMethod or CodeKind.Technical)
             || element.Marks.Any(mark => mark.RecordId.StartsWith("read-model/", StringComparison.Ordinal)))
-        && !(element.Kind == CodeKind.Endpoint && IsHostEndpoint(config, element.File))
-        && !(element.Kind == CodeKind.Endpoint && GeneratedCode.IsGeneratedFileName(element.File));
+        && !(element.Kind == CodeKind.Endpoint && IsHostEndpoint(config, element.File));
 }

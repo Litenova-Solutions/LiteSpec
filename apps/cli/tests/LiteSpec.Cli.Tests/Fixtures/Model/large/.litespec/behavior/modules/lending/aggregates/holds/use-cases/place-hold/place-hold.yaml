@@ -14,9 +14,6 @@ reachedThrough:
 - entry-point/library-app
 raises:
 - domain-event/hold.hold-placed
-http:
-  method: POST
-  route: /api/holds
 input:
 - name: copyId
   meaning: The copy the reader places a hold on.
@@ -24,7 +21,6 @@ input:
   identifies: aggregate/lending.copy
   required: true
   origin: caller
-  binding: body
   classification: internal
 - name: readerId
   meaning: The signed-in reader waiting for the copy, read from verified claims.
@@ -33,7 +29,6 @@ input:
   required: false
   origin: verified-claim
   verifiedBy: entry-point/library-app
-  binding: claim
   classification: personal
 idempotency:
   mode: none

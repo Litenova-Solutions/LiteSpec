@@ -9,11 +9,7 @@ kind: <command>
 access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
-  recentSignIn: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
-  scope: <self, when the caller acts only on the record identifying them, or remove this line>
-  identityInput: <input carrying the caller identity, or remove this line>
-  preconditions:
-  - rule/<home>.<name, or remove this line>
+  recentSignInLimit: setting/<module>.<name, or remove this line>
   runsAs: <system, when a reaction or job runs this use case beside its person grant, or remove this line>
 serves:
 - step/<flow>.<act>
@@ -23,12 +19,6 @@ computedBy:
 - rule/<home>.<name, or remove this line>
 reachedThrough:
 - entry-point/<name>
-# http applies when an api or browser entry point reaches the use case.
-http:
-  method: <GET|POST|PUT|PATCH|DELETE>
-  route: <route template, such as /expenses/{expenseId}>
-  created: <created location, such as /expenses/{expenseId}, or remove this line>
-  generated: <false, when the endpoint stays hand-written, or remove this line>
 raises:
 - domain-event/<aggregate>.<name, or remove this line>
 steps:
@@ -46,30 +36,27 @@ input:
   rules:
   - rule/<home>.<name, or remove this line>
   origin: <caller|claim|derived|verified-claim>
-  binding: <route|query|body|claim|header>
   classification: <public|internal|personal|sensitive>
 - name: <field name>
   meaning: <what the field holds>
-  type: <text|integer|decimal|money|boolean|date|instant|duration|email|choice|id|list|file>
+  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
   required: <true|false, or remove this line>
   origin: <caller|claim|derived|verified-claim>
-  binding: <route|query|body|claim|header>
   classification: <public|internal|personal|sensitive>
 - name: <field name>
   meaning: <what the field holds>
   type: choice
-  set: reference-data/module.name
+  choices:
+  - <allowed value>
   origin: <caller|claim|derived|verified-claim>
-  binding: <route|query|body|claim|header>
   classification: <public|internal|personal|sensitive>
-# A money field names its currency in currency, currencyField or currencyHome, and a decimal field states its scale. A text or email field may state minLength, maxLength or matches, and an integer, decimal or money field may state bounds. A list field names its row shape in rowShape, a multi-field list names its row type in rowType, and a list of one field keeps a named row type when rowType names one. A file field carries contentTypes and maxSize instead of identifies. A choice field names its closed set in set: a reference-data table or a choice setting. An origin of verified-claim carries verifiedBy. A claim binding takes origin verified-claim, and a derived input states no binding. A route input whose URL name differs states it in routeParameter. An input that must match the tenant key or a sibling input states it in equals.
+# A file field carries contentTypes and maxSize instead of identifies. An origin of verified-claim carries verifiedBy.
 output:
 - name: <field name>
   meaning: <what the field holds>
   type: id
   identifies: aggregate/module.name
   many: false
-  required: true
 paging:
   mode: pages
   order: <how rows order>
@@ -124,11 +111,9 @@ idempotency:
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this command needs no idempotency, or remove this line>
 consentRule: rule/<home>.<name, or remove this line>
-# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level, category, target and target kind.
+# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level and target kind.
 audit:
   level: <required|optional|none>
-  category: <the audit category, or remove this line when the level is none>
-  target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
   targetKind: <what the audit trail records for this command>
 background: <what the caller sees while the command runs on, or remove this line>
 records:

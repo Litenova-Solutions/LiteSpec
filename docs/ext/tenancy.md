@@ -16,7 +16,7 @@ Applicable specification kinds: None.
 
 Select `tenancy` only when independent customer organizations share one deployment and need isolated data or policy. One organization with many users does not select it: tenants are separate customers, not separate logins.
 
-A project whose messages carry the tenant identifier names the glossary term for the tenant in the `tenant` field of its tenancy selection, such as `tenant: term/workspace`. When the field is set and a use case declares `access.tenant` of `own` or `all`, the message carries the tenant key first: `WorkspaceId` for `term/workspace`, riding the tenant aggregate's identifier type, or a `Guid` when no aggregate carries the term name. An input identifying the tenant aggregate carries the key itself, so no key is implied then. The use case does not restate the property in `input`, and `litespec model check` reports `reference-unknown` for a `tenant` value that no record holds. Without the field, no tenant property is implied. A hand-written message may carry the key under the bare term name (`Workspace`); the generator writes the identity form.
+A project whose messages carry the tenant identifier names the glossary term for the tenant in the `tenant` field of its tenancy selection, such as `tenant: term/workspace`. When the field is set and a use case declares `access.tenant` of `own`, the message property carrying the tenant is implied: `Workspace` or `WorkspaceId` for `term/workspace`. The use case does not restate the property in `input`, and `litespec model check` reports `reference-unknown` for a `tenant` value that no record holds. Without the field, no tenant property is implied.
 
 ## Baseline Relationship
 
@@ -95,22 +95,6 @@ It switches on no record type: tenant scope applies to records every project req
 **Rationale:** Any caller can name any tenant when the tenant ID comes directly from request data. Rejecting unrestricted input keeps the request from choosing a data boundary outside its authenticated context.
 
 **Reviewed for:** Does any tenant resolver path accept a tenant identifier from request data? Check the tenant resolver code.
-
-### Carry the Tenant Key on Every Tenant-Scoped Message
-
-**ID:** `litespec/ext/tenancy#carry-the-tenant-key-on-every-tenant-scoped-message`
-
-**Strength:** required
-
-**Applies to:** artifact: command-handler, query-handler
-
-**Statement:** Each message of a use case declaring tenant `own` or `all` MUST carry the tenant key, unless an input identifying the tenant aggregate carries it.
-
-**Rationale:** A tenant-scoped call without its key on the message forces each layer to recover the tenant from elsewhere: the handler reads ambient state, the audit guesses, and a test cannot see the scope in the call. Carrying the key on the message keeps the scope in the call from the endpoint to the handler. The generator writes the key first from the tenancy selection, and a hand-written message carries it under the identity form or the bare term name.
-
-**Example:** The library borrow-copy command declares tenant `own`, so its message carries `WorkspaceId` first. A use case taking the workspace identifier as an input carries the key in that input instead.
-
-**Checked by:** `litespec model check` reports `input-field-drift` for a tenant-scoped message carrying no tenant key.
 
 ### Verify Actor and Target Tenancy
 

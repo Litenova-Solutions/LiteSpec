@@ -14,23 +14,14 @@ reachedThrough:
 - entry-point/claimwick-app
 raises:
 - domain-event/expense.personal-data-erased
-http:
-  method: POST
-  route: /api/expenses/{expenseId}:erase
 input:
-- name: expenseId
+- name: expense
   meaning: The decided expense whose personal data is erased.
   type: id
   identifies: aggregate/spending.expense
   required: true
   origin: caller
-  binding: route
   classification: internal
-output:
-- name: expenseId
-  meaning: The expense whose personal data is erased.
-  type: id
-  identifies: aggregate/spending.expense
 writes:
 - aggregate/spending.expense
 idempotency:
@@ -38,8 +29,6 @@ idempotency:
   reason: the first call deletes the expense, so a repeat finds nothing to erase
   replay: acts-again
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  exemptBecause: Erasure keeps the business facts for the tax file and trails nothing personal.
 steps:
 - statement: Finance names one decided expense.
   cites:

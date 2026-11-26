@@ -4,8 +4,6 @@ records:
 - id: refusal/lending.hold-already-waiting
   title: Hold Already Waiting
   meaning: The copy already has a hold waiting for this reader.
-  status: 409
 - id: refusal/lending.hold-not-waiting
   title: Hold Not Waiting
   meaning: The hold is no longer waiting.
-  status: 409

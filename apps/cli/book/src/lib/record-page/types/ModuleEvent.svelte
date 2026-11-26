@@ -7,27 +7,13 @@
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { codeOf, fieldType, td, thRow } from "../shared/record-cells";
-  import { isRecord, objectList, stringField } from "../page-values";
+  import { objectList, stringField, stringList } from "../page-values";
 
   // A module event: the domain event it translates and the fields it selects from it, each with its type there.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
-  // Each selected field with its own override when the entry states one: a string entry carries no override.
-  const selected = $derived.by(() => {
-    const list = f["fields"];
-    if (!Array.isArray(list)) return [];
-    const out: { name: string; override?: RecordFields }[] = [];
-    for (const entry of list) {
-      if (typeof entry === "string") {
-        if (entry) out.push({ name: entry });
-      } else if (isRecord(entry)) {
-        const name = stringField(entry, "name");
-        if (name) out.push({ name, override: entry });
-      }
-    }
-    return out;
-  });
+  const selected = $derived(stringList(f, "fields"));
   const translates = $derived(stringField(f, "translates"));
   const compatibility = $derived(stringField(f, "compatibility") ?? "");
   // The translated domain event's carries by name: each selected field reads its type here.
@@ -52,10 +38,9 @@
     <DataTable
       head={["Name", "Type"]}
       caption={`Fields of ${r.title}`}
-      rows={selected.map((field) => {
-        const carry = carryOf[field.name];
-        const shown = field.override?.type ? field.override : carry;
-        return [thRow(codeOf(field.name)), td(shown ? fieldType(book, shown) : "")];
+      rows={selected.map((name) => {
+        const carry = carryOf[name];
+        return [thRow(codeOf(name)), td(carry ? fieldType(book, carry) : "")];
       })}
     />
   </PageSection>

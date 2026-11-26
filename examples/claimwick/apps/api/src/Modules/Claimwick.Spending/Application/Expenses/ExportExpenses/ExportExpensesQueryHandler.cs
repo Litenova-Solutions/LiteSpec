@@ -37,10 +37,6 @@ internal sealed class ExportExpensesQueryHandler : IQueryHandler<ExportExpensesQ
                 state.DecidedAt));
         }
 
-        var countByCurrency = approved
-            .GroupBy(expense => expense.Total.Currency)
-            .ToDictionary(group => group.Key, group => group.Count());
-
-        return new ExportExpensesQueryResult(rows, countByCurrency);
+        return new ExportExpensesQueryResult(rows);
     }
 }

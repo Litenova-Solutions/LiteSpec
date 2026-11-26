@@ -9,7 +9,7 @@ The table holds five rows playing the `full-day` and `partial-day` roles, each r
 - Germany: 28 EUR per day for a full day from 2025-01-01 to 2025-12-31, then 30 EUR per day for a full day from 2026-01-01, and 15 EUR per day for a partial day from 2026-01-01.
 - Netherlands: 25 EUR per day for a full day from 2026-01-01, and 12 EUR per day for a partial day from 2026-01-01.
 
-The figures are example rates. The first German full-day row is end-dated at 2025-12-31 because the change to 30 EUR on 2026-01-01 arrives as a new row; released rows stay unchanged. Both German full-day rows share the key `de-full-day`. One key holds the dated history across disjoint spans, and a lookup reads the row whose span holds the date. The Germany and Netherlands sets build their `PerDiemRate` rows from this table through the `knowledge-sets` target.
+The figures are example rates. The first German full-day row is end-dated at 2025-12-31 because the change to 30 EUR on 2026-01-01 arrives as a new row; released rows stay unchanged.
 
 ## Example
 

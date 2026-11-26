@@ -7,8 +7,6 @@ kind: query
 access:
   grant: permission/list-expenses
   tenant: own
-  scope: self
-  identityInput: employeeId
 serves:
 - step/submit-and-reimburse.watch-expenses
 fulfills:
@@ -16,27 +14,15 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
-http:
-  method: GET
-  route: /api/expenses
 input:
-- name: employeeId
+- name: employee
   meaning: The signed-in employee listing their expenses, read from verified claims.
   type: id
   identifies: actor/employee
-  required: true
+  required: false
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
-  binding: claim
   classification: personal
-- name: states
-  meaning: The lifecycle states to list, all states when absent.
-  type: text
-  many: true
-  required: false
-  origin: caller
-  binding: query
-  classification: internal
 output:
   include:
     rows:
@@ -51,27 +37,13 @@ output:
             type: id
             identifies: aggregate/spending.expense
             required: true
-          - name: employeeId
-            meaning: The employee the listed expense belongs to.
-            type: id
-            identifies: actor/employee
+          - name: amount
+            meaning: The exact amount of the expense.
+            type: decimal
             required: true
-          - name: total
-            meaning: The total of the expense.
-            type: object
-            rowType: Money
-            rowShape:
-              fields:
-              - name: amount
-                meaning: The exact amount of the expense.
-                type: decimal
-                scale: 2
-                required: true
-              - name: currency
-                meaning: The ISO 4217 currency code of the amount.
-                type: text
-                maxLength: 3
-                required: true
+          - name: currency
+            meaning: The ISO 4217 currency code of the amount.
+            type: text
             required: true
           - name: state
             meaning: The latest lifecycle state of the expense.
@@ -79,23 +51,10 @@ output:
             required: true
           - name: submittedAt
             meaning: The time the expense was submitted.
-            type: instant
+            type: date-time
             required: true
-          - name: receiptUris
-            meaning: The stored locations of the expense receipt scans.
-            type: list
-            required: true
-            rowType: Uri
-            rowShape:
-              fields:
-              - name: location
-                meaning: One stored scan location.
-                type: text
-                maxLength: 2048
-                required: true
           unique:
           - expenseId
-        rowType: ExpenseSummary
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -109,8 +68,6 @@ paging:
   maxLimit: 100
 reads:
 - aggregate/spending.expense
-audit:
-  exemptBecause: Reads trail nothing.
 steps:
 - statement: The employee lists their own expenses.
   cites:

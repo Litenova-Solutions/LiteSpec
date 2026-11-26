@@ -630,51 +630,11 @@ sealed class ConsumerConfig
             {
                 found.Add(new GenerateTarget(
                     kind, stack, path,
-                    JsonValues.PropString(target, "namespace") ?? "",
-                    JsonValues.PropString(target, "baseType") ?? "",
-                    JsonValues.PropString(target, "markerType") ?? "",
-                    ReadUsings(target),
-                    JsonValues.PropString(target, "permissionPolicy") ?? "",
-                    JsonValues.PropString(target, "signedInPolicy") ?? "",
-                    JsonValues.PropString(target, "anonymousPolicy") ?? "",
-                    JsonValues.PropString(target, "systemPolicy") ?? "",
-                    JsonValues.PropString(target, "selfPolicy") ?? "",
-                    JsonValues.PropString(target, "recentSignInPolicy") ?? "",
-                    JsonValues.PropString(target, "runsAsPolicy") ?? "",
-                    JsonValues.PropString(target, "crossPolicy") ?? "",
-                    JsonValues.PropString(target, "publicPolicy") ?? "",
-                    JsonValues.PropString(target, "nonePolicy") ?? "",
-                    JsonValues.PropString(target, "commandInterface") ?? "",
-                    JsonValues.PropString(target, "queryInterface") ?? "",
-                    JsonValues.PropString(target, "visibility") ?? "",
-                    JsonValues.PropString(target, "claimReader") ?? "",
-                    JsonValues.PropString(target, "tenantReader") ?? "",
-                    JsonValues.PropString(target, "claimValueReader") ?? "",
-                    JsonValues.PropString(target, "commandValidatorInterface") ?? "",
-                    JsonValues.PropString(target, "queryValidatorInterface") ?? ""));
+                    JsonValues.PropString(target, "namespace") ?? ""));
             }
         }
 
         return found;
-    }
-
-    /// <summary>Reads the C# namespaces a target imports for referenced types, the target's usings array.</summary>
-    /// <param name="target">The generate target object.</param>
-    /// <returns>The declared namespaces in declaration order, or null when the target names none.</returns>
-    private static List<string>? ReadUsings(JsonObject target)
-    {
-        if (target["usings"] is not JsonArray usings)
-        {
-            return null;
-        }
-
-        var found = usings
-            .Select(JsonValues.AsString)
-            .OfType<string>()
-            .Where(entry => entry.Length > 0)
-            .ToList();
-
-        return found.Count > 0 ? found : null;
     }
 
     /// <summary>Combines a root with a forward-slash relative path into an absolute path.</summary>

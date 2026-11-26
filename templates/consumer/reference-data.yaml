@@ -7,53 +7,15 @@ summary: <what values the table holds and who reads them>
 unit: <the unit of each value, such as EUR, or remove this line>
 choices:
 - <an allowed value, or remove this line>
-valueMeanings:
-  <an allowed value>: <what the value means, or remove this line>
 requiredRoles:
 - <a role the citing rules read, or remove this line>
 variation: <the dimension the rows vary by, such as country, or remove this line>
-singleton: <true when the table holds one value, or remove this line>
-row:
-  type: <the qualified model row type, or remove row with columns>
-  factory: <the static factory method building one row, or remove this line for the constructor>
-columns:
-- column: <a row field the parameter reads>
-  parameter: <the row parameter name>
-  as: <string, number, boolean, date, money, decimal, key, member, case or map>
-  type: <the qualified model type for money, key, member or case, or remove this line>
-  factory: <the static factory building the key, or remove this line for From>
-  currency: <the three-letter currency code for money, or remove this line>
-  literals: { <a row value>: <its literal> }
-- parameter: <the nested object parameter name, or remove this entry>
-  as: object
-  type: <the qualified model type of the nested object>
-  columns:
-  - column: <a row field the nested parameter reads>
-    parameter: <the nested parameter name>
-    as: <string, number, boolean, date, money, decimal, key, member, case or map>
-- column: <a row field holding the list the parameter reads>
-  parameter: <the row parameter name>
-  as: list
-  items: <string, number, boolean, date, money, decimal, key, member, case, object or map>
-  type: <the qualified model type for key, member, case or object items, or remove this line>
-  factory: <the static factory building key items, or remove this line for From>
-  currency: <the three-letter currency code for money items, or remove this line>
-- column: <a row field holding the object list the parameter reads>
-  parameter: <the row parameter name>
-  as: list
-  items: object
-  type: <the qualified model type of the list items>
-  columns:
-  - column: <an item field the nested parameter reads>
-    parameter: <the nested parameter name>
-    as: <string, number, boolean, date, money, decimal, key, member, case or map>
 rows:
 - value: <the value in force>
-  key: <the stable key of the row, repeated across disjoint spans for dated history, or remove this line>
+  key: <the stable key of the row, or remove this line>
   role: <the role the row plays, or remove this line>
   variant: <the variant the row belongs to, or remove this line>
   refersTo: <the reference-data/module.table#key the row reads, or remove this line>
   effectiveFrom: <date the value takes effect, such as 2026-01-01>
   effectiveTo: <date the value stops applying, or remove this line>
   source: <constraint, research or decision id behind the value>
-  <an extra field the columns read>: <its value, or null where the row states none, or remove this line>

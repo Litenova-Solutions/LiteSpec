@@ -395,9 +395,9 @@ The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-fram
 - A layer listed in `explanations.layers` requires an explanation file for every record on it, requirements included; the exemption for requirements is removed, and `litespec new requirement` writes the explanation from `templates/consumer/requirement.md`.
 - `governance` is a valid entry in `explanations.layers`, so a project can require an explanation for each decision, convention and waiver.
 
-### Part AP: LiteBus 8.0.0-preview.8 Binding
+### Part AP: LiteBus 8.0.0-preview.3 Binding
 
-- Every `LiteBus.*` package is pinned at `8.0.0-preview.8`, which carries the declaration sources, the refusal catalog and the contract checks the generated declarations and endpoints use. The manifest adds `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions`, `LiteBus.Auditing.Storage.Marten` and `LiteBus.Extensions.AspNetCore`, which carry the audit chain and the ASP.NET Core problem details.
+- Every `LiteBus.*` package is pinned at `8.0.0-preview.3`. The manifest adds `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions`, `LiteBus.Auditing.Storage.Marten` and `LiteBus.Extensions.AspNetCore`, which carry the audit chain and the ASP.NET Core problem details.
 - Domain events reach the outbox by harvesting: `outbox.HarvestDomainEvents(...)` names the aggregate root base, the Marten harvester is registered on the storage builder, and each domain event type takes one decision (`TranslateDomainEvent`, `IgnoreDomainEvent`) with `RequireDomainEventDecision()`. Hand collection stays for a deletion by predicate or by id, a carrier type that is never stored, and an event raised outside an aggregate.
 - The authorization guard derives from `AuthorizationGuard<TMessage>`, the audit chain is configured through `AddAuditing` with `UseMartenStore` and `UseHashChain`, and problem responses map through `AddLiteBusExceptionHandler` and `IRefusalProblemCatalog`.
 - The nested-command rule turns on with `litebus_forbid_nested_commands`, which enables `LB1023`.
@@ -573,61 +573,6 @@ Checks now compare code with the record field by field, generated code replaces 
 - The analyzers treat a knowledge model as its own layer: it may reference dependency injection, logging and options for its composition and startup validation, and LS1005 does not apply there, while the domain value rules still do. Only an assembly under `Knowledge/` that references its model counts as a knowledge set, so LS2038 no longer reports third-party packages.
 - New agent provisions: `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`, `litespec/core/agent#check-your-own-change-before-handing-it-back` and `litespec/core/agent#follow-the-record-not-the-neighbour`, and for maintainers `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`.
 
-### Part BF: Records That Determine the Code
-
-Records now hold every fact the structure of a slice depends on, and `litespec generate` writes that structure, so hand-written code is left to logic, adapters and screens.
-
-- Field facts: each input and output field maps to one code type per stack (typed identifier from `identifies`, closed set through `set`, money with its currency, decimal `scale`, text `maxLength`, list rows, nullability from `required`), with the mapping tables on the .NET stack page and the web data page, and carries machine-readable constraints (`minLength`, `maxLength`, `range`, `pattern`, `set`). The field-drift checks compare exact types when a field states them.
-- Access facts: `access` states `recentSignIn`, `scope: self` with its `identityInput`, and `preconditions`, each checked.
-- Audit and HTTP facts: `audit.category` and `audit.target`; an `http` block with method, route and a `binding` per input for use cases reached through an api or browser entry point; a `status` on each refusal cited over HTTP; eight checks hold them.
-- New generator kinds: `messages` and `results` (partial records from `input` and `output`), `declarations` (one partial declaration catalog per module for authorization, audit and idempotency), `domain-events` and `module-events`, `exceptions` (one partial exception per refusal), `validators` (rules from field constraints with a hook for hand-written checks), `endpoints` (one partial route map per module, with an opt-out for special endpoints), `knowledge-sets` (set tables from reference-data rows, so the record stays the one source of each value), and `closed-sets` as full types (abstract record, sealed cases, `Code`, `FromCode`, `TryFromCode`, `All`). Every generated type is partial; hand-written members live in a sibling file. Claimwick adopts each kind.
-- Generator safety: every renderer ships with golden-file tests, each generated header names the LiteSpec version, and a target inside a frontend's client output folder or two targets writing one file is a configuration error.
-- The .NET backend reader builds a Roslyn compilation when the consumer has build output (semantic mode) and reads constants, typed identifiers and calls through symbols; it falls back to syntax-only reading otherwise, and `model check` names the mode that ran. The native tool keeps semantic mode.
-- Each green release-branch build publishes the CLI and analyzers to GitHub Packages as `<version>-dev.<run>`; `litespec-maintain publish-local --from-ci <run>` pins a consumer to one, so its CI restores the build its developers use.
-- `audit.target` also takes a list of inputs forming a composite target with its `kind`, or `from: output` naming the output field that carries a target the handler determines.
-- An input bound from the route may name its route parameter (`routeParameter`) when the URL names it apart from the input.
-- A refusal reporting an upstream system that refuses or is unreachable answers 503; 500 stays out of refusal statuses, since a server fault is never a refusal.
-- The `declarations` generator resolves each message type with its namespace and members from the backend source; a use case whose message, key placeholder or audit target resolves to nothing is skipped with the reason, and idempotency keys render culture-invariant with dates round-trip.
-- Knowledge-set rows build through the row constructor unless the table names a factory, and reference-data columns render `decimal` values, nested closed-set cases (`case`) and nested objects from sub-columns fed by extra row fields.
-- Event `carries` fields take `required` (default true; an optional field generates a nullable member), name an existing part or code type in `type` for a nested object, and name an existing row type in `rowType` for a multi-field list, which then generates no row record.
-- An `id` field with no `identifies` is an untyped identifier: `Guid` in C#, `string` in TypeScript.
-- Reference-data columns render lists (`as: list` with scalar, key, case, object or literal items), and a table stating `singleton` holds one dated row per variant rendered as one `Value`; a row with no start date asks for an explicit `effectiveFrom`.
-- The declarations generator renders the grant's policy for use cases whose tenant reach is `cross`, `public` or `none`; a target may wrap it per reach with `crossPolicy`, `publicPolicy` or `nonePolicy`.
-- A partial type is one code element carrying the marks of all its declarations, so a mark on the generated half satisfies the hand-written half; the model check and LS5003 share one counting rule.
-- Every generated exception carries its rule mark, from the rule naming the refusal or the single rule a use-case step cites beside it; a refusal with no rule, or several, is skipped with the reason.
-- A `file` value carried in an event payload maps to its bytes: `byte[]` in C#, a base64 `string` in TypeScript and JSON; message inputs keep the upload form.
-- Idempotency key placeholders reach a member of a carry naming an aggregate part with a dotted path (`{carry.member}`).
-- A `rowType` or object-carry `type` naming a C# type names a type declared outside the event; a row field may be a list one level deep; a module event field may state its own `type` and `identifies`.
-- Lists of one result or message naming the same row type with the same members render one row file.
-- Generated members take the PascalCase field name with no added suffix across messages, results and events; an author wanting an `Id` member names the field with the suffix.
-- A message carries the tenant key first with the tenant aggregate's identifier type (`Guid` when no aggregate carries the tenancy term), and an input identifying the tenant aggregate carries the key itself.
-- Money fields carry the shared `Money` type, and file fields the bytes, in messages and results as in events; endpoints bind the multipart upload to the bytes.
-- Output fields and groups state `required` (default true) and render nullable when false; a list of one field keeps its named row type when `rowType` names one.
-- An `endpoints` target may name a `tenantReader` beside its `claimReader`; a use case implying a tenant key then renders its endpoint reading the key from the caller, and without one it still skips with the reason.
-- Integer contract fields state their width in `size` (32 by default, 64 riding `long` and `int64`), and contract fields take a `map` type with `keyType` and `valueType` riding a read-only dictionary and a JSON object; validators judge each map value against its value type.
-- Generated endpoints bind body lists as arrays of request rows, many-valued inputs as arrays from the body or repeated query parameters, and non-identity claims through a generic `claimValueReader`; a `money` input stating `currencyHome` rides a `decimal` the handler joins with the loaded aggregate's currency.
-- Every `required: false` input renders nullable whatever its origin; grouped results qualify their nested group types and compile; a result carries `NextCursor` only when its paging block states the cursor; row fields accept `held: opaque`; the declarations resolver reads the generated message when a hand-written copy also exists; a tenant-scoped message carries its tenant key under a tenancy provision.
-- Contracts take an `object` type with `rowShape` and `rowType` (one JSON object, also one level inside rows), `identifies` naming an entity part (`aggregate/x.y#part`) rendering its identifier type, message and result `rowType` reusing an aggregate part, fully qualified part rows, and row `choice` members rendering the closed set's type.
-- Input list rows may carry `file` fields with their facts, rendering bytes in the row record; endpoints bind such rows from a multipart form.
-- An identifier naming one of two aggregates is stated as two optional inputs, one per aggregate; a query group may hold several list fields; a row money input whose currency comes from an optional row field still skips endpoints, with the reason documented.
-- Claimwick's backend code compiles against its generated types.
-- Message and result lists reuse a row type the backend declares by hand; a nested row object may hold one list of scalar rows; a nested row field may name a library type through `rowType`, rendered as is.
-- Generated endpoints bind paging (`cursor` or `offset` with `limit`, `defaultLimit`, 400 past `maxLimit`), name operations in camelCase, take the summary from the title and the description from the purpose, declare 400, 401 and 403, 404 and refusal problem responses from the record, accept `application/merge-patch+json` on PATCH, and bind a single `object` input from the body.
-- A money input whose currency comes from an optional sibling field rides a decimal with the optional code, and the handler joins the currency, as for `currencyHome`.
-- Generated endpoints import each message and result namespace from the `messages` and `results` targets by use case visibility, read identity claims through a generic `claimReader` taking the member type as its type argument, and bind lists reusing an aggregate part when the part's members resolve.
-- Generated validators implement `ICommandValidator<T>` or `IQueryValidator<T>` (target options `commandValidatorInterface` and `queryValidatorInterface`), pass failures message first, answer `Validity.Valid` or `Validity.Invalid(failures)`, and compile in a test against the LiteBus validator contract; reason codes stay field-free with the member carried separately.
-- `reviewedLiteSpecVersion` accepts a `-dev.<digits>` suffix beside `-rc.<digits>`, so a consumer pinned to a dev-feed build validates against the project schema.
-- Generated endpoints declare their partial shaping and derivation methods `private static partial`, and place optional paging and form parameters after the required ones, so the endpoints file compiles.
-- The test suite compiles the whole Claimwick backend, hand-written and generated files together, against the framework, the ASP.NET Core reference pack, Marten and faithful LiteBus stubs, and Claimwick's missing usings are fixed.
-- Generated endpoints call the `tenantReader` with the tenant key's type as a type argument, so a reader in a shared platform project needs no reference to the module that declares the identifier.
-- Idempotency key templates accept `{field:format}` with a .NET format string on date, instant, duration, integer and decimal fields (also on dotted reaction paths), judged by field name and rendered culture-invariant into the key.
-- A nested row field whose `rowType` names a declared type may itself hold lists and objects of further named row types, each level stating its own `rowShape`; the drift check compares every stated level.
-- Reference data accepts a repeated key whose rows cover disjoint effective spans and reports overlapping spans for one key; an empty table states `rows: []` with a summary and renders an empty table; `as: case` renders the closed set's declared case names; columns holding only nulls or empty lists pass.
-- Placement accepts a file a generate target places and a hand-written partial sibling beside it; hand partials of generated validators and endpoint containers need no mark; identical `TryParse` bodies on typed identifiers are not duplicate logic.
-- Generated endpoints answer 200 with the shaped output for a command stating one, 404 when a single optional details group is absent, check `equals: tenant` (403) and `equals: <input>` (400) before sending, build money through the money type's constructor, and bind a DELETE body through `[FromBody]`; validators compare a decimal-carried money bound directly.
-- `generate --check` and `generated-drift` detect every generated file whose content no longer matches the records, and one `generate` run converges.
-- Generated endpoints convert identifiers through their non-throwing parse and answer 400 naming the member for one the identifier refuses, and answer 400 for a required list sent as `null`; an optional `null` list reads as absent.
-
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -650,7 +595,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (356):
+Added (347):
 
 - `litespec/backend/api#map-every-failure-to-its-declared-status`
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
@@ -747,10 +692,8 @@ Added (356):
 - `litespec/core/access#describe-every-served-content-entry-with-its-serving-fields`
 - `litespec/core/access#evaluate-access-in-one-order`
 - `litespec/core/access#keep-permission-sets-to-entries`
-- `litespec/core/access#limit-the-age-of-a-sign-in`
+- `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
 - `litespec/core/access#model-a-hosted-sign-in-as-use-cases`
-- `litespec/core/access#name-every-authorization-precondition`
-- `litespec/core/access#name-the-caller-identity-of-a-self-scope`
 - `litespec/core/agent#check-your-own-change-before-handing-it-back`
 - `litespec/core/agent#exercise-changed-use-cases-through-the-running-stack`
 - `litespec/core/agent#follow-the-record-not-the-neighbour`
@@ -845,13 +788,11 @@ Added (356):
 - `litespec/core/model#generate-record-determined-code-from-the-records`
 - `litespec/core/model#hold-module-rules-in-rule-folders`
 - `litespec/core/model#keep-each-name-unique-in-its-record-type`
-- `litespec/core/model#keep-generate-targets-outside-other-tools-output-folders`
 - `litespec/core/model#keep-the-whole-specification-in-the-records`
 - `litespec/core/model#name-records-in-prose-by-their-identifiers`
 - `litespec/core/model#name-the-field-to-use-instead-in-schema-errors`
 - `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
 - `litespec/core/model#point-every-link-up`
-- `litespec/core/model#prove-every-generator-with-golden-tests`
 - `litespec/core/model#report-one-shape-in-schema-errors`
 - `litespec/core/model#serve-every-flow-step`
 - `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`
@@ -872,11 +813,7 @@ Added (356):
 - `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`
 - `litespec/core/use-cases#declare-each-aggregates-refusals-once`
 - `litespec/core/use-cases#declare-each-modules-refusals-once`
-- `litespec/core/use-cases#declare-the-binding-of-every-input-of-an-http-reached-use-case`
-- `litespec/core/use-cases#declare-the-created-location-of-every-command-that-creates-a-resource`
-- `litespec/core/use-cases#declare-the-http-surface-of-every-http-reached-use-case`
 - `litespec/core/use-cases#declare-the-result-a-scenario-ends-in`
-- `litespec/core/use-cases#declare-the-status-of-every-refusal-an-http-reached-use-case-cites`
 - `litespec/core/use-cases#give-each-rule-boundary-its-own-scenario`
 - `litespec/core/use-cases#give-every-tenant-setting-a-change-use-case`
 - `litespec/core/use-cases#hold-every-cross-aggregate-guard-until-commit`
@@ -896,7 +833,6 @@ Added (356):
 - `litespec/core/use-cases#summarize-every-use-case`
 - `litespec/core/use-cases#tie-every-setting-default-to-a-requirement`
 - `litespec/core/use-cases#type-every-output-field`
-- `litespec/core/use-cases#write-special-endpoints-by-hand`
 - `litespec/core/waivers#cover-each-finding-with-one-waiver`
 - `litespec/core/waivers#deviate-from-advice-without-a-record`
 - `litespec/core/waivers#name-the-records-that-close-a-gap`

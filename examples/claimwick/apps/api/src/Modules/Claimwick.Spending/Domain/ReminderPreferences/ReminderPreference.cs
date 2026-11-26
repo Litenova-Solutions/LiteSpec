@@ -48,7 +48,7 @@ internal sealed class ReminderPreference : AggregateRoot<Guid>
     {
         if (changerId != managerId && !changerIsFinance)
         {
-            throw new ReminderPreferenceNotPreferenceOwnerException();
+            throw new ReminderPreferenceChangerNotAllowedException();
         }
     }
 }

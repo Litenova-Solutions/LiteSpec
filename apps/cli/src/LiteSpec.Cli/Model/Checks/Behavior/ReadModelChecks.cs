@@ -197,10 +197,6 @@ internal static class ReadModelChecks
                 {
                     names.Add(name);
                 }
-                else if (entry.ValueKind == JsonValueKind.Object && Str(entry, RecordFields.Name) is { Length: > 0 } named)
-                {
-                    names.Add(named);
-                }
             }
 
             return names;

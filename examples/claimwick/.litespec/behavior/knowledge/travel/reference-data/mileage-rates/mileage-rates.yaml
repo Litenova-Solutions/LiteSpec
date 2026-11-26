@@ -8,38 +8,6 @@ requiredRoles:
 - motorcycle
 - bicycle
 variation: country
-row:
-  type: Claimwick.Travel.Mileage.MileageRate
-  factory: Create
-columns:
-- column: variant
-  parameter: country
-  as: map
-  literals:
-    germany: DE
-    netherlands: NL
-- column: key
-  parameter: key
-  as: key
-  type: Claimwick.Travel.Mileage.MileageRateKey
-- column: role
-  parameter: vehicle
-  as: member
-  type: Claimwick.Travel.Mileage.VehicleKind
-- column: value
-  parameter: amountPerKilometre
-  as: money
-  type: Claimwick.Kernel.Values.Money
-  currency: EUR
-- column: effectiveFrom
-  parameter: validFrom
-  as: date
-- column: effectiveTo
-  parameter: validTo
-  as: date
-- column: source
-  parameter: source
-  as: string
 rows:
 - value: 0.30
   key: de-car-2026

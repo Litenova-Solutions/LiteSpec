@@ -234,10 +234,6 @@ $defs:
   nonEmptyString:
     type: string
     minLength: 1
-  qualifiedTypeName:
-    description: A qualified code type name with its namespace.
-    type: string
-    pattern: '^[A-Z][A-Za-z0-9]*(\.[A-Z][A-Za-z0-9]*)+$'
   sentenceArray:
     description: A list of plain sentences, each one complete sentence ending in a period.
     type: array
@@ -573,25 +569,10 @@ $defs:
         x-read-back-as: grants
       tenant:
         $ref: '#/$defs/tenantScope'
-      recentSignIn:
-        anyOf:
-        - $ref: '#/$defs/isoDuration'
-        - $ref: '#/$defs/settingId'
+      recentSignInLimit:
+        $ref: '#/$defs/settingId'
         x-reads-as: is limited by
         x-read-back-as: limits
-      scope:
-        enum:
-        - self
-      identityInput:
-        $ref: '#/$defs/nonEmptyString'
-      preconditions:
-        type: array
-        minItems: 1
-        uniqueItems: true
-        items:
-          $ref: '#/$defs/ruleId'
-        x-reads-as: is authorized under
-        x-read-back-as: authorizes
       runsAs:
         enum:
         - system
@@ -616,18 +597,6 @@ $defs:
         not:
           required:
           - runsAs
-    - if:
-        required:
-        - scope
-      then:
-        required:
-        - identityInput
-    - if:
-        required:
-        - identityInput
-      then:
-        required:
-        - scope
   freshnessValue:
     type: object
     additionalProperties: false
@@ -675,14 +644,12 @@ $defs:
     - money
     - boolean
     - date
-    - instant
+    - date-time
     - duration
     - email
     - choice
     - id
     - list
-    - object
-    - map
     - file
   contractScalarType:
     enum:
@@ -692,32 +659,16 @@ $defs:
     - money
     - boolean
     - date
-    - instant
+    - date-time
     - duration
     - email
     - choice
     - id
-  contractMapKeyType:
-    description: 'The scalar type of a map field''s keys: text for names, or integer for numbered keys.'
-    enum:
-    - text
-    - integer
-  contractIntegerSize:
-    description: 'The stored width in bits of an integer field: 32, or 64 for values past the 32-bit span.'
-    type: integer
-    enum:
-    - 32
-    - 64
   contractFieldChoices:
     type: array
     minItems: 1
     uniqueItems: true
     items:
-      $ref: '#/$defs/nonEmptyString'
-  valueMeanings:
-    description: The meaning of each closed value, keyed by its written choice text; every key names a value the record lists in `choices`.
-    type: object
-    additionalProperties:
       $ref: '#/$defs/nonEmptyString'
   contractContentTypes:
     type: array
@@ -729,35 +680,9 @@ $defs:
   contractMaxSize:
     type: string
     pattern: '^[0-9]+(\.[0-9]+)? (B|KB|MB|GB)$'
-  contractCurrencyCode:
-    type: string
-    pattern: '^[A-Z]{3}$'
-  contractBounds:
-    description: The allowed span of a numeric field, with at least one end stated and both ends inclusive unless inclusive is false.
-    type: object
-    additionalProperties: false
-    properties:
-      min:
-        type: number
-      max:
-        type: number
-      inclusive:
-        type: boolean
-    anyOf:
-    - required:
-      - min
-    - required:
-      - max
-  contractClosedSet:
-    description: The closed value set a choice field takes its values from, as a reference-data table holding choices or a choice setting.
-    anyOf:
-    - $ref: '#/$defs/referenceDataId'
-    - $ref: '#/$defs/settingId'
   contractRowField:
     type: object
     additionalProperties: false
-    x-rejected-fields:
-      choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
     required:
     - name
     - type
@@ -767,12 +692,7 @@ $defs:
       name:
         $ref: '#/$defs/nonEmptyString'
       type:
-        description: 'The row value shape: one of the scalar types, a file of carried bytes, a list of one more row shape, or a single object of one more row shape. A nested level holding a further list or object names its row type in rowType and states its own rowShape at every level.'
-        anyOf:
-        - $ref: '#/$defs/contractScalarType'
-        - const: file
-        - const: list
-        - const: object
+        $ref: '#/$defs/contractScalarType'
       required:
         type: boolean
       meaning:
@@ -781,64 +701,35 @@ $defs:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
-      held:
-        description: How the module keeps the identifier the field names. Opaque states the module stores and passes the identifier but never loads, queries, or reasons about the named aggregate.
-        enum:
-        - opaque
-      rowShape:
-        $ref: '#/$defs/contractListShape'
-      rowType:
-        $ref: '#/$defs/contractExistingType'
-        x-reads-as: takes rows from
-        x-read-back-as: gives rows to
-      set:
-        $ref: '#/$defs/contractClosedSet'
-        x-reads-as: takes values from
-        x-read-back-as: gives values to
-      currency:
-        $ref: '#/$defs/contractCurrencyCode'
-      currencyField:
-        $ref: '#/$defs/nonEmptyString'
-      currencyHome:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: takes its currency from
-        x-read-back-as: gives its currency to
-      scale:
-        type: integer
-        minimum: 0
-      size:
-        $ref: '#/$defs/contractIntegerSize'
-      minLength:
-        type: integer
-        minimum: 0
-      maxLength:
-        type: integer
-        minimum: 0
-      bounds:
-        $ref: '#/$defs/contractBounds'
-      matches:
-        $ref: '#/$defs/nonEmptyString'
-      contentTypes:
-        $ref: '#/$defs/contractContentTypes'
-      maxSize:
-        $ref: '#/$defs/contractMaxSize'
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
     allOf:
-    - $ref: '#/$defs/contractValueRules'
     - if:
         required:
         - type
         properties:
           type:
-            const: object
-      then:
-        required:
-        - rowType
-    - if:
-        required:
-        - held
+            const: id
       then:
         required:
         - identifies
+      else:
+        not:
+          required:
+          - identifies
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: choice
+      then:
+        required:
+        - choices
+      else:
+        not:
+          required:
+          - choices
   contractListShape:
     description: "The rows of a list value: each field of a row with its type, its requiredness and its meaning, the number of rows at least, and the fields that must be unique across rows."
     type: object
@@ -860,30 +751,21 @@ $defs:
         uniqueItems: true
         items:
           $ref: '#/$defs/nonEmptyString'
-  contractObjectShape:
-    description: "The fields of a single object value: each field with its type, its requiredness and its meaning."
-    type: object
-    additionalProperties: false
-    required:
-    - fields
-    properties:
-      fields:
-        type: array
-        minItems: 1
-        items:
-          $ref: '#/$defs/contractRowField'
-  contractRowType:
-    description: The C# row type a multi-field list renders, as a PascalCase type name.
-    type: string
-    pattern: '^[A-Z][A-Za-z0-9]*$'
-  contractExistingType:
-    description: 'An existing type a field reuses instead of a generated one: an aggregate part as aggregate/<module>.<aggregate>#<part>, or the C# type name.'
-    anyOf:
-    - $ref: '#/$defs/aggregatePartRef'
-    - $ref: '#/$defs/contractRowType'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so a list names its row shape in rowShape and keeps its row type in rowType, a single object names its fields in rowShape and keeps its row type in rowType, a choice names its closed set in set, a money field names its currency source, a decimal states its scale, a map names its key type in keyType with its value type in valueType, and a file names its media types and size. An id field may name its record in identifies, and reads as an untyped identifier without it. An integer field may state its stored width in size. A map value takes the facts a scalar of its type takes.
+    description: Ties a value field's type to the properties that type needs, so an id names a record in identifies, a list names its row shape in rowShape, a choice lists its choices and a file names its media types and size.
     allOf:
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: id
+      then:
+        required:
+        - identifies
+        properties:
+          identifies:
+            $ref: '#/$defs/identifiesId'
     - if:
         required:
         - type
@@ -901,45 +783,7 @@ $defs:
         - type
         properties:
           type:
-            const: object
-      then:
-        required:
-        - rowShape
-        properties:
-          rowShape:
-            $ref: '#/$defs/contractObjectShape'
-    - if:
-        required:
-        - type
-        properties:
-          type:
-            const: map
-      then:
-        required:
-        - keyType
-        - valueType
-      else:
-        not:
-          anyOf:
-          - required:
-            - keyType
-          - required:
-            - valueType
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              const: id
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              const: id
+            const: id
       else:
         not:
           required:
@@ -949,9 +793,7 @@ $defs:
         - type
         properties:
           type:
-            enum:
-            - list
-            - object
+            const: list
       else:
         not:
           required:
@@ -961,35 +803,14 @@ $defs:
         - type
         properties:
           type:
-            enum:
-            - list
-            - object
-      else:
-        not:
-          required:
-          - rowType
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              const: choice
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              const: choice
+            const: choice
       then:
         required:
-        - set
+        - choices
       else:
         not:
           required:
-          - set
+          - choices
     - if:
         required:
         - type
@@ -1007,132 +828,6 @@ $defs:
             - contentTypes
           - required:
             - maxSize
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              const: money
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              const: money
-      then:
-        oneOf:
-        - required:
-          - currency
-        - required:
-          - currencyField
-        - required:
-          - currencyHome
-      else:
-        not:
-          anyOf:
-          - required:
-            - currency
-          - required:
-            - currencyField
-          - required:
-            - currencyHome
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              const: decimal
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              const: decimal
-      then:
-        required:
-        - scale
-      else:
-        not:
-          required:
-          - scale
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              enum:
-              - text
-              - email
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              enum:
-              - text
-              - email
-      else:
-        not:
-          anyOf:
-          - required:
-            - minLength
-          - required:
-            - maxLength
-          - required:
-            - matches
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              enum:
-              - integer
-              - decimal
-              - money
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              enum:
-              - integer
-              - decimal
-              - money
-      else:
-        not:
-          required:
-          - bounds
-    - if:
-        anyOf:
-        - required:
-          - type
-          properties:
-            type:
-              const: integer
-        - required:
-          - type
-          - valueType
-          properties:
-            type:
-              const: map
-            valueType:
-              const: integer
-      else:
-        not:
-          required:
-          - size
   moneyValue:
     type: object
     additionalProperties: false
@@ -1154,7 +849,7 @@ $defs:
     type: object
     additionalProperties: false
     x-rejected-fields:
-      choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
+      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on list-row fields under `rowShape`."
     required:
     - name
     - meaning
@@ -1176,41 +871,8 @@ $defs:
         - opaque
       rowShape:
         $ref: '#/$defs/contractListShape'
-      rowType:
-        $ref: '#/$defs/contractExistingType'
-        x-reads-as: takes rows from
-        x-read-back-as: gives rows to
-      set:
-        $ref: '#/$defs/contractClosedSet'
-        x-reads-as: takes values from
-        x-read-back-as: gives values to
-      currency:
-        $ref: '#/$defs/contractCurrencyCode'
-      currencyField:
-        $ref: '#/$defs/nonEmptyString'
-      currencyHome:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: takes its currency from
-        x-read-back-as: gives its currency to
-      scale:
-        type: integer
-        minimum: 0
-      size:
-        $ref: '#/$defs/contractIntegerSize'
-      keyType:
-        $ref: '#/$defs/contractMapKeyType'
-      valueType:
-        $ref: '#/$defs/contractScalarType'
-      minLength:
-        type: integer
-        minimum: 0
-      maxLength:
-        type: integer
-        minimum: 0
-      bounds:
-        $ref: '#/$defs/contractBounds'
-      matches:
-        $ref: '#/$defs/nonEmptyString'
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
@@ -1218,36 +880,10 @@ $defs:
       many:
         description: True when the field holds a list of values of its type.
         type: boolean
-      required:
-        description: False when the use case may answer without the field; a missing flag reads as required.
-        type: boolean
       sign:
         $ref: '#/$defs/amountSign'
     allOf:
     - $ref: '#/$defs/contractValueRules'
-    - if:
-        required:
-        - type
-        - rowShape
-        properties:
-          type:
-            const: list
-          rowShape:
-            properties:
-              fields:
-                minItems: 2
-      then:
-        required:
-        - rowType
-    - if:
-        required:
-        - type
-        properties:
-          type:
-            const: object
-      then:
-        required:
-        - rowType
     - if:
         required:
         - type
@@ -1288,9 +924,6 @@ $defs:
         x-read-back-as: is read by
       freshness:
         $ref: '#/$defs/freshnessValue'
-      required:
-        description: False when the use case may answer without the group; a missing flag reads as required.
-        type: boolean
       visibleWhen:
         $ref: '#/$defs/nonEmptyString'
       widenedBy:
@@ -1563,7 +1196,6 @@ $defs:
         - state
         - none
       key:
-        description: "The key template over carried fields: {field} placeholders, each with an optional .NET format as {field:format} on a date, instant, duration, integer, or decimal field."
         $ref: '#/$defs/nonEmptyString'
       keyScope:
         enum:
@@ -1626,65 +1258,7 @@ $defs:
         - required
         - optional
         - none
-      category:
-        description: The audit category the use case writes under, from the fixed category vocabulary.
-        enum:
-        - authentication
-        - authorization-denial
-        - grant-change
-        - monetary-action
-        - tenant-configuration
-        - personal-data-read
-        - bulk-export
-        - background-process-change
-      target:
-        description: The audited record as one input, a list of two or more inputs forming a composite target, or the output field carrying it when the handler determines it.
-        anyOf:
-        - $ref: '#/$defs/nonEmptyString'
-        - type: array
-          minItems: 2
-          uniqueItems: true
-          items:
-            $ref: '#/$defs/nonEmptyString'
-        - $ref: '#/$defs/auditTargetFromOutput'
       targetKind:
-        $ref: '#/$defs/nonEmptyString'
-    allOf:
-    - if:
-        required:
-        - level
-        properties:
-          level:
-            enum:
-            - required
-            - optional
-      then:
-        required:
-        - category
-    - if:
-        required:
-        - level
-        properties:
-          level:
-            const: none
-      then:
-        not:
-          anyOf:
-          - required:
-            - category
-          - required:
-            - target
-  auditTargetFromOutput:
-    description: The output field carrying the audited record when the handler determines the target.
-    type: object
-    additionalProperties: false
-    required:
-    - from
-    - field
-    properties:
-      from:
-        const: output
-      field:
         $ref: '#/$defs/nonEmptyString'
   auditExempt:
     type: object
@@ -2021,13 +1595,9 @@ $defs:
         required:
         - choices
       else:
-        allOf:
-        - not:
-            required:
-            - choices
-        - not:
-            required:
-            - valueMeanings
+        not:
+          required:
+          - choices
   leaseObject:
     type: object
     additionalProperties: false
@@ -2055,8 +1625,6 @@ $defs:
   integrationEventPayload:
     type: object
     additionalProperties: false
-    x-rejected-fields:
-      choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
     required:
     - name
     - meaning
@@ -2077,37 +1645,8 @@ $defs:
         x-read-back-as: is identified by
       rowShape:
         $ref: '#/$defs/contractListShape'
-      set:
-        $ref: '#/$defs/contractClosedSet'
-        x-reads-as: takes values from
-        x-read-back-as: gives values to
-      currency:
-        $ref: '#/$defs/contractCurrencyCode'
-      currencyField:
-        $ref: '#/$defs/nonEmptyString'
-      currencyHome:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: takes its currency from
-        x-read-back-as: gives its currency to
-      scale:
-        type: integer
-        minimum: 0
-      size:
-        $ref: '#/$defs/contractIntegerSize'
-      keyType:
-        $ref: '#/$defs/contractMapKeyType'
-      valueType:
-        $ref: '#/$defs/contractScalarType'
-      minLength:
-        type: integer
-        minimum: 0
-      maxLength:
-        type: integer
-        minimum: 0
-      bounds:
-        $ref: '#/$defs/contractBounds'
-      matches:
-        $ref: '#/$defs/nonEmptyString'
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
@@ -2122,8 +1661,6 @@ $defs:
   domainEventCarry:
     type: object
     additionalProperties: false
-    x-rejected-fields:
-      choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
     required:
     - name
     - type
@@ -2131,54 +1668,15 @@ $defs:
       name:
         $ref: '#/$defs/nonEmptyString'
       type:
-        description: 'The carried value shape: one of the contract value types, or the existing type of an object field as an aggregate part or a C# type name.'
-        anyOf:
-        - $ref: '#/$defs/contractValueType'
-        - $ref: '#/$defs/contractExistingType'
+        $ref: '#/$defs/contractValueType'
       identifies:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
       rowShape:
         $ref: '#/$defs/contractListShape'
-      rowType:
-        $ref: '#/$defs/contractExistingType'
-        x-reads-as: takes rows from
-        x-read-back-as: gives rows to
-      required:
-        description: False when the event may arrive without the field; a missing flag reads as required.
-        type: boolean
-      set:
-        $ref: '#/$defs/contractClosedSet'
-        x-reads-as: takes values from
-        x-read-back-as: gives values to
-      currency:
-        $ref: '#/$defs/contractCurrencyCode'
-      currencyField:
-        $ref: '#/$defs/nonEmptyString'
-      currencyHome:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: takes its currency from
-        x-read-back-as: gives its currency to
-      scale:
-        type: integer
-        minimum: 0
-      size:
-        $ref: '#/$defs/contractIntegerSize'
-      keyType:
-        $ref: '#/$defs/contractMapKeyType'
-      valueType:
-        $ref: '#/$defs/contractScalarType'
-      minLength:
-        type: integer
-        minimum: 0
-      maxLength:
-        type: integer
-        minimum: 0
-      bounds:
-        $ref: '#/$defs/contractBounds'
-      matches:
-        $ref: '#/$defs/nonEmptyString'
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
@@ -2495,38 +1993,9 @@ $defs:
         $ref: '#/$defs/classification'
       dataClass:
         $ref: '#/$defs/nonEmptyString'
-  httpRoute:
-    description: The route template of the use case endpoint, path only with each route input as {name}.
-    type: string
-    pattern: '^/[^\s?#]*$'
-  httpObject:
-    type: object
-    additionalProperties: false
-    required:
-    - method
-    - route
-    properties:
-      method:
-        description: The HTTP method of the use case endpoint.
-        enum:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
-      route:
-        $ref: '#/$defs/httpRoute'
-      created:
-        description: The created-resource location template the endpoint answers with 201, with each parameter naming an output field. Absent when the command answers no created resource.
-        $ref: '#/$defs/httpRoute'
-      generated:
-        description: False when the endpoint is written by hand and no generator writes it, such as an upload, a download, or a sign-in redirect. Absent or true when the endpoint is generated.
-        type: boolean
   useCaseInput:
     type: object
     additionalProperties: false
-    x-rejected-fields:
-      choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
     required:
     - name
     - meaning
@@ -2550,41 +2019,8 @@ $defs:
         - opaque
       rowShape:
         $ref: '#/$defs/contractListShape'
-      rowType:
-        $ref: '#/$defs/contractExistingType'
-        x-reads-as: takes rows from
-        x-read-back-as: gives rows to
-      set:
-        $ref: '#/$defs/contractClosedSet'
-        x-reads-as: takes values from
-        x-read-back-as: gives values to
-      currency:
-        $ref: '#/$defs/contractCurrencyCode'
-      currencyField:
-        $ref: '#/$defs/nonEmptyString'
-      currencyHome:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: takes its currency from
-        x-read-back-as: gives its currency to
-      scale:
-        type: integer
-        minimum: 0
-      size:
-        $ref: '#/$defs/contractIntegerSize'
-      keyType:
-        $ref: '#/$defs/contractMapKeyType'
-      valueType:
-        $ref: '#/$defs/contractScalarType'
-      minLength:
-        type: integer
-        minimum: 0
-      maxLength:
-        type: integer
-        minimum: 0
-      bounds:
-        $ref: '#/$defs/contractBounds'
-      matches:
-        $ref: '#/$defs/nonEmptyString'
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
@@ -2610,49 +2046,12 @@ $defs:
         - $ref: '#/$defs/externalSystemId'
         x-reads-as: is verified by
         x-read-back-as: verifies
-      binding:
-        description: Where the input travels in the HTTP call of a use case reached through an api or browser entry point.
-        enum:
-        - route
-        - query
-        - body
-        - claim
-        - header
-      routeParameter:
-        description: The route template parameter carrying the input when it differs from the input name.
-        $ref: '#/$defs/nonEmptyString'
-      equals:
-        description: The tenant key or the sibling input the value must match, judged before the message runs. The value tenant states the input carries the caller's tenant key; any other value names a sibling input of the same type.
-        $ref: '#/$defs/nonEmptyString'
       classification:
         $ref: '#/$defs/classification'
       sign:
         $ref: '#/$defs/amountSign'
     allOf:
     - $ref: '#/$defs/contractValueRules'
-    - if:
-        required:
-        - type
-        - rowShape
-        properties:
-          type:
-            const: list
-          rowShape:
-            properties:
-              fields:
-                minItems: 2
-      then:
-        required:
-        - rowType
-    - if:
-        required:
-        - type
-        properties:
-          type:
-            const: object
-      then:
-        required:
-        - rowType
     - if:
         required:
         - origin
@@ -2684,16 +2083,6 @@ $defs:
       then:
         required:
         - identifies
-    - if:
-        required:
-        - binding
-        properties:
-          binding:
-            const: route
-      else:
-        not:
-          required:
-          - routeParameter
   densityValue:
     enum:
     - public-light
@@ -2775,33 +2164,6 @@ $defs:
         x-read-back-as: is used by
       meaning:
         $ref: '#/$defs/nonEmptyString'
-      status:
-        description: The HTTP status the refusal answers with when a use case reached through an api or browser entry point cites it. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 stays out.
-        type: integer
-        enum:
-        - 400
-        - 403
-        - 404
-        - 409
-        - 422
-        - 503
-      parameters:
-        description: The values the meaning varies by, each named in `meaning` as `{name}`; the generator writes a constructor taking them.
-        type: array
-        minItems: 1
-        items:
-          type: object
-          additionalProperties: false
-          required:
-          - name
-          - meaning
-          properties:
-            name:
-              description: The parameter name, a C# identifier named in `meaning` as `{name}`.
-              type: string
-              pattern: '^[A-Za-z_][A-Za-z0-9_]*$'
-            meaning:
-              $ref: '#/$defs/nonEmptyString'
   recordsArray:
     type: array
     items:
@@ -4002,8 +3364,6 @@ $defs:
         $ref: '#/$defs/domainEventIdArray'
         x-reads-as: raises
         x-read-back-as: is raised by
-      http:
-        $ref: '#/$defs/httpObject'
       input:
         type: array
         items:
@@ -4387,33 +3747,6 @@ $defs:
       then:
         required:
         - basedOn
-  moduleEventField:
-    description: One field of the translated domain event that the module event publishes, with the type the module event carries when the contracts project cannot see the domain member's type.
-    type: object
-    additionalProperties: false
-    required:
-    - name
-    properties:
-      name:
-        $ref: '#/$defs/nonEmptyString'
-      type:
-        description: The carried value shape the module event renders instead of the copied domain type.
-        $ref: '#/$defs/contractValueType'
-      identifies:
-        $ref: '#/$defs/identifiesId'
-        x-reads-as: identifies
-        x-read-back-as: is identified by
-    allOf:
-    - if:
-        required:
-        - type
-        properties:
-          type:
-            const: id
-      else:
-        not:
-          required:
-          - identifies
   moduleEventPage:
     description: A fact one module publishes for the other modules of the same product, delivered in process through the transactional outbox.
     type: object
@@ -4441,15 +3774,13 @@ $defs:
       records:
         $ref: '#/$defs/recordsArray'
       fields:
-        description: The fields of the translated domain event that the module event publishes, each as a name or as a field stating its own type.
+        description: The names of the fields of the translated domain event that the module event publishes.
         type: array
         minItems: 1
         uniqueItems: true
         items:
-          anyOf:
-          - type: string
-            pattern: '^[a-z][a-zA-Z0-9]*$'
-          - $ref: '#/$defs/moduleEventField'
+          type: string
+          pattern: '^[a-z][a-zA-Z0-9]*$'
       translates:
         $ref: '#/$defs/domainEventId'
         x-reads-as: translates
@@ -4607,8 +3938,6 @@ $defs:
   readModelField:
     type: object
     additionalProperties: false
-    x-rejected-fields:
-      choices: "Choice fields name their closed set in `set`: move inline values to a reference-data table or a choice setting and name it there."
     required:
     - name
     - meaning
@@ -4628,37 +3957,8 @@ $defs:
         x-read-back-as: is identified by
       rowShape:
         $ref: '#/$defs/contractListShape'
-      set:
-        $ref: '#/$defs/contractClosedSet'
-        x-reads-as: takes values from
-        x-read-back-as: gives values to
-      currency:
-        $ref: '#/$defs/contractCurrencyCode'
-      currencyField:
-        $ref: '#/$defs/nonEmptyString'
-      currencyHome:
-        $ref: '#/$defs/aggregateId'
-        x-reads-as: takes its currency from
-        x-read-back-as: gives its currency to
-      scale:
-        type: integer
-        minimum: 0
-      size:
-        $ref: '#/$defs/contractIntegerSize'
-      keyType:
-        $ref: '#/$defs/contractMapKeyType'
-      valueType:
-        $ref: '#/$defs/contractScalarType'
-      minLength:
-        type: integer
-        minimum: 0
-      maxLength:
-        type: integer
-        minimum: 0
-      bounds:
-        $ref: '#/$defs/contractBounds'
-      matches:
-        $ref: '#/$defs/nonEmptyString'
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
       many:
         type: boolean
       from:
@@ -5105,8 +4405,6 @@ $defs:
         $ref: '#/$defs/settingValue'
       choices:
         $ref: '#/$defs/contractFieldChoices'
-      valueMeanings:
-        $ref: '#/$defs/valueMeanings'
       dated:
         description: True when each value applies from a date and never changes a posted record.
         type: boolean
@@ -5138,8 +4436,7 @@ $defs:
     - $ref: '#/$defs/settingDefaultRules'
   referenceDataRow:
     type: object
-    additionalProperties:
-      $ref: '#/$defs/referenceDataExtraField'
+    additionalProperties: false
     required:
     - value
     - effectiveFrom
@@ -5178,127 +4475,6 @@ $defs:
         - $ref: '#/$defs/decisionId'
         x-reads-as: rests on
         x-read-back-as: is the source for
-  referenceDataExtraField:
-    description: 'An extra field value of a generated table row: a scalar a leaf column reads, a list a list column reads, or null, which renders null. Tables without row construction state no extra field.'
-    anyOf:
-    - $ref: '#/$defs/nonEmptyString'
-    - type: number
-    - type: boolean
-    - type: 'null'
-    - type: array
-      items:
-        anyOf:
-        - $ref: '#/$defs/nonEmptyString'
-        - type: number
-        - type: boolean
-        - type: 'null'
-        - $ref: '#/$defs/referenceDataItemMap'
-  referenceDataItemMap:
-    description: 'One item map of an object list: the fields one item builds from, each read by a sub-column of the list entry.'
-    type: object
-    additionalProperties:
-      $ref: '#/$defs/referenceDataExtraField'
-  referenceDataClosedRow:
-    description: 'One row of a table without row construction: the fixed row fields with no extra field.'
-    allOf:
-    - $ref: '#/$defs/referenceDataRow'
-    - propertyNames:
-        enum:
-        - value
-        - key
-        - role
-        - variant
-        - refersTo
-        - effectiveFrom
-        - effectiveTo
-        - source
-  referenceDataRowConstruction:
-    description: 'How one reference-data table builds its knowledge rows: the qualified model row type, built through the constructor or the named static factory method.'
-    type: object
-    additionalProperties: false
-    required:
-    - type
-    properties:
-      type:
-        description: The qualified model row type the constructor or factory builds.
-        $ref: '#/$defs/qualifiedTypeName'
-      factory:
-        description: The static factory method building one row. When absent, rows build through the constructor.
-        type: string
-        pattern: '^[A-Z][A-Za-z0-9]*$'
-  referenceDataColumn:
-    description: 'One column-to-parameter mapping of a reference-data table: the row field one row parameter reads and how its value renders, the sub-columns building one nested object, or the items building one list.'
-    type: object
-    additionalProperties: false
-    required:
-    - parameter
-    - as
-    properties:
-      column:
-        description: 'The row field the parameter reads: a fixed row field or an extra field the rows state. An object entry states none; a sub-column of object items reads an item field.'
-        type: string
-        pattern: '^[a-z][A-Za-z0-9]*$'
-      parameter:
-        description: The row parameter name.
-        type: string
-        pattern: '^[a-z][A-Za-z0-9]*$'
-      as:
-        description: 'How the column value renders: a literal of its kind, a date construction, a money construction, a decimal, a typed key through the model factory, a member of the model closed set, a case of the model nested closed set, a nested object from its sub-columns, a mapped literal, or a list of items.'
-        enum:
-        - string
-        - number
-        - boolean
-        - date
-        - money
-        - decimal
-        - key
-        - member
-        - case
-        - object
-        - map
-        - list
-      items:
-        description: 'How each item of a list column renders: any rendering but a list. An object item builds from the entry sub-columns. Only a list entry states it.'
-        enum:
-        - string
-        - number
-        - boolean
-        - date
-        - money
-        - decimal
-        - key
-        - member
-        - case
-        - object
-        - map
-      type:
-        description: The qualified model type of a money, key, member, case or object column, or of the items of a list column.
-        $ref: '#/$defs/qualifiedTypeName'
-      factory:
-        description: The static factory method building a typed key or the key items of a list. Defaults to From.
-        enum:
-        - Parse
-        - From
-        - FromCode
-        - Of
-        - Create
-      currency:
-        description: The three-letter currency code of a money column or of the money items of a list.
-        type: string
-        pattern: '^[A-Z]{3}$'
-      literals:
-        description: The literal each row value or each list item maps to, for a map column.
-        type: object
-        minProperties: 1
-        additionalProperties:
-          type: string
-          minLength: 1
-      columns:
-        description: The sub-columns building a nested object, one entry per nested parameter. Only an object entry or a list entry with object items states it.
-        type: array
-        minItems: 1
-        items:
-          $ref: '#/$defs/referenceDataColumn'
   referenceDataPage:
     type: object
     additionalProperties: false
@@ -5332,8 +4508,6 @@ $defs:
           - $ref: '#/$defs/nonEmptyString'
           - type: number
           - type: boolean
-      valueMeanings:
-        $ref: '#/$defs/valueMeanings'
       requiredRoles:
         description: The roles the citing rules read, each played by at least one row in `role`.
         type: array
@@ -5346,42 +4520,14 @@ $defs:
         description: The dimension the table varies by, such as country; each row names its variant in `variant`.
         type: string
         pattern: '^[a-z0-9][a-z0-9-]*$'
-      singleton:
-        description: 'True when the table holds one value instead of a row list: one dated row with no key per variant, rendered as Value. Only knowledge tables state it, together with `row` and `columns`.'
-        type: boolean
       pack:
         description: 'The path of an external pack file, relative to the consumer root, whose values this table copies. The file must exist.'
         $ref: '#/$defs/nonEmptyString'
-      row:
-        description: How the table builds its knowledge rows through the model factory. Only knowledge tables state it, together with `columns`.
-        $ref: '#/$defs/referenceDataRowConstruction'
-      columns:
-        description: The column-to-parameter mapping building each row, one entry per row parameter. Only knowledge tables state it, together with `row`.
+      rows:
         type: array
         minItems: 1
         items:
-          $ref: '#/$defs/referenceDataColumn'
-      rows:
-        description: 'One entry per dated value. Empty while no variant has stated a value; the summary then states what rows the table will hold.'
-        type: array
-        items:
           $ref: '#/$defs/referenceDataRow'
-    allOf:
-    - if:
-        required:
-        - valueMeanings
-      then:
-        required:
-        - choices
-    - if:
-        required:
-        - row
-      then: {}
-      else:
-        properties:
-          rows:
-            items:
-              $ref: '#/$defs/referenceDataClosedRow'
   refusalSetPage:
     type: object
     additionalProperties: false

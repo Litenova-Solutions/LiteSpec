@@ -10,5 +10,5 @@ carries:
   type: id
   identifies: actor/manager
 - name: decidedAt
-  type: instant
+  type: date-time
 ignored: true

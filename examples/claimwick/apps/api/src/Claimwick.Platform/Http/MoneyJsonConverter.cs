@@ -19,7 +19,7 @@ internal sealed class MoneyJsonConverter : JsonConverter<Money>
             throw new JsonException("A monetary value carries a string amount with a three-letter currency code.");
         }
 
-        return new Money(decimal.Parse(amount, CultureInfo.InvariantCulture), currency);
+        return Money.Create(decimal.Parse(amount, CultureInfo.InvariantCulture), currency);
     }
 
     public override void Write(Utf8JsonWriter writer, Money value, JsonSerializerOptions options)

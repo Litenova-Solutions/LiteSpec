@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -46,16 +45,6 @@ public static class ExpensesWorld
     public static async Task PostAsync(string route, object? body = null)
     {
         LastResponse = await Api.PostAsJsonAsync(route, body ?? new { });
-    }
-
-    /// <summary>Sends a multipart POST carrying one file part and keeps the answer for the Then step.</summary>
-    public static async Task PostMultipartAsync(string route, string partName, string fileName, string contentType, byte[] bytes)
-    {
-        using var files = new MultipartFormDataContent();
-        var part = new ByteArrayContent(bytes);
-        part.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-        files.Add(part, partName, fileName);
-        LastResponse = await Api.PostAsync(route, files);
     }
 
     /// <summary>Sends a GET and keeps the answer for the Then step.</summary>

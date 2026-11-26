@@ -83,7 +83,7 @@ var policy = await policies.GetActiveAsync(cancellationToken);
 var expense = Expense.Submit(
     command.ExpenseId,
     command.EmployeeId,
-    new Money(command.Amount, command.Currency),
+    Money.Create(command.Amount, command.Currency),
     command.ReceiptId,
     policy.ReceiptThreshold);
 expenses.Store(expense);

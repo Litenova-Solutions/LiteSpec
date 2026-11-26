@@ -26,7 +26,7 @@ The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
-| `idempotency` | The idempotency mode, required, usually `state`; a `key` templates `{field}` placeholders over the triggering event fields, each with an optional `:format` as on a use case, with `{carry}.{member}` reaching a member of a carry naming an aggregate part, which the record does not list. |
+| `idempotency` | The idempotency mode, required, usually `state`; a `key` templates `{field}` placeholders over the triggering event fields, which the record does not list. |
 | `settles` | `{ aggregate, pending, done, refused }`: the aggregate the run use case writes with the pending state the run leaves, the done state it enters, and the refused state a terminal refusal enters, required when the reaction runs a use case writing an aggregate; `refused` is omitted where another attempt returns the run to pending. |
 
 Scenarios sit under the reaction as child records, and each one ends in a result of a use case the reaction runs or in one of the reaction's own outcomes. The event handler that carries it out marks itself with `implements reaction/<module>.<name>`.
@@ -42,11 +42,11 @@ The event carries the identifier `module-event/<module>.<name>`, such as `module
 | Field | Meaning |
 |:---|:---|
 | `translates` | The domain event of its own module it carries, required; the event's publishers are the use cases raising it, so each module event has exactly one publishing module. |
-| `fields` | The fields of the translated domain event that the module event publishes, each as a name or as `{ name, type, identifies }` stating its own type. An `id` with no `identifies` is an untyped identifier. |
+| `fields` | The names of the fields of the translated domain event that the module event publishes. |
 | `compatibility` | How the event stays compatible with its consumers, required. |
 | `terms` | The glossary terms used, optional. |
 
-A module event carries no `action`, no CloudEvents identity, no `trust`, and no `through`: it travels one way between known modules, and nothing outside the product reads it. It keeps its record and name as the published contract between modules, and it selects in `fields` the fields of the domain event it translates, publishing only fields that event carries. A field whose domain member type the contracts project cannot see states its own `type` with `identifies`, and the generator renders the stated type instead of the copied one. The book shows each selected field with the domain event's type and meaning, or the stated type when the field overrides it. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event that translates them, built from the domain event alone, in the same commit.
+A module event carries no `action`, no CloudEvents identity, no `trust`, and no `through`: it travels one way between known modules, and nothing outside the product reads it. It keeps its record and name as the published contract between modules, and it selects in `fields` the fields of the domain event it translates, publishing only fields that event carries. The book shows each selected field with the domain event's type and meaning. No record declares the publishing as an effect, and no user code publishes the event. The pipeline step that stages raised domain events also stages each module event that translates them, built from the domain event alone, in the same commit.
 
 In Claimwick, the spending module publishes `module-event/spending.expense-approved` when an expense is approved, and the payouts module answers it from a reaction that pays the reimbursement.
 
@@ -69,7 +69,7 @@ The name follows `<verb>-<what>`, using the verb of the use case it runs, or its
 | `outcomes` | The run endings, required: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
-| `idempotency` | The idempotency mode, required, usually `state`; a `key` templates `{field}` placeholders over the run window fields, each with an optional `:format` as on a use case, which the record does not list. |
+| `idempotency` | The idempotency mode, required, usually `state`; a `key` templates `{field}` placeholders over the run window fields, which the record does not list. |
 | `settles` | `{ aggregate, pending, done, refused }`: the aggregate the run use case writes with the pending state the run leaves, the done state it enters, and the refused state a terminal refusal enters, required when the job runs a use case writing an aggregate; `refused` is omitted where another attempt returns the run to pending. |
 
 Scenarios sit under the job as child records, and each one ends in a result of a use case the job runs or in one of the job's own outcomes. The job host marks itself with `implements job/<module>.<name>`.
@@ -167,7 +167,7 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Example:** Claimwick's `module-event/spending.expense-approved` translates `domain-event/expense.approved`, so `use-case/spending.approve-expense`, which raises that event, publishes it, and its handler publishes nothing. The payouts module answers the module event from a reaction.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a module event without `translates` or `fields`, for a field published twice, and for a field whose own type differs from the translated carry, `event-field-uncarried` (level G) for a field name its translated domain event does not carry, `event-publisher-invalid` for a module event with a second publishing module, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
+**Checked by:** `litespec model check` reports `record-invalid` for a module event without `translates` or `fields`, `event-field-uncarried` (level G) for a field name its translated domain event does not carry, `event-publisher-invalid` for a module event with a second publishing module, and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
 
 ### Subscribe to Every Module Event
 

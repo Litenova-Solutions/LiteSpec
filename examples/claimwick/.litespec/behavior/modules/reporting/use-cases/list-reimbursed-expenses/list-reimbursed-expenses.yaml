@@ -11,9 +11,6 @@ fulfills:
 - requirement/approval.reimbursed-expenses-listed
 reachedThrough:
 - entry-point/claimwick-app
-http:
-  method: GET
-  route: /api/reimbursed-expenses
 output:
   include:
     rows:
@@ -29,27 +26,24 @@ output:
             identifies: aggregate/spending.expense
             required: true
           - name: employeeId
-            meaning: The employee the expense was paid to, when the expense still names one.
+            meaning: The employee the expense was paid to.
             type: id
             identifies: actor/employee
-            required: false
+            required: true
           - name: amount
             meaning: The exact amount paid.
             type: decimal
-            scale: 2
             required: true
           - name: currency
             meaning: The ISO 4217 currency code of the amount.
             type: text
-            maxLength: 3
             required: true
           - name: reimbursedAt
             meaning: The time the payment was posted.
-            type: instant
+            type: date-time
             required: true
           unique:
           - expenseId
-        rowType: ReimbursedExpenseRow
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -68,8 +62,6 @@ reads:
 effects:
 - queries: use-case/spending.read-expense
   timing: inline
-audit:
-  exemptBecause: Reads trail nothing.
 steps:
 - statement: Finance asks for the reimbursed expenses.
   cites:

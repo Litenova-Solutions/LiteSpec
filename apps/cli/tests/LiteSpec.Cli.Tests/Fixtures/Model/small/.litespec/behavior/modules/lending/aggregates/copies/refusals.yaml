@@ -4,8 +4,6 @@ records:
 - id: refusal/lending.copy-already-registered
   title: Copy Already Registered
   meaning: The copy is already registered.
-  status: 409
 - id: refusal/lending.copy-on-loan
   title: Copy On Loan
   meaning: The copy is on loan.
-  status: 409

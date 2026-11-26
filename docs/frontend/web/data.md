@@ -59,31 +59,6 @@ A refusal renders through the shared problem alert beside the refused record or 
 
 Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library` respectively. The dictionary library and the form entry point for each stack follow `litespec/frontend/web/data#resolve-copy-through-the-stack-dictionary-library` and `litespec/frontend/web/data#build-a-web-form-on-the-shared-form-entry-point`, and each stack page names its component state and frame root in its Concepts.
 
-### Record Field Types in TypeScript
-
-A contract field maps to exactly one TypeScript type through the published OpenAPI document, so the generated client carries the same shape the backend publishes. The table states the mapping from the record type to the OpenAPI schema and the generated TypeScript.
-
-| Record type | OpenAPI | TypeScript |
-|:---|:---|:---|
-| `text`, `email` | `type: string` | `string` |
-| `integer` | `type: integer` (`format: int64` with `size: 64`) | `number` |
-| `decimal` | `type: number` | `number` |
-| `money` | object with `amount` and `currency`, or `type: number` for an input stating `currencyHome` | `{ amount: string; currency: string }`, or `number` for an input stating `currencyHome` |
-| `boolean` | `type: boolean` | `boolean` |
-| `date` | `type: string`, `format: date` | `string` |
-| `instant` | `type: string`, `format: date-time` | `string` |
-| `duration` | `type: string`, `format: duration` | `string` |
-| `choice` | `type: string` with the codes as enum | Union of string literals |
-| `id` | `type: string`, `format: uuid` | `string` |
-| `list` | `type: array` | `T[]` with `T` from the row shape |
-| `object` | `type: object` | An object with each field from the row shape |
-| `map` | `type: object` with the value schema as `additionalProperties` | `Record<string, V>` with `V` from the value type |
-| `file` | `type: string`, `format: binary` | The generator binary type |
-
-A money amount travels as a string, as `litespec/backend/dotnet/domain#hold-every-monetary-amount-in-the-shared-money-object` states, so no reader parses it as binary floating point. A money input stating `currencyHome` travels as a bare number instead: the amount without its currency, which the handler joins from the loaded aggregate. An identifier, typed or bare, travels as a UUID string, as `litespec/backend/dotnet/domain#keep-id-representations-aligned-at-every-boundary` states. A single object travels as a JSON object with one property per row field, never an array of one. A choice in a row travels as the code string, as a top-level choice does. A file in a row travels as a binary part, as a top-level file does. An integer with `size: 64` travels as an integer with `format: int64`, and reads as a `number`. A map travels as an object with the value schema as `additionalProperties`: keys travel as property names and read back by key type. A file carried in an event payload travels as a base64 string: the bytes serialize to base64 in JSON, which a TypeScript reader decodes. A carried field naming an aggregate part or a C# type has no OpenAPI form: events stay inside the backend, and an integration event redeclares the fields it publishes. The record constraints map to the matching OpenAPI facets, which the zod plugin turns into the generated schema a form validates against, per `litespec/frontend/data#validate-a-form-with-the-generated-schema`.
-
-In Claimwick, the generated client reads an expense amount as a string with its currency and the handled time as an ISO string.
-
 ## Standards
 
 ### Add the Stack Query Plugin to the Client Generator

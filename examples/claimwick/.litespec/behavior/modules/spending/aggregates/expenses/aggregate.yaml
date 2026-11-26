@@ -46,10 +46,6 @@ data:
   meaning: The proof of payment, when one is attached.
   classification: internal
   dataClass: expense-ledger
-- name: category
-  meaning: The kind of cost the expense carries.
-  classification: internal
-  dataClass: expense-ledger
 - name: state
   meaning: The lifecycle state of the expense.
   classification: internal
@@ -72,7 +68,6 @@ dataClasses:
   fields:
   - amount
   - receipt
-  - category
   - state
   onErasure: retain
   basis:

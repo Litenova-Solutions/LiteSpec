@@ -4,7 +4,6 @@ using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Domain.Expenses.Events;
 using Claimwick.Spending.Domain.Expenses.Exceptions;
 using Claimwick.Spending.Domain.Expenses.Parts;
-using Claimwick.Spending.Domain.Receipts;
 using Claimwick.Spending.Domain.Receipts.Events;
 using Claimwick.Spending.Domain.Receipts.Exceptions;
 
@@ -14,14 +13,12 @@ namespace Claimwick.Spending.Domain.Expenses;
 /// <implements>aggregate/spending.expense</implements>
 internal sealed class Expense : AggregateRoot<ExpenseId>
 {
-    private Expense(ExpenseId id, Guid employeeId, Money total, ExpenseCategory category, ReceiptId? receiptId, IReadOnlyList<LineItem> lines)
+    private Expense(ExpenseId id, Guid employeeId, Money total, Guid? receiptId)
     {
         Id = id;
         EmployeeId = employeeId;
         Total = total;
-        Category = category;
         ReceiptId = receiptId;
-        Lines = lines;
         State = new ExpenseSubmittedState();
     }
 
@@ -31,45 +28,29 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
     /// <summary>The exact amount with its currency.</summary>
     public Money Total { get; }
 
-    /// <summary>The kind of cost the expense carries.</summary>
-    public ExpenseCategory Category { get; }
-
     /// <summary>The attached receipt, when one is attached.</summary>
-    public ReceiptId? ReceiptId { get; private set; }
-
-    /// <summary>The line items the expense was submitted with.</summary>
-    public IReadOnlyList<LineItem> Lines { get; }
+    public Guid? ReceiptId { get; private set; }
 
     /// <summary>The current lifecycle state.</summary>
     public ExpenseState State { get; private set; }
 
     /// <summary>Submits one expense, refusing one above the receipt threshold that carries no receipt.</summary>
     /// <implements>use-case/spending.submit-expense</implements>
-    public static Expense Submit(
-        ExpenseId id,
-        Guid employeeId,
-        Money total,
-        ExpenseCategory category,
-        ReceiptId? receiptId,
-        Money receiptThreshold,
-        string? note,
-        Guid? importId,
-        IReadOnlyList<LineItem> lines)
+    public static Expense Submit(ExpenseId id, Guid employeeId, Money total, Guid? receiptId, Money receiptThreshold)
     {
         if (receiptId is null && total.Amount > receiptThreshold.Amount)
         {
             throw new ExpenseReceiptMissingException();
         }
 
-        var expense = new Expense(id, employeeId, total, category, receiptId, lines);
-        expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(
-            id, total.Amount, total.Currency, employeeId, note, importId, lines));
+        var expense = new Expense(id, employeeId, total, receiptId);
+        expense.RaiseDomainEvent(new ExpenseSubmittedDomainEvent(id, total.Amount, total.Currency, employeeId));
         return expense;
     }
 
     /// <summary>Attaches one receipt to a submitted expense.</summary>
     /// <implements>use-case/spending.attach-receipt</implements>
-    public void AttachReceipt(ReceiptId receiptId)
+    public void AttachReceipt(Guid receiptId)
     {
         if (State is not ExpenseSubmittedState)
         {
@@ -86,7 +67,7 @@ internal sealed class Expense : AggregateRoot<ExpenseId>
     {
         if (approverId == EmployeeId)
         {
-            throw new ExpenseOwnExpenseException();
+            throw new ExpenseApproverIsSubmitterException();
         }
 
         if (State is not ExpenseSubmittedState)

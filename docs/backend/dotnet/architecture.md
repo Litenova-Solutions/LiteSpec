@@ -257,7 +257,7 @@ A use case record at `modules/{module}/aggregates/{aggregates}/use-cases/{use-ca
 | Module `Infrastructure/{Port}/Parts/` | the collaborators the adapter calls |
 | Module `Infrastructure/Persistence/` | the module store contribution, and one folder per aggregate with a repository; no other files |
 | Module `Infrastructure/Persistence/{Aggregates}/` | the aggregate's repository implementation, stored documents, and mapping |
-| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP, and the module endpoints file a generate target places with its hand-written sibling |
+| Module `WebApi/` | the aggregate use case folders and module-level read folders of use cases reached over HTTP |
 | Module `Application/Notifications/` | one per notification a reaction or job of the module only sends |
 | Module `Application/ExternalSystems/` | one per external system a reaction or job of the module only calls |
 | Module `Application/ReadModels/` | one per declared read model of the module, in the plural |

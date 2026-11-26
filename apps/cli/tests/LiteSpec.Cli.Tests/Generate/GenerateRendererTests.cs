@@ -174,39 +174,23 @@ public sealed class GenerateRendererTests
         Assert.Equal("consumed", values["domain-event/expense.personal-data-erased"]);
     }
 
-    /// <summary>Closed sets render as partial abstract records with one sealed case per value, lookups, and All.</summary>
+    /// <summary>Closed sets render as nested C# classes with sanitized constant names.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
-    public void ClosedSetsRenderAsPartialRecords()
+    public void ClosedSetsRenderAsNestedClasses()
     {
         var sets = new List<ClosedSetsRenderer.ClosedSet>
         {
-            new(
-                "reference-data/lending.loan-kind",
-                "loan-kind",
-                "The kinds of loan the library lends.",
-                ["standard", "reference-only", "48-hour"],
-                new Dictionary<string, string>(StringComparer.Ordinal)
-                {
-                    ["standard"] = "A loan that leaves the library.",
-                }),
+            new("reference-data/lending.loan-kind", "loan-kind", ["standard", "reference-only", "48-hour"]),
         };
 
         var text = ClosedSetsRenderer.RenderDotnet("lending", sets, "Library.Lending");
 
-        Assert.Contains("public abstract partial record LoanKind", text);
-        Assert.Contains("public sealed partial record LoanKindStandard : LoanKind", text);
-        Assert.Contains("public sealed partial record LoanKindReferenceOnly : LoanKind", text);
-        Assert.Contains("public sealed partial record LoanKind_48Hour : LoanKind", text);
-        Assert.Contains("public override string Code => \"reference-only\";", text);
-        Assert.Contains("public static LoanKind FromCode(string code)", text);
-        Assert.Contains("public static bool TryFromCode(string? code,", text);
-        Assert.Contains("IReadOnlyList<LoanKind> All", text);
-        Assert.Contains("A loan that leaves the library.", text);
-        Assert.Contains("The \"reference-only\" loan kind.", text);
-        Assert.True(
-            text.IndexOf("LoanKind_48Hour", StringComparison.Ordinal) < text.IndexOf("LoanKindReferenceOnly", StringComparison.Ordinal),
-            "Cases order by code.");
+        Assert.Contains("public static class LendingClosedSets", text);
+        Assert.Contains("public static class LoanKind", text);
+        Assert.Contains("public const string Standard = \"standard\";", text);
+        Assert.Contains("public const string ReferenceOnly = \"reference-only\";", text);
+        Assert.Contains("public const string _48Hour = \"48-hour\";", text);
     }
 
     /// <summary>A closed-set value with no word reads as Value, and a repeated name takes a numeric suffix.</summary>

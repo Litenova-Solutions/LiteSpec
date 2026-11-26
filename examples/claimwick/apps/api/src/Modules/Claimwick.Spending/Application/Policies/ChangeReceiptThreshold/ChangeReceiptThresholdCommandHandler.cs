@@ -1,3 +1,4 @@
+using Claimwick.Kernel.Values;
 using Claimwick.Spending.Domain.Policies;
 using LiteBus.Commands.Abstractions;
 
@@ -18,7 +19,7 @@ internal sealed class ChangeReceiptThresholdCommandHandler : ICommandHandler<Cha
         CancellationToken cancellationToken)
     {
         var policy = await _policies.GetActiveAsync(cancellationToken);
-        policy.SetThreshold(command.Threshold);
+        policy.SetThreshold(Money.Create(command.Threshold, command.Currency));
         _policies.Store(policy);
         return new ChangeReceiptThresholdCommandResult(command.Threshold, command.Currency);
     }

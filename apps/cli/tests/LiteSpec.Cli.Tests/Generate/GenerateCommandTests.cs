@@ -177,7 +177,7 @@ public sealed class GenerateCommandTests
         Assert.Contains("[\"domain-event/loan.loan-borrowed\"] = LoanLoanBorrowed,", text);
     }
 
-    /// <summary>Generate writes one closed set file per home with a partial record per set, documented from the value meanings.</summary>
+    /// <summary>Generate writes one closed set file per home with a nested class per set.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void GenerateWritesClosedSets()
@@ -195,8 +195,6 @@ public sealed class GenerateCommandTests
             choices:
             - standard
             - reference-only
-            valueMeanings:
-              standard: A loan that leaves the library.
             rows:
             - value: standard
               key: standard-2026
@@ -218,12 +216,10 @@ public sealed class GenerateCommandTests
         Assert.True(File.Exists(file), "closed sets file");
 
         var text = File.ReadAllText(file);
-        Assert.Contains("public abstract partial record LoanKind", text);
-        Assert.Contains("public sealed partial record LoanKindStandard : LoanKind", text);
-        Assert.Contains("public sealed partial record LoanKindReferenceOnly : LoanKind", text);
-        Assert.Contains("public static LoanKind FromCode(string code)", text);
-        Assert.Contains("A loan that leaves the library.", text);
-        Assert.Contains("The \"reference-only\" loan kind.", text);
+        Assert.Contains("public static class LendingClosedSets", text);
+        Assert.Contains("public static class LoanKind", text);
+        Assert.Contains("public const string Standard = \"standard\";", text);
+        Assert.Contains("public const string ReferenceOnly = \"reference-only\";", text);
     }
 
     /// <summary>Generate writes nothing and exits 1 naming each invalid target.</summary>

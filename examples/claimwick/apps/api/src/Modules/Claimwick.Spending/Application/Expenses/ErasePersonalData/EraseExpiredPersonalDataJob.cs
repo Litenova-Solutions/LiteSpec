@@ -1,6 +1,5 @@
 using Claimwick.Spending.Domain.Expenses;
 using LiteBus.Commands.Abstractions;
-using Microsoft.Extensions.Hosting;
 
 namespace Claimwick.Spending.Application.Expenses.ErasePersonalData;
 

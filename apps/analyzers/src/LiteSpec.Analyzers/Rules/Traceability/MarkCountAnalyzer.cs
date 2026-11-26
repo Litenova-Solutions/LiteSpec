@@ -97,7 +97,9 @@ public sealed class MarkCountAnalyzer : TraceabilityAnalyzer
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                if (MarkRules.CountsTowardLimit(kind.Value, mark.Verb))
+                if (kind.Value == CodeKind.Technical
+                    ? mark.Verb == MarkVerb.Implements || mark.Verb == MarkVerb.Follows
+                    : mark.Verb != MarkVerb.Follows)
                 {
                     counted.Add(mark.RecordId);
                 }

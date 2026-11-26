@@ -15,45 +15,34 @@ reachedThrough:
 - entry-point/claimwick-app
 raises:
 - domain-event/expense.refused
-http:
-  method: POST
-  route: /api/expenses/{expenseId}:refuse
 input:
-- name: expenseId
+- name: expense
   meaning: The submitted expense to refuse.
   type: id
   identifies: aggregate/spending.expense
   required: true
   origin: caller
-  binding: route
   classification: internal
 - name: reason
   meaning: Why the expense falls outside the policy, shown to the employee.
   type: text
   required: true
   origin: caller
-  binding: query
   classification: internal
-- name: approverId
+- name: approver
   meaning: The signed-in manager deciding the expense, read from verified claims.
   type: id
   identifies: actor/manager
-  required: true
+  required: false
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
-  binding: claim
   classification: personal
 - name: handledAt
   meaning: The time the decision runs, read from the clock.
-  type: instant
-  required: true
+  type: date-time
+  required: false
   origin: derived
   classification: internal
-output:
-- name: expenseId
-  meaning: The refused expense.
-  type: id
-  identifies: aggregate/spending.expense
 writes:
 - aggregate/spending.expense
 idempotency:
@@ -61,8 +50,6 @@ idempotency:
   reason: the first refusal moves the expense out of the submitted state, so the aggregate refuses a second refusal
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
-audit:
-  exemptBecause: Refusals leave their trail in the expense states and events.
 steps:
 - statement: The manager opens a submitted expense and gives a reason.
   cites:

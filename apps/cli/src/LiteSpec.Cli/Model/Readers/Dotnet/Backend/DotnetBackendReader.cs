@@ -67,7 +67,6 @@ sealed class DotnetBackendReader : IBackendReader
         var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
         var holders = RepositoryImplementationReader.RepositoryHoldersOf(config, trees);
         var constants = ConstRefusalCodes.Collect(trees);
-        var (semantics, unavailableReason) = BackendSemantics.TryCreateWithReason(config, trees);
 
         var merged = new CodeFacts();
         var gate = new object();
@@ -79,7 +78,7 @@ sealed class DotnetBackendReader : IBackendReader
             {
                 if (trees.TryGetValue(file, out var tree))
                 {
-                    ReadFile(config, file, tree, local, context, qualified, helpers, aggregateRoots, holders, constants, semantics);
+                    ReadFile(config, file, tree, local, context, qualified, helpers, aggregateRoots, holders, constants);
                 }
 
                 return local;
@@ -108,12 +107,13 @@ sealed class DotnetBackendReader : IBackendReader
 
         model.Handlers.AddRange(merged.Handlers
             .OrderBy(handler => handler.UseCaseId, StringComparer.Ordinal));
-        model.Elements.AddRange(ElementKindCorrection.MergePartialTypes(merged.Elements
-            .OrderBy(element => element.File, StringComparer.Ordinal)
-            .ThenBy(element => element.Line)
-            .ThenBy(element => element.Class, StringComparer.Ordinal)
-            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
-            .ToList()));
+        model.Elements.AddRange(ElementKindCorrection.MergeTechnicalPartials(
+            ElementKindCorrection.MergeAggregateRootPartials(merged.Elements
+                .OrderBy(element => element.File, StringComparer.Ordinal)
+                .ThenBy(element => element.Line)
+                .ThenBy(element => element.Class, StringComparer.Ordinal)
+                .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+                .ToList(), config)));
         model.StrayMarks.AddRange(merged.StrayMarks
             .OrderBy(stray => stray.File, StringComparer.Ordinal)
             .ThenBy(stray => stray.Line)
@@ -174,7 +174,7 @@ sealed class DotnetBackendReader : IBackendReader
             return file != 0 ? file : left.Line.CompareTo(right.Line);
         });
 
-        return new BackendRead(model, problems, semantics, unavailableReason);
+        return new BackendRead(model, problems);
     }
 
     /// <summary>Reads one file into the model: its elements, aggregate methods, audit actions, domain types, repository implementations, literals, and comments.</summary>
@@ -188,7 +188,6 @@ sealed class DotnetBackendReader : IBackendReader
     /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
-    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     private static void ReadFile(
         ConsumerConfig config,
         string file,
@@ -199,8 +198,7 @@ sealed class DotnetBackendReader : IBackendReader
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        IReadOnlyDictionary<string, string> constants,
-        BackendSemantics? semantics)
+        IReadOnlyDictionary<string, string> constants)
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
@@ -215,7 +213,7 @@ sealed class DotnetBackendReader : IBackendReader
             .ToDictionary(method => method.Identifier.Span, method => method);
         var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified, project, layer);
 
-        ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified, constants, semantics);
+        ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified, constants);
         OutboxDecisionReader.ReadOutboxDecisions(file, tree, model);
         AggregateMethodReader.ReadAggregateMethods(file, tree, elements, types, model);
         AuditActionReader.ReadAuditActions(file, tree, classes, model);
@@ -265,8 +263,6 @@ sealed class DotnetBackendReader : IBackendReader
         // A declaring position holding a generated constant declares the value the
         // constant names, the same as a typed literal: without this the exception
         // reads as carrying nothing and the model falls back to its rule's code.
-        var semanticModel = semantics?.ModelFor(tree);
-
         foreach (var expression in RefusalLiterals.ConstantCandidates(root))
         {
             if (!RefusalLiterals.Declares(expression))
@@ -275,10 +271,8 @@ sealed class DotnetBackendReader : IBackendReader
             }
 
             var enclosing = RefusalLiterals.EnclosingClass(expression);
-            var code = ConstRefusalCodes.Resolve(expression, enclosing, constants)
-                ?? (semanticModel is not null ? ConstRefusalCodes.ResolveSemantic(semanticModel, expression) : null);
 
-            if (code is not null)
+            if (ConstRefusalCodes.Resolve(expression, enclosing, constants) is { } code)
             {
                 model.Literals.Add(new CodeLiteral(
                     code,

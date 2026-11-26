@@ -15,7 +15,7 @@ const string usage = """
       validate      Check the authoring contract of the LiteSpec repository.
       provisions    Write or check docs/reference/provisions.md.
       changelog     Write the provision changes since a git ref into CHANGELOG.md.
-      publish-local Pack the checkout's CLI and analyzers for a consumer's local feed, or pin it to a CI build.
+      publish-local Pack the checkout's CLI and analyzers for a consumer's local feed.
 
     Run 'litespec-maintain <command> --help' for a command's options.
     'litespec-maintain --version' prints the LiteSpec release of the checkout.

@@ -22,10 +22,6 @@ internal sealed class ListExpensesQueryHandler : IQueryHandler<ListExpensesQuery
             .OrderByDescending(summary => summary.SubmittedAt)
             .Take(100)
             .ToListAsync(cancellationToken);
-        if (query.States is not null)
-        {
-            expenses = expenses.Where(summary => query.States.Contains(summary.State)).ToList();
-        }
         return new ListExpensesQueryResult(expenses);
     }
 }
