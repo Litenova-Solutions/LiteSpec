@@ -48,6 +48,22 @@ internal static partial class LendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
+            if (request.Labels is null)
+            {
+                return TypedResults.Problem(
+                    title: "Missing labels.",
+                    detail: "The labels list is required.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            if (request.Splits is null)
+            {
+                return TypedResults.Problem(
+                    title: "Missing splits.",
+                    detail: "The splits list is required.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             var splitsRows = new List<RetireSplit>(request.Splits.Length);
             foreach (var row in request.Splits)
             {

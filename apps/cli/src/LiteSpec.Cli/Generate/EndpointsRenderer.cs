@@ -521,7 +521,7 @@ static class EndpointsRenderer
         lines[^1] += ";";
     }
 
-    /// <summary>Writes the handler: its parameters, the choice guards, the message dispatch, and the response.</summary>
+    /// <summary>Writes the handler: its parameters, the input guards, the message dispatch, and the response.</summary>
     /// <param name="lines">The file lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose inputs are read.</param>
     /// <param name="reader">The claim reader call.</param>
@@ -626,46 +626,132 @@ static class EndpointsRenderer
         lines.Add("        }");
     }
 
-    /// <summary>Writes the choice guards: an unlisted label answers 400 before the message runs. A derived choice needs no guard: its derivation answers the set member. A many-valued choice guards each label in the conversions.</summary>
+    /// <summary>Writes the input guards in written order: a required body list, single object, or many-valued input answers 400 when null, a body identifier answers 400 when invalid, and an unlisted choice label answers 400, each before the message runs. A derived value needs no guard: its derivation answers the member. A many-valued choice or identifier guards each value in the conversions.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
-    /// <param name="endpoint">The endpoint whose choice inputs are read.</param>
+    /// <param name="endpoint">The endpoint whose inputs are read.</param>
     private static void GuardLines(List<string> body, EndpointData endpoint)
     {
-        foreach (var input in endpoint.Inputs.Where(input => input is { Type: "choice", SetType: not null, Origin: not "derived", Many: false }))
+        foreach (var input in endpoint.Inputs)
         {
-            var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
-            var local = char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
-            var set = SpacedOf(input.SetType!);
-            var name = SpacedOf(input.Name);
-
-            if (!Nullable(input))
+            if (NeedsNullGuard(input))
             {
-                body.Add($"if (!{input.SetType}.TryFromCode({source}, out var {local}))");
-                body.Add("{");
-                body.Add("    return TypedResults.Problem(");
-                body.Add($"        title: \"Unknown {set}.\",");
-                body.Add($"        detail: $\"The {name} '{{{source}}}' names no {set}.\",");
-                body.Add("        statusCode: StatusCodes.Status400BadRequest);");
-                body.Add("}");
-            }
-            else
-            {
-                body.Add($"{input.SetType}? {local} = null;");
-                body.Add($"if ({source} is not null)");
-                body.Add("{");
-                body.Add($"    if (!{input.SetType}.TryFromCode({source}, out var parsed))");
-                body.Add("    {");
-                body.Add("        return TypedResults.Problem(");
-                body.Add($"            title: \"Unknown {set}.\",");
-                body.Add($"            detail: $\"The {name} '{{{source}}}' names no {set}.\",");
-                body.Add("            statusCode: StatusCodes.Status400BadRequest);");
-                body.Add("    }");
+                NullGuardLines(body, input);
                 body.Add("");
-                body.Add($"    {local} = parsed;");
-                body.Add("}");
             }
 
+            if (input is { Type: "id", IdentifierType: not null, Binding: "body", Origin: not "derived", Many: false })
+            {
+                IdGuardLines(body, input);
+                body.Add("");
+            }
+            else if (input is { Type: "choice", SetType: not null, Origin: not "derived", Many: false })
+            {
+                ChoiceGuardLines(body, input);
+                body.Add("");
+            }
+        }
+    }
+
+    /// <summary>Whether a required body collection or single object needs a null guard: an explicit JSON null arrives as null despite the non-nullable request member, so the endpoint answers 400 naming it instead of throwing.</summary>
+    /// <param name="input">The input whose value is read.</param>
+    /// <returns>True for a required body list, single object, or many-valued input from the caller; otherwise false.</returns>
+    private static bool NeedsNullGuard(BoundInput input) =>
+        input is { Required: true, Origin: not "derived", Binding: "body" }
+        && (input.Type is "list" or "object" || input.Many);
+
+    /// <summary>Writes the null guard of one required body list, single object, or many-valued input: an explicit JSON null answers 400 naming the member before anything dereferences it. An optional null rides as absent: the conversions read it as null.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="input">The required collection whose null is read.</param>
+    private static void NullGuardLines(List<string> body, BoundInput input)
+    {
+        var source = $"request.{input.Property}";
+        var name = SpacedOf(input.Name);
+        var detail = input.Type == "object"
+            ? $"The {name} is required."
+            : $"The {name} list is required.";
+
+        body.Add($"if ({source} is null)");
+        body.Add("{");
+        body.Add("    return TypedResults.Problem(");
+        body.Add($"        title: \"Missing {name}.\",");
+        body.Add($"        detail: \"{detail}\",");
+        body.Add("        statusCode: StatusCodes.Status400BadRequest);");
+        body.Add("}");
+    }
+
+    /// <summary>Writes the identifier guard of one body id: a value the identifier refuses answers 400 naming the member before the message runs, through the identifier's non-throwing parse.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="input">The body id whose values are read.</param>
+    private static void IdGuardLines(List<string> body, BoundInput input)
+    {
+        var source = $"request.{input.Property}";
+        var local = char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
+        var identifier = SpacedOf(input.IdentifierType!);
+        var name = SpacedOf(input.Name);
+
+        if (!Nullable(input))
+        {
+            body.Add($"if (!{input.IdentifierType}.TryParse({source}.ToString(), null, out var {local}))");
+            body.Add("{");
+            body.Add("    return TypedResults.Problem(");
+            body.Add($"        title: \"Invalid {name}.\",");
+            body.Add($"        detail: $\"The {name} '{{{source}}}' is not a valid {identifier}.\",");
+            body.Add("        statusCode: StatusCodes.Status400BadRequest);");
+            body.Add("}");
+        }
+        else
+        {
+            body.Add($"{input.IdentifierType}? {local} = null;");
+            body.Add($"if ({source} is not null)");
+            body.Add("{");
+            body.Add($"    if (!{input.IdentifierType}.TryParse({source}.Value.ToString(), null, out var parsed))");
+            body.Add("    {");
+            body.Add("        return TypedResults.Problem(");
+            body.Add($"            title: \"Invalid {name}.\",");
+            body.Add($"            detail: $\"The {name} '{{{source}.Value}}' is not a valid {identifier}.\",");
+            body.Add("            statusCode: StatusCodes.Status400BadRequest);");
+            body.Add("    }");
             body.Add("");
+            body.Add($"    {local} = parsed;");
+            body.Add("}");
+        }
+    }
+
+    /// <summary>Writes the choice guard of one single choice: an unlisted label answers 400 before the message runs.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="input">The choice input whose labels are read.</param>
+    private static void ChoiceGuardLines(List<string> body, BoundInput input)
+    {
+        var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
+        var local = char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
+        var set = SpacedOf(input.SetType!);
+        var name = SpacedOf(input.Name);
+
+        if (!Nullable(input))
+        {
+            body.Add($"if (!{input.SetType}.TryFromCode({source}, out var {local}))");
+            body.Add("{");
+            body.Add("    return TypedResults.Problem(");
+            body.Add($"        title: \"Unknown {set}.\",");
+            body.Add($"        detail: $\"The {name} '{{{source}}}' names no {set}.\",");
+            body.Add("        statusCode: StatusCodes.Status400BadRequest);");
+            body.Add("}");
+        }
+        else
+        {
+            body.Add($"{input.SetType}? {local} = null;");
+            body.Add($"if ({source} is not null)");
+            body.Add("{");
+            body.Add($"    if (!{input.SetType}.TryFromCode({source}, out var parsed))");
+            body.Add("    {");
+            body.Add("        return TypedResults.Problem(");
+            body.Add($"            title: \"Unknown {set}.\",");
+            body.Add($"            detail: $\"The {name} '{{{source}}}' names no {set}.\",");
+            body.Add("            statusCode: StatusCodes.Status400BadRequest);");
+            body.Add("    }");
+            body.Add("");
+            body.Add($"    {local} = parsed;");
+            body.Add("}");
         }
     }
 
@@ -780,7 +866,7 @@ static class EndpointsRenderer
         }
     }
 
-    /// <summary>Writes the collection conversions: each list row mapped to its message row type, and each many-valued choice label guarded through its closed set. An unlisted label answers 400 before the message runs, as a single choice does.</summary>
+    /// <summary>Writes the collection conversions: each list row mapped to its message row type, each many-valued choice label guarded through its closed set, and each body identifier guarded through its non-throwing parse. An unlisted label or an invalid identifier answers 400 before the message runs, as a single choice or id does.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose collections are read.</param>
     private static void ConversionLines(List<string> body, EndpointData endpoint)
@@ -799,9 +885,18 @@ static class EndpointsRenderer
             ChoiceLoopLines(body, endpoint, input);
             body.Add("");
         }
+
+        foreach (var input in endpoint.Inputs.Where(input =>
+            input is { Origin: not "derived", Binding: "body" }
+            && (input is { Type: "id", IdentifierType: not null, Many: true }
+                || SingleRowOf(input) is { Type: "id", IdentifierType: not null })))
+        {
+            IdLoopLines(body, endpoint, input);
+            body.Add("");
+        }
     }
 
-    /// <summary>Writes the row mapping of one multi-field list: each request row built into the message row type, with an unlisted choice label answering 400.</summary>
+    /// <summary>Writes the row mapping of one multi-field list: each request row built into the message row type, with an unlisted choice label or an invalid identifier answering 400.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose list input is read.</param>
     /// <param name="input">The list input whose rows are read.</param>
@@ -831,6 +926,11 @@ static class EndpointsRenderer
             if (row is { Type: "choice", SetType: not null })
             {
                 RowGuardLines(body, input, row, indent + "    ");
+                body.Add("");
+            }
+            else if (row is { Type: "id", IdentifierType: not null })
+            {
+                RowIdGuardLines(body, input, row, indent + "    ");
                 body.Add("");
             }
         }
@@ -887,6 +987,47 @@ static class EndpointsRenderer
             body.Add($"{indent}        return TypedResults.Problem(");
             body.Add($"{indent}            title: \"Unknown {set}.\",");
             body.Add($"{indent}            detail: $\"The {name} '{{{source}}}' names no {set}.\",");
+            body.Add($"{indent}            statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}    }}");
+            body.Add("");
+            body.Add($"{indent}    {local} = {local}Parsed;");
+            body.Add($"{indent}}}");
+        }
+    }
+
+    /// <summary>Writes the guard of one identifier row field: a value the identifier refuses answers 400 before the message runs, through the identifier's non-throwing parse.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="input">The list or object input whose row is read.</param>
+    /// <param name="row">The identifier row field whose values are read.</param>
+    /// <param name="indent">The indentation before each guard line.</param>
+    /// <param name="sourcePrefix">The expression the row hangs off: the loop row for a list, the request object for a single object.</param>
+    private static void RowIdGuardLines(List<string> body, BoundInput input, RowField row, string indent, string sourcePrefix = "row")
+    {
+        var local = input.Local + row.Property;
+        var source = $"{sourcePrefix}.{row.Property}";
+        var identifier = SpacedOf(row.IdentifierType!);
+        var name = SpacedOf(row.Name);
+
+        if (row.Required)
+        {
+            body.Add($"{indent}if (!{row.IdentifierType}.TryParse({source}.ToString(), null, out var {local}))");
+            body.Add($"{indent}{{");
+            body.Add($"{indent}    return TypedResults.Problem(");
+            body.Add($"{indent}        title: \"Invalid {name}.\",");
+            body.Add($"{indent}        detail: $\"The {name} '{{{source}}}' is not a valid {identifier}.\",");
+            body.Add($"{indent}        statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}}}");
+        }
+        else
+        {
+            body.Add($"{indent}{row.IdentifierType}? {local} = null;");
+            body.Add($"{indent}if ({source} is not null)");
+            body.Add($"{indent}{{");
+            body.Add($"{indent}    if (!{row.IdentifierType}.TryParse({source}.Value.ToString(), null, out var {local}Parsed))");
+            body.Add($"{indent}    {{");
+            body.Add($"{indent}        return TypedResults.Problem(");
+            body.Add($"{indent}            title: \"Invalid {name}.\",");
+            body.Add($"{indent}            detail: $\"The {name} '{{{source}.Value}}' is not a valid {identifier}.\",");
             body.Add($"{indent}            statusCode: StatusCodes.Status400BadRequest);");
             body.Add($"{indent}    }}");
             body.Add("");
@@ -964,8 +1105,77 @@ static class EndpointsRenderer
         }
     }
 
-    /// <summary>The converted item one choice label appends: the set member, or the named row carrying it for a single-field row stating a row type.</summary>
-    /// <param name="input">The choice collection whose labels are read.</param>
+    /// <summary>Writes the identifier conversion of one many-valued body id or single-field id list: each value guarded through the identifier's non-throwing parse into the converted items.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose identifier collection is read.</param>
+    /// <param name="input">The identifier collection whose values are read.</param>
+    private static void IdLoopLines(List<string> body, EndpointData endpoint, BoundInput input)
+    {
+        var source = input.Binding == "body" ? $"request.{input.Property}" : input.Local;
+        var items = input.Local + "Items";
+        var value = input.Local + "Value";
+        var member = input.Local + "Member";
+        var row = SingleRowOf(input);
+        var identifier = row?.IdentifierType ?? input.IdentifierType!;
+        var element = row is null ? identifier : input.RowType ?? (row.Required ? identifier : identifier + "?");
+        var display = SpacedOf(identifier);
+        var name = SpacedOf(row?.Name ?? input.Name);
+        var indent = Nullable(input) ? "    " : "";
+
+        if (!Nullable(input))
+        {
+            body.Add($"var {items} = new List<{element}>({source}.Length);");
+        }
+        else
+        {
+            body.Add($"List<{element}>? {items} = null;");
+            body.Add($"if ({source} is not null)");
+            body.Add("{");
+            body.Add($"    {items} = new List<{element}>({source}.Length);");
+        }
+
+        body.Add($"{indent}foreach (var {value} in {source})");
+        body.Add($"{indent}{{");
+
+        if (row is null || row.Required)
+        {
+            body.Add($"{indent}    if (!{identifier}.TryParse({value}.ToString(), null, out var {member}))");
+            body.Add($"{indent}    {{");
+            body.Add($"{indent}        return TypedResults.Problem(");
+            body.Add($"{indent}            title: \"Invalid {name}.\",");
+            body.Add($"{indent}            detail: $\"The {name} '{{{value}}}' is not a valid {display}.\",");
+            body.Add($"{indent}            statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}    }}");
+        }
+        else
+        {
+            body.Add($"{indent}    {identifier}? {member} = null;");
+            body.Add($"{indent}    if ({value} is not null)");
+            body.Add($"{indent}    {{");
+            body.Add($"{indent}        if (!{identifier}.TryParse({value}.Value.ToString(), null, out var {member}Parsed))");
+            body.Add($"{indent}        {{");
+            body.Add($"{indent}            return TypedResults.Problem(");
+            body.Add($"{indent}                title: \"Invalid {name}.\",");
+            body.Add($"{indent}                detail: $\"The {name} '{{{value}.Value}}' is not a valid {display}.\",");
+            body.Add($"{indent}                statusCode: StatusCodes.Status400BadRequest);");
+            body.Add($"{indent}        }}");
+            body.Add("");
+            body.Add($"{indent}        {member} = {member}Parsed;");
+            body.Add($"{indent}    }}");
+        }
+
+        body.Add("");
+        body.Add($"{indent}    {AddOf(input, items, member)}");
+        body.Add($"{indent}}}");
+
+        if (Nullable(input))
+        {
+            body.Add("}");
+        }
+    }
+
+    /// <summary>The converted item one guarded value appends: the set member or identifier, or the named row carrying it for a single-field row stating a row type.</summary>
+    /// <param name="input">The guarded collection whose values are read.</param>
     /// <param name="items">The converted items local name.</param>
     /// <param name="member">The converted member local name.</param>
     /// <returns>The append expression.</returns>
@@ -979,7 +1189,7 @@ static class EndpointsRenderer
         return $"{items}.Add({member});";
     }
 
-    /// <summary>Writes the object conversions: each body object built from its request row into the message row type, with an unlisted choice label answering 400.</summary>
+    /// <summary>Writes the object conversions: each body object built from its request row into the message row type, with an unlisted choice label or an invalid identifier answering 400.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose objects are read.</param>
     private static void ObjectLines(List<string> body, EndpointData endpoint)
@@ -991,10 +1201,18 @@ static class EndpointsRenderer
 
             if (!Nullable(input))
             {
-                foreach (var row in input.Rows!.Where(row => row is { Type: "choice", SetType: not null }))
+                foreach (var row in input.Rows!)
                 {
-                    RowGuardLines(body, input, row, "", source);
-                    body.Add("");
+                    if (row is { Type: "choice", SetType: not null })
+                    {
+                        RowGuardLines(body, input, row, "", source);
+                        body.Add("");
+                    }
+                    else if (row is { Type: "id", IdentifierType: not null })
+                    {
+                        RowIdGuardLines(body, input, row, "", source);
+                        body.Add("");
+                    }
                 }
 
                 body.Add($"var {input.Local} = new {input.RowType}(");
@@ -1015,10 +1233,18 @@ static class EndpointsRenderer
                 body.Add($"if ({source} is not null)");
                 body.Add("{");
 
-                foreach (var row in input.Rows!.Where(row => row is { Type: "choice", SetType: not null }))
+                foreach (var row in input.Rows!)
                 {
-                    RowGuardLines(body, input, row, "    ", source);
-                    body.Add("");
+                    if (row is { Type: "choice", SetType: not null })
+                    {
+                        RowGuardLines(body, input, row, "    ", source);
+                        body.Add("");
+                    }
+                    else if (row is { Type: "id", IdentifierType: not null })
+                    {
+                        RowIdGuardLines(body, input, row, "    ", source);
+                        body.Add("");
+                    }
                 }
 
                 body.Add($"    {input.Local} = new {input.RowType}(");
@@ -1307,6 +1533,12 @@ static class EndpointsRenderer
             return char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
         }
 
+        if (input is { Type: "id", IdentifierType: not null, Many: true, Binding: "body", Origin: not "derived" }
+            || (SingleRowOf(input) is { Type: "id", IdentifierType: not null } && input is { Binding: "body", Origin: not "derived" }))
+        {
+            return input.Local + "Items";
+        }
+
         if (input is { Type: "money", Many: false } && SingleRowOf(input) is null)
         {
             if (input.CurrencyHome is { Length: > 0 } || input.CurrencyFromOptional)
@@ -1336,9 +1568,7 @@ static class EndpointsRenderer
 
         if (input is { Type: "id", Binding: "body", IdentifierType: not null, Many: false })
         {
-            return Nullable(input)
-                ? $"{source} is null ? null : {input.IdentifierType}.From({source}.Value)"
-                : $"{input.IdentifierType}.From({source})";
+            return char.ToLowerInvariant(input.Property[0]) + input.Property[1..];
         }
 
         if (input is { Type: "file", Binding: "form" })
@@ -1349,7 +1579,7 @@ static class EndpointsRenderer
         return source;
     }
 
-    /// <summary>The message argument one many-valued input or single-field list renders: its array, with each element converted through its identifier factory or money object.</summary>
+    /// <summary>The message argument one many-valued input or single-field list renders: its array, with each money element built into the shared money object. Identifiers convert in their own guarded loop instead.</summary>
     /// <param name="endpoint">The endpoint whose inputs hold the currency sibling.</param>
     /// <param name="input">The collection whose values are read.</param>
     /// <returns>The argument expression.</returns>
@@ -1367,7 +1597,7 @@ static class EndpointsRenderer
         return Nullable(input) ? $"{source} is null ? null : {mapped}" : mapped;
     }
 
-    /// <summary>The element conversion of one many-valued input or single-field list: each wire element built into the message element, or null when the wire value rides as-is.</summary>
+    /// <summary>The element conversion of one many-valued input or single-field list: each money wire element built into the shared money object, or null when the wire value rides as-is. Identifiers convert in their own guarded loop, so no identifier conversion lives here.</summary>
     /// <param name="endpoint">The endpoint whose inputs hold the currency sibling.</param>
     /// <param name="input">The collection whose values are read.</param>
     /// <param name="row">The single row of a single-field list, or null for a many-valued input.</param>
@@ -1378,11 +1608,6 @@ static class EndpointsRenderer
 
         string? Value(string target)
         {
-            if (type == "id" && (row?.IdentifierType ?? (input.Binding == "body" ? input.IdentifierType : null)) is { } identifier)
-            {
-                return $"{identifier}.From({target})";
-            }
-
             var joins = row is null
                 ? input.CurrencyHome is { Length: > 0 } || input.CurrencyFromOptional
                 : row.CurrencyHome is { Length: > 0 } || row.CurrencyFromOptional;
@@ -1441,9 +1666,7 @@ static class EndpointsRenderer
 
         if (row is { Type: "id", IdentifierType: not null })
         {
-            return row.Required
-                ? $"{row.IdentifierType}.From({source})"
-                : $"{source} is null ? null : {row.IdentifierType}.From({source}.Value)";
+            return input.Local + row.Property;
         }
 
         if (row.Type == "money" && row.CurrencyHome is null && !row.CurrencyFromOptional)

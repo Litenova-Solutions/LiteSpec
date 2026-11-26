@@ -52,9 +52,17 @@ internal static partial class LendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
+            if (!CopyId.TryParse(request.CopyId.ToString(), null, out var copyId))
+            {
+                return TypedResults.Problem(
+                    title: "Invalid copy id.",
+                    detail: $"The copy id '{request.CopyId}' is not a valid copy id.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             await mediator.SendAsync(
                 new BorrowCopyCommand(
-                    CopyId: CopyId.From(request.CopyId),
+                    CopyId: copyId,
                     ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader")
                 ),
                 cancellationToken);
@@ -205,9 +213,17 @@ internal static partial class LendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
+            if (!CopyId.TryParse(request.CopyId.ToString(), null, out var copyId))
+            {
+                return TypedResults.Problem(
+                    title: "Invalid copy id.",
+                    detail: $"The copy id '{request.CopyId}' is not a valid copy id.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             await mediator.SendAsync(
                 new PlaceHoldCommand(
-                    CopyId: CopyId.From(request.CopyId),
+                    CopyId: copyId,
                     ReaderId: ActorClaims.ReadActorId<Guid>(user, "reader")
                 ),
                 cancellationToken);
@@ -243,9 +259,17 @@ internal static partial class LendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
+            if (!CopyId.TryParse(request.CopyId.ToString(), null, out var copyId))
+            {
+                return TypedResults.Problem(
+                    title: "Invalid copy id.",
+                    detail: $"The copy id '{request.CopyId}' is not a valid copy id.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             await mediator.SendAsync(
                 new RegisterCopyCommand(
-                    CopyId: CopyId.From(request.CopyId),
+                    CopyId: copyId,
                     Shelf: request.Shelf
                 ),
                 cancellationToken);

@@ -626,6 +626,7 @@ Records now hold every fact the structure of a slice depends on, and `litespec g
 - Placement accepts a file a generate target places and a hand-written partial sibling beside it; hand partials of generated validators and endpoint containers need no mark; identical `TryParse` bodies on typed identifiers are not duplicate logic.
 - Generated endpoints answer 200 with the shaped output for a command stating one, 404 when a single optional details group is absent, check `equals: tenant` (403) and `equals: <input>` (400) before sending, build money through the money type's constructor, and bind a DELETE body through `[FromBody]`; validators compare a decimal-carried money bound directly.
 - `generate --check` and `generated-drift` detect every generated file whose content no longer matches the records, and one `generate` run converges.
+- Generated endpoints convert identifiers through their non-throwing parse and answer 400 naming the member for one the identifier refuses, and answer 400 for a required list sent as `null`; an optional `null` list reads as absent.
 
 ### Part U: Provision Changes Since v6.0.0
 

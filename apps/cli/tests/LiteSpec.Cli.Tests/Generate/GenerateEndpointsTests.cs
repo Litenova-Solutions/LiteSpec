@@ -677,7 +677,7 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("private static partial bool? DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);", text, StringComparison.Ordinal);
     }
 
-    /// <summary>An optional body id maps an absent value to null and a carried one through its factory.</summary>
+    /// <summary>An optional body id maps an absent value to null and a carried one through its non-throwing parse, answering 400 for a value the identifier refuses.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void OptionalBodyIdMapsNull()
@@ -710,7 +710,11 @@ public sealed class GenerateEndpointsTests
             []);
 
         Assert.Contains("internal sealed partial record SubmitExpenseRequest(Guid? ReceiptId);", text, StringComparison.Ordinal);
-        Assert.Contains("ReceiptId: request.ReceiptId is null ? null : ReceiptId.From(request.ReceiptId.Value)", text, StringComparison.Ordinal);
+        Assert.Contains("ReceiptId? receiptId = null;", text, StringComparison.Ordinal);
+        Assert.Contains("if (!ReceiptId.TryParse(request.ReceiptId.Value.ToString(), null, out var parsed))", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Invalid receipt.\"", text, StringComparison.Ordinal);
+        Assert.Contains("ReceiptId: receiptId", text, StringComparison.Ordinal);
+        Assert.DoesNotContain(".From(", text, StringComparison.Ordinal);
     }
 
     /// <summary>A project with attribute marks renders the use case mark as an attribute.</summary>
@@ -974,7 +978,7 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("Splits: splitsRows", file.Content, StringComparison.Ordinal);
     }
 
-    /// <summary>A list row maps identifiers through their factory and money through the shared object.</summary>
+    /// <summary>A list row maps identifiers through their non-throwing parse and money through the shared object, answering 400 for a value the identifier refuses.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
     public void ListRowWithIdentifierAndFixedMoneyBinds()
@@ -1020,8 +1024,11 @@ public sealed class GenerateEndpointsTests
         var file = Assert.Single(plan.Files);
         Assert.Contains("internal sealed partial record RetireCopyFinesRow(Guid Copy, decimal? Amount);", file.Content, StringComparison.Ordinal);
         Assert.Contains("List<ClearedFine>? finesRows = null;", file.Content, StringComparison.Ordinal);
-        Assert.Contains("Copy: CopyId.From(row.Copy),", file.Content, StringComparison.Ordinal);
+        Assert.Contains("if (!CopyId.TryParse(row.Copy.ToString(), null, out var finesCopy))", file.Content, StringComparison.Ordinal);
+        Assert.Contains("title: \"Invalid copy.\"", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Copy: finesCopy,", file.Content, StringComparison.Ordinal);
         Assert.Contains("Amount: row.Amount is null ? null : new Money(row.Amount.Value, \"EUR\")", file.Content, StringComparison.Ordinal);
+        Assert.DoesNotContain(".From(", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A single-field list without a row type binds as an array of its wire type.</summary>
@@ -1999,7 +2006,8 @@ public sealed class GenerateEndpointsTests
         Assert.Empty(plan.Errors);
         Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.borrow-copy");
         var file = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("LendingEndpoints.generated.cs", StringComparison.Ordinal));
-        Assert.Contains("Workspace: WorkspaceId.From(request.Workspace)", file.Content, StringComparison.Ordinal);
+        Assert.Contains("if (!WorkspaceId.TryParse(request.Workspace.ToString(), null, out var workspace))", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Workspace: workspace", file.Content, StringComparison.Ordinal);
         var message = Assert.Single(plan.Files, candidate => candidate.AbsolutePath.EndsWith("BorrowCopyCommand.generated.cs", StringComparison.Ordinal));
         Assert.Contains("WorkspaceId Workspace", message.Content, StringComparison.Ordinal);
     }
@@ -2309,7 +2317,8 @@ public sealed class GenerateEndpointsTests
         Assert.Empty(plan.Errors);
         Assert.Empty(plan.Skips);
         var file = Assert.Single(plan.Files);
-        Assert.Contains("if (!Equals(loanId, LoanId.From(request.LoanRef)))", file.Content, StringComparison.Ordinal);
+        Assert.Contains("if (!LoanId.TryParse(request.LoanRef.ToString(), null, out var loanRef))", file.Content, StringComparison.Ordinal);
+        Assert.Contains("if (!Equals(loanId, loanRef))", file.Content, StringComparison.Ordinal);
         Assert.Contains("title: \"Mismatched loan id.\"", file.Content, StringComparison.Ordinal);
         Assert.Contains("The loan id '{loanId}' does not match the loan ref '{request.LoanRef}'.", file.Content, StringComparison.Ordinal);
         Assert.Contains("statusCode: StatusCodes.Status400BadRequest);", file.Content, StringComparison.Ordinal);
@@ -2383,6 +2392,280 @@ public sealed class GenerateEndpointsTests
         Assert.Empty(plan.Errors);
         var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
         Assert.Contains("no implied tenant key", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>A body id answers 400 naming the member for a value the identifier refuses, before the message runs.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RequiredBodyIdGuardsInvalidValue()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.borrow-copy",
+                "BorrowCopy",
+                "Borrow copy",
+                null,
+                "command",
+                "POST",
+                "/api/loans",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "copyId", "CopyId", "copyId", "copyId", "id", "body", true,
+                    "The copy the reader borrows.", null, "CopyId", null, "caller")],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "BorrowCopyCommand",
+                "Library.Lending.Application.Loans.BorrowCopy",
+                "BorrowCopyCommandResult",
+                "BorrowCopyResponseModel",
+                "Library.Lending.WebApi.Loans.BorrowCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("if (!CopyId.TryParse(request.CopyId.ToString(), null, out var copyId))", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Invalid copy id.\"", text, StringComparison.Ordinal);
+        Assert.Contains("The copy id '{request.CopyId}' is not a valid copy id.", text, StringComparison.Ordinal);
+        Assert.Contains("CopyId: copyId", text, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status400BadRequest)", text, StringComparison.Ordinal);
+        Assert.DoesNotContain(".From(", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A required body list answers 400 naming the member when the request carries an explicit null.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RequiredListNullAnswersBadRequest()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.retire-copy",
+                "RetireCopy",
+                "Retire copy",
+                null,
+                "command",
+                "POST",
+                "/api/copies:retire",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "splits", "Splits", "splits", "splits", "list", "body", true,
+                    "The cost splits of the retirement, one row per cost center.", null, null, null, "caller",
+                    RowType: "RetireSplit",
+                    Rows:
+                    [
+                        new EndpointsRenderer.RowField(
+                            "costCenter", "CostCenter", "text", true,
+                            "The cost center carrying the split.", null, null, null, null, null),
+                        new EndpointsRenderer.RowField(
+                            "share", "Share", "decimal", true,
+                            "The share of the cost the split carries.", null, null, null, null, null),
+                    ])],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "RetireCopyCommand",
+                "Library.Lending.Application.Copies.RetireCopy",
+                "RetireCopyCommandResult",
+                "RetireCopyResponseModel",
+                "Library.Lending.WebApi.Copies.RetireCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("if (request.Splits is null)", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Missing splits.\"", text, StringComparison.Ordinal);
+        Assert.Contains("detail: \"The splits list is required.\"", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("var splitsRows = new List<RetireSplit>(request.Splits.Length);", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A required single object answers 400 naming the member when the request carries an explicit null.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void RequiredObjectNullAnswersBadRequest()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.retire-copy",
+                "RetireCopy",
+                "Retire copy",
+                null,
+                "command",
+                "POST",
+                "/api/copies:retire",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "shelfMark", "ShelfMark", "shelfMark", "shelfMark", "object", "body", true,
+                    "The shelf mark the retirement files the copy under.", null, null, null, "caller",
+                    RowType: "ShelfMark",
+                    Rows:
+                    [
+                        new EndpointsRenderer.RowField(
+                            "shelf", "Shelf", "text", true,
+                            "The shelf.", null, null, null, null, null),
+                        new EndpointsRenderer.RowField(
+                            "slot", "Slot", "integer", true,
+                            "The slot on the shelf.", null, null, null, null, null),
+                    ])],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "RetireCopyCommand",
+                "Library.Lending.Application.Copies.RetireCopy",
+                "RetireCopyCommandResult",
+                "RetireCopyResponseModel",
+                "Library.Lending.WebApi.Copies.RetireCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("if (request.ShelfMark is null)", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Missing shelf mark.\"", text, StringComparison.Ordinal);
+        Assert.Contains("detail: \"The shelf mark is required.\"", text, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Each value of a many-valued body id answers 400 naming the member when the identifier refuses it, and a null array answers 400 as a missing list.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void ManyBodyIdGuardsEachValue()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.retire-copy",
+                "RetireCopy",
+                "Retire copy",
+                null,
+                "command",
+                "POST",
+                "/api/copies:retire",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "copies", "Copies", "copies", "copies", "id", "body", true,
+                    "The copies the retirement files.", null, "CopyId", null, "caller", Many: true)],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "RetireCopyCommand",
+                "Library.Lending.Application.Copies.RetireCopy",
+                "RetireCopyCommandResult",
+                "RetireCopyResponseModel",
+                "Library.Lending.WebApi.Copies.RetireCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("if (request.Copies is null)", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Missing copies.\"", text, StringComparison.Ordinal);
+        Assert.Contains("var copiesItems = new List<CopyId>(request.Copies.Length);", text, StringComparison.Ordinal);
+        Assert.Contains("foreach (var copiesValue in request.Copies)", text, StringComparison.Ordinal);
+        Assert.Contains("if (!CopyId.TryParse(copiesValue.ToString(), null, out var copiesMember))", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Invalid copies.\"", text, StringComparison.Ordinal);
+        Assert.Contains("copiesItems.Add(copiesMember);", text, StringComparison.Ordinal);
+        Assert.Contains("Copies: copiesItems", text, StringComparison.Ordinal);
+        Assert.DoesNotContain(".From(", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>Each value of a single-field id list answers 400 naming the row field when the identifier refuses it.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SingleFieldIdListGuardsEachValue()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.retire-copy",
+                "RetireCopy",
+                "Retire copy",
+                null,
+                "command",
+                "POST",
+                "/api/copies:retire",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "holds", "Holds", "holds", "holds", "list", "body", true,
+                    "The holds the retirement releases, one per hold.", null, null, null, "caller",
+                    Rows:
+                    [
+                        new EndpointsRenderer.RowField(
+                            "hold", "Hold", "id", true,
+                            "One released hold.", null, "HoldId", null, null, null),
+                    ])],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "RetireCopyCommand",
+                "Library.Lending.Application.Copies.RetireCopy",
+                "RetireCopyCommandResult",
+                "RetireCopyResponseModel",
+                "Library.Lending.WebApi.Copies.RetireCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("Guid[] Holds", text, StringComparison.Ordinal);
+        Assert.Contains("if (request.Holds is null)", text, StringComparison.Ordinal);
+        Assert.Contains("var holdsItems = new List<HoldId>(request.Holds.Length);", text, StringComparison.Ordinal);
+        Assert.Contains("if (!HoldId.TryParse(holdsValue.ToString(), null, out var holdsMember))", text, StringComparison.Ordinal);
+        Assert.Contains("title: \"Invalid hold.\"", text, StringComparison.Ordinal);
+        Assert.Contains("Holds: holdsItems", text, StringComparison.Ordinal);
+        Assert.DoesNotContain(".From(", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>An optional row identifier maps an absent value to null and a carried one through its non-throwing parse.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void OptionalRowIdGuardsWhenCarried()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "lending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/lending.retire-copy",
+                "RetireCopy",
+                "Retire copy",
+                null,
+                "command",
+                "POST",
+                "/api/copies:retire",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "fines", "Fines", "fines", "fines", "list", "body", true,
+                    "The fines cleared by the retirement, one row per fine.", null, null, null, "caller",
+                    RowType: "ClearedFine",
+                    Rows:
+                    [
+                        new EndpointsRenderer.RowField(
+                            "copy", "Copy", "id", false,
+                            "The copy the fine was charged on.", null, "CopyId", null, null, null),
+                        new EndpointsRenderer.RowField(
+                            "waived", "Waived", "boolean", true,
+                            "Whether the retirement waives the fine.", null, null, null, null, null),
+                    ])],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "RetireCopyCommand",
+                "Library.Lending.Application.Copies.RetireCopy",
+                "RetireCopyCommandResult",
+                "RetireCopyResponseModel",
+                "Library.Lending.WebApi.Copies.RetireCopy",
+                MarkStyle.Xml)],
+            "Library.Lending.WebApi",
+            "Library.Lending.WebApi.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("CopyId? finesCopy = null;", text, StringComparison.Ordinal);
+        Assert.Contains("if (row.Copy is not null)", text, StringComparison.Ordinal);
+        Assert.Contains("if (!CopyId.TryParse(row.Copy.Value.ToString(), null, out var finesCopyParsed))", text, StringComparison.Ordinal);
+        Assert.Contains("Copy: finesCopy,", text, StringComparison.Ordinal);
+        Assert.DoesNotContain(".From(", text, StringComparison.Ordinal);
     }
 
     /// <summary>Writes the read-loan query with one optional output group, for the absent-details test.</summary>

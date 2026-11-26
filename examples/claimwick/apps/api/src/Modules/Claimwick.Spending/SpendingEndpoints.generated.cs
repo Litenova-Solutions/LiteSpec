@@ -466,6 +466,36 @@ internal static partial class SpendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
+            if (!ExpenseId.TryParse(request.ExpenseId.ToString(), null, out var expenseId))
+            {
+                return TypedResults.Problem(
+                    title: "Invalid expense id.",
+                    detail: $"The expense id '{request.ExpenseId}' is not a valid expense id.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            ReceiptId? receiptId = null;
+            if (request.ReceiptId is not null)
+            {
+                if (!ReceiptId.TryParse(request.ReceiptId.Value.ToString(), null, out var parsed))
+                {
+                    return TypedResults.Problem(
+                        title: "Invalid receipt id.",
+                        detail: $"The receipt id '{request.ReceiptId.Value}' is not a valid receipt id.",
+                        statusCode: StatusCodes.Status400BadRequest);
+                }
+
+                receiptId = parsed;
+            }
+
+            if (request.Lines is null)
+            {
+                return TypedResults.Problem(
+                    title: "Missing lines.",
+                    detail: "The lines list is required.",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             List<ExpenseSplit>? splitsRows = null;
             if (request.Splits is not null)
             {
@@ -499,11 +529,11 @@ internal static partial class SpendingEndpoints
 
             var result = await mediator.SendAsync(
                 new SubmitExpenseCommand(
-                    ExpenseId: ExpenseId.From(request.ExpenseId),
+                    ExpenseId: expenseId,
                     Amount: request.Amount,
                     Currency: request.Currency,
                     Category: request.Category,
-                    ReceiptId: request.ReceiptId is null ? null : ReceiptId.From(request.ReceiptId.Value),
+                    ReceiptId: receiptId,
                     EmployeeId: ActorClaims.ReadActorId<Guid>(user, "employee"),
                     Labels: request.Labels,
                     Splits: splitsRows,
