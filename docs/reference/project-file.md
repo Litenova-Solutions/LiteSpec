@@ -25,9 +25,9 @@ The schema states every top-level field, its type, and whether it is required; r
 
 The schema states the layers a project claims and the practice each follows; the [supported scope](../core/scope.md#layer-claims) states what each claim covers. `litespec model check`, the book, `litespec rules`, and the analyzers report only the claimed layers.
 
-### The `explanations` Object
+### Explanation Files
 
-The schema states the layers whose record pages carry explanation files. A page on a listed layer without its explanation file, or with a required section missing, is an `explanation-missing` finding, and a listed layer the project does not claim is a `project-invalid` finding.
+Explanation files are optional and for people. Each explanation file restates its record in plain words beside the record file.
 
 ### The `project` Object
 

@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--module <module>] [--record-proof] [--verbose]
+litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>] [--module <module>] [--only-paths <paths...>] [--record-proof] [--verbose]
 litespec model review [--root <consumer>] [--format json]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
@@ -33,7 +33,9 @@ With `--release`, `reader-missing` blocks for a claimed layer.
 
 With `--since <ref>`, the command checks the tree at `<ref>` and the working tree, and blocks every finding present now and absent at `<ref>`. Findings match by code, subject identifier and message, never by line. When the base tree cannot be built or checked, every finding blocks and the output says why. The run also reports every client-breaking contract change since `<ref>` as a `contract-break` finding of level S, which always blocks at the level that runs it: a removed result, a removed refusal code, and a changed integration event.
 
-With `--module <module>`, the command prints only the findings on the records and files of that module, and the exit code follows those findings alone.
+With `--module <module>`, the command prints only the findings on the records and files of that module, and the exit code follows those findings alone. The command reads only that module's backend projects, so a concurrent edit that left another module unparsable does not fail the run.
+
+With `--only-paths <paths...>`, the command reports only the findings on the named paths and their records: a finding belongs to the named paths when its file is one of them or sits under one of them, or when its subject record's file does. Paths resolve under the consumer root, and the exit code follows the kept findings alone, so parallel workers check only their owned slice. The two scopes combine: with both flags the command reports only the findings that belong to the module and to the named paths.
 
 `check` writes nothing to the repository, except with `--record-proof`, which writes `.litespec/proof/proofs.json` from the run. Continuous integration runs the check with `--record-proof` on the pull request head, after the test run in the same job, so a merged pull request carries fresh proofs.
 
@@ -101,7 +103,8 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 | `--check` | off | Only `format` reads it. Writes nothing, lists each file that would change, and exits 1 when any would. |
 | `--search <text>` | off | Only `query` reads it. Lists the written records and flow steps whose identifier, title, summary or statement holds the text, case-insensitive, one line each with identifier, title and path. An exact identifier match prints first, then other identifier matches, title, summary and statement matches; each group orders by identifier. Prints nothing and exits 0 when nothing matches. |
 | `--list <type>` | off | Only `query` reads it. Lists every written record of the type, one line each with identifier, title and path, ordered by identifier. With `--module` it lists only the records of that module. An unknown type is a usage error. |
-| `--module <module>` | off | Only `check`, `query --list` and `edges` read it. `check` prints only the findings on the records and files of the module, and the exit code follows those findings alone. `edges` prints only that module with the mutual pairs it belongs to. An unknown module is a usage error. |
+| `--module <module>` | off | Only `check`, `query --list` and `edges` read it. `check` prints only the findings on the records and files of the module, and the exit code follows those findings alone. `check` also reads only that module's backend projects. `edges` prints only that module with the mutual pairs it belongs to. An unknown module is a usage error. |
+| `--only-paths <paths...>` | off | Only `check` reads it. Reports only the findings on the named paths and their records, and the exit code follows those findings alone. A finding belongs to the named paths when its file is one of them or sits under one of them, or when its subject record's file does. |
 | `--record-proof` | off | Only `check` reads it. Writes `.litespec/proof/proofs.json` from the run, holding for each scenario the run commit and the outcome of the last passing run. Without it, `check` writes nothing. |
 | `--verbose` | off | Only `check` reads it. Lists every rejected shape behind each schema error instead of the selected one. |
 | `--help` | off | Prints the usage text and exits 0. |
@@ -177,6 +180,12 @@ Check only one module:
 litespec model check --root ../consumer --module spending
 ```
 
+Check only the owned paths, such as one worker's slice:
+
+```bash
+litespec model check --root ../consumer --only-paths .litespec/behavior/modules/spending apps/api/src/Modules/Claimwick.Spending
+```
+
 Report the links between modules:
 
 ```bash
@@ -233,6 +242,6 @@ A check `--since` base is read through an archive (`git archive`) into a tempora
 
 A search or list line holds the identifier, the title and the file path relative to the consumer root, as `<id> - <title> (<path>)`, for written records only.
 
-A finding belongs to a module when its subject record sits under that module's folder, else when its file does. A finding on no record and no module file belongs to no module, so a module check omits it.
+A finding belongs to a module when its subject record sits under that module's folder, else when its file does. A finding on no record and no module file belongs to no module, so a module check omits it. A finding belongs to the named `--only-paths` paths when its file is one of them or sits under one of them, or when its subject record's file does. A finding on no record and no named file belongs to no named path, so a scoped check omits it.
 
 Edges read the written record links the model resolves: a link from a record under one module folder to a record under another counts once under its field, and an effect entry counts under its verb. A link whose target names no record is skipped. Kind lines order by kind, module splits by module, modules by name, and mutual pairs by name.

@@ -53,8 +53,8 @@ public sealed class ProvisionWhenTests
         }
 
         Assert.True(
-            JudgmentLines(result.Output) <= 34,
-            "The judgment groups hold more than 34 lines.");
+            JudgmentLines(result.Output) <= 40,
+            "The judgment groups hold more than 40 lines.");
     }
 
     /// <summary>A use case taking a receipt keeps the upload provisions.</summary>

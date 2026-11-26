@@ -9,7 +9,11 @@ kind: <command>
 access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
-  recentSignInLimit: setting/<module>.<name, or remove this line>
+  recentSignIn: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
+  scope: <self, when the caller acts only on the record identifying them, or remove this line>
+  identityInput: <input carrying the caller identity, or remove this line>
+  preconditions:
+  - rule/<home>.<name, or remove this line>
   runsAs: <system, when a reaction or job runs this use case beside its person grant, or remove this line>
 serves:
 - step/<flow>.<act>
@@ -19,6 +23,11 @@ computedBy:
 - rule/<home>.<name, or remove this line>
 reachedThrough:
 - entry-point/<name>
+# http applies when an api or browser entry point reaches the use case.
+http:
+  method: <GET|POST|PUT|PATCH|DELETE>
+  route: <route template, such as /expenses/{expenseId}>
+  created: <created location, such as /expenses/{expenseId}, or remove this line>
 raises:
 - domain-event/<aggregate>.<name, or remove this line>
 steps:
@@ -111,9 +120,11 @@ idempotency:
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this command needs no idempotency, or remove this line>
 consentRule: rule/<home>.<name, or remove this line>
-# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level and target kind.
+# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level, category, target and target kind.
 audit:
   level: <required|optional|none>
+  category: <the audit category, or remove this line when the level is none>
+  target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
   targetKind: <what the audit trail records for this command>
 background: <what the caller sees while the command runs on, or remove this line>
 records:

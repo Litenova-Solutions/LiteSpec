@@ -40,6 +40,7 @@ internal static class TemplateNormalizer
         ["isoDate"] = "2026-11-30",
         ["isoDuration"] = "P30D",
         ["nonEmptyString"] = "sample",
+        ["httpRoute"] = "/sample",
         ["productId"] = "product/sample",
         ["goalId"] = "goal/sample",
         ["directionId"] = "direction/sample",

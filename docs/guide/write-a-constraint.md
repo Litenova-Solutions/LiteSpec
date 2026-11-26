@@ -188,7 +188,7 @@ This satisfies `litespec/core/model#split-record-fields-from-explanation` as rew
 
 ## Check
 
-- `litespec model check` exits `0` from the consumer root with no finding on the constraint record or its explanation file. It reports `source-links-drift` when the generated region differs from what `render` writes, and `source-links-missing` when a file citing a source has no region.
+- `litespec model check` exits `0` from the consumer root with no finding on the constraint record. Keep the generated region equal to what `render` writes.
 - `litespec model check` reports `constraint-effect-unlisted` and `constraint-effect-uncited` for no requirement that cites the constraint.
 - `litespec rules <path to the constraint record>` lists the judgment provisions above, and you have answered each one.
 - A reader who has never met you can open the explanation, follow each source link, and say which requirements hold the rule's effect.

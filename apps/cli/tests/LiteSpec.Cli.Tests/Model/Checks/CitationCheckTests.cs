@@ -83,10 +83,10 @@ public sealed class CitationCheckTests
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>A page citing a removed record reports it.</summary>
+    /// <summary>A page citing a removed record reports nothing: no check reads the page.</summary>
     /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
-    public void PageCitingARemovedRecordReportsIt()
+    public void PageCitingARemovedRecordReportsNothing()
     {
         using var fixture = ModelFixture.Prepare("large");
         var guides = Path.Combine(fixture.Path, ".litespec", "guides");
@@ -97,6 +97,6 @@ public sealed class CitationCheckTests
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Contains("Citation 'scenario/borrow-copy.gone-since-the-review' resolves to no record.", result.Output);
+        Assert.DoesNotContain("scenario/borrow-copy.gone-since-the-review", result.Output);
     }
 }

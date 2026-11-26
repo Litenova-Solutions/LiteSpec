@@ -20,7 +20,7 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--module <module>] [--record-proof] [--verbose]
+          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--module <module>] [--only-paths <paths...>] [--record-proof] [--verbose]
           litespec model review --root <consumer> [--format json]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
@@ -45,8 +45,21 @@ static class ModelCommand
         }
 
         var command = args[0];
+
+        // --only-paths takes any number of paths, which the option parser reads as one
+        // value, so the check arguments split them out before parsing.
+        var onlyPaths = (Paths: (IReadOnlyList<string>)[], Error: (string?)null);
+        var checkArgs = args[1..];
+
+        if (command == "check")
+        {
+            var split = ModelOptions.SplitOnlyPaths(args[1..]);
+            onlyPaths = (split.Paths, split.Error);
+            checkArgs = split.Remaining;
+        }
+
         var parsed = CliArgs.Parse(
-            args[1..],
+            checkArgs,
             command switch
             {
                 "check" => ["--release", "--record-proof", "--verbose"],
@@ -71,7 +84,7 @@ static class ModelCommand
         var json = parsed.Json;
 
         // A usage error is reported before --help is honoured, so an unsupported --format value fails here too.
-        var usageError = parsed.Error ?? parsed.FormatError;
+        var usageError = onlyPaths.Error ?? parsed.Error ?? parsed.FormatError;
 
         if (parsed.Help && usageError is null)
         {
@@ -97,7 +110,9 @@ static class ModelCommand
         {
             case "check":
             {
-                var model = ModelBuilder.Build(config);
+                // A module check reads only that module's backend projects, so a sibling
+                // edit that left another module unparsable does not fail the run.
+                var model = ModelBuilder.Build(config, parsed.Value("--module") is { Length: > 0 } readModule ? readModule : null);
                 List<Finding> findings;
                 IReadOnlyList<Finding> covered;
 
@@ -199,6 +214,15 @@ static class ModelCommand
                     covered = covered.Where(finding => InModule(model, config, finding, onlyModule)).ToList();
                 }
 
+                // A scoped check prints only the findings on the named paths and their
+                // records, and the exit code below follows those findings alone.
+                if (onlyPaths.Paths.Count > 0)
+                {
+                    var roots = onlyPaths.Paths.Select(path => ModelOptions.Rooted(config, path)).ToList();
+                    shown = shown.Where(entry => ModelOptions.InOnlyPaths(model, config, entry.Finding, roots)).ToList();
+                    covered = covered.Where(finding => ModelOptions.InOnlyPaths(model, config, finding, roots)).ToList();
+                }
+
                 // A release drift makes every other finding suspect: the installed tool reads the project
                 // against a release the project never reviewed. The drift finding prints first, so no one
                 // starts fixing findings that may not apply.
@@ -229,6 +253,12 @@ static class ModelCommand
 
                     payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
                     payload["covered"] = new JsonArray([.. covered.Select(finding => (JsonNode?)AsCoveredJson(config, finding))]);
+                    payload["backendReader"] = model.BackendReaderMode;
+
+                    if (model.SemanticUnavailableReason is { Length: > 0 } unavailable)
+                    {
+                        payload["backendReaderNote"] = unavailable;
+                    }
 
                     CliHost.Out.WriteLine(CliJson.Serialize(payload));
                 }
@@ -272,6 +302,11 @@ static class ModelCommand
                         }
                     }
 
+                    CliHost.Out.WriteLine(model.BackendSemantics is { } semantics
+                        ? $"Backend reader: {model.BackendReaderMode} ({semantics.ReferenceSummary})."
+                        : model.SemanticUnavailableReason is { Length: > 0 } reason
+                            ? $"Backend reader: {model.BackendReaderMode} (semantic unavailable: {reason})."
+                            : $"Backend reader: {model.BackendReaderMode}.");
                     CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
 
                     if (incomplete is not null)
@@ -667,13 +702,8 @@ static class ModelCommand
     /// <param name="folder">The module folder name as written on disk.</param>
     /// <param name="name">The module name the check keeps.</param>
     /// <returns>True when both names agree with case, hyphens and underscores ignored; otherwise false.</returns>
-    static bool SameModuleName(string folder, string name)
-    {
-        var left = folder.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
-        var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
-
-        return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
-    }
+    static bool SameModuleName(string folder, string name) =>
+        ModelOptions.ModuleMatches(folder, name);
 
     /// <summary>
     ///     Decides one finding's severity from its tier and the qualification

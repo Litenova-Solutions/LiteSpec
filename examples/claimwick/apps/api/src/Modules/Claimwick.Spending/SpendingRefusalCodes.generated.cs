@@ -10,7 +10,7 @@ public static class SpendingRefusalCodes
     public const string AlreadyReimbursed = "spending.already-reimbursed";
     /// <summary>The expense is already decided.</summary>
     public const string ExpenseDecided = "spending.expense-decided";
-    /// <summary>The threshold is negative.</summary>
+    /// <summary>The threshold of {threshold} is negative.</summary>
     public const string NegativeThreshold = "spending.negative-threshold";
     /// <summary>The expense is not approved.</summary>
     public const string NotApproved = "spending.not-approved";

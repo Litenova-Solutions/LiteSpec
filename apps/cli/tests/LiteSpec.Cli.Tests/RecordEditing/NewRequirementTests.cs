@@ -27,24 +27,19 @@ public sealed class NewRequirementTests
         Assert.False(File.Exists(Path.ChangeExtension(file, ".md")));
     }
 
-    /// <summary>New requirement writes its explanation file from the requirement template on a layer the project explains.</summary>
+    /// <summary>New requirement writes its record without an explanation file beside it.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
-    [Fact(DisplayName = "new requirement writes its explanation on an explained layer")]
-    public void WritesExplanationOnAnExplainedLayer()
+    [Fact(DisplayName = "new requirement writes no explanation file beside its record")]
+    public void WritesNoExplanationFileBesideItsRecord()
     {
         using var consumer = Consumer();
-        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "explanations:\n  layers:\n  - intent\n");
 
         var result = TestCli.Run("new", "requirement", "approval.late-fee-cap", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
         var folder = Path.Combine(consumer.Path, ".litespec/intent/problems/waiting-for-money/features/approval/requirements/late-fee-cap");
         Assert.True(File.Exists(Path.Combine(folder, "late-fee-cap.yaml")), result.Output);
-        var explanation = Path.Combine(folder, "late-fee-cap.md");
-        Assert.True(File.Exists(explanation), result.Output);
-        var lines = File.ReadAllText(explanation).Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-        Assert.Equal("# Late Fee Cap", lines[0]);
-        Assert.Equal(["## Example"], lines.Where(line => line.StartsWith("## ", StringComparison.Ordinal)).ToArray());
+        Assert.False(File.Exists(Path.Combine(folder, "late-fee-cap.md")), $"Expected no explanation file in '{folder}'.");
     }
 
     /// <summary>New requirement fails with a clear message when the feature record does not exist.</summary>

@@ -7,4 +7,11 @@ namespace LiteSpec.Cli.Model.Refusals;
 /// <param name="File">The refusal set file that declares the refusal.</param>
 /// <param name="Aggregate">The aggregate folder that holds the refusal set, or null for a module-level refusal.</param>
 /// <param name="Line">The 1-based line of the entry in its file.</param>
-sealed record RefusalEntry(string Module, string Code, string Meaning, string File, string? Aggregate, int Line = 1);
+sealed record RefusalEntry(string Module, string Code, string Meaning, string File, string? Aggregate, int Line = 1)
+{
+    /// <summary>Gets the values the meaning varies by, each named in <see cref="Meaning" /> as <c>{name}</c>; empty when the message is fixed.</summary>
+    public IReadOnlyList<RefusalParameter> Parameters { get; init; } = [];
+
+    /// <summary>Gets the HTTP status the refusal answers with, or null when the refusal states none.</summary>
+    public int? Status { get; init; }
+}

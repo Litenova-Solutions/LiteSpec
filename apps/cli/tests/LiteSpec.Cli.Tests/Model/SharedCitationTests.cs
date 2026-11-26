@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
@@ -73,8 +75,10 @@ public sealed class SharedCitationTests
 
     static void AppendCitation(string root, string citation)
     {
-        var page = Path.Combine(root, ".litespec", "product.md");
-        File.AppendAllText(page, $"\nSee {citation}.\n");
+        var relative = Path.Combine(".litespec", "product.yaml");
+        var record = (JsonObject)JsonNode.Parse(YamlText.Parse(File.ReadAllText(Path.Combine(root, relative))).ToJson())!;
+        record["summary"] = record["summary"]!.GetValue<string>() + $" See {citation}.";
+        File.WriteAllText(Path.Combine(root, relative), RecordFile.Write(record));
     }
 
     const string PinnedPage = """

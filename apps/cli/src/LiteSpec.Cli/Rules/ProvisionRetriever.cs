@@ -23,13 +23,15 @@ internal static class ProvisionRetriever
     /// <param name="waivers">The live waivers.</param>
     /// <param name="config">The consumer configuration.</param>
     /// <param name="target">The rules target.</param>
+    /// <param name="index">The record index the marked records are read from once per run.</param>
     /// <returns>The retrieved provisions with their reasons.</returns>
     public static IReadOnlyList<ProvisionMatch> Retrieve(
         ProvisionCatalog catalog,
         IReadOnlyList<ProvisionEntry> conventions,
         IReadOnlyList<WaiverFiles.Waiver> waivers,
         ConsumerConfig config,
-        PathContext target)
+        PathContext target,
+        ProvisionRecordIndex index)
     {
         if (target.IsCodePath && config.Layers.Implementation is null && config.Layers.Proof is null)
         {
@@ -53,7 +55,7 @@ internal static class ProvisionRetriever
                 continue;
             }
 
-            if (entry.HasWhen && !ApplyWhen(entry, target, config, reasons))
+            if (entry.HasWhen && !ApplyWhen(entry, target, config, index, reasons))
             {
                 continue;
             }
@@ -105,9 +107,10 @@ internal static class ProvisionRetriever
     /// <param name="entry">The conditional provision.</param>
     /// <param name="target">The rules target.</param>
     /// <param name="config">The consumer configuration.</param>
+    /// <param name="index">The record index the marked records are read from once per run.</param>
     /// <param name="reasons">The reasons, with the condition added for a record target.</param>
     /// <returns>True when a record target names it, a code target marks it directly, or its condition holds for a marked record. A project condition holds for no record, and an audit-adoption condition holds for the named decision only.</returns>
-    static bool ApplyWhen(ProvisionEntry entry, PathContext target, ConsumerConfig config, List<string> reasons)
+    static bool ApplyWhen(ProvisionEntry entry, PathContext target, ConsumerConfig config, ProvisionRecordIndex index, List<string> reasons)
     {
         if (!target.IsCodePath)
         {
@@ -120,7 +123,7 @@ internal static class ProvisionRetriever
             return true;
         }
 
-        var records = ProvisionWhen.LoadMarked(config, target);
+        var records = index.LoadMarked(target);
 
         return records.Count > 0 && ProvisionWhen.Holds(entry.When, records, config);
     }

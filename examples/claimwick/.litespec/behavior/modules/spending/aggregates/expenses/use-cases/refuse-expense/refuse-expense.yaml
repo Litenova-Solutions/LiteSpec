@@ -50,6 +50,8 @@ idempotency:
   reason: the first refusal moves the expense out of the submitted state, so the aggregate refuses a second refusal
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
+audit:
+  exemptBecause: Refusals leave their trail in the expense states and events.
 steps:
 - statement: The manager opens a submitted expense and gives a reason.
   cites:

@@ -227,7 +227,7 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports each capitalized phrase of two to four words named in three or more records that no glossary term defines, skipping sentence openers, months, currency codes, acronym pairs, cast names, wireframes and phrases built from reaction titles.</summary>
+    /// <summary>Reports each capitalized phrase of two to four words named in three or more records that no glossary term defines, skipping sentence openers, months, currency codes, acronym pairs, cast names and phrases built from reaction titles.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUndefinedPhrases(ProjectModel model, List<Finding> findings)
@@ -333,7 +333,7 @@ internal static class IntentChecks
         return phrases;
     }
 
-    /// <summary>Every prose text of a record: its written string values and its explanation without headings, table rows and wireframe blocks.</summary>
+    /// <summary>Every prose text of a record: its written string values.</summary>
     /// <param name="record">The record whose prose is read.</param>
     /// <returns>The prose texts of the record.</returns>
     private static List<string> TextsOf(Record record)
@@ -341,47 +341,6 @@ internal static class IntentChecks
         var texts = new List<string>();
 
         CollectStrings(record.Raw, texts);
-
-        if (record.Explanation is { } explanation)
-        {
-            var inWireframe = false;
-
-            foreach (var line in explanation.Split('\n'))
-            {
-                var trimmed = line.TrimStart();
-
-                if (trimmed.StartsWith("```", StringComparison.Ordinal))
-                {
-                    if (!inWireframe)
-                    {
-                        var info = trimmed.Length > 3 ? trimmed[3..].Trim() : "";
-
-                        if (info == "wireframe"
-                            || info.StartsWith("wireframe ", StringComparison.Ordinal)
-                            || info.StartsWith("wireframe\t", StringComparison.Ordinal))
-                        {
-                            inWireframe = true;
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        inWireframe = false;
-                        continue;
-                    }
-                }
-
-                if (inWireframe)
-                {
-                    continue;
-                }
-
-                if (!trimmed.StartsWith('#') && !trimmed.StartsWith('|'))
-                {
-                    texts.Add(line);
-                }
-            }
-        }
 
         return texts;
     }
@@ -426,9 +385,6 @@ internal static class IntentChecks
 
     /// <summary>One word token inside prose.</summary>
     private static readonly Regex WordToken = new(@"[A-Za-z][a-zA-Z]*", RegexOptions.Compiled);
-
-    /// <summary>One code-formatted name inside the cast, without its backticks.</summary>
-    private static readonly Regex CastCodeName = new(@"`(?<name>[^`]+)`", RegexOptions.Compiled);
 
     /// <summary>Every explanation section name of every record type, which reads as a heading, not a term.</summary>
     private static readonly HashSet<string> SectionNames = new(
@@ -604,7 +560,7 @@ internal static class IntentChecks
         return false;
     }
 
-    /// <summary>Every name the project's cast lists: each entry's name or title, and each code-formatted name and table value of the cast explanation.</summary>
+    /// <summary>Every name the project's cast lists: each entry's name or title.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The cast names, without placeholders.</returns>
     private static HashSet<string> CastNamesOf(ProjectModel model)
@@ -619,115 +575,12 @@ internal static class IntentChecks
             {
                 names.Add(name);
             }
-
-            if (entry.Type == RecordTypes.Cast && entry.Explanation is { } explanation)
-            {
-                foreach (var text in CastNamesInText(explanation))
-                {
-                    names.Add(text);
-                }
-            }
         }
 
         names.RemoveWhere(name => name.Length == 0 || name.Contains('<') || name.Contains('>'));
 
         return names;
     }
-
-    /// <summary>The code-formatted names and table values of one cast explanation text.</summary>
-    /// <param name="text">The cast explanation Markdown.</param>
-    /// <returns>Each code name and table value, trimmed.</returns>
-    private static List<string> CastNamesInText(string text)
-    {
-        var names = new List<string>();
-
-        foreach (Match match in CastCodeName.Matches(text))
-        {
-            var name = match.Groups["name"].Value.Trim();
-
-            if (name.Length > 0)
-            {
-                names.Add(name);
-            }
-        }
-
-        names.AddRange(TableValuesOf(text));
-
-        return names;
-    }
-
-    /// <summary>The data values of every Markdown table in the text, without the header and separator rows.</summary>
-    /// <param name="text">The cast Markdown.</param>
-    /// <returns>Each non-empty data cell, with surrounding backticks stripped.</returns>
-    private static List<string> TableValuesOf(string text)
-    {
-        var values = new List<string>();
-        var table = new List<string>();
-
-        void FlushTable()
-        {
-            if (table.Count >= 3)
-            {
-                var start = IsSeparatorRow(table[1]) ? 2 : 1;
-
-                for (var index = start; index < table.Count; index++)
-                {
-                    foreach (var cell in CellsOf(table[index]))
-                    {
-                        var value = cell.Trim().Trim('`').Trim();
-
-                        if (value.Length > 0 && !IsSeparatorCell(value))
-                        {
-                            values.Add(value);
-                        }
-                    }
-                }
-            }
-
-            table.Clear();
-        }
-
-        foreach (var line in text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
-        {
-            if (line.TrimStart().StartsWith('|'))
-            {
-                table.Add(line);
-            }
-            else if (table.Count > 0)
-            {
-                FlushTable();
-            }
-        }
-
-        if (table.Count > 0)
-        {
-            FlushTable();
-        }
-
-        return values;
-    }
-
-    /// <summary>The cells of one Markdown table row, trimmed and without empties.</summary>
-    /// <param name="line">The table row.</param>
-    /// <returns>Each non-empty cell.</returns>
-    private static List<string> CellsOf(string line) =>
-        line.Split('|').Select(cell => cell.Trim()).Where(cell => cell.Length > 0).ToList();
-
-    /// <summary>Whether the row separates the header from the data: every cell holds only dashes, colons and spaces.</summary>
-    /// <param name="line">The table row.</param>
-    /// <returns>True when the row is a separator row.</returns>
-    private static bool IsSeparatorRow(string line)
-    {
-        var cells = CellsOf(line);
-
-        return cells.Count > 0 && cells.All(IsSeparatorCell);
-    }
-
-    /// <summary>Whether the cell holds only dashes, colons and spaces.</summary>
-    /// <param name="cell">The table cell.</param>
-    /// <returns>True when the cell is a separator cell.</returns>
-    private static bool IsSeparatorCell(string cell) =>
-        cell.Length > 0 && cell.All(character => character is '-' or ':' or ' ' or '\t');
 
     /// <summary>Whether the phrase contains a cast name as one word or as contiguous words.</summary>
     /// <param name="phrase">The candidate phrase.</param>

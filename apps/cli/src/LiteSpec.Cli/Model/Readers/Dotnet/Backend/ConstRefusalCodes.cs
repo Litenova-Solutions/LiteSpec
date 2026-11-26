@@ -129,6 +129,30 @@ static class ConstRefusalCodes
         }
     }
 
+    /// <summary>
+    ///     Resolves an expression to the refusal code it holds through the compiler: the constant
+    ///     value of the expression when it is a whole refusal code. Null otherwise.
+    /// </summary>
+    /// <param name="model">The semantic model of the expression.</param>
+    /// <param name="expression">The expression holding the code.</param>
+    /// <returns>The refusal code the expression holds, or null when it holds none.</returns>
+    public static string? ResolveSemantic(SemanticModel model, ExpressionSyntax expression) =>
+        LookupSemantic(model, expression) is { } value && IsRefusalCode(value) ? value : null;
+
+    /// <summary>
+    ///     Reads the constant value an expression holds through the compiler, without checking its
+    ///     shape. Null when the expression holds no constant value.
+    /// </summary>
+    /// <param name="model">The semantic model of the expression.</param>
+    /// <param name="expression">The expression holding the value.</param>
+    /// <returns>The constant value the expression holds, or null when it holds none.</returns>
+    public static string? LookupSemantic(SemanticModel model, ExpressionSyntax expression)
+    {
+        var constant = model.GetConstantValue(expression);
+
+        return constant.HasValue && constant.Value is string text ? text : null;
+    }
+
     /// <summary>Whether the value is a whole refusal code: the refusal-code grammar matches all of it.</summary>
     /// <param name="value">The value under test.</param>
     /// <returns>True when the whole value matches the refusal-code grammar.</returns>

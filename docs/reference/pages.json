@@ -4736,7 +4736,7 @@
       "style": "command",
       "area": "maintain",
       "title": "Publish a Local Toolchain",
-      "intent": "\u0060litespec-maintain publish-local\u0060 packs the checkout\u0027s CLI and analyzers into a local feed and moves a consumer onto that build.",
+      "intent": "\u0060litespec-maintain publish-local\u0060 packs the checkout\u0027s CLI and analyzers into a local feed and moves a consumer onto that build, or pins the consumer to a CI-published build instead.",
       "sections": [
         "Name",
         "Synopsis",

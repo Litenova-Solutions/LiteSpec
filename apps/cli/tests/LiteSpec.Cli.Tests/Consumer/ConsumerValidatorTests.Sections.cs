@@ -12,7 +12,6 @@ public sealed partial class ConsumerValidatorTests
     const string DecisionPage = ".litespec/intent/decisions/0001-launch/0001-launch.yaml";
     const string DecisionExplanation = ".litespec/intent/decisions/0001-launch/0001-launch.md";
     const string ActorPage = ".litespec/intent/actors/customer/customer.yaml";
-    const string ActorExplanation = ".litespec/intent/actors/customer/customer.md";
     const string TutorialPage = ".litespec/implementation/first-run.md";
     const string HowToPage = ".litespec/implementation/add-a-pack.md";
     const string CommandPage = ".litespec/implementation/fixture-up.md";
@@ -81,14 +80,14 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
 
-    /// <summary>Decision that omits its context.</summary>
+    /// <summary>Decision explanation that omits its context stays clean: no check reads the explanation.</summary>
     /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
-    [Fact(DisplayName = "decision that omits its context")]
-    public void DecisionThatOmitsItsContext()
+    [Fact(DisplayName = "decision explanation without a context section stays clean")]
+    public void DecisionExplanationWithoutAContextSectionStaysClean()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, DecisionExplanation, raw => WithoutSection(raw, "Context"));
-        AssertReview(folder.Path, "requires an H2 'Context'");
+        AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>Decision that omits its consequences.</summary>
@@ -227,18 +226,18 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "publishedOn");
     }
 
-    /// <summary>Research that omits its findings.</summary>
+    /// <summary>Research explanation without a findings section stays clean: no check reads the explanation.</summary>
     /// <proves>litespec/core/intent#record-research-with-its-question-conclusion-and-sources</proves>
-    [Fact(DisplayName = "research that omits its findings")]
-    public void ResearchThatOmitsItsFindings()
+    [Fact(DisplayName = "research explanation without a findings section stays clean")]
+    public void ResearchExplanationWithoutAFindingsSectionStaysClean()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.yaml",
-            """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"name":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}]}""");
+            """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"name":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}],"findings":[{"statement":"Rivals deliver in two days.","sources":["delivery-benchmarks"]}]}""");
         TestRecords.Explain(folder.Path, ".litespec/intent/research/delivery-benchmarks/delivery-benchmarks.md", "# Delivery Benchmarks\n");
-        AssertReview(folder.Path, "requires an H2 'Findings'");
+        AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>Flow that omits where it starts.</summary>
@@ -254,10 +253,10 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'startedWhen'");
     }
 
-    /// <summary>Rule explanation that omits its rationale.</summary>
+    /// <summary>Rule explanation without a rationale section stays clean: no check reads the explanation.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "rule explanation that omits its rationale")]
-    public void RuleExplanationThatOmitsItsRationale()
+    [Fact(DisplayName = "rule explanation without a rationale section stays clean")]
+    public void RuleExplanationWithoutARationaleSectionStaysClean()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(folder.Path, RulePage, meta => meta["rationale"] = "The rule keeps every cancel inside the shipment window.");
@@ -265,7 +264,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             RuleExplanation,
             "# Cancel Before Shipment Only\n\nA customer cancels an order claim only before its shipment leaves.\n\n## Example\n\nAlex cancels an order while the shipment still waits at the shop.\n");
-        Assert.Contains("holds no Rationale section in its explanation", RunReview(folder.Path).Output, StringComparison.Ordinal);
+        AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>External system that omits its summary.</summary>
@@ -421,60 +420,60 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Page title outside Title Case.</summary>
+    /// <summary>Tutorial page title outside Title Case.</summary>
     /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
-    [Fact(DisplayName = "page title outside Title Case")]
-    public void PageTitleOutsideTitleCase()
+    [Fact(DisplayName = "tutorial page title outside Title Case")]
+    public void TutorialPageTitleOutsideTitleCase()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ActorExplanation, raw => ReplaceFirst(raw, "# Customer", "# customer"));
-        AssertReview(folder.Path, "H1 'customer' must use Title Case");
+        ConsumerFixture.MutateBody(folder.Path, TutorialPage, raw => ReplaceFirst(raw, "# Run It for the First Time", "# run it for the first time"));
+        AssertReview(folder.Path, "H1 'run it for the first time' must use Title Case");
     }
 
-    /// <summary>Section heading outside Title Case.</summary>
+    /// <summary>Tutorial section heading outside Title Case.</summary>
     /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
-    [Fact(DisplayName = "section heading outside Title Case")]
-    public void SectionHeadingOutsideTitleCase()
+    [Fact(DisplayName = "tutorial section heading outside Title Case")]
+    public void TutorialSectionHeadingOutsideTitleCase()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
+        ConsumerFixture.MutateBody(folder.Path, TutorialPage, raw => $"{raw}\n## known limits\n\nThe shop sets no other limits.\n");
         AssertReview(folder.Path, "H2 'known limits' must use Title Case");
     }
 
-    /// <summary>Small word capitalized in the middle.</summary>
+    /// <summary>Small word capitalized in the middle of a tutorial title.</summary>
     /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
-    [Fact(DisplayName = "small word capitalized in the middle")]
-    public void SmallWordCapitalizedInTheMiddle()
+    [Fact(DisplayName = "small word capitalized in the middle of a tutorial title")]
+    public void SmallWordCapitalizedInTheMiddleOfATutorialTitle()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ActorExplanation, raw => ReplaceFirst(raw, "# Customer", "# Customer Of The Shop"));
+        ConsumerFixture.MutateBody(folder.Path, TutorialPage, raw => ReplaceFirst(raw, "# Run It for the First Time", "# Run It For The First Time"));
         AssertReview(folder.Path, "must use Title Case");
     }
 
-    /// <summary>Page headings carry their line.</summary>
+    /// <summary>Document headings carry their line.</summary>
     /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
-    [Fact(DisplayName = "page headings carry their line")]
-    public void PageHeadingsCarryTheirLine()
+    [Fact(DisplayName = "document headings carry their line")]
+    public void DocumentHeadingsCarryTheirLine()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
+        ConsumerFixture.MutateBody(folder.Path, TutorialPage, raw => $"{raw}\n## known limits\n\nThe shop sets no other limits.\n");
         var problems = Problems(RunReview(folder.Path));
-        Assert.Contains(problems, problem => problem.Contains(".litespec/behavior/modules/orders/module.md:", StringComparison.Ordinal)
+        Assert.Contains(problems, problem => problem.Contains(".litespec/implementation/first-run.md:", StringComparison.Ordinal)
             && problem.Contains("[page-heading-invalid]", StringComparison.Ordinal));
         Assert.All(Problems(RunConsumer(folder.Path)), problem => Assert.DoesNotContain("[page-heading-invalid]", problem));
     }
 
-    /// <summary>Example longer than the bound.</summary>
+    /// <summary>Tutorial example longer than the bound.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "example longer than the bound")]
-    public void ExampleLongerThanTheBound()
+    [Fact(DisplayName = "tutorial example longer than the bound")]
+    public void TutorialExampleLongerThanTheBound()
     {
         using var folder = ConsumerFixture.Create();
         var longExample = string.Join(" ", Enumerable.Repeat("word", 121));
         ConsumerFixture.MutateBody(
             folder.Path,
-            RequirementExplanation,
-            raw => ReplaceFirst(raw, "Alex orders two books on Monday and pays one fee at checkout.", longExample));
+            TutorialPage,
+            raw => $"{raw}\n## Example\n\n{longExample}\n");
         AssertReview(folder.Path, "over the 120 word bound");
     }
 }

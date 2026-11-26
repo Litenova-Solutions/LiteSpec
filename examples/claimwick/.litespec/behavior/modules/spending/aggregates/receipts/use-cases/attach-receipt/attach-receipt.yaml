@@ -50,6 +50,13 @@ idempotency:
   key: "{receipt}"
   keyScope: account
   replay: returns-first-result
+audit:
+  level: required
+  category: monetary-action
+  target:
+  - expense
+  - receipt
+  targetKind: aggregate/spending.receipt
 steps:
 - statement: The employee sends the receipt for a submitted expense.
   cites:

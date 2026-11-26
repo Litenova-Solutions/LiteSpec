@@ -52,7 +52,8 @@ internal static class ProseReferenceChecks
             }
         }
 
-        foreach (var body in model.Bodies)
+        // Explanation files are for people and no check reads them; only standalone documents are checked.
+        foreach (var body in model.Bodies.Where(body => body.PageId is null))
         {
             CheckText(model, body.File, body.Body, body.BodyStartLine, body.PageId, findings);
         }

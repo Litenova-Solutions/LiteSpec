@@ -106,6 +106,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `carries` field.</summary>
     public const string Carries = "carries";
 
+    /// <summary>Gets the name of the `category` field.</summary>
+    public const string Category = "category";
+
     /// <summary>Gets the name of the `writes` field.</summary>
     public const string Writes = "writes";
 
@@ -182,6 +185,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `covers` field.</summary>
     public const string Covers = "covers";
+
+    /// <summary>Gets the name of the `created` field.</summary>
+    public const string Created = "created";
 
     /// <summary>Gets the name of the `cron` field.</summary>
     public const string Cron = "cron";
@@ -359,11 +365,17 @@ public static class RecordFields
     /// <summary>Gets the name of the `host` field.</summary>
     public const string Host = "host";
 
+    /// <summary>Gets the name of the `http` field.</summary>
+    public const string Http = "http";
+
     /// <summary>Gets the name of the `id` field.</summary>
     public const string Id = "id";
 
     /// <summary>Gets the name of the `identity` field: whether an aggregate part carries its own identity.</summary>
     public const string Identity = "identity";
+
+    /// <summary>Gets the name of the `identityInput` field: the use-case input carrying the caller identity.</summary>
+    public const string IdentityInput = "identityInput";
 
     /// <summary>Gets the name of the `idempotency` field.</summary>
     public const string Idempotency = "idempotency";
@@ -436,6 +448,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `measure` field.</summary>
     public const string Measure = "measure";
+
+    /// <summary>Gets the name of the `method` field.</summary>
+    public const string Method = "method";
 
     /// <summary>Gets the name of the `mode` field.</summary>
     public const string Mode = "mode";
@@ -532,6 +547,8 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `period` field.</summary>
     public const string Period = "period";
+    /// <summary>Gets the name of the `preconditions` field: the precondition rules the authorization evaluates.</summary>
+    public const string Preconditions = "preconditions";
     /// <summary>Gets the name of the `prerequisites` field.</summary>
     public const string Prerequisites = "prerequisites";
 
@@ -651,6 +668,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `runs` field.</summary>
     public const string Runs = "runs";
 
+    /// <summary>Gets the name of the `runsAs` field.</summary>
+    public const string RunsAs = "runsAs";
+
     /// <summary>Gets the name of the `runsOn` field.</summary>
     public const string RunsOn = "runsOn";
 
@@ -716,6 +736,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `steps` field.</summary>
     public const string Steps = "steps";
+
+    /// <summary>Gets the name of the `status` field.</summary>
+    public const string Status = "status";
 
     /// <summary>Gets the name of the `stimulus` field.</summary>
     public const string Stimulus = "stimulus";
@@ -894,8 +917,8 @@ public static class RecordFields
     /// <summary>Gets the name of the `recognizedBy` field.</summary>
     public const string RecognizedBy = "recognizedBy";
 
-    /// <summary>Gets the name of the `recentSignInLimit` field.</summary>
-    public const string RecentSignInLimit = "recentSignInLimit";
+    /// <summary>Gets the name of the `recentSignIn` field.</summary>
+    public const string RecentSignIn = "recentSignIn";
 
     /// <summary>Gets the name of the `deliveredThrough` field.</summary>
     public const string DeliveredThrough = "deliveredThrough";

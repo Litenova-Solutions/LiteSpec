@@ -104,9 +104,22 @@ public sealed class ModelCheckTests
     {
         using var fixture = ModelFixture.Prepare("large", code);
 
+        if (code == "link-unknown")
+        {
+            WriteStandaloneLink(fixture.Path);
+        }
+
         var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         Assert.Equal(1, result.Status);
         Assert.Contains(code, result.Output);
+    }
+
+    /// <summary>Writes a standalone document naming a file that exists nowhere, so the link check reports link-unknown.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteStandaloneLink(string root)
+    {
+        var path = Path.Combine(root, ".litespec", "shelf-plan-note.md");
+        File.WriteAllText(path, "# Shelf Plan Note\n\nThe [shelf plan](shelves/plan.md) places every copy.\n");
     }
 
     /// <summary>Every listed code has a row in the finding code table, which states the layer, trace and extension its claim gate reads.</summary>

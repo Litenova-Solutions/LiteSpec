@@ -216,6 +216,16 @@ public sealed partial class ConsumerValidatorTests
         Assert.DoesNotContain(problems, problem => problem.Contains("does not match the installed LiteSpec tool release", StringComparison.Ordinal));
     }
 
+    /// <summary>A dev-feed build of the installed release validates and is not drift.</summary>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
+    [Fact(DisplayName = "reviewed dev-feed build of the installed release")]
+    public void ReviewedDevFeedBuildOfTheInstalledRelease()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateProject(folder.Path, project => project["reviewedLiteSpecVersion"] = ConsumerFixture.ManifestVersion + "-dev.20261125215523");
+        AssertClean(RunConsumer(folder.Path));
+    }
+
     /// <summary>Extension the manifest does not ship.</summary>
     /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "extension the manifest does not ship")]

@@ -4,6 +4,7 @@ using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Model.Tests;
@@ -49,6 +50,15 @@ sealed partial class ProjectModel
     public IReadOnlySet<string> AppliedProvisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     /// <summary>Gets or sets what the backend source says: handlers, events and marked elements.</summary>
     public CodeFacts Code { get; set; } = new();
+
+    /// <summary>Gets or sets the compilation the backend read was built from, or null when the syntax-only path ran.</summary>
+    public BackendSemantics? BackendSemantics { get; set; }
+
+    /// <summary>Gets or sets why semantic mode was unavailable, or null when syntax was not a fallback.</summary>
+    public string? SemanticUnavailableReason { get; set; }
+
+    /// <summary>Gets which backend reader mode ran: semantic when a compilation was built, else syntax.</summary>
+    public string BackendReaderMode => BackendSemantics is null ? BackendSemantics.SyntaxMode : BackendSemantics.SemanticMode;
     /// <summary>Gets the route screens the frontend readers found.</summary>
     public List<CodeScreen> Screens { get; } = [];
     /// <summary>Gets the acceptance scenarios the test readers found.</summary>

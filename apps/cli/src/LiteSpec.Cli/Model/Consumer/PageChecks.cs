@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 /// <summary>
 ///     The page scan of the consumer validator: collects the record files and Markdown files,
 ///     validates each record file and each document's frontmatter against the record schema,
-///     and checks the explanation and document sections, headings, and the Example word bound.
+///     and checks the document sections, headings, and the Example word bound.
 /// </summary>
 /// <follows>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</follows>
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
@@ -110,8 +110,8 @@ static class PageChecks
 
     /// <summary>
     ///     Validates one record file: it parses, its type names a record rather than a
-    ///     document, it satisfies the record schema, and an article type keeps its
-    ///     explanation file beside it.
+    ///     document, and it satisfies the record schema. A Markdown file beside the
+    ///     record file is human-only and is never read.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     /// <param name="file">The record file as a full path.</param>
@@ -144,16 +144,14 @@ static class PageChecks
             add(new Finding("page-invalid", $"type '{type}' names a document; documents live in '.md' files", file, 1, subject));
         }
 
-        // The explanation file is required only on a layer the project lists in
-        // explanations.layers; no record type requires one on its own. (Model checks cover it.)
-
         return true;
     }
 
     /// <summary>
-    ///     Validates one Markdown file: an explanation file beside a record file carries no
-    ///     frontmatter, a document carries its page style in one, and anything else is an
-    ///     orphaned explanation. A README without either stays a document.
+    ///     Validates one Markdown file: a document carries its page style in a frontmatter
+    ///     block, and anything else without a record file beside it is an orphaned page.
+    ///     A Markdown file beside a record file is human-only and is never read. A README
+    ///     without a record file beside it stays a document.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     /// <param name="file">The Markdown file as a full path.</param>
@@ -163,7 +161,7 @@ static class PageChecks
     /// <returns>True when the file is a document.</returns>
     static bool CheckMarkdownFile(ConsumerRun run, string file, string relative, string raw, Action<Finding> add)
     {
-        // A project convention is provision-shaped Markdown that rules reads, not a document or an explanation.
+        // A project convention is provision-shaped Markdown that rules reads, not a document.
         if (ConventionFiles.InConventionsFolder(relative))
         {
             return false;
@@ -176,21 +174,9 @@ static class PageChecks
         var hasRecord = File.Exists(recordPath) && !recordPath.Equals(run.GlossaryFile, StringComparison.OrdinalIgnoreCase);
         var startsFence = StartsFence(raw);
 
-        if (hasRecord && !startsFence)
-        {
-            CheckExplanation(run, file, raw, add);
-            return false;
-        }
-
+        // A Markdown file beside a record file is human-only: no check reads it.
         if (hasRecord)
         {
-            add(new Finding(
-                "page-invalid",
-                $"explanation files carry no frontmatter block; the record lives in '{Path.GetFileName(recordPath)}'",
-                file,
-                1,
-                RecordId(run, recordPath)));
-            CheckExplanation(run, file, raw, add);
             return false;
         }
 
@@ -242,52 +228,6 @@ static class PageChecks
     }
 
     /// <summary>
-    ///     The id of a record file, or null when the file cannot be read as a record.
-    /// </summary>
-    /// <param name="run">The state of the run.</param>
-    /// <param name="recordPath">The record file.</param>
-    /// <returns>The record id, or null.</returns>
-    static string? RecordId(ConsumerRun run, string recordPath)
-    {
-        if (RecordFile.TryParse(run.ReadText(recordPath), out var root, out _, out _))
-        {
-            return JsonValues.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "id");
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    ///     Checks one explanation file: its headings, the sections its record type requires,
-    ///     and the Example word bound.
-    /// </summary>
-    /// <param name="run">The state of the run.</param>
-    /// <param name="file">The explanation file as a full path.</param>
-    /// <param name="raw">The file text.</param>
-    /// <param name="add">Collects one finding.</param>
-    static void CheckExplanation(ConsumerRun run, string file, string raw, Action<Finding> add)
-    {
-        // The paired record file names the explanation's required sections. The scan
-        // already reported a record file it cannot read, so this read stays quiet and
-        // checks the headings and the Example bound only.
-        string? type = null;
-        string? subject = null;
-
-        if (RecordFile.TryParse(run.ReadText(RecordFile.RecordPathOf(file)), out var root, out _, out _))
-        {
-            var meta = JsonNode.Parse(root.GetRawText()) as JsonObject;
-            type = JsonValues.PropString(meta, "type");
-            subject = JsonValues.PropString(meta, "id");
-        }
-
-        var lines = SplitLines(raw);
-        HeadingChecks.CheckHeadings(file, lines, subject, add);
-
-        string[] required = type is not null && RecordFile.ArticleTypes.Contains(type) ? [.. LiteSpec.Model.ExplanationSections.RequiredNames(type)] : [];
-        CheckSections(file, lines, type, subject, required, add);
-    }
-
-    /// <summary>
     ///     Checks one document's body: its headings, the sections its page style requires,
     ///     and the Example word bound.
     /// </summary>
@@ -310,7 +250,7 @@ static class PageChecks
     /// </summary>
     /// <param name="file">The page file as a full path.</param>
     /// <param name="lines">The text lines.</param>
-    /// <param name="type">The record type or page style, naming the required sections.</param>
+    /// <param name="type">The document page style, naming the required sections.</param>
     /// <param name="subject">The record id the findings are about, when there is one.</param>
     /// <param name="required">The required H2 section names.</param>
     /// <param name="add">Collects one finding.</param>

@@ -1,11 +1,12 @@
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.RecordEditing;
 
-/// <summary>Proves <c>litespec new</c> scaffolds every type it lists: the home, the identifier, one Title Case title, and the template's sections.</summary>
+/// <summary>Proves <c>litespec new</c> scaffolds every type it lists: the home, the identifier, one Title Case title, and for an article type the explanation with the template's sections.</summary>
 public sealed class NewEveryTypeTests
 {
-    /// <summary>Every type <c>new</c> lists writes its record at its home, with the identifier and the one title, and its explanation with the template's sections.</summary>
+    /// <summary>Every type <c>new</c> lists writes its record at its home, with the identifier and the one title; an article type also writes its explanation with the template's sections.</summary>
     /// <param name="type">The record type.</param>
     /// <param name="argument">The identifier argument, the home and name without the type.</param>
     /// <param name="file">The record file, relative to the .litespec folder.</param>
@@ -37,10 +38,10 @@ public sealed class NewEveryTypeTests
 
         var explanation = Path.ChangeExtension(record, ".md");
 
-        // The product stands above the record layers, so it takes no explanation file. A waiver sits on the governance layer, which this consumer lists, so it takes its explanation file like any listed type.
-        if (type is "product")
+        // Only an article type writes an explanation file beside its record; every other type stands alone in its YAML file.
+        if (!RecordFile.ArticleTypes.Contains(type))
         {
-            Assert.False(File.Exists(explanation), $"A {type} takes no explanation file.");
+            Assert.False(File.Exists(explanation), $"Expected no explanation file beside '{record}'.");
             return;
         }
 
@@ -99,14 +100,12 @@ public sealed class NewEveryTypeTests
         yield return ["waiver", "legacy-export", "governance/waivers/legacy-export/legacy-export.yaml", "Legacy Export", "waiver/legacy-export"];
     }
 
-    /// <summary>A consumer that lists every layer, so each type's explanation is written.</summary>
+    /// <summary>A consumer holding an empty project file.</summary>
     /// <returns>The temporary consumer folder holding the project file.</returns>
     static TempFolder Consumer()
     {
         var consumer = TestCli.Temp("new-every-type");
-        File.WriteAllText(
-            Path.Combine(consumer.Path, ".litespec/project.yaml"),
-            "{\"explanations\":{\"layers\":[\"intent\",\"behavior\",\"implementation\",\"governance\"]}}");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
         return consumer;
     }
 

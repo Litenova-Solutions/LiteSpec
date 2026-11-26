@@ -5,6 +5,10 @@ using Claimwick.Spending;
 using Claimwick.Travel;
 using Claimwick.Travel.Germany;
 using Claimwick.Travel.Netherlands;
+using Claimwick.WebApi;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 

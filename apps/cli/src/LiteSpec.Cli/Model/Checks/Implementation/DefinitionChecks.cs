@@ -183,7 +183,7 @@ internal static class DefinitionChecks
             }
         }
 
-        if (RecentSignInLimitOf(record) is not null && !text.Contains("RecentSignIn", StringComparison.Ordinal))
+        if (RecentSignInOf(record) is not null && !text.Contains("RecentSignIn", StringComparison.Ordinal))
         {
             findings.Add(new Finding(
                 "definition-drift",
@@ -486,12 +486,12 @@ internal static class DefinitionChecks
     /// <summary>The recent sign-in window the use case record states, or null when it states none.</summary>
     /// <param name="record">The use case record.</param>
     /// <returns>The setting id, or null.</returns>
-    private static string? RecentSignInLimitOf(Record record)
+    private static string? RecentSignInOf(Record record)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
             || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
             || access.ValueKind != JsonValueKind.Object
-            || !access.TryGetProperty("recentSignInLimit", out var window)
+            || !access.TryGetProperty(RecordFields.RecentSignIn, out var window)
             || window.ValueKind != JsonValueKind.String)
         {
             return null;

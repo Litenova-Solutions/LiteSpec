@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Files;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.ProseText;
@@ -231,42 +232,37 @@ internal static class ToolchainChecks
         while (waiting.Count > 0)
         {
             var folder = waiting.Pop();
-            string[] entries;
+            string[] folders;
+            string[] files;
 
             try
             {
-                entries = Directory.GetFileSystemEntries(folder);
+                folders = Directory.GetDirectories(folder);
+                files = Directory.GetFiles(folder);
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
                 continue;
             }
 
-            foreach (var entry in entries)
+            // Build output, installed packages and caches hold no project the consumer wrote,
+            // and walking them costs seconds on a large consumer.
+            foreach (var child in folders)
             {
-                bool folderEntry;
-
-                try
+                if (!SourceTree.SkippedFolders.Contains(Path.GetFileName(child)))
                 {
-                    folderEntry = Directory.Exists(entry);
+                    waiting.Push(child);
                 }
-                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-                {
-                    continue;
-                }
+            }
 
-                if (folderEntry)
-                {
-                    waiting.Push(entry);
-                    continue;
-                }
-
-                var name = Path.GetFileName(entry);
+            foreach (var file in files)
+            {
+                var name = Path.GetFileName(file);
 
                 if (name.Equals("Directory.Packages.props", StringComparison.OrdinalIgnoreCase)
                     || name.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return entry;
+                    yield return file;
                 }
             }
         }

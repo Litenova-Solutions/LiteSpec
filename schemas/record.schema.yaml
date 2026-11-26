@@ -569,10 +569,25 @@ $defs:
         x-read-back-as: grants
       tenant:
         $ref: '#/$defs/tenantScope'
-      recentSignInLimit:
-        $ref: '#/$defs/settingId'
+      recentSignIn:
+        anyOf:
+        - $ref: '#/$defs/isoDuration'
+        - $ref: '#/$defs/settingId'
         x-reads-as: is limited by
         x-read-back-as: limits
+      scope:
+        enum:
+        - self
+      identityInput:
+        $ref: '#/$defs/nonEmptyString'
+      preconditions:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/ruleId'
+        x-reads-as: is authorized under
+        x-read-back-as: authorizes
       runsAs:
         enum:
         - system
@@ -597,6 +612,18 @@ $defs:
         not:
           required:
           - runsAs
+    - if:
+        required:
+        - scope
+      then:
+        required:
+        - identityInput
+    - if:
+        required:
+        - identityInput
+      then:
+        required:
+        - scope
   freshnessValue:
     type: object
     additionalProperties: false
@@ -1258,7 +1285,65 @@ $defs:
         - required
         - optional
         - none
+      category:
+        description: The audit category the use case writes under, from the fixed category vocabulary.
+        enum:
+        - authentication
+        - authorization-denial
+        - grant-change
+        - monetary-action
+        - tenant-configuration
+        - personal-data-read
+        - bulk-export
+        - background-process-change
+      target:
+        description: The audited record as one input, a list of two or more inputs forming a composite target, or the output field carrying it when the handler determines it.
+        anyOf:
+        - $ref: '#/$defs/nonEmptyString'
+        - type: array
+          minItems: 2
+          uniqueItems: true
+          items:
+            $ref: '#/$defs/nonEmptyString'
+        - $ref: '#/$defs/auditTargetFromOutput'
       targetKind:
+        $ref: '#/$defs/nonEmptyString'
+    allOf:
+    - if:
+        required:
+        - level
+        properties:
+          level:
+            enum:
+            - required
+            - optional
+      then:
+        required:
+        - category
+    - if:
+        required:
+        - level
+        properties:
+          level:
+            const: none
+      then:
+        not:
+          anyOf:
+          - required:
+            - category
+          - required:
+            - target
+  auditTargetFromOutput:
+    description: The output field carrying the audited record when the handler determines the target.
+    type: object
+    additionalProperties: false
+    required:
+    - from
+    - field
+    properties:
+      from:
+        const: output
+      field:
         $ref: '#/$defs/nonEmptyString'
   auditExempt:
     type: object
@@ -1993,6 +2078,30 @@ $defs:
         $ref: '#/$defs/classification'
       dataClass:
         $ref: '#/$defs/nonEmptyString'
+  httpRoute:
+    description: The route template of the use case endpoint, path only with each route input as {name}.
+    type: string
+    pattern: '^/[^\s?#]*$'
+  httpObject:
+    type: object
+    additionalProperties: false
+    required:
+    - method
+    - route
+    properties:
+      method:
+        description: The HTTP method of the use case endpoint.
+        enum:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      route:
+        $ref: '#/$defs/httpRoute'
+      created:
+        description: The created-resource location template the endpoint answers with 201, with each parameter naming an output field. Absent when the command answers no created resource.
+        $ref: '#/$defs/httpRoute'
   useCaseInput:
     type: object
     additionalProperties: false
@@ -2164,6 +2273,33 @@ $defs:
         x-read-back-as: is used by
       meaning:
         $ref: '#/$defs/nonEmptyString'
+      status:
+        description: The HTTP status the refusal answers with when a use case reached through an api or browser entry point cites it. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 stays out.
+        type: integer
+        enum:
+        - 400
+        - 403
+        - 404
+        - 409
+        - 422
+        - 503
+      parameters:
+        description: The values the meaning varies by, each named in `meaning` as `{name}`; the generator writes a constructor taking them.
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - name
+          - meaning
+          properties:
+            name:
+              description: The parameter name, a C# identifier named in `meaning` as `{name}`.
+              type: string
+              pattern: '^[A-Za-z_][A-Za-z0-9_]*$'
+            meaning:
+              $ref: '#/$defs/nonEmptyString'
   recordsArray:
     type: array
     items:
@@ -3364,6 +3500,8 @@ $defs:
         $ref: '#/$defs/domainEventIdArray'
         x-reads-as: raises
         x-read-back-as: is raised by
+      http:
+        $ref: '#/$defs/httpObject'
       input:
         type: array
         items:
@@ -4524,8 +4662,8 @@ $defs:
         description: 'The path of an external pack file, relative to the consumer root, whose values this table copies. The file must exist.'
         $ref: '#/$defs/nonEmptyString'
       rows:
+        description: 'One entry per dated value. Empty while no variant has stated a value; the summary then states what rows the table will hold.'
         type: array
-        minItems: 1
         items:
           $ref: '#/$defs/referenceDataRow'
   refusalSetPage:

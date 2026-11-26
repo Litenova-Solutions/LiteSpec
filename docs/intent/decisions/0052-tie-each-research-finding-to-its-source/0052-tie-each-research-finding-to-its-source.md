@@ -32,7 +32,7 @@ The conclusion states in one sentence what the sources establish, with the condi
 
 ## Consequences
 
-`finding-source-missing` reports a Findings paragraph with no source link. It closes the gap that the three existing source checks leave open. Each source may carry `publishedOn`, the publication date the source states. The book shows it beside `readOn`.
+A reviewer checks that each Findings paragraph carries a source link. It closes the gap that the three existing source checks leave open. Each source may carry `publishedOn`, the publication date the source states. The book shows it beside `readOn`.
 
 `litespec/core/intent#state-each-research-finding-with-its-source` is required. Its review question asks whether a finding states an inference as a source statement, or drops a condition the source gives. Research records answer only their own question, and a finding that answers another question moves to another record.
 

@@ -94,23 +94,6 @@ properties:
       - behavior
       proof:
       - behavior
-  explanations:
-    description: The record layers whose every record file carries an explanation file. Each entry is intent, behavior or governance. A record file on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional.
-    type: object
-    additionalProperties: false
-    required:
-    - layers
-    properties:
-      layers:
-        type: array
-        minItems: 1
-        uniqueItems: true
-        items:
-          type: string
-          enum:
-          - intent
-          - behavior
-          - governance
   shape:
     description: 'The shape of this project: server for a project with a backend, client-only for a project with frontends and no backend. Defaults to server.'
     type: string
@@ -416,9 +399,9 @@ properties:
     type: string
     pattern: '^https?://.+/$'
   reviewedLiteSpecVersion:
-    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1.
+    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1; a dev-feed build names its timestamp suffix, such as 7.0.0-dev.20261125215523.
     type: string
-    pattern: '^\d+\.\d+\.\d+(-rc\.\d+)?$'
+    pattern: '^\d+\.\d+\.\d+(-(rc|dev)\.\d+)?$'
   paths:
     type: object
     additionalProperties: false
@@ -426,7 +409,7 @@ properties:
     - behaviorDocs
     properties:
       docs:
-        description: Root of the specification tree. Every Markdown file under it carries a metadata block.
+        description: Root of the specification tree. Every document under it carries a metadata block.
         $ref: '#/$defs/projectPath'
       glossary:
         description: The project glossary, validated against schemas/glossary.schema.yaml. Defaults to .litespec/glossary.yaml.

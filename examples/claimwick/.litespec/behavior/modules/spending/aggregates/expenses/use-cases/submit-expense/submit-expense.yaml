@@ -15,6 +15,10 @@ reachedThrough:
 - entry-point/claimwick-app
 raises:
 - domain-event/expense.submitted
+http:
+  method: POST
+  route: /api/expenses
+  created: /api/expenses/{expenseId}
 input:
 - name: expenseId
   meaning: The identifier the app mints for one submission attempt, so a retried request finds the same expense.
@@ -52,6 +56,11 @@ input:
   origin: verified-claim
   verifiedBy: entry-point/claimwick-app
   classification: personal
+output:
+- name: expenseId
+  meaning: The submitted expense.
+  type: id
+  identifies: aggregate/spending.expense
 writes:
 - aggregate/spending.expense
 reads:
@@ -67,6 +76,13 @@ idempotency:
   key: "{expenseId}"
   keyScope: account
   replay: returns-first-result
+audit:
+  level: required
+  category: monetary-action
+  target:
+    from: output
+    field: expenseId
+  targetKind: aggregate/spending.expense
 steps:
 - statement: The employee sends the amount, currency and receipt.
   cites:

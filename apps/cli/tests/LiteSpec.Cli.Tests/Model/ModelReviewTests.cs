@@ -15,14 +15,14 @@ public sealed class ModelReviewTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            ".litespec/intent/decisions/0001-launch/0001-launch.md",
-            raw => raw.Replace("## Context", "## Notes", StringComparison.Ordinal));
+            ".litespec/implementation/add-a-pack.md",
+            raw => raw.Replace("## Check", "## Notes", StringComparison.Ordinal));
 
         var result = TestCli.Run("model", "review", "--root", folder.Path);
 
         Assert.Equal(0, result.Status);
         Assert.Contains("[R] [page-section-missing]", result.Output, StringComparison.Ordinal);
-        Assert.Contains("requires an H2 'Context'", result.Output, StringComparison.Ordinal);
+        Assert.Contains("requires an H2 'Check'", result.Output, StringComparison.Ordinal);
         Assert.Contains("Findings by code:", result.Output, StringComparison.Ordinal);
         Assert.Contains("page-section-missing (level R)", result.Output, StringComparison.Ordinal);
         Assert.Contains("0 blocking, 0 covered.", result.Output, StringComparison.Ordinal);
@@ -54,8 +54,8 @@ public sealed class ModelReviewTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            ".litespec/intent/decisions/0001-launch/0001-launch.md",
-            raw => raw.Replace("## Context", "## Notes", StringComparison.Ordinal));
+            ".litespec/implementation/add-a-pack.md",
+            raw => raw.Replace("## Check", "## Notes", StringComparison.Ordinal));
 
         var check = TestCli.Run("model", "check", "--root", folder.Path);
 
@@ -75,8 +75,8 @@ public sealed class ModelReviewTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            ".litespec/intent/decisions/0001-launch/0001-launch.md",
-            raw => raw.Replace("## Context", "## Notes", StringComparison.Ordinal));
+            ".litespec/implementation/add-a-pack.md",
+            raw => raw.Replace("## Check", "## Notes", StringComparison.Ordinal));
 
         var result = TestCli.Run("model", "review", "--root", folder.Path, "--format", "json");
 

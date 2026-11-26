@@ -45,11 +45,22 @@ sealed class DotnetBackendReader : IBackendReader
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "ReadWithProblems is the reader entry point that consumers and tests call through a DotnetBackendReader instance; making it static would break those instance calls without changing behaviour.")]
     public BackendRead ReadWithProblems(ConsumerConfig config) => ReadWithProblems(config, onParsed: null);
 
+    /// <summary>
+    ///     Reads only the projects of one module: a parallel worker checks its own slice
+    ///     without failing on a sibling edit that left another module unparsable.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="module">The module name the read keeps.</param>
+    /// <returns>The code model of the module's projects and the reader problems.</returns>
+    public static BackendRead ReadForModule(ConsumerConfig config, string module) =>
+        ReadWithProblems(config, onParsed: null, onlyModule: module);
+
     /// <summary>Reads every configured source root, with its problems and a parse callback.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
+    /// <param name="onlyModule">The module the read is limited to, or null for every project.</param>
     /// <returns>The code model and the reader problems.</returns>
-    private static BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed)
+    private static BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed, string? onlyModule = null)
     {
         var model = new CodeFacts();
 
@@ -57,7 +68,18 @@ sealed class DotnetBackendReader : IBackendReader
 
         foreach (var root in SourceRoots.BackendRoots(config))
         {
+            if (onlyModule is not null && !ModuleRootKept(config, root, onlyModule))
+            {
+                continue;
+            }
+
             files.AddRange(SourceTree.Files(root, ".cs"));
+        }
+
+        if (onlyModule is not null)
+        {
+            // The single modules project holds every module, so its files are kept per file.
+            files.RemoveAll(file => !ModelOptions.BelongsToModule(config, file, onlyModule));
         }
 
         var (trees, problems) = SyntaxTreeCache.Parse(files, onParsed);
@@ -67,6 +89,7 @@ sealed class DotnetBackendReader : IBackendReader
         var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
         var holders = RepositoryImplementationReader.RepositoryHoldersOf(config, trees);
         var constants = ConstRefusalCodes.Collect(trees);
+        var (semantics, unavailableReason) = BackendSemantics.TryCreateWithReason(config, trees);
 
         var merged = new CodeFacts();
         var gate = new object();
@@ -78,7 +101,7 @@ sealed class DotnetBackendReader : IBackendReader
             {
                 if (trees.TryGetValue(file, out var tree))
                 {
-                    ReadFile(config, file, tree, local, context, qualified, helpers, aggregateRoots, holders, constants);
+                    ReadFile(config, file, tree, local, context, qualified, helpers, aggregateRoots, holders, constants, semantics);
                 }
 
                 return local;
@@ -174,7 +197,27 @@ sealed class DotnetBackendReader : IBackendReader
             return file != 0 ? file : left.Line.CompareTo(right.Line);
         });
 
-        return new BackendRead(model, problems);
+        return new BackendRead(model, problems, semantics, unavailableReason);
+    }
+
+    /// <summary>
+    ///     Whether the backend root holds the module's projects: a per-module project names
+    ///     the module, and the single modules project holds every module, so its files are
+    ///     kept per file. Any other root holds shared or host code, which a module read skips.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the module roots.</param>
+    /// <param name="root">The backend root.</param>
+    /// <param name="module">The module name the read keeps.</param>
+    /// <returns>True when the root holds the module's files.</returns>
+    static bool ModuleRootKept(ConsumerConfig config, string root, string module)
+    {
+        if (!config.ModulesRoots.Contains(root, StringComparer.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return SourceRoots.IsSingleModulesProject(root)
+            || (SourceRoots.ModuleNameOf(root) is { } name && ModelOptions.ModuleMatches(name, module));
     }
 
     /// <summary>Reads one file into the model: its elements, aggregate methods, audit actions, domain types, repository implementations, literals, and comments.</summary>
@@ -188,6 +231,7 @@ sealed class DotnetBackendReader : IBackendReader
     /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     private static void ReadFile(
         ConsumerConfig config,
         string file,
@@ -198,7 +242,8 @@ sealed class DotnetBackendReader : IBackendReader
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        IReadOnlyDictionary<string, string> constants)
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
@@ -213,7 +258,7 @@ sealed class DotnetBackendReader : IBackendReader
             .ToDictionary(method => method.Identifier.Span, method => method);
         var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified, project, layer);
 
-        ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified, constants);
+        ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified, constants, semantics);
         OutboxDecisionReader.ReadOutboxDecisions(file, tree, model);
         AggregateMethodReader.ReadAggregateMethods(file, tree, elements, types, model);
         AuditActionReader.ReadAuditActions(file, tree, classes, model);
@@ -263,6 +308,8 @@ sealed class DotnetBackendReader : IBackendReader
         // A declaring position holding a generated constant declares the value the
         // constant names, the same as a typed literal: without this the exception
         // reads as carrying nothing and the model falls back to its rule's code.
+        var semanticModel = semantics?.ModelFor(tree);
+
         foreach (var expression in RefusalLiterals.ConstantCandidates(root))
         {
             if (!RefusalLiterals.Declares(expression))
@@ -271,8 +318,10 @@ sealed class DotnetBackendReader : IBackendReader
             }
 
             var enclosing = RefusalLiterals.EnclosingClass(expression);
+            var code = ConstRefusalCodes.Resolve(expression, enclosing, constants)
+                ?? (semanticModel is not null ? ConstRefusalCodes.ResolveSemantic(semanticModel, expression) : null);
 
-            if (ConstRefusalCodes.Resolve(expression, enclosing, constants) is { } code)
+            if (code is not null)
             {
                 model.Literals.Add(new CodeLiteral(
                     code,

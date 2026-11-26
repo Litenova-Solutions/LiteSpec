@@ -2,6 +2,10 @@ using System.Security.Claims;
 using Claimwick.Platform.Http;
 using Claimwick.Spending.Application.Expenses.ListExpenses;
 using LiteBus.Queries.Abstractions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
 
 namespace Claimwick.Spending.WebApi.Expenses.ListExpenses;
 

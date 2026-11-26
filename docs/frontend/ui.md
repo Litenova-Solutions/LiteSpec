@@ -343,7 +343,7 @@ pageFrames:
 
 **Example:** The Claimwick payout desk shows each reversal row as plain rows inside the reversals section. The rows draw no card of their own, so the section stays the one surface.
 
-**Checked by:** `litespec model check` reports `wireframe-nesting-invalid` for a card that holds a card or a region, or a region that holds a card. `litespec ui audit` reports `surface-nesting-invalid` for a rendered surface inside another surface. Run the model check at the consumer root and the audit against the running frontend.
+**Checked by:** `litespec ui audit` reports `surface-nesting-invalid` for a rendered surface inside another surface. Run it against the running frontend.
 
 ### Draw Every Field on a Surface
 
@@ -359,7 +359,7 @@ pageFrames:
 
 **Example:** The Claimwick new-expense form holds its name, category and amount fields inside the expense section, so the three fields read as one group.
 
-**Checked by:** `litespec model check` reports `wireframe-surface-missing` for a field with no region, card, dialog or drawer ancestor. `litespec ui audit` reports `field-surface-missing` for a rendered field outside a section, dialog or side sheet. Run the model check at the consumer root and the audit against the running frontend.
+**Checked by:** `litespec ui audit` reports `field-surface-missing` for a rendered field outside a section, dialog or side sheet. Run it against the running frontend.
 
 ### Limit a Page to Three Stacked Sections
 
@@ -375,7 +375,7 @@ pageFrames:
 
 **Example:** The Claimwick trip record holds its expenses, budget and details as three stacked sections. When reversals join as a fourth facet, the page moves the facets behind tabs.
 
-**Checked by:** `litespec model check` reports `wireframe-tabs-missing` for a page with more top-level regions or cards than the section limit and no tabs or navigation child. Run it at the consumer root.
+**Reviewed for:** Does every page with more stacked sections than the project limit place the further facets behind tabs, a side navigation, a sheet, or its own route? Look at the built routes beside the section limit.
 
 ### Use Tabs Only for Peer Views
 
@@ -407,7 +407,7 @@ pageFrames:
 
 **Example:** The Claimwick new-trip form groups its seven fields into the trip, when and where, and budget sections instead of one long list.
 
-**Checked by:** `litespec model check` reports `wireframe-group-missing` for a form-frame wireframe with more fields than the field limit under fewer than two regions. Run it at the consumer root.
+**Reviewed for:** Does every form with more fields than the project field limit group them into labeled sections? Look at the built forms beside the field limit.
 
 ### Show One Primary Action per View
 
@@ -423,7 +423,7 @@ pageFrames:
 
 **Example:** The Claimwick expense record shows Message spender as its one primary action and names it in `primaryAction`. Resending and reversing stay secondary beside it.
 
-**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe with more than one primary action in the whole view, and `screen-primary-action-unknown` for a `primaryAction` naming no use case the screen offers. `litespec ui audit` reports `primary-action-duplicate` for two primary actions on one rendered view. Run the model check at the consumer root and the audit against the running frontend.
+**Checked by:** `litespec model check` reports `screen-primary-action-unknown` for a `primaryAction` naming no use case the screen offers. `litespec ui audit` reports `primary-action-duplicate` for two primary actions on one rendered view. Run the model check at the consumer root and the audit against the running frontend.
 
 ### Route a Busy Screen Through a Hub Frame
 

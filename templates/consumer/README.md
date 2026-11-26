@@ -144,7 +144,7 @@ An explanation file lives in the record's folder beside its record file, sharing
 | runbook | Prerequisites, Steps, Verification, Recovery |
 | waiver | Provision, Reason, Risk, Expiry |
 
-For an article type (research, decision) and for a type on a layer the project lists in `explanations.layers`, `litespec new` writes the explanation file from the template for its type, with the title filled in. The same setting decides which explanations `litespec model check` requires. An article type always needs one, and every other record needs one on a layer the project lists.
+`litespec new` writes the explanation file from the template for its type, with the title filled in, only for an article type (research, decision). Explanation files are optional and for people: each one restates its record beside the record file.
 
 ## Interface
 

@@ -8,7 +8,8 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The reference-data checks: every row value stays within its table's closed set, every cross-reference names a row key its table holds, every required role is played by a row, the rows leave no date uncovered, and the use cases computing one value agree on its sign.</summary>
+/// <summary>The reference-data checks: every row value stays within its table's closed set, every cross-reference names a row key its table holds, every required role is played by a row, the rows leave no date uncovered, each overlap finding names the shared range, and the use cases computing one value agree on its sign.</summary>
+/// <follows>litespec/core/domain-model#state-what-an-empty-table-will-hold</follows>
 /// <follows>litespec/core/domain-model#close-the-value-set-of-every-meaning-column</follows>
 /// <follows>litespec/backend/knowledge#name-a-role-not-a-row</follows>
 /// <follows>litespec/backend/knowledge#validate-reference-data-before-serving</follows>
@@ -195,6 +196,27 @@ internal static class ReferenceDataChecks
         }
     }
 
+    /// <summary>Reports a reference-data table with no rows yet that states no summary: the summary states what rows the table will hold.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunEmptySummary(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (RowsOf(table).Count == 0 && table.Field(RecordFields.Summary) is not { Length: > 0 })
+            {
+                findings.Add(new Finding(
+                    "record-invalid",
+                    $"Reference data '{table.Id}' holds no rows and states no summary; state in `summary` what rows the table will hold.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+        }
+    }
+
     /// <summary>Reports a reference-data table whose rows of one variant leave dates with no row in force, or cover no row on the date the cast declares as today. Each variant covers its own dates.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record and the cast.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -267,7 +289,122 @@ internal static class ReferenceDataChecks
                 }
             }
         }
+
+        RunOverlapRanges(model, findings);
     }
+
+    /// <summary>Reports each overlapping reference-data pair with the shared range both rows hold in force, open when neither row ends it. The finding carries the period finding's code, file, line and subject, so the merge keeps the ranged text for the pair.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record.</param>
+    /// <param name="findings">The list that receives each ranged overlap finding this check raises.</param>
+    internal static void RunOverlapRanges(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (table.Raw.ValueKind != JsonValueKind.Object
+                || !table.Raw.TryGetProperty(RecordFields.Rows, out var rows)
+                || rows.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            var spans = new List<(string From, string? To, int Index, string? Variant, string? Key, string? Role)>();
+            var index = 0;
+
+            foreach (var row in rows.EnumerateArray())
+            {
+                if (row.ValueKind == JsonValueKind.Object)
+                {
+                    spans.Add((Str(row, RecordFields.EffectiveFrom) ?? "", Str(row, RecordFields.EffectiveTo), index, Str(row, RecordFields.Variant), Str(row, RecordFields.Key), Str(row, RecordFields.Role)));
+                }
+
+                index++;
+            }
+
+            for (var left = 0; left < spans.Count; left++)
+            {
+                for (var right = left + 1; right < spans.Count; right++)
+                {
+                    // An inverted row already draws its own finding, so one defect draws one finding.
+                    if (InvertedSpan(spans[left]) || InvertedSpan(spans[right]))
+                    {
+                        continue;
+                    }
+
+                    // Rows of different variants run on their own timelines.
+                    if (!string.Equals(spans[left].Variant, spans[right].Variant, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    // Rows of different keys run on their own timelines, as do rows of
+                    // different roles when rows carry no key: each key, or each role, is
+                    // looked up on its own dates.
+                    if (!string.Equals(RowTimeline(spans[left]), RowTimeline(spans[right]), StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (OverlapSpan(spans[left], spans[right]))
+                    {
+                        var whose = spans[left].Variant is { } variant ? $" of variant '{variant}'" : "";
+
+                        findings.Add(new Finding(
+                            "reference-data-period-invalid",
+                            $"Reference data '{table.Id}' holds rows {spans[left].Index} and {spans[right].Index}{whose} overlapping{OverlapSpanText(spans[left], spans[right])}.",
+                            table.File,
+                            table.Line,
+                            SubjectOf(table)));
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>The overlap two effective periods share as finding text: the shared range, open when neither period ends it, or no range when a start is missing.</summary>
+    /// <param name="left">The first period.</param>
+    /// <param name="right">The second period.</param>
+    /// <returns>The overlap text opening with a space, naming the shared range.</returns>
+    private static string OverlapSpanText((string From, string? To, int Index, string? Variant, string? Key, string? Role) left, (string From, string? To, int Index, string? Variant, string? Key, string? Role) right)
+    {
+        var start = string.Compare(left.From, right.From, StringComparison.Ordinal) >= 0 ? left.From : right.From;
+
+        if (start.Length == 0)
+        {
+            return " in time";
+        }
+
+        var end = (left.To, right.To) switch
+        {
+            (null, null) => null,
+            (null, { } only) => only,
+            ({ } only, null) => only,
+            ({ } first, { } second) => string.Compare(first, second, StringComparison.Ordinal) <= 0 ? first : second,
+        };
+
+        return end is null ? $" in time from '{start}' on" : $" in time from '{start}' to '{end}'";
+    }
+
+    /// <summary>Whether a period ends no later than it starts: an end date on or before its start date.</summary>
+    /// <param name="span">The period.</param>
+    /// <returns>True when the period carries an end no later than its start.</returns>
+    private static bool InvertedSpan((string From, string? To, int Index, string? Variant, string? Key, string? Role) span) =>
+        span.To is not null && string.Compare(span.To, span.From, StringComparison.Ordinal) <= 0;
+
+    /// <summary>Whether two effective periods overlap: each starts before the other ends, with a missing end open. Dates compare as ISO text.</summary>
+    /// <param name="left">The first period.</param>
+    /// <param name="right">The second period.</param>
+    /// <returns>True when the periods overlap.</returns>
+    private static bool OverlapSpan((string From, string? To, int Index, string? Variant, string? Key, string? Role) left, (string From, string? To, int Index, string? Variant, string? Key, string? Role) right) =>
+        (right.To is null || string.Compare(left.From, right.To, StringComparison.Ordinal) < 0)
+        && (left.To is null || string.Compare(right.From, left.To, StringComparison.Ordinal) < 0);
+
+    /// <summary>The timeline a row runs on: its key, or its role when the row carries no key.</summary>
+    /// <param name="span">The period.</param>
+    /// <returns>The row key, or the row role when the row carries no key.</returns>
+    private static string? RowTimeline((string From, string? To, int Index, string? Variant, string? Key, string? Role) span) =>
+        span.Key ?? span.Role;
 
     /// <summary>Reports amount fields one calculation rule computes whose sign conventions differ or are missing.</summary>
     /// <param name="model">The loaded project model that holds every use case and rule.</param>
@@ -519,30 +656,18 @@ internal static class ReferenceDataChecks
     private static string Show(JsonElement value) =>
         value.ValueKind == JsonValueKind.String ? $"'{value.GetString()}'" : value.GetRawText();
 
-    /// <summary>Reports a row key outside kebab-case and a key two rows of one table share.</summary>
+    /// <summary>Reports a row key outside kebab-case. One key repeats across disjoint spans to hold the dated history; the period check reports the spans of one key that overlap.</summary>
     /// <param name="table">The reference-data record whose row keys are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRowKeys(Record table, List<Finding> findings)
     {
-        var seen = new Dictionary<string, int>(StringComparer.Ordinal);
         var index = 0;
 
         foreach (var row in RowsOf(table))
         {
-            if (Str(row, RecordFields.Key) is { } key)
+            if (Str(row, RecordFields.Key) is { } key && !KebabName.IsMatch(key))
             {
-                if (!KebabName.IsMatch(key))
-                {
-                    findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds row {index} with key '{key}' outside lowercase kebab-case.", table.File, table.Line, SubjectOf(table)));
-                }
-                else if (seen.TryGetValue(key, out var first))
-                {
-                    findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds key '{key}' on rows {first} and {index}.", table.File, table.Line, SubjectOf(table)));
-                }
-                else
-                {
-                    seen.Add(key, index);
-                }
+                findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds row {index} with key '{key}' outside lowercase kebab-case.", table.File, table.Line, SubjectOf(table)));
             }
 
             index++;

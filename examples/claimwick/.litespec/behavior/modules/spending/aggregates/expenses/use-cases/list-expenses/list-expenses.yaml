@@ -7,6 +7,8 @@ kind: query
 access:
   grant: permission/list-expenses
   tenant: own
+  scope: self
+  identityInput: employee
 serves:
 - step/submit-and-reimburse.watch-expenses
 fulfills:
@@ -14,6 +16,9 @@ fulfills:
 reachedThrough:
 - entry-point/claimwick-app
 raises: []
+http:
+  method: GET
+  route: /api/expenses
 input:
 - name: employee
   meaning: The signed-in employee listing their expenses, read from verified claims.

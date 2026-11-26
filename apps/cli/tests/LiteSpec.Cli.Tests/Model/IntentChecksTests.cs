@@ -156,9 +156,9 @@ public sealed class IntentChecksTests
     public void UndefinedCapitalizedPhraseAdvises()
     {
         using var fixture = ModelFixture.Prepare("large");
-        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/librarian/librarian.md", "# Librarian\n\nDesign Partners meet at the desk each month.\n");
-        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/reader/reader.md", "# Reader\n\nDesign Partners borrow first each season.\n");
-        TestRecords.Explain(fixture.Path, ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.md", "# Overdue Loans Pile Up\n\nDesign Partners report lost due dates at the desk.\n");
+        AppendSummary(fixture.Path, ".litespec/intent/actors/librarian/librarian.yaml", "Design Partners meet at the desk each month.");
+        AppendSummary(fixture.Path, ".litespec/intent/actors/reader/reader.yaml", "Design Partners borrow first each season.");
+        AppendSummary(fixture.Path, ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.yaml", "Design Partners report lost due dates at the desk.");
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
@@ -189,4 +189,15 @@ public sealed class IntentChecksTests
     /// <param name="record">The mutated record fields.</param>
     static void Restamp(string root, string relative, JsonObject record) =>
         File.WriteAllText(Path.Combine(root, relative), RecordFile.Write(record));
+
+    /// <summary>Appends one sentence to the summary of a fixture record.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="relative">The record file path under the fixture folder.</param>
+    /// <param name="sentence">The sentence to append to the summary.</param>
+    static void AppendSummary(string root, string relative, string sentence)
+    {
+        var record = ReadRecord(root, relative);
+        record["summary"] = record["summary"]!.GetValue<string>() + " " + sentence;
+        Restamp(root, relative, record);
+    }
 }

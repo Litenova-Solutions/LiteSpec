@@ -9,14 +9,14 @@ requiredRoles:
 variation: country
 rows:
 - value: 28
-  key: de-full-day-2025
+  key: de-full-day
   role: full-day
   variant: germany
   effectiveFrom: 2025-01-01
   effectiveTo: 2025-12-31
   source: decision/0003-travel-rates
 - value: 30
-  key: de-full-day-2026
+  key: de-full-day
   role: full-day
   variant: germany
   effectiveFrom: 2026-01-01

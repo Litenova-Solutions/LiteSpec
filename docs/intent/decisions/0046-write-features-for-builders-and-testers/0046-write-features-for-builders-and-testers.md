@@ -30,7 +30,7 @@ An explanation describes only behavior the requirements state. Every record name
 
 ## Consequences
 
-`explanation-missing` reports a feature explanation without Boundaries. Five new provisions on the intent page and one on the writing page state the rules, and the literal-words provision also refuses loose verbs. A requirement title names the specific behavior or fact it requires.
+A reviewer checks a feature explanation for Boundaries. Five new provisions on the intent page and one on the writing page state the rules, and the literal-words provision also refuses loose verbs. A requirement title names the specific behavior or fact it requires.
 
 The feature template and the Claimwick approval feature follow the new sections. Each consumer adds Boundaries to its feature explanations, as the changelog's upgrade step describes.
 

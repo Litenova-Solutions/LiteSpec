@@ -390,18 +390,13 @@ The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-fram
 - Decisions 0109, Module Contracts Publish Data, and 0110, Module Dependencies Form a DAG, record why, with the sources: Enterprise Integration Patterns, NServiceBus on commands and events, message ownership, orchestrated sagas, and Spring Modulith's dependency verification.
 - An event type ends in the suffix of its kind: `DomainEvent` for a domain event in `Domain/`, `ModuleEvent` for a module event in Contracts, and `IntegrationEvent` for an integration event in Contracts. A bare `Event` suffix or no suffix is reported by the new analyzer rule LS2031, and reaction handlers keep `{Act}On{Fact}Handler` with the fact stem only.
 
-### Part AO: Explanations on Every Listed Layer
+### Part AP: LiteBus 8.0.0-preview.8 Binding
 
-- A layer listed in `explanations.layers` requires an explanation file for every record on it, requirements included; the exemption for requirements is removed, and `litespec new requirement` writes the explanation from `templates/consumer/requirement.md`.
-- `governance` is a valid entry in `explanations.layers`, so a project can require an explanation for each decision, convention and waiver.
-
-### Part AP: LiteBus 8.0.0-preview.3 Binding
-
-- Every `LiteBus.*` package is pinned at `8.0.0-preview.3`. The manifest adds `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions`, `LiteBus.Auditing.Storage.Marten` and `LiteBus.Extensions.AspNetCore`, which carry the audit chain and the ASP.NET Core problem details.
+- Every `LiteBus.*` package is pinned at `8.0.0-preview.8`. The manifest adds `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions`, `LiteBus.Auditing.Storage.Marten` and `LiteBus.Extensions.AspNetCore`, which carry the audit chain and the ASP.NET Core problem details.
 - Domain events reach the outbox by harvesting: `outbox.HarvestDomainEvents(...)` names the aggregate root base, the Marten harvester is registered on the storage builder, and each domain event type takes one decision (`TranslateDomainEvent`, `IgnoreDomainEvent`) with `RequireDomainEventDecision()`. Hand collection stays for a deletion by predicate or by id, a carrier type that is never stored, and an event raised outside an aggregate.
 - The authorization guard derives from `AuthorizationGuard<TMessage>`, the audit chain is configured through `AddAuditing` with `UseMartenStore` and `UseHashChain`, and problem responses map through `AddLiteBusExceptionHandler` and `IRefusalProblemCatalog`.
 - The nested-command rule turns on with `litebus_forbid_nested_commands`, which enables `LB1023`.
-- The audit trail guide uses the preview.3 audit definitions, the `MessageErrorContext` error handler signature and the preview.3 documentation link.
+- The audit trail guide uses the preview.8 audit definitions, the `MessageErrorContext` error handler signature and the preview.8 documentation link.
 
 ### Part AQ: Reactions Filed with the Sending Module
 
@@ -573,6 +568,20 @@ Checks now compare code with the record field by field, generated code replaces 
 - The analyzers treat a knowledge model as its own layer: it may reference dependency injection, logging and options for its composition and startup validation, and LS1005 does not apply there, while the domain value rules still do. Only an assembly under `Knowledge/` that references its model counts as a knowledge set, so LS2038 no longer reports third-party packages.
 - New agent provisions: `litespec/core/agent#raise-a-spec-gap-instead-of-bending-the-code`, `litespec/core/agent#check-your-own-change-before-handing-it-back` and `litespec/core/agent#follow-the-record-not-the-neighbour`, and for maintainers `litespec/core/maintaining#model-a-reported-spec-gap-before-more-code`.
 
+### Part BF: Explanation Files for People, Fast Checks, and the Semantic Reader
+
+- No check reads a record's explanation file. Model check no longer reports `explanation-orphaned`, `explanation-missing`, `explanation-section-unbacked`, `explanation-opening-missing`, `explanation-section-unknown`, `source-link-bare`, `source-unused`, `finding-source-missing`, `source-links-missing` or `source-links-drift`; link and prose-reference checks read standalone documents only. Explanation files stay optional and are written for people.
+- The `explanations` block leaves `.litespec/project.yaml`, and `litespec new` writes an explanation file only for article record types.
+- The ASCII wireframe parser is gone, with `wireframe-invalid`, `wireframe-nesting-invalid`, `wireframe-surface-missing`, `wireframe-tabs-missing` and `wireframe-group-missing`. Page frames, primary actions, reachability, wording aliases and refusal sentences are still checked from the screen record.
+- `model check --only-paths <paths...>` reports only findings on the named paths and the records under them, so parallel writers check their own slice. `--module <module>` also limits the backend read to that module's projects.
+- The .NET backend reader builds a compilation from the parsed sources with framework and package references and resolves types, constants and callees semantically; it falls back to syntax when no build output exists, and `LITESPEC_BACKEND_READER` forces either mode. `model check` prints the mode it used.
+- `rules --since` reads each record file once per run and reuses it for every changed file, with the same output.
+- `model check` runs faster on large consumers: the cast check indexes citations once, the duplicate-logic check parses files in parallel, and the toolchain check skips build and package folders.
+- Records state `status` on a refusal entry, `category` and `target` in `audit` (with `audit-target-missing`, `audit-target-unknown` and `audit-target-kind-drift`), `recentSignIn` as an ISO 8601 duration or a setting in `access` (replacing `recentSignInLimit`), `scope: self` with `identityInput`, `preconditions`, and `method`, `route` and `created` in `http`.
+- Reference data may repeat a key whose rows cover disjoint date spans, and a table may hold no rows when its `summary` states what it will hold.
+- `reviewedLiteSpecVersion` accepts a development-feed version (`-dev.N`). A push to `release/*` publishes the CLI and analyzers to GitHub Packages, and `litespec-maintain publish-local --from-ci <run>` pins a consumer to that build.
+- The test suite compiles the whole Claimwick backend.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:
@@ -589,13 +598,13 @@ Provisions whose rule changed take the identifier their heading derives:
 - Every provision of `litespec/core/departures` moves to `litespec/core/waivers` with "departure" read as "waiver", `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure` is now `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`, and `litespec/core/departures#depart-from-advice-without-a-record` is now `litespec/core/waivers#deviate-from-advice-without-a-record`.
 - `litespec/core/writing#interpret-fields-in-explanations-never-restate-them` is now `litespec/core/writing#explain-the-same-specification-the-records-state`.
 - `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` is now `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`.
-- `litespec/core/access#require-a-recent-sign-in-by-setting` is now `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`.
+- `litespec/core/access#require-a-recent-sign-in-by-setting` is now `litespec/core/access#limit-the-age-of-a-sign-in`.
 - `litespec/core/edges#give-every-screen-an-address-or-a-host` is now `litespec/core/edges#give-every-screen-a-route-or-a-host`.
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (347):
+Added (350):
 
 - `litespec/backend/api#map-every-failure-to-its-declared-status`
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
@@ -692,8 +701,10 @@ Added (347):
 - `litespec/core/access#describe-every-served-content-entry-with-its-serving-fields`
 - `litespec/core/access#evaluate-access-in-one-order`
 - `litespec/core/access#keep-permission-sets-to-entries`
-- `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
+- `litespec/core/access#limit-the-age-of-a-sign-in`
 - `litespec/core/access#model-a-hosted-sign-in-as-use-cases`
+- `litespec/core/access#name-every-authorization-precondition`
+- `litespec/core/access#name-the-caller-identity-of-a-self-scope`
 - `litespec/core/agent#check-your-own-change-before-handing-it-back`
 - `litespec/core/agent#exercise-changed-use-cases-through-the-running-stack`
 - `litespec/core/agent#follow-the-record-not-the-neighbour`
@@ -742,6 +753,7 @@ Added (347):
 - `litespec/core/domain-model#state-each-rules-source`
 - `litespec/core/domain-model#state-one-condition-per-rule`
 - `litespec/core/domain-model#state-the-sign-of-every-amount`
+- `litespec/core/domain-model#state-what-an-empty-table-will-hold`
 - `litespec/core/domain-model#state-what-each-rule-governs`
 - `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`
 - `litespec/core/edges#give-every-screen-a-route-or-a-host`

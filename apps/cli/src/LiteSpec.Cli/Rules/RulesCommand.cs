@@ -98,7 +98,8 @@ static class RulesCommand
             var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
             var conventions = ConventionFiles.Load(config);
             var waivers = WaiverFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-            var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context);
+            var index = ProvisionRecordIndex.Load(config);
+            var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context, index);
             IReadOnlyList<RulesDecided.DecidedDecision> decided = context.IsCodePath ? RulesDecided.LoadDecisions(config, context) : [];
 
             Print(config, home, context, results, parsed.Has("--full"), parsed.Has("--all"), config.Layers, decided);
@@ -120,6 +121,7 @@ static class RulesCommand
         var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
         var conventions = ConventionFiles.Load(config);
         var waivers = WaiverFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var index = ProvisionRecordIndex.Load(config);
         var (files, error) = RulesSince.ChangedFiles(config.Root, sinceRef);
 
         if (files is null)
@@ -147,7 +149,7 @@ static class RulesCommand
 
             queried++;
 
-            foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context))
+            foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context, index))
             {
                 if (match.IsChecked)
                 {

@@ -6,12 +6,12 @@ using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, explanations and documents, and code and test comments. Backticked identifiers in record fields, explanations and documents belong to the prose check, and link targets there belong to the link check.</summary>
+/// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields and code and test comments. Backticked identifiers in record fields belong to the prose check, and link targets there belong to the link check.</summary>
 /// <follows>litespec/core/language#resolve-every-identifier-citation</follows>
 internal static class CitationChecks
 {
     /// <summary>Reports a citation resolving to no record.</summary>
-    /// <param name="model">The loaded project model that holds every record, explanation, document and scanned comment.</param>
+    /// <param name="model">The loaded project model that holds every record and scanned comment.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
@@ -69,26 +69,22 @@ internal static class CitationChecks
             }
         }
 
-        var texts = new List<(string File, string Text, int StartLine, string? Subject, bool IsComment)>(model.Bodies.Count);
-
-        foreach (var body in model.Bodies)
-        {
-            texts.Add((body.File, body.Body, body.BodyStartLine, body.PageId, false));
-        }
+        var texts = new List<(string File, string Text, int StartLine)>(
+            model.Code.Comments.Count + model.ScreenComments.Count + model.TestComments.Count);
 
         foreach (var comment in model.Code.Comments)
         {
-            texts.Add((comment.File, comment.Text, comment.Line, null, true));
+            texts.Add((comment.File, comment.Text, comment.Line));
         }
 
         foreach (var comment in model.ScreenComments)
         {
-            texts.Add((comment.File, comment.Text, comment.Line, null, true));
+            texts.Add((comment.File, comment.Text, comment.Line));
         }
 
         foreach (var comment in model.TestComments)
         {
-            texts.Add((comment.File, comment.Text, comment.Line, null, true));
+            texts.Add((comment.File, comment.Text, comment.Line));
         }
 
         var found = new List<Finding>();
@@ -98,7 +94,7 @@ internal static class CitationChecks
             () => new List<Finding>(),
             (text, _, local) =>
             {
-                CheckTextCitations(model, text.File, text.Text, text.StartLine, text.Subject, text.IsComment, local);
+                CheckTextCitations(model, text.File, text.Text, text.StartLine, local);
 
                 return local;
             },
@@ -113,21 +109,17 @@ internal static class CitationChecks
         findings.AddRange(found);
     }
 
-    /// <summary>Reports each citation in one text that resolves to no record or shared provision.</summary>
+    /// <summary>Reports each citation in one comment that resolves to no record or shared provision.</summary>
     /// <param name="model">The loaded project model that resolves each cited identifier.</param>
-    /// <param name="file">The file that holds the text, shown on each finding.</param>
-    /// <param name="text">The explanation, document or comment text whose citations are checked.</param>
-    /// <param name="startLine">The one-based line of the first line of the text in its file.</param>
-    /// <param name="subject">The record the text belongs to, or null for code and test comments.</param>
-    /// <param name="isComment">Whether the text is a code or test comment, which only this check reads.</param>
+    /// <param name="file">The file that holds the comment, shown on each finding.</param>
+    /// <param name="text">The code or test comment text whose citations are checked.</param>
+    /// <param name="startLine">The one-based line of the comment in its file.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTextCitations(
         ProjectModel model,
         string file,
         string text,
         int startLine,
-        string? subject,
-        bool isComment,
         List<Finding> findings)
     {
         var cited = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -151,45 +143,27 @@ internal static class CitationChecks
             }
         }
 
-        if (isComment)
-        {
-            // A comment is read only here, so every link target and citation in
-            // it is collected as written.
-            CollectLinkTargets(text, starts, startLine, cited, oldForm);
+        // A comment is read only here, so every link target and citation in
+        // it is collected as written.
+        CollectLinkTargets(text, starts, startLine, cited, oldForm);
 
-            var commentProse = LinkTarget.Replace(text, match => "](" + new string(' ', match.Length - 3) + ")");
+        var commentProse = LinkTarget.Replace(text, match => "](" + new string(' ', match.Length - 3) + ")");
 
-            Collect(Identifiers.Citation.Matches(commentProse), Identifiers.TrimCitation);
-            Collect(Identifiers.SharedCitation().Matches(commentProse), value => value);
-            CollectOldForm(OldStepCitation.Matches(commentProse));
-        }
-        else
-        {
-            // An explanation or document is read by the link and prose checks as
-            // well: fenced examples and generated regions are skipped, link
-            // targets belong to the link check, and backticked identifiers belong
-            // to the prose check, so only bare citations are collected here.
-            // Each blanking keeps every offset in place.
-            var prose = ProseReferenceChecks.WithoutFencesAndRegions(text);
-            prose = LinkTarget.Replace(prose, match => "](" + new string(' ', match.Length - 3) + ")");
-            prose = WithoutInlineCode(prose);
-
-            Collect(Identifiers.Citation.Matches(prose), Identifiers.TrimCitation);
-            Collect(Identifiers.SharedCitation().Matches(prose), value => value);
-            CollectOldForm(OldStepCitation.Matches(prose));
-        }
+        Collect(Identifiers.Citation.Matches(commentProse), Identifiers.TrimCitation);
+        Collect(Identifiers.SharedCitation().Matches(commentProse), value => value);
+        CollectOldForm(OldStepCitation.Matches(commentProse));
 
         foreach (var entry in cited.OrderBy(left => left.Value).ThenBy(left => left.Key, StringComparer.Ordinal))
         {
             if (!Resolves(model, entry.Key))
             {
-                findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' resolves to no record.", file, entry.Value, subject));
+                findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' resolves to no record.", file, entry.Value, null));
             }
         }
 
         foreach (var entry in oldForm.OrderBy(left => left.Value).ThenBy(left => left.Key, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' names a step in the old flow/name#step form; cite the step id instead.", file, entry.Value, subject));
+            findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' names a step in the old flow/name#step form; cite the step id instead.", file, entry.Value, null));
         }
     }
 

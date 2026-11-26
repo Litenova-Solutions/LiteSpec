@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Checks.Intent;
 
 /// <summary>
 ///     The cast checks: a person's address sits on a reserved test domain, every cast entry is
-///     cited by a record, an explanation or a seeds mark, and every seeds mark names a cast entry.
+///     cited by a record or a seeds mark, and every seeds mark names a cast entry.
 /// </summary>
 /// <follows>litespec/core/writing#keep-the-cast-out-of-production-code</follows>
 /// <follows>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</follows>
@@ -24,7 +24,7 @@ internal static class CastChecks
     private static readonly string[] ReservedSuffixes = [".example", ".test", ".invalid", ".localhost"];
 
     /// <summary>Runs every cast check.</summary>
-    /// <param name="model">The loaded project model that holds every record, explanation and seeds mark.</param>
+    /// <param name="model">The loaded project model that holds every record and seeds mark.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
@@ -67,8 +67,8 @@ internal static class CastChecks
         }
     }
 
-    /// <summary>Reports each cast entry that no record field, explanation file or seeds mark cites.</summary>
-    /// <param name="model">The loaded project model that holds every record, explanation and seeds mark.</param>
+    /// <summary>Reports each cast entry that no record field or seeds mark cites.</summary>
+    /// <param name="model">The loaded project model that holds every record and seeds mark.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckEntriesUsed(ProjectModel model, List<Finding> findings)
     {
@@ -81,20 +81,20 @@ internal static class CastChecks
             return;
         }
 
-        var cast = model.Records.FirstOrDefault(record => record.Type == RecordTypes.Cast);
         var sources = Sources(model);
+        var citers = CitersById(sources);
         var seeded = new HashSet<string>(model.Code.Seeds.Select(mark => mark.RecordId), StringComparer.Ordinal);
 
         foreach (var entry in entries)
         {
-            if (seeded.Contains(entry.Id) || CitedBy(entry, sources) || NamedBy(entry, sources, cast?.Id ?? ""))
+            if (seeded.Contains(entry.Id) || CitedBy(entry, citers) || NamedBy(entry, sources))
             {
                 continue;
             }
 
             findings.Add(new Finding(
                 "cast-entry-unused",
-                $"Cast entry '{entry.Id}' is cited by no record, explanation file or code mark.",
+                $"Cast entry '{entry.Id}' is cited by no record or code mark.",
                 entry.File, entry.Line, SubjectOf(entry)));
         }
     }
@@ -104,11 +104,39 @@ internal static class CastChecks
     ///     so a title that repeats the identifier proves no use.
     /// </summary>
     /// <param name="entry">The cast entry under test.</param>
-    /// <param name="sources">The texts each owner wrote, as owner id and text.</param>
+    /// <param name="citers">The owners citing each identifier, from <see cref="CitersById" />.</param>
     /// <returns>True when a source other than the entry's own cites its identifier; otherwise false.</returns>
-    private static bool CitedBy(Record entry, IReadOnlyList<(string Owner, string Text)> sources) =>
-        sources.Any(source => source.Owner != entry.Id
-            && Identifiers.Citation.Matches(source.Text).Any(match => Identifiers.TrimCitation(match.Value) == entry.Id));
+    private static bool CitedBy(Record entry, Dictionary<string, HashSet<string>> citers) =>
+        citers.TryGetValue(entry.Id, out var owners) && owners.Any(owner => owner != entry.Id);
+
+    /// <summary>
+    ///     Reads every citation in the sources once: each cited identifier with the owners whose text cites it,
+    ///     so each cast entry looks its citers up instead of scanning every text again.
+    /// </summary>
+    /// <param name="sources">The texts each owner wrote, as owner id and text.</param>
+    /// <returns>The owners citing each identifier.</returns>
+    private static Dictionary<string, HashSet<string>> CitersById(IReadOnlyList<(string Owner, string Text)> sources)
+    {
+        var citers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var (owner, text) in sources)
+        {
+            foreach (Match match in Identifiers.Citation.Matches(text))
+            {
+                var id = Identifiers.TrimCitation(match.Value);
+
+                if (!citers.TryGetValue(id, out var owners))
+                {
+                    owners = new HashSet<string>(StringComparer.Ordinal);
+                    citers[id] = owners;
+                }
+
+                owners.Add(owner);
+            }
+        }
+
+        return citers;
+    }
 
     /// <summary>
     ///     Whether a person or party is named by its exact name in a source written by another record:
@@ -116,9 +144,8 @@ internal static class CastChecks
     /// </summary>
     /// <param name="entry">The cast entry under test.</param>
     /// <param name="sources">The texts each owner wrote, as owner id and text.</param>
-    /// <param name="castId">The identifier of the cast page, whose explanation names every entry and so proves no name.</param>
-    /// <returns>True when a source other than the entry's own and the cast's explanation names it; otherwise false.</returns>
-    private static bool NamedBy(Record entry, IReadOnlyList<(string Owner, string Text)> sources, string castId)
+    /// <returns>True when a source other than the entry's own names it; otherwise false.</returns>
+    private static bool NamedBy(Record entry, IReadOnlyList<(string Owner, string Text)> sources)
     {
         if (entry.Type is not (RecordTypes.Person or RecordTypes.Party) || entry.Field(RecordFields.Name) is not { Length: > 0 } name)
         {
@@ -127,16 +154,17 @@ internal static class CastChecks
 
         var word = new Regex($@"(?<![\p{{L}}\p{{N}}]){Regex.Escape(name)}(?![\p{{L}}\p{{N}}])", RegexOptions.CultureInvariant);
 
-        return sources.Any(source => source.Owner != entry.Id && source.Owner != castId && word.IsMatch(source.Text));
+        // The substring test is cheap and rules out almost every text before the word match runs.
+        return sources.Any(source => source.Owner != entry.Id
+            && source.Text.Contains(name, StringComparison.Ordinal)
+            && word.IsMatch(source.Text));
     }
 
     /// <summary>
-    ///     Every text a record, explanation or document writes, each with its owner: a record's
-    ///     field values except its identity, and each explanation or document body. The cast's own
-    ///     record does not count. The cast's explanation counts for identifiers, since a cited
-    ///     identifier is a deliberate use, but its names prove no use, because it names every entry.
+    ///     Every text a record writes, each with its owner: a record's field values
+    ///     except its identity. The cast's own record does not count.
     /// </summary>
-    /// <param name="model">The loaded project model that holds every record and body.</param>
+    /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The owner and text of each source.</returns>
     private static List<(string Owner, string Text)> Sources(ProjectModel model)
     {
@@ -162,11 +190,6 @@ internal static class CastChecks
             }
 
             sources.AddRange(texts.Select(text => (record.Id, text)));
-        }
-
-        foreach (var body in model.Bodies)
-        {
-            sources.Add((body.PageId ?? body.File, body.Body));
         }
 
         return sources;

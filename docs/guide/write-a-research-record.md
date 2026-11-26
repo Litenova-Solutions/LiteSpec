@@ -109,7 +109,7 @@ State an inference of your own as one:
 This suggests that five business days is a defensible target for Claimwick, but the study does not state how many companies it covers [industry study][example-expense-study].
 ```
 
-`model check` reports `finding-source-missing` for a Findings paragraph with no source link. The tool cannot tell a stated claim from an inference, so the wording has to carry that difference, and a reviewer checks it against the source.
+Each Findings paragraph carries a source link. The tool cannot tell a stated claim from an inference, so the wording has to carry that difference, and a reviewer checks it against the source.
 
 ### Keep the Conditions When You Shorten
 
@@ -167,10 +167,10 @@ Run `litespec model render` from the consumer root. It appends a generated `sour
 
 With those definitions in place, each `[text][name]` citation resolves in a plain Markdown preview. The region is generated, so never edit inside it by hand: a hand edit is drift.
 
-The [Model](../tools/model.md) command page states what `render` writes. `model check` reports `source-links-missing` when the region is absent and `source-links-drift` when it differs from the sources.
+The [Model](../tools/model.md) command page states what `render` writes. Keep the generated region equal to what `render` writes from the sources.
 
 ## Check
 
-- `litespec model check` exits `0` from the consumer root with no finding on the research record or its explanation file. It reports `reference-unknown` for a name the record does not declare, `source-link-bare` for a bare URL, and `source-unused` for a source no paragraph cites.
+- `litespec model check` exits `0` from the consumer root with no finding on the research record. It reports `reference-unknown` for a name the record does not declare.
 - `litespec rules <path to the research record>` lists the judgment provisions above, and you have answered each one.
 - A reader who has never met you can say which claims the sources state, which are your inferences, what the sources leave open, and what each source covers.

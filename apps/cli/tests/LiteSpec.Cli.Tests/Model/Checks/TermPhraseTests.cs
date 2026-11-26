@@ -258,11 +258,7 @@ public sealed class TermPhraseTests
     public void ProductRecordPhraseIsStillReported()
     {
         using var fixture = ModelFixture.Prepare("large");
-        ExplainShared(fixture.Path, """
-            # Record
-
-            The library follows the Public Lending Charter for every loan.
-            """);
+        WritePhraseActors(fixture.Path, "charter", "The library follows the Public Lending Charter for every loan.");
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
@@ -370,16 +366,37 @@ public sealed class TermPhraseTests
     public void RepeatedTermIsStillReported()
     {
         using var fixture = ModelFixture.Prepare("large");
-        ExplainShared(fixture.Path, """
-            # Record
-
-            The team reviews Archive Annex each quarter.
-            """);
+        WritePhraseActors(fixture.Path, "annex", "The team reviews Archive Annex each quarter.");
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
         Assert.Contains("term-missing", result.Output);
         Assert.Contains("'Archive Annex'", result.Output);
+    }
+
+    /// <summary>Writes three actor records carrying the same summary sentence, so the phrase it names counts as repeated product vocabulary.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="stem">The actor name stem keeping the three records distinct.</param>
+    /// <param name="sentence">The summary sentence each record carries.</param>
+    static void WritePhraseActors(string root, string stem, string sentence)
+    {
+        foreach (var name in new[] { $"{stem}-one", $"{stem}-two", $"{stem}-three" })
+        {
+            TestRecords.Write(
+                root,
+                $".litespec/intent/actors/{name}.yaml",
+                $$"""
+                {
+                  "type": "actor",
+                  "id": "actor/{{name}}",
+                  "title": "Assistant {{name}}",
+                  "summary": "{{sentence}}",
+                  "kind": "person",
+                  "belongsToTeam": false,
+                  "holds": ["role/librarian"]
+                }
+                """);
+        }
     }
 
     /// <summary>Writes the same explanation body to the three shared records.</summary>

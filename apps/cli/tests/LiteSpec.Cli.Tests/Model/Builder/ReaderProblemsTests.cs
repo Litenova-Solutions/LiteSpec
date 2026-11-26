@@ -120,24 +120,6 @@ public sealed class ReaderProblemsTests
             found => found.Path.EndsWith("README.md", StringComparison.Ordinal));
     }
 
-    /// <summary>An explanation file with no record file beside it reports explanation-orphaned at line 1.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void OrphanedExplanationReportsExplanationOrphaned()
-    {
-        using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ".litespec/behavior/stray-note.md", "# Stray note\n\nNo record file stands beside this file.\n");
-
-        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
-        var finding = Assert.Single(
-            Checker.Check(model).Findings,
-            found => found.Code == "explanation-orphaned" && found.Path.EndsWith("stray-note.md", StringComparison.Ordinal));
-
-        Assert.Equal(1, finding.Line);
-        Assert.Contains("stray-note.md", finding.Message);
-        Assert.Contains("stands beside no record file", finding.Message);
-    }
-
     /// <summary>A declared stack root that does not exist reports reader-missing naming the declared root.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]

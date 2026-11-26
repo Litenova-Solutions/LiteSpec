@@ -361,11 +361,9 @@ static class NewCommand
         var filled = RecordScaffold.LineFor(templateFile) + "\n" + RecordFile.Write(node);
         string? explanation = null;
 
-        // An article type, and a type on a layer the project lists, gets the explanation template for its own
-        // type, with the title filled in, so the record starts with its fixed sections.
-        if (RecordFile.ArticleTypes.Contains(type)
-            || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-                && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal)))
+        // An article type gets the explanation template for its own type, with the title filled in, so the
+        // record starts with its fixed sections. Every other record type stands alone in its YAML file.
+        if (RecordFile.ArticleTypes.Contains(type))
         {
             if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {

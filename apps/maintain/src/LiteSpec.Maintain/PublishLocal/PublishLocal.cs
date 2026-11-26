@@ -57,6 +57,41 @@ static class PublishLocal
     internal static string DevVersion(string baseVersion, DateTime stampUtc) =>
         $"{baseVersion}-dev.{stampUtc.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture)}";
 
+    /// <summary>The dev version CI publishes for a release-branch run: the release with a <c>-dev</c> run suffix.</summary>
+    /// <param name="baseVersion">The manifest release, such as 7.0.0.</param>
+    /// <param name="run">The CI run number, such as 42.</param>
+    /// <returns>The dev version, such as 7.0.0-dev.42.</returns>
+    internal static string CiDevVersion(string baseVersion, string run) =>
+        $"{baseVersion}-dev.{run}";
+
+    /// <summary>Whether a <c>--from-ci</c> value names a CI run: a positive whole number.</summary>
+    /// <param name="value">The option value.</param>
+    /// <returns>True when the value holds ASCII digits naming a number above zero; otherwise false.</returns>
+    internal static bool IsRunNumber(string value)
+    {
+        if (value.Length == 0)
+        {
+            return false;
+        }
+
+        var nonzero = false;
+
+        foreach (var digit in value)
+        {
+            if (!char.IsAsciiDigit(digit))
+            {
+                return false;
+            }
+
+            if (digit != '0')
+            {
+                nonzero = true;
+            }
+        }
+
+        return nonzero;
+    }
+
     /// <summary>The feed value the NuGet config carries: relative to the consumer when the feed sits under it, else absolute.</summary>
     /// <param name="feed">The absolute feed folder.</param>
     /// <param name="consumer">The absolute consumer folder holding the NuGet config.</param>

@@ -9,14 +9,15 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 internal static class LinkChecks
 {
     /// <summary>Reports link-unknown for a file target that exists nowhere, and reference-unknown for a record target no record holds.</summary>
-    /// <param name="model">The loaded project model that holds every explanation and document text and every record.</param>
+    /// <param name="model">The loaded project model that holds every document text and every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var found = new System.Collections.Concurrent.ConcurrentBag<Finding>();
         var byId = model.ById;
 
-        Parallel.ForEach(model.Bodies, body =>
+        // Explanation files are for people and no check reads them; only standalone documents are checked.
+        Parallel.ForEach(model.Bodies.Where(body => body.PageId is null), body =>
         {
             var text = WithoutCode(body.Body);
             var starts = LineStarts(text);

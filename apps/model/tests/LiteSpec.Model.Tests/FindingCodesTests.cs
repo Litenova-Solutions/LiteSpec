@@ -116,10 +116,8 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("explanation-missing", "R")]
     [InlineData("format-drift", "G")]
     [InlineData("rule-statement-wide", "R")]
-    [InlineData("source-link-bare", "G")]
     public void NewYamlCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
@@ -129,8 +127,6 @@ public sealed class FindingCodesTests
     /// <param name="code">The finding code under test.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("explanation-orphaned")]
-    [InlineData("source-unused")]
     [InlineData("link-direction-invalid")]
     public void YamlLinkCodesAreGeneral(string code)
     {

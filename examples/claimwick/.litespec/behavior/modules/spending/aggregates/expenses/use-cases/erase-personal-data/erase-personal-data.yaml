@@ -29,6 +29,8 @@ idempotency:
   reason: the first call deletes the expense, so a repeat finds nothing to erase
   replay: acts-again
   recognizedBy: the aggregate state already holds the outcome this command sets
+audit:
+  exemptBecause: Erasure keeps the business facts for the tax file and trails nothing personal.
 steps:
 - statement: Finance names one decided expense.
   cites:

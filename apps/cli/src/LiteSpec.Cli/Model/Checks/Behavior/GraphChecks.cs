@@ -493,7 +493,7 @@ internal static class GraphChecks
     /// </summary>
     /// <param name="model">The loaded project model that holds every use case, result and rule.</param>
     /// <returns>Each use case identifier with the rule identifiers it applies.</returns>
-    private static Dictionary<string, HashSet<string>> AppliedByUseCase(ProjectModel model)
+    internal static Dictionary<string, HashSet<string>> AppliedByUseCase(ProjectModel model)
     {
         var refusing = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 

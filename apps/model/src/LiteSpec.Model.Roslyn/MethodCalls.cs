@@ -38,13 +38,16 @@ public static class MethodCalls
 
     /// <summary>
     ///     Reads the methods the class calls on other types, in source order, without duplicates.
-    ///     A call whose receiver type the file never states reads nothing here.
+    ///     With a semantic model each called type resolves through the invoked symbol, so a call
+    ///     on a value the file never names a type for still reads its type; without one a call
+    ///     whose receiver type the file never states reads nothing here.
     /// </summary>
     /// <param name="declared">The class declaration to read.</param>
     /// <param name="aggregateRoots">The simple names of the known aggregate roots.</param>
+    /// <param name="semanticModel">The semantic model of the declaration, or null to guess receivers from syntax.</param>
     /// <returns>The called types with their methods, in source order, without duplicates.</returns>
     /// <exception cref="ArgumentNullException">The declaration or the aggregate roots are null.</exception>
-    public static IReadOnlyList<TypeCall> OfClass(TypeDeclarationSyntax declared, ISet<string> aggregateRoots)
+    public static IReadOnlyList<TypeCall> OfClass(TypeDeclarationSyntax declared, ISet<string> aggregateRoots, SemanticModel? semanticModel = null)
     {
         if (declared is null)
         {
@@ -59,6 +62,7 @@ public static class MethodCalls
         var receivers = ReceiverTypes(declared);
         var found = new List<TypeCall>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
+        var self = semanticModel?.GetDeclaredSymbol(declared) as INamedTypeSymbol;
 
         foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
@@ -68,6 +72,16 @@ public static class MethodCalls
             }
 
             var method = member.Name.Identifier.ValueText;
+
+            if (semanticModel is not null && SemanticCallee(semanticModel, invocation, declared, self, out var resolved))
+            {
+                if (resolved is not null && seen.Add(resolved + "." + method))
+                {
+                    found.Add(new TypeCall(resolved, method));
+                }
+
+                continue;
+            }
 
             if (CalleeOf(invocation, member, declared, receivers, aggregateRoots) is not string type)
             {
@@ -81,6 +95,45 @@ public static class MethodCalls
         }
 
         return found;
+    }
+
+    /// <summary>
+    ///     Whether the invocation resolves through its symbol: true with the containing type name,
+    ///     true with null for a call onto the class itself, and false when the symbol names no
+    ///     type, so the call falls back to the syntax guess.
+    /// </summary>
+    /// <param name="semanticModel">The semantic model of the declaration.</param>
+    /// <param name="invocation">The invocation.</param>
+    /// <param name="declared">The class declaration holding the invocation.</param>
+    /// <param name="self">The declared class symbol, or null when it resolves to none.</param>
+    /// <param name="type">The simple name of the called type, or null for a call onto the class itself.</param>
+    /// <returns>True when the symbol decided the call; otherwise false.</returns>
+    private static bool SemanticCallee(SemanticModel semanticModel, InvocationExpressionSyntax invocation, TypeDeclarationSyntax declared, INamedTypeSymbol? self, out string? type)
+    {
+        type = null;
+
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method
+            || method.ContainingType is not { } containing
+            || containing.Name.Length == 0)
+        {
+            return false;
+        }
+
+        if (self is not null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(containing, self))
+            {
+                return true;
+            }
+        }
+        else if (containing.Name == declared.Identifier.ValueText)
+        {
+            return true;
+        }
+
+        type = containing.Name;
+
+        return true;
     }
 
     /// <summary>The called type of one invocation, or null when it calls the class itself or names no type.</summary>

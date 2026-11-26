@@ -34,7 +34,7 @@ A problem title names the failure or its consequence, never a theme or a feature
 
 ## Consequences
 
-`explanation-missing` reports a problem explanation without the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision asks for the burden of the workaround and keeps time, money and risk apart.
+A reviewer checks a problem explanation for the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision asks for the burden of the workaround and keeps time, money and risk apart.
 
 The provision that lists the sections takes the heading Explain Every Problem in Its Fixed Sections, and its ID follows the heading.
 

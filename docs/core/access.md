@@ -41,7 +41,7 @@ A permission allows exactly the use cases whose `access` grant names it. No perm
 
 ### What the Access Field Declares
 
-Each use case declares `access` in three parts: the grant the call must satisfy, the tenant reach the call has, and, when the operation needs a fresh sign-in, the window in `recentSignInLimit`. A use case that system triggers run beside person callers states the identity it runs as in `runsAs`. The entry point the call arrives through declares `authentication`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
+Each use case declares `access` in two required parts and four optional ones: the grant the call must satisfy, the tenant reach the call has, and, when they apply, the sign-in window in `recentSignIn`, the caller-only scope in `scope` with its `identityInput`, the authorization preconditions in `preconditions`, and the system identity in `runsAs`. A use case that system triggers run beside person callers states the identity it runs as in `runsAs`. The entry point the call arrives through declares `authentication`, how the caller proves identity. The entry point authenticates, and the use case authorizes.
 
 The `authentication` list on an entry point names one or more of `session`, `token`, `device`, `link`, `app`, or `none`.
 
@@ -53,19 +53,21 @@ The `grant` on a use case takes one of five forms:
 - `anonymous`, for an open call.
 - `system`, for work an internal trigger runs with no outside caller.
 
-The `recentSignInLimit` field names a `setting/` identifier holding the sign-in window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use cases](use-cases.md) page states the use-case fields around access.
+The `recentSignIn` field states the sign-in window as an ISO 8601 duration, or names a `setting/` identifier holding the window; a call whose sign-in is older ends in the derived sign-in-too-old result. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use cases](use-cases.md) page states the use-case fields around access.
+
+A use case acting only on the record that identifies the caller states `scope: self` with the verified-claim input carrying the caller identity in `identityInput`, so the guard compares the target with that input instead of each handler comparing it. A use case whose authorization evaluates behavior rules names them in `preconditions`, each a precondition rule the use case also cites; a failing condition refuses the call with the rule's refusal before the behavior runs.
 
 A use case that person callers and system triggers both run states `runsAs: system` beside its person grant: the grant covers the people, and `runsAs` admits the system identity beside them. A use case granted `system` or `anonymous` already admits the system, so it states no `runsAs`.
 
 ### Refusals That Need No Written Result
 
-Some refusals follow from access and input rules, so they need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result. A call without the grant ends in the derived forbidden result. A call whose sign-in is older than the `recentSignInLimit` window ends in the derived sign-in-too-old result. A call with input that breaks its rules ends in the derived invalid input result.
+Some refusals follow from access and input rules, so they need no written result. A call with no authentication where one is needed ends in the derived unauthenticated result. A call without the grant ends in the derived forbidden result. A call whose sign-in is older than the `recentSignIn` window ends in the derived sign-in-too-old result. A call with input that breaks its rules ends in the derived invalid input result.
 
 [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not on each role.
 
 ### Tenant Reach of a Call
 
-`own` keeps the call inside the caller tenant. `cross` reaches across tenants. `public` opens it beyond tenant boundaries. `none` states the call touches no tenant data. A call that reads or writes another tenant's data names the widest reach it needs, and the pull request that changes it is its review.
+`own` keeps the call inside the caller tenant. `cross` reaches across tenants. `public` opens it beyond tenant boundaries. `none` states the call touches no tenant data. A call that reads or writes another tenant's data names the widest reach it needs, and the pull request that changes it is its review. The reach bounds which data the call may touch; it does not change the authorization policy name. The tenancy extension enforces the scoping the reach states.
 
 ### Entitlements
 
@@ -269,23 +271,23 @@ System never authorizes an outside request, and a call with no authentication wh
 
 **Checked by:** `litespec model check` reports `system-access-missing` for a reaction or job that runs, commands, or queries a use case whose access admits no system identity, and `record-invalid` for `runsAs` beside a `system` or `anonymous` grant.
 
-### Limit the Age of a Sign-In by a Setting
+### Limit the Age of a Sign-In
 
-**ID:** `litespec/core/access#limit-the-age-of-a-sign-in-by-a-setting`
+**ID:** `litespec/core/access#limit-the-age-of-a-sign-in`
 
 **Strength:** required
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** A use case that requires a recent sign-in MUST name the window in `recentSignInLimit` with a `setting/` identifier.
+**Statement:** A use case that requires a recent sign-in MUST state the window in `recentSignIn` as an ISO 8601 duration or a `setting/` identifier.
 
-**Rationale:** Some operations need a fresh sign-in: changing a sign-in method or approving a large payout on a week-old session is not the same as doing it just after signing in. The window is a product decision, so it lives in a setting that states its range and setter, and every use case that needs it names the same setting instead of typing its own duration.
+**Rationale:** Some operations need a fresh sign-in: changing a sign-in method or approving a large payout on a week-old session is not the same as doing it just after signing in. A window one use case needs is stated beside it as a duration. A window several use cases share lives in a setting that states its range and setter, and every use case that needs it names the same setting instead of typing its own duration.
 
 A call whose sign-in is older than the window ends in the derived sign-in-too-old result. Settled by [decision/0074-declare-access-settings-and-deadlines](decision/0074-declare-access-settings-and-deadlines).
 
-**Example:** Claimwick payout approval above the threshold names `setting/spending.sign-in-window` in `recentSignInLimit`; a session older than the window ends in the derived sign-in-too-old result.
+**Example:** Claimwick reimbursement states `recentSignIn: PT15M`; a session older than fifteen minutes ends in the derived sign-in-too-old result. A payout approval sharing the product window names `setting/spending.sign-in-window` instead and names the setting in `reads`, as `litespec/core/use-cases#name-the-settings-each-use-case-reads` states.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a `recentSignInLimit` that names no `setting/` identifier and `reference-unknown` for a setting no record defines.
+**Checked by:** `litespec model check` reports `record-invalid` for a `recentSignIn` that is neither an ISO 8601 duration nor a `setting/` identifier, or that names a setting of another value type, and `reference-unknown` for a setting no record defines.
 
 ### Remove a Target That Must Be the Caller
 
@@ -320,6 +322,38 @@ Where the target must stay on the message, a self grant states the scope beside 
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a tenant scope outside own, cross, public, and none.
+
+### Name the Caller Identity of a Self Scope
+
+**ID:** `litespec/core/access#name-the-caller-identity-of-a-self-scope`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** A use case declaring `scope: self` MUST name its caller-identity input in `identityInput`, with `origin: verified-claim` identifying an actor.
+
+**Rationale:** A scope without its identity input leaves the guard guessing which value is the caller: each handler compares its own field with the verified identity, and each comparison is authorization logic sitting in a handler. Naming the verified input beside the scope gives the guard the one value to compare the target with.
+
+**Example:** Claimwick list-expenses declares `scope: self` with `identityInput: employee`, and its employee input carries `origin: verified-claim` identifying `actor/employee`. A call lists only that employee's own expenses.
+
+**Checked by:** `litespec model check` reports `record-invalid` for `scope` without `identityInput` or `identityInput` without `scope`, for an identity input naming no input or carrying another origin, and for an identity input identifying no actor, and `reference-unknown` for an identity input whose `identifies` names no record.
+
+### Name Every Authorization Precondition
+
+**ID:** `litespec/core/access#name-every-authorization-precondition`
+
+**Strength:** required
+
+**Applies to:** artifact: record:use-case
+
+**Statement:** Each `preconditions` entry MUST name a rule of kind `precondition` that the use case also cites.
+
+**Rationale:** An authorization condition the behavior does not state lives in prose beside the definition: each definition restates it, and the copies drift from the behavior they guard. Naming a precondition rule the use case already cites keeps one rule with one refusal, evaluated by authorization before the behavior runs and by the behavior itself.
+
+**Example:** Claimwick approve-expense names `rule/expense.approver-is-not-submitter` in `preconditions`. The rule is kind `precondition`, the use case cites it in its steps, and a call the rule refuses ends in the rule's refusal.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a precondition of another rule kind or one the use case cites nowhere in its steps, inputs, or results, and `reference-unknown` for a precondition no rule holds.
 
 ### Evaluate Access in One Order
 

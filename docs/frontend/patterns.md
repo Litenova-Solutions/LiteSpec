@@ -355,7 +355,7 @@ page
     action primary "Message spender"
 ```
 
-**Checked by:** `litespec model check` reports `wireframe-invalid` for a wireframe block the wireframe language rejects, also for an action that names no use case the screen offers, through its target after `->` or through its label without one (a local action such as Cancel, Clear or Show more takes no target, and a link names no use case), and for a refusal whose sentence matches no written or derived refusal result, and `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `wording-alias` for a wireframe, result sentence or label that uses a glossary alias where the term exists. Run it at the consumer root.
 
 ## Conventions
 

@@ -24,7 +24,7 @@ Each explanation file opens with its H1 and one paragraph of prose, before the f
 
 ## Consequences
 
-The checks read the new lists. `explanation-missing` reports a missing section, and it also reports sections that come out of order. The new `explanation-opening-missing` finding reports an explanation with no paragraph before its first section.
+The checks read the new lists. A reviewer checks that every section is present and in order. A reviewer also checks that a paragraph comes before the first section.
 
 `litespec new` writes the template for every type that has one, with the title filled in. The generic explanation template is removed, because every type now has its own.
 

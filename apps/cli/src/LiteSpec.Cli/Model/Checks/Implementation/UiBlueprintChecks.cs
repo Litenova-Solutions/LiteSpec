@@ -10,15 +10,13 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>
-///     The screen blueprint checks: a screen's wireframe block parses in the wireframe language and keeps
-///     its composition rules, its actions, states and refusals name what the screen reaches, every screen
-///     with a route names its page frame and a busy screen follows a hub frame, the primary action names
-///     an offered use case, every screen is led to or starts its entry point, no screen ends with nothing
-///     done, interface text uses glossary terms rather than their aliases, every refusal a screen can
-///     reach carries its sentence, and every written refusal carries its sentence in each language its
-///     entry points declare beside the default.
+///     The screen blueprint checks: every screen with a route names its page frame and a busy
+///     screen follows a hub frame, the primary action names an offered use case, every screen
+///     is led to or starts its entry point, no screen ends with nothing done, interface text
+///     uses glossary terms rather than their aliases, every refusal a screen can reach carries
+///     its sentence, and every written refusal carries its sentence in each language its entry
+///     points declare beside the default.
 /// </summary>
-/// <follows>litespec/frontend/patterns#draw-each-screen-as-a-wireframe-before-it-is-built</follows>
 /// <follows>litespec/frontend/ui#link-each-screen-to-its-next-screens</follows>
 /// <follows>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</follows>
 /// <follows>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</follows>
@@ -33,37 +31,23 @@ internal static class UiBlueprintChecks
     /// <summary>The field carrying the other spellings of a glossary term.</summary>
     private const string AliasesField = "aliases";
 
-    /// <summary>The runs of whitespace in copy compared word for word.</summary>
-    private static readonly Regex SpaceRuns = new(@"\s+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-    /// <summary>A quoted string in a wireframe block, with backslash escapes.</summary>
-    private static readonly Regex QuotedCopy = new("\"(?<copy>(?:[^\"\\\\]|\\\\.)*)\"", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
     /// <summary>The page-frame patterns a busy screen follows: home, settings home, queue or list.</summary>
     private static readonly HashSet<string> HubFrames = new(StringComparer.Ordinal)
     {
         "home-page", "settings-home", "queue", "list-page",
     };
 
-    /// <summary>The page frames exempt from the offer limit: a record page offers the commands its states permit, one primary at a time, and the wireframe rules keep it from stacking a form per command.</summary>
+    /// <summary>The page frames exempt from the offer limit: a record page offers the commands its states permit, one primary at a time.</summary>
     private static readonly HashSet<string> RecordFrames = new(StringComparer.Ordinal)
     {
         "record-page",
     };
 
-    /// <summary>The wireframe actions that need no use case: they dismiss, page, or clear local state.</summary>
-    private static readonly HashSet<string> LocalActions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "Cancel", "Close", "Back", "Clear", "Skip", "Show more",
-    };
-
-    /// <summary>Reports wireframe-invalid, the wireframe composition codes, screen-pageframe-missing, screen-pageframe-invalid, screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
+    /// <summary>Reports screen-pageframe-missing, screen-pageframe-invalid, screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        CheckWireframes(model, findings);
-        CheckWireframeReferences(model, findings);
         CheckScreenFrames(model, findings);
         CheckPrimaryActions(model, findings);
         CheckUnreachable(model, findings);
@@ -71,278 +55,6 @@ internal static class UiBlueprintChecks
         CheckWordingAliases(model, findings);
         CheckRefusalSentences(model, findings);
         CheckSentenceLanguages(model, findings);
-    }
-
-    /// <summary>Reports each screen whose explanation holds no wireframe block, more than one, an unclosed one, or a block the wireframe language rejects.</summary>
-    /// <param name="model">The loaded project model that holds every screen.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckWireframes(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
-        {
-            if (screen.ExplanationFile is null || screen.Explanation is null)
-            {
-                continue;
-            }
-
-            var blocks = WireframeBlocksOf(screen.Explanation);
-
-            if (blocks.Count == 0)
-            {
-                findings.Add(new Finding(
-                    "wireframe-invalid",
-                    $"Screen '{screen.Id}' carries no wireframe block in its explanation file.",
-                    screen.ExplanationFile, 1, SubjectOf(screen)));
-                continue;
-            }
-
-            if (blocks.Count > 1)
-            {
-                findings.Add(new Finding(
-                    "wireframe-invalid",
-                    $"Screen '{screen.Id}' carries {blocks.Count} wireframe blocks; it carries one.",
-                    screen.ExplanationFile, blocks[1].Block.Line, SubjectOf(screen)));
-            }
-
-            foreach (var (block, closed) in blocks)
-            {
-                if (!closed)
-                {
-                    findings.Add(new Finding(
-                        "wireframe-invalid",
-                        $"Screen '{screen.Id}' carries a wireframe block that is not closed.",
-                        screen.ExplanationFile, block.Line, SubjectOf(screen)));
-                    continue;
-                }
-
-                var parsed = WireframeParser.Parse(block.Text, model.Config.UiLimits.Sections, model.Config.UiLimits.FormFields);
-
-                foreach (var error in parsed.Errors)
-                {
-                    findings.Add(new Finding(
-                        CodeOf(error.Kind),
-                        $"Screen '{screen.Id}' carries a wireframe block the wireframe language rejects: {error.Message}.",
-                        screen.ExplanationFile, block.Line + error.Line, SubjectOf(screen)));
-                }
-            }
-        }
-    }
-
-    /// <summary>The finding code one wireframe problem kind reports: the composition kinds report their own code, and the language itself reports wireframe-invalid.</summary>
-    /// <param name="kind">The problem kind the parser named.</param>
-    /// <returns>The finding code the check reports.</returns>
-    private static string CodeOf(WireframeProblemKind kind) => kind switch
-    {
-        WireframeProblemKind.Nesting => "wireframe-nesting-invalid",
-        WireframeProblemKind.Surface => "wireframe-surface-missing",
-        WireframeProblemKind.Tabs => "wireframe-tabs-missing",
-        WireframeProblemKind.Group => "wireframe-group-missing",
-        _ => "wireframe-invalid",
-    };
-
-    /// <summary>Every wireframe fenced block of an explanation, in file order, with whether a closing fence ends it.</summary>
-    /// <param name="explanation">The explanation file text.</param>
-    /// <returns>Each block with the info string wireframe, with whether it is closed.</returns>
-    private static List<(WireframeBlock Block, bool Closed)> WireframeBlocksOf(string explanation)
-    {
-        var blocks = new List<(WireframeBlock Block, bool Closed)>();
-        var lines = explanation.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-
-        for (var index = 0; index < lines.Length; index++)
-        {
-            if (!lines[index].StartsWith("```", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            var info = lines[index][3..].Trim();
-            var fence = index + 1;
-            var body = new List<string>();
-            var closed = false;
-
-            while (++index < lines.Length)
-            {
-                if (lines[index].StartsWith("```", StringComparison.Ordinal))
-                {
-                    closed = true;
-                    break;
-                }
-
-                body.Add(lines[index]);
-            }
-
-            if (info == "wireframe")
-            {
-                blocks.Add((new WireframeBlock(string.Join('\n', body), fence), closed));
-            }
-        }
-
-        return blocks;
-    }
-
-    /// <summary>Reports each wireframe action, state or refusal naming nothing the screen reaches: an action with a target names an offered use case after the arrow, an action without one carries its title, and a local action and a link name no use case.</summary>
-    /// <param name="model">The loaded project model that holds every screen, use case, result and glossary term.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckWireframeReferences(ProjectModel model, List<Finding> findings)
-    {
-        var terms = model.Records
-            .Where(record => record.Type == RecordTypes.Term && record.Title.Length > 0)
-            .Select(record => WordsOf(record.Title))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
-        {
-            if (screen.ExplanationFile is null || screen.Explanation is null)
-            {
-                continue;
-            }
-
-            var blocks = WireframeBlocksOf(screen.Explanation);
-
-            if (blocks.Count != 1 || !blocks[0].Closed)
-            {
-                continue;
-            }
-
-            var parsed = WireframeParser.Parse(blocks[0].Block.Text, model.Config.UiLimits.Sections, model.Config.UiLimits.FormFields);
-
-            if (parsed.Page is not { } page)
-            {
-                continue;
-            }
-
-            var offered = OfferedUseCases(model, screen);
-            var names = offered.SelectMany(UseCaseNames).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var sentences = RefusalSentences(model, offered);
-            var offeredIds = screen.Ids(RecordFields.Offers).ToHashSet(StringComparer.Ordinal);
-            var fence = blocks[0].Block.Line;
-
-            foreach (var node in page.Descendants())
-            {
-                if (node.Part == "action" && node.Target is { } target)
-                {
-                    if (IsLocalAction(node.Text))
-                    {
-                        findings.Add(new Finding(
-                            "wireframe-invalid",
-                            $"Screen '{screen.Id}' names '{node.Text}' as a local action with a target in its wireframe; a local action takes no target.",
-                            screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
-                    }
-                    else if (!offeredIds.Contains(TargetId(target)))
-                    {
-                        findings.Add(new Finding(
-                            "wireframe-invalid",
-                            $"Screen '{screen.Id}' names '{target}' as the target of action '{node.Text}' in its wireframe, which matches no use case it offers.",
-                            screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
-                    }
-                }
-                else if (node.Part == "action" && !IsLocalAction(node.Text) && !names.Contains(WordsOf(node.Text)))
-                {
-                    findings.Add(new Finding(
-                        "wireframe-invalid",
-                        $"Screen '{screen.Id}' names '{node.Text}' as an action in its wireframe, which matches no use case it offers.",
-                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
-                }
-                else if (node.Part == "status" && !terms.Contains(WordsOf(node.Text)))
-                {
-                    findings.Add(new Finding(
-                        "wireframe-invalid",
-                        $"Screen '{screen.Id}' names '{node.Text}' as a state in its wireframe, which matches no glossary term.",
-                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
-                }
-                else if (node.Part is "message" or "toast" && node.Has("critical") && !sentences.Contains(WordsOf(node.Text)))
-                {
-                    findings.Add(new Finding(
-                        "wireframe-invalid",
-                        $"Screen '{screen.Id}' names '{node.Text}' as a refusal in its wireframe, which matches no result of a use case it offers.",
-                        screen.ExplanationFile, fence + node.Line, SubjectOf(screen)));
-                }
-            }
-        }
-    }
-
-    /// <summary>The use cases a screen offers that name a written use case.</summary>
-    /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="screen">The screen record whose offers are read.</param>
-    /// <returns>Each offered use case record, in offers order.</returns>
-    private static List<Record> OfferedUseCases(ProjectModel model, Record screen) =>
-        screen.Ids(RecordFields.Offers)
-            .Select(id => model.ById.TryGetValue(id, out var useCase) ? useCase : null)
-            .OfType<Record>()
-            .Where(useCase => useCase.Type == RecordTypes.UseCase)
-            .ToList();
-
-    /// <summary>The use-case id a wireframe target names: the target itself when it holds the prefix, else with the use-case prefix added.</summary>
-    /// <param name="target">The target as written after the arrow.</param>
-    /// <returns>The full use-case id the target names.</returns>
-    private static string TargetId(string target) =>
-        target.Contains('/') ? target : "use-case/" + target;
-
-    /// <summary>The names an action matches a use case by: its title and its name with dashes as spaces.</summary>
-    /// <param name="useCase">The use case record.</param>
-    /// <returns>The normalized title and name, without empties.</returns>
-    private static List<string> UseCaseNames(Record useCase)
-    {
-        var names = new List<string>();
-
-        if (useCase.Title.Length > 0)
-        {
-            names.Add(WordsOf(useCase.Title));
-        }
-
-        if (Identifiers.TrySplit(useCase.Id, out _, out _, out var name) && name.Length > 0)
-        {
-            names.Add(WordsOf(name.Replace('-', ' ')));
-        }
-
-        return names;
-    }
-
-    /// <summary>The sentences of the written and derived refusal results of the offered use cases.</summary>
-    /// <param name="model">The loaded project model that holds every result.</param>
-    /// <param name="offered">The offered use case records.</param>
-    /// <returns>Each refusal sentence, normalized, without empties.</returns>
-    private static HashSet<string> RefusalSentences(ProjectModel model, List<Record> offered)
-    {
-        var sentences = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var useCase in offered)
-        {
-            if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name) || name.Length == 0)
-            {
-                continue;
-            }
-
-            foreach (var result in model.RecordsByHome[name])
-            {
-                if (result.Type != RecordTypes.Result
-                    || result.Field(RecordFields.Outcome) != "refusal"
-                    || result.Field(SentenceField) is not { Length: > 0 } sentence)
-                {
-                    continue;
-                }
-
-                sentences.Add(WordsOf(sentence));
-            }
-        }
-
-        return sentences;
-    }
-
-    /// <summary>Normalizes copy for comparison: trimmed, with every run of whitespace as one space.</summary>
-    /// <param name="text">The copy to normalize.</param>
-    /// <returns>The trimmed copy with single spaces.</returns>
-    private static string WordsOf(string text) => SpaceRuns.Replace(text.Trim(), " ");
-
-    /// <summary>Whether a wireframe action is local: one of the closed list, or Show more naming what paging adds.</summary>
-    /// <param name="text">The action copy.</param>
-    /// <returns>True when the action needs no use case.</returns>
-    private static bool IsLocalAction(string text)
-    {
-        var words = WordsOf(text);
-
-        return LocalActions.Contains(words)
-            || words.StartsWith("Show more ", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Reports each screen no other screen leads to that is not its entry point's start.</summary>
@@ -488,8 +200,8 @@ internal static class UiBlueprintChecks
         }
     }
 
-    /// <summary>Reports each wireframe copy, result sentence or glossary label using a glossary alias where no longer term covers the same words.</summary>
-    /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
+    /// <summary>Reports each result sentence or glossary label using a glossary alias where no longer term covers the same words.</summary>
+    /// <param name="model">The loaded project model that holds every result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckWordingAliases(ProjectModel model, List<Finding> findings)
     {
@@ -524,7 +236,6 @@ internal static class UiBlueprintChecks
 
         var shields = ShieldMatches(terms);
 
-        CheckWireframeWording(model, aliases, shields, findings);
         CheckSentenceWording(model, aliases, shields, findings);
         CheckLabelWording(terms, aliases, shields, findings);
     }
@@ -575,7 +286,7 @@ internal static class UiBlueprintChecks
         new(@"\b" + Regex.Escape(phrase) + @"\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>Whether the alias matches the copy where no glossary term or label covers the same words.</summary>
-    /// <param name="copy">The wireframe copy, result sentence or glossary label under inspection.</param>
+    /// <param name="copy">The result sentence or glossary label under inspection.</param>
     /// <param name="alias">The whole-word match of the alias.</param>
     /// <param name="shields">The whole-word matches of every glossary title and label.</param>
     /// <returns>True when the alias matches at least once outside every term or label match; otherwise false.</returns>
@@ -609,53 +320,6 @@ internal static class UiBlueprintChecks
         }
 
         return false;
-    }
-
-    /// <summary>Reports each wireframe copy using a glossary alias where no longer term covers the same words.</summary>
-    /// <param name="model">The loaded project model that holds every screen.</param>
-    /// <param name="aliases">The aliases with the term to use and the match for each.</param>
-    /// <param name="shields">The whole-word matches of every glossary title and label.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckWireframeWording(ProjectModel model, List<(string Alias, string Term, Regex Match)> aliases, List<Regex> shields, List<Finding> findings)
-    {
-        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
-        {
-            if (screen.ExplanationFile is null || screen.Explanation is null)
-            {
-                continue;
-            }
-
-            foreach (var (block, _) in WireframeBlocksOf(screen.Explanation))
-            {
-                var lines = block.Text.Split('\n');
-
-                for (var index = 0; index < lines.Length; index++)
-                {
-                    if (lines[index].TrimStart(' ').StartsWith('#'))
-                    {
-                        continue;
-                    }
-
-                    foreach (Match span in QuotedCopy.Matches(lines[index]))
-                    {
-                        var copy = span.Groups["copy"].Value
-                            .Replace("\\\\", "\\", StringComparison.Ordinal)
-                            .Replace("\\\"", "\"", StringComparison.Ordinal);
-
-                        foreach (var (alias, term, match) in aliases)
-                        {
-                            if (MatchesUncovered(copy, match, shields))
-                            {
-                                findings.Add(new Finding(
-                                    "wording-alias",
-                                    $"Screen '{screen.Id}' shows '{alias}' in its wireframe, an alias of glossary term '{term}'.",
-                                    screen.ExplanationFile, block.Line + 1 + index, SubjectOf(screen)));
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /// <summary>Reports each result sentence using a glossary alias where no longer term covers the same words.</summary>

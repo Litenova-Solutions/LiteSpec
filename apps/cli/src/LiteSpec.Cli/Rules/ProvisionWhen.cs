@@ -141,81 +141,36 @@ internal static class ProvisionWhen
     static List<string> AdoptionDecisionOf(JsonObject selection) =>
         JsonValues.AsString(selection["decision"]) is { Length: > 0 } decision ? [decision] : [];
 
-    /// <summary>Loads the marked records' fields from the consumer's record roots.</summary>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <param name="target">The rules target with its marked identifiers.</param>
-    /// <returns>The fields of each marked record found, in marked order.</returns>
-    public static IReadOnlyList<RecordFields> LoadMarked(ConsumerConfig config, PathContext target)
+    /// <summary>Reads one record file's identifier and condition fields, for the record index.</summary>
+    /// <param name="text">The file text, or null when the file cannot be read.</param>
+    /// <param name="id">The record identifier, or empty when the file holds no record.</param>
+    /// <param name="fields">The record's condition fields, when the file holds a record.</param>
+    /// <returns>True when the file holds a record.</returns>
+    internal static bool TryReadFields(string? text, out string id, out RecordFields fields)
     {
-        var wanted = target.Marked
-            .Where(marked => PathContext.ArtifactOf(marked).Length > 0)
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+        id = "";
+        fields = null!;
 
-        if (wanted.Count == 0)
+        if (text is null)
         {
-            return [];
+            return false;
         }
 
-        var found = new Dictionary<string, RecordFields>(StringComparer.Ordinal);
-
-        foreach (var root in config.RecordRoots)
+        if (!RecordFile.TryParse(text, out var parsed, out _, out _)
+            || parsed.ValueKind != JsonValueKind.Object)
         {
-            if (!Directory.Exists(root))
-            {
-                continue;
-            }
-
-            string[] files;
-
-            try
-            {
-                files = Directory.GetFiles(root, "*.yaml", SearchOption.AllDirectories);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            foreach (var file in files.OrderBy(name => name, StringComparer.Ordinal))
-            {
-                string text;
-
-                try
-                {
-                    text = File.ReadAllText(file);
-                }
-                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-                {
-                    continue;
-                }
-
-                if (!RecordFile.TryParse(text, out var parsed, out _, out _)
-                    || parsed.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                var id = Text(parsed, "id");
-
-                if (id.Length > 0 && wanted.Contains(id, StringComparer.Ordinal) && !found.ContainsKey(id))
-                {
-                    found[id] = ReadFields(parsed);
-                }
-
-                if (found.Count == wanted.Count)
-                {
-                    break;
-                }
-            }
-
-            if (found.Count == wanted.Count)
-            {
-                break;
-            }
+            return false;
         }
 
-        return wanted.Where(found.ContainsKey).Select(id => found[id]).ToList();
+        id = Text(parsed, "id");
+
+        if (id.Length == 0)
+        {
+            return false;
+        }
+
+        fields = ReadFields(parsed);
+        return true;
     }
 
     /// <summary>Whether the use case takes a file from the caller.</summary>

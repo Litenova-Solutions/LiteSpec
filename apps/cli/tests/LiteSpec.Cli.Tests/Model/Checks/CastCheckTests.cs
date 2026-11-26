@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>
 ///     Proves the cast checks: a person's email sits on a reserved test domain, each cast entry is cited by a
-///     record, an explanation or a seeds mark, and each seeds mark names a cast entry.
+///     record or a seeds mark, and each seeds mark names a cast entry.
 /// </summary>
 /// <follows>litespec/core/writing#keep-the-cast-out-of-production-code</follows>
 public sealed class CastCheckTests
@@ -58,7 +58,7 @@ public sealed class CastCheckTests
         Assert.DoesNotContain("cast-identity-unreserved", TestModel.Codes(model));
     }
 
-    /// <summary>A cast entry that no record, explanation or seeds mark cites is flagged at cast-entry-unused.</summary>
+    /// <summary>A cast entry that no record or seeds mark cites is flagged at cast-entry-unused.</summary>
     /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
     [Fact(DisplayName = "a cast entry that nothing cites is flagged as unused")]
     public void UncitedEntryIsFlagged()
@@ -66,7 +66,7 @@ public sealed class CastCheckTests
         using var temp = TestCli.Temp("cast-unused");
         var model = TestModel.Model(TestModel.Config(temp.Path), Cast(), Person("person/ava", "ava@harbor-and-pine.example"));
 
-        Assert.Contains("Cast entry 'person/ava' is cited by no record, explanation file or code mark.", Messages(model));
+        Assert.Contains("Cast entry 'person/ava' is cited by no record or code mark.", Messages(model));
     }
 
     /// <summary>A cast entry that a record field cites by its identifier is used.</summary>
@@ -106,20 +106,20 @@ public sealed class CastCheckTests
         var rule = TestModel.Record("rule", "rule/spending.submit", "/project/.litespec/rule.yaml", """{"title":"Submit","statement":"Avalon hosts the review."}""");
         var model = TestModel.Model(TestModel.Config(temp.Path), Cast(), Person("person/ava", "ava@harbor-and-pine.example"), rule);
 
-        Assert.Contains("Cast entry 'person/ava' is cited by no record, explanation file or code mark.", Messages(model));
+        Assert.Contains("Cast entry 'person/ava' is cited by no record or code mark.", Messages(model));
     }
 
-    /// <summary>A person named in an explanation file is used.</summary>
+    /// <summary>A person named only in an explanation file is unused: no check reads the explanation.</summary>
     /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
-    [Fact(DisplayName = "a person named in an explanation file is used")]
-    public void PersonNamedInAnExplanationIsUsed()
+    [Fact(DisplayName = "a person named only in an explanation file is unused")]
+    public void PersonNamedOnlyInAnExplanationIsUnused()
     {
         using var temp = TestCli.Temp("cast-explanation");
         var explanation = TestModel.Body("/project/.litespec/intent/submit.md", "Ava files the expense.");
         var model = TestModel.Model(TestModel.Config(temp.Path), Cast(), Person("person/ava", "ava@harbor-and-pine.example"));
         model.Bodies.Add(explanation);
 
-        Assert.DoesNotContain("Cast entry 'person/ava'", string.Join("\n", Messages(model)));
+        Assert.Contains("Cast entry 'person/ava' is cited by no record or code mark.", Messages(model));
     }
 
     /// <summary>The cast's own explanation names its people without using them, so it cannot make an entry used.</summary>
@@ -132,7 +132,7 @@ public sealed class CastCheckTests
         var model = TestModel.Model(TestModel.Config(temp.Path), Cast(), Person("person/ava", "ava@harbor-and-pine.example"));
         model.Bodies.Add(explanation);
 
-        Assert.Contains("Cast entry 'person/ava' is cited by no record, explanation file or code mark.", Messages(model));
+        Assert.Contains("Cast entry 'person/ava' is cited by no record or code mark.", Messages(model));
     }
 
     /// <summary>A person whose partyOf names no record is an unknown reference, found by the existing citation check.</summary>
@@ -151,17 +151,17 @@ public sealed class CastCheckTests
         Assert.Contains("Record 'person/ava' cites 'party/nowhere', which no record holds.", Messages(model));
     }
 
-    /// <summary>The cast explanation that cites an entry by its identifier uses it, since an identifier is a deliberate use.</summary>
+    /// <summary>The cast explanation that cites an entry by its identifier is ignored: no check reads the explanation.</summary>
     /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
-    [Fact(DisplayName = "the cast explanation citing an entry by its identifier uses it")]
-    public void CastExplanationCitingAnIdentifierIsAUse()
+    [Fact(DisplayName = "the cast explanation citing an entry by its identifier is ignored")]
+    public void CastExplanationCitingAnIdentifierIsIgnored()
     {
         using var temp = TestCli.Temp("cast-explanation-identifier");
         var explanation = new LiteSpec.Cli.Model.Records.PageBody("/project/.litespec/cast.md", "The visit is person/ava's.", 1, "cast/shop");
         var model = TestModel.Model(TestModel.Config(temp.Path), Cast(), Person("person/ava", "ava@harbor-and-pine.example"));
         model.Bodies.Add(explanation);
 
-        Assert.DoesNotContain("Cast entry 'person/ava'", string.Join("\n", Messages(model)));
+        Assert.Contains("Cast entry 'person/ava' is cited by no record or code mark.", Messages(model));
     }
 
     /// <summary>A seeds mark that names a cast entry uses it.</summary>

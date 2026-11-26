@@ -99,25 +99,22 @@ public sealed class NewScopedRecordTests
         Assert.Contains("title: Reimbursed", text);
     }
 
-    /// <summary>New rule writes its explanation beside its record on an explained layer.</summary>
+    /// <summary>New rule writes its record without an explanation file beside it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new rule writes its explanation on an explained layer")]
-    public void NewRuleWritesItsExplanation()
+    [Fact(DisplayName = "new rule writes no explanation file beside its record")]
+    public void NewRuleWritesNoExplanationFile()
     {
         using var consumer = Consumer();
-        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "explanations:\n  layers:\n  - behavior\n");
 
         var result = TestCli.Run(
             "new", "rule", "expense.reimbursed-once", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var explanation = Path.Combine(consumer.Path, ".litespec/behavior/modules/spending/aggregates/expenses/rules/reimbursed-once/reimbursed-once.md");
-        Assert.True(File.Exists(explanation), result.Output);
-        var lines = File.ReadAllText(explanation).Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-        Assert.Equal("# Reimbursed Once", lines[0]);
-        Assert.Equal(
-            ["## Rationale", "## Example", "## Limits"],
-            lines.Where(line => line.StartsWith("## ", StringComparison.Ordinal)).ToArray());
+        var record = Path.Combine(consumer.Path, ".litespec/behavior/modules/spending/aggregates/expenses/rules/reimbursed-once/reimbursed-once.yaml");
+        Assert.True(File.Exists(record), result.Output);
+        Assert.False(
+            File.Exists(Path.ChangeExtension(record, ".md")),
+            $"Expected no explanation file beside '{record}'.");
     }
 
     /// <summary>New rule refuses an identifier a record already carries.</summary>

@@ -5,12 +5,12 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 /// <summary>Tests for the explanation file <c>litespec new</c> writes, and for the explanation template each type carries.</summary>
 public sealed class NewExplanationTests
 {
-    /// <summary>New problem writes the record and the explanation with the problem sections when intent is listed.</summary>
+    /// <summary>New problem writes the record without an explanation file beside it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new problem writes the explanation with the problem sections when intent is listed")]
-    public void NewProblemWritesTheExplanationWhenIntentIsListed()
+    [Fact(DisplayName = "new problem writes no explanation file beside its record")]
+    public void NewProblemWritesNoExplanationFile()
     {
-        using var consumer = ConsumerWithLayers("intent");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "problem", "expenses-wait-weeks", "--root", consumer.Path);
@@ -23,17 +23,17 @@ public sealed class NewExplanationTests
         Assert.True(File.Exists(page), $"Expected the problem page at '{page}'.");
         Assert.Contains("problem/expenses-wait-weeks", File.ReadAllText(page));
 
-        var explanation = Path.ChangeExtension(page, ".md");
-        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Affected Users", "Failure Cases", "Example", "Current Workaround", "Cost", "Evidence", "Resolution Criteria"]);
+        Assert.False(
+            File.Exists(Path.ChangeExtension(page, ".md")),
+            $"Expected no explanation file beside '{page}'.");
     }
 
-    /// <summary>New goal writes the explanation with the two goal sections when intent is listed.</summary>
+    /// <summary>New goal writes the record without an explanation file beside it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new goal writes the explanation with the two goal sections when intent is listed")]
-    public void NewGoalWritesTheExplanationWhenIntentIsListed()
+    [Fact(DisplayName = "new goal writes no explanation file beside its record")]
+    public void NewGoalWritesNoExplanationFile()
     {
-        using var consumer = ConsumerWithLayers("intent");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "goal", "faster-reimbursement", "--root", consumer.Path);
@@ -45,17 +45,17 @@ public sealed class NewExplanationTests
 
         Assert.True(File.Exists(page), $"Expected the goal page at '{page}'.");
 
-        var explanation = Path.ChangeExtension(page, ".md");
-        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Target", "Measurement"]);
+        Assert.False(
+            File.Exists(Path.ChangeExtension(page, ".md")),
+            $"Expected no explanation file beside '{page}'.");
     }
 
-    /// <summary>New direction writes the record at product level and a free-form explanation with no fixed sections when intent is listed.</summary>
+    /// <summary>New direction writes the record without an explanation file beside it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new direction writes a free-form explanation with no fixed sections when intent is listed")]
-    public void NewDirectionWritesTheExplanationWhenIntentIsListed()
+    [Fact(DisplayName = "new direction writes no explanation file beside its record")]
+    public void NewDirectionWritesNoExplanationFile()
     {
-        using var consumer = ConsumerWithLayers("intent");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "direction", "contractor-expenses", "--root", consumer.Path);
@@ -68,17 +68,17 @@ public sealed class NewExplanationTests
         Assert.True(File.Exists(page), $"Expected the direction page at '{page}'.");
         Assert.Contains("direction/contractor-expenses", File.ReadAllText(page));
 
-        var explanation = Path.ChangeExtension(page, ".md");
-        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, []);
+        Assert.False(
+            File.Exists(Path.ChangeExtension(page, ".md")),
+            $"Expected no explanation file beside '{page}'.");
     }
 
-    /// <summary>New feature takes its problem for the folder, writes the identifier without a home, and writes the feature sections when intent is listed.</summary>
+    /// <summary>New feature takes its problem for the folder, writes the identifier without a home, and writes no explanation file beside its record.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new feature writes feature/<name> under its problem with the feature sections when intent is listed")]
-    public void NewFeatureWritesTheExplanationWhenIntentIsListed()
+    [Fact(DisplayName = "new feature writes feature/<name> under its problem with no explanation file")]
+    public void NewFeatureWritesNoExplanationFile()
     {
-        using var consumer = ConsumerWithLayers("intent");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "feature", "expenses-wait-weeks.approval-reminders", "--root", consumer.Path);
@@ -91,9 +91,9 @@ public sealed class NewExplanationTests
         Assert.True(File.Exists(page), $"Expected the feature page at '{page}'.");
         Assert.Contains("id: feature/approval-reminders", File.ReadAllText(page));
 
-        var explanation = Path.ChangeExtension(page, ".md");
-        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Capabilities", "Success Criteria", "Boundaries", "Example"]);
+        Assert.False(
+            File.Exists(Path.ChangeExtension(page, ".md")),
+            $"Expected no explanation file beside '{page}'.");
     }
 
     /// <summary>One explanation template per record type with a section table, as the writing standard gives the sections in order.</summary>
@@ -140,12 +140,12 @@ public sealed class NewExplanationTests
     public void ExplanationTemplatesCarryTheirFixedSections(string type, string[] sections) =>
         AssertSections(Path.Join(TestCli.Repository, "templates", "consumer", $"{type}.md"), sections);
 
-    /// <summary>New reaction writes no explanation file when behavior is not listed.</summary>
+    /// <summary>New reaction writes no explanation file beside its record.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new reaction writes no explanation file when behavior is not listed")]
+    [Fact(DisplayName = "new reaction writes no explanation file beside its record")]
     public void NewReactionWritesNoExplanationWhenBehaviorIsNotListed()
     {
-        using var consumer = ConsumerWithLayers("intent");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "reaction", "spending.notify-approver", "--root", consumer.Path);
@@ -161,12 +161,12 @@ public sealed class NewExplanationTests
             $"Expected no explanation file beside '{page}'.");
     }
 
-    /// <summary>New reaction writes the reaction explanation with its own sections when behavior is listed.</summary>
+    /// <summary>New reaction writes the record without an explanation file beside it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new reaction writes the reaction explanation with its own sections when behavior is listed")]
+    [Fact(DisplayName = "new reaction writes no explanation file beside its listed record")]
     public void NewReactionWritesItsExplanationWhenBehaviorIsListed()
     {
-        using var consumer = ConsumerWithLayers("intent", "behavior");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "reaction", "spending.notify-approver", "--root", consumer.Path);
@@ -178,18 +178,17 @@ public sealed class NewExplanationTests
 
         Assert.True(File.Exists(page), $"Expected the reaction page at '{page}'.");
 
-        var explanation = Path.ChangeExtension(page, ".md");
-        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Trigger and Effect", "Failure Handling", "Example"]);
-        Assert.Contains("# Notify Approver", File.ReadAllText(explanation));
+        Assert.False(
+            File.Exists(Path.ChangeExtension(page, ".md")),
+            $"Expected no explanation file beside '{page}'.");
     }
 
-    /// <summary>New constraint writes the constraint explanation with its own sections when intent is listed.</summary>
+    /// <summary>New constraint writes the record without an explanation file beside it.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new constraint writes the constraint explanation with its own sections when intent is listed")]
+    [Fact(DisplayName = "new constraint writes no explanation file beside its record")]
     public void NewConstraintWritesItsExplanationWhenIntentIsListed()
     {
-        using var consumer = ConsumerWithLayers("intent");
+        using var consumer = Consumer();
 
         var result = TestCli.Run(
             "new", "constraint", "tax-receipt-retention", "--root", consumer.Path);
@@ -201,9 +200,9 @@ public sealed class NewExplanationTests
 
         Assert.True(File.Exists(page), $"Expected the constraint page at '{page}'.");
 
-        var explanation = Path.ChangeExtension(page, ".md");
-        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Scope", "Rules", "Effect on the Product", "Open Points"]);
+        Assert.False(
+            File.Exists(Path.ChangeExtension(page, ".md")),
+            $"Expected no explanation file beside '{page}'.");
     }
 
     /// <summary>New problem writes no explanation file when the project lists no explanation layer.</summary>
@@ -251,16 +250,12 @@ public sealed class NewExplanationTests
         AssertSections(explanation, ["Findings", "Open Questions", "Source Notes"]);
     }
 
-    /// <summary>A fresh consumer whose project file lists the explanation layers.</summary>
-    /// <param name="layers">The layers <c>explanations.layers</c> lists.</param>
+    /// <summary>A fresh consumer holding an empty project file.</summary>
     /// <returns>The temporary consumer folder holding the project file.</returns>
-    static TempFolder ConsumerWithLayers(params string[] layers)
+    static TempFolder Consumer()
     {
         var consumer = TestCli.Temp("new-explanation");
-        var listed = string.Join(",", layers.Select(layer => $"\"{layer}\""));
-        File.WriteAllText(
-            Path.Combine(consumer.Path, ".litespec/project.yaml"),
-            $"{{\"explanations\":{{\"layers\":[{listed}]}}}}");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
         return consumer;
     }
 

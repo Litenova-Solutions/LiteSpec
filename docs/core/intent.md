@@ -662,7 +662,7 @@ A constraint can state `effectiveFrom`, the date its rule starts to bind, and ca
 
 `model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Checked by:** `litespec model check` reports `constraint-obligation-source-unknown` for an `obligations` item naming a name the constraint's `sources` list does not hold; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for a name the constraint does not declare, and `source-unused` for a source no obligation cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
+**Checked by:** `litespec model check` reports `constraint-obligation-source-unknown` for an `obligations` item naming a name the constraint's `sources` list does not hold, and `reference-unknown` for a name the constraint does not declare.
 
 ### State Each Constraint Rule with Its Condition
 
@@ -694,7 +694,7 @@ Scope says whom the rule covers; it is separate from `applies`, which says wheth
 
 The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows: a consequence for the product belongs to the constraint, decision, or requirement citing the research. Each source carries its `name`, `url`, and `readOn`, an optional `note` holding what a later reader needs about that source, and `publishedOn` where the source states its publication date. The `findings` state each claim with its sources, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. The `openQuestions` hold what the sources do not establish. The explanation file restates each of these fields in its fixed sections, citing a source with a reference link `[text][name]`; a bare URL, an unknown name, or an unused source is a finding. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, `findings`, or `sources`; `litespec model check` reports `source-link-bare` for a bare URL, `reference-unknown` for an unknown name, and `source-unused` for an unused source.
+**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, `findings`, or `sources`, and `reference-unknown` for an unknown name.
 
 ### State Each Research Finding with Its Source
 
@@ -710,7 +710,7 @@ The `conclusion` states in one sentence what the sources establish, with the con
 
 The record's question tests the findings: a finding answering another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
-**Reviewed for:** Does any `findings` item state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each `findings` item beside its source. `litespec model check` reports `research-finding-source-unknown` for a `findings` item naming a name the record's `sources` list does not hold, and `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
+**Reviewed for:** Does any `findings` item state an inference as a source statement, drop a condition the source gives, or answer a question other than the record's `question`? Look at each `findings` item beside its source. `litespec model check` reports `research-finding-source-unknown` for a `findings` item naming a name the record's `sources` list does not hold, so this review covers the wording only.
 
 ### State Each Decision with Context and Choice
 
@@ -726,7 +726,7 @@ The record's question tests the findings: a finding answering another question b
 
 The `reopenedWhen` condition names what would reopen the choice, so the decision stays stable until the world actually changes instead of expiring on a date. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to be named in `basedOn` by at least one record it settles.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model review` reports `explanation-missing` (level R) for a decision without Decision in its explanation file.
+**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field.
 
 ### Record Each Decision Option with Pros and Cons
 

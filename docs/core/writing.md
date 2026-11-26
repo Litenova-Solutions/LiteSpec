@@ -280,7 +280,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Example:** The Claimwick problem explanation for waiting expenses holds Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
 
-**Checked by:** `litespec model review` reports `explanation-missing` (level R) for a section out of order, or missing while its backing fields hold a value, and `explanation-section-unbacked` (level R) for a section whose backing fields are empty on its record.
+**Reviewed for:** Does every explanation file carry its fixed sections in order, with each section backed by filled fields? Check the explanation files the change adds against the section table.
 
 ### Open Each Explanation File with a Paragraph
 
@@ -296,7 +296,7 @@ The form that contract takes in one stack lives on that stack's pages: the .NET 
 
 **Example:** The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin.
 
-**Checked by:** `litespec model review` reports `explanation-opening-missing` (level R) for an explanation file with no prose between its H1 and its first H2.
+**Reviewed for:** Does every explanation file hold one paragraph of prose between its H1 title and its first H2 section? Check the explanation files the change adds.
 
 ### Explain the Same Specification the Records State
 

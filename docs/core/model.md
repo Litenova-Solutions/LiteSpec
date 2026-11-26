@@ -444,7 +444,8 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `dataClasses.basis` | aggregate | constraint, requirement, decision | rests on | is the basis for |
 | `dataClasses.periodStartsAt` | aggregate | domain event, module event, integration event, aggregate field | starts at | starts the period of |
 | `dataClasses.enforcedBy` | aggregate | job, use case | is enforced by | enforces |
-| `access.recentSignInLimit` | use case | setting | is limited by | limits |
+| `access.recentSignIn` | use case | setting | is limited by | limits |
+| `access.preconditions` | use case | rule | is authorized under | authorizes |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |
 | `fulfills` | use case, reaction, job, notification, screen, setting, rule | requirement | fulfills | is fulfilled by |
 | `computedBy` | use case | rule | is computed by | computes |
@@ -851,7 +852,7 @@ Field tables render as tables. A use case's scenarios group under their result. 
 
 **Example:** `submit-expense.yaml` explains its Example and Notes in `submit-expense.md` beside it.
 
-**Checked by:** `litespec model check` reports `explanation-orphaned` for a Markdown file under a record root with no frontmatter and no record file beside it.
+**Reviewed for:** Does every Markdown file under a record root sit beside its record file or carry frontmatter? Look at the Markdown files beside the record files.
 
 ### Split Record Fields from Explanation
 
@@ -885,7 +886,7 @@ A generated region that `model render` writes from the record file is not a seco
 
 **Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check. When Claimwick lists `governance`, its waiver `waiver/export-expenses-unimplemented` carries its explanation file with Provision, Reason, Risk and Expiry.
 
-**Checked by:** `litespec model review` reports `explanation-missing` (level R) for a record page on a listed layer with no explanation file or with a required H2 section missing or its sections out of order.
+**Reviewed for:** Does every record page carry its explanation file with the required H2 sections in order? Look at the record files beside their explanation files.
 
 ### Write Every Record File in Canonical Form
 
@@ -1047,7 +1048,7 @@ A feature requirement sits under its feature in its own folder, and types at pro
 
 **Example:** Claimwick's `problem/expenses-wait-weeks` states its failure cases in `failureCases` and the condition that ends the problem in `resolutionCriteria`. Its explanation's Failure Cases section restates those cases and walks through one with the cast.
 
-**Checked by:** `litespec model review` reports `explanation-section-unbacked` (level R) for an explanation section whose backing fields are empty on its record. Whether prose adds a fact no field holds is reviewed: does any explanation file state a fact that no field of its record or of a record it cites holds?
+**Reviewed for:** Does every explanation section rest on filled backing fields, with no fact beyond the record and the records it cites? Compare each explanation file with its record file.
 
 ### Write Links on the Record That Points
 
@@ -1629,7 +1630,7 @@ title: Submit Expense
 
 **Rationale:** A file the validator leaves unclassified is skipped, and a skipped file looks sound: its errors stay hidden. Requiring every file to be a record file, an explanation, or a document, or to sit under a declared unstructured path, leaves no page unchecked. A directory index that owns no record uses the index style, and a `README.md` with no frontmatter is a document.
 
-**Checked by:** `litespec model check` reports no `explanation-orphaned` finding, and fails a `.yaml` file with no record type outside a declared unstructured path.
+**Reviewed for:** a file under the documentation root that is neither a record file, an explanation beside its record file, nor a document, and sits under no declared unstructured path.
 
 ### Start Each Explanation File with Its Title
 

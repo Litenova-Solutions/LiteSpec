@@ -6,6 +6,7 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Model.Readers;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Readers.Measures;
 using LiteSpec.Cli.Model.Readers.Seeds;
 using LiteSpec.Cli.Model.Records;
@@ -25,10 +26,11 @@ namespace LiteSpec.Cli.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static partial class ModelBuilder
 {
-    /// <summary>Builds the model for the consumer.</summary>
+    /// <summary>Builds the model for the consumer, reading only one module's backend projects when one is named.</summary>
     /// <param name="config">The consumer configuration.</param>
+    /// <param name="onlyModule">The module the backend read is limited to, or null for every project.</param>
     /// <returns>The built project model.</returns>
-    public static ProjectModel Build(ConsumerConfig config)
+    public static ProjectModel Build(ConsumerConfig config, string? onlyModule = null)
     {
         var model = new ProjectModel { Config = config };
 
@@ -36,7 +38,11 @@ static partial class ModelBuilder
         // first and run beside the record read; their results join the model in
         // the same order as before.
         var stacks = config.ReadsCode ? StackReaders.For(config) : null;
-        var backendRun = stacks is null ? null : WideStack.Start(() => stacks.Backend.Read(config));
+        var backendRun = stacks is null
+            ? null
+            : WideStack.Start(() => onlyModule is { Length: > 0 } && stacks.Backend is DotnetBackendReader
+                ? DotnetBackendReader.ReadForModule(config, onlyModule)
+                : stacks.Backend.Read(config));
         var scenarioRun = stacks is null ? null : WideStack.Start(() => stacks.Scenarios.Read(config));
 
         var read = RecordReader.Read(config);
@@ -67,6 +73,8 @@ static partial class ModelBuilder
             var backendRead = backendRun();
 
             model.Code = backendRead.Code;
+            model.BackendSemantics = backendRead.Semantics;
+            model.SemanticUnavailableReason = backendRead.SemanticUnavailableReason;
             model.Problems.AddRange(backendRead.Problems);
 
             var screens = ReadScreens(config, stacks, model.Code);

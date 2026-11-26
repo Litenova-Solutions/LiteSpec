@@ -122,17 +122,18 @@ public sealed class ReferenceDataChecksTests
         Assert.Contains(Findings(model, "record-invalid"), found => found.Message.Contains("which names no reference-data row"));
     }
 
-    /// <summary>Two rows of one table sharing a key report record-invalid.</summary>
-    /// <proves>litespec/backend/knowledge#validate-reference-data-before-serving</proves>
+    /// <summary>Two rows of one table sharing a key across disjoint spans pass: one key holds the dated history.</summary>
+    /// <proves>litespec/core/domain-model#keep-reference-data-rows-from-overlapping</proves>
     [Fact]
-    public void DuplicateRowKeysReportRecordInvalid()
+    public void SharedKeyAcrossDisjointSpansPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Table(temp.Path, "decision-target", """{"summary": "The decision targets.", "rows": [""" + Row("5", "2026-01-01", "2026-12-31", key: "target") + ", " + Row("3", "2027-01-01", null, key: "target") + "]}"));
 
-        Assert.Contains(Findings(model, "record-invalid"), found => found.Message.Contains("holds key 'target' on rows 0 and 1"));
+        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Message.Contains("holds key 'target'"));
+        Assert.Empty(Findings(model, "reference-data-period-invalid"));
     }
 
     /// <summary>Every required role played by a row passes the role rule.</summary>
@@ -310,6 +311,36 @@ public sealed class ReferenceDataChecksTests
             UseCase(temp.Path, "pay-fine", """{"name": "amount", "meaning": "The fine.", "type": "money", "required": true, "origin": "caller", "classification": "internal", "sign": "positive"}"""));
 
         Assert.Contains(Findings(model, "record-invalid"), found => found.Message.Contains("with sign 'positive' outside money-in-positive, money-out-positive"));
+    }
+
+    /// <summary>A table with no rows yet and a summary saying what rows will state passes.</summary>
+    /// <proves>litespec/core/domain-model#state-what-an-empty-table-will-hold</proves>
+    [Fact]
+    public void EmptyTableWithSummaryPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Table(temp.Path, "accepted-providers", """{"summary": "The providers each jurisdiction accepts; no jurisdiction has stated its providers yet.", "rows": []}"""));
+
+        Assert.DoesNotContain(Findings(model, "record-invalid"), found => found.Subject == "reference-data/spending.accepted-providers" && found.Message.Contains("holds no rows"));
+        Assert.Empty(Findings(model, "reference-data-coverage-missing"));
+    }
+
+    /// <summary>A table with no rows yet and no summary reports record-invalid.</summary>
+    /// <proves>litespec/core/domain-model#state-what-an-empty-table-will-hold</proves>
+    [Fact]
+    public void EmptyTableWithoutSummaryReportsRecordInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Table(temp.Path, "accepted-providers", """{"rows": []}"""));
+
+        var findings = Findings(model, "record-invalid")
+            .Where(found => found.Subject == "reference-data/spending.accepted-providers")
+            .ToList();
+        Assert.Contains(findings, found => found.Message.Contains("holds no rows and states no summary"));
     }
 
     /// <summary>The findings of a model that carry one code.</summary>

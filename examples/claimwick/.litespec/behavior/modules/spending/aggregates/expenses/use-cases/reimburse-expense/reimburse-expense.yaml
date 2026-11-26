@@ -7,6 +7,7 @@ kind: command
 access:
   grant: permission/post-reimbursement
   tenant: own
+  recentSignIn: PT15M
 serves:
 - step/submit-and-reimburse.reimburse-expense
 fulfills:
@@ -36,6 +37,8 @@ idempotency:
   reason: the first payment moves the expense to reimbursed, so the aggregate refuses a second payment
   replay: refuses
   recognizedBy: the aggregate state already holds the outcome this command sets
+audit:
+  exemptBecause: Payments leave their trail in the expense states and the payout batch.
 steps:
 - statement: Finance picks an approved expense.
   cites:
