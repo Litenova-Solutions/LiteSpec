@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class FolderGroupingCheckTests
 {
     /// <summary>Kernel Domain Values And Auditing Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void KernelDomainValuesAndAuditingPass()
     {
@@ -26,7 +26,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Kernel Folder Outside Groupings Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void KernelFolderOutsideGroupingsReportsDrift()
     {
@@ -41,7 +41,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Kernel Root File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void KernelRootFileReportsDrift()
     {
@@ -58,7 +58,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Kernel Root Files Report Drift At Any Count.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void KernelRootFilesReportDriftAtAnyCount()
     {
@@ -73,7 +73,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Kernel Root Files With Grouping Still Report Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void KernelRootFilesWithGroupingStillReportDrift()
     {
@@ -89,7 +89,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Auditing Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformAuditingReportsDrift()
     {
@@ -104,7 +104,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Country Packs Areas Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformCountryPacksAreasPass()
     {
@@ -116,7 +116,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Country Packs Area Outside Set Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformCountryPacksAreaOutsideSetReportsDrift()
     {
@@ -131,7 +131,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Capability Past Twenty Files Reports Ungrouped.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformCapabilityPastTwentyFilesReportsUngrouped()
     {
@@ -146,7 +146,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Capability Past Twenty Files With Subarea Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformCapabilityPastTwentyFilesWithSubareaPasses()
     {
@@ -159,7 +159,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Root File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformRootFileReportsDrift()
     {
@@ -176,7 +176,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Platform Root Project File Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformRootProjectFilePasses()
     {
@@ -188,7 +188,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Parts And Facts Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainPartsAndFactsPass()
     {
@@ -201,7 +201,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Act Folder With Partial Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainActFolderWithPartialPasses()
     {
@@ -213,7 +213,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Act Folder Without Partial Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainActFolderWithoutPartialReportsDrift()
     {
@@ -228,7 +228,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Invented Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainInventedFolderReportsDrift()
     {
@@ -243,7 +243,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Aggregate Past Twenty Files Reports Ungrouped.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainAggregatePastTwentyFilesReportsUngrouped()
     {
@@ -259,7 +259,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Aggregate Twenty Files Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainAggregateTwentyFilesPass()
     {
@@ -272,7 +272,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain State Beside Root Reports Parts.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainStateBesideRootReportsParts()
     {
@@ -289,7 +289,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain States In Parts Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainStatesInPartsPass()
     {
@@ -302,7 +302,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Partial File Beside Root Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainPartialFileBesideRootPasses()
     {
@@ -316,7 +316,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Single Store Interface Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainSingleStoreInterfacePasses()
     {
@@ -329,7 +329,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Second Store Interface Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainSecondStoreInterfaceReportsDrift()
     {
@@ -345,7 +345,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Parts Event File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainPartsEventFileReportsDrift()
     {
@@ -362,7 +362,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Facts Exception File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainFactsExceptionFileReportsDrift()
     {
@@ -379,7 +379,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Domain Events Exception File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void DomainEventsExceptionFileReportsDrift()
     {
@@ -396,7 +396,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Port Models With Named Types Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortModelsWithNamedTypesPass()
     {
@@ -416,7 +416,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Port Type Beside Interface Reports Models.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortTypeBesideInterfaceReportsModels()
     {
@@ -439,7 +439,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Port Models Type No Signature Names Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortModelsTypeNoSignatureNamesReportsDrift()
     {
@@ -462,7 +462,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Port Folder Outside Models Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderOutsideModelsReportsDrift()
     {
@@ -483,7 +483,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Models Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterModelsPass()
     {
@@ -503,7 +503,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Folder Outside Models Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterFolderOutsideModelsReportsDrift()
     {
@@ -524,7 +524,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Wire Type Beside Adapter Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterWireTypeBesideAdapterReportsDrift()
     {
@@ -547,7 +547,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Implementing Port Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterImplementingPortPasses()
     {
@@ -564,7 +564,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Several Adapters Side By Side Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void SeveralAdaptersSideBySidePass()
     {
@@ -584,7 +584,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Options And Parts Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterOptionsAndPartsPass()
     {
@@ -610,7 +610,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Models Type No Adapter Names Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterModelsTypeNoAdapterNamesReportsDrift()
     {
@@ -633,7 +633,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Adapter Parts Type No Adapter Names Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterPartsTypeNoAdapterNamesReportsDrift()
     {
@@ -656,7 +656,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Persistence Root Files Report Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceRootFilesReportDrift()
     {
@@ -675,7 +675,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Persistence Root Files Without Aggregates Report Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceRootFilesWithoutAggregatesReportDrift()
     {
@@ -692,7 +692,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Persistence Root Mapping File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceRootMappingFileReportsDrift()
     {
@@ -711,7 +711,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Persistence Nested Mapping File Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceNestedMappingFilePasses()
     {
@@ -730,7 +730,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Persistence Adapter File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceAdapterFileReportsDrift()
     {
@@ -751,7 +751,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Infrastructure Pipeline Files Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void InfrastructurePipelineFilesPass()
     {
@@ -764,7 +764,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Infrastructure Pipeline Protocol Folders Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void InfrastructurePipelineProtocolFoldersPass()
     {
@@ -777,7 +777,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Infrastructure Pipeline Past Twenty Files Reports Ungrouped.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void InfrastructurePipelinePastTwentyFilesReportsUngrouped()
     {
@@ -793,7 +793,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Infrastructure Pipeline Protocol Nested Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void InfrastructurePipelineProtocolNestedFolderReportsDrift()
     {
@@ -808,7 +808,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Web Api Pipeline Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void WebApiPipelineFolderReportsDrift()
     {
@@ -826,7 +826,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Infrastructure Messaging Files Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void InfrastructureMessagingFilesPass()
     {
@@ -838,7 +838,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Infrastructure Messaging Subfolder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void InfrastructureMessagingSubfolderReportsDrift()
     {
@@ -853,7 +853,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Use Case Past Twenty Files Reports Ungrouped.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void UseCasePastTwentyFilesReportsUngrouped()
     {
@@ -872,7 +872,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Use Case Twenty Files Pass.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void UseCaseTwentyFilesPass()
     {
@@ -888,7 +888,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared Components Groups Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedComponentsGroupsPass()
     {
@@ -901,7 +901,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared Components Folder Outside Groups Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedComponentsFolderOutsideGroupsReportsDrift()
     {
@@ -916,7 +916,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared Components Past Twenty Files Reports Ungrouped.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedComponentsPastTwentyFilesReportsUngrouped()
     {
@@ -931,7 +931,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared App Groups Pass.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedAppGroupsPass()
     {
@@ -944,7 +944,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared App Root File Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedAppRootFileReportsDrift()
     {
@@ -961,7 +961,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared App Folder Outside Groups Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedAppFolderOutsideGroupsReportsDrift()
     {
@@ -976,7 +976,7 @@ public sealed class FolderGroupingCheckTests
     }
 
     /// <summary>Shared App Root Files Report Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SharedAppRootFilesReportDrift()
     {
@@ -988,21 +988,6 @@ public sealed class FolderGroupingCheckTests
 
         Assert.Equal(21, findings.Count);
         Assert.All(findings, finding => Assert.Equal("code-placement-drift", finding.Code));
-    }
-
-    /// <summary>React Shared App Folder Outside Groups Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
-    [Fact]
-    public void ReactSharedAppFolderOutsideGroupsReportsDrift()
-    {
-        using var temp = TestCli.Temp("grouping");
-        var model = GroupingModel(temp.Path, platform: "react");
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "web", "src", "app", "helpers"));
-
-        var finding = Assert.Single(Run(model));
-
-        Assert.Equal("code-placement-drift", finding.Code);
-        Assert.Contains("session/, i18n/, api/ and ui/", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Runs the closed folder check and keeps its findings.</summary>

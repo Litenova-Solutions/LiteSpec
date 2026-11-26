@@ -23,7 +23,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 reports a knowledge key constructed from a string literal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 reports a knowledge key constructed from a string literal")]
     public Task ReportsAKeyConstructedFromALiteral() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -47,7 +47,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 reports a knowledge key parsed from a string literal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 reports a knowledge key parsed from a string literal")]
     public Task ReportsAKeyParsedFromALiteral() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -71,7 +71,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 reports a knowledge key read from a string literal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 reports a knowledge key read from a string literal")]
     public Task ReportsAKeyReadFromALiteral() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -95,7 +95,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 reports a marker key built from a string literal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 reports a marker key built from a string literal")]
     public Task ReportsAMarkerKeyBuiltFromALiteral() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -122,7 +122,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 accepts a knowledge key passed in with no literal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 accepts a knowledge key passed in with no literal")]
     public Task AcceptsAKeyPassedInWithNoLiteral() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -146,7 +146,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 accepts a knowledge key built from a variable.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 accepts a knowledge key built from a variable")]
     public Task AcceptsAKeyBuiltFromAVariable() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -170,7 +170,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 stays quiet for a key type outside a knowledge model.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 stays quiet for a key type outside a knowledge model")]
     public Task StaysQuietForAKeyTypeOutsideAModel() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(
@@ -193,7 +193,7 @@ public sealed class KnowledgeKeyLiteralAnalyzerTests
 
     /// <summary>LS2040 stays quiet inside a knowledge set.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-by-role-and-date</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-by-role-and-date</proves>
     [Fact(DisplayName = "LS2040 stays quiet inside a knowledge set")]
     public Task StaysQuietInsideAKnowledgeSet() =>
         Verify.AnalyzerAsync<KnowledgeKeyLiteralAnalyzer>(

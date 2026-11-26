@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2037: a queryable expression never reads the underlying value of the document's own typed identifier.</summary>
-/// <follows>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</follows>
+/// <follows>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TypedIdentifierIdentityValueAnalyzer : LayerAnalyzer
 {

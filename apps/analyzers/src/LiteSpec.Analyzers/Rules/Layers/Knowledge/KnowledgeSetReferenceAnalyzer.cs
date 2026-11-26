@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Knowledge;
 
 /// <summary>LS2038: a module reads knowledge through the knowledge model, never by naming a knowledge set type.</summary>
-/// <follows>litespec/backend/knowledge#read-knowledge-through-its-model</follows>
+/// <follows>litespec/core/knowledge#read-knowledge-through-its-model</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class KnowledgeSetReferenceAnalyzer : LayerAnalyzer
 {

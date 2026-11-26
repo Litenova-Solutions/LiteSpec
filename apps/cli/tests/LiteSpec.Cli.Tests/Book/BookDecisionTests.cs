@@ -104,7 +104,7 @@ public sealed class BookDecisionTests
             ],
             implements: Links(Link("src/Infra/MainStore.cs", "external-system/main-store")),
             follows: Links(
-                Link("src/Infra/MainStore.cs", "litespec/backend/persistence#commit-each-command-pipeline-once"),
+                Link("src/Infra/MainStore.cs", "litespec/core/backend-persistence#commit-each-command-pipeline-once"),
                 Link("src/Infra/MainStore.cs", "waiver/kiosk-cache"),
                 Link("src/Infra/MainStore.cs", "decision/0099-missing")));
 

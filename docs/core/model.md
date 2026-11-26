@@ -557,7 +557,7 @@ A mark is a written link from a code element to the record it serves. The link r
 
 It comes in one of two kinds: `implements` names the record served, and `follows` names the provision, decision, waiver, or project convention that shapes the code.
 
-This page is the one home of the mark rules: the marks table below states the mark each code element carries, and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each element goes and what checks it. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain part type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-part-type-in-its-aggregates-folder`).
+This page is the one home of the mark rules: the marks table below states the mark each code element carries, and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each element goes and what checks it. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain part type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder`).
 
 | Record layer the code serves | Code element | Mark names |
 |:--|:--|:--|
@@ -574,7 +574,7 @@ This page is the one home of the mark rules: the marks table below states the ma
 | Infrastructure | Adapter implementing that port | `external-system/<name>` |
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
-| Frontend | Route entry: a web route file, a Blazor `@page` component, or an Android destination activity or fragment class | `screen/<entry-point>.<name>`, exactly one |
+| Frontend | Route entry: a web route file or an Android destination activity or fragment class | `screen/<entry-point>.<name>`, exactly one |
 | Operations | Deployment, proxy, host, or CI workflow file listed in `paths.operations` | One or more `follows` marks in the file's `#` comments, such as `# <follows>decision/<number>-<name></follows>` |
 | Operations | Alert rule in a file listed in `paths.alerts` | A `requirement` label naming a quality requirement and a `runbook` label naming a runbook |
 | Tests | Test | The lowest record it verifies: `scenario/<parent>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<feature>.<name>` or `requirement/<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep; `<project>/conventions#<slug>` for a project convention the code must keep |
@@ -612,7 +612,7 @@ Backend code follows the module layout: one `Contracts/` folder holding data onl
 
 Tests mirror the code they prove, with the same check: a test marking a scenario sits under the folder path of the scenario's use case, so acceptance tests mirror `{Module}/{Aggregates}/{UseCase}/`.
 
-Frontend code follows [Organize a Frontend into Frame, Routes, and Modules](../frontend/structure.md#organize-a-frontend-into-frame-routes-and-modules): module folders take the declared module names, and routes group by entry point.
+Frontend code follows [Map Every Screen to Its Job Table Structure](ui-ia.md#map-every-screen-to-its-job-table-structure): module folders take the declared module names, and routes group by entry point.
 
 One check owns this comparison, so each drift is reported once.
 
@@ -1448,7 +1448,7 @@ Nothing above Implementation is computed from code: derivation from code into an
 
 A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test with no record above it is a finding to resolve by writing the missing record or reporting the gap. It is deleted only when a reviewer establishes that the behavior it protects is obsolete, redundant or wrong, and the pull request says so. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so "the adapter is right" never reads as "the promise is kept". A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.
 
-**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/approval-reminders.month-end-submission`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
+**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/approval-reminders.month-end-submission`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/core/backend-architecture#point-dependencies-inward`.
 
 **Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (level S) for a test that names no record or a record of a kind a test does not take.
 

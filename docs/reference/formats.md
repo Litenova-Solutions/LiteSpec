@@ -72,7 +72,7 @@ The schema states every field; read it at [glossary.schema.yaml](../../schemas/g
 |:---|:---|
 | File | `schemas/design-contract.schema.yaml` |
 | Validates | The YAML metadata block that opens the `DESIGN.md` a shared UI package ships |
-| Checked by | `litespec model check` (`litespec/frontend/ui#publish-a-design-contract`) |
+| Checked by | `litespec model check` (`litespec/packs/svelte/ui-primitives#declare-one-visual-reference`) |
 | Published URL | `https://litespec.dev/<version>/schemas/design-contract.schema.yaml` |
 
 The schema states every field; read it at [design-contract.schema.yaml](../../schemas/design-contract.schema.yaml).
@@ -83,10 +83,10 @@ The schema states every field; read it at [design-contract.schema.yaml](../../sc
 |:---|:---|
 | File | `schemas/ui-pattern-catalog.schema.yaml` |
 | Validates | The workspace UI pattern catalog, `.litespec/implementation/patterns/catalog.yaml` unless `paths.uiPatterns` names another file |
-| Checked by | `litespec model check` (`litespec/frontend/patterns#keep-one-pattern-catalog`) |
+| Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/<version>/schemas/ui-pattern-catalog.schema.yaml` |
 
-The schema states every field; read it at [ui-pattern-catalog.schema.yaml](../../schemas/ui-pattern-catalog.schema.yaml).
+The schema states every field; read it at `ui-pattern-catalog.schema.yaml`.
 
 ### UI Source Lock Schema
 
@@ -94,7 +94,7 @@ The schema states every field; read it at [ui-pattern-catalog.schema.yaml](../..
 |:---|:---|
 | File | `schemas/ui-source-lock.schema.yaml` |
 | Validates | The source lock beside the one copy of the registry source |
-| Checked by | `litespec model check` (`litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock`) |
+| Checked by | `litespec model check` (`litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream`) |
 | Published URL | `https://litespec.dev/<version>/schemas/ui-source-lock.schema.yaml` |
 
 The schema states every field; read it at [ui-source-lock.schema.yaml](../../schemas/ui-source-lock.schema.yaml).

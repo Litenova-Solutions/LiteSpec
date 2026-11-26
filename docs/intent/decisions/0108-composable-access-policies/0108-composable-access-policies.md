@@ -29,7 +29,7 @@ Access conditions shared by several use cases are composable policies: Permissio
 
 A use case adds no guard for a condition a policy covers.
 
-The new provision is `litespec/backend/application#declare-shared-access-conditions-as-composable-policies`.
+The new provision is `litespec/core/backend-application#declare-shared-access-conditions-as-composable-policies`.
 
 ## Revisit Conditions
 

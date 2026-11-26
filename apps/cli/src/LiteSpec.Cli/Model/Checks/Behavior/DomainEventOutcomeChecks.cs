@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 ///     The domain event outcome checks: each domain event is consumed by a reaction or a
 ///     translating event, or states that nothing consumes it, but never both and never neither.
 /// </summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 internal static class DomainEventOutcomeChecks
 {
     /// <summary>Reports each domain event with no decided outcome, and each ignored event a consumer names.</summary>

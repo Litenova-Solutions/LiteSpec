@@ -8,7 +8,7 @@ public sealed class CommandPipelineAnalyzerTests
 {
     /// <summary>LS2004 accepts a handler calling a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a handler calling a repository")]
     public Task AcceptsAHandlerCallingARepository() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -32,7 +32,7 @@ public sealed class CommandPipelineAnalyzerTests
     ///     itself is LS2021's finding, which MessageSentOutsideEntryPointAnalyzerTests covers.
     /// </summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays quiet for a command handler holding the command mediator")]
     public Task AcceptsADispatchThroughTheMediator() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -57,7 +57,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 reports an IDocumentSession field.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an IDocumentSession field")]
     public Task ReportsASessionField() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -79,7 +79,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 reports a DbContext subclass parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a DbContext subclass parameter")]
     public Task ReportsADbContextSubclassParameter() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -101,7 +101,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 reports a session property.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session property")]
     public Task ReportsASessionProperty() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -123,7 +123,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 reports a session local.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session local")]
     public Task ReportsASessionLocal() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -150,7 +150,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 reports an invocation through a session receiver.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an invocation through a session receiver")]
     public Task ReportsASessionReceiverInvocation() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -179,7 +179,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 accepts a query handler using IDocumentSession.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a query handler using IDocumentSession")]
     public Task AcceptsAQueryHandlerUsingTheSession() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -201,7 +201,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 stays silent in WebApi.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in WebApi")]
     public Task StaysSilentInWebApi() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -223,7 +223,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 stays silent in Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in Domain")]
     public Task StaysSilentInDomain() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""

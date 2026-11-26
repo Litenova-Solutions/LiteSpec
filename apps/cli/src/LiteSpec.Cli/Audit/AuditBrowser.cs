@@ -7,7 +7,7 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Cli.Audit;
 
 /// <summary>The browser run: one page per route, width and scheme, with the audit script read back.</summary>
-/// <follows>litespec/frontend/ui#pass-every-route-suite-check</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 static class AuditBrowser
 {
     /// <summary>The viewport height for every audited width.</summary>

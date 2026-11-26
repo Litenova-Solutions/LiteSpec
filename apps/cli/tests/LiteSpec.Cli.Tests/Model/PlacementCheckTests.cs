@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class PlacementCheckTests
 {
     /// <summary>The overlay reports one placement finding per drift: the handler folder, the namespace, the test, the stray module folder, the stray use case folder and the stray test folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void BrokenOverlayReportsEachPlacementDriftOnce()
     {
@@ -37,7 +37,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A placed handler in the module layout reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutPlacedHandlerReportsNothing()
     {
@@ -50,7 +50,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler in the wrong aggregate folder reports the folder once, without a namespace finding.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerInWrongAggregateReportsPlacementDrift()
     {
@@ -67,7 +67,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler in the right folder with the wrong namespace reports the namespace.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerWithWrongNamespaceReportsPlacementDrift()
     {
@@ -85,7 +85,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler in the right folder with the right namespace reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerWithRightNamespaceReportsNothing()
     {
@@ -99,7 +99,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A domain event outside its module reports the module folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutEventOutsideItsModuleReportsPlacementDrift()
     {
@@ -116,7 +116,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A domain event in its aggregate reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutEventInItsAggregateReportsNothing()
     {
@@ -130,7 +130,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A test under its scenario's use case path reports nothing.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void ModuleLayoutPlacedTestReportsNothing()
     {
@@ -144,7 +144,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A test outside its scenario's module reports the module folder.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void ModuleLayoutTestOutsideItsModuleReportsPlacementDrift()
     {
@@ -161,7 +161,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An adapter test under its adapter's Infrastructure path is exempt by kind.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void ModuleLayoutAdapterTestIsExempt()
     {
@@ -174,7 +174,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A host endpoint carries its mark without a use case folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHostEndpointIsAccepted()
     {
@@ -187,7 +187,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An endpoint in the second declared WebApi host carries its mark without a use case folder.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void ModuleLayoutSecondWebApiHostEndpointIsAccepted()
     {
@@ -201,7 +201,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A frontend module folder that names no declared module reports the module folder.</summary>
-    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    /// <proves>litespec/packs/svelte/structure#use-the-frontend-application-tree</proves>
     [Fact]
     public void ModuleLayoutFrontendModuleNamingNoDeclaredModuleReportsPlacementDrift()
     {
@@ -223,7 +223,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A frontend module folder that names a declared module reports nothing.</summary>
-    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-use-case-module-with-its-use-case</proves>
     [Fact]
     public void ModuleLayoutFrontendModuleNamingADeclaredModuleReportsNothing()
     {
@@ -241,7 +241,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A product folder that names no declared module reports the folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutStrayProductFolderReportsPlacementDrift()
     {
@@ -257,7 +257,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A product tree that mirrors its declared records reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutDeclaredTreeReportsNothing()
     {
@@ -270,7 +270,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler in its use case's Application folder, with the namespace that folder names, reports nothing.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void ModuleLayoutHandlerInApplicationFolderWithRightNamespaceReportsNothing()
     {
@@ -284,7 +284,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An endpoint in a use case Application folder reports that a transport type belongs in WebApi.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void ModuleLayoutEndpointInApplicationFolderReportsTransportDrift()
     {
@@ -333,7 +333,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A job that runs a use case, in that use case's Application folder, reports nothing.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void ModuleLayoutJobInItsUseCaseApplicationFolderReportsNothing()
     {
@@ -348,7 +348,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A job in a module Jobs folder reports the use case Application folder it belongs in, and the Jobs folder that names no module folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void ModuleLayoutJobInJobsFolderReportsTriggerDrift()
     {
@@ -367,8 +367,8 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A Contracts Commands folder reports that it names no aggregate, and its command file reports too.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void ModuleLayoutContractsCommandsFolderReportsDrift()
     {
@@ -385,7 +385,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An aggregate WebApi folder reports that it names no Events, Exceptions, Parts, Facts or root-action folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void ModuleLayoutAggregateWebApiFolderReportsLayerDrift()
     {
@@ -403,7 +403,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A read-model projection in its Application read-models folder reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
+    /// <proves>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ModuleLayoutReadModelProjectionInReadModelsFolderReportsNothing()
     {
@@ -418,7 +418,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A read-model projection outside its read model's ReadModels folder reports the folder the read model takes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
+    /// <proves>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ModuleLayoutReadModelProjectionOutsideReadModelsFolderReportsPlacementDrift()
     {
@@ -434,7 +434,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A command in its use case's Application folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#give-each-use-case-its-own-models</proves>
+    /// <proves>litespec/core/backend-architecture#give-each-use-case-its-own-models</proves>
     [Fact]
     public void ModuleLayoutUseCaseCommandInApplicationFolderReportsNothing()
     {
@@ -447,7 +447,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A command named for a declared use case, outside any use case folder, reports the folder it belongs in.</summary>
-    /// <proves>litespec/backend/architecture#give-each-use-case-its-own-models</proves>
+    /// <proves>litespec/core/backend-architecture#give-each-use-case-its-own-models</proves>
     [Fact]
     public void ModuleLayoutUseCaseCommandOutsideUseCaseFolderReportsPlacementDrift()
     {
@@ -461,7 +461,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler in its plural aggregate folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateOwnedHandlerInPluralAggregateFolderReportsNothing()
     {
@@ -475,7 +475,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>The same use case flat under its layer reports that it belongs in its aggregate folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateOwnedHandlerFlatUnderItsLayerReportsPlacementDrift()
     {
@@ -493,7 +493,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A module-level use case flat under its layer reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLevelHandlerFlatUnderItsLayerReportsNothing()
     {
@@ -508,7 +508,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A singular Domain aggregate folder reports that it names no declared aggregate.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SingularDomainAggregateFolderReportsPlacementDrift()
     {
@@ -525,7 +525,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A file directly in an Application aggregate folder reports that the folder holds only use case folders.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void FileDirectlyInApplicationAggregateFolderReportsPlacementDrift()
     {
@@ -542,7 +542,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An aggregate-owned use case folder flat under its layer reports its aggregate folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void FlatAggregateOwnedUseCaseFolderReportsItsAggregateFolder()
     {
@@ -559,7 +559,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A folder under an aggregate folder that names no use case of that aggregate reports the aggregate.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void UnknownUseCaseFolderUnderAggregateReportsItsAggregate()
     {
@@ -576,7 +576,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port holding its interface and its signature types in Models, with its adapter beside it, reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortAndAdapterInNewShapeReportNothing()
     {
@@ -596,7 +596,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A file directly in Ports reports that Ports holds only one folder per port.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void FileDirectlyInPortsReportsPlacementDrift()
     {
@@ -614,7 +614,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port folder holding two interfaces reports that it holds only its own interface.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderWithTwoInterfacesReportsPlacementDrift()
     {
@@ -638,7 +638,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port folder whose name is not its interface name without the I reports the interface it holds.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderNamedDifferentlyThanItsInterfaceReportsPlacementDrift()
     {
@@ -659,7 +659,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port folder holding no interface reports the interface it holds.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderWithNoInterfaceReportsPlacementDrift()
     {
@@ -680,7 +680,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A type in a port Models folder that no interface signature names reports the folder it belongs in.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void TypeNoSignatureNamesReportsPlacementDrift()
     {
@@ -704,7 +704,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A type a signature names only through a named result reports nothing: the check follows one level in.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void TypeNamedOneLevelIntoSignaturesReportsNothing()
     {
@@ -727,7 +727,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A type a signature names only two levels in reports: the check follows one level, not further.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void TypeNamedTwoLevelsIntoSignaturesReportsPlacementDrift()
     {
@@ -757,7 +757,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An extension block in a port folder names no type, so the port folder still reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderWithExtensionBlockReportsNothing()
     {
@@ -777,7 +777,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port interface under Application/Ports reports the Ports folder it belongs in.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortInApplicationPortsReportsPlacementDrift()
     {
@@ -796,7 +796,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port interface in a use case folder reports the Ports folder it belongs in.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortInterfaceInUseCaseFolderReportsPlacementDrift()
     {
@@ -814,7 +814,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An adapter in an ExternalSystems folder reports the Infrastructure folder it belongs in.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterInExternalSystemsFolderReportsPlacementDrift()
     {
@@ -833,7 +833,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An adapter in a use case folder reports the Infrastructure folder it belongs in.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterInUseCaseFolderReportsPlacementDrift()
     {
@@ -853,7 +853,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An adapter beside the port its mark names reports nothing, whatever its own class name.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterBesideItsPortReportsNothing()
     {
@@ -871,7 +871,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An adapter away from the port its mark names reports the port folder, not its own class name.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterAwayFromItsPortReportsPortFolder()
     {
@@ -895,7 +895,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port with no adapter folder of the same name reports the adapter folder it pairs with.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortWithNoAdapterReportsPlacementDrift()
     {
@@ -914,7 +914,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An adapter with no port folder of the same name reports the port folder it pairs with.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void AdapterWithNoPortReportsPlacementDrift()
     {
@@ -933,8 +933,8 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port in its module contracts reports the Contracts folder and the interface.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void PortInModuleContractsReportsDrift()
     {
@@ -953,7 +953,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An acceptance test flat under its module reports that it belongs in its aggregate folder.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void AggregateOwnedTestFlatUnderItsModuleReportsPlacementDrift()
     {
@@ -971,7 +971,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port folder naming a provider module reports that the module is reached through its Contracts.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PortFolderNamingProviderModuleReportsPlacementDrift()
     {
@@ -993,7 +993,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port folder spelling another name than its external-system record reports the record name.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderSpellingAnotherNameThanItsRecordReportsPlacementDrift()
     {
@@ -1013,7 +1013,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A port folder spelling its external-system record reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</proves>
     [Fact]
     public void PortFolderSpellingItsRecordReportsNothing()
     {
@@ -1031,7 +1031,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A Persistence folder nesting its repositories by aggregate, beside module-wide store setup, reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceAggregateFolderWithStoreSetupReportsNothing()
     {
@@ -1048,7 +1048,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A Persistence folder naming no declared aggregate reports the folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceStrayFolderReportsPlacementDrift()
     {
@@ -1064,7 +1064,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A use case model in Persistence reports that it belongs in its use case folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PersistenceUseCaseModelFileReportsPlacementDrift()
     {
@@ -1079,7 +1079,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A Settings folder holding the module options class reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SettingsWithModuleOptionsReportsNothing()
     {
@@ -1093,7 +1093,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A file beside the module options class reports that Settings holds only the options class.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SettingsStrayFileReportsPlacementDrift()
     {
@@ -1108,7 +1108,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A folder under Settings reports that Settings holds files only.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void SettingsSubfolderReportsPlacementDrift()
     {
@@ -1123,7 +1123,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An exception beside its aggregate root reports its Exceptions folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void ExceptionBesideAggregateRootReportsPlacementDrift()
     {
@@ -1138,7 +1138,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An event outside its Events folder reports its Events folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void EventOutsideEventsFolderReportsPlacementDrift()
     {
@@ -1153,7 +1153,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>An event and an exception in their folders report nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void EventAndExceptionInTheirFoldersReportNothing()
     {
@@ -1167,7 +1167,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A test folder naming no use case of its aggregate reports the aggregate.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void TestFolderNamingNoUseCaseReportsPlacementDrift()
     {
@@ -1182,7 +1182,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>Support and Infrastructure test folders report nothing.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void TestSupportAndInfrastructureFoldersReportNothing()
     {
@@ -1195,7 +1195,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler with a stale layer namespace reports the layer its folder states.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void HandlerWithStaleLayerNamespaceReportsPlacementDrift()
     {
@@ -1211,7 +1211,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A handler with the layer namespace its folder states reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void HandlerWithMatchingLayerNamespaceReportsNothing()
     {

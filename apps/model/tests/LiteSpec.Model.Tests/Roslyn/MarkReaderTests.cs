@@ -397,7 +397,7 @@ public sealed class MarkReaderTests
     public void FollowsMarksReadTheChoice()
     {
         var xml = TestTrees.First<ClassDeclarationSyntax>("""
-            /// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>
+            /// <follows>litespec/core/backend-persistence#commit-each-command-pipeline-once</follows>
             internal sealed class CommitStep;
             """);
         var attribute = TestTrees.First<ClassDeclarationSyntax>("""
@@ -413,7 +413,7 @@ public sealed class MarkReaderTests
         var fromAttribute = Assert.Single(MarkReader.Read(attribute));
         var fromSuffixed = Assert.Single(MarkReader.Read(suffixed));
 
-        Assert.Equal("litespec/backend/persistence#commit-each-command-pipeline-once", fromXml.RecordId);
+        Assert.Equal("litespec/core/backend-persistence#commit-each-command-pipeline-once", fromXml.RecordId);
         Assert.Equal(MarkStyle.Xml, fromXml.Style);
         Assert.Equal(MarkVerb.Follows, fromXml.Verb);
         Assert.Equal("decision/0002-store-expenses-as-documents", fromAttribute.RecordId);
@@ -448,7 +448,7 @@ public sealed class MarkReaderTests
     {
         var member = TestTrees.First<ClassDeclarationSyntax>("""
             /// <implements>use-case/spending.submit-expense</implements>
-            /// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>
+            /// <follows>litespec/core/backend-persistence#commit-each-command-pipeline-once</follows>
             internal sealed class SubmitExpenseCommandHandler;
             """);
 
@@ -458,7 +458,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkVerb.Implements, marks[0].Verb);
         Assert.Equal("use-case/spending.submit-expense", marks[0].RecordId);
         Assert.Equal(MarkVerb.Follows, marks[1].Verb);
-        Assert.Equal("litespec/backend/persistence#commit-each-command-pipeline-once", marks[1].RecordId);
+        Assert.Equal("litespec/core/backend-persistence#commit-each-command-pipeline-once", marks[1].RecordId);
     }
 
     /// <summary>An empty follows tag reads as a mark with an empty id.</summary>

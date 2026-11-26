@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class ExceptionValueTests
 {
     /// <summary>An exception overrides Code when its base declares a virtual Code.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An exception overrides Code when its base declares a virtual Code")]
     public void VirtualBaseCodeGeneratesAnOverride()
     {
@@ -42,7 +42,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>An exception declares a plain Code when its base declares none.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An exception declares a plain Code when its base declares none")]
     public void MissingBaseCodeGeneratesAPlainProperty()
     {
@@ -77,7 +77,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>A rule with a bare refusal code generates that code.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A rule with a bare refusal code generates that code")]
     public void BareRefusalCodeGeneratesDirectly()
     {
@@ -113,7 +113,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>A rule with no refusal takes no generated code.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A rule with no refusal takes no generated code")]
     public void RuleWithoutRefusalTakesNothing()
     {
@@ -147,7 +147,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>A non-partial exception takes no generated code.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A non-partial exception takes no generated code")]
     public void NonPartialExceptionTakesNothing()
     {
@@ -184,7 +184,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>A hand-written code takes no generated value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A hand-written code takes no generated value")]
     public void HandWrittenCodeTakesNothing()
     {
@@ -221,7 +221,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>A mark to an unknown rule takes no generated value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A mark to an unknown rule takes no generated value")]
     public void UnknownRuleTakesNothing()
     {
@@ -255,7 +255,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>A partial exception nested in a non-partial type takes no generated value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A partial exception nested in a non-partial type takes no generated value")]
     public void NestedInNonPartialTakesNothing()
     {
@@ -293,7 +293,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>An exception under a base with a non-virtual Code reports LS5013 and takes no part.</summary>
-    /// <proves>litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once</proves>
+    /// <proves>litespec/packs/dotnet/domain#define-the-shared-domain-contracts-once</proves>
     [Fact(DisplayName = "An exception under a base with a non-virtual Code reports LS5013 and takes no part")]
     public void NonVirtualBaseCodeReportsLS5013AndTakesNoPart()
     {
@@ -331,7 +331,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>An exception under a base with a Code field reports LS5013 and takes no part.</summary>
-    /// <proves>litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once</proves>
+    /// <proves>litespec/packs/dotnet/domain#define-the-shared-domain-contracts-once</proves>
     [Fact(DisplayName = "An exception under a base with a Code field reports LS5013 and takes no part")]
     public void NonPropertyBaseCodeReportsLS5013AndTakesNoPart()
     {
@@ -368,7 +368,7 @@ public sealed class ExceptionValueTests
     }
 
     /// <summary>An exception under a base with an abstract Code stays silent.</summary>
-    /// <proves>litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once</proves>
+    /// <proves>litespec/packs/dotnet/domain#define-the-shared-domain-contracts-once</proves>
     [Fact(DisplayName = "An exception under a base with an abstract Code stays silent")]
     public void AbstractBaseCodeStaysSilent()
     {

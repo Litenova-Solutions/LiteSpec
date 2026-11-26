@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RegistryTests
 {
     /// <summary>The registry maps marked types to records and use cases to grants.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry maps marked types to records and use cases to grants")]
     public void RegistryMapsTypesAndGrants()
     {
@@ -39,7 +39,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>The registry leaves unmarked types out.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry leaves unmarked types out")]
     public void RegistryLeavesUnmarkedTypesOut()
     {
@@ -64,7 +64,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>A use case with no known record takes no grant entry.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A use case with no known record takes no grant entry")]
     public void UnknownUseCaseTakesNoGrant()
     {
@@ -90,7 +90,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>The registry is empty with no marked types.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry is empty with no marked types")]
     public void RegistryIsEmptyWithNoMarkedTypes()
     {
@@ -105,7 +105,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>The registry lists no follows targets.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry lists no follows targets")]
     public void RegistryListsNoFollowsTargets()
     {
@@ -142,7 +142,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>A project file with no record pages writes no registry.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A project file with no record pages writes no registry")]
     public void NoRecordPagesWritesNoRegistry()
     {

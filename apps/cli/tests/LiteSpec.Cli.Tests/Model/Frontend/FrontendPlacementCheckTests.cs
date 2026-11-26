@@ -91,7 +91,7 @@ public sealed class FrontendPlacementCheckTests
     }
 
     /// <summary>Module Naming Another Use Case Than Its Mark Reports Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-use-case-module-with-its-use-case</proves>
     [Fact]
     public void ModuleNamingAnotherUseCaseThanItsMarkReportsPlacementDrift()
     {
@@ -105,7 +105,7 @@ public sealed class FrontendPlacementCheckTests
     }
 
     /// <summary>Flat Module Naming Another Use Case Than Its Mark Reports Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-use-case-module-with-its-use-case</proves>
     [Fact]
     public void FlatModuleNamingAnotherUseCaseThanItsMarkReportsPlacementDrift()
     {
@@ -119,7 +119,7 @@ public sealed class FrontendPlacementCheckTests
     }
 
     /// <summary>Module Mirroring Its Marked Use Case Reports No Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-use-case-module-with-its-use-case</proves>
     [Fact]
     public void ModuleMirroringItsMarkedUseCaseReportsNoPlacementDrift()
     {
@@ -135,7 +135,7 @@ public sealed class FrontendPlacementCheckTests
     }
 
     /// <summary>Folder Carrying A Refused Name Reports Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#reject-a-folder-name-that-owns-nothing</proves>
+    /// <proves>litespec/packs/svelte/structure#use-the-frontend-application-tree</proves>
     [Fact]
     public void FolderCarryingARefusedNameReportsPlacementDrift()
     {
@@ -149,7 +149,7 @@ public sealed class FrontendPlacementCheckTests
     }
 
     /// <summary>Folder Outside Kebab Case Reports Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
+    /// <proves>litespec/packs/svelte/structure#use-the-frontend-application-tree</proves>
     [Fact]
     public void FolderOutsideKebabCaseReportsPlacementDrift()
     {

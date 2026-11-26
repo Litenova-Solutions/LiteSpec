@@ -45,7 +45,7 @@ The agent protocol template points at `__LITESPEC_DOCS__`, which `model render` 
 
 A hosted sign-in is modeled as use cases that start and complete the sign-in, with the provider as an external system. An unreleased analyzer build is consumed through a local feed, never through a project reference.
 
-The new provision is `litespec/core/access#model-a-hosted-sign-in-as-use-cases`. The changed provisions are `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`, `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts`, and the outbox paragraph of `docs/backend/dotnet/packages.md`.
+The new provision is `litespec/core/access#model-a-hosted-sign-in-as-use-cases`. The changed provisions are `litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`, `litespec/packs/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts`, and the outbox paragraph of `docs/packs/dotnet/packages.md`.
 
 ## Revisit Conditions
 

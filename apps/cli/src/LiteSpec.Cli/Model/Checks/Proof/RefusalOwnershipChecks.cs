@@ -5,7 +5,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Proof;
 
 /// <summary>The refusal ownership checks: every refusal code is carried from its own module, by one exception type.</summary>
-/// <follows>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</follows>
+/// <follows>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</follows>
 internal static class RefusalOwnershipChecks
 {
     /// <summary>Reports refusal-module-foreign and refusal-code-duplicate.</summary>
@@ -88,7 +88,7 @@ internal static class RefusalOwnershipChecks
         var shared = SharedRule(model, code, first, second);
 
         return shared is not null
-            ? $"Code '{code}' is carried by '{first.Class}' and '{second.Class}', which both mark '{shared}'. Keep one exception type per rule, as litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions states."
+            ? $"Code '{code}' is carried by '{first.Class}' and '{second.Class}', which both mark '{shared}'. Keep one exception type per rule, as litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions states."
             : $"Code '{code}' is carried by '{first.Class}' and '{second.Class}'.";
     }
 

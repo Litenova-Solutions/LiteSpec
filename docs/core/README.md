@@ -18,8 +18,25 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Use Cases](use-cases.md): the commands, queries, results, scenarios, and settings.
 - [Automation](automation.md): the reactions and jobs that run without a request.
 - [Edges and Screens](edges.md): the integration events, notifications, entry points, screens, and external systems.
+- [Backend Architecture](backend-architecture.md): the module layout, the direction references point, and the modules, aggregates, and use cases inside each layer.
+- [Backend Domain](backend-domain.md): aggregates, lifecycles, closed value sets, and repositories, and what Domain never references.
+- [Backend Application](backend-application.md): use-case coordination, pipeline stages, ports, reactions, and jobs.
+- [Backend Persistence](backend-persistence.md): repositories, the read session, the one commit per command, and the obligations on stored data.
+- [HTTP API](backend-api.md): endpoints, routes, errors, collection paging, and the generated OpenAPI contract.
+- [Knowledge](knowledge.md): the knowledge areas, their models, and the reference data each area reads through.
+- [Backend Testing](testing.md): the test suites each project size keeps and what each suite may use.
 - [Privacy and Retention](privacy.md): the data classes with their erasure positions and retention.
 - [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how callers reach the product.
+- [Audit Trail](audit.md): tamper-resistant evidence of who attempted what in data another party owns.
+- [Multitenancy](tenancy.md): tenant isolation across authorization, storage, jobs, and recovery for one shared deployment.
+- [Concurrency and Idempotency](concurrency.md): conflicting writes, caller versions, client keys, and fingerprints.
+- [External Integrations](integrations.md): provider isolation, failure mapping, and boundary tests for use cases that call outside systems.
+- [Durable Delivery](outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure.
+- [Scheduled Jobs and Reports](jobs.md): recurring, delayed, and heavy work, and the reports too heavy for a request.
+- [Data Lifecycle](lifecycle.md): retention, deletion, archival, and restore behavior for records with a lifetime duty.
+- [Localization](locale.md): locales, catalogs, and formatting for a product that ships in more than one locale.
+- [User Interface Information Architecture](ui-ia.md): the sitemap, the route decomposition table, the screen budgets, and the six locked page archetypes.
+- [User Interface Verification](ui-verification.md): the four-stage workflow, the golden archetype screens, the geometry sensors, and the visual critic.
 - [Agent](agent.md): how agents select context, resolve standards, and report completion.
 - [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.

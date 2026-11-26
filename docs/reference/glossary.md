@@ -8,7 +8,7 @@ These terms name the code shapes that put the specification into effect.
 
 The single type through which outside code changes an aggregate; child entities expose no mutable state outside it.
 
-Home: docs/backend/domain.md
+Home: docs/core/backend-domain.md
 
 Source: DDD.
 
@@ -16,7 +16,7 @@ Source: DDD.
 
 The local orchestrator that starts every application together with its dependencies for development.
 
-Home: docs/backend/dotnet/architecture.md
+Home: docs/packs/dotnet/architecture.md
 
 Source: .NET Aspire.
 
@@ -24,7 +24,7 @@ Source: .NET Aspire.
 
 One role a backend type plays, regardless of which folder or project holds it: Domain, Application, Infrastructure, or WebApi.
 
-Home: docs/backend/architecture.md
+Home: docs/core/backend-architecture.md
 
 Source: LiteSpec.
 
@@ -56,7 +56,7 @@ Source: NuGet.
 
 One entity inside an aggregate, changed only through the aggregate's root.
 
-Home: docs/backend/domain.md
+Home: docs/core/backend-domain.md
 
 Source: DDD.
 
@@ -72,7 +72,7 @@ Source: DDD.
 
 One boundary interface that loads and stages complete aggregates, with one repository per aggregate.
 
-Home: docs/backend/persistence.md
+Home: docs/core/backend-persistence.md
 
 Source: DDD.
 
@@ -82,7 +82,7 @@ Rejected: repository used alone, which hides whether the boundary loads a whole 
 
 One class serving one route operation. It converts HTTP input to an Application message and maps the result back to HTTP.
 
-Home: docs/backend/api.md
+Home: docs/core/backend-api.md
 
 Source: web API practice.
 
@@ -90,7 +90,7 @@ Source: web API practice.
 
 One object defined by its identity rather than by its values.
 
-Home: docs/backend/domain.md
+Home: docs/core/backend-domain.md
 
 Source: DDD.
 
@@ -98,7 +98,7 @@ Source: DDD.
 
 Checks on the shape of a command or query, run before any business behavior runs.
 
-Home: docs/backend/application.md
+Home: docs/core/backend-application.md
 
 Source: LiteSpec.
 
@@ -122,7 +122,7 @@ Source: the package managers.
 
 The backend layout: one project per module beside the Kernel and Platform projects, with the `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, and `WebApi/` folders at the top of each module, and one folder per use case inside each layer that serves it.
 
-Home: docs/backend/dotnet/architecture.md
+Home: docs/packs/dotnet/architecture.md
 
 Source: LiteSpec.
 
@@ -130,7 +130,7 @@ Source: LiteSpec.
 
 One route operation with its stable operation id, served by one endpoint class.
 
-Home: docs/backend/api.md
+Home: docs/core/backend-api.md
 
 Source: web API practice.
 
@@ -146,7 +146,7 @@ Source: LiteSpec.
 
 One rule enforced by durable storage itself, such as uniqueness.
 
-Home: docs/backend/persistence.md
+Home: docs/core/backend-persistence.md
 
 Source: LiteSpec.
 
@@ -154,7 +154,7 @@ Source: LiteSpec.
 
 One read model derived from authoritative facts.
 
-Home: docs/backend/persistence.md
+Home: docs/core/backend-persistence.md
 
 Source: CQRS.
 
@@ -172,7 +172,7 @@ Rejected: view, which collides with UI and database views.
 
 One HTTP path with its method, resolving to the one endpoint class that serves it.
 
-Home: docs/backend/api.md
+Home: docs/core/backend-api.md
 
 Source: web API practice.
 
@@ -188,7 +188,7 @@ Source: W3C Trace Context.
 
 One immutable type defined by its values rather than by identity.
 
-Home: docs/backend/domain.md
+Home: docs/core/backend-domain.md
 
 Source: DDD.
 
@@ -508,7 +508,7 @@ Source: product direction practice.
 
 The real-world knowledge, language, rules, state, and behavior that the software models.
 
-Home: docs/backend/domain.md
+Home: docs/core/backend-domain.md
 
 Source: DDD.
 
@@ -1736,7 +1736,7 @@ Source: LiteSpec.
 
 The browser rule deciding which origins can call the API.
 
-Home: docs/backend/api.md
+Home: docs/core/backend-api.md
 
 Source: the Fetch standard.
 
@@ -1990,7 +1990,7 @@ Source: LiteSpec.
 
 One bound on how often an exposed endpoint accepts requests.
 
-Home: docs/backend/api.md
+Home: docs/core/backend-api.md
 
 Source: web API practice.
 

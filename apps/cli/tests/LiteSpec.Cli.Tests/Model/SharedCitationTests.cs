@@ -59,9 +59,7 @@ public sealed class SharedCitationTests
         var folder = Path.Combine(home.Path, "docs", "core");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "principles.md"), PinnedPage);
-        var backend = Path.Combine(home.Path, "docs", "backend");
-        Directory.CreateDirectory(backend);
-        File.WriteAllText(Path.Combine(backend, "application.md"), PinnedWaiverTarget);
+        File.WriteAllText(Path.Combine(folder, "backend-application.md"), PinnedWaiverTarget);
         return home;
     }
 

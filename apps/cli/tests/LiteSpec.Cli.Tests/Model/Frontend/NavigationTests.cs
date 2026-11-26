@@ -143,7 +143,7 @@ public sealed class NavigationTests
     }
 
     /// <summary>Reader Returns The Navigations Its Response Names.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderReturnsTheNavigationsItsResponseNames()
     {
@@ -170,7 +170,7 @@ public sealed class NavigationTests
     }
 
     /// <summary>Reader Without Navigations Leaves Empty Navigations.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderWithoutNavigationsLeavesEmptyNavigations()
     {

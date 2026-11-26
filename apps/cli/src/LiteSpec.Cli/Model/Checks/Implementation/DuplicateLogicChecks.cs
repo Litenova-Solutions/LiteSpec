@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The duplicate-logic check: one rule, calculation or projection keeps one home instead of living as a copy in two slices.</summary>
 /// <follows>litespec/core/domain-model#keep-one-home-for-each-rule-calculation-and-projection</follows>
-/// <follows>litespec/backend/dotnet/application#call-shared-logic-instead-of-copying-it</follows>
+/// <follows>litespec/packs/dotnet/application#call-shared-logic-instead-of-copying-it</follows>
 internal static class DuplicateLogicChecks
 {
     /// <summary>

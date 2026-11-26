@@ -11,9 +11,9 @@ namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>
 ///     Picks the readers for a consumer: the .NET backend and scenario readers when the
-///     project names a stack with .NET sources (dotnet, blazor, or android), one frontend
+///     project names a stack with .NET sources (dotnet or android), one frontend
 ///     reader per declared frontend from its platform (the TypeScript reader through
-///     Node for Svelte and React, the .NET screen reader for Blazor and Android), and a
+///     Node for Svelte, the .NET screen reader for Android), and a
 ///     test-run reader across every supported result format.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
@@ -25,7 +25,6 @@ static class StackReaders
     public static StackSet For(ConsumerConfig config)
     {
         var dotnet = config.Stacks.Contains("dotnet", StringComparer.Ordinal)
-            || config.Stacks.Contains("blazor", StringComparer.Ordinal)
             || config.Stacks.Contains("android", StringComparer.Ordinal);
 
         IBackendReader backend = dotnet ? new DotnetBackendReader() : new EmptyBackendReader();
@@ -33,17 +32,17 @@ static class StackReaders
 
         var frontends = new List<IFrontendReader>();
         // The Node reader needs no code model, so it starts now and runs beside the .NET reads.
-        var webRun = config.Frontends.Any(frontend => frontend.Platform is "svelte" or "react")
+        var webRun = config.Frontends.Any(frontend => frontend.Platform is "svelte")
             ? Task.Run(() => NodeFrontendReader.Read(config))
             : Task.FromResult<IReadOnlyList<FrontendFacts>>([]);
 
         foreach (var frontend in config.Frontends)
         {
-            if (frontend.Platform is "svelte" or "react")
+            if (frontend.Platform is "svelte")
             {
                 frontends.Add(new TypeScriptFrontendReader(frontend, webRun));
             }
-            else if (frontend.Platform is "blazor" or "android")
+            else if (frontend.Platform is "android")
             {
                 frontends.Add(new DotnetFrontendReader(frontend));
             }

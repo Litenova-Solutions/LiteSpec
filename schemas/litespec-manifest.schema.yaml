@@ -29,15 +29,22 @@ properties:
     type: object
     minProperties: 1
     additionalProperties:
-      description: 'One shipped stack: the folder whose pages apply when a consumer selects it.'
+      description: 'One shipped stack: the folder under docs/packs/ whose pages apply when a consumer selects it, with its kind.'
       type: object
       additionalProperties: false
       required:
       - folder
+      - kind
       properties:
         folder:
-          description: The stack folder under docs/backend/ or docs/frontend/, holding a stack.md.
+          description: The stack folder under docs/packs/, holding a stack.md.
           $ref: '#/$defs/repositoryPath'
+        kind:
+          description: Whether the stack is a backend or a frontend stack.
+          type: string
+          enum:
+          - backend
+          - frontend
         requires:
           description: Stacks a project must also select with this one.
           type: array
@@ -68,7 +75,7 @@ properties:
           type: integer
           minimum: 0
         backendPages:
-          description: The pages directly in docs/backend/ that apply when the shape names no backend stack.
+          description: The pages directly in docs/core/ that apply when the shape names no backend stack.
           type: array
           minItems: 1
           uniqueItems: true
@@ -95,22 +102,6 @@ properties:
       npm:
         $ref: '#/$defs/versionMap'
   uiBaseline:
-    allOf:
-    - $ref: '#/$defs/uiBaseline'
-    - properties:
-        platform:
-          const: react
-        system:
-          const: shadcn/ui
-        base:
-          const: base-ui
-        registry:
-          properties:
-            name:
-              const: shadcn
-            url:
-              const: 'https://ui.shadcn.com'
-  uiBaselineSvelte:
     allOf:
     - $ref: '#/$defs/uiBaseline'
     - properties:

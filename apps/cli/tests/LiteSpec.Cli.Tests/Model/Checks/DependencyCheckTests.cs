@@ -482,14 +482,14 @@ public sealed class DependencyCheckTests
         Assert.Contains("npm:React", finding);
     }
 
-    /// <summary>An npm package at its pin with an accepted license reports nothing.</summary>
+    /// <summary>A Svelte package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void NpmPinnedPackagePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("react", "19.3.0", "MIT", "pkg:npm/react@19.3.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("svelte", "5.0.0", "MIT", "pkg:npm/svelte@5.0.0")));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 

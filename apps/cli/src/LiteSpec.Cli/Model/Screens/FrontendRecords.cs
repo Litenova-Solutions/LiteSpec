@@ -11,14 +11,14 @@ namespace LiteSpec.Cli.Model.Screens;
 ///     mistyped mark fails the type check, and the <c>proves</c> helper a
 ///     browser test annotates with.
 /// </summary>
-/// <follows>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</follows>
+/// <follows>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</follows>
 static class FrontendRecords
 {
     /// <summary>How long a single-line union may run before each id takes its own line.</summary>
     private const int MaxSingleLineLength = 120;
 
     /// <summary>
-    ///     Writes <c>litespec-records.ts</c> into every Svelte and React frontend's
+    ///     Writes <c>litespec-records.ts</c> into every Svelte frontend's
     ///     frame, returning the written paths relative to the root.
     /// </summary>
     /// <param name="model">The built project model holding the records and frontends.</param>
@@ -29,7 +29,7 @@ static class FrontendRecords
 
         foreach (var frontend in model.Config.Frontends)
         {
-            if (frontend.Platform is not ("svelte" or "react"))
+            if (frontend.Platform is not "svelte")
             {
                 continue;
             }
@@ -154,7 +154,9 @@ static class FrontendRecords
             .Where(record => record.Type is RecordTypes.Scenario or RecordTypes.Rule or RecordTypes.Requirement or RecordTypes.Decision
                 or RecordTypes.ExternalSystem or RecordTypes.IntegrationEvent)
             .Select(record => record.Id)
-            .Concat(model.Provisions.Where(id => id.StartsWith("litespec/frontend/", StringComparison.Ordinal)))
+            .Concat(model.Provisions.Where(id =>
+                id.StartsWith("litespec/packs/svelte/", StringComparison.Ordinal)
+                || id.StartsWith("litespec/core/ui-", StringComparison.Ordinal)))
             .OrderBy(id => id, StringComparer.Ordinal),
     ];
 

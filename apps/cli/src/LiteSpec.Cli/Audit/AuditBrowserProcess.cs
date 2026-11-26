@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Cli.Audit;
 
 /// <summary>The launched audit browser: its process, its temporary profile, and its debugging address.</summary>
-/// <follows>litespec/frontend/ui#pass-every-route-suite-check</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 sealed class AuditBrowserProcess : IDisposable
 {
     /// <summary>How long the browser may take to open its debugging port: fifteen seconds.</summary>

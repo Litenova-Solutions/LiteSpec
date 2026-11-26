@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class HandlerShapeCheckTests
 {
     /// <summary>Two Endpoints With One Operation Id Report.</summary>
-    /// <proves>litespec/backend/api#declare-stable-operation-metadata-in-the-contract</proves>
+    /// <proves>litespec/core/backend-api#declare-stable-operation-metadata-in-the-contract</proves>
     [Fact]
     public void TwoEndpointsWithOneOperationIdReport()
     {
@@ -20,7 +20,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasoned Names Pass.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonedNamesPass()
     {
@@ -35,7 +35,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasonless Folder Reports.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonlessFolderReports()
     {
@@ -50,7 +50,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reasonless Type Reports.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void ReasonlessTypeReports()
     {
@@ -67,7 +67,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Kernel Project Is Exempt.</summary>
-    /// <proves>litespec/backend/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-folder-and-type-for-its-reason</proves>
     [Fact]
     public void KernelProjectIsExempt()
     {
@@ -85,7 +85,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Injected Collaborators Pass.</summary>
-    /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
+    /// <proves>litespec/core/backend-application#build-collaborators-through-the-container</proves>
     [Fact]
     public void InjectedCollaboratorsPass()
     {
@@ -99,7 +99,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Collaborator Holding A Repository Reports.</summary>
-    /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
+    /// <proves>litespec/core/backend-application#build-collaborators-through-the-container</proves>
     [Fact]
     public void CollaboratorHoldingARepositoryReports()
     {
@@ -116,7 +116,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Job Collaborator Holding A Repository Reports.</summary>
-    /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
+    /// <proves>litespec/core/backend-application#build-collaborators-through-the-container</proves>
     [Fact]
     public void JobCollaboratorHoldingARepositoryReports()
     {
@@ -131,7 +131,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Reads Outside Loops Pass.</summary>
-    /// <proves>litespec/backend/application#keep-repository-reads-out-of-loops</proves>
+    /// <proves>litespec/core/backend-application#keep-repository-reads-out-of-loops</proves>
     [Fact]
     public void ReadsOutsideLoopsPass()
     {
@@ -145,7 +145,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Repository Read In A Loop Reports.</summary>
-    /// <proves>litespec/backend/application#keep-repository-reads-out-of-loops</proves>
+    /// <proves>litespec/core/backend-application#keep-repository-reads-out-of-loops</proves>
     [Fact]
     public void RepositoryReadInALoopReports()
     {
@@ -160,7 +160,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Store Filtered Query Passes.</summary>
-    /// <proves>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</proves>
+    /// <proves>litespec/core/backend-persistence#page-and-filter-collection-queries-in-the-store</proves>
     [Fact]
     public void StoreFilteredQueryPasses()
     {
@@ -174,7 +174,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Query Filter In Memory Reports.</summary>
-    /// <proves>litespec/backend/persistence#page-and-filter-collection-queries-in-the-store</proves>
+    /// <proves>litespec/core/backend-persistence#page-and-filter-collection-queries-in-the-store</proves>
     [Fact]
     public void QueryFilterInMemoryReports()
     {
@@ -189,7 +189,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Effects After Commit Pass.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void EffectsAfterCommitPass()
     {
@@ -202,7 +202,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Inline Send Reports.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void InlineSendReports()
     {
@@ -219,7 +219,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Waiver Holds An Inline Call On Its Subject.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void WaiverHoldsAnInlineCallOnItsSubject()
@@ -237,7 +237,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Inline Call Reports.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void InlineCallReports()
     {
@@ -254,7 +254,7 @@ public sealed class HandlerShapeCheckTests
     }
 
     /// <summary>Query Inline Send Is Not Reported.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void QueryInlineSendIsNotReported()
     {

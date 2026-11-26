@@ -828,7 +828,7 @@
         "owner": "lending-team",
         "status": "approved",
         "waives": [
-          "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
+          "litespec/core/backend-application#enforce-target-authorization-in-the-pipeline"
         ],
         "appliesTo": [
           "use-case/lending.register-copy"
@@ -838,7 +838,7 @@
       },
       "links": {
         "waives": [
-          "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
+          "litespec/core/backend-application#enforce-target-authorization-in-the-pipeline"
         ],
         "appliesTo": [
           "use-case/lending.register-copy"

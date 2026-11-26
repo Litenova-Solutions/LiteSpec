@@ -65,7 +65,7 @@ public sealed class ReferenceDataChecksTests
     }
 
     /// <summary>A cross-reference to a key the named table holds passes.</summary>
-    /// <proves>litespec/backend/knowledge#validate-reference-data-before-serving</proves>
+    /// <proves>litespec/core/knowledge#validate-reference-data-before-serving</proves>
     [Fact]
     public void CrossReferenceToHeldKeyPasses()
     {
@@ -79,7 +79,7 @@ public sealed class ReferenceDataChecksTests
     }
 
     /// <summary>A cross-reference to a key no row of the named table holds reports reference-data-key-unknown at tier G.</summary>
-    /// <proves>litespec/backend/knowledge#validate-reference-data-before-serving</proves>
+    /// <proves>litespec/core/knowledge#validate-reference-data-before-serving</proves>
     [Fact]
     public void CrossReferenceToMissingKeyReportsKeyUnknown()
     {
@@ -96,7 +96,7 @@ public sealed class ReferenceDataChecksTests
     }
 
     /// <summary>A cross-reference to a table no record holds is left to the citation check, so one defect draws one finding.</summary>
-    /// <proves>litespec/backend/knowledge#validate-reference-data-before-serving</proves>
+    /// <proves>litespec/core/knowledge#validate-reference-data-before-serving</proves>
     [Fact]
     public void CrossReferenceToMissingTableIsLeftToTheCitationCheck()
     {
@@ -110,7 +110,7 @@ public sealed class ReferenceDataChecksTests
     }
 
     /// <summary>A cross-reference naming no row reports record-invalid.</summary>
-    /// <proves>litespec/backend/knowledge#validate-reference-data-before-serving</proves>
+    /// <proves>litespec/core/knowledge#validate-reference-data-before-serving</proves>
     [Fact]
     public void MalformedCrossReferenceReportsRecordInvalid()
     {
@@ -137,7 +137,7 @@ public sealed class ReferenceDataChecksTests
     }
 
     /// <summary>Every required role played by a row passes the role rule.</summary>
-    /// <proves>litespec/backend/knowledge#name-a-role-not-a-row</proves>
+    /// <proves>litespec/core/knowledge#name-a-role-not-a-row</proves>
     [Fact]
     public void EveryRequiredRolePlayedPasses()
     {
@@ -150,7 +150,7 @@ public sealed class ReferenceDataChecksTests
     }
 
     /// <summary>A required role played by no row reports reference-data-role-missing at tier G.</summary>
-    /// <proves>litespec/backend/knowledge#name-a-role-not-a-row</proves>
+    /// <proves>litespec/core/knowledge#name-a-role-not-a-row</proves>
     [Fact]
     public void RequiredRolePlayedByNoRowReportsRoleMissing()
     {

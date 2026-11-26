@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ClientFreshnessCheckTests
 {
     /// <summary>A declared generated client with no hash file reports client-drift.</summary>
-    /// <proves>litespec/frontend/data#regenerate-the-client-with-the-contract</proves>
+    /// <proves>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</proves>
     [Fact]
     public void MissingHashFileReports()
     {
@@ -27,7 +27,7 @@ public sealed class ClientFreshnessCheckTests
     }
 
     /// <summary>A generated client recording the current LF-normalized contract hash reports nothing.</summary>
-    /// <proves>litespec/frontend/data#regenerate-the-client-with-the-contract</proves>
+    /// <proves>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</proves>
     [Fact]
     public void MatchingHashPasses()
     {
@@ -40,7 +40,7 @@ public sealed class ClientFreshnessCheckTests
     }
 
     /// <summary>A generated client recording another contract hash reports client-drift.</summary>
-    /// <proves>litespec/frontend/data#regenerate-the-client-with-the-contract</proves>
+    /// <proves>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</proves>
     [Fact]
     public void DifferentHashReports()
     {
@@ -58,7 +58,7 @@ public sealed class ClientFreshnessCheckTests
     }
 
     /// <summary>A CRLF contract matches the hash of the same document with LF line endings.</summary>
-    /// <proves>litespec/frontend/data#regenerate-the-client-with-the-contract</proves>
+    /// <proves>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</proves>
     [Fact]
     public void CrlfContractMatchesLfHash()
     {
@@ -71,7 +71,7 @@ public sealed class ClientFreshnessCheckTests
     }
 
     /// <summary>A frontend without a client declaration is not checked.</summary>
-    /// <proves>litespec/frontend/data#regenerate-the-client-with-the-contract</proves>
+    /// <proves>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</proves>
     [Fact]
     public void FrontendWithoutClientIsSkipped()
     {
@@ -84,7 +84,7 @@ public sealed class ClientFreshnessCheckTests
     }
 
     /// <summary>A declared client whose contract document is missing reports client-drift.</summary>
-    /// <proves>litespec/frontend/data#regenerate-the-client-with-the-contract</proves>
+    /// <proves>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</proves>
     [Fact]
     public void MissingContractReports()
     {

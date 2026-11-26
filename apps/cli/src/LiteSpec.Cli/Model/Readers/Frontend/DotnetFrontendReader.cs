@@ -7,16 +7,16 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
-///     Reads one Blazor or Android frontend through the .NET screen reader,
+///     Reads one Android frontend through the .NET screen reader,
 ///     which stays qualified.
 /// </summary>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 sealed class DotnetFrontendReader : IFrontendReader
 {
     /// <summary>The frontend this reader reads.</summary>
     private readonly FrontendConfig frontend;
 
-    /// <summary>Initializes a new instance of the <see cref="DotnetFrontendReader"/> class for one Blazor or Android frontend.</summary>
+    /// <summary>Initializes a new instance of the <see cref="DotnetFrontendReader"/> class for one Android frontend.</summary>
     /// <param name="frontend">The frontend this reader reads.</param>
     public DotnetFrontendReader(FrontendConfig frontend)
     {

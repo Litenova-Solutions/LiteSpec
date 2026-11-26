@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2027: an Application file names no archive, serialization or document library.</summary>
-/// <follows>litespec/backend/architecture#produce-file-formats-in-infrastructure</follows>
+/// <follows>litespec/core/backend-architecture#produce-file-formats-in-infrastructure</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InfrastructureWorkAnalyzer : LayerAnalyzer
 {

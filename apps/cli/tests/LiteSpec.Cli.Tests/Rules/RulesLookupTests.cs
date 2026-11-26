@@ -14,11 +14,11 @@ public sealed class RulesLookupTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "litespec/backend/application#keep-command-handlers-to-load-call-and-stage");
+            "litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Rules for litespec/backend/application#keep-command-handlers-to-load-call-and-stage", result.Output);
-        Assert.Contains("Page: docs/backend/application.md", result.Output);
+        Assert.Contains("Rules for litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage", result.Output);
+        Assert.Contains("Page: docs/core/backend-application.md", result.Output);
         Assert.Contains("Strength: required", result.Output);
         Assert.Contains("Statement: ", result.Output);
         Assert.Contains("Rationale: ", result.Output);
@@ -32,10 +32,10 @@ public sealed class RulesLookupTests
     public void RulesUnknownProvisionIdExits1()
     {
         var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
-        var result = TestCli.Run("rules", "--root", root, "litespec/backend/application#no-such-provision");
+        var result = TestCli.Run("rules", "--root", root, "litespec/core/backend-application#no-such-provision");
 
         Assert.Equal(1, result.Status);
-        Assert.Contains("No provision with ID 'litespec/backend/application#no-such-provision'", result.Output);
+        Assert.Contains("No provision with ID 'litespec/core/backend-application#no-such-provision'", result.Output);
     }
 
     /// <summary>A page identifier prints the page's provision list.</summary>
@@ -44,11 +44,11 @@ public sealed class RulesLookupTests
     public void RulesPageIdPrintsProvisionList()
     {
         var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
-        var result = TestCli.Run("rules", "--root", root, "litespec/backend/application");
+        var result = TestCli.Run("rules", "--root", root, "litespec/core/backend-application");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Rules for litespec/backend/application (", result.Output);
-        Assert.Contains("- litespec/backend/application#keep-command-handlers-to-load-call-and-stage:", result.Output);
+        Assert.Contains("Rules for litespec/core/backend-application (", result.Output);
+        Assert.Contains("- litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage:", result.Output);
     }
 
     /// <summary>An unknown page identifier exits 1.</summary>

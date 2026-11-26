@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class KnowledgeReferenceCheckTests
 {
     /// <summary>A module project referencing a knowledge set reports knowledge-reference-invalid.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void ModuleReferencingKnowledgeSetReports()
     {
@@ -28,7 +28,7 @@ public sealed class KnowledgeReferenceCheckTests
     }
 
     /// <summary>A module project referencing a knowledge model reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void ModuleReferencingKnowledgeModelPasses()
     {
@@ -40,7 +40,7 @@ public sealed class KnowledgeReferenceCheckTests
     }
 
     /// <summary>A knowledge set referencing the Platform reports knowledge-reference-invalid.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void KnowledgeSetReferencingPlatformReports()
     {
@@ -55,7 +55,7 @@ public sealed class KnowledgeReferenceCheckTests
     }
 
     /// <summary>A knowledge set referencing its model and the Kernel reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void KnowledgeSetReferencingModelAndKernelPasses()
     {
@@ -67,7 +67,7 @@ public sealed class KnowledgeReferenceCheckTests
     }
 
     /// <summary>A knowledge model referencing a module project reports knowledge-reference-invalid.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void KnowledgeModelReferencingModuleReports()
     {
@@ -82,7 +82,7 @@ public sealed class KnowledgeReferenceCheckTests
     }
 
     /// <summary>A knowledge model referencing the Kernel reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void KnowledgeModelReferencingKernelPasses()
     {
@@ -94,7 +94,7 @@ public sealed class KnowledgeReferenceCheckTests
     }
 
     /// <summary>A workspace with no Knowledge folder reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</proves>
     [Fact]
     public void WorkspaceWithoutKnowledgePasses()
     {

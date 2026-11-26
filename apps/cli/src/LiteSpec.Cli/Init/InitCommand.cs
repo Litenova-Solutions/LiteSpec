@@ -22,7 +22,7 @@ namespace LiteSpec.Cli.Init;
 static class InitCommand
 {
     /// <summary>The preset names <c>litespec init</c> accepts, in list order.</summary>
-    static readonly string[] Presets = ["android-client", "blazor-client", "dotnet-react", "dotnet-svelte", "records"];
+    static readonly string[] Presets = ["android-client", "dotnet-svelte", "records"];
 
     /// <summary>
     ///     The ways a project installs the LiteSpec command line, with the command that runs it:
@@ -81,7 +81,7 @@ static class InitCommand
         skill add command as its last line instead of installing. When the root holds
         a CLAUDE.md that does not import AGENTS.md, the command prints a line saying so.
 
-          --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
+          --preset   One of: android-client, dotnet-svelte, records.
           --size     The project size: small or large.
           --install  How the project installs the CLI: tool, a local .NET tool (the default), or standalone, the native binary.
           --root     The consumer repository to write into. Defaults to the working directory.
@@ -320,15 +320,14 @@ static class InitCommand
             project.Remove("frontends");
         }
 
-        // The shared UI package and its pattern catalog belong to the controlled web
-        // frontends; a preset without one would declare a package no frontend uses.
+        // The shared UI package belongs to the controlled web frontend; a preset
+        // without one would declare a package no frontend uses.
         var controlled = (project["frontends"] as JsonArray)?
-            .Any(frontend => (string?)frontend?["platform"] is "react" or "svelte") ?? false;
+            .Any(frontend => (string?)frontend?["platform"] is "svelte") ?? false;
 
         if (!controlled)
         {
             project.Remove("ui");
-            paths.Remove("uiPatterns");
         }
 
         var record = project["project"] as JsonObject;

@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Ui;
 public sealed class UiSourceLockWriterTests
 {
     /// <summary>Render rewrites only the digest of a primitive whose source changed.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void RenderRewritesOnlyTheStaleDigest()
     {
@@ -20,7 +20,7 @@ public sealed class UiSourceLockWriterTests
         var oldDigest = DigestNamed(fixture.LockFile, "button");
         var skeletonDigest = DigestNamed(fixture.LockFile, "skeleton");
 
-        File.AppendAllText(fixture.ButtonFile, "export const extra = 1;\n");
+        File.AppendAllText(fixture.ButtonFile, "<!-- extra -->\n");
         UiFixture.AssertProblem(fixture.Run(), "no longer matches the recorded digest");
 
         var result = Render(fixture);
@@ -36,7 +36,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>A component copied as two files records one digest over both, so a change to its second file is reported and render records it.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void AComponentDigestCoversEveryPath()
     {
@@ -44,13 +44,13 @@ public sealed class UiSourceLockWriterTests
         fixture.MutateLock(lockObject =>
         {
             var button = ((JsonArray)lockObject["components"]!).OfType<JsonObject>().Single(item => (string?)item["name"] == "button");
-            ((JsonArray)button["paths"]!).Add("src/components/skeleton.tsx");
+            ((JsonArray)button["paths"]!).Add("src/components/ui/skeleton/skeleton.svelte");
         });
         Assert.Equal(0, Render(fixture).Status);
         Assert.DoesNotContain(UiFixture.Problems(fixture.Run()), problem => problem.Contains("ui-sourcelock-invalid", StringComparison.Ordinal));
         var recorded = DigestNamed(fixture.LockFile, "button");
 
-        File.AppendAllText(Path.Join(fixture.PackageRoot, "src/components/skeleton.tsx"), "export const extra = 1;\n");
+        File.AppendAllText(Path.Join(fixture.PackageRoot, "src/components/ui/skeleton/skeleton.svelte"), "<!-- extra -->\n");
         UiFixture.AssertProblem(fixture.Run(), "no longer matches the recorded digest");
 
         Assert.Equal(0, Render(fixture).Status);
@@ -59,7 +59,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render leaves a lock that is already current byte for byte as it was.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void RenderLeavesACurrentLockUntouched()
     {
@@ -75,7 +75,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render writes no lock for a project that declares no shared package.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void RenderWritesNoLockWithoutASharedPackage()
     {
@@ -84,7 +84,7 @@ public sealed class UiSourceLockWriterTests
         {
             project.Remove("ui");
         });
-        File.AppendAllText(fixture.ButtonFile, "export const extra = 1;\n");
+        File.AppendAllText(fixture.ButtonFile, "<!-- extra -->\n");
         var before = File.ReadAllText(fixture.LockFile);
 
         var result = Render(fixture);
@@ -95,7 +95,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render does not create a lock the team has not started, so a missing lock stays missing.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void RenderDoesNotCreateAMissingLock()
     {
@@ -109,7 +109,7 @@ public sealed class UiSourceLockWriterTests
     }
 
     /// <summary>Render restores the preset and the CLI pin from the manifest baseline, so a drifted lock passes the check.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void RenderRestoresThePresetAndCliFromTheManifest()
     {
@@ -124,13 +124,13 @@ public sealed class UiSourceLockWriterTests
         Assert.Equal(0, Render(fixture).Status);
 
         var written = (JsonObject)UiFixture.ReadJson(fixture.LockFile)!;
-        Assert.Equal("4.21.5", written["cli"]!.GetValue<string>());
+        Assert.Equal("1.7.0", written["cli"]!.GetValue<string>());
         Assert.Equal("default", written["preset"]!["radius"]!.GetValue<string>());
         Assert.DoesNotContain(UiFixture.Problems(fixture.Run()), problem => problem.Contains("ui-sourcelock-invalid", StringComparison.Ordinal));
     }
 
     /// <summary>Render takes the Svelte baseline and the shadcn-svelte CLI pin for a Svelte lock.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void RenderWritesTheSveltePinForASvelteLock()
     {

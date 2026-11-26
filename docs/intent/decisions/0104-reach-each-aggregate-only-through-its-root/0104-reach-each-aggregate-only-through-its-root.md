@@ -23,9 +23,9 @@ Code outside an aggregate reaches it only through its root's named factories and
 
 ## Consequences
 
-The new provision is `litespec/backend/domain#reach-an-aggregate-only-through-its-root`, with the .NET construction check in `litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root` (LS1014). A child entity carries no public setter, mutating method, or constructor (LS1015), and an aggregate references another only through its typed identifier (LS1016, `litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier`).
+The new provision is `litespec/core/backend-domain#reach-an-aggregate-only-through-its-root`, with the .NET construction check in `litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root` (LS1014). A child entity carries no public setter, mutating method, or constructor (LS1015), and an aggregate references another only through its typed identifier (LS1016, `litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier`).
 
-The narrowed service provisions are `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` and `litespec/backend/dotnet/domain#implement-domain-services-as-stateless-classes`: the root calls the service inside its own method, or Application passes the service's plain result into a root method as an input. The large-root convention is `litespec/backend/dotnet/domain#split-a-large-root-into-one-file-per-action`.
+The narrowed service provisions are `litespec/core/backend-domain#use-stateless-domain-services-for-ownerless-rules` and `litespec/packs/dotnet/domain#implement-domain-services-as-stateless-classes`: the root calls the service inside its own method, or Application passes the service's plain result into a root method as an input. The large-root convention is `litespec/packs/dotnet/domain#split-a-large-root-into-one-file-per-action`.
 
 The review list asks whether every caller reaches the aggregate only through its root.
 

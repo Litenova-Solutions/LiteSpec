@@ -135,7 +135,7 @@ public sealed class ModelOnlyPathsTests
     }
 
     /// <summary>A module read keeps only that module's projects.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ModuleReadKeepsOnlyModuleProjects()
     {
@@ -166,7 +166,7 @@ public sealed class ModelOnlyPathsTests
     }
 
     /// <summary>A module read skips a sibling file no parse survives, so a concurrent edit elsewhere does not fail the run.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ModuleReadSkipsUnparsableSiblingFile()
     {

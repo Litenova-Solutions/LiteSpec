@@ -8,7 +8,7 @@ public sealed class ModuleContractsAnalyzerTests
 {
     /// <summary>LS2029 accepts a handler naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a handler naming another module's public query")]
     public Task AcceptsAHandlerNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -37,7 +37,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a handler naming another module's public result.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a handler naming another module's public result")]
     public Task AcceptsAHandlerNamingAnotherModulesResult() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -66,7 +66,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports a Domain type naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports a Domain type naming another module's public query")]
     public Task ReportsADomainTypeNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -95,7 +95,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports a port naming another module's public result.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports a port naming another module's public result")]
     public Task ReportsAPortNamingAnotherModulesResult() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -122,7 +122,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports an endpoint naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports an endpoint naming another module's public query")]
     public Task ReportsAnEndpointNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -151,7 +151,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports an adapter naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports an adapter naming another module's public query")]
     public Task ReportsAnAdapterNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -178,7 +178,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a Domain type naming another module's identifier.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a Domain type naming another module's identifier")]
     public Task AcceptsADomainTypeNamingAnotherModulesIdentifier() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -205,7 +205,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a handler naming its own module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a handler naming its own module's public query")]
     public Task AcceptsAHandlerNamingItsOwnModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -234,7 +234,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a handler naming another module's fact.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a handler naming another module's fact")]
     public Task AcceptsAHandlerNamingAnotherModulesFact() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -261,7 +261,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports a Platform file naming a module identifier.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports a Platform file naming a module identifier")]
     public Task ReportsAPlatformFileNamingAModuleIdentifier() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -288,7 +288,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a Platform file naming a Kernel identifier.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a Platform file naming a Kernel identifier")]
     public Task AcceptsAPlatformFileNamingAKernelIdentifier() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -315,7 +315,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a module-level public query named by a handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a module-level public query named by a handler")]
     public Task AcceptsAModuleLevelQueryNamedByAHandler() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -344,7 +344,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports a handler naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports a handler naming another module's public command")]
     public Task ReportsAHandlerNamingAnotherModulesCommand() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -373,7 +373,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a reaction naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a reaction naming another module's public command")]
     public Task AcceptsAReactionNamingAnotherModulesCommand() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -411,7 +411,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a job naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a job naming another module's public command")]
     public Task AcceptsAJobNamingAnotherModulesCommand() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -440,7 +440,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a worker host naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a worker host naming another module's public command")]
     public Task AcceptsAWorkerNamingAnotherModulesCommand() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -469,7 +469,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a worker host naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a worker host naming another module's public query")]
     public Task AcceptsAWorkerNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -498,7 +498,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 accepts a reaction naming another module's public query.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 accepts a reaction naming another module's public query")]
     public Task AcceptsAReactionNamingAnotherModulesQuery() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -536,7 +536,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports an adapter naming another module's public command.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports an adapter naming another module's public command")]
     public Task ReportsAnAdapterNamingAnotherModulesCommand() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -563,7 +563,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2029 reports a module-level public command named by a handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2029 reports a module-level public command named by a handler")]
     public Task ReportsAModuleLevelCommandNamedByAHandler() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(
@@ -592,7 +592,7 @@ public sealed class ModuleContractsAnalyzerTests
 
     /// <summary>LS2030 reports an interface declared in a Contracts project and accepts data beside it.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact(DisplayName = "LS2030 reports an interface declared in a Contracts project")]
     public Task ReportsAnInterfaceDeclaredInAContractsProject() =>
         Verify.AnalyzerAsync<ModuleContractsAnalyzer>(

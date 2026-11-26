@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2025: an Infrastructure adapter names no Domain type outside identifiers, shared values and the types its ports name, and no WebApi type.</summary>
-/// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
+/// <follows>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseCaseInfrastructureAnalyzer : LayerAnalyzer
 {

@@ -14,7 +14,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class ConstantRefusalCodeTests
 {
     /// <summary>Code Property Holding A Generated Constant Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CodePropertyConstantIsCollected()
     {
@@ -45,7 +45,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>RefusalCode Constant Holding A Generated Constant Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void RefusalCodeConstWithConstantIsCollected()
     {
@@ -79,7 +79,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Base Call Passing A Generated Constant Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void BaseInitializerConstantIsCollected()
     {
@@ -108,7 +108,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>RefusalCode Constant Holding A Typed Literal Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void RefusalCodeLiteralIsCollected()
     {
@@ -139,7 +139,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Bare Identifier Holding A Same-Type Constant Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void BareIdentifierInsideTypeResolves()
     {
@@ -169,7 +169,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Constant Outside A Declaring Position Declares Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ConstantOutsideDeclaringPositionIsIgnored()
     {
@@ -193,7 +193,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Constant Holding No Refusal Code Declares Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void NonCodeConstantInCodePositionIsIgnored()
     {
@@ -223,7 +223,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Handler Throwing A Generated Constant Produces Its Code.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerThrowConstantIsCollected()
     {
@@ -254,7 +254,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Two Exceptions Marking One Rule With Different Constants Report No Duplicate.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
     [Fact]
     public void TwoExceptionsOneRuleDifferentConstantsReportNoDuplicate()
     {
@@ -306,7 +306,7 @@ public sealed class ConstantRefusalCodeTests
     }
 
     /// <summary>Two Exceptions Holding One Constant Report Duplicate.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
     [Fact]
     public void RealDuplicateThroughConstantsStillReports()
     {

@@ -7,7 +7,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class PermissionTests
 {
     /// <summary>A module generates one constant per permission.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A module generates one constant per permission")]
     public void ModuleGeneratesPermissionConstants()
     {
@@ -23,7 +23,7 @@ public sealed class PermissionTests
     }
 
     /// <summary>A name starting with a digit takes a leading underscore.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A name starting with a digit takes a leading underscore")]
     public void DigitStartTakesALeadingUnderscore()
     {
@@ -38,7 +38,7 @@ public sealed class PermissionTests
     }
 
     /// <summary>Two permissions producing one name report a diagnostic and emit nothing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Two permissions producing one name report a diagnostic and emit nothing")]
     public void CollisionReportsAndEmitsNothing()
     {

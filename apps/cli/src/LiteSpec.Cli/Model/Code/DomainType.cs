@@ -5,5 +5,5 @@ namespace LiteSpec.Cli.Model.Code;
 ///     its file and line, and whether it carries a placing mark. A <c>follows</c> mark
 ///     never places a type, so a type carrying only <c>follows</c> marks reads as unmarked.
 /// </summary>
-/// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
+/// <follows>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</follows>
 sealed record DomainType(string Name, string Namespace, string File, int Line, bool HasMark);

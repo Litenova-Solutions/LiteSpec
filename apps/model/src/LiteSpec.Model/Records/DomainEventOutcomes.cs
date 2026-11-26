@@ -6,7 +6,7 @@ namespace LiteSpec.Model;
 ///     The outcome the records state for a domain event, derived one way for the outbox
 ///     decision check and the generated event-decision table, so the two cannot diverge.
 /// </summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 public static class DomainEventOutcomes
 {
     /// <summary>Derives the outcome the records state from the ignored flag and whether a consumer names the event.</summary>

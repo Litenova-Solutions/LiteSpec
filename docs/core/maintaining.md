@@ -138,7 +138,7 @@ The checks below report a manifest or schema defect that blocks the release, so 
 
 **Rationale:** The manifest is the release record that tools read: stacks and shapes decide which pages apply, extensions decide which conditional bundles a project selects from, and pins decide which versions build. A stack, shape, extension, or pin the manifest omits is one no consumer selects and no tool resolves. Listing all of them in one file keeps the release reproducible from its tag.
 
-**Example:** The manifest lists the `cache` extension with its page path `docs/ext/cache.md` and its `local` activation scope.
+**Example:** The manifest lists the `delivery` extension with its page path `docs/ext/delivery.md` and its `project` activation scope.
 
 **Checked by:** `litespec-maintain validate` emits `EXTENSION_UNLISTED` for an extension page no manifest entry lists, `LAYER_UNREACHABLE` for a page no stack selection reaches, and `MANIFEST_ANALYZER_PIN` for an analyzer pin that differs from the analyzer project version.
 

@@ -176,7 +176,7 @@ public sealed class ReadModelCheckTests
     }
 
     /// <summary>A read model keyed by an aggregate of its own module reports read-model-key-invalid at tier G.</summary>
-    /// <proves>litespec/backend/application#read-another-modules-state-through-a-read-model</proves>
+    /// <proves>litespec/core/backend-application#read-another-modules-state-through-a-read-model</proves>
     [Fact]
     public void ReadModelKeyedByItsOwnModuleReportsKeyLocal()
     {
@@ -192,7 +192,7 @@ public sealed class ReadModelCheckTests
     }
 
     /// <summary>An event handler projection in a module ReadModels folder may carry the read-model mark, which a reaction does not take.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
+    /// <proves>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ProjectionInAReadModelsFolderMayCarryTheReadModelMark()
     {
@@ -207,7 +207,7 @@ public sealed class ReadModelCheckTests
     }
 
     /// <summary>An event handler outside a module ReadModels folder may not carry the read-model mark: it takes a reaction mark.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
+    /// <proves>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ProjectionOutsideAReadModelsFolderReportsTheReadModelMark()
     {

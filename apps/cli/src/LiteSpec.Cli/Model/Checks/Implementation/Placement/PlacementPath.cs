@@ -58,7 +58,7 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
     /// <param name="model">The loaded project model that resolves the use case the trigger runs.</param>
     /// <param name="record">The reaction or job record whose effects are read.</param>
     /// <returns>The container folder, the PascalCase folder name under it, and the aggregate folder above it or null, or null when the trigger names no effect.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
+    /// <follows>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
     internal static (string Container, string Name, string? Aggregate)? TriggerHomeOf(ProjectModel model, Record record)
     {
         if (FirstIdOf(record.EdgeIds(RecordFields.Runs)) is { } run)
@@ -101,7 +101,7 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
     /// <summary>The folder name a read model takes under its module ReadModels folder: the PascalCase plural of the read model name.</summary>
     /// <param name="name">The read model name segment of its identifier, such as reimbursed-expense.</param>
     /// <returns>The plural folder name, such as ReimbursedExpenses.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
+    /// <follows>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
     internal static string ReadModelFolderOf(string name)
     {
         var pascal = Naming.Pascal(name);

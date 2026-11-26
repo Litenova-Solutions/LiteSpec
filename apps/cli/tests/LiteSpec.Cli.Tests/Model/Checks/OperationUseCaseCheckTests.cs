@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class OperationUseCaseCheckTests
 {
     /// <summary>An operation carrying its endpoint's use case reports nothing.</summary>
-    /// <proves>litespec/backend/api#name-the-use-case-on-every-published-operation</proves>
+    /// <proves>litespec/core/backend-api#name-the-use-case-on-every-published-operation</proves>
     [Fact]
     public void OperationWithTheRightExtensionPasses()
     {
@@ -22,7 +22,7 @@ public sealed class OperationUseCaseCheckTests
     }
 
     /// <summary>An operation without the extension reports its endpoint's use case.</summary>
-    /// <proves>litespec/backend/api#name-the-use-case-on-every-published-operation</proves>
+    /// <proves>litespec/core/backend-api#name-the-use-case-on-every-published-operation</proves>
     [Fact]
     public void OperationWithoutAnExtensionReports()
     {
@@ -42,7 +42,7 @@ public sealed class OperationUseCaseCheckTests
     }
 
     /// <summary>An operation naming another use case reports the mismatch.</summary>
-    /// <proves>litespec/backend/api#name-the-use-case-on-every-published-operation</proves>
+    /// <proves>litespec/core/backend-api#name-the-use-case-on-every-published-operation</proves>
     [Fact]
     public void OperationNamingAnotherUseCaseReports()
     {
@@ -62,7 +62,7 @@ public sealed class OperationUseCaseCheckTests
     }
 
     /// <summary>Without a contract path the check reports nothing.</summary>
-    /// <proves>litespec/backend/api#name-the-use-case-on-every-published-operation</proves>
+    /// <proves>litespec/core/backend-api#name-the-use-case-on-every-published-operation</proves>
     [Fact]
     public void WithoutAContractPathReportsNothing()
     {
@@ -75,7 +75,7 @@ public sealed class OperationUseCaseCheckTests
     }
 
     /// <summary>A contract path pointing at a missing file reports the path.</summary>
-    /// <proves>litespec/backend/api#name-the-use-case-on-every-published-operation</proves>
+    /// <proves>litespec/core/backend-api#name-the-use-case-on-every-published-operation</proves>
     [Fact]
     public void MissingContractFileReportsOneFinding()
     {

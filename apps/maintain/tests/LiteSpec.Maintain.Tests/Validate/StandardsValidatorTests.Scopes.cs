@@ -71,7 +71,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line widening its page")]
     public void AppliesToWideningPageScope() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Stack:** any", "**Stack:** dotnet"), "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** stack: react\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Stack:** any", "**Stack:** dotnet"), "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** stack: svelte\n\n**Statement:**")),
         [MaintainerDiagnostics.Codes.ScopeNarrow]);
 
     /// <summary>Applies to line narrowing to an artifact.</summary>
@@ -240,7 +240,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "scope vocabulary naming the when conditions")]
     public void ScopesVocabularyNamesWhen()
     {
-        Assert.Equal(["audit-adoption", "command", "cross-module", "document-number", "erasure", "project", "query", "upload"], Scopes.WhenValues.OrderBy(value => value, StringComparer.Ordinal).ToArray());
+        Assert.Equal(["audit-adoption", "audited", "command", "concurrency", "cross-module", "cross-tenant", "document-number", "erasure", "project", "query", "upload"], Scopes.WhenValues.OrderBy(value => value, StringComparer.Ordinal).ToArray());
     }
 
 
@@ -274,21 +274,21 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "generated counts region stating its source count")]
     public void GeneratedCountsFresh() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:provisions -->\nThis tree states 5 provisions.\n<!-- /generated:counts -->\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:provisions -->\nThis tree states 4 provisions.\n<!-- /generated:counts -->\n"),
         []);
 
     /// <summary>Generated counts region stating a stale count.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "generated counts region stating a stale count")]
     public void GeneratedCountsStale() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:provisions -->\nThis tree states 4 provisions.\n<!-- /generated:counts -->\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:provisions -->\nThis tree states 3 provisions.\n<!-- /generated:counts -->\n"),
         [MaintainerDiagnostics.Codes.GeneratedStale]);
 
     /// <summary>Generated counts region naming an unknown source.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "generated counts region naming an unknown source")]
     public void GeneratedCountsUnknownSource() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:spells -->\nThis tree states 5 provisions.\n<!-- /generated:counts -->\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:spells -->\nThis tree states 4 provisions.\n<!-- /generated:counts -->\n"),
         [MaintainerDiagnostics.Codes.GeneratedStale]);
 
     /// <summary>Generated counts region stating no count.</summary>

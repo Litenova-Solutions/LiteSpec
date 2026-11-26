@@ -13,7 +13,7 @@ namespace LiteSpec.Analyzers.Rules.Layers.Application;
 ///     reaction or a job holds the command and query mediators, and no module type holds the event mediator.
 ///     The platform composes the pipeline and is exempt, with the Kernel.
 /// </summary>
-/// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
+/// <follows>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MessageSentOutsideEntryPointAnalyzer : LayerAnalyzer
 {

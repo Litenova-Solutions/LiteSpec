@@ -8,7 +8,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 public sealed class ThrownRefusalsTests
 {
     /// <summary>A literal argument matching the refusal-code grammar is collected.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A literal argument matching the refusal-code grammar is collected")]
     public void LiteralArgumentIsCollected()
     {
@@ -30,7 +30,7 @@ public sealed class ThrownRefusalsTests
     }
 
     /// <summary>A member access argument resolves through the constants map.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A member access argument resolves through the constants map")]
     public void ConstantArgumentResolvesThroughMap()
     {
@@ -56,7 +56,7 @@ public sealed class ThrownRefusalsTests
     }
 
     /// <summary>A bare identifier reads the constant of that name in the enclosing type.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A bare identifier reads the constant of that name in the enclosing type")]
     public void BareIdentifierResolvesInEnclosingType()
     {
@@ -82,7 +82,7 @@ public sealed class ThrownRefusalsTests
     }
 
     /// <summary>A constant holding no refusal code is ignored.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A constant holding no refusal code is ignored")]
     public void NonCodeConstantIsIgnored()
     {
@@ -105,7 +105,7 @@ public sealed class ThrownRefusalsTests
     }
 
     /// <summary>A constant the map holds nothing for is ignored.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A constant the map holds nothing for is ignored")]
     public void UnresolvableConstantIsIgnored()
     {
@@ -124,7 +124,7 @@ public sealed class ThrownRefusalsTests
     }
 
     /// <summary>A construction of no refusal type is ignored.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A construction of no refusal type is ignored")]
     public void NonExceptionConstructionIsIgnored()
     {

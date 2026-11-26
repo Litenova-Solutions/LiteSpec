@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The idempotency replay check: a keyed command's declaration replays the first result exactly when its record states returns-first-result.</summary>
 /// <follows>litespec/core/use-cases#state-what-a-replay-does</follows>
-/// <follows>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</follows>
+/// <follows>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</follows>
 internal static class IdempotencyReplayChecks
 {
     /// <summary>

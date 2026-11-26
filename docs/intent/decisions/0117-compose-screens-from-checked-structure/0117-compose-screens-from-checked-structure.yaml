@@ -15,3 +15,5 @@ options:
 choice: "State composition as required standards with checked structure"
 consequences: "The page `docs/frontend/ui.md` holds fifteen required composition standards applying to artifact route. The screen record requires `pageFrame` with a route and gains optional `primaryAction` naming an offered use case. The project file gains optional `ui.limits` with `sections`, `formFields` and `offers`. The wireframe language bans card and region nesting, requires every field under a section part, requires tabs or navigation past the section limit, requires grouped regions past the field limit, and allows one primary action per whole view, reported through the screen blueprint check. The layer roles and the rendered-page audit are decided separately."
 reopenedWhen: "Screens still ship the listed faults after the checks run, or projects routinely waive the composition rules instead of following them."
+supersedes:
+- decision/0028-one-default-and-two-pattern-options

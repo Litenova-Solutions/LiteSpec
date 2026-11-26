@@ -8,8 +8,8 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The stylesheet checks of the UI validator: the token stylesheet, the
 ///     shared stylesheets beside it, and each application stylesheet.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</follows>
-/// <follows>litespec/frontend/ui#keep-tokens-in-one-definition</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</follows>
 sealed class StylesheetChecks
 {
     /// <summary>The state of the run.</summary>
@@ -152,7 +152,7 @@ sealed class StylesheetChecks
         var structure = CssStructure(text, reason =>
         {
             malformed = true;
-            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] global CSS has {reason}", file);
+            session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] global CSS has {reason}", file);
         });
         var depth = 0;
         foreach (var character in structure)
@@ -167,7 +167,7 @@ sealed class StylesheetChecks
                 depth--;
                 if (depth < 0)
                 {
-                    session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] closing brace has no matching opening brace", file);
+                    session.Add("ui-stylesheet-invalid", "[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] closing brace has no matching opening brace", file);
                     malformed = true;
                     break;
                 }
@@ -176,7 +176,7 @@ sealed class StylesheetChecks
 
         if (!malformed && depth != 0)
         {
-            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] global CSS has an unclosed block", file);
+            session.Add("ui-stylesheet-invalid", "[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] global CSS has an unclosed block", file);
         }
 
         // The packages the manifest already pins. A pinned font family is a token, so
@@ -206,7 +206,7 @@ sealed class StylesheetChecks
 
             if (!pinned.Contains(packageName))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] import '{specifier}' is outside the approved global CSS surface", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] import '{specifier}' is outside the approved global CSS surface", file);
             }
         }
 
@@ -277,7 +277,7 @@ sealed class StylesheetChecks
 
         if (applyOutsideBase)
         {
-            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] '@apply' outside the generated '@layer base' block hides a utility group outside the generated source", file);
+            session.Add("ui-stylesheet-invalid", "[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] '@apply' outside the generated '@layer base' block hides a utility group outside the generated source", file);
         }
     }
 
@@ -310,7 +310,7 @@ sealed class StylesheetChecks
             var name = rest[..end];
             if (!AllowedGlobalAtRules.Contains(name))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] at-rule '@{name}' is outside the approved global CSS surface", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] at-rule '@{name}' is outside the approved global CSS surface", file);
             }
 
             return;
@@ -327,7 +327,7 @@ sealed class StylesheetChecks
 
             if (trimmed.StartsWith('.') || trimmed.StartsWith('#'))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] selector '{trimmed}' is a feature style; use a component variant or semantic token", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] selector '{trimmed}' is a feature style; use a component variant or semantic token", file);
             }
         }
     }
@@ -352,7 +352,7 @@ sealed class StylesheetChecks
         var imports = GlobalImport.Matches(text).Cast<Match>().Select(match => match.Groups[2].Value).ToList();
         if (imports.Count == 0)
         {
-            session.Add("ui-stylesheet-invalid", "[litespec/frontend/ui#keep-tokens-in-one-definition] imports no stylesheet; an application stylesheet imports the shared package's token stylesheet", file);
+            session.Add("ui-stylesheet-invalid", "[litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale] imports no stylesheet; an application stylesheet imports the shared package's token stylesheet", file);
             return;
         }
 
@@ -367,7 +367,7 @@ sealed class StylesheetChecks
 
             if (!value.StartsWith(prefix, StringComparison.Ordinal))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] import '{value}' is outside the shared package '{JsonRead.Show(packageName)}'", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale] import '{value}' is outside the shared package '{JsonRead.Show(packageName)}'", file);
             }
         }
 
@@ -390,13 +390,13 @@ sealed class StylesheetChecks
                     continue;
                 }
 
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] declares '{property}'; a value written in an application belongs in the shared package's tokens", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale] declares '{property}'; a value written in an application belongs in the shared package's tokens", file);
             }
         }
 
         if (packageRoot is not null && !FileWalk.Within(Path.GetFullPath(session.Root), packageRoot))
         {
-            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] the shared package root '{JsonRead.Show(JsonRead.Child(package, "path"))}' is outside the workspace", file);
+            session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale] the shared package root '{JsonRead.Show(JsonRead.Child(package, "path"))}' is outside the workspace", file);
         }
     }
 
@@ -404,7 +404,7 @@ sealed class StylesheetChecks
     // utilities, device rules, and display helpers, written from tokens. A literal
     // color here is a second token sheet beside the first, so every stylesheet but
     // the token sheet is held to the same rule as an application stylesheet.
-    // (litespec/frontend/ui#keep-tokens-in-one-definition)
+    // (litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale)
     /// <summary>
     ///     Validates the stylesheets the shared package ships beside the token sheet.
     /// </summary>
@@ -436,7 +436,7 @@ sealed class StylesheetChecks
                     continue;
                 }
 
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] literal color '{match.Value}' belongs in the token stylesheet", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale] literal color '{match.Value}' belongs in the token stylesheet", file);
             }
         }
     }

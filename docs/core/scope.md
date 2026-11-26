@@ -16,7 +16,7 @@ Size is the record set the project carries. A small project carries the core rec
 
 Shape is the deployment boundary: `server` when the project runs its own backend, and `client-only` when it does not. A server project names one backend stack. A client-only project names none, and records which backend surfaces stay uncovered.
 
-A stack is the technology choice for the backend or for one frontend. A project names one stack per frontend: react, svelte, blazor, or android. Each stack decides which technology pages and checks apply, covering its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result either way.
+A stack is the technology choice for the backend or for one frontend. A project names one stack per frontend: svelte or android. Each stack decides which technology pages and checks apply, covering its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result either way.
 
 Layers are the record layers the project claims, with the practice it follows in each. They decide which part of the contract the project takes, as Layer Claims below states. A project that claims Implementation or Proof names its stacks, because the stack selects the code reader.
 
@@ -189,7 +189,7 @@ The diagram below shows what each choice decides.
 **Example:**
 
 ```json
-{ "id": "cache", "criterion": "expense reads miss the latency target" }
+{ "id": "realtime", "criterion": "approval updates miss the latency target" }
 ```
 
 **Checked by:** `litespec model check` reports `project-invalid` for a selection without a criterion.

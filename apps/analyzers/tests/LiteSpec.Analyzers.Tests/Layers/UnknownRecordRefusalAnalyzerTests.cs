@@ -45,7 +45,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 reports a coalesced throw after a repository find.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 reports a coalesced throw after a repository find")]
     public Task ReportsACoalescedThrowAfterAFind() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -85,7 +85,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 reports an if-throw after a session load.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 reports an if-throw after a session load")]
     public Task ReportsAnIfThrowAfterALoad() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -127,7 +127,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 reports a bare exception thrown for an equality null check without braces.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 reports a bare exception thrown for an equality null check without braces")]
     public Task ReportsABareExceptionForAnEqualityCheck() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -169,7 +169,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 reports a coalesced throw on a load call with no local.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 reports a coalesced throw on a load call with no local")]
     public Task ReportsACoalescedThrowOnADirectLoad() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -208,7 +208,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 accepts a coalesced throw of the not-found refusal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 accepts a coalesced throw of the not-found refusal")]
     public Task AcceptsANotFoundRefusal() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -247,7 +247,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 stays quiet for a throw after an in-memory find.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 stays quiet for a throw after an in-memory find")]
     public Task StaysQuietForAnInMemoryFind() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -279,7 +279,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 stays quiet for a null check after a required load.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 stays quiet for a null check after a required load")]
     public Task StaysQuietAfterARequiredLoad() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(
@@ -324,7 +324,7 @@ public sealed class UnknownRecordRefusalAnalyzerTests
 
     /// <summary>LS2035 stays quiet outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
+    /// <proves>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</proves>
     [Fact(DisplayName = "LS2035 stays quiet outside Application and Infrastructure")]
     public Task StaysQuietOutsideItsLayers() =>
         Verify.AnalyzerAsync<UnknownRecordRefusalAnalyzer>(

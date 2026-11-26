@@ -10,8 +10,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1013: a switch over a state or closed-set record hierarchy gives every sealed case its own arm.</summary>
-/// <follows>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</follows>
-/// <follows>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</follows>
+/// <follows>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</follows>
+/// <follows>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ExhaustiveSwitchAnalyzer : LayerAnalyzer
 {

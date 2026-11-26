@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class OutboxDecisionCheckTests
 {
     /// <summary>A domain event type with no outbox decision reports decision missing.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void EventTypeWithNoDecisionReportsMissing()
     {
@@ -26,7 +26,7 @@ public sealed class OutboxDecisionCheckTests
     }
 
     /// <summary>A domain event type translated in code while its record states ignored reports decision drift.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void TranslatedTypeStatedIgnoredReportsDrift()
     {
@@ -46,7 +46,7 @@ public sealed class OutboxDecisionCheckTests
     }
 
     /// <summary>A domain event type ignored in code while a reaction consumes it reports decision drift.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void IgnoredTypeWithReactionConsumerReportsDrift()
     {
@@ -68,7 +68,7 @@ public sealed class OutboxDecisionCheckTests
     }
 
     /// <summary>A domain event type translated in code with a reaction consumer passes.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void TranslatedTypeWithConsumerPasses()
     {
@@ -88,7 +88,7 @@ public sealed class OutboxDecisionCheckTests
     }
 
     /// <summary>A domain event type ignored in code with an ignored record and no consumer passes.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void IgnoredTypeStatedIgnoredPasses()
     {
@@ -106,7 +106,7 @@ public sealed class OutboxDecisionCheckTests
     }
 
     /// <summary>A domain event type with no outbox decision passes when the outbox extension is not selected.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void EventTypeWithNoDecisionPassesWithoutOutbox()
     {
@@ -122,7 +122,7 @@ public sealed class OutboxDecisionCheckTests
     }
 
     /// <summary>A simple event name two records claim reports neither drift nor missing.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void AmbiguousEventNameReportsNeitherDriftNorMissing()
     {

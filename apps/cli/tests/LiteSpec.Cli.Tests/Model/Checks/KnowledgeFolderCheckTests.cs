@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class KnowledgeFolderCheckTests
 {
     /// <summary>A model with two sets reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void ModelWithSetsPasses()
     {
@@ -26,7 +26,7 @@ public sealed class KnowledgeFolderCheckTests
     }
 
     /// <summary>A model with no set, for an area that varies by nothing, reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void ModelWithoutSetsPasses()
     {
@@ -38,7 +38,7 @@ public sealed class KnowledgeFolderCheckTests
     }
 
     /// <summary>A folder under Knowledge that is neither a model nor a set reports drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void UnknownFolderReportsDrift()
     {
@@ -56,7 +56,7 @@ public sealed class KnowledgeFolderCheckTests
     }
 
     /// <summary>A set whose model the folder does not hold reports drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void SetOfUnknownModelReportsDrift()
     {
@@ -72,7 +72,7 @@ public sealed class KnowledgeFolderCheckTests
     }
 
     /// <summary>A file directly in the Knowledge root reports drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void FileDirectlyInKnowledgeReportsDrift()
     {
@@ -89,7 +89,7 @@ public sealed class KnowledgeFolderCheckTests
     }
 
     /// <summary>A marked file under Knowledge carries no module placement, so its namespace reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void MarkedKnowledgeFileSkipsModulePlacement()
     {
@@ -105,7 +105,7 @@ public sealed class KnowledgeFolderCheckTests
     }
 
     /// <summary>A marked file under Modules with a namespace naming another area reports drift, so the skip above is proved sensitive.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</proves>
     [Fact]
     public void MarkedModuleFileWithForeignNamespaceReportsDrift()
     {

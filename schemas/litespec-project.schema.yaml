@@ -45,9 +45,7 @@ allOf:
           - platform
           properties:
             platform:
-              enum:
-              - react
-              - svelte
+              const: svelte
   then:
     required:
     - ui
@@ -102,16 +100,14 @@ properties:
     - client-only
     default: server
   stacks:
-    description: 'The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android). Required when the project claims implementation or proof; otherwise a stack is informational.'
+    description: 'The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (svelte or android). Required when the project claims implementation or proof; otherwise a stack is informational.'
     type: array
     uniqueItems: true
     items:
       type: string
       enum:
       - dotnet
-      - react
       - svelte
-      - blazor
       - android
   stackConfig:
     description: Per-stack configuration, keyed by stack id. Each stack documents its own keys beside this schema.
@@ -151,9 +147,7 @@ properties:
     propertyNames:
       enum:
       - dotnet
-      - react
       - svelte
-      - blazor
       - android
     additionalProperties:
       type: object
@@ -178,13 +172,11 @@ properties:
           - event-decisions
           - closed-sets
         stack:
-          description: 'The stack the target writes for: dotnet, blazor or android write C#, react or svelte write TypeScript. Event decisions and closed sets need a .NET stack.'
+          description: 'The stack the target writes for: dotnet or android write C#, svelte writes TypeScript. Event decisions and closed sets need a .NET stack.'
           type: string
           enum:
           - dotnet
-          - react
           - svelte
-          - blazor
           - android
         path:
           description: 'The folder the target writes into, relative to the consumer root. For a .NET stack the path may hold {module} for the record module name or {Module} for the same name in PascalCase, and each module writes its file into its own resolved folder; without a placeholder each module writes into <path>/<Module>/. For a TypeScript stack the target writes one file into the folder.'
@@ -199,7 +191,6 @@ properties:
             stack:
               enum:
               - dotnet
-              - blazor
               - android
           required:
           - stack
@@ -225,9 +216,7 @@ properties:
           description: The frontend stack. Required on every entry, so a frontend outside the controlled UI contract declares that position instead of omitting the field.
           type: string
           enum:
-          - react
           - svelte
-          - blazor
           - android
         client:
           description: The generated API client this frontend calls. Both paths are relative to the consumer root.
@@ -264,15 +253,11 @@ properties:
           - platform
           properties:
             platform:
-              enum:
-              - react
-              - svelte
+              const: svelte
       - if:
           properties:
             platform:
-              enum:
-              - react
-              - svelte
+              const: svelte
           required:
           - platform
         then:
@@ -453,9 +438,6 @@ properties:
       apiClient:
         description: The generated API client the frontends import, so route calls resolve to the use cases they reach.
         $ref: '#/$defs/projectPath'
-      uiPatterns:
-        description: The workspace UI pattern catalog, validated against schemas/ui-pattern-catalog.schema.yaml, when it is not at .litespec/implementation/patterns/catalog.yaml.
-        $ref: '#/$defs/projectPath'
   selectedExtensions:
     description: Extensions active for this project. Each entry records the criterion that was met.
     type: array
@@ -473,29 +455,6 @@ properties:
         criterion:
           type: string
           minLength: 1
-        decision:
-          description: The identifier of the audit adoption decision the audit extension names.
-          type: string
-          pattern: '^decision/'
-        tenant:
-          description: The identifier of the tenant glossary term the tenancy extension names.
-          type: string
-          pattern: '^term/[a-z0-9][a-z0-9-]*$'
-      allOf:
-      - if:
-          required:
-          - decision
-        then:
-          properties:
-            id:
-              const: audit
-      - if:
-          required:
-          - tenant
-        then:
-          properties:
-            id:
-              const: tenancy
 $defs:
   projectPath:
     type: string

@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class OneActTests
 {
     /// <summary>Marked Reading Method Reports Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void MarkedReadingMethodReportsMarkUnresolved()
     {
@@ -19,7 +19,7 @@ public sealed class OneActTests
     }
 
     /// <summary>Unmarked Reading Method Reports No Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void UnmarkedReadingMethodReportsNoMarkUnresolved()
     {
@@ -31,7 +31,7 @@ public sealed class OneActTests
     }
 
     /// <summary>Marked Private Method Reports Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void MarkedPrivateMethodReportsMarkUnresolved()
     {
@@ -44,7 +44,7 @@ public sealed class OneActTests
     }
 
     /// <summary>Unmarked Private Helper Reports No Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void UnmarkedPrivateHelperReportsNoMarkUnresolved()
     {

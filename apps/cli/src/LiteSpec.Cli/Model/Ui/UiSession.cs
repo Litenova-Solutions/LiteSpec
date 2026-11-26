@@ -10,10 +10,9 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Ui;
 
 /// <summary>One in-process validation run: the errors, digests, and manifest it collects.</summary>
-/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
-/// <follows>litespec/frontend/ui#select-a-density-profile-for-each-frontend</follows>
-/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</follows>
 sealed class UiSession
 {
     /// <summary>
@@ -40,8 +39,7 @@ sealed class UiSession
     /// <summary>The LiteSpec pages the UI checks own waivers against.</summary>
     static readonly HashSet<string> UiWaiverPages = new(StringComparer.Ordinal)
     {
-        "frontend/ui", "frontend/components", "frontend/patterns",
-        "frontend/web/ui", "frontend/web/components", "frontend/web/patterns",
+        "core/ui-ia", "core/ui-verification", "packs/svelte/ui-primitives", "packs/android/ui-primitives",
     };
 
     /// <summary>An ISO calendar date.</summary>
@@ -88,12 +86,12 @@ sealed class UiSession
         var frontends = JsonRead.Chain(project, "frontends").Node is JsonArray array
             ? array.ToList()
             : new List<JsonNode?>();
-        var controlled = frontends.Where(frontend => PlatformOf(frontend) is "react" or "svelte").ToList();
-        var skipped = frontends.Where(frontend => JsonRead.Truthy(JsonRead.Child(frontend, "platform")) && PlatformOf(frontend) is not ("react" or "svelte")).ToList();
+        var controlled = frontends.Where(frontend => PlatformOf(frontend) is "svelte").ToList();
+        var skipped = frontends.Where(frontend => JsonRead.Truthy(JsonRead.Child(frontend, "platform")) && PlatformOf(frontend) is not "svelte").ToList();
         var checkedCount = 0;
 
-        var packagePlatform = LockPlatform(project);
-        var baselineKey = packagePlatform == "svelte" ? "uiBaselineSvelte" : "uiBaseline";
+        const string packagePlatform = "svelte";
+        const string baselineKey = "uiBaseline";
         var baseline = JsonRead.Child(Manifest, baselineKey);
         var baselineNode = baseline.Found ? baseline.Node : null;
         var hasBaseline = baselineNode is not null && JsonValues.IsTruthy(baselineNode);
@@ -126,17 +124,17 @@ sealed class UiSession
 
         // A controlled frontend composes the shared package, so the workspace declares
         // it once. A frontend that composes no shared component carries no UI block.
-        // (litespec/frontend/ui#record-one-shared-ui-package)
+        // (litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives)
         // An additional registry passes both registry gates under a waiver against
         // the pinned baseline provision. The expiry date on that record is checked
         // above; the gates below check its presence.
-        var baselineOverride = uiWaivers.Any(waiver => waiver.Covers.Contains("litespec/frontend/ui#pin-the-baseline-in-the-shared-package"));
+        var baselineOverride = uiWaivers.Any(waiver => waiver.Covers.Contains("litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream"));
         var pkgValue = JsonRead.Chain(project, "ui", "package");
         var pkg = pkgValue.Found ? pkgValue.Node : null;
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
         if (controlled.Count == 0 && hasPkg)
         {
-            Add("ui-package-invalid", "ui.package is declared but no frontend declares a controlled platform (react, svelte)", projectFile);
+            Add("ui-package-invalid", "ui.package is declared but no frontend declares a controlled platform (svelte)", projectFile);
         }
         UiSharedPackage? packageSummary = null;
         if (hasPkg)
@@ -320,7 +318,7 @@ sealed class UiSession
                                 return;
                             }
 
-                            Add("ui-class-invalid", $"[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
+                            Add("ui-class-invalid", $"[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
                         });
                     }
                 }
@@ -349,25 +347,12 @@ sealed class UiSession
                     var inline = source.EndsWith(".svelte", StringComparison.Ordinal) ? SourceFiles.SvelteInlineStyle : SourceFiles.ReactInlineStyle;
                     if (inline.IsMatch(File.ReadAllText(source)))
                     {
-                        Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only] an inline style belongs in a shared component", source);
+                        Add("ui-stylesheet-invalid", "[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] an inline style belongs in a shared component", source);
                     }
                 }
 
                 new RouteCoverageChecks(this).ValidateRouteSuites(label, frontendRoot, platform);
             }
-        }
-
-        // A workspace that records pattern decisions keeps one catalog beside its
-        // design contract. A workspace without one reports nothing here.
-        // (litespec/frontend/patterns#keep-one-pattern-catalog)
-        var uiPatterns = JsonRead.Chain(project, "paths", "uiPatterns");
-        if (JsonRead.Truthy(uiPatterns))
-        {
-            new CatalogChecks(this).ValidatePatternCatalog(JsonRead.Show(uiPatterns));
-        }
-        else if (File.Exists(FilePath(CatalogChecks.DefaultCatalog)))
-        {
-            new CatalogChecks(this).ValidatePatternCatalog(CatalogChecks.DefaultCatalog);
         }
 
         UiFrontend Describe(JsonNode? frontend)

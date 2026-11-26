@@ -8,7 +8,7 @@ public sealed class LayerDirectionAnalyzerTests
 {
     /// <summary>LS2018 reports an Application file naming an Infrastructure type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports an Application file naming an Infrastructure type")]
     public Task ReportsAnApplicationFileNamingAnInfrastructureType() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -37,7 +37,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports an Application file naming a WebApi type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports an Application file naming a WebApi type")]
     public Task ReportsAnApplicationFileNamingAWebApiType() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -66,7 +66,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports an Application file naming ASP.NET Core and HttpContext.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports an Application file naming ASP.NET Core and HttpContext")]
     public Task ReportsAnApplicationFileNamingAspNetCore() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -103,7 +103,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports a WebApi file naming a Domain aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports a WebApi file naming a Domain aggregate")]
     public Task ReportsAWebApiFileNamingADomainAggregate() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -135,7 +135,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports a WebApi file naming a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports a WebApi file naming a repository")]
     public Task ReportsAWebApiFileNamingARepository() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -162,7 +162,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 accepts a WebApi file naming an identifier and a shared-kernel value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 accepts a WebApi file naming an identifier and a shared-kernel value")]
     public Task AcceptsAWebApiFileNamingAnIdentifierAndASharedValue() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -190,7 +190,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 accepts an Application file naming Domain and Application types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 accepts an Application file naming Domain and Application types")]
     public Task AcceptsAnApplicationFileNamingInnerTypes() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -224,7 +224,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 stays quiet in a Domain file of the same compilation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 stays quiet in a Domain file of the same compilation")]
     public Task StaysQuietOutsideApplicationPortsAndWebApi() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -252,7 +252,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports a repository named from a WebApi host.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports a repository named from a WebApi host")]
     public Task ReportsARepositoryFromAWebApiHost() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -277,7 +277,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports an Application file naming a stored document of an aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports an Application file naming a stored document of an aggregate")]
     public Task ReportsAnApplicationFileNamingAnAggregateDocument() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -317,7 +317,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports a WebApi file naming a stored document of an aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports a WebApi file naming a stored document of an aggregate")]
     public Task ReportsAWebApiFileNamingAnAggregateDocument() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -357,7 +357,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports an Application file naming a document with no aggregate behind it.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports an Application file naming a document with no aggregate behind it")]
     public Task ReportsAnApplicationFileNamingADocumentWithNoAggregate() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -386,7 +386,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 accepts an Application file naming a port.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 accepts an Application file naming a port")]
     public Task AcceptsAnApplicationFileNamingAPort() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -415,7 +415,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports a WebApi file naming a port.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports a WebApi file naming a port")]
     public Task ReportsAWebApiFileNamingAPort() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -444,7 +444,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 reports a Ports file naming an Application type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 reports a Ports file naming an Application type")]
     public Task ReportsAPortsFileNamingAnApplicationType() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -471,7 +471,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 accepts a Ports file naming Domain types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 accepts a Ports file naming Domain types")]
     public Task AcceptsAPortsFileNamingDomainTypes() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
@@ -498,7 +498,7 @@ public sealed class LayerDirectionAnalyzerTests
 
     /// <summary>LS2018 accepts a pipeline piece naming a repository and a domain type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2018 accepts a pipeline piece naming a repository and a domain type")]
     public Task AcceptsAPipelinePieceNamingARepositoryAndADomainType() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(

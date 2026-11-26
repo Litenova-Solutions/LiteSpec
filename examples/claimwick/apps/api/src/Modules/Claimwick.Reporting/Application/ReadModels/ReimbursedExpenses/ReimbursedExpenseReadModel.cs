@@ -4,7 +4,7 @@ namespace Claimwick.Reporting.Application.ReadModels.ReimbursedExpenses;
 
 /// <summary>Reads the reimbursed expenses from the read session.</summary>
 /// <implements>read-model/reporting.reimbursed-expense</implements>
-/// <follows>litespec/backend/application#read-another-modules-state-through-a-read-model</follows>
+/// <follows>litespec/core/backend-application#read-another-modules-state-through-a-read-model</follows>
 internal sealed class ReimbursedExpenseReadModel : IReimbursedExpenseReadModel
 {
     private readonly IQuerySession _session;

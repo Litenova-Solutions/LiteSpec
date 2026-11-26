@@ -4,7 +4,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class SharedRuleExceptionTests
 {
     /// <summary>Kernel Exception Marking Its Product Rule Carries Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    /// <proves>litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact]
     public void KernelExceptionMarkingItsProductRuleCarriesItsMark()
     {
@@ -18,7 +18,7 @@ public sealed class SharedRuleExceptionTests
     }
 
     /// <summary>Kernel Exception With Only A Follows Mark Still Reports Missing.</summary>
-    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    /// <proves>litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact]
     public void KernelExceptionWithOnlyAFollowsMarkStillReportsMissing()
     {
@@ -26,7 +26,7 @@ public sealed class SharedRuleExceptionTests
         var file = Path.Combine(fixture.Path, "apps", "api", "src", "Library.Kernel", "Domain", "UnknownRecordException.cs");
         File.WriteAllText(file, File.ReadAllText(file).Replace(
             "/// <implements>rule/library.unknown-record</implements>",
-            "/// <follows>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</follows>",
+            "/// <follows>litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions</follows>",
             StringComparison.Ordinal));
 
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-missing");

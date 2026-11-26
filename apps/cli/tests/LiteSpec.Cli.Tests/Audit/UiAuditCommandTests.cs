@@ -233,7 +233,7 @@ public sealed class UiAuditCommandTests
     }
 
     /// <summary>A consumer with no screen routes audits nothing and exits zero.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a consumer with no screen routes audits nothing and exits zero")]
     public void NoRoutesExitsZero()
     {

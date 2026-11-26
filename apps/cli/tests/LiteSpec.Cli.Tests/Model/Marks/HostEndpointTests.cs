@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class HostEndpointTests
 {
     /// <summary>Marked Host Endpoint Exposes Its Use Case.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-host-endpoints-in-hosts</proves>
     [Fact]
     public void MarkedHostEndpointExposesItsUseCase()
     {
@@ -28,7 +28,7 @@ public sealed class HostEndpointTests
     }
 
     /// <summary>Host Endpoint Outside Any Read Root Still Reports Missing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-host-endpoints-in-hosts</proves>
     [Fact]
     public void HostEndpointOutsideAnyReadRootStillReportsMissing()
     {

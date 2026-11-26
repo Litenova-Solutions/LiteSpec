@@ -12,11 +12,11 @@ namespace LiteSpec.Cli.Model.Consumer;
 ///     the project names.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
-/// <follows>litespec/frontend/ui#record-one-shared-ui-package</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</follows>
 static class FrontendChecks
 {
     /// <summary>The platforms whose frontends compose the shared UI package.</summary>
-    static readonly string[] ControlledPlatforms = ["react", "svelte"];
+    static readonly string[] ControlledPlatforms = ["svelte"];
 
     /// <summary>
     ///     Checks every declared frontend's directory and stack, routes the controlled

@@ -152,6 +152,5 @@ An explanation file lives in the record's folder beside its record file, sharing
 |:---|:---|:---|
 | `design-contract.md` | `packages/ui/DESIGN.md` | Binds each page frame to its floorplan component, and names the token file, baseline, motion, and browser target. |
 | `ui-source-lock.yaml` | `packages/ui/ui-source-lock.yaml` | Records the installed registry source, digests, and dependencies. |
-| `ui-pattern-catalog.yaml` | `.litespec/implementation/patterns/catalog.yaml` | Records each recurring interface decision with its options and choice. |
 
 The model builder reads each record and computes its state in memory. The book renders that state.

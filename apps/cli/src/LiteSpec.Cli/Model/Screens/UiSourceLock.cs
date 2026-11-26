@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Model.Screens;
 ///     status, paths and dependencies), the registry, the formatter and the generator are kept
 ///     as the team wrote them, and a lock whose text is already current is left alone.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</follows>
 static class UiSourceLock
 {
     /// <summary>The preset fields the lock records, in the order the schema lists them.</summary>
@@ -60,11 +60,9 @@ static class UiSourceLock
             return [];
         }
 
-        // The generator names the CLI that installed the package, which picks the baseline and the
-        // CLI pin the same way the lock check does.
-        var svelte = TextAt(lockObject, "generator") == "shadcn-svelte";
-        var baseline = JsonRead.Chain(manifest, svelte ? "uiBaselineSvelte" : "uiBaseline");
-        var cliPin = JsonRead.Chain(manifest, "packages", "npm", svelte ? "shadcn-svelte" : "shadcn");
+        // The manifest pins the Svelte baseline and shadcn-svelte CLI version.
+        var baseline = JsonRead.Chain(manifest, "uiBaseline");
+        var cliPin = JsonRead.Chain(manifest, "packages", "npm", "shadcn-svelte");
 
         if (JsonRead.Truthy(cliPin))
         {

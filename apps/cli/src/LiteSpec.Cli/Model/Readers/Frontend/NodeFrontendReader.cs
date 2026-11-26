@@ -16,7 +16,7 @@ namespace LiteSpec.Cli.Model.Readers.Frontend;
 ///     <c>reader-missing</c> cause. The reader is qualified when its
 ///     handshake matched; nothing in <c>.litespec/project.yaml</c> disqualifies it.
 /// </summary>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 static class NodeFrontendReader
 {
     /// <summary>The frontend facts protocol version this CLI speaks.</summary>
@@ -25,9 +25,9 @@ static class NodeFrontendReader
     /// <summary>How long a Node reader run may take before it is stopped: two minutes.</summary>
     private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(2);
 
-    /// <summary>Reads every Svelte and React frontend of the consumer, in declared order.</summary>
+    /// <summary>Reads every Svelte frontend of the consumer, in declared order.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
-    /// <returns>The facts of every web frontend, in declared order.</returns>
+    /// <returns>The facts of every Svelte frontend, in declared order.</returns>
     public static IReadOnlyList<FrontendFacts> Read(ConsumerConfig config) =>
         Read(config, LocateBundle(), FindNode());
 
@@ -35,11 +35,11 @@ static class NodeFrontendReader
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
     /// <param name="bundle">The reader bundle path to run.</param>
     /// <param name="node">The Node executable path to run, or null to locate Node on PATH.</param>
-    /// <returns>The facts of every web frontend, in declared order.</returns>
+    /// <returns>The facts of every Svelte frontend, in declared order.</returns>
     internal static IReadOnlyList<FrontendFacts> Read(ConsumerConfig config, string? bundle, string? node)
     {
         var web = config.Frontends
-            .Where(frontend => frontend.Platform is "svelte" or "react")
+            .Where(frontend => frontend.Platform is "svelte")
             .ToList();
 
         if (web.Count == 0)
@@ -222,8 +222,8 @@ static class NodeFrontendReader
 
     /// <summary>
     ///     The import aliases a frontend resolves: the <c>#</c> subpath imports its
-    ///     <c>package.json</c> declares, or the stack's own alias when it declares none
-    ///     (<c>@</c> for <c>src</c> on React, <c>#lib</c> for <c>src/lib</c> on Svelte).
+    ///     <c>package.json</c> declares, or the Svelte stack's own alias when it declares
+    ///     none (<c>#lib</c> for <c>src/lib</c>).
     /// </summary>
     /// <param name="frontend">The frontend whose import aliases are wanted.</param>
     /// <returns>The alias and target pairs the frontend resolves.</returns>
@@ -264,9 +264,7 @@ static class NodeFrontendReader
             return declared;
         }
 
-        return frontend.Platform == "react"
-            ? [("@", Path.Combine(frontend.Path, "src"))]
-            : [("#lib", Path.Combine(frontend.Path, "src", "lib"))];
+        return [("#lib", Path.Combine(frontend.Path, "src", "lib"))];
     }
 
     /// <summary>

@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <summary>
 ///     LS5004: a mark is written in the style the project did not declare.
 /// </summary>
-/// <follows>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</follows>
+/// <follows>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MarkStyleAnalyzer : TraceabilityAnalyzer
 {

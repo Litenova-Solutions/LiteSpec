@@ -13,7 +13,7 @@ using static LiteSpec.Analyzers.Generation.Sources.RoleWriter;
 namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the generator's sources from the records, the marked types and the host: it decides which sources a project gets and hands each to its writer. Every value is written only where no member of that name is declared in source, and only where its record is known.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class GeneratedSourceWriter
 {

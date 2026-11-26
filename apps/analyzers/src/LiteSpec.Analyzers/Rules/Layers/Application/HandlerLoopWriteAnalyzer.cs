@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2015: a command handler never changes records in a loop, unless its use case states per-record consistency.</summary>
-/// <follows>litespec/backend/application#issue-per-record-work-from-a-job</follows>
+/// <follows>litespec/core/backend-application#issue-per-record-work-from-a-job</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
 {

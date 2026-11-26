@@ -1,7 +1,7 @@
 namespace LiteSpec.Cli.Audit;
 
 /// <summary>The browser the audit runs: Chrome, then Edge, then Chromium, or the named executable.</summary>
-/// <follows>litespec/frontend/ui#pass-every-route-suite-check</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 static class AuditBrowserDiscovery
 {
     /// <summary>Finds the browser executable: the explicit path, or the installed Chrome, Edge, or Chromium.</summary>

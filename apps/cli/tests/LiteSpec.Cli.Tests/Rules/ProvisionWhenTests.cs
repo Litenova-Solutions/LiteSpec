@@ -18,9 +18,9 @@ public sealed class ProvisionWhenTests
             "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.DoesNotContain("litespec/backend/api#bound-every-file-upload", result.Output);
-        Assert.DoesNotContain("litespec/backend/api#store-every-upload-through-infrastructure", result.Output);
-        Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-api#bound-every-file-upload", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-api#store-every-upload-through-infrastructure", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-persistence#assign-document-numbers-from-a-sequence", result.Output);
     }
 
     /// <summary>A plain command prints no provision conditioned on another kind and keeps its judgment list short.</summary>
@@ -69,7 +69,7 @@ public sealed class ProvisionWhenTests
             "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/backend/api#store-every-upload-through-infrastructure:", result.Output);
+        Assert.Contains("- litespec/core/backend-api#store-every-upload-through-infrastructure:", result.Output);
     }
 
     /// <summary>A use case issuing a payout number keeps the document-number provision.</summary>
@@ -84,7 +84,7 @@ public sealed class ProvisionWhenTests
             "apps/api/src/Modules/Claimwick.Spending/Application/Expenses/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/backend/persistence#assign-document-numbers-from-a-sequence:", result.Output);
+        Assert.Contains("- litespec/core/backend-persistence#assign-document-numbers-from-a-sequence:", result.Output);
     }
 
     /// <summary>A query and a command collapse different record provisions, each leaving the other kind out.</summary>
@@ -106,10 +106,10 @@ public sealed class ProvisionWhenTests
         Assert.Equal(0, command.Status);
 
         // 7.0.0 added command-only provisions (consistency, conflicts, replay), so the totals can match; the sets still differ.
-        Assert.Contains("- litespec/backend/persistence#query-through-the-read-session:", query.Output);
-        Assert.DoesNotContain("- litespec/backend/persistence#query-through-the-read-session:", command.Output);
-        Assert.Contains("- litespec/backend/application#implement-one-outcome-path-per-command:", command.Output);
-        Assert.DoesNotContain("- litespec/backend/application#implement-one-outcome-path-per-command:", query.Output);
+        Assert.Contains("- litespec/core/backend-persistence#query-through-the-read-session:", query.Output);
+        Assert.DoesNotContain("- litespec/core/backend-persistence#query-through-the-read-session:", command.Output);
+        Assert.Contains("- litespec/core/backend-application#implement-one-outcome-path-per-command:", command.Output);
+        Assert.DoesNotContain("- litespec/core/backend-application#implement-one-outcome-path-per-command:", query.Output);
     }
 
     /// <summary>An erasure use case collapses more than a command without erasure.</summary>
@@ -147,10 +147,10 @@ public sealed class ProvisionWhenTests
             "--all");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/backend/application#ask-another-module-one-question-through-a-decision-port:", result.Output);
-        Assert.Contains("- litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator:", result.Output);
-        Assert.Contains("- litespec/backend/architecture#read-another-module-only-through-its-contracts:", result.Output);
-        Assert.Contains("- litespec/backend/architecture#send-commands-and-queries-upstream:", result.Output);
+        Assert.Contains("- litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port:", result.Output);
+        Assert.Contains("- litespec/core/backend-application#send-cross-module-queries-and-commands-through-the-mediator:", result.Output);
+        Assert.Contains("- litespec/core/backend-architecture#read-another-module-only-through-its-contracts:", result.Output);
+        Assert.Contains("- litespec/core/backend-architecture#send-commands-and-queries-upstream:", result.Output);
     }
 
     /// <summary>A command whose use case declares no queries edge omits the cross-module provisions.</summary>
@@ -165,10 +165,10 @@ public sealed class ProvisionWhenTests
             "apps/api/src/Demo/Billing/Invoicing/ReimburseExpense/ReimburseExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.DoesNotContain("litespec/backend/application#ask-another-module-one-question-through-a-decision-port", result.Output);
-        Assert.DoesNotContain("litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator", result.Output);
-        Assert.DoesNotContain("litespec/backend/architecture#read-another-module-only-through-its-contracts", result.Output);
-        Assert.DoesNotContain("litespec/backend/architecture#send-commands-and-queries-upstream", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-application#send-cross-module-queries-and-commands-through-the-mediator", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-architecture#read-another-module-only-through-its-contracts", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-architecture#send-commands-and-queries-upstream", result.Output);
     }
 
     /// <summary>A command whose use case declares a commands edge keeps the same cross-module provisions as a queries edge.</summary>
@@ -189,8 +189,8 @@ public sealed class ProvisionWhenTests
         Assert.Equal(0, plainResult.Status);
         foreach (var provision in new[]
         {
-            "litespec/backend/architecture#send-commands-and-queries-upstream",
-            "litespec/backend/application#confirm-downstream-completion-through-an-upstream-command",
+            "litespec/core/backend-architecture#send-commands-and-queries-upstream",
+            "litespec/core/backend-application#confirm-downstream-completion-through-an-upstream-command",
         })
         {
             Assert.Contains("- " + provision + ":", commandsResult.Output);
@@ -208,7 +208,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run("rules", "--root", root, "use-case/spending.approve-expense");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/backend/application#validate-query-input:", result.Output);
+        Assert.Contains("- litespec/core/backend-application#validate-query-input:", result.Output);
         Assert.Contains("when query", result.Output);
     }
 
@@ -226,8 +226,8 @@ public sealed class ProvisionWhenTests
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/PlainCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.DoesNotContain("litespec/backend/api#store-every-upload-through-infrastructure", result.Output);
-        Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-api#store-every-upload-through-infrastructure", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-persistence#assign-document-numbers-from-a-sequence", result.Output);
     }
 
     /// <summary>A code path marking the named adoption decision keeps the audit-adoption provisions.</summary>
@@ -279,7 +279,7 @@ public sealed class ProvisionWhenTests
         var result = TestCli.Run("rules", "--root", root.Path, "decision/0008-render-invoices-as-pdf");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/ext/audit#record-the-audit-adoption-decision:", result.Output);
+        Assert.Contains("- litespec/core/audit#record-the-audit-adoption-decision:", result.Output);
         Assert.Contains("when audit-adoption", result.Output);
     }
 

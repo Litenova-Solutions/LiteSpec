@@ -615,7 +615,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>A read model reads its key aggregate, takes each field from an integration event, and is read by the use case that names it.</summary>
-    /// <proves>litespec/backend/application#read-another-modules-state-through-a-read-model</proves>
+    /// <proves>litespec/core/backend-application#read-another-modules-state-through-a-read-model</proves>
     [Fact]
     public void ReadModelEdgesReadKeyFromAndReads()
     {

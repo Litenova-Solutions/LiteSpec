@@ -202,7 +202,6 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `ui-class-invalid` | G | implementation | no | - | A class string carries an arbitrary value, a raw palette value, or an important modifier. | Replace it with a semantic token or a declared variant. |
 | `ui-import-invalid` | G | implementation | no | - | Application code reaches a primitive library, an internal package path, or a table library directly. | Reach shared UI through the public entry points only. |
 | `ui-dependency-invalid` | G | implementation | no | - | The project has a second general-purpose visual dependency that no waiver covers. | Depend on one visual system, or record a waiver. |
-| `ui-catalog-invalid` | G | implementation | no | - | The pattern catalog is missing, breaks its schema, or names an unknown pattern, option, or component path. | Write the catalog against the LiteSpec pattern pages, naming only patterns, options, and component paths that exist. |
 | `ui-route-suite-missing` | G | proof | no | - | A route has no route suite proving it in a browser. | Prove every route in a browser through the route suite. |
 | `reaction-trigger-foreign` | G | behavior | no | - | A reaction is triggered by another module's domain event. | Trigger the reaction on its own module's domain event, on a module event, or on an inbound integration event, or move the reaction to the module that owns the event. |
 | `scenario-rule-unexercised` | G | behavior | no | - | A refusal scenario's result carries a rule that the scenario's `exercises` do not name, or an input rule is exercised by no scenario of the use case. | Name the rule in the scenario's `exercises`, or add a scenario that exercises the input rule. |
@@ -227,7 +226,6 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `audit-target-missing` | G | behavior | no | audit | An audited use case that changes a record states no audit target. | Name the audited record in `target` of the `audit` block: one input, a list of inputs, or the output field carrying it. |
 | `audit-target-unknown` | G | behavior | no | audit | An audit target names no input of the use case, an input carrying no `identifies`, or no output field of the use case. | Name inputs carrying `identifies` in `target`, or the output field carrying the target. |
 | `audit-target-kind-drift` | G | behavior | no | audit | An audit `targetKind` differs from the `identifies` of its single `target` input. | Match `targetKind` to what the target input identifies. |
-| `field-extension-unselected` | G | behavior | no | - | A record writes a field its extension owns while the project does not select that extension. | Remove the field, or select the extension that owns it. |
 | `design-token-limit-failed` | G | implementation | no | - | A token role misses its limit in a declared scheme. | Bring the role's value within its limit in every declared scheme. |
 | `surface-nesting-invalid` | G | implementation | no | - | A rendered surface sits inside another surface. | Remove the inner surface; let the composite join the surface around it. |
 | `surface-contrast-failed` | G | implementation | no | - | A rendered surface has the same fill as the surface it sits on and no edge. | Give the surface the next layer token, or an edge. |
@@ -244,8 +242,6 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `page-error-shown` | G | implementation | no | - | A rendered page shows an error in an alert once it settles. | Fix the failure the alert reports. |
 | `screen-unreachable` | G | behavior | no | - | A screen is reached from no other screen and is not its entry point's start. | Lead to the screen from another screen, or make it the entry point's start. |
 | `screen-dead-end` | G | behavior | no | - | A screen leads to no next screen and offers no use case. | Lead the screen to a next screen, or offer a use case from it. |
-| `screen-pageframe-missing` | G | behavior | no | - | A screen with a route names no page frame in `pageFrame`. | Name the page-frame pattern the screen follows in `pageFrame`. |
-| `screen-pageframe-invalid` | G | behavior | no | - | A screen offering more use cases than the project's offer limit follows no hub frame. | Follow a hub frame from the screen: home, settings home, queue or list. |
 | `screen-primary-action-unknown` | G | behavior | no | - | A screen's `primaryAction` names no use case the screen offers. | Name in `primaryAction` a use case the screen offers. |
 | `wording-alias` | G | behavior | no | - | A result sentence or glossary label uses a glossary alias where the term exists. | Use the glossary term instead of its alias. |
 | `sentence-language-missing` | G | behavior | no | - | A written refusal result has no sentence for a language its use case's entry points declare. | Write the sentence in `sentences` for each language the entry points declare, beside the entry point's default. |

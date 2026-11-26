@@ -58,7 +58,7 @@ public sealed class RulesDecidedTests
             title: Lasting Layout Choice
             kind: lasting
             waives:
-              - litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case
+              - litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case
             appliesTo:
               - use-case/billing.send-invoice
             reason: The demo keeps one folder per use case forever.

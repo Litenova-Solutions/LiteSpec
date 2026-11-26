@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class DotnetMarkLinkTests
 {
     /// <summary>Handler Marked Xml Links Its Use Case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerMarkedXmlLinksItsUseCase()
     {
@@ -37,7 +37,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Handler Marked Attribute Links Its Use Case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerMarkedAttributeLinksItsUseCase()
     {
@@ -63,7 +63,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Handler Without Mark Has Empty Use Case Id And An Unmarked Element.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerWithoutMarkHasEmptyUseCaseIdAndAnUnmarkedElement()
     {
@@ -91,7 +91,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Handler With Two Use Case Marks Has Empty Use Case Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerWithTwoUseCaseMarksHasEmptyUseCaseId()
     {
@@ -119,7 +119,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Event Id Comes From Its Mark Not Its Class Name.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventIdComesFromItsMarkNotItsClassName()
     {
@@ -138,7 +138,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Event Without Mark Has Null Event Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventWithoutMarkHasNullEventId()
     {
@@ -156,7 +156,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Aggregate Method Carries Its Use Cases.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AggregateMethodCarriesItsUseCases()
     {
@@ -185,7 +185,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Aggregate Method Without Marks Has No Use Cases.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AggregateMethodWithoutMarksHasNoUseCases()
     {
@@ -210,7 +210,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Marked Method Of No Kind Lands In Stray Marks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void MarkedMethodOfNoKindLandsInStrayMarks()
     {
@@ -237,7 +237,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Marked Plain Class Lands In Stray Marks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void MarkedPlainClassLandsInStrayMarks()
     {
@@ -261,7 +261,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Classification Lands In Runtime Value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ClassificationLandsInRuntimeValue()
     {
@@ -284,7 +284,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Event Without Classification Has Null Runtime Value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventWithoutClassificationHasNullRuntimeValue()
     {
@@ -303,7 +303,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Endpoint Links Its Use Case From Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EndpointLinksItsUseCaseFromItsMark()
     {
@@ -335,7 +335,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Endpoint Without Mark Has Empty Use Case Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EndpointWithoutMarkHasEmptyUseCaseId()
     {
@@ -364,7 +364,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Reaction Links Its Record From Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionLinksItsRecordFromItsMark()
     {
@@ -387,7 +387,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Reaction Without Mark Has Null Record Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionWithoutMarkHasNullRecordId()
     {
@@ -408,7 +408,7 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Job Host Links Its Job From Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobHostLinksItsJobFromItsMark()
     {

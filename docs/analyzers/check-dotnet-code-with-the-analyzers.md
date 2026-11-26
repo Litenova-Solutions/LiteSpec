@@ -7,8 +7,8 @@ Install the analyzer package once for the backend projects and their tests, read
 You need:
 
 - The .NET 10 SDK, which the manifest names as the .NET stack release.
-- A solution laid out with the business projects and hosts that [the .NET architecture page](../backend/dotnet/architecture.md) requires: the Kernel, Platform, and module projects, plus a WebApi host for composition and HTTP plumbing.
-- One shared build file imported by every project, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
+- A solution laid out with the business projects and hosts that [the .NET architecture page](../packs/dotnet/architecture.md) requires: the Kernel, Platform, and module projects, plus a WebApi host for composition and HTTP plumbing.
+- One shared build file imported by every project, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../packs/dotnet/config.md#centralize-nuget-versions) describes.
 
 ## Procedure
 
@@ -28,7 +28,7 @@ Put a single `PackageReference` in `apps/api/Directory.Build.props` so every pro
 <PackageVersion Include="LiteSpec.Analyzers" Version="7.0.0" />
 ```
 
-and drop `Version` from the `PackageReference`. Do not add a second copy in any project file. For an unreleased build, consume the package through a local feed instead of a project reference, as `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts` shows.
+and drop `Version` from the `PackageReference`. Do not add a second copy in any project file. For an unreleased build, consume the package through a local feed instead of a project reference, as `litespec/packs/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts` shows.
 
 ### 2. Confirm the Layout
 
@@ -36,7 +36,7 @@ A rule only runs in the layers its provision covers, so next confirm that every 
 
 #### Resolve File Layers
 
-The analyzers read the layer from the file's top folder in the module, as the [Analyzers overview](README.md) describes; test files resolve as Test. A module project names no layer itself: each of its files takes its layer from its folder. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../backend/dotnet/architecture.md).
+The analyzers read the layer from the file's top folder in the module, as the [Analyzers overview](README.md) describes; test files resolve as Test. A module project names no layer itself: each of its files takes its layer from its folder. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../packs/dotnet/architecture.md).
 
 #### Check the Record Layer Claims
 
@@ -64,7 +64,7 @@ Each finding is an error by default and fails the build, except `LS3005`, which 
 error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/7.0.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
 ```
 
-The address at the end is the help link. It opens the provision the rule enforces, here `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. Visual Studio lists the same error in the Error List with its ID, file, and line, and the tooltip carries the help link; in the terminal, `dotnet build` prints the line above.
+The address at the end is the help link. It opens the provision the rule enforces, here `litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. Visual Studio lists the same error in the Error List with its ID, file, and line, and the tooltip carries the help link; in the terminal, `dotnet build` prints the line above.
 
 ### 4. Fix a Finding
 
@@ -83,7 +83,7 @@ public enum OrderStatus
 }
 ```
 
-After the rewrite, in the shape [the .NET domain page](../backend/dotnet/domain.md#model-every-closed-set-of-domain-values-without-enums) shows:
+After the rewrite, in the shape [the .NET domain page](../packs/dotnet/domain.md#model-every-closed-set-of-domain-values-without-enums) shows:
 
 ```csharp
 public abstract record OrderStatus
@@ -115,7 +115,7 @@ public sealed record OrderFailedStatus : OrderStatus
 }
 ```
 
-Boundary code turns a label into a case through `FromCode`. A label nobody recognizes fails validation instead of falling into a default case, and callers branch on the case type with a `switch` expression. Define `OrderUnsupportedStatusException` as a sealed `DomainException` subclass with a stable code, as `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions` requires.
+Boundary code turns a label into a case through `FromCode`. A label nobody recognizes fails validation instead of falling into a default case, and callers branch on the case type with a `switch` expression. Define `OrderUnsupportedStatusException` as a sealed `DomainException` subclass with a stable code, as `litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions` requires.
 
 #### Pass Time in as an Argument
 
@@ -137,7 +137,7 @@ public void Publish(DateTimeOffset publishedAt)
 }
 ```
 
-The caller in Application supplies `publishedAt` from its own clock, and tests pass an explicit value, so Domain stays deterministic. This follows the `Publish` shape on [the .NET domain page](../backend/dotnet/domain.md#model-every-aggregate-lifecycle-with-state-records) and satisfies `litespec/backend/domain#pass-nondeterministic-values-into-domain`.
+The caller in Application supplies `publishedAt` from its own clock, and tests pass an explicit value, so Domain stays deterministic. This follows the `Publish` shape on [the .NET domain page](../packs/dotnet/domain.md#model-every-aggregate-lifecycle-with-state-records) and satisfies `litespec/core/backend-domain#pass-nondeterministic-values-into-domain`.
 
 ### 5. Let the Build Fail on Findings in CI
 
@@ -160,7 +160,7 @@ Or scope an `.editorconfig` entry to the single file:
 dotnet_diagnostic.LS1011.severity = suggestion
 ```
 
-That entry quiets `litespec/backend/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record behind it: the waiver holds the reason, and the suppression quiets the compiler only where the record allows.
+That entry quiets `litespec/core/backend-domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record behind it: the waiver holds the reason, and the suppression quiets the compiler only where the record allows.
 
 ## Check
 

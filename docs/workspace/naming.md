@@ -86,7 +86,7 @@ Application types keep their full suffix. The short forms `{UseCase}Result`, `{U
 
 HTTP transport types keep their full suffix too. The short forms `{UseCase}Request` and `{UseCase}Response` drop the boundary marking. The `Model` suffix marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in `Model`, such as `ListPostsResponseItemModel` or `PaginationModel`.
 
-A polymorphic transport model mirrors a Domain discriminated union (`litespec/backend/api#mirror-each-closed-set-on-the-wire`). Its abstract base names the concept and each sealed case names its case, with both ending in `Model`: `FulfillmentOutcomeModel` and `ShippedFulfillmentOutcomeModel`.
+A polymorphic transport model mirrors a Domain discriminated union (`litespec/core/backend-api#mirror-each-closed-set-on-the-wire`). Its abstract base names the concept and each sealed case names its case, with both ending in `Model`: `FulfillmentOutcomeModel` and `ShippedFulfillmentOutcomeModel`.
 
 The transport name drops the aggregate prefix of the Domain union, such as `OrderFulfillmentOutcome`, while its discriminator string keeps the stable case code of the Domain union unchanged.
 

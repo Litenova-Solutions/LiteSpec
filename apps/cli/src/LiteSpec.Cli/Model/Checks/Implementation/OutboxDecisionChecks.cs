@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     The outbox decision checks: each domain event type carries one outbox decision in code,
 ///     and the decision matches the outcome the records state, in a project selecting the outbox extension.
 /// </summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 internal static class OutboxDecisionChecks
 {
     /// <summary>Reports each domain event type with no outbox decision, and each decision contradicting the records.</summary>
@@ -17,11 +17,6 @@ internal static class OutboxDecisionChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        if (!model.Config.Extensions.Contains("outbox", StringComparer.Ordinal))
-        {
-            return;
-        }
-
         var translated = new HashSet<string>(StringComparer.Ordinal);
         var ignored = new HashSet<string>(StringComparer.Ordinal);
         var decidedAt = new Dictionary<string, (string File, int Line)>(StringComparer.Ordinal);

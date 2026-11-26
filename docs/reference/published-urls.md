@@ -79,7 +79,7 @@ The eight files are the ones the [Formats](formats.md) page lists. Each answers 
 
 The provision index answers with `Content-Type: application/json` and stays out of search results. It carries one object per provision, with its ID, heading, owning page, anchor, kind, strength, statement, rationale, example, scope, and verification evidence, so an agent resolves any provision with one fetch instead of reading every page.
 
-Each provision ID resolves to its page: `litespec/<page>#<slug>` is `https://litespec.dev/<release>/<page>/#<slug>` as HTML and `https://litespec.dev/<release>/<page>.md` as Markdown. For example, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` is `https://litespec.dev/7.0.0/backend/application/#keep-command-handlers-to-load-call-and-stage` as HTML and `https://litespec.dev/7.0.0/backend/application.md` as Markdown.
+Each provision ID resolves to its page: `litespec/<page>#<slug>` is `https://litespec.dev/<release>/<page>/#<slug>` as HTML and `https://litespec.dev/<release>/<page>.md` as Markdown. For example, `litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage` is `https://litespec.dev/7.0.0/backend/application/#keep-command-handlers-to-load-call-and-stage` as HTML and `https://litespec.dev/7.0.0/backend/application.md` as Markdown.
 
 ### Latest Redirect
 

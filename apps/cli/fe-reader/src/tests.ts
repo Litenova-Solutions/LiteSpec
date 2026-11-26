@@ -219,7 +219,7 @@ export function readTests(testRootsAbs: string[], context: ReaderContext): TestF
   const tests: TestFacts[] = [];
   const seen = new Set<string>();
   for (const root of testRootsAbs) {
-    for (const file of listFilesRecursive(root, [".ts", ".tsx"])) {
+    for (const file of listFilesRecursive(root, [".ts"])) {
       if (seen.has(canonical(file))) continue;
       seen.add(canonical(file));
       const rel = relativeTo(context.root, file) ?? toPosix(file);

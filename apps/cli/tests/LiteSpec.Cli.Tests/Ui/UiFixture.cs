@@ -58,22 +58,19 @@ sealed class UiFixture : IDisposable
     public const string CleanAppStyles = "@import \"@fixture/ui/tokens.css\";\n";
 
     /// <summary>The default application route case file.</summary>
-    public const string DefaultAppCase = "export function Case() {\n  return <main>Orders</main>;\n}\n";
+    public const string DefaultAppCase = "<h1>Orders</h1>\n";
 
     /// <summary>The route suite stub that visits every discovered route.</summary>
     public const string RouteSuiteSource = "import { test } from \"@playwright/test\";\n\ntest(\"every route passes the route suite checks\", async () => {});\n";
 
     /// <summary>The copied primitive sources the lock seals.</summary>
-    public const string ButtonSource = "export function Button() {\n  return null;\n}\n";
+    public const string ButtonSource = "<button>Action</button>\n";
 
     /// <summary>The copied primitive sources the lock seals.</summary>
-    public const string SkeletonSource = "export function Skeleton() {\n  return null;\n}\n";
+    public const string SkeletonSource = "<div>Loading</div>\n";
 
-    /// <summary>The shipped floorplan the catalog points at.</summary>
-    public const string ListPageSource = "export function ListPage() {\n  return <main className=\"grid gap-6\" />;\n}\n";
-
-    /// <summary>A stub for a catalog component the templates do not ship.</summary>
-    public const string StubSource = "export function Stub() {\n  return null;\n}\n";
+    /// <summary>The shipped floorplan the shared package provides.</summary>
+    public const string ListPageSource = "<main class=\"grid gap-6\"><slot /></main>\n";
 
     static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
 
@@ -93,13 +90,16 @@ sealed class UiFixture : IDisposable
     public string PackageRoot => Join("packages/ui");
 
     /// <summary>Gets the shared composite case file.</summary>
-    public string CaseFile => Join("packages/ui/src/floorplans/fixture-case.tsx");
+    public string CaseFile => Join("packages/ui/src/floorplans/fixture-case.svelte");
 
     /// <summary>Gets the copied button source the digest case appends to.</summary>
-    public string ButtonFile => Join("packages/ui/src/components/button.tsx");
+    public string ButtonFile => Join("packages/ui/src/components/ui/button/button.svelte");
+
+    /// <summary>Gets the copied skeleton source the digest case appends to.</summary>
+    public string SkeletonFile => Join("packages/ui/src/components/ui/skeleton/skeleton.svelte");
 
     /// <summary>Gets the application route case file.</summary>
-    public string AppCase => Join("apps/web/src/routes/case.tsx");
+    public string AppCase => Join("apps/web/src/routes/+page.svelte");
 
     /// <summary>Gets the route suite specification.</summary>
     public string SuiteFile => Join("apps/web/tests/routes/every-route.spec.ts");
@@ -118,9 +118,6 @@ sealed class UiFixture : IDisposable
 
     /// <summary>Gets the design contract.</summary>
     public string DesignFile => Join("packages/ui/DESIGN.md");
-
-    /// <summary>Gets the pattern catalog.</summary>
-    public string CatalogFile => Join(".litespec/implementation/patterns/catalog.yaml");
 
     /// <summary>Gets the baseline configuration file.</summary>
     public string ComponentsFile => Join("packages/ui/components.json");
@@ -306,15 +303,6 @@ sealed class UiFixture : IDisposable
         WriteJson(LockFile, sourceLock);
     }
 
-    /// <summary>Mutates the pattern catalog in place.</summary>
-    /// <param name="mutate">The change to apply to the catalog object.</param>
-    public void MutateCatalog(Action<JsonObject> mutate)
-    {
-        var catalog = (JsonObject)ReadJson(CatalogFile)!;
-        mutate(catalog);
-        WriteJson(CatalogFile, catalog);
-    }
-
     /// <summary>Mutates the consumer project file in place.</summary>
     /// <param name="mutate">The change to apply to the project object.</param>
     public void MutateProject(Action<JsonObject> mutate)
@@ -337,7 +325,7 @@ sealed class UiFixture : IDisposable
     public void AddAdditionalRegistry()
     {
         var components = (JsonObject)ReadJson(ComponentsFile)!;
-        components["registries"] = new JsonObject { ["@fixture/blocks"] = "https://blocks.fixture.test/r" };
+        components["registry"] = "https://blocks.fixture.test/r";
         WriteJson(ComponentsFile, components);
         MutateLock(sourceLock =>
         {
@@ -345,7 +333,7 @@ sealed class UiFixture : IDisposable
         });
     }
 
-    /// <summary>Converts the fixture to the Svelte baseline with its generator, registry, and configuration.</summary>
+    /// <summary>Applies the Svelte baseline with its generator, registry, and configuration. The fixture already defaults to Svelte, so this reapplies the same values.</summary>
     public void AsSvelte()
     {
         MutateProject(project =>
@@ -398,7 +386,8 @@ sealed class UiFixture : IDisposable
     {
         foreach (var directory in new[]
         {
-            "packages/ui/src/components",
+            "packages/ui/src/components/ui/button",
+            "packages/ui/src/components/ui/skeleton",
             "packages/ui/src/floorplans",
             "packages/ui/src/styles",
             "apps/web/src/routes",
@@ -432,9 +421,9 @@ sealed class UiFixture : IDisposable
         var sourceLock = (JsonObject)ReadJson(Path.Join(TestCli.Repository, "templates/consumer/ui-source-lock.yaml"))!;
         WriteJson(LockFile, sourceLock);
 
-        File.WriteAllText(Join("packages/ui/src/components/button.tsx"), ButtonSource);
-        File.WriteAllText(Join("packages/ui/src/components/skeleton.tsx"), SkeletonSource);
-        File.WriteAllText(Join("packages/ui/src/floorplans/list-page.tsx"), ListPageSource);
+        File.WriteAllText(ButtonFile, ButtonSource);
+        File.WriteAllText(SkeletonFile, SkeletonSource);
+        File.WriteAllText(Join("packages/ui/src/floorplans/list-page.svelte"), ListPageSource);
         File.WriteAllText(TokensCss, CleanCss);
         File.WriteAllText(AppStyles, CleanAppStyles);
         File.WriteAllText(AppCase, DefaultAppCase);
@@ -445,59 +434,40 @@ sealed class UiFixture : IDisposable
         var contract = File.ReadAllText(Path.Join(TestCli.Repository, "templates/consumer/design-contract.md"));
         File.WriteAllText(DesignFile, contract.Replace("__PROJECT__", "fixture", StringComparison.Ordinal));
 
-        // The catalog travels with the consumer: the fixture copies the shipped template
-        // to the path the project file names, then creates every source path the catalog
-        // names, so the baseline proves the template as shipped.
-        var catalog = ReadJson(Path.Join(TestCli.Repository, "templates/consumer/ui-pattern-catalog.yaml"))!;
-        WriteJson(CatalogFile, catalog);
-        foreach (var pattern in (JsonArray)catalog["patterns"]!)
-        {
-            var implementations = (JsonObject?)pattern!["implementations"];
-            if (implementations is null)
-            {
-                continue;
-            }
-
-            foreach (var entry in implementations)
-            {
-                var components = (JsonArray?)entry.Value?["components"];
-                if (components is null)
-                {
-                    continue;
-                }
-
-                foreach (var component in components)
-                {
-                    var target = Join(component!.GetValue<string>());
-                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                    if (!File.Exists(target))
-                    {
-                        File.WriteAllText(target, StubSource);
-                    }
-                }
-            }
-        }
-
         Seal();
     }
 
     void Seal()
     {
         // The lock stores the digest the validator recomputes, so the fixture seals it
-        // the same way rather than shipping a placeholder.
+        // the same way rather than shipping a placeholder. A component digest covers
+        // every path it records, in order, as the check computes it.
         var sourceLock = (JsonObject)ReadJson(LockFile)!;
         foreach (var component in (JsonArray)sourceLock["components"]!)
         {
-            var relative = ((JsonArray)component!["paths"]!)[0]!.GetValue<string>();
-            var source = File.ReadAllText(Path.Join(PackageRoot, relative));
-            var normalized = Regex.Replace(
-                source.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\r", "\n", StringComparison.Ordinal),
-                @"[ \t]+$",
-                string.Empty,
-                RegexOptions.Multiline).TrimEnd() + "\n";
-            // The static HashData call below produces the same digest.
-            var digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized))).ToLowerInvariant();
-            component["digest"] = $"sha256:{digest}";
+            var digests = new List<string>();
+            foreach (var path in (JsonArray)component!["paths"]!)
+            {
+                var relative = path!.GetValue<string>();
+                var source = File.ReadAllText(Path.Join(PackageRoot, relative));
+                var normalized = Regex.Replace(
+                    source.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\r", "\n", StringComparison.Ordinal),
+                    @"[ \t]+$",
+                    string.Empty,
+                    RegexOptions.Multiline).TrimEnd() + "\n";
+                // The static HashData call below produces the same digest.
+                digests.Add($"sha256:{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized))).ToLowerInvariant()}");
+            }
+
+            if (digests.Count == 1)
+            {
+                component["digest"] = digests[0];
+            }
+            else
+            {
+                var combinedDigest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join('\n', digests)))).ToLowerInvariant();
+                component["digest"] = $"sha256:{combinedDigest}";
+            }
         }
 
         WriteJson(LockFile, sourceLock);
@@ -539,30 +509,24 @@ sealed class UiFixture : IDisposable
 
     static JsonObject ComponentsJson() => new()
     {
-        ["style"] = "base-nova",
-        ["rsc"] = false,
-        ["tsx"] = true,
-        ["rtl"] = false,
-        ["iconLibrary"] = "lucide",
-        ["menuColor"] = "default",
-        ["menuAccent"] = "subtle",
+        ["$schema"] = "https://shadcn-svelte.com/schema.json",
         ["tailwind"] = new JsonObject
         {
-            ["config"] = string.Empty,
             ["css"] = "src/styles/tokens.css",
             ["baseColor"] = "neutral",
-            ["cssVariables"] = true,
-            ["prefix"] = string.Empty,
         },
         ["aliases"] = new JsonObject
         {
-            ["components"] = "@fixture/ui/components",
-            ["utils"] = "@fixture/ui/lib/utils",
-            ["ui"] = "@fixture/ui/components",
-            ["lib"] = "@fixture/ui/lib",
-            ["hooks"] = "@fixture/ui/hooks",
+            ["components"] = "$lib/components",
+            ["utils"] = "$lib/utils",
+            ["ui"] = "$lib/components/ui",
+            ["lib"] = "$lib",
+            ["hooks"] = "$lib/hooks",
         },
-        ["registries"] = new JsonObject(),
+        ["typescript"] = true,
+        ["iconLibrary"] = "lucide",
+        ["menuColor"] = "default",
+        ["menuAccent"] = "subtle",
     };
 
     const string FixturePatternPageText = """

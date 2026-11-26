@@ -8,7 +8,7 @@ public sealed class DomainEnumAnalyzerTests
 {
     /// <summary>LS1002 reports an enum declared in Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 reports an enum declared in Domain")]
     public Task ReportsAnEnumInDomain() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
@@ -19,7 +19,7 @@ public sealed class DomainEnumAnalyzerTests
 
     /// <summary>LS1002 accepts a closed record hierarchy.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 accepts a closed record hierarchy")]
     public Task AcceptsARecordHierarchy() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
@@ -32,7 +32,7 @@ public sealed class DomainEnumAnalyzerTests
 
     /// <summary>LS1002 ignores an enum outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 ignores an enum outside Domain")]
     public Task IgnoresAnEnumOutsideDomain() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
@@ -43,7 +43,7 @@ public sealed class DomainEnumAnalyzerTests
 
     /// <summary>LS1002 reports an enum declared in a knowledge model.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 reports an enum declared in a knowledge model")]
     public Task ReportsAnEnumInAKnowledgeModel() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""

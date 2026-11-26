@@ -17,7 +17,7 @@ namespace LiteSpec.Cli.Model.Refusals;
 /// </summary>
 /// <follows>litespec/core/use-cases#declare-each-modules-refusals-once</follows>
 /// <follows>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</follows>
-/// <follows>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</follows>
+/// <follows>litespec/core/knowledge#refuse-a-missing-rule-with-a-reason</follows>
 static class RefusalSetReader
 {
     /// <summary>The generic refusal codes the model derives for a use case, which no file writes.</summary>

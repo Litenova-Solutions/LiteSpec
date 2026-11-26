@@ -237,7 +237,7 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>Reports each route entry outside its stack's routes root: the web routes root, the Blazor Routes folder, or the Android Screens folder. A route in no declared frontend states no root, so it is left out.</summary>
+    /// <summary>Reports each route entry outside its stack's routes root: the web routes root or the Android Screens folder. A route in no declared frontend states no root, so it is left out.</summary>
     /// <param name="model">The loaded project model that holds each frontend and route element.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRoutePlaced(ProjectModel model, List<Finding> findings)
@@ -275,14 +275,13 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>The routes root of one frontend: the web routes root, the Blazor Routes folder, or the Android Screens folder.</summary>
+    /// <summary>The routes root of one frontend: the web routes root or the Android Screens folder.</summary>
     /// <param name="frontend">The frontend whose routes root is wanted.</param>
     /// <returns>The absolute routes root, or null when the platform states none.</returns>
     private static string? RoutesRootOf(FrontendConfig frontend) =>
         frontend.Platform.ToLowerInvariant() switch
         {
-            "svelte" or "react" => frontend.RoutesRoot,
-            "blazor" => Path.Combine(frontend.Path, "Routes"),
+            "svelte" => frontend.RoutesRoot,
             "android" => Path.Combine(frontend.Path, "Screens"),
             _ => null,
         };

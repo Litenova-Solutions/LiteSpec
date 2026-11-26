@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2018: an Application, Ports or WebApi file names no type outside its layer.</summary>
-/// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
+/// <follows>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LayerDirectionAnalyzer : LayerAnalyzer
 {

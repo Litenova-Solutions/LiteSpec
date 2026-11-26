@@ -5,7 +5,7 @@ using static LiteSpec.Analyzers.Generation.Sources.GeneratedText;
 namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the partial part that adds a record's runtime value to a marked type: the event id on a domain event, and the refusal code on a rule exception.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
 internal static class ValuePartWriter
 {
     /// <summary>Returns the generated partial declaration text for the marked event.</summary>

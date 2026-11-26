@@ -8,7 +8,7 @@ public sealed partial class UiValidatorTests
     // Baseline.
 
     /// <summary>Tracked Templates Validate As Shipped.</summary>
-    /// <proves>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void TrackedTemplatesValidateAsShipped()
     {
@@ -16,146 +16,146 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
-    // Allowed construction (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only).
+    // Allowed construction (litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes).
 
     /// <summary>Approved Layout Utilities.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ApprovedLayoutUtilities()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "export const C = () => <div className=\"grid gap-6 lg:grid-cols-2\" />;"));
+            "<div class=\"grid gap-6 lg:grid-cols-2\">Orders</div>"));
     }
 
     /// <summary>Semantic Token Classes.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void SemanticTokenClasses()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "export const C = () => <div className=\"bg-background text-foreground border-border\" />;"));
+            "<div class=\"bg-background text-foreground border-border\">Orders</div>"));
     }
 
     /// <summary>State And Container Variants.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void StateAndContainerVariants()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "export const C = () => <div className=\"data-[state=open]:rotate-180 has-[input:checked]:bg-accent min-[420px]:flex\" />;"));
+            "<div class=\"data-[state=open]:rotate-180 has-[input:checked]:bg-accent min-[420px]:flex\">Orders</div>"));
     }
 
     /// <summary>Class Merge Helper.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ClassMergeHelper()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "import { cn } from \"cn\";\nexport const C = ({ x }: { x?: string }) => <div className={cn(\"flex gap-2\", x && \"justify-between\")} />;"));
+            "<script>import { cn } from \"cn\";</script>\n<div class={cn(\"flex gap-2\", \"justify-between\")}>Orders</div>"));
     }
 
     /// <summary>Pinned Icon Family.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void PinnedIconFamily()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "import { Check } from \"lucide-react\";\nexport const C = () => <Check className=\"size-4\" />;"));
+            "<script>import { Check } from \"lucide-svelte\";</script>\n<Check class=\"size-4\" />"));
     }
 
     /// <summary>The Primitive Library Named By The Package That Owns It.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ThePrimitiveLibraryNamedByThePackageThatOwnsIt()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "import { Dialog } from \"@base-ui/react/dialog\";\nexport const C = () => <Dialog />;"));
+            "<script>import { Dialog } from \"bits-ui\";</script>\n<Dialog />"));
     }
 
     /// <summary>Javascript Negation Is Not An Important Modifier.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void JavascriptNegationIsNotAnImportantModifier()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "export const C = ({ o }: { o: boolean }) => {\n  const v = !o;\n  return v ? null : <div className=\"p-4\" />;\n};"));
+            "<script>let o = false;\nlet v = !o;</script>\n<div class=\"p-4\">Orders</div>"));
     }
 
     /// <summary>A Class Name Inside A Comment Is Prose.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AClassNameInsideACommentIsProse()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "export const C = () => {\n  // never use bg-blue-500 or w-[37rem]\n  return <div className=\"p-4\" />;\n};"));
+            "<!-- never use bg-blue-500 or w-[37rem] -->\n<div class=\"p-4\">Orders</div>"));
     }
 
     /// <summary>Composed Functional Variants.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ComposedFunctionalVariants()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
-            "export const C = () => <div className=\"group-data-[state=open]:rotate-180 not-has-[input]:opacity-50 peer-aria-[expanded=true]:block\" />;"));
+            "<div class=\"group-data-[state=open]:rotate-180 not-has-[input]:opacity-50 peer-aria-[expanded=true]:block\">Orders</div>"));
     }
 
     /// <summary>A File Under Tests Is Outside The Controlled Surface.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AFileUnderTestsIsOutsideTheControlledSurface()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
-            "packages/ui/tests/case.test.tsx",
-            "export const C = () => <div className=\"bg-red-500\" />;\n"));
+            "packages/ui/tests/case.test.svelte",
+            "<div class=\"bg-red-500\">Orders</div>\n"));
     }
 
     /// <summary>A File Under The Copied Primitive Boundary Is Unedited Source.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AFileUnderTheCopiedPrimitiveBoundaryIsUneditedSource()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
-            "packages/ui/src/components/extra.tsx",
-            "export const C = () => <div className=\"bg-red-500\" />;\n"));
+            "packages/ui/src/components/extra.svelte",
+            "<div class=\"bg-red-500\">Orders</div>\n"));
     }
 
     /// <summary>A Visual File Keeps Its Own Layout.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AVisualFileKeepsItsOwnLayout()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
-            "apps/web/src/modules/seat-map/seat-map.visual.tsx",
-            "export const C = () => <div className=\"grid\" style={{ width: 120 }} />;\n"));
+            "apps/web/src/modules/seat-map/seat-map.visual.svelte",
+            "<div class=\"grid\" style=\"width: 120px\">Map</div>\n"));
     }
 
     /// <summary>A Visual File Is Still Held To The Token Rule.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AVisualFileIsStillHeldToTheTokenRule()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
             fixture.PathCase(
-                "apps/web/src/modules/seat-map/other.visual.tsx",
-                "export const C = () => <div className=\"bg-red-500\" />;\n"),
+                "apps/web/src/modules/seat-map/other.visual.svelte",
+                "<div class=\"bg-red-500\">Map</div>\n"),
             "raw Tailwind palette value requires a semantic token 'bg-red-500'");
     }
 
     /// <summary>Generated Web Asset Is Ignored.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void GeneratedWebAssetIsIgnored()
     {
@@ -166,109 +166,109 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Route Composing One Floorplan.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ARouteComposingOneFloorplan()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.AppCaseWith(
-            "import { ListPage } from \"@fixture/ui/floorplans\";\nexport function Case() {\n  return <ListPage title=\"Orders\" />;\n}\n"));
+            "<script>import ListPage from \"@fixture/ui/floorplans\";</script>\n<ListPage title=\"Orders\" />\n"));
     }
 
-    // Restricted Tailwind use (litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only).
+    // Restricted Tailwind use (litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes).
 
     /// <summary>Arbitrary Length.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ArbitraryLength()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.CompositeCase("export const C = () => <div className=\"w-[37rem]\" />;"),
+            fixture.CompositeCase("<div class=\"w-[37rem]\">Orders</div>;"),
             "arbitrary Tailwind value requires a semantic token or declared variant 'w-[37rem]'");
     }
 
     /// <summary>Arbitrary Color.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ArbitraryColor()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.CompositeCase("export const C = () => <div className=\"bg-[#19324a]\" />;"),
+            fixture.CompositeCase("<div class=\"bg-[#19324a]\">Orders</div>;"),
             "'bg-[#19324a]'");
     }
 
     /// <summary>Raw Palette Value.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void RawPaletteValue()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.CompositeCase("export const C = () => <div className=\"text-red-500\" />;"),
+            fixture.CompositeCase("<div class=\"text-red-500\">Orders</div>;"),
             "raw Tailwind palette value requires a semantic token 'text-red-500'");
     }
 
     /// <summary>Raw Palette Value With Opacity.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void RawPaletteValueWithOpacity()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.CompositeCase("export const C = () => <div className=\"bg-slate-800/40\" />;"),
+            fixture.CompositeCase("<div class=\"bg-slate-800/40\">Orders</div>;"),
             "'bg-slate-800/40'");
     }
 
     /// <summary>Important Modifier Prefix.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ImportantModifierPrefix()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.CompositeCase("export const C = () => <div className=\"!mt-0\" />;"),
+            fixture.CompositeCase("<div class=\"!mt-0\">Orders</div>;"),
             "important modifier requires a declared variant '!mt-0'");
     }
 
     /// <summary>An Escaped Quote Keeps The Following Literal Readable.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AnEscapedQuoteKeepsTheFollowingLiteralReadable()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.CompositeCase("import { cn } from \"cn\";\nexport const C = () => <div className={cn(\"a \\\" b\", \"text-red-500\")} />;"),
+            fixture.CompositeCase("<script>import { cn } from \"cn\";</script>\n<div class={cn(\"a \\\" b\", \"text-red-500\")}>Orders</div>;"),
             "'text-red-500'");
     }
 
     /// <summary>An Arbitrary Selector Variant In A Drawing.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AnArbitrarySelectorVariantInADrawing()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
             fixture.PathCase(
-                "apps/web/src/modules/seat-map/grid.visual.tsx",
-                "export const C = () => <div className=\"[&>svg]:size-4\" />;\n"),
+                "apps/web/src/modules/seat-map/grid.visual.svelte",
+                "<div class=\"[&>svg]:size-4\">Map</div>\n"),
             "arbitrary selector variant requires a declared variant '[&>svg]:size-4'");
     }
 
     /// <summary>A Runtime Measurement In A Composite.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ARuntimeMeasurementInAComposite()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
-            "packages/ui/src/shell/width.tsx",
-            "export const C = () => <div style={{ width: 12 }} />;\n"));
+            "packages/ui/src/shell/width.svelte",
+            "<div style=\"width: 12px\">Orders</div>\n"));
     }
 
     /// <summary>Feature Selector In The Token Entry.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void FeatureSelectorInTheTokenEntry()
     {
@@ -279,7 +279,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Comma Inside A Quoted Attribute Value Is Not A Selector List.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ACommaInsideAQuotedAttributeValueIsNotASelectorList()
     {
@@ -288,7 +288,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Brace Inside A Quoted Attribute Value Is Not A Block.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ABraceInsideAQuotedAttributeValueIsNotABlock()
     {
@@ -297,7 +297,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Unterminated String Is Reported Once.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void AnUnterminatedStringIsReportedOnce()
     {
@@ -308,7 +308,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Apply Directive Outside The Generated Base Layer.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ApplyDirectiveOutsideTheGeneratedBaseLayer()
     {
@@ -319,7 +319,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Unapproved Global Import.</summary>
-    /// <proves>litespec/frontend/web/ui#write-tailwind-classes-with-semantic-tokens-only</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void UnapprovedGlobalImport()
     {

@@ -17,7 +17,7 @@ namespace LiteSpec.Cli.Model.Consumer;
 static class ManifestSelectionChecks
 {
     /// <summary>The frontend stacks assumed when no manifest is present.</summary>
-    static readonly string[] DefaultStacks = ["android", "blazor", "react", "svelte"];
+    static readonly string[] DefaultStacks = ["android", "dotnet", "svelte"];
 
     // Whether a manifest path sits under a folder, compared by text.
     /// <summary>

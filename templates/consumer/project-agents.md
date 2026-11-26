@@ -53,10 +53,10 @@ When a change touches a record, a source file, or a test, run the metadata and m
 
 Name each skipped check with its reason, and name the provisions `rules` returned with how each was judged. (litespec/core/release#report-verification-exactly)
 
-Compose every route from one floorplan in the frontend `DESIGN.md`, or name the decision that justifies a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#justify-each-freestyle-route-with-a-decision-record)
+Compose every route from one floorplan in the frontend `DESIGN.md`, or name the decision that justifies a freestyle route. (litespec/core/ui-ia#compose-each-route-from-one-locked-archetype, litespec/core/ui-ia#declare-each-screen-job-and-archetype)
 
 In a test title, cite each path of each use case a route calls, or record an exclusion with its reach.
 
-Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#name-the-evidence-for-each-ui-change, litespec/frontend/ui#pass-every-route-suite-check)
+Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/core/ui-verification#review-changed-routes-with-an-independent-visual-critic, litespec/core/ui-verification#run-geometry-sensors-on-every-route)
 
-Record a waiver before choosing another visual system or component base. (litespec/frontend/ui#record-one-shared-ui-package)
+Record a waiver before choosing another visual system or component base. (litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives)

@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2036: production code outside Domain reads time from the pipeline timestamp or an injected clock, never from the static clock.</summary>
-/// <follows>litespec/backend/application#read-time-from-the-scoped-clock</follows>
+/// <follows>litespec/core/backend-application#read-time-from-the-scoped-clock</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ProductionClockAnalyzer : LayerAnalyzer
 {

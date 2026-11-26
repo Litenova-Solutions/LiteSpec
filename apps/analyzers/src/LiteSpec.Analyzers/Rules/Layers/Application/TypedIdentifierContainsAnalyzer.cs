@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2032: a Contains inside a queryable expression compares the underlying value of each typed identifier, never the identifier itself.</summary>
-/// <follows>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</follows>
+/// <follows>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TypedIdentifierContainsAnalyzer : LayerAnalyzer
 {

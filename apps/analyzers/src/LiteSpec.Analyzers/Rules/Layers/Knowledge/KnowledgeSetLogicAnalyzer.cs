@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Knowledge;
 
 /// <summary>LS2039: a knowledge set holds only rows built through its model's constructors.</summary>
-/// <follows>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</follows>
+/// <follows>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class KnowledgeSetLogicAnalyzer : LayerAnalyzer
 {

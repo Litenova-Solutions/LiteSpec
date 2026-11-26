@@ -6,7 +6,7 @@ size: small
 shape: server
 stacks:
 - dotnet
-- react
+- svelte
 layers:
   intent: litespec
   behavior: litespec
@@ -32,7 +32,7 @@ stackConfig:
 frontends:
 - name: web
   path: apps/web
-  platform: react
+  platform: svelte
   ui:
     profile: application-balanced
     globalCss: apps/web/src/styles.css

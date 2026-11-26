@@ -19,7 +19,7 @@ LiteSpec compared 2 options for keeping shortcuts out of a release. The table se
 
 ## Decision
 
-The required provision `litespec/quality/development#keep-development-shortcuts-out-of-release-builds` states that a development shortcut MUST be excluded from release builds at compile time, refuse to run outside the development environment, and carry the development-shortcut mark. A project with no shortcuts has nothing to satisfy.
+The provision `litespec/quality/development#keep-development-shortcuts-out-of-release-builds` states that a development shortcut is excluded from release builds at compile time, refuses to run outside the development environment, and carries the development-shortcut mark. A project with no shortcuts has nothing to satisfy.
 
 Each stack page states how its builds exclude a shortcut. On .NET the shortcut lives in a project referenced only when `$(Configuration)` is `Debug`, its registration sits behind `#if DEBUG`, and its types carry `/// <development-shortcut>reason</development-shortcut>`. `dotnet build` reports `LS5014` for a type carrying that tag in a compilation without `DEBUG`. Web frontends import shortcut modules only under `import.meta.env.DEV`, and Android uses the debug source set.
 

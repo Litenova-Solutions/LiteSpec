@@ -47,7 +47,7 @@ The provider's public surface reads as data beside the use cases that produce it
 
 A read model stays the answer when a consumer needs another module's data reshaped and kept locally, fed by the provider's facts; it is the exception now, not the rule.
 
-The new and widened provisions are `litespec/backend/architecture#give-every-module-relationship-one-direction`, `litespec/backend/architecture#send-commands-and-queries-upstream`, `litespec/backend/application#send-cross-module-queries-and-commands-through-the-mediator`, `litespec/backend/application#declare-every-commands-edge-on-the-sender`, `litespec/backend/application#send-public-commands-in-process`, `litespec/backend/application#confirm-downstream-completion-through-an-upstream-command`, `litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project`, `litespec/core/use-cases#list-the-consumer-modules-of-a-public-query`, and `litespec/core/use-cases#list-the-sending-modules-of-a-public-command`.
+The new and widened provisions are `litespec/core/backend-architecture#give-every-module-relationship-one-direction`, `litespec/core/backend-architecture#send-commands-and-queries-upstream`, `litespec/core/backend-application#send-cross-module-queries-and-commands-through-the-mediator`, `litespec/core/backend-application#declare-every-commands-edge-on-the-sender`, `litespec/core/backend-application#send-public-commands-in-process`, `litespec/core/backend-application#confirm-downstream-completion-through-an-upstream-command`, `litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project`, `litespec/core/use-cases#list-the-consumer-modules-of-a-public-query`, and `litespec/core/use-cases#list-the-sending-modules-of-a-public-command`.
 
 ## Evidence
 

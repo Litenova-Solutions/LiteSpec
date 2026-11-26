@@ -59,7 +59,7 @@ What each field means and what reads it:
 | `blazor` | `docs/frontend/blazor` | none | any backend |
 | `android` | `docs/frontend/mobile/android` | none | any backend |
 
-Each entry holds `folder`, which is required, and the optional `requires` and `pairsWith` lists. The folder is the stack folder under `docs/backend/` or `docs/frontend/`, and it holds a `stack.md` page: the [.NET stack](../backend/dotnet/stack.md), the [React stack](../frontend/web/react/stack.md), the [Svelte stack](../frontend/web/svelte/stack.md), the [Blazor stack](../frontend/blazor/stack.md), and the [Android stack](../frontend/mobile/android/stack.md). `requires` names the stacks a project also selects with this one, and `pairsWith` names the only backend stacks a frontend stack works beside; absent `pairsWith` means any backend. This release ships no `requires` and no `pairsWith` values.
+Each entry holds `folder`, which is required, and the optional `requires` and `pairsWith` lists. The folder is the stack folder under `docs/backend/` or `docs/frontend/`, and it holds a `stack.md` page: the [.NET stack](../packs/dotnet/stack.md), the [Svelte stack](../packs/svelte/stack.md), and the [Android stack](../packs/android/stack.md). `requires` names the stacks a project also selects with this one, and `pairsWith` names the only backend stacks a frontend stack works beside; absent `pairsWith` means any backend. This release ships no `requires` and no `pairsWith` values.
 
 What the field drives:
 
@@ -71,21 +71,21 @@ What the field drives:
 | Shape | Backend stacks | Backend pages |
 |:---|:---|:---|
 | `server` | `1` | none |
-| `client-only` | `0` | `docs/backend/architecture.md`, `docs/backend/domain.md`, `docs/backend/application.md` |
+| `client-only` | `0` | `docs/core/backend-architecture.md`, `docs/core/backend-domain.md`, `docs/core/backend-application.md` |
 
 Each entry holds `backendStacks`, which is required, and the optional `backendPages` list. The `server` shape names exactly one backend stack. The `client-only` shape names no backend stack and still applies the four backend pages in the table, because a client-only product keeps a domain model. The authoring validator requires each backend page to sit directly in `docs/backend/`.
 
 What the field drives:
 
 - Selection: the shape decides how many backend stacks the `stacks` list holds and which backend pages apply without one.
-- Init: each preset selects the shape. `dotnet-react` and `dotnet-svelte` select `server`, and `blazor-client` and `android-client` select `client-only`.
+- Init: each preset selects the shape. `dotnet-svelte` selects `server`, and `android-client` selects `client-only`.
 - Validation: `litespec model check` refuses a `client-only` project that names a backend stack and a `server` project whose backend count differs from one.
 
 ### Extensions
 
 | Extension | Path | Scope | Switches on |
 |:---|:---|:---|:---|
-| `bdd` | `docs/backend/dotnet/ext/bdd.md` | `local` | `scenario` |
+| `bdd` | `docs/packs/dotnet/ext/bdd.md` | `local` | `scenario` |
 | `compat` | `docs/ext/compat.md` | `project` | none |
 | `cache` | `docs/ext/cache.md` | `local` | `setting` |
 | `concurrency` | `docs/ext/concurrency.md` | `local` | `setting` |
@@ -104,7 +104,7 @@ What the field drives:
 | `customer-rules` | `docs/ext/customer-rules.md` | `project` | none |
 | `ai` | `docs/ext/ai.md` | `local` | none |
 
-Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `flow` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `domain-event`, `setting`, and `runbook` for `outbox`. `replaces` names the baseline provisions an extension supersedes, and the manifest holds the list. The [extensions index](../ext/README.md) states each extension with its activation criterion.
+Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` under `docs/packs/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `flow` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `domain-event`, `setting`, and `runbook` for `outbox`. `replaces` names the baseline provisions an extension supersedes, and the manifest holds the list. The [extensions index](../ext/README.md) states each extension with its activation criterion.
 
 What the field drives:
 
@@ -196,7 +196,6 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `xunit.v3.mtp-v2` | `3.x` |
 | npm | `@astrojs/svelte` | `9.x` |
 | npm | `@axe-core/playwright` | `4.x` |
-| npm | `@base-ui/react` | `1.x` |
 | npm | `@eslint/js` | `10.x` |
 | npm | `@fontsource-variable/geist` | `5.x` |
 | npm | `@fontsource-variable/inter` | `5.x` |
@@ -215,47 +214,25 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | npm | `@tailwindcss/vite` | `4.x` |
 | npm | `@tanstack/eslint-plugin-query` | `5.x` |
 | npm | `@tanstack/eslint-plugin-router` | `1.x` |
-| npm | `@tanstack/react-form` | `1.x` |
-| npm | `@tanstack/react-query` | `5.x` |
-| npm | `@tanstack/react-query-devtools` | `5.x` |
-| npm | `@tanstack/react-router` | `1.x` |
-| npm | `@tanstack/react-router-devtools` | `1.x` |
-| npm | `@tanstack/react-start` | `1.x` |
-| npm | `@tanstack/react-table` | `9.x` |
 | npm | `@tanstack/router-cli` | `1.x` |
 | npm | `@tanstack/router-plugin` | `1.x` |
 | npm | `@tanstack/svelte-form` | `1.x` |
 | npm | `@tanstack/svelte-query` | `6.x` |
 | npm | `@tanstack/svelte-query-devtools` | `6.x` |
 | npm | `@tanstack/svelte-table` | `9.x` |
-| npm | `@testing-library/react` | `16.x` |
 | npm | `@testing-library/svelte` | `5.x` |
 | npm | `@types/node` | `26.x` |
-| npm | `@types/react` | `19.x` |
-| npm | `@types/react-dom` | `19.x` |
-| npm | `@vitejs/plugin-react` | `6.x` |
 | npm | `bits-ui` | `2.x` |
 | npm | `class-variance-authority` | `0.x` |
 | npm | `clsx` | `2.x` |
-| npm | `cmdk` | `1.x` |
 | npm | `date-fns` | `4.x` |
 | npm | `eslint` | `10.x` |
-| npm | `eslint-plugin-jsx-a11y` | `6.x` |
-| npm | `eslint-plugin-react` | `7.x` |
-| npm | `eslint-plugin-react-hooks` | `7.x` |
 | npm | `eslint-plugin-svelte` | `3.x` |
 | npm | `globals` | `17.x` |
 | npm | `jsdom` | `30.x` |
 | npm | `jsqr` | `1.x` |
-| npm | `lucide-react` | `1.x` |
 | npm | `msw` | `3.x` |
-| npm | `react` | `19.x` |
-| npm | `react-day-picker` | `10.x` |
-| npm | `react-dom` | `19.x` |
-| npm | `recharts` | `3.x` |
-| npm | `shadcn` | `4.21.5` |
 | npm | `shadcn-svelte` | `1.7.0` |
-| npm | `sonner` | `2.x` |
 | npm | `svelte` | `5.x` |
 | npm | `svelte-check` | `4.x` |
 | npm | `svelte-i18n` | `4.x` |
@@ -264,7 +241,6 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | npm | `tw-animate-css` | `1.x` |
 | npm | `typescript` | `6.x` |
 | npm | `typescript-eslint` | `8.x` |
-| npm | `vaul` | `1.x` |
 | npm | `vite` | `8.x` |
 | npm | `vitest` | `5.x` |
 | npm | `yaml` | `2.x` |
@@ -311,8 +287,8 @@ The `registry` block names the component source:
 | `url` | `https://ui.shadcn.com` | `https://shadcn-svelte.com/registry` |
 | `allowAdditional` | `true` | `true` |
 
-`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/frontend/ui#record-one-shared-ui-package` requires the one shared package, and `litespec/frontend/ui#pin-the-baseline-in-the-shared-package` requires the pin.
+`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives` requires the one shared package, and `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream` requires the pin.
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `6.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Standards/Pages/StackSelection.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Validate/Repository/ManifestValidator.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Model/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.
+The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `6.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Standards/Pages/StackSelection.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Validate/Repository/ManifestValidator.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Model/Ui/UiValidator.cs`. The `cache` and `bdd` extensions show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.

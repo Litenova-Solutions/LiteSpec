@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2034: an event handler runs with no caller, so each command or query it dispatches names explicit mediation settings.</summary>
-/// <follows>litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</follows>
+/// <follows>litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerMediationSettingsAnalyzer : LayerAnalyzer
 {

@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2020: in the one-modules-project deviation a module names another module's types only through its Contracts folder.</summary>
-/// <follows>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</follows>
+/// <follows>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ModuleBoundaryAnalyzer : LayerAnalyzer
 {

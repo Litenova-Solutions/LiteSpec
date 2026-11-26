@@ -10,7 +10,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     The replay check reads this, so the declaration and the use case record agree on what a repeat brings.
 /// </summary>
 /// <follows>litespec/core/use-cases#state-what-a-replay-does</follows>
-/// <follows>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</follows>
+/// <follows>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</follows>
 public static class IdempotencyReplays
 {
     /// <summary>The declaration type holding the keyed factory.</summary>

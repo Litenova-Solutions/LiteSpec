@@ -8,7 +8,7 @@ public sealed class DuplicateModelAnalyzerTests
 {
     /// <summary>LS2026 reports identical records in two use case folders.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2026 reports identical records in two use case folders")]
     public Task ReportsIdenticalRecordsInTwoUseCaseFolders() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
@@ -28,7 +28,7 @@ public sealed class DuplicateModelAnalyzerTests
 
     /// <summary>LS2026 accepts one record with no duplicate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2026 accepts one record with no duplicate")]
     public Task AcceptsOneRecordWithNoDuplicate() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
@@ -43,7 +43,7 @@ public sealed class DuplicateModelAnalyzerTests
 
     /// <summary>LS2026 accepts the same name with different members.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2026 accepts the same name with different members")]
     public Task AcceptsTheSameNameWithDifferentMembers() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(
@@ -63,7 +63,7 @@ public sealed class DuplicateModelAnalyzerTests
 
     /// <summary>LS2026 accepts identical records in one use case folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2026 accepts identical records in one use case folder")]
     public Task AcceptsIdenticalRecordsInOneUseCaseFolder() =>
         Verify.AnalyzerAsync<DuplicateModelAnalyzer>(

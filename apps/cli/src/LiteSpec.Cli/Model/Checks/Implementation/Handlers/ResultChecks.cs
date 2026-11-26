@@ -7,7 +7,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The result check: every result and refusal a handler, reaction or job produces is one its record declares.</summary>
-/// <follows>litespec/backend/application#return-only-declared-results-and-refusals</follows>
+/// <follows>litespec/core/backend-application#return-only-declared-results-and-refusals</follows>
 internal static class ResultChecks
 {
     /// <summary>Reports each refusal code a handler or host produces that its use cases leave undeclared.</summary>

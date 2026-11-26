@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2035: a null check on a value returned by a repository or session load refuses the unknown record, never with a generic exception.</summary>
-/// <follows>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</follows>
+/// <follows>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UnknownRecordRefusalAnalyzer : LayerAnalyzer
 {

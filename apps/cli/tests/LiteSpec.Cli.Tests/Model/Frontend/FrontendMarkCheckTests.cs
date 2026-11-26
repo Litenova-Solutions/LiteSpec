@@ -59,7 +59,7 @@ public sealed class FrontendMarkCheckTests
     }
 
     /// <summary>Model Check Reports No Mark Style For Frontend Or Backend Marks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void ModelCheckReportsNoMarkStyleForFrontendOrBackendMarks()
     {

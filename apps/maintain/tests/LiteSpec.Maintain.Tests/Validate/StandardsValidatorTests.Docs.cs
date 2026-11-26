@@ -4,7 +4,7 @@ using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Validate;
 
-/// <summary>Cases that bind the documentation to the tools, the templates, the example, the index and the pattern budget.</summary>
+/// <summary>Cases that bind the documentation to the tools, the templates, the example, and the index.</summary>
 public sealed partial class StandardsValidatorTests
 {
     /// <summary>A page cites a finding code the table lacks.</summary>
@@ -153,13 +153,6 @@ public sealed partial class StandardsValidatorTests
     public void UnindexedPage() => Check(
         root => StandardsFixture.Write(root, "docs/guide/orphan.md", "# Orphan Guide\n\nNo index links this page.\n"),
         [MaintainerDiagnostics.Codes.IndexPageMissing]);
-
-    /// <summary>A pattern that offers more than three options.</summary>
-    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
-    [Fact(DisplayName = "a pattern that offers more than three options")]
-    public void PatternOfFourOptions() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.PatternPage + "\n#### `three`: Three Actions\n\n**Rationale:** A third choice.\n\n**Cost:** More labels.\n\n#### `four`: Four Actions\n\n**Rationale:** A fourth choice.\n\n**Cost:** More labels still.\n"),
-        [MaintainerDiagnostics.Codes.PatternOptionCount]);
 
     /// <summary>A packaged file whose path is too long for the tool package.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>

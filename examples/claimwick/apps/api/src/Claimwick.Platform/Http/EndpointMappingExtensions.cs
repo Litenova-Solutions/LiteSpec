@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Claimwick.Platform.Http;
 
 /// <summary>Maps the endpoints the platform discovers in the modules of one host.</summary>
-/// <follows>litespec/backend/dotnet/architecture#keep-composition-in-hosts</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-composition-in-hosts</follows>
 public static class EndpointMappingExtensions
 {
     /// <summary>Maps every endpoint of every added module once, in type-name order.</summary>

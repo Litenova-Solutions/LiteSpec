@@ -7,7 +7,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 public sealed class OutboxDecisionsTests
 {
     /// <summary>An IgnoreDomainEvent call on a receiver returns the event as ignored.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "An IgnoreDomainEvent call on a receiver returns the event as ignored")]
     public void IgnoreCallReturnsIgnored()
     {
@@ -27,7 +27,7 @@ public sealed class OutboxDecisionsTests
     }
 
     /// <summary>A TranslateDomainEvent call returns the event as translated.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "A TranslateDomainEvent call returns the event as translated")]
     public void TranslateCallReturnsTranslated()
     {
@@ -47,7 +47,7 @@ public sealed class OutboxDecisionsTests
     }
 
     /// <summary>A bare decision call with no receiver still decides.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "A bare decision call with no receiver still decides")]
     public void BareCallDecides()
     {
@@ -67,7 +67,7 @@ public sealed class OutboxDecisionsTests
     }
 
     /// <summary>Qualified and generic event names simplify.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "Qualified and generic event names simplify")]
     public void QualifiedAndGenericNamesSimplify()
     {
@@ -91,7 +91,7 @@ public sealed class OutboxDecisionsTests
     }
 
     /// <summary>A call through any other staging name decides nothing.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "A call through any other staging name decides nothing")]
     public void OtherStagingNamesAreIgnored()
     {
@@ -110,7 +110,7 @@ public sealed class OutboxDecisionsTests
     }
 
     /// <summary>A decision call without a type argument decides nothing.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "A decision call without a type argument decides nothing")]
     public void DecisionWithoutTypeArgumentIsIgnored()
     {
@@ -128,7 +128,7 @@ public sealed class OutboxDecisionsTests
     }
 
     /// <summary>Of rejects a null tree.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact(DisplayName = "Of rejects a null tree")]
     public void OfRejectsNullTree()
     {

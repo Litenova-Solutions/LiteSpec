@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The refusal declaration check: every refusal code a handler, a root method it calls or a one-hop helper throws is one its use case declares in a result.</summary>
-/// <follows>litespec/backend/application#return-only-declared-results-and-refusals</follows>
+/// <follows>litespec/core/backend-application#return-only-declared-results-and-refusals</follows>
 internal static class RefusalDeclarationChecks
 {
     /// <summary>Reports each refusal code thrown for a use case that no result of the use case declares.</summary>

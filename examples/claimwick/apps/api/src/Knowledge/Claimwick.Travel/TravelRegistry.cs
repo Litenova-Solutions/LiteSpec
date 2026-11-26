@@ -7,7 +7,7 @@ using Claimwick.Travel.PerDiem;
 namespace Claimwick.Travel;
 
 /// <summary>The registered travel sets, keyed by country and validated before the host serves them. Only hosts add sets.</summary>
-/// <follows>litespec/backend/knowledge#check-shape-at-compile-time-and-dates-at-startup</follows>
+/// <follows>litespec/core/knowledge#check-shape-at-compile-time-and-dates-at-startup</follows>
 public sealed class TravelRegistry
 {
     private readonly Dictionary<string, ITravelSet> sets = new(StringComparer.OrdinalIgnoreCase);

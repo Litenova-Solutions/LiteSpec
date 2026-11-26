@@ -30,3 +30,4 @@ Every command accepts `--help`. `model check` also accepts `--format json`, whic
 - [Skill](skill.md): installs or removes the litespec skill.
 - [Context](context.md): writes the specification as one plain-text file for an AI chat.
 - [Api Explore](api-explore.md): walks a running API from its OpenAPI document and reports server faults.
+- [UI Audit](ui-audit.md): visits each route of a running application in a browser and reports what the rendered pages show wrong.

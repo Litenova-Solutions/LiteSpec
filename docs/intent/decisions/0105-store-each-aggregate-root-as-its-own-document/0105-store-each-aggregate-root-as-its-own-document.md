@@ -21,7 +21,7 @@ Marten stores each aggregate root as its own document, with no parallel document
 
 ## Consequences
 
-The new provision is `litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document`. Query handlers query the aggregate type through `IQuerySession`. LS2018 names the fix when the Infrastructure type it reports is a Marten document of an aggregate: query the aggregate type through `IQuerySession`. A query-shaped read document still serves queries under `litespec/backend/persistence#add-read-documents-for-query-shaped-data` and is no parallel aggregate document.
+The new provision is `litespec/packs/dotnet/persistence#store-each-aggregate-root-as-its-own-document`. Query handlers query the aggregate type through `IQuerySession`. LS2018 names the fix when the Infrastructure type it reports is a Marten document of an aggregate: query the aggregate type through `IQuerySession`. A query-shaped read document still serves queries under `litespec/core/backend-persistence#add-read-documents-for-query-shaped-data` and is no parallel aggregate document.
 
 ## Revisit Conditions
 

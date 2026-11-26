@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class DotnetScenarioMarkTests
 {
     /// <summary>Test Claim Xml Links Its Scenario.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void TestClaimXmlLinksItsScenario()
     {
@@ -32,7 +32,7 @@ public sealed class DotnetScenarioMarkTests
     }
 
     /// <summary>Test Claim Attribute Links Its Scenario.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void TestClaimAttributeLinksItsScenario()
     {
@@ -54,7 +54,7 @@ public sealed class DotnetScenarioMarkTests
     }
 
     /// <summary>Test Claim Names A Rule.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void TestClaimNamesARule()
     {
@@ -77,13 +77,13 @@ public sealed class DotnetScenarioMarkTests
 
     /// <summary>Test Claim Names A Proof Target.</summary>
     /// <param name="claim">The record identifier or provision identifier the case claims as its proof target.</param>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("requirement/borrowing.borrow-latency")]
     [InlineData("decision/0002-store-loans-as-documents")]
     [InlineData("external-system/text-gateway")]
     [InlineData("integration-event/loan-borrowed")]
-    [InlineData("litespec/backend/persistence#commit-each-command-pipeline-once")]
+    [InlineData("litespec/core/backend-persistence#commit-each-command-pipeline-once")]
     // The InlineData values name each proof-target claim case.
     public void Test_Claim_Names_A_Proof_Target(string claim)
     {
@@ -105,7 +105,7 @@ public sealed class DotnetScenarioMarkTests
     }
 
     /// <summary>Test Without Claims Has No Scenario.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void TestWithoutClaimsHasNoScenario()
     {
@@ -124,7 +124,7 @@ public sealed class DotnetScenarioMarkTests
     }
 
     /// <summary>Test Method Is Read As A Test Element.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void TestMethodIsReadAsATestElement()
     {
@@ -153,7 +153,7 @@ public sealed class DotnetScenarioMarkTests
     }
 
     /// <summary>Proves Without Test Attribute Lands In Stray Marks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ProvesWithoutTestAttributeLandsInStrayMarks()
     {

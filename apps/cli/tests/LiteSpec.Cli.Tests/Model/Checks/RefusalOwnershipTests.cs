@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class RefusalOwnershipTests
 {
     /// <summary>Code Carried From Another Module Reports Foreign.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
     [Fact]
     public void CodeCarriedFromAnotherModuleReportsForeign()
     {
@@ -32,7 +32,7 @@ public sealed class RefusalOwnershipTests
     }
 
     /// <summary>Code Carried By Two Exception Types Reports Duplicate.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
     [Fact]
     public void CodeCarriedByTwoExceptionTypesReportsDuplicate()
     {
@@ -58,8 +58,8 @@ public sealed class RefusalOwnershipTests
     }
 
     /// <summary>Code Carried By Two Exceptions Marking One Rule Names The Rule.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
-    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact]
     public void CodeCarriedByTwoExceptionsMarkingOneRuleNamesTheRule()
     {
@@ -82,11 +82,11 @@ public sealed class RefusalOwnershipTests
         var message = Assert.Single(Checker.Check(model).Findings, finding => finding.Code == "refusal-code-duplicate").Message;
 
         Assert.Contains("rule/expense.receipt-required", message, StringComparison.Ordinal);
-        Assert.Contains("litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions", message, StringComparison.Ordinal);
+        Assert.Contains("litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions", message, StringComparison.Ordinal);
     }
 
     /// <summary>Code Carried By Two Exceptions Marking Other Rules Names No Rule.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
     [Fact]
     public void CodeCarriedByTwoExceptionsMarkingOtherRulesNamesNoRule()
     {
@@ -122,7 +122,7 @@ public sealed class RefusalOwnershipTests
     }
 
     /// <summary>Code Carried By One Exception Type In Its Module Passes.</summary>
-    /// <proves>litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
+    /// <proves>litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns</proves>
     [Fact]
     public void CodeCarriedByOneExceptionTypeInItsModulePasses()
     {

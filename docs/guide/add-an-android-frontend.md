@@ -9,7 +9,7 @@ Start with:
 - A consumer project. A product with a server adds `android` beside its backend stack, and a product with no server starts from the `android-client` preset on the [initialize command](../tools/init.md) page.
 - The .NET SDK and Android API level pinned in `litespec.manifest.yaml` under `stack.dotnet` and `stack.android`, with the Android workload installed through `dotnet workload install android`.
 
-Read the [mobile structure](../frontend/mobile/structure.md), the [mobile screens and navigation](../frontend/mobile/screens.md), and the [Android stack](../frontend/mobile/android/stack.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
+Read the [mobile structure](../packs/android/structure.md), the [mobile screens and navigation](../packs/android/screens.md), and the [Android stack](../packs/android/stack.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 
@@ -19,15 +19,15 @@ Add the `android` stack to `.litespec/project.yaml`. For a `client-only` project
 
 ### Declare the Mobile Solution Tree
 
-Create the mobile solution and its core and platform projects under `apps/mobile/` as the [mobile structure](../frontend/mobile/structure.md) page states. Check that the solution holds the projects required for the project shape. This satisfies `litespec/frontend/mobile/structure#use-the-mobile-solution-tree`.
+Create the mobile solution and its core and platform projects under `apps/mobile/` as the [mobile structure](../packs/android/structure.md) page states. Check that the solution holds the projects required for the project shape. This satisfies `litespec/packs/android/structure#use-the-mobile-solution-tree`.
 
 ### Organize Screens by Module
 
-Place each screen under `Screens/` in the platform project, in a folder for its module when the product has more than one module. This satisfies `litespec/frontend/mobile/structure#organize-screens-by-module`.
+Place each screen under `Screens/` in the platform project, in a folder for its module when the product has more than one module. This satisfies `litespec/packs/android/structure#organize-screens-by-module`.
 
 ### Host Screens in One Activity
 
-Host every screen in one activity with one navigation controller. This satisfies `litespec/frontend/mobile/screens#own-navigation-in-one-controller`.
+Host every screen in one activity with one navigation controller. This satisfies `litespec/packs/android/screens#own-navigation-in-one-controller`.
 
 ### Record the Minimum Android Version
 

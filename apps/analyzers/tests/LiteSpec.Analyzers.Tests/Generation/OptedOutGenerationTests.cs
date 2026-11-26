@@ -6,8 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class OptedOutGenerationTests
 {
     /// <summary>The modules project generates the full surface.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "The modules project generates the full surface")]
     public void ModulesProjectGeneratesTheFullSurface()
     {
@@ -22,7 +22,7 @@ public sealed class OptedOutGenerationTests
     }
 
     /// <summary>The Kernel generates no registry, permissions or roles.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "The Kernel generates no registry, permissions or roles")]
     public void KernelGeneratesNothing()
     {
@@ -37,7 +37,7 @@ public sealed class OptedOutGenerationTests
     }
 
     /// <summary>A host beside a module project generates no registry, permissions or roles.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A host beside a module project generates no registry, permissions or roles")]
     public void ModuleHostGeneratesNoRegistry()
     {

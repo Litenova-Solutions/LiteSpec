@@ -8,7 +8,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 {
     /// <summary>LS1001 reports a using directive that imports an outer-layer namespace.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a using directive that imports an outer-layer namespace")]
     public Task ReportsAUsingOfAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -34,7 +34,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a base type from an outer-layer namespace.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a base type from an outer-layer namespace")]
     public Task ReportsABaseTypeFromAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -58,7 +58,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports an attribute from an outer-layer namespace.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports an attribute from an outer-layer namespace")]
     public Task ReportsAnAttributeFromAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>("""
@@ -73,7 +73,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a generic argument and a nested outer-layer namespace.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a generic argument and a nested outer-layer namespace")]
     public Task ReportsAGenericArgumentAndANestedNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -109,7 +109,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a global using of an outer-layer namespace.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a global using of an outer-layer namespace")]
     public Task ReportsAGlobalUsingOfAnOuterLayerNamespace() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -135,7 +135,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 accepts base class library and project types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 accepts base class library and project types")]
     public Task AcceptsBaseClassLibraryAndProjectTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>("""
@@ -161,7 +161,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 ignores a namespace that only shares a prefix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 ignores a namespace that only shares a prefix")]
     public Task IgnoresANamespaceThatOnlySharesAPrefix() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -186,7 +186,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a parameter and a member access on an outer-layer type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a parameter and a member access on an outer-layer type")]
     public Task ReportsAParameterAndAMemberAccess() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -215,7 +215,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports object creation and typeof of an outer-layer type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports object creation and typeof of an outer-layer type")]
     public Task ReportsObjectCreationAndTypeof() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -244,7 +244,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a using static and an unqualified member call.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a using static and an unqualified member call")]
     public Task ReportsAUsingStaticAndAnUnqualifiedCall() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>("""
@@ -263,7 +263,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 ignores outer-layer types outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 ignores outer-layer types outside Domain")]
     public Task IgnoresOuterLayerTypesOutsideDomain() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -293,7 +293,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a Domain file naming an Application type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a Domain file naming an Application type")]
     public Task ReportsADomainFileNamingAnApplicationType() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -319,7 +319,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a Domain file naming Infrastructure and WebApi types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a Domain file naming Infrastructure and WebApi types")]
     public Task ReportsADomainFileNamingInfrastructureAndWebApiTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -355,7 +355,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports a Domain file naming a port.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 reports a Domain file naming a port")]
     public Task ReportsADomainFileNamingAPort() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -383,7 +383,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 accepts a typed identifier from another module's Contracts and reports a port there.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 accepts a typed identifier from Contracts and reports a port there")]
     public Task AcceptsAContractsIdentifierAndReportsAContractsPort() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -412,7 +412,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 accepts a rule refusal another module publishes in its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 accepts a rule refusal from Contracts")]
     public Task AcceptsAContractsRuleRefusal() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -436,7 +436,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 accepts a Domain file naming only Domain types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    /// <proves>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
     [Fact(DisplayName = "LS1001 accepts a Domain file naming only Domain types")]
     public Task AcceptsADomainFileNamingOnlyDomainTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -458,7 +458,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 accepts composition, logging and options in a knowledge model.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS1001 accepts composition, logging and options in a knowledge model")]
     public Task AcceptsCompositionLoggingAndOptionsInAKnowledgeModel() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
@@ -527,7 +527,7 @@ public sealed class DomainOuterLayerAnalyzerTests
 
     /// <summary>LS1001 reports any other outer-layer reference in a knowledge model.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS1001 reports any other outer-layer reference in a knowledge model")]
     public Task ReportsAnyOtherOuterLayerReferenceInAKnowledgeModel() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(

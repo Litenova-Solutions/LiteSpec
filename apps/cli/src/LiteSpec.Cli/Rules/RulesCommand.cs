@@ -102,7 +102,7 @@ static class RulesCommand
             var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context, index);
             IReadOnlyList<RulesDecided.DecidedDecision> decided = context.IsCodePath ? RulesDecided.LoadDecisions(config, context) : [];
 
-            Print(config, home, context, results, parsed.Has("--full"), parsed.Has("--all"), config.Layers, decided);
+            Print(config, context, results, parsed.Has("--full"), parsed.Has("--all"), config.Layers, decided);
             return 0;
         }
 
@@ -264,8 +264,7 @@ static class RulesCommand
     /// <summary>
     ///     Prints the retrieved provisions. The contract card of each use case, reaction
     ///     or job the target names prints first. On a code path the followed decisions and
-    ///     covering waivers print next under Decided, then the Page frame block on a
-    ///     route file. Without full, the provisions that need judgment and match the
+    ///     covering waivers print next under Decided. Without full, the provisions that need judgment and match the
     ///     file kind print as statements grouped by strength, the provisions matched
     ///     only through a marked record collapse into one line per record, the checked
     ///     provisions collapse into one summary line unless all asks for one line each
@@ -275,14 +274,13 @@ static class RulesCommand
     ///     collapsed records after.
     /// </summary>
     /// <param name="config">The consumer configuration holding the record roots and frontends.</param>
-    /// <param name="home">The carried LiteSpec release root holding the pattern pages.</param>
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
     /// <param name="showAll">Whether to print the full list: each checked provision on its own line and the concern-wide provisions by identifier.</param>
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="decided">The decisions the target marks, in marked order; empty for a record target.</param>
-    static void Print(ConsumerConfig config, string home, PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, bool showAll, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
+    static void Print(ConsumerConfig config, PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, bool showAll, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
     {
         var parts = new List<string>();
 
@@ -311,8 +309,6 @@ static class RulesCommand
         {
             RulesDecided.Print(decided, results);
         }
-
-        RulesPageFrame.Print(config, home, context);
 
         var collapsed = context.IsCodePath
             ? results.Where(result => result.MatchesOnlyThroughMarkedRecord).ToList()

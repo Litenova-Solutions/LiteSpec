@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     layer, its module, and its use case. Built once
 ///     per compilation; the boundary rules read it for every reference.
 /// </summary>
-/// <follows>litespec/backend/architecture#point-dependencies-inward</follows>
+/// <follows>litespec/core/backend-architecture#point-dependencies-inward</follows>
 internal sealed class CodeMap
 {
     /// <summary>Folder names that never hold a use case of their own, and never name a module.</summary>

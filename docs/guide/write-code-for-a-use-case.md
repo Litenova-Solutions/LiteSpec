@@ -51,8 +51,8 @@ Where the Checked By cell names a review, a reviewer reads the row. Every other 
 
 Two code checks hold the marks to their records:
 
-- A reaction handler subscribes only to the events its reaction names in `triggeredBy`. A handler subscribed to another event reports `reaction-subscription-drift`, and a declared trigger no handler answers reports `reaction-trigger-unhandled`. This satisfies `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`.
-- Each refusal code is thrown only from its own module and by one exception type, so two rules that a boundary maps to one response still keep two codes. This satisfies `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`.
+- A reaction handler subscribes only to the events its reaction names in `triggeredBy`. A handler subscribed to another event reports `reaction-subscription-drift`, and a declared trigger no handler answers reports `reaction-trigger-unhandled`. This satisfies `litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`.
+- Each refusal code is thrown only from its own module and by one exception type, so two rules that a boundary maps to one response still keep two codes. This satisfies `litespec/packs/dotnet/domain#throw-only-refusal-codes-the-module-owns`.
 
 ### Point Each Mark at Its Record
 

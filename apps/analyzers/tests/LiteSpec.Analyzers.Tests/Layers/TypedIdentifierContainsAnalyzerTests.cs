@@ -23,7 +23,7 @@ public sealed class TypedIdentifierContainsAnalyzerTests
 
     /// <summary>LS2032 reports an Enumerable Contains over typed identifiers in a queryable expression.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2032 reports an Enumerable Contains over typed identifiers in a queryable expression")]
     public Task ReportsAnEnumerableContainsOverTypedIdentifiers() =>
         Verify.AnalyzerAsync<TypedIdentifierContainsAnalyzer>(
@@ -49,7 +49,7 @@ public sealed class TypedIdentifierContainsAnalyzerTests
 
     /// <summary>LS2032 reports an instance Contains over typed identifiers in a queryable expression.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2032 reports an instance Contains over typed identifiers in a queryable expression")]
     public Task ReportsAnInstanceContainsOverTypedIdentifiers() =>
         Verify.AnalyzerAsync<TypedIdentifierContainsAnalyzer>(
@@ -75,7 +75,7 @@ public sealed class TypedIdentifierContainsAnalyzerTests
 
     /// <summary>LS2032 accepts a Contains that compares the underlying value in a queryable expression.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2032 accepts a Contains that compares the underlying value in a queryable expression")]
     public Task AcceptsAContainsOverTheUnderlyingValue() =>
         Verify.AnalyzerAsync<TypedIdentifierContainsAnalyzer>(
@@ -102,7 +102,7 @@ public sealed class TypedIdentifierContainsAnalyzerTests
 
     /// <summary>LS2032 stays quiet for a Contains over typed identifiers in memory.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2032 stays quiet for a Contains over typed identifiers in memory")]
     public Task StaysQuietForAnInMemoryContains() =>
         Verify.AnalyzerAsync<TypedIdentifierContainsAnalyzer>(
@@ -128,7 +128,7 @@ public sealed class TypedIdentifierContainsAnalyzerTests
 
     /// <summary>LS2032 stays quiet for an expression tree passed to a method that is no queryable operator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2032 stays quiet for an expression tree passed to a method that is no queryable operator")]
     public Task StaysQuietForANonQueryableOperator() =>
         Verify.AnalyzerAsync<TypedIdentifierContainsAnalyzer>(
@@ -161,7 +161,7 @@ public sealed class TypedIdentifierContainsAnalyzerTests
 
     /// <summary>LS2032 stays quiet outside Application, Infrastructure and Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2032 stays quiet outside Application, Infrastructure and Worker")]
     public Task StaysQuietOutsideItsLayers() =>
         Verify.AnalyzerAsync<TypedIdentifierContainsAnalyzer>(

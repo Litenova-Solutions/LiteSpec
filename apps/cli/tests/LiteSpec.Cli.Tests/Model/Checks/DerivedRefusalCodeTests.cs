@@ -31,7 +31,7 @@ public sealed class DerivedRefusalCodeTests
     }
 
     /// <summary>A handler throwing the carried product code reports no undeclared refusal or result.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void ProductCodeViaRuleCoversThrownCode()
     {
@@ -66,7 +66,7 @@ public sealed class DerivedRefusalCodeTests
     }
 
     /// <summary>A handler throwing another code still reports undeclared refusal and result.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void DifferentThrownCodeStillReports()
     {
@@ -122,7 +122,7 @@ public sealed class DerivedRefusalCodeTests
     }
 
     /// <summary>A module rule keeps its written result: the derived result keeps the generic code and the module code still reports.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void ModuleRuleRefusalStaysUndeclared()
     {
@@ -152,7 +152,7 @@ public sealed class DerivedRefusalCodeTests
     }
 
     /// <summary>A handler throwing the generic code still passes while the derived result carries the product code.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void GenericCodeStillCoversWhenDerivedCarriesProduct()
     {

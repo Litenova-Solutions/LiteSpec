@@ -3,7 +3,7 @@ id: waiver/old-layout-waiver
 title: Old Layout Waiver
 kind: gap
 waives:
-  - litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case
+  - litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case
 appliesTo:
   - use-case/billing.send-invoice
 reason: The old layout predates the module tree.

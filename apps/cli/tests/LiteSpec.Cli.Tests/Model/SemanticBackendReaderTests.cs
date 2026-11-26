@@ -14,7 +14,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class SemanticBackendReaderTests
 {
     /// <summary>Syntax Fallback Without Build Output.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SyntaxFallbackWithoutBuildOutput()
     {
@@ -34,7 +34,7 @@ public sealed class SemanticBackendReaderTests
     }
 
     /// <summary>Semantic With Project Assets.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SemanticWithProjectAssets()
     {
@@ -56,7 +56,7 @@ public sealed class SemanticBackendReaderTests
     }
 
     /// <summary>Forced Mode Overrides Evidence.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ForcedModeOverridesEvidence()
     {
@@ -75,7 +75,7 @@ public sealed class SemanticBackendReaderTests
     }
 
     /// <summary>Semantic Loads Framework References.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SemanticLoadsFrameworkReferences()
     {
@@ -90,7 +90,7 @@ public sealed class SemanticBackendReaderTests
     }
 
     /// <summary>Semantic Resolves Using Static Constant.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void SemanticResolvesUsingStaticConstant()
     {
@@ -109,7 +109,7 @@ public sealed class SemanticBackendReaderTests
     }
 
     /// <summary>Semantic Keeps Syntax Facts.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SemanticKeepsSyntaxFacts()
     {

@@ -33,7 +33,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports a command handler taking the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports a command handler taking the command mediator")]
     public Task ReportsACommandHandlerTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -53,7 +53,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a query handler taking the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a query handler taking the query mediator")]
     public Task AcceptsAQueryHandlerTakingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -73,7 +73,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a command handler taking the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a command handler taking the query mediator")]
     public Task AcceptsACommandHandlerTakingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -93,7 +93,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports a validator taking the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports a validator taking the command mediator")]
     public Task ReportsAValidatorTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -113,7 +113,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports a command handler holding the event mediator in a field.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports a command handler holding the event mediator in a field")]
     public Task ReportsAFieldHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -134,7 +134,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a property of a handler holding the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a property of a handler holding the query mediator")]
     public Task AcceptsAPropertyHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -155,7 +155,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports a validator taking the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports a validator taking the query mediator")]
     public Task ReportsAValidatorTakingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -175,7 +175,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a reaction taking the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a reaction taking the command mediator")]
     public Task AcceptsAReactionTakingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -198,7 +198,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports an endpoint holding the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports an endpoint holding the command mediator")]
     public Task ReportsAnEndpointHoldingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -218,7 +218,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a job deriving from BackgroundService that holds the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a job deriving from BackgroundService that holds the command mediator")]
     public Task AcceptsAJobHoldingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -240,7 +240,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a method parameter that is not a constructor parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a method parameter that is not a constructor parameter")]
     public Task AcceptsAMethodParameterThatIsNotAConstructorParameter() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -263,7 +263,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a mediator in the Kernel, which composes the pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a mediator in the Kernel")]
     public Task AcceptsAMediatorInTheKernel() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -283,7 +283,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 stays quiet in test projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 stays quiet in test projects")]
     public Task StaysQuietInTestProjects() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -303,7 +303,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a mediator in the platform, which composes the pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a mediator in the platform")]
     public Task AcceptsAMediatorInThePlatform() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -329,7 +329,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports an adapter holding the query and command mediators.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports an adapter holding the query and command mediators")]
     public Task ReportsAnAdapterHoldingTheQueryAndCommandMediators() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -350,7 +350,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports an adapter holding the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports an adapter holding the query mediator")]
     public Task ReportsAnAdapterHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -370,7 +370,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports an adapter holding the event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports an adapter holding the event mediator")]
     public Task ReportsAnAdapterHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -390,7 +390,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 reports a reaction holding the event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 reports a reaction holding the event mediator")]
     public Task ReportsAReactionHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -412,7 +412,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a job holding the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a job holding the query mediator")]
     public Task AcceptsAJobHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -432,7 +432,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a worker host holding the command mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a worker host holding the command mediator")]
     public Task AcceptsAWorkerHoldingTheCommandMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(
@@ -452,7 +452,7 @@ public sealed class MessageSentOutsideEntryPointAnalyzerTests
 
     /// <summary>LS2021 accepts a worker host holding the query mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
+    /// <proves>litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact(DisplayName = "LS2021 accepts a worker host holding the query mediator")]
     public Task AcceptsAWorkerHoldingTheQueryMediator() =>
         Verify.AnalyzerAsync<MessageSentOutsideEntryPointAnalyzer>(

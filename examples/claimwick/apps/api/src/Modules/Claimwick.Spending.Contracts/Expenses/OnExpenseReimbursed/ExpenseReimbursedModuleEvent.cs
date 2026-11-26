@@ -4,7 +4,7 @@ namespace Claimwick.Spending.Contracts.Expenses.OnExpenseReimbursed;
 
 /// <summary>The expense-reimbursed event announces a reimbursed expense and the employee it was paid to.</summary>
 /// <implements>module-event/spending.expense-reimbursed</implements>
-/// <follows>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</follows>
+/// <follows>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</follows>
 public sealed record ExpenseReimbursedModuleEvent(
     ExpenseId ExpenseId,
     Guid EmployeeId,

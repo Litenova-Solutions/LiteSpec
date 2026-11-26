@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class DotnetTransitiveKindTests
 {
     /// <summary>Handler Through Base Class Links Its Use Case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerThroughBaseClassLinksItsUseCase()
     {
@@ -50,7 +50,7 @@ public sealed class DotnetTransitiveKindTests
     }
 
     /// <summary>Query Handler Through Base Class Reads Query Kind.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void QueryHandlerThroughBaseClassReadsQueryKind()
     {
@@ -82,7 +82,7 @@ public sealed class DotnetTransitiveKindTests
     }
 
     /// <summary>Event Handler Through Base Class Links Its Reaction.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventHandlerThroughBaseClassLinksItsReaction()
     {
@@ -112,7 +112,7 @@ public sealed class DotnetTransitiveKindTests
     }
 
     /// <summary>Job Host Through BackgroundService Base Links Its Job.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobHostThroughBackgroundServiceBaseLinksItsJob()
     {
@@ -142,7 +142,7 @@ public sealed class DotnetTransitiveKindTests
     }
 
     /// <summary>Event Through Intermediate Interface Links Its Event.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventThroughIntermediateInterfaceLinksItsEvent()
     {

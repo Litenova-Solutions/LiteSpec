@@ -9,7 +9,7 @@ public sealed class PartialTypeTests
 {
     /// <summary>LS5006 reports a marked event that is not partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 reports a marked event that is not partial")]
     public Task ReportsAMarkedEventThatIsNotPartial() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -25,7 +25,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 reports a marked exception that is not partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 reports a marked exception that is not partial")]
     public Task ReportsAMarkedExceptionThatIsNotPartial() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -48,7 +48,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 accepts a partial event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 accepts a partial event")]
     public Task AcceptsAPartialEvent() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -64,7 +64,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 ignores an unmarked event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 ignores an unmarked event")]
     public Task IgnoresAnUnmarkedEvent() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -79,7 +79,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 does not run outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 does not run outside Domain")]
     public Task DoesNotRunOutsideDomain() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -95,7 +95,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 accepts a two-part event with every part partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 accepts a two-part event with every part partial")]
     public Task AcceptsTwoPartEventWithEveryPartPartial() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -118,7 +118,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 reports the enclosing type of a nested partial event.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 reports the enclosing type of a nested partial event")]
     public Task ReportsEnclosingTypeOfNestedPartialEvent() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
@@ -137,7 +137,7 @@ public sealed class PartialTypeTests
 
     /// <summary>LS5006 accepts a nested event with a partial enclosing type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "LS5006 accepts a nested event with a partial enclosing type")]
     public Task AcceptsNestedEventWithPartialEnclosingType() =>
         Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(

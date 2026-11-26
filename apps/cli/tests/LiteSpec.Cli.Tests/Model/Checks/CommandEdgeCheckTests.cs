@@ -72,7 +72,7 @@ public sealed class CommandEdgeCheckTests
     }
 
     /// <summary>Reaction Commanding Its Own Module Command Reports.</summary>
-    /// <proves>litespec/backend/application#declare-every-commands-edge-on-the-sender</proves>
+    /// <proves>litespec/core/backend-application#declare-every-commands-edge-on-the-sender</proves>
     [Fact]
     public void ReactionCommandingItsOwnModuleCommandReports()
     {
@@ -88,7 +88,7 @@ public sealed class CommandEdgeCheckTests
     }
 
     /// <summary>Job Commanding Its Own Module Command Reports.</summary>
-    /// <proves>litespec/backend/application#declare-every-commands-edge-on-the-sender</proves>
+    /// <proves>litespec/core/backend-application#declare-every-commands-edge-on-the-sender</proves>
     [Fact]
     public void JobCommandingItsOwnModuleCommandReports()
     {

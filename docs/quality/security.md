@@ -61,7 +61,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Applies to:** artifact: use-case, command-handler, query-handler
 
-**Statement:** The application guard MUST authorize every protected operation from its use case's declared permissions, as `litespec/backend/application#enforce-target-authorization-in-the-pipeline` states, with endpoints adding only coarse policies.
+**Statement:** The application guard MUST authorize every protected operation from its use case's declared permissions, as `litespec/core/backend-application#enforce-target-authorization-in-the-pipeline` states, with endpoints adding only coarse policies.
 
 **Rationale:** Two operations about the same record ask the same authorization question. The use case declares the permissions it needs, the guard resolves the actor roles at the scope of the target, and the decision follows from that declaration.
 
@@ -93,9 +93,9 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Applies to:** artifact: endpoint
 
-**Statement:** A trust boundary MUST validate transport shape and file metadata before use, leaving message checks to application validators as `litespec/backend/application#separate-input-validation-from-invariants` states.
+**Statement:** A trust boundary MUST validate transport shape and file metadata before use, leaving message checks to application validators as `litespec/core/backend-application#separate-input-validation-from-invariants` states.
 
-**Rationale:** Each layer validates what it can see: the boundary checks transport shape and file metadata, the application validators from `litespec/backend/application#separate-input-validation-from-invariants` check message shape, required values, length, range, format, and pagination bounds, and Domain checks business invariants. Database content, provider responses, file contents, and generated text stay untrusted when they cross into a new output context, because validation for one context proves nothing about the next.
+**Rationale:** Each layer validates what it can see: the boundary checks transport shape and file metadata, the application validators from `litespec/core/backend-application#separate-input-validation-from-invariants` check message shape, required values, length, range, format, and pagination bounds, and Domain checks business invariants. Database content, provider responses, file contents, and generated text stay untrusted when they cross into a new output context, because validation for one context proves nothing about the next.
 
 **Reviewed for:** Does each trust boundary validate transport shape and file metadata before use? Look at the endpoints, the upload handlers, and the provider response readers.
 
@@ -135,7 +135,7 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Applies to:** artifact: endpoint
 
-**Statement:** A public error MUST use the error contract `litespec/backend/api#return-stable-problem-details` defines.
+**Statement:** A public error MUST use the error contract `litespec/core/backend-api#return-stable-problem-details` defines.
 
 **Rationale:** The HTTP API rules own the error contract, so every public error carries the same stable shape with nothing extra. A stack trace, SQL, connection detail, provider body, uncontracted internal identifier, or authorization reason that reveals resource existence hands an attacker the structure of the system with every error.
 

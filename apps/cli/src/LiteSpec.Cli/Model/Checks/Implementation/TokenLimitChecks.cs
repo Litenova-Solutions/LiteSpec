@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     The token limit check: every token role meets its limit in every declared color scheme,
 ///     read from the token file the design contract names.
 /// </summary>
-/// <follows>litespec/frontend/ui#meet-the-limits-of-every-token-role</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</follows>
 internal static class TokenLimitChecks
 {
     /// <summary>The slack a limit comparison allows for floating-point arithmetic.</summary>

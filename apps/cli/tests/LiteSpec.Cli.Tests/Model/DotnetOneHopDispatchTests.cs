@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class DotnetOneHopDispatchTests
 {
     /// <summary>Helper Taking The Mediator Attributes Its Dispatch To The Handler.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HelperTakingTheMediatorAttributesItsDispatchToTheHandler()
     {
@@ -29,7 +29,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     /// <summary>Helper Taking A Publisher Attributes Only The Passed Receiver.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HelperTakingAPublisherAttributesOnlyThePassedReceiver()
     {
@@ -49,7 +49,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     /// <summary>Helper Called Without A Receiver Attributes Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HelperCalledWithoutAReceiverAttributesNothing()
     {
@@ -66,7 +66,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     /// <summary>Helper Dispatch Through An Unpassed Receiver Is Not Attributed.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HelperDispatchThroughAnUnpassedReceiverIsNotAttributed()
     {
@@ -85,7 +85,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     /// <summary>Attribution Stops After One Hop.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AttributionStopsAfterOneHop()
     {
@@ -105,7 +105,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     /// <summary>Instance Helper Through A Held Interface Attributes Its Send.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void InstanceHelperThroughAHeldInterfaceAttributesItsSend()
     {
@@ -125,7 +125,7 @@ public sealed class DotnetOneHopDispatchTests
     }
 
     /// <summary>Send Of A Message Built From A Rendered Template Names The Template.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SendOfAMessageBuiltFromARenderedTemplateNamesTheTemplate()
     {

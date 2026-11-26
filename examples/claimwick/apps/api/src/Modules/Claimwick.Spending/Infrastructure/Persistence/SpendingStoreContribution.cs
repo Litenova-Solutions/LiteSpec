@@ -8,7 +8,7 @@ using Marten;
 namespace Claimwick.Spending.Infrastructure.Persistence;
 
 /// <summary>The spending aggregates as the shared store keeps them: each root as its own document.</summary>
-/// <follows>litespec/backend/dotnet/persistence#store-each-aggregate-root-as-its-own-document</follows>
+/// <follows>litespec/packs/dotnet/persistence#store-each-aggregate-root-as-its-own-document</follows>
 internal sealed class SpendingStoreContribution : IStoreContribution
 {
     public void Configure(StoreOptions options)

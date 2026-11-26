@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Screens;
 ///     <c>{module}/{use-case}</c> name <c>use-case/&lt;module&gt;.&lt;use-case&gt;</c>, and three
 ///     segments <c>{module}/{aggregates}/{use-case}</c> name the same id for a use case under an aggregate.
 /// </summary>
-/// <follows>litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-use-case-module-with-its-use-case</follows>
 static class FrontendModuleMirror
 {
     /// <summary>The use-case id the folder under a modules root mirrors, or null outside a use-case folder.</summary>

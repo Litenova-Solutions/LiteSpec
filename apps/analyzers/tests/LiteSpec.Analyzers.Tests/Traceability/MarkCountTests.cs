@@ -59,7 +59,7 @@ public sealed class MarkCountTests
 
     /// <summary>LS5003 reports a root method carrying two use-case marks.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact(DisplayName = "LS5003 reports a root method carrying two use-case marks")]
     public Task ReportsARootMethodCarryingTwoMarks() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(
@@ -91,7 +91,7 @@ public sealed class MarkCountTests
 
     /// <summary>LS5003 accepts a root method carrying one mark.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact(DisplayName = "LS5003 accepts a root method carrying one mark")]
     public Task AcceptsARootMethodCarryingOneMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkCountAnalyzer>(

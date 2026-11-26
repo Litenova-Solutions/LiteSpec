@@ -4,7 +4,7 @@ The Workspace pages define the shape every LiteSpec repository shares: one monor
 
 ## How the Pages Fit Together
 
-[Workspace Structure](structure.md) defines the tree, and the other four pages define what lives inside it: [Naming and Code Style](naming.md) sets names and suffixes, [Class Design](design.md) sets one responsibility per class, one capability per set of interfaces, and composition over helper base classes, [Dependencies](dependencies.md) sets which layer takes which package, and [Configuration](config.md) sets where each value lives and who owns it. The .NET stack refines these pages for its own projects and packages, starting from its [stack page](../backend/dotnet/stack.md).
+[Workspace Structure](structure.md) defines the tree, and the other four pages define what lives inside it: [Naming and Code Style](naming.md) sets names and suffixes, [Class Design](design.md) sets one responsibility per class, one capability per set of interfaces, and composition over helper base classes, [Dependencies](dependencies.md) sets which layer takes which package, and [Configuration](config.md) sets where each value lives and who owns it. The .NET stack refines these pages for its own projects and packages, starting from its [stack page](../packs/dotnet/stack.md).
 
 ## Pages
 

@@ -984,17 +984,8 @@ public static class RecordFields
     /// <summary>Gets the name of the `voice` field.</summary>
     public const string Voice = "voice";
 
-    /// <summary>Gets the name of the `pageFrame` field.</summary>
-    public const string PageFrame = "pageFrame";
-
     /// <summary>Gets the name of the `primaryAction` field.</summary>
     public const string PrimaryAction = "primaryAction";
-
-    /// <summary>Gets the name of the `pattern` field.</summary>
-    public const string Pattern = "pattern";
-
-    /// <summary>Gets the name of the `option` field.</summary>
-    public const string Option = "option";
 
     /// <summary>Gets the name of the `leadsTo` field.</summary>
     public const string LeadsTo = "leadsTo";

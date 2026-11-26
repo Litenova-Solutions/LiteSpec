@@ -50,7 +50,7 @@ On a route file, a `Page frame:` block prints after the Decided group. It names 
 
 Without `--full`, the provisions print in two parts after the card. First come the provisions that need judgment and match the file kind or its record, as statements grouped in strength order: Required, Defaults, Advisory, then Patterns. Each item shows its identifier, its statement, and its reasons, such as `[path match (artifact endpoint); record use-case/spending.submit-expense]`.
 
-Then the checked provisions collapse into one line of the form `<n> checked provisions apply; model check and the analyzers enforce them (litespec rules <path> --all lists them).` The tools already enforce them, so the default output spends no line on each. With `--all`, they print under `Checked by a tool:` instead, one line per provision with its finding codes and analyzer IDs backticked, such as the line for `litespec/backend/application#implement-one-outcome-path-per-command` naming LS2014. A checked provision that names no code prints its checking command instead.
+Then the checked provisions collapse into one line of the form `<n> checked provisions apply; model check and the analyzers enforce them (litespec rules <path> --all lists them).` The tools already enforce them, so the default output spends no line on each. With `--all`, they print under `Checked by a tool:` instead, one line per provision with its finding codes and analyzer IDs backticked, such as the line for `litespec/core/backend-application#implement-one-outcome-path-per-command` naming LS2014. A checked provision that names no code prints its checking command instead.
 
 The concern-wide provisions, which govern only through the target's concern, stay out of the default output; with `--all` they print by identifier only under `Concern-wide:`. With `--full`, every returned provision prints as a statement grouped by strength, rationale and example under each item, with no checked or concern-wide shortening.
 
@@ -119,7 +119,7 @@ litespec rules --root ../consumer --since main
 Read one provision in full:
 
 ```bash
-litespec rules --root ../consumer litespec/backend/application#keep-command-handlers-to-load-call-and-stage
+litespec rules --root ../consumer litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage
 ```
 
 List one page's provisions:

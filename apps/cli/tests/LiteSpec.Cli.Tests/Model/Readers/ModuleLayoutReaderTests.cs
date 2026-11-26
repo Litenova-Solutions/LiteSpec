@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class ModuleLayoutReaderTests
 {
     /// <summary>A handler in a use case folder reads as a handler.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerInUseCaseFolderReadsAsHandler()
     {
@@ -26,7 +26,7 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>A marked interface in a module Ports folder reads as a port.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void InterfaceInPortsFolderReadsAsPort()
     {
@@ -40,7 +40,7 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>A marked class in a Domain folder reads as a domain service.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ClassInDomainFolderReadsAsDomainService()
     {
@@ -54,7 +54,7 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>An endpoint in a use case folder reads as an endpoint.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EndpointInUseCaseFolderReadsAsEndpoint()
     {
@@ -68,7 +68,7 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>A marked interface in a Domain folder reads as no port.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void InterfaceInDomainFolderReadsAsNoPort()
     {
@@ -80,7 +80,7 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>Each file reads its layer from its nearest layer folder or its role suffix.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void LayerComesFromLayerFolderOrRoleSuffix()
     {
@@ -98,7 +98,7 @@ public sealed class ModuleLayoutReaderTests
     }
 
     /// <summary>Unmarked Domain types group by their aggregate folder under the modules root, and Kernel types under the kernel.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void PartsGroupByAggregateFolderInModuleLayout()
     {

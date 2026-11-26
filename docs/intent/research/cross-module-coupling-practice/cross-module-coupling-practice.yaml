@@ -18,11 +18,11 @@ sources:
     readOn: 2026-11-14
     name: github-kgrzybek-modular-monolith-with-ddd
     note: Read through its published text and summary on 14 November 2026.
-  - path: docs/backend/application.md
+  - path: docs/core/backend-application.md
     readOn: 2026-11-14
     name: application
     note: One of the release pages this research changed.
-  - path: docs/backend/dotnet/architecture.md
+  - path: docs/packs/dotnet/architecture.md
     readOn: 2026-11-14
     name: dotnet-architecture
     note: One of the release pages this research changed.

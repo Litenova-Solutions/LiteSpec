@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Readers;
 /// <param name="Calls">Every generated-client call the route reaches.</param>
 /// <param name="Styles">The style each mark was written in, one per mark, or null when the reader records none: the TypeScript reader reads only typed constants, so its routes carry none.</param>
 /// <param name="Navigations">Every full-page navigation the route takes, or null when the reader records none: the .NET reader reads no navigations, so its routes carry none.</param>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 sealed record RouteFact(
     string File,
     int Line,

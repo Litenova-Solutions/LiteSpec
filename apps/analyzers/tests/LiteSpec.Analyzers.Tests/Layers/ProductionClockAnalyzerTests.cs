@@ -8,7 +8,7 @@ public sealed class ProductionClockAnalyzerTests
 {
     /// <summary>LS2036 reports static clock reads in Application.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 reports static clock reads in Application")]
     public Task ReportsStaticClockReadsInApplication() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""
@@ -28,7 +28,7 @@ public sealed class ProductionClockAnalyzerTests
 
     /// <summary>LS2036 reports a static clock read in Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 reports a static clock read in Infrastructure")]
     public Task ReportsAStaticClockReadInInfrastructure() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""
@@ -44,7 +44,7 @@ public sealed class ProductionClockAnalyzerTests
 
     /// <summary>LS2036 reports a static clock read in WebApi.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 reports a static clock read in WebApi")]
     public Task ReportsAStaticClockReadInWebApi() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""
@@ -60,7 +60,7 @@ public sealed class ProductionClockAnalyzerTests
 
     /// <summary>LS2036 reports a static clock read in Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 reports a static clock read in Worker")]
     public Task ReportsAStaticClockReadInWorker() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""
@@ -76,7 +76,7 @@ public sealed class ProductionClockAnalyzerTests
 
     /// <summary>LS2036 accepts time read from an injected clock.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 accepts time read from an injected clock")]
     public Task AcceptsTimeFromAnInjectedClock() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""
@@ -101,7 +101,7 @@ public sealed class ProductionClockAnalyzerTests
 
     /// <summary>LS2036 stays quiet in a type carrying a development-shortcut tag.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 stays quiet in a type carrying a development-shortcut tag")]
     public Task StaysQuietForADevelopmentShortcut() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""
@@ -118,7 +118,7 @@ public sealed class ProductionClockAnalyzerTests
 
     /// <summary>LS2036 stays quiet in Domain, which LS1009 keeps.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#read-time-from-the-scoped-clock</proves>
+    /// <proves>litespec/core/backend-application#read-time-from-the-scoped-clock</proves>
     [Fact(DisplayName = "LS2036 stays quiet in Domain")]
     public Task StaysQuietInDomain() =>
         Verify.AnalyzerAsync<ProductionClockAnalyzer>("""

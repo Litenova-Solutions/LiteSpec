@@ -170,7 +170,7 @@ public sealed class AuditReportTests
     /// <param name="method">The request method.</param>
     /// <param name="status">The response status.</param>
     /// <param name="statusText">The response status as text.</param>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Theory(DisplayName = "a 5xx same-origin fetch or XHR response names its method, path, and status, without the query")]
     [InlineData("Fetch", "GET", 500, "500")]
     [InlineData("XHR", "POST", 503, "503")]
@@ -205,7 +205,7 @@ public sealed class AuditReportTests
     /// <param name="url">The response address.</param>
     /// <param name="status">The response status.</param>
     /// <param name="tracked">Whether the request was tracked from requestWillBeSent.</param>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Theory(DisplayName = "a response that is not a failed same-origin page request reports nothing")]
     [InlineData("XHR", "http://localhost:4173/api/reports", 200, true)]
     [InlineData("XHR", "http://localhost:4173/api/reports", 404, true)]
@@ -239,7 +239,7 @@ public sealed class AuditReportTests
     /// <summary>A failed same-origin fetch or XHR load names its method, path, and error, without the query.</summary>
     /// <param name="errorText">The network error text, or null when the event holds none.</param>
     /// <param name="reason">The reason the message names.</param>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Theory(DisplayName = "a failed same-origin fetch or XHR load names its method, path, and error, without the query")]
     [InlineData("net::ERR_CONNECTION_REFUSED", "net::ERR_CONNECTION_REFUSED")]
     [InlineData(null, "the network failed")]
@@ -275,7 +275,7 @@ public sealed class AuditReportTests
     /// <param name="type">The network resource type.</param>
     /// <param name="url">The request address.</param>
     /// <param name="tracked">Whether the request was tracked from requestWillBeSent.</param>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Theory(DisplayName = "a load failure the page aborted, or that is not a same-origin page request, reports nothing")]
     [InlineData(true, "XHR", "http://localhost:4173/api/reports", true)]
     [InlineData(false, "XHR", "https://cdn.example.net/lib.js", true)]
@@ -304,7 +304,7 @@ public sealed class AuditReportTests
     /// <summary>A request path holds the address path without its query string or fragment.</summary>
     /// <param name="url">The request address.</param>
     /// <param name="path">The expected path.</param>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Theory(DisplayName = "a request path holds the address path without its query string or fragment")]
     [InlineData("http://localhost:4173/api/reports?period=2026-10#top", "/api/reports")]
     [InlineData("http://localhost:4173/", "/")]
@@ -316,7 +316,7 @@ public sealed class AuditReportTests
     }
 
     /// <summary>A sent request reads its id, method, and address from the event.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a sent request reads its id, method, and address from the event")]
     public void SentRequestReadsMethodAndAddress()
     {
@@ -339,7 +339,7 @@ public sealed class AuditReportTests
     }
 
     /// <summary>A sent request without an id, method, or address reads nothing.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a sent request without an id, method, or address reads nothing")]
     public void SentRequestIgnoresIncompleteEvents()
     {

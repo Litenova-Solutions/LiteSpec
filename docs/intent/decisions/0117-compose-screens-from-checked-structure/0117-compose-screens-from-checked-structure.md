@@ -26,7 +26,7 @@ The wireframe language bans card and region nesting, requires every field under 
 
 ## Consequences
 
-The pattern pages draw every toolbar inside its section, one primary action per view, and no card inside a region, so the taught shapes agree with the rules. The layer roles are decided in decision 0118, and the rendered-page audit in decision 0119.
+The pattern pages draw every toolbar inside its section, one primary action per view, and no card inside a region, so the taught shapes agree with the rules. The layer roles are decided in decision 0118, and the rendered-page audit in decision 0119. This decision supersedes `decision/0028-one-default-and-two-pattern-options`: composition answers move from pattern options to required standards, because pattern provisions print as bare identifiers the agent never reads.
 
 ## Revisit Conditions
 

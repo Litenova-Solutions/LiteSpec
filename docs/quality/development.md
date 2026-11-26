@@ -141,7 +141,7 @@ Seed data and personas come from the cast record, whose identifier is `cast/<pro
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Cast occasions carry dates, and rules compare them against the day the code runs. A stack on the real clock puts Ava's expense in the wrong month, so the open month under test holds nothing. Setting the development clock from the cast's `today` lines every host up on the date the examples share, under `litespec/backend/application#read-time-from-the-scoped-clock`, and marking the date keeps a reader from taking a development date for the real one. A use case that records the current day, such as submitting an expense, can only be seeded on its cast date by moving the clock there first.
+**Rationale:** Cast occasions carry dates, and rules compare them against the day the code runs. A stack on the real clock puts Ava's expense in the wrong month, so the open month under test holds nothing. Setting the development clock from the cast's `today` lines every host up on the date the examples share, under `litespec/core/backend-application#read-time-from-the-scoped-clock`, and marking the date keeps a reader from taking a development date for the real one. A use case that records the current day, such as submitting an expense, can only be seeded on its cast date by moving the clock there first.
 
 **Example:** Claimwick's orchestrator sets the development clock to the cast's `today`, so Ava's expense falls in the open month on every host. The frontend shows the date with a development mark, so Ben reads the approval list as a development copy.
 
@@ -231,7 +231,7 @@ Seed data and personas come from the cast record, whose identifier is `cast/<pro
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A review on an empty stack passes screens that break on content: lists with no rows, tables with no overflow, states with no badge. Seeding every scenario before the review shows each screen as users meet it, under `litespec/frontend/ui#review-each-screen-at-three-widths`, and reaching every screen with data leaves no screen reviewed empty.
+**Rationale:** A review on an empty stack passes screens that break on content: lists with no rows, tables with no overflow, states with no badge. Seeding every scenario before the review shows each screen as users meet it, and reaching every screen with data leaves no screen reviewed empty.
 
 **Example:** Claimwick's expense list is reviewed at phone, laptop, and wide widths with the seeded expenses in place, so the review sees the waiting rows and the 48.90 EUR fare instead of an empty state.
 
@@ -261,7 +261,7 @@ Seed data and personas come from the cast record, whose identifier is `cast/<pro
 
 **Applies to:** artifact: any
 
-**Default:** A development stand-in for an external system answers the operations its external-system record declares, as the [External Integrations extension](../ext/integrations.md) defines them.
+**Default:** A development stand-in for an external system answers the operations its external-system record declares, as the [External Integrations extension](../core/integrations.md) defines them.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 

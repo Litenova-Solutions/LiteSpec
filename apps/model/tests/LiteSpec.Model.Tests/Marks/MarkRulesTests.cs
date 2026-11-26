@@ -91,7 +91,7 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Test, "decision/0002-keep-expenses-as-documents"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "external-system/payout-bank"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "integration-event/expense-submitted"));
-        Assert.True(MarkRules.Accepts(CodeKind.Test, "litespec/backend/architecture#point-dependencies-inward"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "litespec/core/backend-architecture#point-dependencies-inward"));
         Assert.False(MarkRules.Accepts(CodeKind.Test, "aggregate/spending.expense"));
         Assert.False(MarkRules.Accepts(CodeKind.Test, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "aggregate/spending.expense"));
@@ -110,7 +110,7 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "integration-event/expense-submitted"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "decision/0002-keep-expenses-as-documents"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "waiver/export-review-bypass"));
-        Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/core/backend-persistence#commit-each-command-pipeline-once"));
     }
 
     /// <summary>FollowsRecordTypes names the provision namespace, decision and waiver.</summary>
@@ -124,7 +124,7 @@ public sealed class MarkRulesTests
     [Fact(DisplayName = "AcceptsFollows takes a provision, decision or waiver and rejects a Behavior record")]
     public void AcceptsFollowsTakesChoices()
     {
-        Assert.True(MarkRules.AcceptsFollows("litespec/backend/persistence#commit-each-command-pipeline-once"));
+        Assert.True(MarkRules.AcceptsFollows("litespec/core/backend-persistence#commit-each-command-pipeline-once"));
         Assert.True(MarkRules.AcceptsFollows("decision/0002-keep-expenses-as-documents"));
         Assert.True(MarkRules.AcceptsFollows("waiver/export-review-bypass"));
         Assert.False(MarkRules.AcceptsFollows("use-case/spending.submit-expense"));

@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class DotnetHandlerShapeReaderTests
 {
     /// <summary>Handler Call On An Aggregate Local Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerCallOnAnAggregateLocalIsCollected()
     {
@@ -39,7 +39,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Handler Call On A Loaded Var Resolves Through The Repository.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerCallOnALoadedVarResolvesThroughTheRepository()
     {
@@ -66,7 +66,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Static Calls And Non Root Types Are Not Aggregate Calls.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void StaticCallsAndNonRootTypesAreNotAggregateCalls()
     {
@@ -103,7 +103,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Aggregate Methods Carry The Events They Raise.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AggregateMethodsCarryTheEventsTheyRaise()
     {
@@ -144,7 +144,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Methods Outside An Aggregate Root Are Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void MethodsOutsideAnAggregateRootAreIgnored()
     {
@@ -166,7 +166,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Handler Message Type And Dependency Count Are Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerMessageTypeAndDependencyCountAreCollected()
     {
@@ -192,7 +192,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Event Handler Dependency Count Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventHandlerDependencyCountIsCollected()
     {
@@ -211,7 +211,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Collaborator Built With New And Holding A Repository Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CollaboratorBuiltWithNewAndHoldingARepositoryIsCollected()
     {
@@ -249,7 +249,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Collaborator Without A Repository Is Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CollaboratorWithoutARepositoryIsIgnored()
     {
@@ -272,7 +272,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Repository Read Inside A Loop Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void RepositoryReadInsideALoopIsCollected()
     {
@@ -303,7 +303,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Query Filter On A Repository List Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void QueryFilterOnARepositoryListIsCollected()
     {
@@ -327,7 +327,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Query Filter On A Session Query Is Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void QueryFilterOnASessionQueryIsIgnored()
     {
@@ -350,7 +350,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Command Filter On A Repository List Is Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CommandFilterOnARepositoryListIsIgnored()
     {
@@ -374,7 +374,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Audited Action Literal Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AuditedActionLiteralIsCollected()
     {
@@ -394,7 +394,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>State Changing Method Without An Event Is An Aggregate Method Element.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void StateChangingMethodWithoutAnEventIsAnAggregateMethodElement()
     {
@@ -426,7 +426,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Handler Query Through The Query Mediator Is Collected As A Queries Dispatch.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerQueryThroughTheQueryMediatorIsCollected()
     {
@@ -452,7 +452,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Other Method On The Query Mediator Is Not A Dispatch.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OtherMethodOnTheQueryMediatorIsNotADispatch()
     {
@@ -475,7 +475,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Reaction Sends Through Both Mediators Are Collected As Dispatches.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionSendsThroughBothMediatorsAreCollected()
     {
@@ -506,7 +506,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>Job Command Send Is Collected As A Runs Dispatch.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobCommandSendIsCollected()
     {
@@ -532,7 +532,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>A registration job that selects through a query keeps the query as a queries dispatch and the registered command as runs.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void RegistrationJobQueryStaysAQueriesDispatch()
     {
@@ -560,7 +560,7 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     /// <summary>A reaction sending a command held in a local declared with its type collects that command.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionSendOfATypedLocalIsCollected()
     {

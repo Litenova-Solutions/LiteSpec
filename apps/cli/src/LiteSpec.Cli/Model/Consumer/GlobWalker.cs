@@ -27,7 +27,7 @@ static class GlobWalker
     /// <summary>
     ///     Collects the record files and Markdown files under the documentation root in ordinal
     ///     path order, leaving out the files that are not pages: the glossary, which its own check
-    ///     reads, and the project file and pattern catalog, which are YAML under the same root.
+    ///     reads, and the project file, which is YAML under the same root.
     /// </summary>
     /// <param name="docsRoot">The documentation root to walk.</param>
     /// <param name="notPages">The files under the root that are not record or Markdown pages.</param>

@@ -19,16 +19,12 @@ sealed record FrontendConfig(
     string? EntryPoint = null,
     FrontendClientConfig? Client = null)
 {
-    /// <summary>Gets the routes root the reader reads.</summary>
+    /// <summary>Gets the routes root the Svelte reader reads.</summary>
     public string RoutesRoot => System.IO.Path.Combine(Path, "src", "routes");
 
-    /// <summary>Gets the use-case modules root the reader reads.</summary>
-    public string ModulesRoot => Platform == "react"
-        ? System.IO.Path.Combine(Path, "src", "modules")
-        : System.IO.Path.Combine(Path, "src", "lib", "modules");
+    /// <summary>Gets the use-case modules root the Svelte reader reads.</summary>
+    public string ModulesRoot => System.IO.Path.Combine(Path, "src", "lib", "modules");
 
     /// <summary>Gets the frame folder holding the generated records file.</summary>
-    public string FrameRoot => Platform == "react"
-        ? System.IO.Path.Combine(Path, "src", "app")
-        : System.IO.Path.Combine(Path, "src", "lib", "app");
+    public string FrameRoot => System.IO.Path.Combine(Path, "src", "lib", "app");
 }

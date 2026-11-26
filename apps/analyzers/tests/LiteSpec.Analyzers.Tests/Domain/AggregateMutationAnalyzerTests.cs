@@ -20,7 +20,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 reports a public setter on a child entity.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 reports a public setter on a child entity")]
     public Task ReportsAPublicSetterOnAChildEntity() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -41,7 +41,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 reports a public constructor on a child entity.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 reports a public constructor on a child entity")]
     public Task ReportsAPublicConstructorOnAChildEntity() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -64,7 +64,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 reports a mutable public collection on a non-root type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 reports a mutable public collection on a non-root type")]
     public Task ReportsAMutablePublicCollection() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -88,7 +88,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 reports a public setter on a value object struct.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 reports a public setter on a value object struct")]
     public Task ReportsAPublicSetterOnAStruct() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -107,7 +107,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 accepts the aggregate root with public surface.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 accepts the aggregate root with public surface")]
     public Task AcceptsTheAggregateRoot() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -135,7 +135,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 accepts records, init accessors, and internal members.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 accepts records, init accessors, and internal members")]
     public Task AcceptsRecordsInitAccessorsAndInternalMembers() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -173,7 +173,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 accepts a public constructor on the root's input type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 accepts a public constructor on the root's input type")]
     public Task AcceptsAPublicConstructorOnAnInputType() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(
@@ -211,7 +211,7 @@ public sealed class AggregateMutationAnalyzerTests
 
     /// <summary>LS1015 stays silent outside an aggregate folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</proves>
     [Fact(DisplayName = "LS1015 stays silent outside an aggregate folder")]
     public Task StaysSilentOutsideAnAggregateFolder() =>
         Verify.AnalyzerAsync<AggregateMutationAnalyzer>(

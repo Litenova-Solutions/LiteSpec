@@ -26,7 +26,7 @@ Each screen is still reviewed from screenshots at phone, laptop and wide widths 
 
 ## Consequences
 
-The web route-suite section points at the audit and lists its codes. The composition standards name the audit codes that check them, and the token limits name the contrast code that checks the rendered layers.
+The web route-suite section points at the audit and lists its codes. The composition standards name the audit codes that check them, and the token limits name the contrast code that checks the rendered layers. This decision supersedes `decision/0117-compose-screens-from-checked-structure` for the rendered page: where the checked structure judged the wireframe, the audit opens each route in a browser and reports what the rendered page shows. It also supersedes `decision/0118-layer-surfaces-by-role`: the audit holds neighbouring fills apart where the token table did, with `surface-contrast-failed` and `surface-nesting-invalid`.
 
 ## Revisit Conditions
 

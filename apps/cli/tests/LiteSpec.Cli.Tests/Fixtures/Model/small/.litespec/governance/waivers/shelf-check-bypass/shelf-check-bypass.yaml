@@ -3,7 +3,7 @@ id: waiver/shelf-check-bypass
 title: Shelf check bypass
 kind: gap
 waives:
-- litespec/backend/application#enforce-target-authorization-in-the-pipeline
+- litespec/core/backend-application#enforce-target-authorization-in-the-pipeline
 appliesTo:
 - use-case/lending.register-copy
 reason: The import runs before opening.

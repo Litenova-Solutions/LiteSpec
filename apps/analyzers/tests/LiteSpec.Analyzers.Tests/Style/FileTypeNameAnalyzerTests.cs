@@ -8,7 +8,7 @@ public sealed class FileTypeNameAnalyzerTests
 {
     /// <summary>LS3003 accepts a file named after its type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts a file named after its type")]
     public Task AcceptsAFileNamedAfterItsType() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -22,7 +22,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 reports a type that differs from its file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 reports a type that differs from its file")]
     public Task ReportsATypeThatDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -34,7 +34,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 reports the second and later types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 reports the second and later types")]
     public Task ReportsTheSecondAndLaterTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -51,7 +51,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 reports the first type too when it differs from its file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 reports the first type too when it differs from its file")]
     public Task ReportsTheFirstTypeTooWhenItDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -65,7 +65,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 ignores a file-scoped companion of the primary type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores a file-scoped companion of the primary type")]
     public Task IgnoresAFileScopedCompanionOfThePrimaryType() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -79,7 +79,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 accepts a partial class in a dotted file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts a partial class in a dotted file")]
     public Task AcceptsAPartialClassInADottedFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -94,7 +94,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 accepts partial declarations of one type across files.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts partial declarations of one type across files")]
     public Task AcceptsPartialDeclarationsOfOneTypeAcrossFiles() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -119,7 +119,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 ignores nested types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores nested types")]
     public Task IgnoresNestedTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -134,7 +134,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 ignores a file with no types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores a file with no types")]
     public Task IgnoresAFileWithNoTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -145,7 +145,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 ignores generic arity in the type name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores generic arity in the type name")]
     public Task IgnoresGenericArityInTheTypeName() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -157,7 +157,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 reports a delegate that differs from its file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 reports a delegate that differs from its file")]
     public Task ReportsADelegateThatDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -169,7 +169,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 accepts one matching type per file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts one matching type per file")]
     public Task AcceptsOneMatchingTypePerFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -188,7 +188,7 @@ public sealed class FileTypeNameAnalyzerTests
 
     /// <summary>LS3003 ignores a breach in a file the layer rules cannot place.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    /// <proves>litespec/packs/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores a breach in a file the layer rules cannot place")]
     public Task IgnoresABreachInAnUnplacedFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(

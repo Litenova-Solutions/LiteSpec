@@ -7,7 +7,7 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Cli.Audit;
 
 /// <summary>The Chrome DevTools Protocol client: commands and events over one browser WebSocket.</summary>
-/// <follows>litespec/frontend/ui#pass-every-route-suite-check</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 sealed class AuditCdp : IDisposable
 {
     /// <summary>The receive buffer: eight kilobytes per read.</summary>

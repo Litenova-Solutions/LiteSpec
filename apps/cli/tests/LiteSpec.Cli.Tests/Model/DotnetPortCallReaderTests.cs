@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class DotnetPortCallReaderTests
 {
     /// <summary>Handler Call On A Port Field Initialized From Its Primary Constructor Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerCallOnAPortFieldInitializedFromItsPrimaryConstructorIsCollected()
     {
@@ -42,7 +42,7 @@ public sealed class DotnetPortCallReaderTests
     }
 
     /// <summary>Handler Call On A Port Field Assigned With A Null Guard Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerCallOnAPortFieldAssignedWithANullGuardIsCollected()
     {
@@ -78,7 +78,7 @@ public sealed class DotnetPortCallReaderTests
     }
 
     /// <summary>Handler Call On A Port Field Assigned In An Expression Bodied Constructor Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerCallOnAPortFieldAssignedInAnExpressionBodiedConstructorIsCollected()
     {
@@ -111,7 +111,7 @@ public sealed class DotnetPortCallReaderTests
     }
 
     /// <summary>Call On An Unmarked Interface Is Not A Dispatch.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CallOnAnUnmarkedInterfaceIsNotADispatch()
     {

@@ -105,7 +105,7 @@ internal static class DependencyChecks
     /// </summary>
     /// <param name="model">The loaded project model that holds the module and knowledge roots.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</follows>
+    /// <follows>litespec/packs/dotnet/architecture#reference-knowledge-models-from-modules-and-sets-from-hosts</follows>
     private static void CheckKnowledgeReferences(ProjectModel model, List<Finding> findings)
     {
         var knowledge = SourceRoots.KnowledgeRoot(model.Config);

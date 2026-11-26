@@ -8,7 +8,7 @@ public sealed class SealedClassAnalyzerTests
 {
     /// <summary>LS3004 accepts a sealed class.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts a sealed class")]
     public Task AcceptsASealedClass() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -19,7 +19,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 reports an unsealed leaf class.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 reports an unsealed leaf class")]
     public Task ReportsAnUnsealedLeafClass() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -30,7 +30,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 accepts a base with a derived class in another file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts a base with a derived class in another file")]
     public Task AcceptsABaseWithADerivedClassInAnotherFile() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>(
@@ -49,7 +49,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 accepts an abstract class.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts an abstract class")]
     public Task AcceptsAnAbstractClass() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -60,7 +60,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 accepts a static class.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts a static class")]
     public Task AcceptsAStaticClass() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -71,7 +71,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 accepts a class with a virtual member.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts a class with a virtual member")]
     public Task AcceptsAClassWithAVirtualMember() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -85,7 +85,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 accepts a class with a protected member.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts a class with a protected member")]
     public Task AcceptsAClassWithAProtectedMember() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -99,7 +99,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 ignores records.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 ignores records")]
     public Task IgnoresRecords() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -112,7 +112,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 reports an unsealed attribute class.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 reports an unsealed attribute class")]
     public Task ReportsAnUnsealedAttributeClass() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -125,7 +125,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 accepts a partial class sealed in any part.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 accepts a partial class sealed in any part")]
     public Task AcceptsAPartialClassSealedInAnyPart() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>(
@@ -144,7 +144,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 ignores the Program composition marker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 ignores the Program composition marker")]
     public Task IgnoresTheProgramCompositionMarker() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""
@@ -155,7 +155,7 @@ public sealed class SealedClassAnalyzerTests
 
     /// <summary>LS3004 ignores a breach in a file the layer rules cannot place.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#keep-implementation-style-consistent</proves>
+    /// <proves>litespec/packs/dotnet/naming#keep-implementation-style-consistent</proves>
     [Fact(DisplayName = "LS3004 ignores a breach in a file the layer rules cannot place")]
     public Task IgnoresABreachInAnUnplacedFile() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""

@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// </summary>
 /// <follows>litespec/core/automation#declare-each-read-model-field-from-a-published-field</follows>
 /// <follows>litespec/core/automation#erase-a-read-model-personal-field-with-its-owner</follows>
-/// <follows>litespec/backend/application#read-another-modules-state-through-a-read-model</follows>
+/// <follows>litespec/core/backend-application#read-another-modules-state-through-a-read-model</follows>
 internal static class ReadModelChecks
 {
     /// <summary>Runs the read model checks on every read model record.</summary>

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Claimwick.WebApi;
 
 /// <summary>The one failure map of the host: every business refusal answers its recorded status, and anything else answers 500.</summary>
-/// <follows>litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</follows>
+/// <follows>litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler</follows>
 internal sealed class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly IHostEnvironment _environment;

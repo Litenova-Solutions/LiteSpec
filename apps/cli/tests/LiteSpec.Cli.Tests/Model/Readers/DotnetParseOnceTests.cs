@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class DotnetParseOnceTests
 {
     /// <summary>Each Backend File Is Parsed Once Per Read.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EachBackendFileIsParsedOncePerRead()
     {

@@ -10,7 +10,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     The outbox decision each domain event type carries in composition code. The CLI
 ///     reader collects these, so the outbox decision check can hold them to the records.
 /// </summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 public static class OutboxDecisions
 {
     /// <summary>The method name that drops a domain event from the outbox.</summary>

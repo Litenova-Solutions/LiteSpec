@@ -33,7 +33,7 @@ An audit store holds one hash chain segment per audited category and calendar ye
 
 Retention deletion and tenant data erasure run through a separate audited operator process under its own account. Each deleted segment is recorded in the following segment of the same category.
 
-The new provisions are `litespec/ext/audit#delete-expired-records-through-a-separate-operator-account`, `litespec/ext/audit#segment-the-audit-chain-by-category-and-calendar-year`, and `litespec/ext/audit#record-each-segment-deletion-in-the-following-segment`.
+The new provisions are `litespec/core/audit#delete-expired-records-through-a-separate-operator-account`, `litespec/core/audit#segment-the-audit-chain-by-category-and-calendar-year`, and `litespec/core/audit#record-each-segment-deletion-in-the-following-segment`.
 
 ## Revisit Conditions
 

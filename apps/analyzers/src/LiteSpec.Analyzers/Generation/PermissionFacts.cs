@@ -5,7 +5,7 @@ using System.Linq;
 namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>One permission with the facts the generated entry carries.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
 /// <follows>litespec/core/access#scope-every-role-to-its-one-reach</follows>
 internal sealed class PermissionFacts : IEquatable<PermissionFacts>
 {

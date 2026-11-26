@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class DotnetBackendReaderTests
 {
     /// <summary>Code Property Literal Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CodePropertyLiteralIsCollected()
     {
@@ -29,7 +29,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Const Code Field Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ConstCodeFieldIsCollected()
     {
@@ -48,7 +48,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Dotted Literals Outside Code Members Are Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void DottedLiteralsOutsideCodeMembersAreIgnored()
     {
@@ -79,7 +79,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Exception Arguments And Named Codes Declare.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ExceptionArgumentsAndNamedCodesDeclare()
     {
@@ -109,7 +109,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Every Dotted Literal Counts As Thrown.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EveryDottedLiteralCountsAsThrown()
     {
@@ -130,7 +130,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Plain Label Code Value Is Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void PlainLabelCodeValueIsIgnored()
     {
@@ -149,7 +149,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Repository Implementation Is Read From Infrastructure.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void RepositoryImplementationIsReadFromInfrastructure()
     {
@@ -179,7 +179,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Repository Implementation Outside Infrastructure Is Not Read.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void RepositoryImplementationOutsideInfrastructureIsNotRead()
     {
@@ -241,7 +241,7 @@ public sealed class DotnetBackendReaderTests
             """);
 
     /// <summary>A Code Inside A Message Declares Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ACodeInsideAMessageDeclaresNothing()
     {
@@ -261,7 +261,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>An Event States Its Record Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AnEventStatesItsRecordId()
     {
@@ -282,7 +282,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler With A Tag Links To Its Reaction.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerWithATagLinksToItsReaction()
     {
@@ -304,7 +304,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Without A Tag Is Discovered Without A Record.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerWithoutATagIsDiscoveredWithoutARecord()
     {
@@ -324,7 +324,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Reaction With The Handler Shape Is Discovered Without The Suffix.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionWithTheHandlerShapeIsDiscoveredWithoutTheSuffix()
     {
@@ -351,7 +351,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Outside Its Fact Folder Links Through Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerOutsideItsFactFolderLinksThroughItsMark()
     {
@@ -372,7 +372,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Without The Interface Is Not Discovered.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerWithoutTheInterfaceIsNotDiscovered()
     {
@@ -391,7 +391,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Is Not Read As A Use Case Handler.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerIsNotReadAsAUseCaseHandler()
     {
@@ -413,7 +413,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Job Host With A Tag Links To Its Job.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobHostWithATagLinksToItsJob()
     {
@@ -438,7 +438,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate Root By Mark And State Record Is Read At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateRootByMarkAndStateRecordIsReadAtTraced()
     {
@@ -477,7 +477,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate With Mark But No State Record Is Not An Aggregate Root At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateWithMarkButNoStateRecordIsNotAnAggregateRootAtTraced()
     {
@@ -502,7 +502,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate With State Record But No Mark Is Not An Aggregate Root At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateWithStateRecordButNoMarkIsNotAnAggregateRootAtTraced()
     {
@@ -531,7 +531,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate Root On Its Own Base By Mark And State Record Is Read At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateRootOnItsOwnBaseByMarkAndStateRecordIsReadAtTraced()
     {

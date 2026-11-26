@@ -5,7 +5,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The part check: an unmarked Domain type under no aggregate folder and outside the Kernel.</summary>
-/// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
+/// <follows>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</follows>
 internal static class PartChecks
 {
     /// <summary>Runs the part check.</summary>

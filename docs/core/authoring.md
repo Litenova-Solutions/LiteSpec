@@ -44,7 +44,7 @@ Every LiteSpec page uses exactly one style, decided by where the page lives. A p
 | Topic | Any area page that owns provisions | None | Lead, optional Concepts, Standards, Conventions, optional Reference Example |
 | Stack | `stack.md` in a stack folder | None | Lead, optional Concepts, Standards, Conventions |
 | Extension | An `ext/` folder | `templates/standard/extension.md` | Lead, Activation, Baseline Relationship, Standards, Conventions, Dependencies |
-| Pattern | `docs/frontend/patterns/` | [UI patterns](../frontend/patterns.md) | Lead, optional Concepts, optional Standards, optional Conventions, Patterns |
+| Pattern | None: LiteSpec ships no pattern pages; recurring interface questions are decided once in [User Interface Information Architecture](ui-ia.md) and the pack primitive pages | None | Lead, optional Concepts, optional Standards, optional Conventions |
 | Reference | `docs/reference/` except the generated provision index, and one page per rule in `docs/analyzers/rules/` | `templates/standard/reference.md` | Lead, Reference, optional Notes |
 | Command | `docs/tools/` and `docs/maintain/` | `templates/standard/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
 | How-to | `docs/guide/`, and the other pages of `docs/analyzers/` | `templates/standard/how-to.md` | Lead, optional Prerequisites, Procedure, Check |
@@ -58,7 +58,7 @@ These rules apply to every Markdown page style:
 - A LiteSpec page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
 - A page that owns provisions declares its scope in two lines directly under its title, a `**Stack:**` line and a `**Concern:**` line, as [Provision Scopes](scopes.md) states.
 - A Markdown page has one H1.
-- The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Backend overview](../backend/README.md)`.
+- The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Core overview](README.md)`.
 - A required section with nothing to say contains only `None.`
 - An example sits inside the provision it illustrates, or in a Reference Example that names every provision it demonstrates.
 - A tutorial, how-to, explanation, reference, command, or index page owns no provisions.
@@ -74,9 +74,8 @@ A provision is a `###` heading inside one of three sections. The section decides
 
 | Section | Kind | Heading |
 |:---|:---|:---|
-| `## Standards` | rule | Starts with an action verb, such as `Keep Shared UI in One Package` |
+| `## Standards` | rule | Starts with an action verb, such as `Compose Each Route from One Locked Archetype` |
 | `## Conventions` | convention | Starts with an action verb and names the replaceable default |
-| `## Patterns` | pattern | The pattern's name, such as `Record header` |
 
 A Standard states one testable obligation:
 
@@ -115,7 +114,7 @@ When a project sets a Standard aside, it records a waiver whose `waives` names t
 
 A Replacement names the local convention or its recording place, not a waiver. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [waivers page](waivers.md) states the waiver record.
 
-A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
+Recurring interface questions are decided once in [User Interface Information Architecture](ui-ia.md) and the pack primitive pages, so no page carries pattern options.
 
 ### Provision Identifiers
 
@@ -136,21 +135,21 @@ The heading carries no identifier text, and no two provisions share an ID. Consu
 Every provision has the same parts in the same order:
 
 ```markdown
-### Keep Shared UI in One Package
+### Compose Each Route from One Locked Archetype
 
-**ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
+**ID:** `litespec/core/ui-ia#compose-each-route-from-one-locked-archetype`
 
 **Strength:** required
 
-**Applies to:** artifact: component
+**Applies to:** artifact: route
 
-**Statement:** Shared primitives and composites MUST live in the one shared UI package.
+**Statement:** A route MUST compose exactly one of the six locked archetypes and MUST fill only its declared slots.
 
 **Rationale:** ...
 
 **Example:** ...
 
-**Reviewed for:** Which shared primitives or composites live outside the shared package? Look in the workspace packages.
+**Reviewed for:** Does every route compose exactly one archetype and fill only its declared slots? Check each route against its archetype row.
 ```
 
 A provision adds `**Applies to:**` only when it is narrower than its page, when its record layer or trace differs from its page, or when it states a `when` condition, for example `artifact: aggregate` or `layer: implementation; trace: yes`.
@@ -159,7 +158,7 @@ A provision adds `**Applies to:**` only when it is narrower than its page, when 
 2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
 3. The Strength line grades how binding the provision is: `required`, `default`, or `advisory`, as [Provision Scopes](scopes.md) states.
 4. `Applies to` follows the Strength line only when the provision is narrower than its page, when its record layer or trace differs from its page, or when it states a `when` condition; otherwise the page scope applies.
-5. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
+5. A rule states its `Statement`; a convention states its `Default` and `Replacement`.
 6. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
 7. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`): it starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`): it asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
@@ -178,7 +177,7 @@ A provision that holds only in some situations states its condition as a `when` 
 
 `rules` reads the condition from the provision index. For a code path, it returns the provision only when the condition holds for the record the file marks. For a record path or record ID, it prints the provision with its condition shown. For a path that marks no record, it leaves the provision out.
 
-A Standard carries Strength `required` or `advisory`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line.
+A Standard carries Strength `required` or `advisory`; a Convention carries Strength `default`. A pattern's options follow its verification line.
 
 `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope, condition, and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
 
@@ -192,7 +191,7 @@ Some page defects belong to no single provision: a broken link, a missing title,
 | `ANCHOR_BROKEN` | A link anchor names no heading in its target file. |
 | `PAGE_TITLE_COUNT` | A page carries other than one H1. |
 | `HEADING_EMPTY_BODY` | A heading carries no body and no nested heading. |
-| `PATTERN_INVALID` | A pattern page or wireframe breaks the pattern contract in [UI patterns](../frontend/patterns.md). |
+| `PATTERN_INVALID` | A route breaks the page contract in [User Interface Information Architecture](../core/ui-ia.md). |
 
 ### Generated Regions
 
@@ -522,7 +521,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The page segment names the file and the ID line states the slug, so a citation resolves with no lookup table. One grammar keeps every identifier writable by hand and checkable by tool. The ID line is the identity: a reworded heading leaves it unchanged, and no two provisions share one.
 
-**Example:** `litespec/frontend/components#compose-composites-in-page-code` is the ID line under its heading on the frontend components page.
+**Example:** `litespec/core/ui-ia#fill-only-declared-slots-with-matching-guardrails` is the ID line under its heading on the user interface information architecture page.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` or `ID_DUPLICATE` diagnostic.
 
@@ -536,7 +535,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The page segment is both the file a reader opens and the address the provision carries on the published site. Deriving it from the path keeps the identifier and the file from disagreeing.
 
-**Example:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` and `litespec/frontend/mobile/structure#organize-screens-by-module` are on two different pages.
+**Example:** `litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case` and `litespec/core/backend-application#organize-application-by-use-case` are on two different pages.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_PAGE_FILENAME` or `ID_DUPLICATE` diagnostic.
 
@@ -574,7 +573,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.
 
-**Example:** `### Keep Shared UI in One Package` on `docs/frontend/components.md` is followed by the ID line `litespec/frontend/components#keep-shared-ui-in-one-package`.
+**Example:** `### Compose Each Route from One Locked Archetype` on `docs/core/ui-ia.md` is followed by the ID line `litespec/core/ui-ia#compose-each-route-from-one-locked-archetype`.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_LINE_MISSING` or `ID_LINE_MISMATCH` diagnostic.
 

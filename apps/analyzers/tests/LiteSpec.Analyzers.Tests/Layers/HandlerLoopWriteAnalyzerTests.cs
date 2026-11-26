@@ -9,7 +9,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 {
     /// <summary>LS2015 reports a repository store in a foreach body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 reports a repository store in a foreach body")]
     public Task ReportsAStoreInAForeachBody() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -45,7 +45,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 reports repository writes in a for body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 reports repository writes in a for body")]
     public Task ReportsWritesInAForBody() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -80,7 +80,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 reports a repository delete in a while body.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 reports a repository delete in a while body")]
     public Task ReportsADeleteInAWhileBody() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -113,7 +113,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a loop that builds a result list.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a loop that builds a result list")]
     public Task AcceptsALoopThatBuildsAResultList() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -146,7 +146,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a loop that writes through another type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a loop that writes through another type")]
     public Task AcceptsALoopThatWritesThroughAnotherType() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -179,7 +179,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a repository store outside a loop.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a repository store outside a loop")]
     public Task AcceptsAStoreOutsideALoop() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -211,7 +211,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a loop with a store in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a loop with a store in a query handler")]
     public Task AcceptsALoopWithAStoreInAQueryHandler() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -244,7 +244,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a loop with a store in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a loop with a store in an event handler")]
     public Task AcceptsALoopWithAStoreInAnEventHandler() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -286,7 +286,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a write then return search loop.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a write then return search loop")]
     public Task AcceptsAWriteThenReturnSearchLoop() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -326,7 +326,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 reports a write followed by a conditional return.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 reports a write followed by a conditional return")]
     public Task ReportsAWriteFollowedByAConditionalReturn() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -363,7 +363,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
@@ -396,7 +396,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 accepts a loop write in a handler whose use case states per-record consistency.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 accepts a loop write in a per-record handler")]
     public Task AcceptsALoopWriteInAPerRecordHandler() =>
         Verify.AnalyzerWithRecordsAsync<HandlerLoopWriteAnalyzer>(
@@ -435,7 +435,7 @@ public sealed class HandlerLoopWriteAnalyzerTests
 
     /// <summary>LS2015 reports a loop write in a handler whose use case states atomic consistency.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#issue-per-record-work-from-a-job</proves>
+    /// <proves>litespec/core/backend-application#issue-per-record-work-from-a-job</proves>
     [Fact(DisplayName = "LS2015 reports a loop write in an atomic handler")]
     public Task ReportsALoopWriteInAnAtomicHandler() =>
         Verify.AnalyzerWithRecordsAsync<HandlerLoopWriteAnalyzer>(

@@ -27,7 +27,7 @@ public sealed class TypedIdentifierIdentityValueAnalyzerTests
 
     /// <summary>LS2037 reports an identity value comparison in a queryable expression.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2037 reports an identity value comparison in a queryable expression")]
     public Task ReportsAnIdentityValueComparison() =>
         Verify.AnalyzerAsync<TypedIdentifierIdentityValueAnalyzer>(
@@ -53,7 +53,7 @@ public sealed class TypedIdentifierIdentityValueAnalyzerTests
 
     /// <summary>LS2037 reports an identity value CompareTo in a queryable expression.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2037 reports an identity value CompareTo in a queryable expression")]
     public Task ReportsAnIdentityValueCompareTo() =>
         Verify.AnalyzerAsync<TypedIdentifierIdentityValueAnalyzer>(
@@ -80,7 +80,7 @@ public sealed class TypedIdentifierIdentityValueAnalyzerTests
 
     /// <summary>LS2037 accepts a value read on a member that is no identity in a queryable expression.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2037 accepts a value read on a member that is no identity in a queryable expression")]
     public Task AcceptsAValueReadOnANonIdentityMember() =>
         Verify.AnalyzerAsync<TypedIdentifierIdentityValueAnalyzer>(
@@ -106,7 +106,7 @@ public sealed class TypedIdentifierIdentityValueAnalyzerTests
 
     /// <summary>LS2037 stays quiet for an identity value read in memory.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2037 stays quiet for an identity value read in memory")]
     public Task StaysQuietForAnInMemoryValueRead() =>
         Verify.AnalyzerAsync<TypedIdentifierIdentityValueAnalyzer>(
@@ -133,7 +133,7 @@ public sealed class TypedIdentifierIdentityValueAnalyzerTests
 
     /// <summary>LS2037 stays quiet for an expression tree passed to a method that is no queryable operator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2037 stays quiet for an expression tree passed to a method that is no queryable operator")]
     public Task StaysQuietForANonQueryableOperator() =>
         Verify.AnalyzerAsync<TypedIdentifierIdentityValueAnalyzer>(
@@ -165,7 +165,7 @@ public sealed class TypedIdentifierIdentityValueAnalyzerTests
 
     /// <summary>LS2037 stays quiet outside Application, Infrastructure and Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
+    /// <proves>litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries</proves>
     [Fact(DisplayName = "LS2037 stays quiet outside Application, Infrastructure and Worker")]
     public Task StaysQuietOutsideItsLayers() =>
         Verify.AnalyzerAsync<TypedIdentifierIdentityValueAnalyzer>(

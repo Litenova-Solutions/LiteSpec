@@ -4,7 +4,7 @@ namespace Claimwick.Spending.Contracts.Expenses.OnExpenseSubmitted;
 
 /// <summary>The expense-submitted event announces a newly submitted expense to the readers outside the product, through the event bus.</summary>
 /// <implements>integration-event/expense-submitted</implements>
-/// <follows>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</follows>
+/// <follows>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</follows>
 public sealed record ExpenseSubmittedIntegrationEvent(ExpenseId ExpenseId)
 {
     /// <summary>The CloudEvents type the event travels under.</summary>

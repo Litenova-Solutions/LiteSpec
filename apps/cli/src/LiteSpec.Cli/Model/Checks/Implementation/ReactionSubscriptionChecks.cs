@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The reaction subscription checks: each marked handler subscribes to a declared trigger, and each declared trigger has a marked handler.</summary>
-/// <follows>litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</follows>
+/// <follows>litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</follows>
 internal static class ReactionSubscriptionChecks
 {
     /// <summary>Runs reaction-subscription-drift and reaction-trigger-unhandled.</summary>

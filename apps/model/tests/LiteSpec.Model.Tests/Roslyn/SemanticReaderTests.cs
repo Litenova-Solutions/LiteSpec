@@ -51,7 +51,7 @@ public sealed class SemanticReaderTests
     }
 
     /// <summary>A semantic model resolves a call on a constructed value where syntax reads nothing.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A semantic model resolves a call on a constructed value")]
     public void SemanticModelResolvesCallOnConstructedValue()
     {
@@ -90,7 +90,7 @@ public sealed class SemanticReaderTests
     }
 
     /// <summary>Syntax and semantic reads agree on a static call.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "Syntax and semantic reads agree on a static call")]
     public void SyntaxAndSemanticAgreeOnStaticCall()
     {
@@ -120,7 +120,7 @@ public sealed class SemanticReaderTests
     }
 
     /// <summary>A call onto the class itself reads nothing under a semantic model.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A call onto the class itself reads nothing")]
     public void CallOntoItselfReadsNothing()
     {
@@ -141,7 +141,7 @@ public sealed class SemanticReaderTests
     }
 
     /// <summary>A semantic model resolves a target-typed creation where syntax reads nothing.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A semantic model resolves a target-typed creation")]
     public void SemanticModelResolvesTargetTypedCreation()
     {
@@ -177,7 +177,7 @@ public sealed class SemanticReaderTests
     }
 
     /// <summary>A constant read through using static resolves under a semantic model with an empty map.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact(DisplayName = "A using static constant resolves with an empty map")]
     public void UsingStaticConstantResolvesWithEmptyMap()
     {

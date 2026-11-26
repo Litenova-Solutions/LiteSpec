@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class MarkFolderDriftTests
 {
     /// <summary>Handler In Another Module Folder Reports Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void HandlerInAnotherModuleFolderReportsMarkFolderDrift()
     {
@@ -32,7 +32,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Handler Marking Another Use Case In Its Module Reports Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void HandlerMarkingAnotherUseCaseInItsModuleReportsMarkFolderDrift()
     {
@@ -51,7 +51,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Handler In Its Module And Use Case Folder Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void HandlerInItsModuleAndUseCaseFolderReportsNoMarkFolderDrift()
     {
@@ -64,7 +64,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Aggregate Root Outside Its Module Reports Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateRootOutsideItsModuleReportsMarkFolderDrift()
     {
@@ -83,7 +83,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Job Outside Its Module Reports Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void JobOutsideItsModuleReportsMarkFolderDrift()
     {
@@ -102,7 +102,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Element Outside Layer Roots Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ElementOutsideLayerRootsReportsNoMarkFolderDrift()
     {
@@ -115,7 +115,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Element Directly In Modules Root Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ElementDirectlyInModulesRootReportsNoMarkFolderDrift()
     {
@@ -128,7 +128,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Mark Naming No Record Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void MarkNamingNoRecordReportsNoMarkFolderDrift()
     {
@@ -141,7 +141,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Test Element Outside Its Module Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void TestElementOutsideItsModuleReportsNoMarkFolderDrift()
     {
@@ -158,7 +158,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Element Under Provider Plumbing Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ElementUnderProviderPlumbingReportsNoMarkFolderDrift()
     {
@@ -171,7 +171,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Element Under Module Contracts Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ElementUnderModuleContractsReportsNoMarkFolderDrift()
     {
@@ -184,7 +184,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Element Under Kernel Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ElementUnderKernelReportsNoMarkFolderDrift()
     {
@@ -197,7 +197,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Handler Outside Its Module In The Module Layout Reports Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerOutsideItsModuleReportsMarkFolderDrift()
     {
@@ -214,7 +214,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Handler In Its Module In The Module Layout Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerInItsModuleReportsNoMarkFolderDrift()
     {
@@ -227,7 +227,7 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>Host Endpoint In The Module Layout Reports No Mark Folder Drift.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHostEndpointReportsNoMarkFolderDrift()
     {

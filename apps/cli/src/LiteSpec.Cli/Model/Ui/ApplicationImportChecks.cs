@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The application import checks of the UI validator: an application
 ///     composes the shared package's exported entry points only.
 /// </summary>
-/// <follows>litespec/frontend/components#compose-composites-in-page-code</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</follows>
 sealed class ApplicationImportChecks
 {
     /// <summary>The state of the run.</summary>
@@ -77,7 +77,7 @@ sealed class ApplicationImportChecks
                     continue;
                 }
 
-                session.Add("ui-import-invalid", $"[litespec/frontend/components#compose-composites-in-page-code] {boundary.Message} from shared package '{packageName}'", source);
+                session.Add("ui-import-invalid", $"[litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives] {boundary.Message} from shared package '{packageName}'", source);
             }
         }
     }

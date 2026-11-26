@@ -659,7 +659,7 @@ public sealed class KindReaderTests
     }
 
     /// <summary>A message definition class takes no kind: definitions take no mark.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact(DisplayName = "A message definition class takes no kind")]
     public void MessageDefinitionClassTakesNoKind()
     {
@@ -676,7 +676,7 @@ public sealed class KindReaderTests
     }
 
     /// <summary>A class deriving a type with Definition inside its name is technical.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact(DisplayName = "A class deriving a type with Definition inside its name is technical")]
     public void ClassDerivingDefinitionPrefixedBaseIsTechnical()
     {

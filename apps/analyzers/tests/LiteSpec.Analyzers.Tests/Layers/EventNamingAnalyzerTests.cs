@@ -8,7 +8,7 @@ public sealed class EventNamingAnalyzerTests
 {
     /// <summary>LS2031 reports a domain event without its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 reports a domain event without its suffix")]
     public Task ReportsADomainEventWithoutItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -21,7 +21,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 accepts a domain event with its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 accepts a domain event with its suffix")]
     public Task AcceptsADomainEventWithItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -34,7 +34,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 reports a module event without its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 reports a module event without its suffix")]
     public Task ReportsAModuleEventWithoutItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -46,7 +46,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 accepts a module event with its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 accepts a module event with its suffix")]
     public Task AcceptsAModuleEventWithItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -58,7 +58,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 reports an integration event without its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 reports an integration event without its suffix")]
     public Task ReportsAnIntegrationEventWithoutItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -70,7 +70,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 accepts an integration event with its suffix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 accepts an integration event with its suffix")]
     public Task AcceptsAnIntegrationEventWithItsSuffix() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -82,7 +82,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 reports a module event in a sibling Contracts project.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 reports a module event in a sibling Contracts project")]
     public Task ReportsAModuleEventInASiblingContractsProject() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -94,7 +94,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 ignores a Contracts type with no event mark.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 ignores a Contracts type with no event mark")]
     public Task IgnoresAContractsTypeWithNoEventMark() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -105,7 +105,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 ignores a domain event marker outside Domain and Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 ignores a domain event marker outside Domain and Contracts")]
     public Task IgnoresADomainEventMarkerOutsideDomainAndContracts() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""
@@ -118,7 +118,7 @@ public sealed class EventNamingAnalyzerTests
 
     /// <summary>LS2031 ignores an interface extending the domain event marker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</proves>
+    /// <proves>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</proves>
     [Fact(DisplayName = "LS2031 ignores an interface extending the domain event marker")]
     public Task IgnoresAnInterface() =>
         Verify.AnalyzerAsync<EventNamingAnalyzer>("""

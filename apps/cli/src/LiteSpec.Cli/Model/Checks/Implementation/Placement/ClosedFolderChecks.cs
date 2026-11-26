@@ -11,10 +11,10 @@ using static LiteSpec.Cli.Model.Checks.Implementation.Placement.PlacementPath;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 
 /// <summary>The closed-folder check: the Kernel, the Platform, each module project, each Contracts project, each aggregate and use case folder, each port folder with its adapter folder, and each frontend modules root hold only their fixed folders and the folders a declared record names; each kind of place groups past 20 files into its closed grouping folders.</summary>
-/// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
-/// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
-/// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
-/// <follows>litespec/backend/application#use-this-use-case-layout</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
+/// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+/// <follows>litespec/core/backend-application#use-this-use-case-layout</follows>
 /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
 internal static class ClosedFolderChecks
 {
@@ -263,7 +263,7 @@ internal static class ClosedFolderChecks
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="knowledge">The absolute Knowledge folder beside Modules.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</follows>
+    /// <follows>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</follows>
     private static void CheckKnowledgeRoot(ConsumerConfig config, string knowledge, List<Finding> findings)
     {
         var models = ChildFolders(knowledge)
@@ -473,7 +473,7 @@ internal static class ClosedFolderChecks
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+    /// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
     private static void CheckContractsLevel(ConsumerConfig config, string contracts, string owner, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         foreach (var child in ChildFolders(contracts))
@@ -543,7 +543,7 @@ internal static class ClosedFolderChecks
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+    /// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
     private static void CheckContractsAggregate(ConsumerConfig config, string aggregate, string owner, string name, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, List<Finding> findings)
     {
         var owned = publicUseCases
@@ -711,7 +711,7 @@ internal static class ClosedFolderChecks
     /// <param name="facts">The declared facts by module, aggregate, name, identifier and kind.</param>
     /// <param name="fact">The declared fact the folder names.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+    /// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
     private static void CheckContractsFact(ConsumerConfig config, string folder, string owner, string aggregate, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> facts, (string Module, string? Aggregate, string Name, string Id, string Kind) fact, List<Finding> findings)
     {
         var folderName = Path.GetFileName(folder);
@@ -759,7 +759,7 @@ internal static class ClosedFolderChecks
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+    /// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
     private static void CheckContractsTypes(ConsumerConfig config, string contracts, string owner, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, List<Finding> findings)
     {
         List<string> files;
@@ -950,7 +950,7 @@ internal static class ClosedFolderChecks
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="publicUseCases">The public use cases by module, aggregate, name, identifier and kind.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+    /// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
     private static void CheckPublicUseCaseFiles(ConsumerConfig config, string modulesRoot, IReadOnlyList<string> allRoots, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, List<(string Module, string? Aggregate, string Name, string Id, string Kind)> publicUseCases, List<Finding> findings)
     {
         if (publicUseCases.Count == 0)
@@ -1451,7 +1451,7 @@ internal static class ClosedFolderChecks
     /// <param name="portNames">The port folder names under the module Ports folder.</param>
     /// <param name="modules">The declared module names.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    /// <follows>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
     private static void CheckInfrastructureLevel(ConsumerConfig config, string infrastructure, string moduleName, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<string> portNames, List<string> modules, List<Finding> findings)
     {
         foreach (var child in ChildFolders(infrastructure))
@@ -1501,7 +1501,7 @@ internal static class ClosedFolderChecks
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="adapter">The absolute adapter folder under Infrastructure.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    /// <follows>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
     private static void CheckAdapterFolder(ConsumerConfig config, string adapter, List<Finding> findings)
     {
         foreach (var child in ChildFolders(adapter))
@@ -1847,7 +1847,7 @@ internal static class ClosedFolderChecks
     /// <param name="portMarks">The external-system marks each port interface carries, by file.</param>
     /// <param name="externalNames">The record name of each declared external system, by identifier.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    /// <follows>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
     private static void CheckPortsLevel(ConsumerConfig config, string ports, IReadOnlyList<string> adapterNames, List<string> modules, IReadOnlyList<(string File, string RecordId)> portMarks, IReadOnlyDictionary<string, string> externalNames, List<Finding> findings)
     {
         foreach (var child in ChildFolders(ports))
@@ -1921,7 +1921,7 @@ internal static class ClosedFolderChecks
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="port">The absolute port folder under Ports.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    /// <follows>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
     private static void CheckPortFolder(ConsumerConfig config, string port, List<Finding> findings)
     {
         foreach (var child in ChildFolders(port))
@@ -2329,7 +2329,7 @@ internal static class ClosedFolderChecks
     /// <param name="useCase">The absolute use case folder under Application or WebApi.</param>
     /// <param name="layer">The layer folder holding the use case folder: Application or WebApi.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
+    /// <follows>litespec/core/backend-application#use-this-use-case-layout</follows>
     private static void CheckUseCaseFolder(ConsumerConfig config, string useCase, string layer, List<Finding> findings)
     {
         CheckUseCaseFilesOnly(config, useCase, "use case", findings);
@@ -2347,7 +2347,7 @@ internal static class ClosedFolderChecks
     /// <param name="useCase">The use case folder under Application or WebApi.</param>
     /// <param name="layer">The layer folder holding the use case folder: Application or WebApi.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
+    /// <follows>litespec/core/backend-application#use-this-use-case-layout</follows>
     private static void CheckTransportFiles(ConsumerConfig config, string useCase, string layer, List<Finding> findings)
     {
         var inWebApi = string.Equals(layer, "WebApi", StringComparison.OrdinalIgnoreCase);
@@ -2671,7 +2671,7 @@ internal static class ClosedFolderChecks
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The module, container and folder name of each trigger and read model placed in a module folder.</returns>
     /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
+    /// <follows>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
     private static List<(string Module, string Container, string Folder)> DeclaredTriggerHomes(ProjectModel model)
     {
         var homes = new List<(string Module, string Container, string Folder)>();
@@ -2712,7 +2712,7 @@ internal static class ClosedFolderChecks
     /// <param name="aggregates">The declared aggregates by module, aggregate folder and expected plural folder.</param>
     /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/architecture#give-each-use-case-its-own-models</follows>
+    /// <follows>litespec/core/backend-architecture#give-each-use-case-its-own-models</follows>
     private static void CheckMessageFiles(ConsumerConfig config, string modulesRoot, IReadOnlyList<(string Module, string Aggregate, string Expected)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
     {
         var single = SourceRoots.IsSingleModulesProject(modulesRoot);

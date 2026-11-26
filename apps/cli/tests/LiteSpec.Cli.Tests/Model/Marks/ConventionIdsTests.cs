@@ -22,7 +22,7 @@ public sealed class ConventionIdsTests
     {
         Assert.False(ConventionIds.IsConventionId(null));
         Assert.False(ConventionIds.IsConventionId(""));
-        Assert.False(ConventionIds.IsConventionId("litespec/backend/persistence#commit-each-command-pipeline-once"));
+        Assert.False(ConventionIds.IsConventionId("litespec/core/backend-persistence#commit-each-command-pipeline-once"));
         Assert.False(ConventionIds.IsConventionId("decision/0002-keep-loans-as-documents"));
         Assert.False(ConventionIds.IsConventionId("waiver/export-review-bypass"));
         Assert.False(ConventionIds.IsConventionId("use-case/lending.borrow-copy"));

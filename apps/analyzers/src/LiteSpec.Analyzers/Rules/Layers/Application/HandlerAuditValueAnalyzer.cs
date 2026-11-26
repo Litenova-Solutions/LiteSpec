@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2013: a command handler adds no audit value that the message already carries.</summary>
-/// <follows>litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message</follows>
+/// <follows>litespec/core/backend-application#declare-the-audit-target-and-reason-beside-the-message</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
 {

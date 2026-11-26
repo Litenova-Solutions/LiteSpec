@@ -62,7 +62,7 @@ The aggregate refuses the expense before it exists, and raises `ExpenseSubmitted
 
 The HTTP endpoint is `apps/api/src/Modules/Claimwick.Spending/WebApi/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal.
 
-The submitter is not read from the body: the endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/backend/application#enforce-target-authorization-in-the-pipeline`:
+The submitter is not read from the body: the endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/core/backend-application#enforce-target-authorization-in-the-pipeline`:
 
 ```csharp
 // The submitter is the signed-in employee, read from verified claims, never from the request body.

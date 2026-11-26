@@ -9,7 +9,7 @@ public sealed class MarkStyleTests
 {
     /// <summary>LS5004 reports an attribute mark when the project declares xml.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 reports an attribute mark when the project declares xml")]
     public Task ReportsAnAttributeMarkUnderXml() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
@@ -38,7 +38,7 @@ public sealed class MarkStyleTests
 
     /// <summary>LS5004 reports a documentation tag when the project declares attribute.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 reports a documentation tag when the project declares attribute")]
     public Task ReportsADocumentationTagUnderAttribute() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
@@ -62,7 +62,7 @@ public sealed class MarkStyleTests
 
     /// <summary>LS5004 accepts a mark in the declared xml style.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 accepts a mark in the declared xml style")]
     public Task AcceptsAMarkInXmlStyle() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(
@@ -86,7 +86,7 @@ public sealed class MarkStyleTests
 
     /// <summary>LS5004 accepts a mark in the declared attribute style.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 accepts a mark in the declared attribute style")]
     public Task AcceptsAMarkInAttributeStyle() =>
         Verify.AnalyzerWithRecordsAsync<MarkStyleAnalyzer>(

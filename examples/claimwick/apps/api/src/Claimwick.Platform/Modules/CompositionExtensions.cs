@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Claimwick.Platform.Modules;
 
 /// <summary>Composes the platform and the modules of one host.</summary>
-/// <follows>litespec/backend/dotnet/architecture#keep-composition-in-hosts</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-composition-in-hosts</follows>
 public static class CompositionExtensions
 {
     /// <summary>Adds the platform capabilities: persistence, messaging, access, auditing, HTTP and country packs.</summary>

@@ -35,7 +35,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 stays quiet on a row building its typed key through the model's factory from a literal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 allows a model key factory over a literal")]
     public Task AllowsAModelKeyFactoryOverALiteral() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetLogicAnalyzer>(
@@ -56,7 +56,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 reports a model factory called with a value that is not a constant.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 reports a model factory over a computed value")]
     public Task ReportsAModelFactoryOverAComputedValue() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetLogicAnalyzer>(
@@ -79,7 +79,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 reports a set method choosing with a branch.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 reports a set method choosing with a branch")]
     public Task ReportsASetMethodChoosingWithABranch() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetLogicAnalyzer>(
@@ -106,7 +106,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 reports a set field initialized with a call.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 reports a set field initialized with a call")]
     public Task ReportsASetFieldInitializedWithACall() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetLogicAnalyzer>(
@@ -125,7 +125,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 reports a set property choosing with a switch.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 reports a set property choosing with a switch")]
     public Task ReportsASetPropertyChoosingWithASwitch() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetLogicAnalyzer>(
@@ -156,7 +156,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 accepts rows built through constructors.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 accepts rows built through constructors")]
     public Task AcceptsRowsBuiltThroughConstructors() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetLogicAnalyzer>(
@@ -181,7 +181,7 @@ public sealed class KnowledgeSetLogicAnalyzerTests
 
     /// <summary>LS2039 stays quiet outside a knowledge set.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact(DisplayName = "LS2039 stays quiet outside a knowledge set")]
     public Task StaysQuietOutsideAKnowledgeSet() =>
         Verify.AnalyzerAsync<KnowledgeSetLogicAnalyzer>(

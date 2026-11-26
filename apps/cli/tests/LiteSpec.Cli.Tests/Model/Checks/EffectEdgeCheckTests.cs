@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class EffectEdgeCheckTests
 {
     /// <summary>Handler Querying A Declared Public Query Passes.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void HandlerQueryingADeclaredPublicQueryPasses()
     {
@@ -29,7 +29,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Handler Querying Without A Declared Edge Reports.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void HandlerQueryingWithoutADeclaredEdgeReports()
     {
@@ -47,7 +47,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Declared Queries Edge No Code Sends Reports.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void DeclaredQueriesEdgeNoCodeSendsReports()
     {
@@ -64,7 +64,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Reaction Commanding A Declared Public Command Passes.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void ReactionCommandingADeclaredPublicCommandPasses()
     {
@@ -83,7 +83,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Reaction Commanding Without A Declared Edge Reports.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void ReactionCommandingWithoutADeclaredEdgeReports()
     {
@@ -101,7 +101,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Declared Commands Edge No Code Sends Reports.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void DeclaredCommandsEdgeNoCodeSendsReports()
     {
@@ -118,7 +118,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Reaction Calling The Delivering Port Takes Its Sends Edge.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void ReactionCallingTheDeliveringPortTakesItsSendsEdge()
     {
@@ -140,7 +140,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Reaction Calling Another Port Leaves Its Sends Edge Untaken.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void ReactionCallingAnotherPortLeavesItsSendsEdgeUntaken()
     {
@@ -162,7 +162,7 @@ public sealed class EffectEdgeCheckTests
     }
 
     /// <summary>Handler Calling A Declared Port Operation Takes Its Calls Edge.</summary>
-    /// <proves>litespec/backend/application#dispatch-only-declared-effect-edges</proves>
+    /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
     public void HandlerCallingADeclaredPortOperationTakesItsCallsEdge()
     {

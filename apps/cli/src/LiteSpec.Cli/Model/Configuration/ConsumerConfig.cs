@@ -28,9 +28,6 @@ sealed class ConsumerConfig
     /// <summary>Gets the glossary.</summary>
     public string GlossaryPath { get; private set; } = "";
 
-    /// <summary>Gets the UI pattern catalog, from <c>paths.uiPatterns</c> or its default: YAML under the record root, but not a record.</summary>
-    public string UiPatternCatalog { get; private set; } = "";
-
     /// <summary>Gets where behavior records live.</summary>
     public string BehaviorDocs { get; private set; } = "";
 
@@ -297,7 +294,6 @@ sealed class ConsumerConfig
         // the shared reader the analyzers use too.
         config.RecordRoots = [.. projectPaths.DocsRoots.Select(Native)];
         config.GlossaryPath = Native(projectPaths.GlossaryPath);
-        config.UiPatternCatalog = Combine(config.Root, ReadString(paths, "uiPatterns", CatalogChecks.DefaultCatalog));
         config.BehaviorDocs = Native(projectPaths.BehaviorDocs);
         var modulesFallback = "apps/api/src/Modules/*";
         config.ModulesRoots = DeclaredRoots("modules", modulesFallback);
@@ -462,10 +458,10 @@ sealed class ConsumerConfig
 
     /// <summary>Whether the declaration selects a stack whose sources the .NET reader reads.</summary>
     /// <param name="root">The declaration root object.</param>
-    /// <returns>True when the stacks array names dotnet, blazor or android.</returns>
+    /// <returns>True when the stacks array names dotnet or android.</returns>
     private static bool SelectsDotnet(JsonObject root) =>
         root["stacks"] is JsonArray stacks
-        && stacks.Any(entry => JsonValues.AsString(entry) is "dotnet" or "blazor" or "android");
+        && stacks.Any(entry => JsonValues.AsString(entry) is "dotnet" or "android");
 
     /// <summary>Reads a string array field, keeping only its string entries.</summary>
     /// <param name="container">The JSON object holding the field.</param>

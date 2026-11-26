@@ -5,7 +5,7 @@ using System.Linq;
 namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>One role with the facts the generated entry carries.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 internal sealed class RoleFacts : IEquatable<RoleFacts>
 {
     /// <summary>Initializes a new instance of the <see cref="RoleFacts"/> class.Creates role facts.</summary>

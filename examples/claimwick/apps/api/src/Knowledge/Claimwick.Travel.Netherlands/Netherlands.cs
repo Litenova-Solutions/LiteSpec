@@ -7,7 +7,7 @@ using Claimwick.Travel.PerDiem;
 namespace Claimwick.Travel.Netherlands;
 
 /// <summary>The Netherlands travel set: the example per-diem and mileage rows in force in the Netherlands.</summary>
-/// <follows>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</follows>
+/// <follows>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</follows>
 public sealed class Netherlands : ITravelSet
 {
     /// <summary>The ISO 3166-1 alpha-2 country code this set covers.</summary>

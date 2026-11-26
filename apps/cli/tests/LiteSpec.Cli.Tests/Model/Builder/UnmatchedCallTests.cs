@@ -16,7 +16,7 @@ public sealed class UnmatchedCallTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "packages/api/src/generated/sdk.gen.ts", ClientFile);
-        Write(temp.Path, "apps/console/src/routes/loans/index.tsx", RouteFile);
+        Write(temp.Path, "apps/console/src/routes/loans/+page.svelte", RouteFile);
         AddFrontend(temp.Path);
 
         using var document = Build(temp.Path);
@@ -27,7 +27,7 @@ public sealed class UnmatchedCallTests
         Assert.Single(unmatched);
         Assert.Equal("console /loans", unmatched[0].GetProperty("screen").GetString());
         Assert.Equal("phantomOp", unmatched[0].GetProperty("operation").GetString());
-        Assert.Equal("apps/console/src/routes/loans/index.tsx", unmatched[0].GetProperty("file").GetString());
+        Assert.Equal("apps/console/src/routes/loans/+page.svelte", unmatched[0].GetProperty("file").GetString());
 
         var screens = root.GetProperty("screens").EnumerateArray().ToList();
 
@@ -39,7 +39,7 @@ public sealed class UnmatchedCallTests
     {
         var projectFile = Path.Combine(root, ".litespec/project.yaml");
         var project = RecordText.Read(projectFile)!.AsObject();
-        project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
+        project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "svelte" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 
@@ -65,8 +65,14 @@ public sealed class UnmatchedCallTests
         """;
 
     const string RouteFile = """
-        import { phantomOp } from '@fixture/api';
-        export const Route = createFileRoute("/loans")({});
-        phantomOp({});
+        <script>
+          import { phantomOp } from '@fixture/api';
+
+          async function load() {
+            await phantomOp({});
+          }
+        </script>
+
+        <button on:click={load}>Load</button>
         """;
 }

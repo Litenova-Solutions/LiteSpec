@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class DefinitionCheckTests
 {
     /// <summary>Definitions matching the record's grant, audit and idempotency report nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void MatchingDefinitionsReportNothing()
     {
@@ -26,7 +26,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>A message without its authorization definition reports definition-missing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void MissingAuthorizationDefinitionReportsDefinitionMissing()
     {
@@ -42,7 +42,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>A message without its audit definition reports definition-missing when the record declares audit.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void MissingAuditDefinitionReportsDefinitionMissing()
     {
@@ -59,7 +59,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>A message without audit or idempotency on its record needs no audit or idempotency definition.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void UndeclaredPositionsNeedNoDefinitions()
     {
@@ -72,7 +72,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition declaring another permission than the record's grant reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuthorizationPolicyDriftReportsDefinitionDrift()
     {
@@ -89,7 +89,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition naming the record's permission through its constant reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuthorizationPermissionConstantReportsNothing()
     {
@@ -102,7 +102,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition naming another permission's constant reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuthorizationPermissionConstantDriftReportsDefinitionDrift()
     {
@@ -119,7 +119,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition without an exemption for an anonymous grant reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AnonymousGrantWithoutExemptionReportsDrift()
     {
@@ -136,7 +136,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition authorizing the anonymous policy for an anonymous grant reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AnonymousGrantWithAnonymousPolicyReportsNothing()
     {
@@ -149,7 +149,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition exempting an anonymous grant reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AnonymousGrantWithExemptionReportsNothing()
     {
@@ -162,7 +162,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition authorizing another policy than the anonymous grant reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AnonymousGrantWithPermissionPolicyReportsDrift()
     {
@@ -179,7 +179,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An authorization definition without the RecentSignIn policy the record requires reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void RecentSignInWithoutPolicyReportsDrift()
     {
@@ -196,7 +196,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit definition without the exemption an exempt record needs reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditExemptWithoutExemptionReportsDrift()
     {
@@ -214,7 +214,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit definition declaring the exemption an exempt record needs reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditExemptWithExemptionReportsNothing()
     {
@@ -228,7 +228,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit definition declaring an exemption for a record that requires audit reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditExemptWhenRequiredReportsDrift()
     {
@@ -246,7 +246,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit definition without a target for a record that requires audit reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditWithoutTargetReportsDrift()
     {
@@ -264,7 +264,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit definition without a target extraction reports nothing when the handler adds the target it learns.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditTargetAddedByHandlerReportsNothing()
     {
@@ -279,7 +279,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit exemption naming the use case reports nothing when a sibling definition audits its action.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditExemptCoveredBySiblingReportsNothing()
     {
@@ -294,7 +294,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An audit exemption naming the use case reports definition-drift when no sibling audits its action.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void AuditExemptWithoutAuditingSiblingReportsDrift()
     {
@@ -312,7 +312,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition without the exemption a non-idempotent record needs reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void IdempotencyNoneWithoutExemptionReportsDrift()
     {
@@ -330,7 +330,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition declaring through the idempotency declaration reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void IdempotencyDeclarationShapeReportsNothing()
     {
@@ -346,7 +346,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition exempting a command the record makes idempotent reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void NotIdempotentWhenKeyReportsDrift()
     {
@@ -364,7 +364,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition declaring the exemption with its reason for a non-idempotent record reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void IdempotencyNoneWithExemptReportsNothing()
     {
@@ -378,7 +378,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition declaring the exemption for a command its record recognizes by state reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void IdempotencyStateWithExemptReportsNothing()
     {
@@ -392,7 +392,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition keying a command its record recognizes by state reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void IdempotencyStateWithKeyReportsDrift()
     {
@@ -410,7 +410,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>An idempotency definition declaring the exemption for a command the record makes idempotent reports definition-drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void ExemptWhenKeyReportsDrift()
     {
@@ -428,7 +428,7 @@ public sealed class DefinitionCheckTests
     }
 
     /// <summary>A handler without a message type keeps no definition rule.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact]
     public void HandlerWithoutMessageTypeReportsNothing()
     {

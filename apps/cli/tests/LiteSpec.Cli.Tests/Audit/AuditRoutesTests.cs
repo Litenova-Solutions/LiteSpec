@@ -11,7 +11,7 @@ public sealed class AuditRoutesTests
     static readonly string Root = Path.Combine(TestCli.Repository, "examples", "claimwick");
 
     /// <summary>Collection reads the static screen routes and skips the route with a parameter.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "collection reads the static screen routes and skips the route with a parameter")]
     public void CollectsStaticScreenRoutes()
     {
@@ -31,7 +31,7 @@ public sealed class AuditRoutesTests
     /// <summary>A route holding a parameter marker is skipped.</summary>
     /// <param name="path">The route path.</param>
     /// <param name="parameters">Whether the path holds a parameter.</param>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Theory(DisplayName = "a route holding a parameter marker is skipped")]
     [InlineData("/expenses/{expenseId}", true)]
     [InlineData("/expenses/:expenseId", true)]
@@ -45,7 +45,7 @@ public sealed class AuditRoutesTests
     }
 
     /// <summary>A YAML routes file reads in file order, naming each route by its name or its path.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a YAML routes file reads in file order, naming each route by its name or its path")]
     public void ReadsYamlRoutesFile()
     {
@@ -65,7 +65,7 @@ public sealed class AuditRoutesTests
     }
 
     /// <summary>A JSON routes file reads like a YAML one.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a JSON routes file reads like a YAML one")]
     public void ReadsJsonRoutesFile()
     {
@@ -80,7 +80,7 @@ public sealed class AuditRoutesTests
     }
 
     /// <summary>A routes file that does not parse reports why.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a routes file that does not parse reports why")]
     public void ReportsUnparseableRoutesFile()
     {
@@ -95,7 +95,7 @@ public sealed class AuditRoutesTests
     }
 
     /// <summary>A routes file holding no list reports why.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a routes file holding no list reports why")]
     public void ReportsRoutesFileWithoutList()
     {
@@ -110,7 +110,7 @@ public sealed class AuditRoutesTests
     }
 
     /// <summary>A routes entry without a path reports its position.</summary>
-    /// <proves>litespec/frontend/ui#pass-every-route-suite-check</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact(DisplayName = "a routes entry without a path reports its position")]
     public void ReportsRoutesEntryWithoutPath()
     {

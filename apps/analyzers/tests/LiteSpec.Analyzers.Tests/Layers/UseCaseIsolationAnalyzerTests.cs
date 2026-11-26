@@ -8,7 +8,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 {
     /// <summary>LS2019 reports a use case folder naming another use case folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 reports a use case folder naming another use case folder")]
     public Task ReportsAUseCaseNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -37,7 +37,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 reports a reaction filed in another use case folder that sends a use case command and reads its result.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 reports a reaction filed in another use case folder that sends a use case command")]
     public Task ReportsAReactionFiledOutsideTheUseCaseItRuns() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -78,7 +78,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 accepts a reaction in the folder of the use case it runs, which sends that use case's command and reads its result.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 accepts a reaction in the folder of the use case it runs")]
     public Task AcceptsAReactionInTheFolderOfTheUseCaseItRuns() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -117,7 +117,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 accepts a use case folder naming its own types and aggregate types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 accepts a use case folder naming its own types and aggregate types")]
     public Task AcceptsAUseCaseNamingItsOwnUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -151,7 +151,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 accepts a use case naming layer folder types whose files carry role suffixes.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 accepts a use case naming layer folder types whose files carry role suffixes")]
     public Task AcceptsLayerFolderTypesWithRoleSuffixes() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -175,7 +175,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 stays quiet in a project laid out without product layer folders, such as a tool.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 stays quiet in a project laid out without product layer folders")]
     public Task StaysQuietWithoutProductLayerFolders() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -202,7 +202,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 stays quiet when a shared Application file names a use case type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 stays quiet when a shared Application file names a use case type")]
     public Task StaysQuietOutsideUseCaseFolders() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -229,7 +229,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 stays quiet for test files mirroring use case folders.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 stays quiet for test files mirroring use case folders")]
     public Task StaysQuietInTestFiles() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -258,7 +258,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 isolates two use cases in one module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 isolates two use cases in one module")]
     public Task ReportsTwoUseCasesInOneModule() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -287,7 +287,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 reports a reaction naming another use case.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 reports a reaction naming another use case")]
     public Task ReportsAReactionNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -316,7 +316,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 accepts a use case naming a port.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 accepts a use case naming a port")]
     public Task AcceptsAUseCaseNamingAPort() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -345,7 +345,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 stays quiet when an adapter names a use case type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 stays quiet when an adapter names a use case type")]
     public Task StaysQuietWhenAnAdapterNamesAUseCaseType() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -374,7 +374,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 reports a WebApi use case folder naming another use case folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 reports a WebApi use case folder naming another use case folder")]
     public Task ReportsAWebApiUseCaseNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -403,7 +403,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 accepts a WebApi use case folder naming its own Application use case folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 accepts a WebApi use case folder naming its own Application use case folder")]
     public Task AcceptsAWebApiUseCaseNamingItsOwnApplicationUseCase() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -432,7 +432,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 reports a use case naming another use case of its aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 reports a use case naming another use case of its aggregate")]
     public Task ReportsAUseCaseNamingAnotherUseCaseOfItsAggregate() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
@@ -461,7 +461,7 @@ public sealed class UseCaseIsolationAnalyzerTests
 
     /// <summary>LS2019 reports a module-level use case naming another module-level use case.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
     [Fact(DisplayName = "LS2019 reports a module-level use case naming another module-level use case")]
     public Task ReportsAModuleLevelUseCaseNamingAnother() =>
         Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(

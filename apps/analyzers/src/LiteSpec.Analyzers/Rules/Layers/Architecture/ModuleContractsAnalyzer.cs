@@ -10,8 +10,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2029: a handler, reaction or job names another module's public query or query result, only a reaction or a job names its public command or command result, and a Platform file names no module identifier. LS2030: a Contracts project declares no interface.</summary>
-/// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
-/// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+/// <follows>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</follows>
+/// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ModuleContractsAnalyzer : LayerAnalyzer
 {

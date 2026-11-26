@@ -6,7 +6,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 LiteSpec 7.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
 
-A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
+A stack is a folder with a `stack.md` page: `docs/packs/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
 `litespec.manifest.yaml` lists the stacks, shapes, extensions and pinned versions. Structured LiteSpec data is YAML, and so is every record file a consumer writes; explanation files are Markdown. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
 
@@ -162,19 +162,19 @@ Sources: `litespec/core/authoring#publish-each-release-as-a-complete-contract`, 
 
 Read the full provision before you apply any of these:
 
-- Use the Kernel, the Platform, and one project per module, with one folder per use case inside each layer that serves it. (`litespec/backend/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules`)
-- Put a type that is not a use case's own model in the lowest folder that holds every consumer naming it, and give each use case its own messages, results and transport models. (`litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, `litespec/backend/architecture#give-each-use-case-its-own-models`)
-- Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/backend/architecture#point-dependencies-inward`)
-- Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
-- Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
-- Give each architecture layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
-- Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
-- Organize code by module, aggregate and use case, with one folder per use case inside each of `Application/`, `WebApi/` and `Infrastructure/`, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#place-each-trigger-with-what-it-runs`)
-- Write commands through repositories, send no message from a handler, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
-- Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit`)
-- Read another module's state through the module's own read model, or ask one question through a decision port. (`litespec/backend/application#read-another-modules-state-through-a-read-model`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`)
-- Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`)
-- Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#record-one-shared-ui-package`, `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`)
+- Use the Kernel, the Platform, and one project per module, with one folder per use case inside each layer that serves it. (`litespec/packs/dotnet/architecture#separate-the-kernel-the-platform-and-the-modules`)
+- Put a type that is not a use case's own model in the lowest folder that holds every consumer naming it, and give each use case its own messages, results and transport models. (`litespec/core/backend-architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, `litespec/core/backend-architecture#give-each-use-case-its-own-models`)
+- Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/core/backend-architecture#point-dependencies-inward`)
+- Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
+- Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
+- Give each architecture layer its own messages, results and transport models. (`litespec/core/backend-architecture#own-each-layers-contract-types`)
+- Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions`)
+- Organize code by module, aggregate and use case, with one folder per use case inside each of `Application/`, `WebApi/` and `Infrastructure/`, and place each reaction and job with the use case it runs. (`litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#place-each-trigger-with-what-it-runs`)
+- Write commands through repositories, send no message from a handler, and commit once in the command pipeline. (`litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage`, `litespec/core/backend-persistence#commit-each-command-pipeline-once`)
+- Publish integration events only from the domain events they translate, never from user code. (`litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit`)
+- Read another module's state through the module's own read model, or ask one question through a decision port. (`litespec/core/backend-application#read-another-modules-state-through-a-read-model`, `litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port`)
+- Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/core/backend-application#enforce-target-authorization-in-the-pipeline`)
+- Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives`, `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream`)
 
 ## UI Patterns
 
@@ -183,8 +183,6 @@ A consumer keeps one pattern catalog. Each entry starts from a LiteSpec pattern 
 An agent builds the pattern's Default from its wireframe text with the project's own components, style and design system, and records it with `source: recommended`. It waits for an owner only when the route departs from the Default or no Default exists. To help an owner choose in that case, show the options on the pattern's page on the LiteSpec site and recommend one.
 
 If you see how a pattern could be better, finish the task on the recorded option and put the proposal in your completion report. Leave the decision unchanged, and ask nothing mid-task. A proposal that isn't specific to one product goes to the LiteSpec pattern page once the owner accepts it.
-
-Sources: `litespec/frontend/patterns#keep-one-pattern-catalog`, `litespec/frontend/patterns#start-from-a-litespec-pattern`, `litespec/frontend/patterns#record-who-chose`, `litespec/frontend/patterns#keep-a-visual-registry`, `litespec/frontend/patterns#report-pattern-feedback-after-the-work`, `litespec/frontend/patterns#promote-pattern-improvements`.
 
 ## The Book
 

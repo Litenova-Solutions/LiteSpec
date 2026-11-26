@@ -15,7 +15,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     <c>Entity</c> with one type argument, an event implements <c>IDomainEvent</c>, and an
 ///     exception derives from <c>System.Exception</c>.
 /// </summary>
-/// <follows>litespec/backend/domain#reach-an-aggregate-only-through-its-root</follows>
+/// <follows>litespec/core/backend-domain#reach-an-aggregate-only-through-its-root</follows>
 internal static class Aggregates
 {
     /// <summary>Folder names that never name an aggregate.</summary>

@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class DotnetRootsTests
 {
     /// <summary>Prefers the environment roots in order.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void PrefersEnvironmentRootsInOrder()
     {
@@ -22,7 +22,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Skips roots that do not exist.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SkipsMissingRoots()
     {
@@ -35,7 +35,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Lists each root once.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ListsEachRootOnce()
     {
@@ -48,7 +48,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Finds the dotnet root on PATH.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void FindsDotnetRootOnPath()
     {
@@ -62,7 +62,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Finds no root when PATH names no dotnet.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void FindsNoRootWithoutDotnet()
     {
@@ -73,7 +73,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Leaves a path without a link unchanged.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void LeavesPathWithoutLinkUnchanged()
     {
@@ -85,7 +85,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Names standard locations for the platform.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void NamesStandardLocations() =>
         Assert.NotEmpty(DotnetRoots.StandardLocations());

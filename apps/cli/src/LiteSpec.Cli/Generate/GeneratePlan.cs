@@ -61,9 +61,9 @@ static class GeneratePlan
             return false;
         }
 
-        if (target.Stack is not ("dotnet" or "react" or "svelte" or "blazor" or "android"))
+        if (target.Stack is not ("dotnet" or "svelte" or "android"))
         {
-            error = $"Generate target stack '{target.Stack}' is unknown; use dotnet, react, svelte, blazor or android.";
+            error = $"Generate target stack '{target.Stack}' is unknown; use dotnet, svelte or android.";
             return false;
         }
 
@@ -88,10 +88,10 @@ static class GeneratePlan
         return true;
     }
 
-    /// <summary>Whether the target writes TypeScript: a react or svelte stack.</summary>
+    /// <summary>Whether the target writes TypeScript: the svelte stack.</summary>
     /// <param name="target">The declared target.</param>
     /// <returns>True for a TypeScript stack; otherwise false.</returns>
-    private static bool IsTypeScript(GenerateTarget target) => target.Stack is "react" or "svelte";
+    private static bool IsTypeScript(GenerateTarget target) => target.Stack is "svelte";
 
     /// <summary>Renders one validated target.</summary>
     /// <param name="model">The built project model the files render from.</param>

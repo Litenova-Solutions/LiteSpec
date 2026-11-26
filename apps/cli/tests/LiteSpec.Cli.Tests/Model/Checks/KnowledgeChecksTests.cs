@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class KnowledgeChecksTests
 {
     /// <summary>A varying table holding rows for every variant of its area passes.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void VaryingTableWithEveryVariantPasses()
     {
@@ -25,7 +25,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>A listed variant holding no row in a varying table reports knowledge-set-missing at tier G.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void MissingVariantReportsSetMissing()
     {
@@ -42,7 +42,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>Rows naming a variant on a table stating no variation report knowledge-variation-undeclared at tier G.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void UndeclaredVariationReports()
     {
@@ -59,7 +59,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>A shared table under a varying area, with no dimension and no variant rows, passes.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void SharedTableUnderVaryingAreaPasses()
     {
@@ -74,7 +74,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>A module-owned table with no dimension and no variant rows passes untouched.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void ModuleTablePasses()
     {
@@ -97,7 +97,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>A module-owned table stating variation reports record-invalid: only knowledge tables vary.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void ModuleTableWithVariationReportsInvalid()
     {
@@ -123,7 +123,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>Rows with and rows without variant in one table report record-invalid.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void MixedRowsReportInvalid()
     {
@@ -141,7 +141,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>A row naming a variant outside its area's list reports record-invalid.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void StrayVariantReportsInvalid()
     {
@@ -159,7 +159,7 @@ public sealed class KnowledgeChecksTests
     }
 
     /// <summary>A table whose home names no knowledge area draws no set finding: the parent check owns the missing home.</summary>
-    /// <proves>litespec/backend/knowledge#give-each-knowledge-area-one-model</proves>
+    /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void MissingAreaDrawsNoSetFinding()
     {

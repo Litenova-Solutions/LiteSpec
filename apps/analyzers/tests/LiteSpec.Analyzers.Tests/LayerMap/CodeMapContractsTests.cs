@@ -13,7 +13,7 @@ namespace LiteSpec.Analyzers.Tests.LayerMap;
 public sealed class CodeMapContractsTests
 {
     /// <summary>A file in a sibling Contracts project maps to its owner module with the Application layer.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact]
     public void SiblingContractsFileMapsToItsOwnerModule()
     {
@@ -26,7 +26,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A project that is not named Contracts stays its own module, and a module named Contracts stays a module.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact]
     public void OtherProjectStaysItsOwnModule()
     {
@@ -40,7 +40,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A file in a module Ports folder maps to its module with the Ports layer and no use case.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void PortsFileMapsToThePortsLayer()
     {
@@ -53,7 +53,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A file in an Infrastructure adapter folder maps to Infrastructure with no use case.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void AdapterFileHasNoUseCase()
     {
@@ -66,7 +66,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A file in Persistence is no adapter and sits in no use case.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void PersistenceFileIsNoAdapter()
     {
@@ -80,7 +80,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A file in Messaging is no adapter and sits in no use case.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void MessagingFileIsNoAdapter()
     {
@@ -93,7 +93,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A file in the Infrastructure Pipeline is no adapter and sits in no use case, at the root or in a protocol folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void PipelineFileSitsInNoUseCase()
     {
@@ -108,7 +108,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A type in a use case folder below an aggregate folder is a public query, public command or result.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void ContractsUseCaseFileIsAPublicQueryOrCommand()
     {
@@ -123,7 +123,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A type directly in an aggregate folder is an identifier, never a public query or public command.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void ContractsAggregateFileIsNoPublicQueryOrCommand()
     {
@@ -134,7 +134,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A type in an On{Fact} folder is a fact, never a public query or public command.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void ContractsFactFolderFileIsNoPublicQueryOrCommand()
     {
@@ -149,7 +149,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A query, command or result directly in a Contracts top folder is a module-level public query or public command.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void ContractsModuleLevelQueryOrCommandFileIsAPublicQueryOrCommand()
     {
@@ -162,7 +162,7 @@ public sealed class CodeMapContractsTests
     }
 
     /// <summary>A file in the Platform project reads as one by assembly or by path segment.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact]
     public void PlatformFileIsDetected()
     {

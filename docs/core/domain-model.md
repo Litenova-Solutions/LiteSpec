@@ -24,7 +24,7 @@ Each child record sits in a typed folder inside its module, such as `aggregates/
 
 ### Knowledge Areas
 
-A knowledge area is one subject of rules that govern how operational records behave, such as travel rates that differ by country. Its record sits at `behavior/knowledge/<area>/knowledge-area.yaml` and carries its `meaning` with the `variants` it has knowledge sets for, as `litespec/backend/knowledge#give-each-knowledge-area-one-model` states, in the home the [model page](model.md) names. An area that varies by nothing lists no variants and keeps its one table in the model. Claimwick's travel area holds the per-diem and mileage tables for Germany and the Netherlands. The explanation file beside the record restates Variants from `variants` and carries Example.
+A knowledge area is one subject of rules that govern how operational records behave, such as travel rates that differ by country. Its record sits at `behavior/knowledge/<area>/knowledge-area.yaml` and carries its `meaning` with the `variants` it has knowledge sets for, as `litespec/core/knowledge#give-each-knowledge-area-one-model` states, in the home the [model page](model.md) names. An area that varies by nothing lists no variants and keeps its one table in the model. Claimwick's travel area holds the per-diem and mileage tables for Germany and the Netherlands. The explanation file beside the record restates Variants from `variants` and carries Example.
 
 | Field | Meaning |
 |:---|:---|
@@ -402,7 +402,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Statement:** Each reservation rule MUST name the use case releasing it in `releasedBy`, or `{ "mode": "never", "reason": "..." }` with its cost.
 
-**Rationale:** A held claim with no release keeps places, funds, or names locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start. A hold that truly lasts is admitted with `{ "mode": "never", "reason": "..." }` and its cost on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`).
+**Rationale:** A held claim with no release keeps places, funds, or names locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start. A hold that truly lasts is admitted with `{ "mode": "never", "reason": "..." }` and its cost on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/core/backend-persistence#claim-a-cross-record-key-at-commit`).
 
 **Checked by:** `litespec model check` reports `reservation-release-missing` for a reservation rule whose `releasedBy` names neither a use case nor `{ "mode": "never", "reason": "..." }` with its cost.
 

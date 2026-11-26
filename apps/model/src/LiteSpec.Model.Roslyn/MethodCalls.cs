@@ -14,7 +14,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     handler's own read already covers its body. The refusal check reads this, so a code
 ///     thrown one hop from the handler meets a result its use case declares.
 /// </summary>
-/// <follows>litespec/backend/application#return-only-declared-results-and-refusals</follows>
+/// <follows>litespec/core/backend-application#return-only-declared-results-and-refusals</follows>
 public static class MethodCalls
 {
     /// <summary>One call onto another type: the called type with the called method.</summary>

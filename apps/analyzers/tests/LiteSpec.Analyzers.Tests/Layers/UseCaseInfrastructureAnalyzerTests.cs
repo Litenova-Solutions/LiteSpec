@@ -26,7 +26,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 reports an adapter naming a Domain type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 reports an adapter naming a Domain type")]
     public Task ReportsAnAdapterNamingADomainType() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -50,7 +50,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 reports an adapter naming a Domain type no port signature names.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 reports an adapter naming a Domain type no port signature names")]
     public Task ReportsAnAdapterNamingADomainTypeNoPortSignatureNames() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -87,7 +87,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 reports an adapter naming a WebApi type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 reports an adapter naming a WebApi type")]
     public Task ReportsAnAdapterNamingAWebApiType() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -117,7 +117,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 accepts an adapter naming identifiers and shared values.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 accepts an adapter naming identifiers and shared values")]
     public Task AcceptsIdentifiersAndSharedValues() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -148,7 +148,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 accepts an adapter naming its port.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 accepts an adapter naming its port")]
     public Task AcceptsAnAdapterNamingItsPort() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -174,7 +174,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 accepts an adapter naming a Domain type its port returns.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 accepts an adapter naming a Domain type its port returns")]
     public Task AcceptsAnAdapterNamingADomainTypeItsPortReturns() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -212,7 +212,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 accepts an adapter reading a value of the aggregate its port hands it.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 accepts an adapter reading a value of the aggregate its port hands it")]
     public Task AcceptsAnAdapterReadingAValueOfTheAggregateItsPortHandsIt() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -260,7 +260,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 stays silent in a module Infrastructure folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 stays silent in a module Infrastructure folder")]
     public Task StaysSilentInAModuleInfrastructureFolder() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(
@@ -296,7 +296,7 @@ public sealed class UseCaseInfrastructureAnalyzerTests
 
     /// <summary>LS2025 accepts a pipeline piece naming a repository and a domain type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</proves>
+    /// <proves>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</proves>
     [Fact(DisplayName = "LS2025 accepts a pipeline piece naming a repository and a domain type")]
     public Task AcceptsAPipelinePieceNamingARepositoryAndADomainType() =>
         Verify.AnalyzerAsync<UseCaseInfrastructureAnalyzer>(

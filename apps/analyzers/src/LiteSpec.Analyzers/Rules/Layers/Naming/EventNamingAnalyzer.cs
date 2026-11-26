@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Naming;
 
 /// <summary>LS2031: an event type ends in the suffix of its kind.</summary>
-/// <follows>litespec/backend/dotnet/naming#name-every-event-type-by-its-kind</follows>
+/// <follows>litespec/packs/dotnet/naming#name-every-event-type-by-its-kind</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EventNamingAnalyzer : LayerAnalyzer
 {

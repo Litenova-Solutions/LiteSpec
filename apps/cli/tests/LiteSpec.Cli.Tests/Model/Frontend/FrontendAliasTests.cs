@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Frontend;
 public sealed class FrontendAliasTests
 {
     /// <summary>Declared Subpath Imports Are The Aliases.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void DeclaredSubpathImportsAreTheAliases()
     {
@@ -27,7 +27,7 @@ public sealed class FrontendAliasTests
     }
 
     /// <summary>A Frontend Declaring None Takes Its Stack Alias.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void AFrontendDeclaringNoneTakesItsStackAlias()
     {
@@ -36,6 +36,5 @@ public sealed class FrontendAliasTests
         Directory.CreateDirectory(app);
 
         Assert.Equal([("#lib", Path.Combine(app, "src", "lib"))], NodeFrontendReader.Aliases(new FrontendConfig("web", app, "svelte")));
-        Assert.Equal([("@", Path.Combine(app, "src"))], NodeFrontendReader.Aliases(new FrontendConfig("admin", app, "react")));
     }
 }

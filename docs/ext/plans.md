@@ -18,7 +18,7 @@ A project selects `plans` when tiers gate behavior or amounts in the software, w
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It sits beside the [multitenancy extension](tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
+This extension replaces no baseline provision. It sits beside the [multitenancy extension](../core/tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
 
 It switches on no record type. Plans are policy requirements, as the [intent page](../core/intent.md) states. Gated behavior resolves through permissions under `litespec/core/access#authorize-every-use-case-through-a-declared-grant`: a plan grants the permissions its tier allows through the same grant chain as any other entitlement. Gated amounts resolve through settings the gated use case cites under `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`, with each commercial default tied to its requirement under `litespec/core/use-cases#tie-every-setting-default-to-a-requirement`. A run past its plan ends in the named refusal result under `litespec/core/use-cases#end-every-use-case-in-named-results`.
 
@@ -50,7 +50,7 @@ It switches on no record type. Plans are policy requirements, as the [intent pag
 
 **Statement:** The product MUST resolve the acting plan from verified subscription state, never from caller input.
 
-**Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](tenancy.md) treats tenant identity the same way.
+**Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](../core/tenancy.md) treats tenant identity the same way.
 
 **Reviewed for:** Does every acting plan resolve from verified subscription state rather than caller input? Read the plan resolution code.
 

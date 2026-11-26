@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class RepositoryCheckTests
 {
     /// <summary>Changed Aggregate Without An Implementation Reports.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void ChangedAggregateWithoutAnImplementationReports()
     {
@@ -23,7 +23,7 @@ public sealed class RepositoryCheckTests
     }
 
     /// <summary>Changed Aggregate With An Implementation Passes.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void ChangedAggregateWithAnImplementationPasses()
     {
@@ -38,7 +38,7 @@ public sealed class RepositoryCheckTests
     }
 
     /// <summary>Reader Fixture Without An Implementation Reports.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void ReaderFixtureWithoutAnImplementationReports()
     {
@@ -60,7 +60,7 @@ public sealed class RepositoryCheckTests
     }
 
     /// <summary>Reader Fixture With An Implementation Passes.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void ReaderFixtureWithAnImplementationPasses()
     {
@@ -89,7 +89,7 @@ public sealed class RepositoryCheckTests
     }
 
     /// <summary>Reader Fixture Without A Domain Interface Reports.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void ReaderFixtureWithoutADomainInterfaceReports()
     {
@@ -139,7 +139,7 @@ public sealed class RepositoryCheckTests
             """);
 
     /// <summary>Repository Implementation In Its Aggregate Persistence Folder Passes.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void RepositoryImplementationInItsAggregatePersistenceFolderPasses()
     {
@@ -155,7 +155,7 @@ public sealed class RepositoryCheckTests
     }
 
     /// <summary>Repository Implementation Outside Its Aggregate Persistence Folder Reports.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void RepositoryImplementationOutsideItsAggregatePersistenceFolderReports()
     {

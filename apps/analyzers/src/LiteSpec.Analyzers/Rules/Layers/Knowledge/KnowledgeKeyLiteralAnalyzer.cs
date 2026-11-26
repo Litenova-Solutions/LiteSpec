@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Knowledge;
 
 /// <summary>LS2040: outside a knowledge set, code reads knowledge by role and date, never by building a key from a string literal.</summary>
-/// <follows>litespec/backend/knowledge#read-knowledge-by-role-and-date</follows>
+/// <follows>litespec/core/knowledge#read-knowledge-by-role-and-date</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class KnowledgeKeyLiteralAnalyzer : LayerAnalyzer
 {

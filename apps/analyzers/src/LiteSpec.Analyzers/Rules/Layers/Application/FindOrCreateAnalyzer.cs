@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2014: a command handler never finds a record and creates it in the same method.</summary>
-/// <follows>litespec/backend/application#implement-one-outcome-path-per-command</follows>
+/// <follows>litespec/core/backend-application#implement-one-outcome-path-per-command</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class FindOrCreateAnalyzer : LayerAnalyzer
 {

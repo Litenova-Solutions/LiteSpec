@@ -28,7 +28,7 @@ public sealed class FrontendRouteStyleTests
     }
 
     /// <summary>Dotnet Route Marks Keep The Style The Reader Saw.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void DotnetRouteMarksKeepTheStyleTheReaderSaw()
     {
@@ -46,7 +46,7 @@ public sealed class FrontendRouteStyleTests
     }
 
     /// <summary>Dotnet Route Marks Without A Recorded Style Fall Back To The Declared Style.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void DotnetRouteMarksWithoutARecordedStyleFallBackToTheDeclaredStyle()
     {

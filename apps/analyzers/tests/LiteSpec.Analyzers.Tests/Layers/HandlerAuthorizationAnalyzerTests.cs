@@ -8,7 +8,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 {
     /// <summary>LS2012 reports a command handler throwing a forbidden exception.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a command handler throwing a forbidden exception")]
     public Task ReportsACommandHandlerThrowingForbidden() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -31,7 +31,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a query handler throwing an unauthorized exception.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a query handler throwing an unauthorized exception")]
     public Task ReportsAQueryHandlerThrowingUnauthorized() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -59,7 +59,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a handler throwing an access denied exception.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a handler throwing an access denied exception")]
     public Task ReportsAHandlerThrowingAccessDenied() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -82,7 +82,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a forbidden exception thrown through a local.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a forbidden exception thrown through a local")]
     public Task ReportsAForbiddenExceptionThrownThroughALocal() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -106,7 +106,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a command handler taking the authorization guard.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a command handler taking the authorization guard")]
     public Task ReportsACommandHandlerTakingTheAuthorizationGuard() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -124,7 +124,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a query handler taking the authorization guard.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a query handler taking the authorization guard")]
     public Task ReportsAQueryHandlerTakingTheAuthorizationGuard() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -146,7 +146,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a handler taking the authorization guard through its contract.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a handler taking the authorization guard through its contract")]
     public Task ReportsAHandlerTakingTheAuthorizationGuardThroughItsContract() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -169,7 +169,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a nullable authorization guard parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a nullable authorization guard parameter")]
     public Task ReportsANullableAuthorizationGuardParameter() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -187,7 +187,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 reports a handler taking a type that implements the authorization guard.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a handler taking a type that implements the authorization guard")]
     public Task ReportsAHandlerTakingATypeThatImplementsTheAuthorizationGuard() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -210,7 +210,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts a handler throwing a domain refusal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a handler throwing a domain refusal")]
     public Task AcceptsAHandlerThrowingADomainRefusal() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -233,7 +233,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts a throw in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a throw in an event handler")]
     public Task AcceptsAThrowInAnEventHandler() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -258,7 +258,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts a rethrow.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a rethrow")]
     public Task AcceptsARethrow() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -286,7 +286,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts a handler taking a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a handler taking a repository")]
     public Task AcceptsAHandlerTakingARepository() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -304,7 +304,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts a handler taking an unrelated service.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a handler taking an unrelated service")]
     public Task AcceptsAHandlerTakingAnUnrelatedService() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -322,7 +322,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts the authorization guard in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts the authorization guard in an event handler")]
     public Task AcceptsTheAuthorizationGuardInAnEventHandler() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -344,7 +344,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 accepts the authorization guard outside a constructor.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts the authorization guard outside a constructor")]
     public Task AcceptsTheAuthorizationGuardOutsideAConstructor() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -363,7 +363,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 stays silent for the authorization guard outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 stays silent for the authorization guard outside Application and Infrastructure")]
     public Task StaysSilentForTheAuthorizationGuardOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -381,7 +381,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
 
     /// <summary>LS2012 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
+    /// <proves>litespec/core/backend-application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""

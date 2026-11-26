@@ -21,120 +21,120 @@ internal static class Descriptors
     /// <summary>The diagnostic category name for traceability diagnostics.</summary>
     private const string TraceabilityCategory = "LiteSpec.Traceability";
 
-    /// <summary>The provision the related descriptors enforce: keep domain free of outer layer concerns (litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns).</summary>
-    private static readonly Provision DomainOuterLayers = Provision.Of("backend/dotnet/domain", "keep-domain-free-of-outer-layer-concerns");
-    /// <summary>The provision the related descriptors enforce: model every closed set of domain values without enums (litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums).</summary>
-    private static readonly Provision ClosedSets = Provision.Of("backend/dotnet/domain", "model-every-closed-set-of-domain-values-without-enums");
-    /// <summary>The provision the related descriptors enforce: model every aggregate lifecycle with state records (litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records).</summary>
-    private static readonly Provision StateRecords = Provision.Of("backend/dotnet/domain", "model-every-aggregate-lifecycle-with-state-records");
-    /// <summary>The provision the related descriptors enforce: reject business violations with domain exceptions (litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions).</summary>
-    private static readonly Provision DomainExceptions = Provision.Of("backend/dotnet/domain", "reject-business-violations-with-domain-exceptions");
-    /// <summary>The provision the related descriptors enforce: raise immutable domain facts (litespec/backend/dotnet/domain#raise-immutable-domain-facts).</summary>
-    private static readonly Provision DomainEvents = Provision.Of("backend/dotnet/domain", "raise-immutable-domain-facts");
-    /// <summary>The provision the related descriptors enforce: keep binary floating point out of exact quantities (litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities).</summary>
-    private static readonly Provision ExactQuantities = Provision.Of("backend/domain", "keep-binary-floating-point-out-of-exact-quantities");
-    /// <summary>The provision the related descriptors enforce: pass nondeterministic values into domain (litespec/backend/domain#pass-nondeterministic-values-into-domain).</summary>
-    private static readonly Provision Nondeterminism = Provision.Of("backend/domain", "pass-nondeterministic-values-into-domain");
-    /// <summary>The provision the related descriptors enforce: keep repository interfaces in domain (litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain).</summary>
-    private static readonly Provision Repositories = Provision.Of("backend/dotnet/domain", "keep-repository-interfaces-in-domain");
-    /// <summary>The provision the related descriptors enforce: document every public domain contract (litespec/backend/domain#document-every-public-domain-contract).</summary>
-    private static readonly Provision DomainDocumentation = Provision.Of("backend/dotnet/domain", "document-every-public-domain-contract");
-    /// <summary>The provision the related descriptors enforce: use strongly typed version 7 identifiers (litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers).</summary>
-    private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
-    /// <summary>The provision the related descriptors enforce: offer a non-throwing parse on validated value types (litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types).</summary>
-    private static readonly Provision NonThrowingParse = Provision.Of("backend/dotnet/domain", "offer-a-non-throwing-parse-on-validated-value-types");
+    /// <summary>The provision the related descriptors enforce: keep domain free of outer layer concerns (litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns).</summary>
+    private static readonly Provision DomainOuterLayers = Provision.Of("packs/dotnet/domain", "keep-domain-free-of-outer-layer-concerns");
+    /// <summary>The provision the related descriptors enforce: model every closed set of domain values without enums (litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums).</summary>
+    private static readonly Provision ClosedSets = Provision.Of("packs/dotnet/domain", "model-every-closed-set-of-domain-values-without-enums");
+    /// <summary>The provision the related descriptors enforce: model every aggregate lifecycle with state records (litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records).</summary>
+    private static readonly Provision StateRecords = Provision.Of("packs/dotnet/domain", "model-every-aggregate-lifecycle-with-state-records");
+    /// <summary>The provision the related descriptors enforce: reject business violations with domain exceptions (litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions).</summary>
+    private static readonly Provision DomainExceptions = Provision.Of("packs/dotnet/domain", "reject-business-violations-with-domain-exceptions");
+    /// <summary>The provision the related descriptors enforce: raise immutable domain facts (litespec/packs/dotnet/domain#raise-immutable-domain-facts).</summary>
+    private static readonly Provision DomainEvents = Provision.Of("packs/dotnet/domain", "raise-immutable-domain-facts");
+    /// <summary>The provision the related descriptors enforce: keep binary floating point out of exact quantities (litespec/core/backend-domain#keep-binary-floating-point-out-of-exact-quantities).</summary>
+    private static readonly Provision ExactQuantities = Provision.Of("core/backend-domain", "keep-binary-floating-point-out-of-exact-quantities");
+    /// <summary>The provision the related descriptors enforce: pass nondeterministic values into domain (litespec/core/backend-domain#pass-nondeterministic-values-into-domain).</summary>
+    private static readonly Provision Nondeterminism = Provision.Of("core/backend-domain", "pass-nondeterministic-values-into-domain");
+    /// <summary>The provision the related descriptors enforce: keep repository interfaces in domain (litespec/packs/dotnet/domain#keep-repository-interfaces-in-domain).</summary>
+    private static readonly Provision Repositories = Provision.Of("packs/dotnet/domain", "keep-repository-interfaces-in-domain");
+    /// <summary>The provision the related descriptors enforce: document every public domain contract (litespec/core/backend-domain#document-every-public-domain-contract).</summary>
+    private static readonly Provision DomainDocumentation = Provision.Of("core/backend-domain", "document-every-public-domain-contract");
+    /// <summary>The provision the related descriptors enforce: use strongly typed version 7 identifiers (litespec/packs/dotnet/domain#use-strongly-typed-version-7-identifiers).</summary>
+    private static readonly Provision TypedIdentifiers = Provision.Of("packs/dotnet/domain", "use-strongly-typed-version-7-identifiers");
+    /// <summary>The provision the related descriptors enforce: offer a non-throwing parse on validated value types (litespec/packs/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types).</summary>
+    private static readonly Provision NonThrowingParse = Provision.Of("packs/dotnet/domain", "offer-a-non-throwing-parse-on-validated-value-types");
     /// <summary>The provision the development shortcut descriptor enforces: keep development shortcuts out of release builds (litespec/quality/development#keep-development-shortcuts-out-of-release-builds).</summary>
     private static readonly Provision DevelopmentShortcuts = Provision.Of("quality/development", "keep-development-shortcuts-out-of-release-builds");
-    /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
-    private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
-    /// <summary>The provision the related descriptors enforce: follow layer direction in every file (litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file).</summary>
-    private static readonly Provision RespectLayerDirection = Provision.Of("backend/dotnet/architecture", "follow-layer-direction-in-every-file");
-    /// <summary>The provision the related descriptors enforce: keep use case folders isolated (litespec/backend/dotnet/architecture#keep-use-case-folders-isolated).</summary>
-    private static readonly Provision UseCaseIsolation = Provision.Of("backend/dotnet/architecture", "keep-use-case-folders-isolated");
-    /// <summary>The provision the related descriptors enforce: reach another module only through contracts (litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts).</summary>
-    private static readonly Provision ModuleContracts = Provision.Of("backend/dotnet/architecture", "reach-another-module-only-through-contracts");
-    /// <summary>The provision the related descriptors enforce: publish only data from each contracts project (litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project).</summary>
-    private static readonly Provision ContractsData = Provision.Of("backend/dotnet/architecture", "publish-only-data-from-each-contracts-project");
-    /// <summary>The provision the related descriptors enforce: exclude mvc controllers from the stack (litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack).</summary>
-    private static readonly Provision NoControllers = Provision.Of("backend/dotnet/api", "exclude-mvc-controllers-from-the-stack");
-    /// <summary>The provision the related descriptors enforce: stage aggregate writes through repositories (litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories).</summary>
-    private static readonly Provision RepositoryWrites = Provision.Of("backend/dotnet/persistence", "stage-aggregate-writes-through-repositories");
+    /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/packs/dotnet/architecture#keep-implementation-types-internal).</summary>
+    private static readonly Provision InternalImplementations = Provision.Of("packs/dotnet/architecture", "keep-implementation-types-internal");
+    /// <summary>The provision the related descriptors enforce: follow layer direction in every file (litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file).</summary>
+    private static readonly Provision RespectLayerDirection = Provision.Of("packs/dotnet/architecture", "follow-layer-direction-in-every-file");
+    /// <summary>The provision the related descriptors enforce: keep use case folders isolated (litespec/packs/dotnet/architecture#keep-use-case-folders-isolated).</summary>
+    private static readonly Provision UseCaseIsolation = Provision.Of("packs/dotnet/architecture", "keep-use-case-folders-isolated");
+    /// <summary>The provision the related descriptors enforce: reach another module only through contracts (litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts).</summary>
+    private static readonly Provision ModuleContracts = Provision.Of("packs/dotnet/architecture", "reach-another-module-only-through-contracts");
+    /// <summary>The provision the related descriptors enforce: publish only data from each contracts project (litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project).</summary>
+    private static readonly Provision ContractsData = Provision.Of("packs/dotnet/architecture", "publish-only-data-from-each-contracts-project");
+    /// <summary>The provision the related descriptors enforce: exclude mvc controllers from the stack (litespec/packs/dotnet/api#exclude-mvc-controllers-from-the-stack).</summary>
+    private static readonly Provision NoControllers = Provision.Of("packs/dotnet/api", "exclude-mvc-controllers-from-the-stack");
+    /// <summary>The provision the related descriptors enforce: stage aggregate writes through repositories (litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories).</summary>
+    private static readonly Provision RepositoryWrites = Provision.Of("packs/dotnet/persistence", "stage-aggregate-writes-through-repositories");
     /// <summary>The provision the related descriptors enforce: name asynchronous operations completely (litespec/workspace/naming#reveal-asynchrony-and-cancellation-in-operation-names).</summary>
     private static readonly Provision AsyncNames = Provision.Of("workspace/naming", "reveal-asynchrony-and-cancellation-in-operation-names");
-    /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/backend/dotnet/naming#keep-implementation-style-consistent).</summary>
-    private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
-    /// <summary>The provision the related descriptors enforce: put the cancellation token last (litespec/backend/dotnet/naming#put-the-cancellation-token-last).</summary>
-    private static readonly Provision CancellationTokenLast = Provision.Of("backend/dotnet/naming", "put-the-cancellation-token-last");
-    /// <summary>The provision the related descriptors enforce: match C# files and primary types (litespec/backend/dotnet/naming#match-c-files-and-primary-types).</summary>
-    private static readonly Provision FileTypeNames = Provision.Of("backend/dotnet/naming", "match-c-files-and-primary-types");
+    /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/packs/dotnet/naming#keep-implementation-style-consistent).</summary>
+    private static readonly Provision ImplementationStyle = Provision.Of("packs/dotnet/naming", "keep-implementation-style-consistent");
+    /// <summary>The provision the related descriptors enforce: put the cancellation token last (litespec/packs/dotnet/naming#put-the-cancellation-token-last).</summary>
+    private static readonly Provision CancellationTokenLast = Provision.Of("packs/dotnet/naming", "put-the-cancellation-token-last");
+    /// <summary>The provision the related descriptors enforce: match C# files and primary types (litespec/packs/dotnet/naming#match-c-files-and-primary-types).</summary>
+    private static readonly Provision FileTypeNames = Provision.Of("packs/dotnet/naming", "match-c-files-and-primary-types");
     /// <summary>The provision the related descriptors enforce: use architectural suffixes (litespec/workspace/naming#use-architectural-suffixes).</summary>
     private static readonly Provision RoleSuffixes = Provision.Of("workspace/naming", "use-architectural-suffixes");
-    /// <summary>The provision the related descriptors enforce: name every event type by its kind (litespec/backend/dotnet/naming#name-every-event-type-by-its-kind).</summary>
-    private static readonly Provision EventKindSuffixes = Provision.Of("backend/dotnet/naming", "name-every-event-type-by-its-kind");
+    /// <summary>The provision the related descriptors enforce: name every event type by its kind (litespec/packs/dotnet/naming#name-every-event-type-by-its-kind).</summary>
+    private static readonly Provision EventKindSuffixes = Provision.Of("packs/dotnet/naming", "name-every-event-type-by-its-kind");
     /// <summary>The provision the related descriptors enforce: name result parts after their result (litespec/workspace/naming#name-result-parts-after-their-result).</summary>
     private static readonly Provision ResultParts = Provision.Of("workspace/naming", "name-result-parts-after-their-result");
     /// <summary>The provision the related descriptors enforce: name repository variables after their interface (litespec/workspace/naming#name-repository-variables-after-their-interface).</summary>
     private static readonly Provision RepositoryVariables = Provision.Of("workspace/naming", "name-repository-variables-after-their-interface");
-    /// <summary>The provision the related descriptors enforce: project queries directly (litespec/backend/application#project-queries-directly).</summary>
-    private static readonly Provision QueryProjection = Provision.Of("backend/application", "project-queries-directly");
-    /// <summary>The provision the related descriptors enforce: enforce target authorization in the pipeline (litespec/backend/application#enforce-target-authorization-in-the-pipeline).</summary>
-    private static readonly Provision TargetAuthorization = Provision.Of("backend/application", "enforce-target-authorization-in-the-pipeline");
-    /// <summary>The provision the related descriptors enforce: declare audit values beside the message (litespec/backend/application#declare-the-audit-target-and-reason-beside-the-message).</summary>
-    private static readonly Provision AuditValues = Provision.Of("backend/application", "declare-the-audit-target-and-reason-beside-the-message");
-    /// <summary>The provision the related descriptors enforce: implement one outcome path per command (litespec/backend/application#implement-one-outcome-path-per-command).</summary>
-    private static readonly Provision OutcomePath = Provision.Of("backend/application", "implement-one-outcome-path-per-command");
-    /// <summary>The provision the related descriptors enforce: issue per record work from a job (litespec/backend/application#issue-per-record-work-from-a-job).</summary>
-    private static readonly Provision PerRecordWork = Provision.Of("backend/application", "issue-per-record-work-from-a-job");
-    /// <summary>The provision the related descriptors enforce: keep uniqueness out of handlers (litespec/backend/persistence#keep-uniqueness-out-of-handlers).</summary>
-    private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
-    /// <summary>The provision the related descriptors enforce: compare typed identifiers by their value in queries (litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
-    private static readonly Provision TypedIdentifierQueryValues = Provision.Of("backend/dotnet/persistence", "compare-typed-identifiers-by-their-value-in-queries");
-    /// <summary>The provision the related descriptors enforce: compare typed identifiers by their underlying values in queries (litespec/backend/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
-    private static readonly Provision TypedIdentifierUnderlyingValues = Provision.Of("backend/dotnet/persistence", "compare-typed-identifiers-by-their-underlying-values-in-queries");
-    /// <summary>The provision the related descriptors enforce: read knowledge through its model (litespec/backend/knowledge#read-knowledge-through-its-model).</summary>
-    private static readonly Provision KnowledgeThroughModel = Provision.Of("backend/knowledge", "read-knowledge-through-its-model");
-    /// <summary>The provision the related descriptors enforce: keep knowledge sets free of logic (litespec/backend/knowledge#keep-knowledge-sets-free-of-logic).</summary>
-    private static readonly Provision KnowledgeSetData = Provision.Of("backend/knowledge", "keep-knowledge-sets-free-of-logic");
-    /// <summary>The provision the related descriptors enforce: read knowledge by role and date (litespec/backend/knowledge#read-knowledge-by-role-and-date).</summary>
-    private static readonly Provision KnowledgeByRole = Provision.Of("backend/knowledge", "read-knowledge-by-role-and-date");
-    /// <summary>The provision the related descriptors enforce: load typed identifier documents one at a time (litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time).</summary>
-    private static readonly Provision TypedIdentifierDocumentLoads = Provision.Of("backend/dotnet/persistence", "load-typed-identifier-documents-one-at-a-time");
+    /// <summary>The provision the related descriptors enforce: project queries directly (litespec/core/backend-application#project-queries-directly).</summary>
+    private static readonly Provision QueryProjection = Provision.Of("core/backend-application", "project-queries-directly");
+    /// <summary>The provision the related descriptors enforce: enforce target authorization in the pipeline (litespec/core/backend-application#enforce-target-authorization-in-the-pipeline).</summary>
+    private static readonly Provision TargetAuthorization = Provision.Of("core/backend-application", "enforce-target-authorization-in-the-pipeline");
+    /// <summary>The provision the related descriptors enforce: declare audit values beside the message (litespec/core/backend-application#declare-the-audit-target-and-reason-beside-the-message).</summary>
+    private static readonly Provision AuditValues = Provision.Of("core/backend-application", "declare-the-audit-target-and-reason-beside-the-message");
+    /// <summary>The provision the related descriptors enforce: implement one outcome path per command (litespec/core/backend-application#implement-one-outcome-path-per-command).</summary>
+    private static readonly Provision OutcomePath = Provision.Of("core/backend-application", "implement-one-outcome-path-per-command");
+    /// <summary>The provision the related descriptors enforce: issue per record work from a job (litespec/core/backend-application#issue-per-record-work-from-a-job).</summary>
+    private static readonly Provision PerRecordWork = Provision.Of("core/backend-application", "issue-per-record-work-from-a-job");
+    /// <summary>The provision the related descriptors enforce: keep uniqueness out of handlers (litespec/core/backend-persistence#keep-uniqueness-out-of-handlers).</summary>
+    private static readonly Provision UniquenessOutOfHandlers = Provision.Of("core/backend-persistence", "keep-uniqueness-out-of-handlers");
+    /// <summary>The provision the related descriptors enforce: compare typed identifiers by their underlying values in queries (litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
+    private static readonly Provision TypedIdentifierQueryValues = Provision.Of("packs/dotnet/persistence", "compare-typed-identifiers-by-their-underlying-values-in-queries");
+    /// <summary>The provision the related descriptors enforce: compare typed identifiers by their underlying values in queries (litespec/packs/dotnet/persistence#compare-typed-identifiers-by-their-underlying-values-in-queries).</summary>
+    private static readonly Provision TypedIdentifierUnderlyingValues = Provision.Of("packs/dotnet/persistence", "compare-typed-identifiers-by-their-underlying-values-in-queries");
+    /// <summary>The provision the related descriptors enforce: read knowledge through its model (litespec/core/knowledge#read-knowledge-through-its-model).</summary>
+    private static readonly Provision KnowledgeThroughModel = Provision.Of("core/knowledge", "read-knowledge-through-its-model");
+    /// <summary>The provision the related descriptors enforce: keep knowledge sets free of logic (litespec/core/knowledge#keep-knowledge-sets-free-of-logic).</summary>
+    private static readonly Provision KnowledgeSetData = Provision.Of("core/knowledge", "keep-knowledge-sets-free-of-logic");
+    /// <summary>The provision the related descriptors enforce: read knowledge by role and date (litespec/core/knowledge#read-knowledge-by-role-and-date).</summary>
+    private static readonly Provision KnowledgeByRole = Provision.Of("core/knowledge", "read-knowledge-by-role-and-date");
+    /// <summary>The provision the related descriptors enforce: load documents keyed by typed identifiers one at a time (litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time).</summary>
+    private static readonly Provision TypedIdentifierDocumentLoads = Provision.Of("packs/dotnet/persistence", "load-documents-keyed-by-typed-identifiers-one-at-a-time");
     /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/quality/testing#prove-each-scenario-through-the-public-boundary).</summary>
     private static readonly Provision ScenarioProof = Provision.Of("quality/testing", "prove-each-scenario-through-the-public-boundary");
-    /// <summary>The provision the related descriptors enforce: keep command handlers to load, call and stage (litespec/backend/application#keep-command-handlers-to-load-call-and-stage).</summary>
-    private static readonly Provision CommandHandlerStages = Provision.Of("backend/application", "keep-command-handlers-to-load-call-and-stage");
-    /// <summary>The provision the related descriptors enforce: emit declared integration events after commit (litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit).</summary>
-    private static readonly Provision EmitAfterCommit = Provision.Of("backend/application", "stage-declared-module-and-integration-events-in-the-commit");
-    /// <summary>The provision the related descriptors enforce: pass explicit mediation settings from event handlers (litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases).</summary>
-    private static readonly Provision HandlerMediationSettings = Provision.Of("backend/dotnet/application", "pass-explicit-mediation-settings-from-event-handlers");
-    /// <summary>The provision the related descriptors enforce: refuse an unknown record as not found (litespec/backend/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler).</summary>
-    private static readonly Provision UnknownRecordRefusals = Provision.Of("backend/dotnet/application", "refuse-an-unknown-record-as-not-found");
-    /// <summary>The provision the related descriptors enforce: read no clock outside the scoped clock (litespec/backend/application#read-time-from-the-scoped-clock).</summary>
-    private static readonly Provision ProductionClockReads = Provision.Of("backend/dotnet/application", "read-no-clock-outside-the-scoped-clock");
+    /// <summary>The provision the related descriptors enforce: keep command handlers to load, call and stage (litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage).</summary>
+    private static readonly Provision CommandHandlerStages = Provision.Of("core/backend-application", "keep-command-handlers-to-load-call-and-stage");
+    /// <summary>The provision the related descriptors enforce: emit declared integration events after commit (litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit).</summary>
+    private static readonly Provision EmitAfterCommit = Provision.Of("core/backend-application", "stage-declared-module-and-integration-events-in-the-commit");
+    /// <summary>The provision the related descriptors enforce: pass explicit mediation settings to nested use cases (litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases).</summary>
+    private static readonly Provision HandlerMediationSettings = Provision.Of("packs/dotnet/application", "pass-explicit-mediation-settings-to-nested-use-cases");
+    /// <summary>The provision the related descriptors enforce: map failures to statuses in the global exception handler (litespec/packs/dotnet/api#map-failures-to-statuses-in-the-global-exception-handler).</summary>
+    private static readonly Provision UnknownRecordRefusals = Provision.Of("packs/dotnet/api", "map-failures-to-statuses-in-the-global-exception-handler");
+    /// <summary>The provision the related descriptors enforce: read time from the scoped clock (litespec/core/backend-application#read-time-from-the-scoped-clock).</summary>
+    private static readonly Provision ProductionClockReads = Provision.Of("core/backend-application", "read-time-from-the-scoped-clock");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
-    /// <summary>The provision the related descriptors enforce: construct aggregate parts only inside the root (litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root).</summary>
-    private static readonly Provision AggregateConstruction = Provision.Of("backend/dotnet/domain", "construct-aggregate-parts-only-inside-the-root");
-    /// <summary>The provision the related descriptors enforce: model child entities as sealed classes (litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes).</summary>
-    private static readonly Provision ChildEntities = Provision.Of("backend/dotnet/domain", "model-child-entities-as-sealed-classes");
-    /// <summary>The provision the related descriptors enforce: reference other aggregates by typed identifier (litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier).</summary>
-    private static readonly Provision TypedAggregateRefs = Provision.Of("backend/dotnet/domain", "reference-other-aggregates-by-typed-identifier");
+    /// <summary>The provision the related descriptors enforce: construct aggregate parts only inside the root (litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root).</summary>
+    private static readonly Provision AggregateConstruction = Provision.Of("packs/dotnet/domain", "construct-aggregate-parts-only-inside-the-root");
+    /// <summary>The provision the related descriptors enforce: model child entities as sealed classes (litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes).</summary>
+    private static readonly Provision ChildEntities = Provision.Of("packs/dotnet/domain", "model-child-entities-as-sealed-classes");
+    /// <summary>The provision the related descriptors enforce: reference other aggregates by typed identifier (litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier).</summary>
+    private static readonly Provision TypedAggregateRefs = Provision.Of("packs/dotnet/domain", "reference-other-aggregates-by-typed-identifier");
     /// <summary>The provision the related descriptors enforce: declare each pipeline concern in its own class (litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class).</summary>
     private static readonly Provision PipelineConcern = Provision.Of("workspace/design", "declare-each-pipeline-concern-in-its-own-class");
-    /// <summary>The provision the related descriptors enforce: plug modules into the platform through contributions (litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions).</summary>
-    private static readonly Provision PlatformContributions = Provision.Of("backend/dotnet/architecture", "plug-modules-into-the-platform-through-contributions");
-    /// <summary>The provision the related descriptors enforce: expose only contracts and the entry point (litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point).</summary>
-    private static readonly Provision ModuleSurface = Provision.Of("backend/dotnet/architecture", "expose-only-contracts-and-the-entry-point");
-    /// <summary>The provision the related descriptors enforce: produce file formats in infrastructure (litespec/backend/architecture#produce-file-formats-in-infrastructure).</summary>
-    private static readonly Provision FileFormats = Provision.Of("backend/architecture", "produce-file-formats-in-infrastructure");
+    /// <summary>The provision the related descriptors enforce: plug modules into the platform through contributions (litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions).</summary>
+    private static readonly Provision PlatformContributions = Provision.Of("packs/dotnet/architecture", "plug-modules-into-the-platform-through-contributions");
+    /// <summary>The provision the related descriptors enforce: expose only contracts and the entry point (litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point).</summary>
+    private static readonly Provision ModuleSurface = Provision.Of("packs/dotnet/architecture", "expose-only-contracts-and-the-entry-point");
+    /// <summary>The provision the related descriptors enforce: produce file formats in infrastructure (litespec/core/backend-architecture#produce-file-formats-in-infrastructure).</summary>
+    private static readonly Provision FileFormats = Provision.Of("core/backend-architecture", "produce-file-formats-in-infrastructure");
     /// <summary>The provision the related descriptors enforce: avoid primary constructors on classes and structs (litespec/workspace/naming#avoid-primary-constructors-on-classes-and-structs).</summary>
     private static readonly Provision NoPrimaryConstructors = Provision.Of("workspace/naming", "avoid-primary-constructors-on-classes-and-structs");
-    /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style).</summary>
-    private static readonly Provision DeclaredStyle = Provision.Of("backend/dotnet/stack", "write-each-mark-in-the-declared-style");
-    /// <summary>The provision the related descriptors enforce: generate runtime values from the records (litespec/backend/dotnet/stack#generate-runtime-values-from-the-records).</summary>
-    private static readonly Provision RuntimeValues = Provision.Of("backend/dotnet/stack", "generate-runtime-values-from-the-records");
-    /// <summary>The provision the related descriptors enforce: declare marked events and exceptions as partial types (litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types).</summary>
-    private static readonly Provision PartialTypes = Provision.Of("backend/dotnet/stack", "declare-marked-events-and-exceptions-as-partial-types");
+    /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style).</summary>
+    private static readonly Provision DeclaredStyle = Provision.Of("packs/dotnet/stack", "write-each-mark-in-the-declared-style");
+    /// <summary>The provision the related descriptors enforce: generate runtime values from the records (litespec/packs/dotnet/stack#generate-runtime-values-from-the-records).</summary>
+    private static readonly Provision RuntimeValues = Provision.Of("packs/dotnet/stack", "generate-runtime-values-from-the-records");
+    /// <summary>The provision the related descriptors enforce: declare marked events and exceptions as partial types (litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types).</summary>
+    private static readonly Provision PartialTypes = Provision.Of("packs/dotnet/stack", "declare-marked-events-and-exceptions-as-partial-types");
     /// <summary>The LS1001 descriptor: Domain references an outer-layer concern.</summary>
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",

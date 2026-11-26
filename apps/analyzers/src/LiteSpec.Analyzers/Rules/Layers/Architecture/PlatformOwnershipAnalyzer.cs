@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2024: a module holds no store, serializer, guard or converter code the platform provides.</summary>
-/// <follows>litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions</follows>
+/// <follows>litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PlatformOwnershipAnalyzer : LayerAnalyzer
 {

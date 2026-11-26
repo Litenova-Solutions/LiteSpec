@@ -101,7 +101,7 @@ The optional `protocol` block belongs to the `devices` extension. The [access pa
 
 A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `behavior/entry-points/<entry-point>/screens/<entry-point>.<name>/<entry-point>.<name>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. The folder already states its entry point, so the record writes no up-link.
 
-It names its `route`, the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination. It names the use cases it `offers` and the flow steps it `serves`.
+It names its `route`, the route template its stack uses: a web path or an Android destination. It names the use cases it `offers` and the flow steps it `serves`.
 
 An overlay with no route of its own names the screen it opens on in `host` instead. A screen carries exactly one of `route` and `host`, as [Give Every Screen a Route or a Host](#give-every-screen-a-route-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen offers no use case and says so in its `summary`.
 

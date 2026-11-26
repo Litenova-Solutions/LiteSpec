@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class ContractsProjectMappingTests
 {
     /// <summary>A file in a sibling Contracts project maps to its owner module with the Application layer.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
     [Fact]
     public void SiblingContractsFileMapsToItsOwnerModule()
     {
@@ -27,7 +27,7 @@ public sealed class ContractsProjectMappingTests
     }
 
     /// <summary>A project that is not named Contracts stays its own module, and a module named Contracts stays a module.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
     [Fact]
     public void OtherProjectStaysItsOwnModule()
     {

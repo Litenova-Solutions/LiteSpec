@@ -3,7 +3,7 @@ id: waiver/slow-review-waiver
 title: Slow Review Waiver
 kind: gap
 waives:
-  - litespec/backend/application#keep-command-handlers-to-load-call-and-stage
+  - litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage
 appliesTo:
   - use-case/billing.send-invoice
 reason: The billing handler calls two aggregates until the split ships.

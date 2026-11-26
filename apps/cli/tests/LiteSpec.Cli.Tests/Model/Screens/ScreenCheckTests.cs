@@ -239,7 +239,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Scenario Proved By Two Browser Tests Reports Proves Duplicated.</summary>
-    /// <proves>litespec/frontend/testing#prove-each-scenario-at-one-boundary</proves>
+    /// <proves>litespec/core/layers#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void ScenarioProvedByTwoBrowserTestsReportsProvesDuplicated()
     {
@@ -252,7 +252,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Scenario Proved By One Browser Test Reports No Proves Duplicated.</summary>
-    /// <proves>litespec/frontend/testing#prove-each-scenario-at-one-boundary</proves>
+    /// <proves>litespec/core/layers#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void ScenarioProvedByOneBrowserTestReportsNoProvesDuplicated()
     {
@@ -264,7 +264,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Browser Test Reaching No Offering Screen Reports Proves Unconfirmed.</summary>
-    /// <proves>litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact]
     public void BrowserTestReachingNoOfferingScreenReportsProvesUnconfirmed()
     {
@@ -277,7 +277,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Browser Test Reaching The Screen And Asserting Text Reports No Proves Unconfirmed.</summary>
-    /// <proves>litespec/frontend/testing#assert-the-result-a-scenario-ends-in</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact]
     public void BrowserTestReachingTheScreenAndAssertingTextReportsNoProvesUnconfirmed()
     {
@@ -290,7 +290,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Route Suite Test With No Proves Reports Mark Missing.</summary>
-    /// <proves>litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact]
     public void RouteSuiteTestWithNoProvesReportsMarkMissing()
     {
@@ -305,7 +305,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Route Suite Test Proving A Provision Reports No Mark Finding.</summary>
-    /// <proves>litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact]
     public void RouteSuiteTestProvingAProvisionReportsNoMarkFinding()
     {
@@ -314,14 +314,14 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
-            ["litespec/frontend/ui#pass-every-route-suite-check"], null, [], [], []));
+            ["litespec/core/ui-verification#run-geometry-sensors-on-every-route"], null, [], [], []));
 
         Assert.Empty(WithCode(model, "mark-missing"));
         Assert.Empty(WithCode(model, "mark-unknown"));
     }
 
     /// <summary>Route Suite Test Proving A Scenario Reports Mark Unresolved.</summary>
-    /// <proves>litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact]
     public void RouteSuiteTestProvingAScenarioReportsMarkUnresolved()
     {
@@ -353,7 +353,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Module Mark Outside The Frontends Entry Points Reports Mark Unresolved.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void ModuleMarkOutsideTheFrontendsEntryPointsReportsMarkUnresolved()
     {
@@ -373,7 +373,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Module Mark Inside The Frontends Entry Points Reports No Scope Finding.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void ModuleMarkInsideTheFrontendsEntryPointsReportsNoScopeFinding()
     {
@@ -391,7 +391,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Address Matching Treats Parameters As Any Segment.</summary>
-    /// <proves>litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case</proves>
+    /// <proves>litespec/core/ui-verification#run-geometry-sensors-on-every-route</proves>
     [Fact]
     public void AddressMatchingTreatsParametersAsAnySegment()
     {
@@ -506,7 +506,7 @@ public sealed class ScreenCheckTests
         };
 
     /// <summary>Route Outside The Routes Root Reports Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void RouteOutsideTheRoutesRootReportsPlacementDrift()
     {
@@ -524,7 +524,7 @@ public sealed class ScreenCheckTests
     }
 
     /// <summary>Route Inside The Routes Root Reports No Placement Drift.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void RouteInsideTheRoutesRootReportsNoPlacementDrift()
     {

@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class IdentifierPlacementCheckTests
 {
     /// <summary>Shared Identifier In Contracts Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void SharedIdentifierInContractsPasses()
     {
@@ -29,7 +29,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Shared Identifier In Domain Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void SharedIdentifierInDomainReportsDrift()
     {
@@ -49,7 +49,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Unshared Identifier In Domain Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void UnsharedIdentifierInDomainPasses()
     {
@@ -66,7 +66,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Unshared Identifier In Contracts Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void UnsharedIdentifierInContractsReportsDrift()
     {
@@ -85,7 +85,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Identifier In Platform Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#name-no-business-identifier-in-the-platform</proves>
+    /// <proves>litespec/packs/dotnet/architecture#name-no-business-identifier-in-the-platform</proves>
     [Fact]
     public void IdentifierInPlatformReportsDrift()
     {
@@ -104,7 +104,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Identifier In Kernel Without Decision Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void IdentifierInKernelWithoutDecisionReportsDrift()
     {
@@ -123,7 +123,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Identifier In Kernel With Decision Passes.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void IdentifierInKernelWithDecisionPasses()
     {
@@ -141,7 +141,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Guid Struct Without Marker In Wrong Place Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void GuidStructWithoutMarkerInWrongPlaceReportsDrift()
     {
@@ -161,7 +161,7 @@ public sealed class IdentifierPlacementCheckTests
     }
 
     /// <summary>Struct With Two Guids Is No Identifier.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</proves>
     [Fact]
     public void StructWithTwoGuidsIsNoIdentifier()
     {

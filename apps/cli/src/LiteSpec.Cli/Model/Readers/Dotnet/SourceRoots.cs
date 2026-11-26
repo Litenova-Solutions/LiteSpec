@@ -261,7 +261,7 @@ static class SourceRoots
     /// <summary>The knowledge root holding the knowledge model and set projects: the Knowledge folder beside Modules, or empty when no source root sits beside one.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <returns>The absolute Knowledge folder, or an empty string when none exists.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</follows>
+    /// <follows>litespec/packs/dotnet/architecture#compile-each-knowledge-area-as-a-model-project-with-its-set-projects</follows>
     public static string KnowledgeRoot(ConsumerConfig config)
     {
         foreach (var src in SrcDirs(config))

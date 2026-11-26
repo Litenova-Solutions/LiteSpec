@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ContractFolderChecksTests
 {
     /// <summary>An Aggregate Folder With Identifier Facts And Public Query Reports Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void AggregateFolderWithIdentifierFactsAndPublicQueryReportsNothing()
     {
@@ -41,7 +41,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Fact Beside Its Contracts Aggregate Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void FactBesideItsContractsAggregateReportsDrift()
     {
@@ -59,7 +59,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Fact File Naming No Declared Fact Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void FactFileNamingNoDeclaredFactReportsDrift()
     {
@@ -78,7 +78,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Fact In The Wrong Aggregate On Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void FactInWrongAggregateOnFolderReportsDrift()
     {
@@ -99,7 +99,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Fact Of Another On Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void FactOfAnotherOnFolderReportsDrift()
     {
@@ -118,7 +118,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Declared Fact With No On Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void DeclaredFactWithNoOnFolderReportsDrift()
     {
@@ -134,7 +134,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>An Unknown Contracts Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void UnknownContractsFolderReportsDrift()
     {
@@ -148,7 +148,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>An Unknown On Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void UnknownOnFolderReportsDrift()
     {
@@ -165,7 +165,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Non Public Use Case Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void NonPublicUseCaseFolderReportsDrift()
     {
@@ -181,7 +181,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A File Directly In Contracts Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void FileDirectlyInContractsReportsDrift()
     {
@@ -196,7 +196,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>An Interface In Contracts Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void InterfaceInContractsReportsDrift()
     {
@@ -212,7 +212,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Command Beside Its Contracts Aggregate Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void CommandBesideItsContractsAggregateReportsDrift()
     {
@@ -228,7 +228,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Public Command Folder With Message And Result Reports Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void PublicCommandFolderWithMessageAndResultReportsNothing()
     {
@@ -244,7 +244,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Stray Command File In A Public Command Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void StrayCommandFileInPublicCommandFolderReportsDrift()
     {
@@ -262,7 +262,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Command File In An On Fact Folder Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void CommandFileInOnFactFolderReportsDrift()
     {
@@ -281,7 +281,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Public Command Message In The Module Project Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void PublicCommandMessageInModuleProjectReportsDrift()
     {
@@ -299,7 +299,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Public Query Message In The Module Project Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void PublicQueryMessageInModuleProjectReportsDrift()
     {
@@ -315,7 +315,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Public Query Message In A Sibling Module Project Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</proves>
     [Fact]
     public void SiblingPublicQueryMessageReportsDrift()
     {
@@ -336,7 +336,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>Contracts Aggregate Between Expected Segments Matches.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ContractsAggregateBetweenExpectedSegmentsMatches()
     {
@@ -344,7 +344,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>Contracts On Folder After Expected Segments Matches.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ContractsOnFolderAfterExpectedSegmentsMatches()
     {
@@ -352,7 +352,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>An Unknown Folder Between Expected Segments Mismatches.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void UnknownFolderBetweenExpectedSegmentsMismatches()
     {
@@ -360,7 +360,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A ModuleEvents Folder Between Expected Segments Mismatches.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleEventsFolderBetweenExpectedSegmentsMismatches()
     {
@@ -368,7 +368,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Module Event Contract Record Reads Technical.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ModuleEventContractRecordReadsTechnical()
     {
@@ -391,7 +391,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Module Event Mark In Domain Reads Stray.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ModuleEventMarkInDomainReadsStray()
     {
@@ -412,7 +412,7 @@ public sealed class ContractFolderChecksTests
     }
 
     /// <summary>A Nested Module Event Contract Reads Stray.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void NestedModuleEventContractReadsStray()
     {

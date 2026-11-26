@@ -3,15 +3,15 @@
 **Stack:** any
 **Concern:** workspace
 
-A stack binds the specification to one technology: a backend stack lives under `backend/`, and a frontend stack under `frontend/`. Selecting a stack applies exactly the pages, version pins, and checks that technology needs: the provisions in its folder and above it, the pins in the manifest, and replacements that name every baseline provision they replace.
+A stack binds the specification to one technology: the backend stack lives under `packs/dotnet/`, and a frontend stack under `packs/svelte/` or `packs/android/`. Selecting a stack applies exactly the pages, version pins, and checks that technology needs: the provisions in its folder and above it, the pins in the manifest, and replacements that name every baseline provision they replace.
 
 ## Concepts
 
 ### What a Stack Folder Holds
 
-A stack is one folder with a `stack.md` page. That page states what the stack adds: its provisions, its version pins, and its checks. The standard ships five stacks: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/`, and `docs/frontend/mobile/android/`.
+A stack is one folder with a `stack.md` page. That page states what the stack adds: its provisions, its version pins, and its checks. The standard ships three stacks: `docs/packs/dotnet/`, `docs/packs/svelte/`, and `docs/packs/android/`.
 
-Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. It also applies the subfolders of those folders that hold no stack of their own. For example, `frontend/patterns/` holds no `stack.md`, so it applies with `frontend/`; `frontend/web/` applies only through its stacks.
+Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. It also applies the subfolders of those folders that hold no stack of their own. For example, a pack folder such as `components/` holds no `stack.md`, so it applies with its stack.
 
 [Supported Scope](scope.md) states how size, shape, and stacks combine into one selection.
 
@@ -33,8 +33,8 @@ A selection can name a stack, shape, page, or extension that no page applies. Th
 
 | Family | Meaning | Codes |
 |:---|:---|:---|
-| `STACK_*` | A stack folder is outside the backend or frontend docs, is missing, holds no `stack.md`, or requires or pairs with a stack the manifest does not ship. | `STACK_FOLDER`, `STACK_REFERENCE` |
-| `SHAPE_PAGE` | A shape backend page is not a page directly in `docs/backend/`. | `SHAPE_PAGE` |
+| `STACK_*` | A stack folder is outside the `packs/` docs, is missing, holds no `stack.md`, or requires or pairs with a stack the manifest does not ship. | `STACK_FOLDER`, `STACK_REFERENCE` |
+| `SHAPE_PAGE` | A shape backend page is not a page directly in `docs/core/`. | `SHAPE_PAGE` |
 | `LAYER_*` | A page sits in no known docs area, or no stack selection applies it. | `LAYER_UNLISTED`, `LAYER_UNREACHABLE` |
 | `EXTENSION_*` | An extension sits outside its declared path, is missing from the manifest, or lacks its activation scope, kinds, criterion, baseline, or dependencies, or it replaces an unknown provision or restates one it replaces. | `EXTENSION_LOCATION`, `EXTENSION_UNLISTED`, `EXTENSION_SCOPE`, `EXTENSION_KIND`, `EXTENSION_ACTIVATION`, `EXTENSION_BASELINE`, `EXTENSION_DEPENDENCIES`, `EXTENSION_REPLACES_UNKNOWN`, `EXTENSION_REPLACES_ENFORCED` |
 

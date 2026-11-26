@@ -46,61 +46,6 @@ static class StandardsFixture
         **Reviewed for:** Does the topic live in its owning documentation area?
         """) + "\n";
 
-    /// <summary>The pattern page: one pattern with two drawn options.</summary>
-    public static readonly string PatternPage = Normalize("""
-        # Sample Patterns
-
-        **Stack:** any
-        **Concern:** frontend-ui
-
-        This page offers drawn options for one recurring question.
-
-        ## Patterns
-
-        ### Record Header
-
-        **ID:** `litespec/frontend/patterns/sample#record-header`
-
-        **Strength:** default
-
-        **Question:** How does the top of a record read?
-
-        **Default:** `one-primary`
-
-        **Compact:** Actions move under the title.
-
-        **Rationale:** One primary action answers what comes next.
-
-        **Reviewed for:** Does the top of each record page match the default option or the one its catalog records?
-
-        #### `one-primary`: One Primary Action
-
-        ```wireframe
-        page
-          header
-            heading "SO-1042"
-            action primary "Mark as shipped"
-        ```
-
-        **Rationale:** The next step is plain.
-
-        **Cost:** Other commands wait in a menu.
-
-        #### `two-equal`: Two Equal Actions
-
-        ```wireframe
-        page
-          header
-            heading "SO-1042"
-            action "Mark as shipped"
-            action "Refund"
-        ```
-
-        **Rationale:** Both commands are one click away.
-
-        **Cost:** The reader compares labels before acting.
-        """) + "\n";
-
     /// <summary>The extension page, with maintainer evidence.</summary>
     public static readonly string ExtensionPage = Normalize("""
         # Sample Extension
@@ -156,7 +101,7 @@ static class StandardsFixture
 
         ### Apply the Complete Stack
 
-        **ID:** `litespec/backend/sample/stack#apply-the-complete-stack`
+        **ID:** `litespec/packs/sample/stack#apply-the-complete-stack`
 
         **Strength:** required
 
@@ -183,7 +128,7 @@ static class StandardsFixture
 
         | Field | Answers | Values |
         |:---|:---|:---|
-        | `stack` | Which technology | `any`, `dotnet`, `react` |
+        | `stack` | Which technology | `any`, `dotnet`, `svelte`, `android` |
         | `concern` | Which part of the system | `records`, `domain`, `application`, `operations`, `frontend-ui`, `tests` |
         | `artifact` | Which kind of thing is made | `aggregate`, `test`, `record:<type>` |
         | `layer` | Which record layer | `any`, `intent`, `behavior`, `implementation`, `proof` |
@@ -196,7 +141,8 @@ static class StandardsFixture
         |:---|:---|
         | `any` | No technology; the provision applies to every stack. |
         | `dotnet` | The .NET backend stack. |
-        | `react` | The React web stack. |
+        | `svelte` | The Svelte web stack. |
+        | `android` | The Android mobile stack. |
 
         ### Concern Values
 
@@ -438,7 +384,7 @@ static class StandardsFixture
     /// <summary>The sample pages the base index links, by their path under docs/.</summary>
     static readonly string[] BasePages =
     [
-        "core/topic.md", "core/scopes.md", "ext/sample.md", "backend/sample/stack.md", "frontend/patterns/sample.md",
+        "core/topic.md", "core/scopes.md", "ext/sample.md", "packs/sample/stack.md",
         "guide/sample.md", "tutorial/sample.md", "reference/sample.md", "tools/sample.md", "reference/glossary.md",
     ];
 
@@ -543,8 +489,7 @@ static class StandardsFixture
         Write(root, "docs/core/topic.md", TopicPage);
         Write(root, "docs/core/scopes.md", ScopesPage);
         Write(root, "docs/ext/sample.md", ExtensionPage);
-        Write(root, "docs/backend/sample/stack.md", StackPage);
-        Write(root, "docs/frontend/patterns/sample.md", PatternPage);
+        Write(root, "docs/packs/sample/stack.md", StackPage);
         Write(root, "docs/guide/sample.md", GuidePage);
         Write(root, "docs/README.md", Readme());
         Write(root, "docs/tutorial/sample.md", TutorialPage);

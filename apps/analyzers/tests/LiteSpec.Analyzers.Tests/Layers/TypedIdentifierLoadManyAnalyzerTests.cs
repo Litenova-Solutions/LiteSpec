@@ -49,7 +49,7 @@ public sealed class TypedIdentifierLoadManyAnalyzerTests
 
     /// <summary>LS2033 reports a LoadManyAsync on a document whose id member is a typed identifier.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
+    /// <proves>litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
     [Fact(DisplayName = "LS2033 reports a LoadManyAsync on a document whose id member is a typed identifier")]
     public Task ReportsALoadManyOnATypedIdentifierDocument() =>
         Verify.AnalyzerAsync<TypedIdentifierLoadManyAnalyzer>(
@@ -84,7 +84,7 @@ public sealed class TypedIdentifierLoadManyAnalyzerTests
 
     /// <summary>LS2033 reports a LoadManyAsync on the query session for a typed identifier document.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
+    /// <proves>litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
     [Fact(DisplayName = "LS2033 reports a LoadManyAsync on the query session for a typed identifier document")]
     public Task ReportsALoadManyOnTheQuerySession() =>
         Verify.AnalyzerAsync<TypedIdentifierLoadManyAnalyzer>(
@@ -119,7 +119,7 @@ public sealed class TypedIdentifierLoadManyAnalyzerTests
 
     /// <summary>LS2033 accepts a LoadManyAsync on a document whose id member is a plain value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
+    /// <proves>litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
     [Fact(DisplayName = "LS2033 accepts a LoadManyAsync on a document whose id member is a plain value")]
     public Task AcceptsALoadManyOnAPlainIdentifierDocument() =>
         Verify.AnalyzerAsync<TypedIdentifierLoadManyAnalyzer>(
@@ -154,7 +154,7 @@ public sealed class TypedIdentifierLoadManyAnalyzerTests
 
     /// <summary>LS2033 stays quiet for a LoadManyAsync on a type that is no session.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
+    /// <proves>litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
     [Fact(DisplayName = "LS2033 stays quiet for a LoadManyAsync on a type that is no session")]
     public Task StaysQuietForALoadManyOutsideASession() =>
         Verify.AnalyzerAsync<TypedIdentifierLoadManyAnalyzer>(
@@ -192,7 +192,7 @@ public sealed class TypedIdentifierLoadManyAnalyzerTests
 
     /// <summary>LS2033 stays quiet outside Application, Infrastructure and Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
+    /// <proves>litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</proves>
     [Fact(DisplayName = "LS2033 stays quiet outside Application, Infrastructure and Worker")]
     public Task StaysQuietOutsideItsLayers() =>
         Verify.AnalyzerAsync<TypedIdentifierLoadManyAnalyzer>(

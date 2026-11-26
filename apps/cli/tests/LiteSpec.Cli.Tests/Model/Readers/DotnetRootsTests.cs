@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class DotnetRootsTests
 {
     /// <summary>WebApi Roots Follow A List Of Hosts.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void WebApiRootsFollowAListOfHosts()
     {
@@ -35,7 +35,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Worker Roots Follow A List Of Hosts.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void WorkerRootsFollowAListOfHosts()
     {
@@ -60,7 +60,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>WebApi Root From One String Still Reads Its Host.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void WebApiRootFromOneStringStillReadsItsHost()
     {
@@ -77,7 +77,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>WebApi List Entry With A Glob Reads Every Matching Host.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void WebApiListEntryWithAGlobReadsEveryMatchingHost()
     {
@@ -98,7 +98,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Empty WebApi List Reads No WebApi Host.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void EmptyWebApiListReadsNoWebApiHost()
     {
@@ -112,7 +112,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Endpoints In Both WebApi Hosts Are Read.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void EndpointsInBothWebApiHostsAreRead()
     {
@@ -149,7 +149,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Jobs In Both Worker Hosts Are Read.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void JobsInBothWorkerHostsAreRead()
     {
@@ -185,7 +185,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Default Hosts Folder Hosts Are Read Without Declared Roots.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void DefaultHostsFolderHostsAreReadWithoutDeclaredRoots()
     {
@@ -232,7 +232,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Declared WebApi Replaces The Default Hosts Folder.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void DeclaredWebApiReplacesTheDefaultHostsFolder()
     {
@@ -267,7 +267,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Configured WebApi Host That Does Not Exist Reports Reader Missing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
+    /// <proves>litespec/packs/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
     public void ConfiguredWebApiHostThatDoesNotExistReportsReaderMissing()
     {
@@ -287,7 +287,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Configured Worker Host In A List That Does Not Exist Reports Reader Missing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
+    /// <proves>litespec/packs/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
     public void ConfiguredWorkerHostInAListThatDoesNotExistReportsReaderMissing()
     {
@@ -309,7 +309,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Default Modules Root That Matches No Folder Reports Reader Missing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
+    /// <proves>litespec/packs/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
     public void DefaultModulesRootThatMatchesNoFolderReportsReaderMissing()
     {
@@ -325,7 +325,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Project Without The Dotnet Stack Reports No Default Root.</summary>
-    /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
+    /// <proves>litespec/packs/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
     public void ProjectWithoutTheDotnetStackReportsNoDefaultRoot()
     {
@@ -338,7 +338,7 @@ public sealed class DotnetRootsTests
     }
 
     /// <summary>Fixture Project With Two Hosts Reads Both Hosts And Its Traced Aggregate.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
     public void FixtureProjectWithTwoHostsReadsBothHostsAndItsTracedAggregate()
     {

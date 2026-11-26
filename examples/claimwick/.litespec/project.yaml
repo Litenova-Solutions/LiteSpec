@@ -70,9 +70,7 @@ ui:
     designContract: packages/ui/DESIGN.md
     publicExports:
     - '@claimwick/ui/expenses'
-selectedExtensions:
-- id: audit
-  criterion: Finance staff act inside employee expense data, so a later reviewer must establish who attempted what.
+selectedExtensions: []
 dependencies:
   licenses:
   - MIT

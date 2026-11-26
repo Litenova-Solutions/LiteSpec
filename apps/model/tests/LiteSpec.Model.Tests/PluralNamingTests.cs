@@ -9,7 +9,7 @@ public sealed class PluralNamingTests
     /// <param name="name">The aggregate name part of the identifier.</param>
     /// <param name="kebab">The expected kebab-case plural.</param>
     /// <param name="pascal">The expected PascalCase plural.</param>
-    /// <proves>litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree</proves>
+    /// <proves>litespec/packs/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree</proves>
     [Theory]
     [InlineData("expense", "expenses", "Expenses")]
     [InlineData("chart-of-accounts", "charts-of-accounts", "ChartsOfAccounts")]
@@ -27,7 +27,7 @@ public sealed class PluralNamingTests
     }
 
     /// <summary>An empty name has no plural.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree</proves>
+    /// <proves>litespec/packs/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree</proves>
     [Fact]
     public void EmptyNameHasNoPlural()
     {

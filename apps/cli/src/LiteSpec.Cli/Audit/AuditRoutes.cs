@@ -6,7 +6,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Audit;
 
 /// <summary>The routes <c>litespec ui audit</c> visits: from the screen records, or from a routes file.</summary>
-/// <follows>litespec/frontend/ui#pass-every-route-suite-check</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 static class AuditRoutes
 {
     /// <summary>Collects the static route of every written screen record, skipping routes with parameters.</summary>

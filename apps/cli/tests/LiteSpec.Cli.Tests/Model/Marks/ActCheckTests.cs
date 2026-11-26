@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Marks;
 public sealed class ActCheckTests
 {
     /// <summary>Handler Calling No Marked Method Reports Use Case Act Uncalled.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerCallingNoMarkedMethodReportsUseCaseActUncalled()
     {
@@ -22,7 +22,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Handler Calling The Shared Method Passes.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerCallingTheSharedMethodPasses()
     {
@@ -33,7 +33,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Fan Out Command With No Writes Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void FanOutCommandWithNoWritesReportsNothing()
     {
@@ -44,7 +44,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Entity Command Without A Called Act Still Reports.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void EntityCommandWithoutACalledActStillReports()
     {
@@ -56,7 +56,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Shared Method Raising An Unlisted Event Reports Act Event Undeclared.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void SharedMethodRaisingAnUnlistedEventReportsActEventUndeclared()
     {
@@ -70,7 +70,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Use Case Sharing The Method Reports No Undeclared For Its Listed Event.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void UseCaseSharingTheMethodReportsNoUndeclaredForItsListedEvent()
     {
@@ -81,7 +81,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Listed Event The Shared Method Never Raises Reports Act Event Unraised.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void ListedEventTheSharedMethodNeverRaisesReportsActEventUnraised()
     {
@@ -94,7 +94,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Use Case Whose Shared Method Raises Its Event Reports No Unraised.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void UseCaseWhoseSharedMethodRaisesItsEventReportsNoUnraised()
     {
@@ -105,7 +105,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Use Case With No Marked Method Reports No Act Event Unraised.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void UseCaseWithNoMarkedMethodReportsNoActEventUnraised()
     {
@@ -128,7 +128,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Handler Loading Through ConfigureAwait And Calling Through A Helper Or Loop Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerLoadingThroughConfigureAwaitReportsNothing()
     {
@@ -368,7 +368,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Handler Loading Through A Fallback, A List Load, An Aliased Factory, Or A Factory Result Reports Nothing.</summary>
-    /// <proves>litespec/backend/domain#change-each-aggregate-through-its-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#change-each-aggregate-through-its-marked-act</proves>
     [Fact]
     public void HandlerLoadingThroughFallbackListAliasOrFactoryReportsNothing()
     {

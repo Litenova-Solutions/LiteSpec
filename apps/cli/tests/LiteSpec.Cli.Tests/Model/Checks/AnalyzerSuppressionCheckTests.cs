@@ -21,7 +21,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal("analyzer-lowering-unrecorded", finding.Code);
         Assert.Equal("S", finding.Tier);
         Assert.Contains("LS1001", finding.Message);
-        Assert.Contains("litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding.Message);
+        Assert.Contains("litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding.Message);
         Assert.Contains("no live waiver covering", finding.Message);
         Assert.Equal(Path.Combine(temp.Path, ".editorconfig"), finding.Path);
         Assert.Equal(2, finding.Line);
@@ -49,7 +49,7 @@ public sealed class AnalyzerSuppressionCheckTests
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
 
         Assert.Contains("LS1002", finding.Message);
-        Assert.Contains("litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums", finding.Message);
+        Assert.Contains("litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums", finding.Message);
     }
 
     /// <summary>An analyzer rule lowered in .globalconfig reports analyzer-lowering-unrecorded.</summary>
@@ -63,7 +63,7 @@ public sealed class AnalyzerSuppressionCheckTests
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
 
         Assert.Contains("LS2004", finding.Message);
-        Assert.Contains("litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories", finding.Message);
+        Assert.Contains("litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories", finding.Message);
         Assert.Equal(2, finding.Line);
     }
 
@@ -139,7 +139,7 @@ public sealed class AnalyzerSuppressionCheckTests
 
         Assert.Contains("LS2012", finding.Message);
         Assert.Contains("SuppressMessage", finding.Message);
-        Assert.Contains("litespec/backend/application#enforce-target-authorization-in-the-pipeline", finding.Message);
+        Assert.Contains("litespec/core/backend-application#enforce-target-authorization-in-the-pipeline", finding.Message);
         Assert.Equal(7, finding.Line);
     }
 
@@ -177,7 +177,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringWaiver(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2999-01-01"));
+            LoweringWaiver(temp.Path, "\"litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2999-01-01"));
 
         Assert.Empty(Lowerings(model));
     }
@@ -205,7 +205,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringWaiver(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2000-01-01"));
+            LoweringWaiver(temp.Path, "\"litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2000-01-01"));
 
         var finding = Assert.Single(Lowerings(model));
 
@@ -221,7 +221,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringWaiver(temp.Path, "\"litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums\"", "2999-01-01"));
+            LoweringWaiver(temp.Path, "\"litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums\"", "2999-01-01"));
 
         var finding = Assert.Single(Lowerings(model));
 
@@ -263,7 +263,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
         Assert.Contains("LS1001", finding);
-        Assert.Contains("litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding);
+        Assert.Contains("litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding);
     }
 
     static List<Finding> Lowerings(ProjectModel model) =>

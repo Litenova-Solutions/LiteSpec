@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The audit target checks: an audited use case that changes a record names its target by input, by inputs, or by output field, each input carries identifies, each output field exists, and the target kind matches what a single target input identifies.</summary>
 /// <follows>litespec/core/use-cases#state-the-audit-position-of-every-command</follows>
-/// <follows>litespec/ext/audit#declare-which-commands-are-audited</follows>
+/// <follows>litespec/core/audit#declare-which-commands-are-audited</follows>
 internal static class AuditTargetChecks
 {
     /// <summary>Reports an audited use case changing a record with no target, a target naming no identified input or output field, and a target kind differing from what a single target input identifies.</summary>
@@ -16,11 +16,6 @@ internal static class AuditTargetChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        if (!model.Config.Extensions.Contains("audit", StringComparer.Ordinal))
-        {
-            return;
-        }
-
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
         {
             if (!AuditedAudit(useCase, out var audit))

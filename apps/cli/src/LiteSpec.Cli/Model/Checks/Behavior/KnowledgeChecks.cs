@@ -8,7 +8,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The knowledge variation checks: every table whose rows name a variant states its dimension, only knowledge tables vary, and every variant a knowledge area names holds rows in each varying table.</summary>
-/// <follows>litespec/backend/knowledge#give-each-knowledge-area-one-model</follows>
+/// <follows>litespec/core/knowledge#give-each-knowledge-area-one-model</follows>
 internal static class KnowledgeChecks
 {
     /// <summary>A kebab-case dimension or variant name: a lowercase letter or digit opening, then lowercase letters, digits or hyphens.</summary>

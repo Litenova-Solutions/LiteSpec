@@ -8,7 +8,7 @@ public sealed class InfrastructureWorkAnalyzerTests
 {
     /// <summary>LS2027 reports an archive type in an Application file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/architecture#produce-file-formats-in-infrastructure</proves>
+    /// <proves>litespec/core/backend-architecture#produce-file-formats-in-infrastructure</proves>
     [Fact(DisplayName = "LS2027 reports an archive type in an Application file")]
     public Task ReportsAnArchiveTypeInAnApplicationFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
@@ -30,7 +30,7 @@ public sealed class InfrastructureWorkAnalyzerTests
 
     /// <summary>LS2027 reports a JSON writer in an Application file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/architecture#produce-file-formats-in-infrastructure</proves>
+    /// <proves>litespec/core/backend-architecture#produce-file-formats-in-infrastructure</proves>
     [Fact(DisplayName = "LS2027 reports a JSON writer in an Application file")]
     public Task ReportsAJsonWriterInAnApplicationFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
@@ -52,7 +52,7 @@ public sealed class InfrastructureWorkAnalyzerTests
 
     /// <summary>LS2027 stays silent for the same use in an Infrastructure file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/architecture#produce-file-formats-in-infrastructure</proves>
+    /// <proves>litespec/core/backend-architecture#produce-file-formats-in-infrastructure</proves>
     [Fact(DisplayName = "LS2027 stays silent for the same use in an Infrastructure file")]
     public Task StaysSilentInAnInfrastructureFile() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(
@@ -74,7 +74,7 @@ public sealed class InfrastructureWorkAnalyzerTests
 
     /// <summary>LS2027 stays silent when a namespace only shares a prefix.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/architecture#produce-file-formats-in-infrastructure</proves>
+    /// <proves>litespec/core/backend-architecture#produce-file-formats-in-infrastructure</proves>
     [Fact(DisplayName = "LS2027 stays silent when a namespace only shares a prefix")]
     public Task StaysSilentWhenANamespaceOnlySharesAPrefix() =>
         Verify.AnalyzerAsync<InfrastructureWorkAnalyzer>(

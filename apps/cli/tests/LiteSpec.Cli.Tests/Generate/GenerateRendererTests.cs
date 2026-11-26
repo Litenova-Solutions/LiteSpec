@@ -123,7 +123,7 @@ public sealed class GenerateRendererTests
     }
 
     /// <summary>The shared derivation reads the ignored flag first, then consumers, and reports neither as missing.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void EventDecisionOutcomesDeriveFromTheIgnoredFlagAndConsumers()
     {

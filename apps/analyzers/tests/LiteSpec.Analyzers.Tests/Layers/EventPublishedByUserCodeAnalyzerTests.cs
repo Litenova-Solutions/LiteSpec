@@ -28,7 +28,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 reports a reaction holding the event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 reports a reaction holding the event mediator")]
     public Task ReportsAReactionHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -50,7 +50,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 reports a command handler holding the event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 reports a command handler holding the event mediator")]
     public Task ReportsACommandHandlerHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -70,7 +70,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 reports a job publishing through the event mediator, entry points included.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 reports a job publishing through the event mediator")]
     public Task ReportsAJobHoldingTheEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -92,7 +92,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 reports a named event publisher type that user code takes.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 reports a named event publisher type that user code takes")]
     public Task ReportsAnEventPublisherTakenByUserCode() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -113,7 +113,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 accepts a use case that raises a domain event and holds no event mediator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 accepts a use case that raises a domain event and holds no event mediator")]
     public Task AcceptsAUseCaseHoldingNoEventMediator() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -138,7 +138,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 accepts the event mediator in the Kernel, which holds the publishing pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 accepts the event mediator in the Kernel")]
     public Task AcceptsTheEventMediatorInTheKernel() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -158,7 +158,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 stays quiet for a name written only in a documentation comment.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 stays quiet for a name written only in a documentation comment")]
     public Task StaysQuietInADocumentationComment() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -177,7 +177,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 stays quiet in test projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 stays quiet in test projects")]
     public Task StaysQuietInTestProjects() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(
@@ -197,7 +197,7 @@ public sealed class EventPublishedByUserCodeAnalyzerTests
 
     /// <summary>LS2022 accepts the event mediator in the platform, which holds the publishing pipeline.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#stage-declared-module-and-integration-events-in-the-commit</proves>
+    /// <proves>litespec/core/backend-application#stage-declared-module-and-integration-events-in-the-commit</proves>
     [Fact(DisplayName = "LS2022 accepts the event mediator in the platform")]
     public Task AcceptsTheEventMediatorInThePlatform() =>
         Verify.AnalyzerAsync<EventPublishedByUserCodeAnalyzer>(

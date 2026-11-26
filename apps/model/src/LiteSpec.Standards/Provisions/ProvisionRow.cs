@@ -17,7 +17,7 @@ namespace LiteSpec.Standards;
 /// <param name="Trace">Whether the provision ties its layer to the records, rather than stating LiteSpec's practice for it.</param>
 /// <param name="When">The applicability condition from the Applies to line, or empty when the provision states none.</param>
 /// <param name="Strength">The named strength, or empty when the provision carries none.</param>
-/// <param name="Statement">The assertive line: the Statement, or the Default of a convention or pattern.</param>
+/// <param name="Statement">The assertive line: the Statement, or the Default of a convention.</param>
 /// <param name="Rationale">The Rationale paragraph, or empty when the provision carries none.</param>
 /// <param name="Example">The Example block, or empty when the provision carries none.</param>
 public sealed record ProvisionRow(

@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The query-edge checks: every queries edge names another module's query use case that lists the calling module in reachedThrough, and every module a use case lists queries it from a record.</summary>
-/// <follows>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</follows>
+/// <follows>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</follows>
 internal static class QueryEdgeChecks
 {
     /// <summary>Reports a queries edge naming no query use case, and a public use case no listed module queries.</summary>

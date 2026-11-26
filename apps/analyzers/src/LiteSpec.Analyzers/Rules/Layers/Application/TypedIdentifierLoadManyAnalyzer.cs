@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2033: Marten refuses a multi-load of documents whose id member is a typed identifier.</summary>
-/// <follows>litespec/backend/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</follows>
+/// <follows>litespec/packs/dotnet/persistence#load-documents-keyed-by-typed-identifiers-one-at-a-time</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TypedIdentifierLoadManyAnalyzer : LayerAnalyzer
 {

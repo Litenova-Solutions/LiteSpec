@@ -20,7 +20,7 @@ public sealed class PlatformOwnershipAnalyzerTests
 
     /// <summary>LS2024 reports store setup inside a module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
+    /// <proves>litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
     [Fact(DisplayName = "LS2024 reports store setup inside a module")]
     public Task ReportsStoreSetupInsideAModule() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
@@ -44,7 +44,7 @@ public sealed class PlatformOwnershipAnalyzerTests
 
     /// <summary>LS2024 reports a guard inside a module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
+    /// <proves>litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
     [Fact(DisplayName = "LS2024 reports a guard inside a module")]
     public Task ReportsAGuardInsideAModule() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
@@ -69,7 +69,7 @@ public sealed class PlatformOwnershipAnalyzerTests
 
     /// <summary>LS2024 reports a converter inside a module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
+    /// <proves>litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
     [Fact(DisplayName = "LS2024 reports a converter inside a module")]
     public Task ReportsAConverterInsideAModule() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
@@ -89,7 +89,7 @@ public sealed class PlatformOwnershipAnalyzerTests
 
     /// <summary>LS2024 accepts store setup in the platform.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
+    /// <proves>litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
     [Fact(DisplayName = "LS2024 accepts store setup in the platform")]
     public Task AcceptsStoreSetupInThePlatform() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(
@@ -113,7 +113,7 @@ public sealed class PlatformOwnershipAnalyzerTests
 
     /// <summary>LS2024 accepts store use in a module repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
+    /// <proves>litespec/packs/dotnet/architecture#plug-modules-into-the-platform-through-contributions</proves>
     [Fact(DisplayName = "LS2024 accepts store use in a module repository")]
     public Task AcceptsStoreUseInAModuleRepository() =>
         Verify.AnalyzerAsync<PlatformOwnershipAnalyzer>(

@@ -6,11 +6,11 @@ namespace LiteSpec.Cli.Tests.Consumer;
 /// <summary>Consumer validator cases for project shape and stack selection.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    static TempFolder HomeRequiringReactForSvelte() =>
+    static TempFolder HomeRequiringAndroidForSvelte() =>
         ConsumerFixture.CreateHome(manifest =>
         {
             var svelte = (JsonObject)((JsonObject)manifest["stacks"]!)["svelte"]!;
-            svelte["requires"] = new JsonArray("react");
+            svelte["requires"] = new JsonArray("android");
         });
 
     static TempFolder HomePairingSvelteWith(params string[] backends) =>
@@ -32,7 +32,7 @@ public sealed partial class ConsumerValidatorTests
     public void ServerProjectWithABackendAndAFrontend()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("dotnet", "react"));
+        ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("dotnet", "svelte"));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -65,16 +65,16 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Client-only project with blazor and no backend.</summary>
+    /// <summary>Client-only project with android and no backend.</summary>
     /// <proves>litespec/core/scope#declare-a-consumer-that-has-no-backend</proves>
-    [Fact(DisplayName = "client-only project with blazor and no backend")]
-    public void ClientOnlyProjectWithBlazorAndNoBackend()
+    [Fact(DisplayName = "client-only project with android and no backend")]
+    public void ClientOnlyProjectWithAndroidAndNoBackend()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["shape"] = "client-only";
-            project["stacks"] = new JsonArray("blazor");
+            project["stacks"] = new JsonArray("android");
         });
         AssertClean(RunConsumer(folder.Path));
     }
@@ -88,7 +88,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["shape"] = "client-only";
-            project["stacks"] = new JsonArray("blazor", "dotnet");
+            project["stacks"] = new JsonArray("android", "dotnet");
         });
         AssertProblem(RunConsumer(folder.Path), "shape 'client-only' names backend stack 'dotnet'");
     }
@@ -102,9 +102,9 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "react" });
+                new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "svelte" });
         });
-        AssertProblem(RunConsumer(folder.Path), "platform 'react' is not a stack the project names in stacks");
+        AssertProblem(RunConsumer(folder.Path), "platform 'svelte' is not a stack the project names in stacks");
     }
 
     /// <summary>Frontend platform the project names.</summary>
@@ -115,9 +115,9 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "blazor");
+            project["stacks"] = new JsonArray("dotnet", "android");
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
+                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "android" });
         });
         Directory.CreateDirectory(Path.Combine(folder.Path, "apps", "desk"));
         AssertClean(RunConsumer(folder.Path));
@@ -129,9 +129,9 @@ public sealed partial class ConsumerValidatorTests
     public void StackWhoseRequiresTheProjectDoesNotName()
     {
         using var folder = ConsumerFixture.Create();
-        using var home = HomeRequiringReactForSvelte();
+        using var home = HomeRequiringAndroidForSvelte();
         ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("dotnet", "svelte"));
-        AssertProblem(RunConsumer(folder.Path, home), "stack 'svelte' requires 'react'");
+        AssertProblem(RunConsumer(folder.Path, home), "stack 'svelte' requires 'android'");
     }
 
     /// <summary>Stack whose requires the project names.</summary>
@@ -140,9 +140,9 @@ public sealed partial class ConsumerValidatorTests
     public void StackWhoseRequiresTheProjectNames()
     {
         using var folder = ConsumerFixture.Create();
-        using var home = HomeRequiringReactForSvelte();
-        ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("dotnet", "svelte", "react"));
-        AssertAbsent(RunConsumer(folder.Path, home), "requires 'react'");
+        using var home = HomeRequiringAndroidForSvelte();
+        ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("dotnet", "svelte", "android"));
+        AssertAbsent(RunConsumer(folder.Path, home), "requires 'android'");
     }
 
     /// <summary>Frontend stack whose pairsWith excludes the backend.</summary>

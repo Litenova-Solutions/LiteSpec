@@ -1,8 +1,0 @@
-shape: client-only
-stacks:
-- blazor
-frontends:
-- name: app
-  path: apps/app
-  platform: blazor
-paths: {}

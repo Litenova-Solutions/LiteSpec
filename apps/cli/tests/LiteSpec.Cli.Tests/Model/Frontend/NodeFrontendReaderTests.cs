@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Frontend;
 public sealed class NodeFrontendReaderTests
 {
     /// <summary>Reader Returns The Facts Its Response Names.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderReturnsTheFactsItsResponseNames()
     {
@@ -40,7 +40,7 @@ public sealed class NodeFrontendReaderTests
     }
 
     /// <summary>Reader With No Bundle Leaves Empty Facts With The Cause.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderWithNoBundleLeavesEmptyFactsWithTheCause()
     {
@@ -57,7 +57,7 @@ public sealed class NodeFrontendReaderTests
     }
 
     /// <summary>Reader Exiting Non Zero Names The Exit Code.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderExitingNonZeroNamesTheExitCode()
     {
@@ -81,7 +81,7 @@ public sealed class NodeFrontendReaderTests
     }
 
     /// <summary>Reader With A Mismatched Protocol Fails Every Frontend.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderWithAMismatchedProtocolFailsEveryFrontend()
     {
@@ -98,7 +98,7 @@ public sealed class NodeFrontendReaderTests
     }
 
     /// <summary>Reader With Unparseable Output Fails Every Frontend.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void ReaderWithUnparseableOutputFailsEveryFrontend()
     {

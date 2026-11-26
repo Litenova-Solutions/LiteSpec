@@ -5,7 +5,7 @@ using Claimwick.Travel.PerDiem;
 namespace Claimwick.Travel;
 
 /// <summary>One travel knowledge set: the per-diem and mileage rows in force in one country.</summary>
-/// <follows>litespec/backend/knowledge#give-each-knowledge-area-one-model</follows>
+/// <follows>litespec/core/knowledge#give-each-knowledge-area-one-model</follows>
 public interface ITravelSet
 {
     /// <summary>The ISO 3166-1 alpha-2 country code this set covers.</summary>

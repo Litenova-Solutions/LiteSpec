@@ -9,7 +9,7 @@ using static LiteSpec.Analyzers.Generation.Sources.GeneratedText;
 namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the role entries, one per role record, each with the permissions it grants.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 internal static class RoleWriter
 {
     /// <summary>

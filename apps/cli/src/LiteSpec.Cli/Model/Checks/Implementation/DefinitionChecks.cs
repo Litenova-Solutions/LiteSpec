@@ -6,7 +6,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The definition check: every message declares its pipeline positions beside the message, and each declaration matches its use case record.</summary>
-/// <follows>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</follows>
+/// <follows>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</follows>
 /// <follows>litespec/workspace/design#declare-each-pipeline-concern-in-its-own-class</follows>
 /// <follows>litespec/workspace/design#name-each-definition-after-its-message-and-concern</follows>
 internal static class DefinitionChecks

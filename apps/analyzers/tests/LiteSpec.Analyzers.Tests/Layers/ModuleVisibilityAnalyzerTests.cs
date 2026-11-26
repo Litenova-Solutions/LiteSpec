@@ -8,7 +8,7 @@ public sealed class ModuleVisibilityAnalyzerTests
 {
     /// <summary>LS2028 reports a public class under a use case folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    /// <proves>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
     [Fact(DisplayName = "LS2028 reports a public class under a use case folder")]
     public Task ReportsAPublicClassUnderAUseCaseFolder() =>
         Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(
@@ -23,7 +23,7 @@ public sealed class ModuleVisibilityAnalyzerTests
 
     /// <summary>LS2028 stays quiet in the Kernel, whose grouping folders include Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    /// <proves>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
     [Fact(DisplayName = "LS2028 stays quiet in the Kernel, whose grouping folders include Domain")]
     public Task StaysQuietInTheKernel() =>
         Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(
@@ -43,7 +43,7 @@ public sealed class ModuleVisibilityAnalyzerTests
 
     /// <summary>LS2028 stays quiet in a sibling Contracts project compilation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    /// <proves>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
     [Fact(DisplayName = "LS2028 stays quiet in a sibling Contracts project compilation")]
     public Task StaysQuietInASiblingContractsProjectCompilation() =>
         Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(
@@ -58,7 +58,7 @@ public sealed class ModuleVisibilityAnalyzerTests
 
     /// <summary>LS2028 accepts the public module entry type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    /// <proves>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
     [Fact(DisplayName = "LS2028 accepts the public module entry type")]
     public Task AcceptsThePublicModuleEntryType() =>
         Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(
@@ -80,7 +80,7 @@ public sealed class ModuleVisibilityAnalyzerTests
 
     /// <summary>LS2028 accepts an internal type outside Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    /// <proves>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
     [Fact(DisplayName = "LS2028 accepts an internal type outside Contracts")]
     public Task AcceptsAnInternalTypeOutsideContracts() =>
         Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(
@@ -95,7 +95,7 @@ public sealed class ModuleVisibilityAnalyzerTests
 
     /// <summary>LS2028 stays silent in a one-modules-project compilation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
+    /// <proves>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</proves>
     [Fact(DisplayName = "LS2028 stays silent in a one-modules-project compilation")]
     public Task StaysSilentInAOneModulesProjectCompilation() =>
         Verify.AnalyzerAsync<ModuleVisibilityAnalyzer>(

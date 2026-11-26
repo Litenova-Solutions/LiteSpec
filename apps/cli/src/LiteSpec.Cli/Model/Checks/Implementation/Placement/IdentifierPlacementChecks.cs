@@ -14,8 +14,8 @@ using static LiteSpec.Cli.Model.Checks.Implementation.Placement.PlacementPath;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 
 /// <summary>The identifier placement check: every business identifier lives in the Contracts or Domain folder of the module owning its aggregate, the Kernel holds one only with a decision naming the cycle it breaks, and the Platform holds none.</summary>
-/// <follows>litespec/backend/dotnet/architecture#keep-each-identifier-with-its-owner</follows>
-/// <follows>litespec/backend/dotnet/architecture#name-no-business-identifier-in-the-platform</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-each-identifier-with-its-owner</follows>
+/// <follows>litespec/packs/dotnet/architecture#name-no-business-identifier-in-the-platform</follows>
 internal static class IdentifierPlacementChecks
 {
     /// <summary>Reports every business identifier outside the folder its aggregate record names.</summary>

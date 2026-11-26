@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2019: a use case folder names no type of another use case folder, the message and result of another use case included.</summary>
-/// <follows>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseCaseIsolationAnalyzer : LayerAnalyzer
 {

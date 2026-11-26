@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Model.Roslyn;
 
 /// <summary>One outbox decision a composition file states for a domain event type.</summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 public sealed class OutboxDecision : IEquatable<OutboxDecision>
 {
     /// <summary>Initializes a new instance of the <see cref="OutboxDecision"/> class.</summary>

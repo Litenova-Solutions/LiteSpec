@@ -63,8 +63,8 @@ function isGeneratorRuntimeFile(apiClientAbs: string, file: string): boolean {
 // contributes no operations.
 export function collectOperations(apiClientAbs: string, context: ReaderContext): Map<string, string> {
   const operations = new Map<string, string>();
-  for (const file of listFilesRecursive(apiClientAbs, [".ts", ".tsx"])) {
-    if (!/\.gen\.tsx?$/.test(file)) continue;
+  for (const file of listFilesRecursive(apiClientAbs, [".ts"])) {
+    if (!/\.gen\.ts$/.test(file)) continue;
     if (isGeneratorRuntimeFile(apiClientAbs, file)) continue;
     const facts = readFacts(file, "ts", context);
     if (facts === null) continue;
@@ -95,13 +95,10 @@ function probeCandidates(resolved: string): string | null {
   const candidates = [
     resolved,
     `${resolved}.ts`,
-    `${resolved}.tsx`,
     `${resolved}.svelte`,
     joinPath(resolved, "index.ts"),
-    joinPath(resolved, "index.tsx"),
   ];
   if (resolved.endsWith(".js")) candidates.push(`${resolved.slice(0, -3)}.ts`);
-  if (resolved.endsWith(".jsx")) candidates.push(`${resolved.slice(0, -4)}.tsx`);
   for (const candidate of candidates) {
     if (isFile(candidate)) return candidate;
   }

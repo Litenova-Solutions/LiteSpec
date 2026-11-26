@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1011: every public Domain type and member carries XML documentation.</summary>
-/// <follows>litespec/backend/domain#document-every-public-domain-contract</follows>
+/// <follows>litespec/core/backend-domain#document-every-public-domain-contract</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
 {

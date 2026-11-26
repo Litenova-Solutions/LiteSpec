@@ -15,8 +15,8 @@ namespace LiteSpec.Analyzers.Generation;
 /// strings and equatable arrays only, so an edit to an unrelated file reruns nothing the edit
 /// cannot change.
 /// </summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
-/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 /// <follows>litespec/core/access#scope-every-role-to-its-one-reach</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>

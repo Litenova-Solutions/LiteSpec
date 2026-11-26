@@ -56,7 +56,7 @@ public sealed class ReaderProblemsTests
     }
 
     /// <summary>An unparsable scenario file reports one reader-missing finding naming the file.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void UnparsableScenarioFileReportsReaderMissing()
     {
@@ -77,7 +77,7 @@ public sealed class ReaderProblemsTests
     }
 
     /// <summary>An unparsable Android screen file reports one reader-missing finding naming the file.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void UnparsableScreenFileReportsReaderMissing()
     {
@@ -209,7 +209,7 @@ public sealed class ReaderProblemsTests
     }
 
     /// <summary>Two handlers with the same simple name in different namespaces keep their own kind and effects.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SameNamedHandlersInDifferentNamespacesKeepTheirOwnKindAndEffects()
     {

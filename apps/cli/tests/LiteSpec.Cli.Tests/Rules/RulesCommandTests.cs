@@ -115,7 +115,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Checked by a tool:", result.Output);
-        Assert.Contains("- litespec/backend/dotnet/application#bind-command-handlers-to-load-call-and-stage: checked by `LS2012`, `LS2013`, `LS2014`, `LS2015`, `LS2021` [path match (artifact command-handler)]", result.Output);
+        Assert.Contains("- litespec/packs/dotnet/application#bind-command-handlers-to-load-call-and-stage: checked by `LS2012`, `LS2013`, `LS2014`, `LS2015`, `LS2021` [path match (artifact command-handler)]", result.Output);
         Assert.DoesNotContain("A command handler MUST", result.Output);
     }
 
@@ -132,7 +132,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Concern-wide:", result.Output);
-        Assert.Contains("- litespec/backend/application#organize-application-by-use-case", result.Output);
+        Assert.Contains("- litespec/core/backend-application#organize-application-by-use-case", result.Output);
         Assert.DoesNotContain("Each command or query MUST own one use case folder", result.Output);
 
         var compact = TestCli.Run(
@@ -142,7 +142,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, compact.Status);
         Assert.DoesNotContain("Concern-wide:", compact.Output);
-        Assert.DoesNotContain("- litespec/backend/application#organize-application-by-use-case", compact.Output);
+        Assert.DoesNotContain("- litespec/core/backend-application#organize-application-by-use-case", compact.Output);
     }
 
     /// <summary>Full output prints the checked and layer-wide statements that the compact output shortens.</summary>
@@ -174,7 +174,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records.", result.Output);
-        Assert.DoesNotContain("litespec/backend/application#keep-command-handlers-to-load-call-and-stage", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage", result.Output);
         Assert.DoesNotContain("demo/conventions#confirm-large-payouts", result.Output);
     }
 
@@ -189,7 +189,7 @@ public sealed class RulesCommandTests
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/billing.send-invoice (concern: records, artifact: use-case)", result.Output);
         Assert.Contains("- litespec/core/model#connect-every-behavior-record-to-intent:", result.Output);
-        Assert.DoesNotContain("- litespec/backend/", result.Output);
+        Assert.DoesNotContain("- litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage", result.Output);
     }
 
     /// <summary>A code path in a project that claims its own code and proof returns no provisions about LiteSpec's code.</summary>
@@ -204,8 +204,8 @@ public sealed class RulesCommandTests
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.DoesNotContain("litespec/backend/application#keep-command-handlers-to-load-call-and-stage", result.Output);
-        Assert.DoesNotContain("litespec/backend/application#implement-one-outcome-path-per-command", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage", result.Output);
+        Assert.DoesNotContain("litespec/core/backend-application#implement-one-outcome-path-per-command", result.Output);
     }
 
     /// <summary>A record identifier lists the provisions that govern the record.</summary>
@@ -267,9 +267,9 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "- litespec/backend/application#keep-command-handlers-to-load-call-and-stage: [waiver waiver/slow-review-waiver, expires 2030-01-01] The billing handler calls two aggregates until the split ships.",
+            "- litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage: [waiver waiver/slow-review-waiver, expires 2030-01-01] The billing handler calls two aggregates until the split ships.",
             result.Output);
-        Assert.Contains("- litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case", result.Output);
+        Assert.Contains("- litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case", result.Output);
         Assert.DoesNotContain("old-layout-waiver", result.Output);
     }
 

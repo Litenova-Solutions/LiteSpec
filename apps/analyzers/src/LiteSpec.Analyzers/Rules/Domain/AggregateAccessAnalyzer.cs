@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1014: a file outside an aggregate's Domain folder constructs no type from that folder, the root's input types and typed ids aside.</summary>
-/// <follows>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</follows>
+/// <follows>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateAccessAnalyzer : LayerAnalyzer
 {

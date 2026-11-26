@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Readers.Settings;
 ///     the file the stack configuration names, with every <c>{{Name}}</c>
 ///     placeholder in the string literals beneath each key.
 /// </summary>
-/// <follows>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</follows>
+/// <follows>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</follows>
 static class TemplateStoreReader
 {
     /// <summary>One <c>{{Name}}</c> placeholder, with optional surrounding whitespace.</summary>

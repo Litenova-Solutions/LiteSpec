@@ -11,8 +11,8 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <summary>The reference-data checks: every row value stays within its table's closed set, every cross-reference names a row key its table holds, every required role is played by a row, the rows leave no date uncovered, each overlap finding names the shared range, and the use cases computing one value agree on its sign.</summary>
 /// <follows>litespec/core/domain-model#state-what-an-empty-table-will-hold</follows>
 /// <follows>litespec/core/domain-model#close-the-value-set-of-every-meaning-column</follows>
-/// <follows>litespec/backend/knowledge#name-a-role-not-a-row</follows>
-/// <follows>litespec/backend/knowledge#validate-reference-data-before-serving</follows>
+/// <follows>litespec/core/knowledge#name-a-role-not-a-row</follows>
+/// <follows>litespec/core/knowledge#validate-reference-data-before-serving</follows>
 /// <follows>litespec/core/domain-model#cover-every-date-in-use</follows>
 /// <follows>litespec/core/domain-model#state-the-sign-of-every-amount</follows>
 internal static class ReferenceDataChecks

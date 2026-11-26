@@ -13,8 +13,8 @@ namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 /// <summary>The backend placement check: every backend mark sits under the code folder its record's placement names, with a namespace that names the same path.</summary>
 /// <follows>litespec/core/model#match-each-backend-mark-to-its-folder</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-/// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
-/// <follows>litespec/backend/application#use-this-use-case-layout</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
+/// <follows>litespec/core/backend-application#use-this-use-case-layout</follows>
 internal static class BackendPlacementChecks
 {
     /// <summary>The layer folders a use case holds its folder under: Application always, and WebApi for an endpoint.</summary>
@@ -484,7 +484,7 @@ internal static class BackendPlacementChecks
     /// <param name="element">The marked port interface or adapter whose folder is checked.</param>
     /// <param name="mark">The mark naming the external system the port talks to.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
+    /// <follows>litespec/packs/dotnet/architecture#keep-application-types-in-their-layer-folders</follows>
     private static void CheckPortPlacement(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
     {
         if (RawModulePath(model.Config, element.File) is not { } raw || raw.Length < 2)
@@ -566,7 +566,7 @@ internal static class BackendPlacementChecks
     /// <param name="readModel">The marked read model record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
+    /// <follows>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
     private static bool CheckReadModelPlacement(ProjectModel model, MarkedElement element, CodeMark mark, Record readModel, List<Finding> findings)
     {
         var path = PathOf(readModel);

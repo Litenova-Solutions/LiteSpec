@@ -11,7 +11,7 @@ using static LiteSpec.Analyzers.Generation.Sources.GeneratedSourceWriter;
 namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the assembly registry: the use case each message and published operation runs, and the operation map of the endpoints a module-layout host holds.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 internal static class RegistryWriter
 {
     /// <summary>

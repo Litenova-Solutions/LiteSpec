@@ -9,7 +9,7 @@ Start with:
 - A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases coded.
 - The Svelte toolchain pins in `litespec.manifest.yaml`.
 
-Read the [web structure](../frontend/web/structure.md) and the [web UI](../frontend/web/ui.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
+Read the [web structure](../packs/svelte/structure.md) and the [web UI](../packs/svelte/ui-primitives.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 
@@ -19,15 +19,15 @@ List the `svelte` stack in `.litespec/project.yaml`, matching the stack entries 
 
 ### Declare the Application Tree
 
-Declare the web application tree and mirror the backend use case path for each route as the [web structure](../frontend/web/structure.md) page states. Check that each route lives at the mirrored path. This satisfies `litespec/frontend/web/structure#use-the-frontend-application-tree`.
+Declare the web application tree and mirror the backend use case path for each route as the [web structure](../packs/svelte/structure.md) page states. Check that each route lives at the mirrored path. This satisfies `litespec/packs/svelte/structure#use-the-frontend-application-tree`.
 
 ### Compose Each Route from One Floorplan
 
-Compose each route from one floorplan, as the [UI](../frontend/ui.md) page states. This satisfies `litespec/frontend/ui#compose-each-route-from-one-floorplan`.
+Compose each route from one floorplan, as the [UI](../core/ui-ia.md) page states. This satisfies `litespec/core/ui-ia#compose-each-route-from-one-locked-archetype`.
 
 ### Pin the Baseline in the Shared Package
 
-Pin the shadcn-svelte baseline in the shared package as the [web UI](../frontend/web/ui.md) page states. This satisfies `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`.
+Pin the shadcn-svelte baseline in the shared package as the [web UI](../packs/svelte/ui-primitives.md) page states. This satisfies `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream`.
 
 ## Check
 

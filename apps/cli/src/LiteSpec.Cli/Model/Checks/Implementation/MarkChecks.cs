@@ -210,7 +210,7 @@ internal static class MarkChecks
     /// <param name="element">The marked code element that carries the mark.</param>
     /// <param name="mark">The mark under test.</param>
     /// <returns>True when the mark names a read model and the element sits in a module ReadModels folder.</returns>
-    /// <follows>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
+    /// <follows>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</follows>
     private static bool IsViewMarkInViewsFolder(ProjectModel model, MarkedElement element, CodeMark mark)
     {
         if (!mark.RecordId.StartsWith(RecordTypes.ReadModel + "/", StringComparison.Ordinal))

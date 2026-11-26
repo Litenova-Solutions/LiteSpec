@@ -13,7 +13,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | Path | `.litespec/project.yaml` at the consumer root |
 | Schema | `schemas/litespec-project.schema.yaml` in the pinned release |
 | Template | `templates/consumer/project.yaml` in the release the tool carries |
-| Presets | `templates/presets/android-client.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/records.yaml` |
+| Presets | `templates/presets/android-client.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/records.yaml` |
 
 `litespec init` merges the template with one preset, and fills the size, name, and reviewed release. `litespec model check` validates the written file against the schema, then runs the selection checks below. The model builder reads the paths, `stackConfig`, size, shape, and stacks from the same file.
 
@@ -77,11 +77,11 @@ The template names the project as `__PROJECT__` in paths and package names. `lit
 .litespec/project.yaml: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
 ```
 
-A preset without a controlled web frontend, such as `blazor-client` or `android-client`, declares no package that a frontend uses, so `litespec init` removes `ui` and `paths.uiPatterns` from the written file in that case.
+A preset without a controlled web frontend, such as `android-client`, declares no package that a frontend uses, so `litespec init` removes `ui` and `paths.uiPatterns` from the written file in that case.
 
 ### A Complete Example
 
-This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset, run against release `7.0.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
+This example shows the file `litespec init --preset dotnet-svelte --size small --name shop` writes from the template and the `dotnet-svelte` preset, run against release `7.0.0`. The preset selects shape `server`, stacks `dotnet` and `svelte`, and one `svelte` frontend `web` at `apps/web`.
 
 ```yaml
 # yaml-language-server: $schema=https://litespec.dev/7.0.0/schemas/litespec-project.schema.yaml
@@ -92,7 +92,7 @@ size: small
 shape: server
 stacks:
 - dotnet
-- react
+- svelte
 layers:
   intent: litespec
   behavior: litespec
@@ -116,7 +116,7 @@ stackConfig:
 frontends:
 - name: web
   path: apps/web
-  platform: react
+  platform: svelte
 ui:
   package:
     name: '@shop/ui'
@@ -131,7 +131,7 @@ ui:
 selectedExtensions: []
 ```
 
-The other three presets differ only in shape, stacks, frontends, and the shared package. `dotnet-svelte` selects shape `server`, stacks `dotnet` and `svelte`, and one `svelte` frontend `web` at `apps/web`. `blazor-client` selects shape `client-only`, stack `blazor`, and one `blazor` frontend `app` at `apps/app`, with no `ui` and no `uiPatterns`. `android-client` selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{ProjectName}.Android`, with no `ui` and no `uiPatterns`. The [init](../tools/init.md) page states all five presets; the records preset selects shape `server`, the `intent` and `behavior` layers, and no stacks or frontends.
+The other two presets differ only in shape, stacks, frontends, and the shared package. `android-client` selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{ProjectName}.Android`, with no `ui` and no `uiPatterns`. The [init](../tools/init.md) page states each preset; the records preset selects shape `server`, the `intent` and `behavior` layers, and no stacks or frontends.
 
 ### Validation Errors
 
@@ -155,4 +155,4 @@ The last row stands for every configured path: the message names the field, the 
 
 ## Notes
 
-The fields are stated in `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/android-client.yaml`, and `templates/presets/records.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words, and the project file carries no setting for that bound.
+The fields are stated in `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-svelte.yaml`, `templates/presets/android-client.yaml`, and `templates/presets/records.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words, and the project file carries no setting for that bound.

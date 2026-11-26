@@ -66,6 +66,6 @@ public sealed class RulesCollapseTests
             "--all");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("- litespec/backend/application#keep-command-handlers-to-load-call-and-stage:", result.Output);
+        Assert.Contains("- litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage:", result.Output);
     }
 }

@@ -2,7 +2,6 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
-using LiteSpec.Cli.Model.Ui;
 using LiteSpec.Cli.Rules;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -52,7 +51,6 @@ static class PageChecks
         {
             run.GlossaryFile,
             ConsumerRoot.ProjectFile(run.Root),
-            Path.GetFullPath(Path.Join(run.Root, JsonValues.PropString(run.Project?["paths"] as JsonObject, "uiPatterns") ?? CatalogChecks.DefaultCatalog)),
         };
 
         run.Files.AddRange(GlobWalker.PageFiles(run.DocsRoot, notPages));

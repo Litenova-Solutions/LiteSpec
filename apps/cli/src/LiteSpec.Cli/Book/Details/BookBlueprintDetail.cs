@@ -6,58 +6,12 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Book.Details;
 
 /// <summary>
-///     The UI blueprint details of one record: the wireframe text of a screen
-///     from its explanation, the navigation map of an entry point, and the
-///     storyboard of a flow.
+///     The UI blueprint details of one record: the navigation map of an entry
+///     point, and the storyboard of a flow.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookBlueprintDetail
 {
-    /// <summary>Adds the wireframe text of one screen from its explanation's wireframe block.</summary>
-    /// <param name="detail">The detail being built.</param>
-    /// <param name="record">The screen record.</param>
-    /// <param name="type">The record type.</param>
-    public static void AddWireframe(JsonObject detail, JsonObject record, string type)
-    {
-        if (type != RecordTypes.Screen)
-        {
-            return;
-        }
-
-        if (WireframeOf(BookRender.StrProp(record, "explanation") ?? "") is { } text
-            && detail["fields"] is JsonObject fields)
-        {
-            fields["wireframe"] = text;
-        }
-    }
-
-    /// <summary>The text of the first fenced block with the info string wireframe, or null when the explanation holds none.</summary>
-    /// <param name="explanation">The explanation file text.</param>
-    /// <returns>The block text without its fences, or null.</returns>
-    public static string? WireframeOf(string explanation)
-    {
-        var lines = explanation.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        for (var at = 0; at < lines.Length; at++)
-        {
-            if (!lines[at].StartsWith("```", StringComparison.Ordinal) || lines[at][3..].Trim() != "wireframe")
-            {
-                continue;
-            }
-
-            var body = new List<string>();
-            at++;
-            while (at < lines.Length && !lines[at].StartsWith("```", StringComparison.Ordinal))
-            {
-                body.Add(lines[at]);
-                at++;
-            }
-
-            return string.Join("\n", body);
-        }
-
-        return null;
-    }
-
     /// <summary>Adds the navigation map of one entry point: its screens and each screen's leadsTo.</summary>
     /// <param name="detail">The detail being built.</param>
     /// <param name="index">The model index.</param>

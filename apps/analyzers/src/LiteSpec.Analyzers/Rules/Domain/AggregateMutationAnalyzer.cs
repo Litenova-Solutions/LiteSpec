@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1015: a non-root type of an aggregate exposes no public setter, no public constructor and no public mutable collection.</summary>
-/// <follows>litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes</follows>
+/// <follows>litespec/packs/dotnet/domain#model-child-entities-as-sealed-classes</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateMutationAnalyzer : LayerAnalyzer
 {

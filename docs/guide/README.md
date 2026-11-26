@@ -10,7 +10,7 @@ If LiteSpec is new to you, work in this order. Install the command line first wi
 
 A team that wants records, the book, and the checks before changing any code follows [Start with Records Only](start-with-records-only.md) instead. That guide claims the Intent and Behavior records alone.
 
-When the product ships another frontend, follow the guide that names it: [Add a Svelte Frontend](add-a-svelte-frontend.md), [Add a Blazor Frontend](add-a-blazor-frontend.md), or [Add an Android Frontend](add-an-android-frontend.md).
+When the product ships another frontend, follow the guide that names it: [Add a Svelte Frontend](add-a-svelte-frontend.md) or [Add an Android Frontend](add-an-android-frontend.md).
 
 When the project runs and one goal needs solving, open the how-to that names it in How-To Guides below: writing code, problems, features, constraints, flows, and research records, the audit trail, and the per-edit rules check. [Check .NET Code with the Analyzers](../analyzers/check-dotnet-code-with-the-analyzers.md) runs the Roslyn analyzers over a .NET backend.
 
@@ -26,7 +26,6 @@ To find where a record file lives, look it up in [Record Folders](../reference/f
 - [Install the CLI](install-the-cli.md): install the command line for a consumer repository or a machine, by every method a release ships.
 - [Start with Records Only](start-with-records-only.md): claim the Intent and Behavior records alone, and check them with the model check and the book.
 - [Add a Svelte Frontend](add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
-- [Add a Blazor Frontend](add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write Code for a Use Case](write-code-for-a-use-case.md): place each code element of a use case with its mark and its check.
 - [Write a Problem](write-a-problem.md): write one problem with its failure cases, evidence, and resolution criteria, step by step with weak and strong examples.

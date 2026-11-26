@@ -13,9 +13,6 @@ namespace LiteSpec.Maintain.Validate.Pages;
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal sealed partial class PageValidator
 {
-    /// <summary>The most options a pattern offers: its Default and two more.</summary>
-    private const int MaxPatternOptions = 3;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="PageValidator"/> class.
     /// </summary>
@@ -127,12 +124,7 @@ internal sealed partial class PageValidator
             return "explanation";
         }
 
-        if (PatternPage.IsPatternPage(relative))
-        {
-            return "pattern";
-        }
-
-        if ((segments[0] == "backend" || segments[0] == "frontend") && segments[^1] == "stack")
+        if (segments[0] == "packs" && segments[^1] == "stack")
         {
             return "stack";
         }
@@ -151,13 +143,6 @@ internal sealed partial class PageValidator
             // across stacks, and each stack page carries its own bindings.
             // (litespec/core/authoring#place-each-stack-binding-on-its-stack-page)
             return new PageContract(["Standards", "Conventions"], ["Concepts", "Reference Example"]);
-        }
-
-        // A pattern page offers drawn options for recurring interface questions; its
-        // Standards hold the rules every option keeps.
-        if (kind == "pattern")
-        {
-            return new PageContract(["Patterns"], ["Concepts", "Standards", "Conventions"]);
         }
 
         if (kind == "stack")
@@ -245,10 +230,6 @@ internal sealed partial class PageValidator
         if (kind == "standard")
         {
             canonical = ["Concepts", "Standards", "Conventions", "Reference Example"];
-        }
-        else if (kind == "pattern")
-        {
-            canonical = ["Concepts", "Standards", "Conventions", "Patterns"];
         }
         else if (kind == "stack")
         {
@@ -427,7 +408,7 @@ internal sealed partial class PageValidator
     private void CheckIndexAndGlossary(string relative, string? kind, PageReader reader, List<PageSection> sections)
     {
         var add = Context.Add;
-        if (kind is "standard" or "pattern" or "stack" or "extension" or "how-to" or "tutorial" or "reference" or "index" or "explanation"
+        if (kind is "standard" or "stack" or "extension" or "how-to" or "tutorial" or "reference" or "index" or "explanation"
             && !HasLead(reader))
         {
             add(relative, sections.Count > 0 ? sections[0].Line : 1, MaintainerDiagnostics.Codes.PageLeadMissing, "a page opens with a lead paragraph under its title, before its first H2");
@@ -612,8 +593,7 @@ internal sealed partial class PageValidator
                 continue;
             }
 
-            var pattern = currentH2 == "Patterns" && kind == "pattern";
-            if (currentH2 != "Standards" && currentH2 != "Conventions" && !pattern)
+            if (currentH2 != "Standards" && currentH2 != "Conventions")
             {
                 continue;
             }
@@ -650,8 +630,7 @@ internal sealed partial class PageValidator
             }
 
             var firstWord = FirstWordPattern().Match(title);
-            // A pattern heading is the pattern's name, so its ID survives a change of default.
-            if (!pattern && (!firstWord.Success || !ActionVerbs.Contains(firstWord.Value)))
+            if (!firstWord.Success || !ActionVerbs.Contains(firstWord.Value))
             {
                 add(relative, heading.Line, MaintainerDiagnostics.Codes.HeadingAction, $"provision heading '{title}' must start with an action verb");
             }
@@ -777,7 +756,7 @@ internal sealed partial class PageValidator
             }
         }
 
-        var rules = provisions.Where(provision => provision.Section != "Patterns").ToList();
+        var rules = provisions.ToList();
         Context.Provisions.CheckProvisionBodies(relative, reader, rules);
         Context.Provisions.CheckProvisionClaims(relative, rules);
         Context.Provisions.CheckStrengthAgreement(relative, rules);
@@ -786,23 +765,6 @@ internal sealed partial class PageValidator
         CheckScopeBlock(relative, reader, provisions);
         Context.Provisions.CheckProvisionScopes(relative, reader, provisions);
         Context.CheckScopes.CheckProvisionCheckScopes(relative, reader, provisions);
-
-        if (kind == "pattern")
-        {
-            var group = Path.GetFileNameWithoutExtension(relative);
-            var patternPage = PatternPage.Parse(group, reader.Raw);
-            foreach (var (line, message) in patternPage.Check())
-            {
-                add(relative, line, MaintainerDiagnostics.Codes.PatternInvalid, message);
-            }
-
-            // A pattern offers its Default and at most two more options, so a reader
-            // chooses among three drawn options rather than a catalog of many.
-            foreach (var pattern in patternPage.Patterns.Where(pattern => pattern.Options.Count > MaxPatternOptions))
-            {
-                add(relative, pattern.Line, MaintainerDiagnostics.Codes.PatternOptionCount, $"pattern '{pattern.Name}' offers {pattern.Options.Count} options; a pattern offers its Default and at most two more");
-            }
-        }
 
         return new ParsedBlocks(kind, provisions);
     }

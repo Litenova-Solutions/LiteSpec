@@ -106,7 +106,7 @@ public sealed class RecordTypesTests
     }
 
     /// <summary>A read model is a technical type that code implements, and its record home is its module's read-models folder.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
+    /// <proves>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]
     public void ReadModelHomeIsTheModuleReadModelsFolder()
     {

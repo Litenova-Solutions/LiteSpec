@@ -61,7 +61,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#write-none-in-an-empty-required-section</proves>
     [Fact(DisplayName = "empty section")]
     public void EmptySection() => Check(
-        root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions\n\nNone.\n", "## Conventions\n")),
+        root => StandardsFixture.Write(root, "docs/packs/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions\n\nNone.\n", "## Conventions\n")),
         [MaintainerDiagnostics.Codes.PageEmptySection]);
 
     /// <summary>Standard page without a lead.</summary>
@@ -176,14 +176,14 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#write-none-in-an-empty-required-section</proves>
     [Fact(DisplayName = "empty section variant naming no content")]
     public void EmptySectionVariant() => Check(
-        root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions\n\nNone.", "## Conventions\n\nThis stack adds no conventions.")),
+        root => StandardsFixture.Write(root, "docs/packs/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions\n\nNone.", "## Conventions\n\nThis stack adds no conventions.")),
         [MaintainerDiagnostics.Codes.PageEmptySectionText]);
 
     /// <summary>Empty section holding bare None.</summary>
     /// <proves>litespec/core/authoring#write-none-in-an-empty-required-section</proves>
     [Fact(DisplayName = "empty section holding bare None")]
     public void EmptySectionBareNone() => Check(
-        root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions\n\nNone.", "## Conventions\n\nNone")),
+        root => StandardsFixture.Write(root, "docs/packs/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions\n\nNone.", "## Conventions\n\nNone")),
         [MaintainerDiagnostics.Codes.PageEmptySectionText]);
 
     /// <summary>Empty section holding None with more.</summary>

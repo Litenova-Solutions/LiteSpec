@@ -26,8 +26,6 @@ Each native element meets the declared browser support tier, or carries a fallba
 
 A dialog, popover, or details composite builds on its native element, and every other composite comes from the pinned baseline or a justified behavior package rendering through baseline tokens. Each native element meets the declared browser support tier or carries a fallback beside it. Icons stay per-icon imports under the existing per-route download rule.
 
-The new provision is `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`.
-
 ## Revisit Conditions
 
 This decision reopens when the platform gains a composite the baseline owns today, or when a native element leaves the declared browser support tier with no workable fallback.

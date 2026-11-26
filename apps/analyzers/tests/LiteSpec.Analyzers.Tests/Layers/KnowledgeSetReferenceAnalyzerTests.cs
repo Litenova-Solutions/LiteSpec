@@ -8,7 +8,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 {
     /// <summary>LS2038 reports a module naming a type of a knowledge set.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 reports a module naming a type of a knowledge set")]
     public Task ReportsAModuleNamingASetType() =>
         Verify.AnalyzerAsync<KnowledgeSetReferenceAnalyzer>(
@@ -35,7 +35,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 
     /// <summary>LS2038 accepts a module naming a type of a knowledge model.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 accepts a module naming a type of a knowledge model")]
     public Task AcceptsAModuleNamingAModelType() =>
         Verify.AnalyzerAsync<KnowledgeSetReferenceAnalyzer>(
@@ -62,7 +62,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 
     /// <summary>LS2038 stays quiet in a host, which references a set to register it.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 stays quiet in a host, which references a set to register it")]
     public Task StaysQuietInAHost() =>
         Verify.AnalyzerAsync<KnowledgeSetReferenceAnalyzer>(
@@ -89,7 +89,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 
     /// <summary>LS2038 stays quiet in the set's own compilation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 stays quiet in the set's own compilation")]
     public Task StaysQuietInTheSetsOwnCompilation() =>
         Verify.AnalyzerAsync<KnowledgeSetReferenceAnalyzer>(
@@ -114,7 +114,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 
     /// <summary>LS2038 stays quiet for a third-party assembly shaped like a set that references no knowledge model.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 stays quiet for a third-party assembly shaped like a set")]
     public Task StaysQuietForAThirdPartyAssemblyShapedLikeASet() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetReferenceAnalyzer>(
@@ -160,7 +160,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 
     /// <summary>LS2038 stays quiet for another product's assembly that references its parent, as a vendor's extension package does.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 stays quiet for another product's assembly that references its parent")]
     public Task StaysQuietForAnotherProductsAssemblyReferencingItsParent() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetReferenceAnalyzer>(
@@ -205,7 +205,7 @@ public sealed class KnowledgeSetReferenceAnalyzerTests
 
     /// <summary>LS2038 reports a module naming a set type referenced as metadata.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact(DisplayName = "LS2038 reports a module naming a set type referenced as metadata")]
     public Task ReportsAModuleNamingASetTypeReferencedAsMetadata() =>
         Verify.AnalyzerWithMetadataAsync<KnowledgeSetReferenceAnalyzer>(

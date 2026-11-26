@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Cli.Audit;
 
 /// <summary>The storage state the audit signs pages in with: cookies and local storage origins.</summary>
-/// <follows>litespec/frontend/ui#pass-every-route-suite-check</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 static class AuditStorage
 {
     /// <summary>Reads a storage state file: cookies with local storage origins, in Playwright storage-state JSON.</summary>

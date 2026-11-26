@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2003: WebApi maps operations through endpoints, never through MVC controllers.</summary>
-/// <follows>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</follows>
+/// <follows>litespec/packs/dotnet/api#exclude-mvc-controllers-from-the-stack</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ControllerAnalyzer : LayerAnalyzer
 {

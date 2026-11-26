@@ -11,7 +11,7 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-Enable `compat` when any consumer deploys on its own schedule: a public API, a partner client, a mobile client, or a reader of published events. An API whose consumers always release together with it stays under `litespec/backend/api#treat-openapi-as-a-generated-contract`. A project whose first deployment holds no customer data yet defers these rules through the stage extension.
+Enable `compat` when any consumer deploys on its own schedule: a public API, a partner client, a mobile client, or a reader of published events. An API whose consumers always release together with it stays under `litespec/core/backend-api#treat-openapi-as-a-generated-contract`. A project whose first deployment holds no customer data yet defers these rules through the stage extension.
 
 ## Baseline Relationship
 

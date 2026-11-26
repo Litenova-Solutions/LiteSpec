@@ -16,7 +16,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     query, public command or result too. The Contracts root is the nested <c>Contracts/</c> folder
 ///     or the sibling <c>{Product}.{Module}.Contracts</c> project folder, whichever the path holds.
 /// </summary>
-/// <follows>litespec/backend/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
+/// <follows>litespec/packs/dotnet/architecture#publish-only-data-from-each-contracts-project</follows>
 internal static class Contracts
 {
     /// <summary>Returns true when the file declares a public query, public command or result of a Contracts project; otherwise false.</summary>

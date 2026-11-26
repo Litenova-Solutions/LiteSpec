@@ -5,7 +5,7 @@ using LiteBus.Queries.Abstractions;
 namespace Claimwick.Reporting.Application.ListReimbursedExpenses;
 
 /// <implements>use-case/reporting.list-reimbursed-expenses</implements>
-/// <follows>litespec/backend/architecture#give-each-use-case-its-own-models</follows>
+/// <follows>litespec/core/backend-architecture#give-each-use-case-its-own-models</follows>
 internal sealed class ListReimbursedExpensesQueryHandler : IQueryHandler<ListReimbursedExpensesQuery, ListReimbursedExpensesQueryResult>
 {
     private readonly IReimbursedExpenseReadModel _readModel;

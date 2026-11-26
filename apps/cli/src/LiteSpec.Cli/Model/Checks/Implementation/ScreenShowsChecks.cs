@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     The screen shows checks: every field a screen names in `fieldSources` is a field the use case
 ///     it names in `from` outputs or accepts, and the screen offers that use case.
 /// </summary>
-/// <follows>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</follows>
+/// <follows>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</follows>
 internal static class ScreenShowsChecks
 {
     /// <summary>The field holding the use-case fields a screen shows.</summary>

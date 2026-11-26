@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 
 /// <summary>Reads the outbox decision each domain event type carries into the model: one row per decision call.</summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 static class OutboxDecisionReader
 {
     /// <summary>Reads the outbox decisions of one file into the model.</summary>

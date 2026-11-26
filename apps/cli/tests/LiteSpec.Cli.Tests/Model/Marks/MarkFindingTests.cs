@@ -53,7 +53,7 @@ public sealed class MarkFindingTests
     }
 
     /// <summary>Route With Two Marks Reports Mark Count.</summary>
-    /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
     [Fact]
     public void RouteWithTwoMarksReportsMarkCount()
     {

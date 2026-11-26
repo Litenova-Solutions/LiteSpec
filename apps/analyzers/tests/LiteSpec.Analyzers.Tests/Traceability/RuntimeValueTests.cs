@@ -9,7 +9,7 @@ public sealed class RuntimeValueTests
 {
     /// <summary>LS5005 reports an event Classification differing from its record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 reports an event Classification differing from its record")]
     public Task ReportsAnEventClassificationDrift() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -28,7 +28,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 accepts an event without a hand-written Classification.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 accepts an event without a hand-written Classification")]
     public Task AcceptsAnEventWithoutAClassification() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -44,7 +44,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 accepts an event Classification equal to its record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 accepts an event Classification equal to its record")]
     public Task AcceptsAnEventClassificationEqualToItsEvent() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -63,7 +63,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 reports an exception Code differing from its rule refusal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 reports an exception Code differing from its rule refusal")]
     public Task ReportsAnExceptionCodeDrift() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -87,7 +87,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 accepts an exception Code equal to its rule refusal.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 accepts an exception Code equal to its rule refusal")]
     public Task AcceptsAnExceptionCodeEqualToItsRefusal() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -111,7 +111,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 accepts an exception without a hand-written Code.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 accepts an exception without a hand-written Code")]
     public Task AcceptsAnExceptionWithoutACode() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -134,7 +134,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 ignores a rule that names no refusal code.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 ignores a rule that names no refusal code")]
     public Task IgnoresARuleWithoutARefusalCode() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -158,7 +158,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 reports an exception Code differing from its bare refusal code.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 reports an exception Code differing from its bare refusal code")]
     public Task ReportsAnExceptionCodeDriftFromABareRefusal() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -182,7 +182,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 accepts an exception Code equal to its bare refusal code.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 accepts an exception Code equal to its bare refusal code")]
     public Task AcceptsAnExceptionCodeEqualToItsBareRefusal() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
@@ -206,7 +206,7 @@ public sealed class RuntimeValueTests
 
     /// <summary>LS5005 does not run outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "LS5005 does not run outside Domain")]
     public Task DoesNotRunOutsideDomain() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(

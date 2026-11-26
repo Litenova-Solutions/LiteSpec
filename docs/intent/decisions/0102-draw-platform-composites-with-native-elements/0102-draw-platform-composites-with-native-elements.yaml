@@ -13,5 +13,5 @@ options:
     pros: "No baseline to install, pin, or keep current."
     cons: "The platform has no combobox, date picker, or data table, so each team builds the missing composites by hand and every product ships its own set."
 choice: "Draw platform composites with native elements and take the rest from the baseline"
-consequences: "A dialog, popover, or details composite builds on its native element, and every other composite comes from the pinned baseline or a justified behavior package rendering through baseline tokens. Each native element meets the declared browser support tier or carries a fallback beside it. Icons stay per-icon imports under the existing per-route download rule. The new provision is `litespec/frontend/web/ui#draw-platform-composites-with-native-elements`."
+consequences: "A dialog, popover, or details composite builds on its native element, and every other composite comes from the pinned baseline or a justified behavior package rendering through baseline tokens. Each native element meets the declared browser support tier or carries a fallback beside it. Icons stay per-icon imports under the existing per-route download rule."
 reopenedWhen: "The platform gains a composite the baseline owns today, or a native element leaves the declared browser support tier with no workable fallback."

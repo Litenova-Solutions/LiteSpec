@@ -10,8 +10,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1001: Domain references no outer-layer namespace and no Application, Ports, Infrastructure or WebApi type, except the composition namespaces a knowledge model owns.</summary>
-/// <follows>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</follows>
-/// <follows>litespec/backend/knowledge#read-knowledge-through-its-model</follows>
+/// <follows>litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns</follows>
+/// <follows>litespec/core/knowledge#read-knowledge-through-its-model</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
 {

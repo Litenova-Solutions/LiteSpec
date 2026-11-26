@@ -18,7 +18,7 @@ namespace LiteSpec.Cli.Model.Readers.Frontend;
 ///     A call or navigation a layout reaches counts for the same use cases, and
 ///     is recorded as layout-only when the route's own files reach no call to it.
 /// </summary>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 static class FrontendReadBuilder
 {
     /// <summary>Builds the screen read for one frontend from its facts.</summary>
@@ -340,7 +340,7 @@ static class FrontendReadBuilder
             var file = marks.Count > 0 ? Absolute(frontend, module.File) : Absolute(frontend, module.Folder);
 
             found.Add(new MarkedElement(
-                CodeKind.FrontendModule, ModuleName(frontend, module.Folder), null,
+                CodeKind.FrontendModule, ModuleName(module.Folder), null,
                 file, module.Line, marks, InTests: false));
         }
 
@@ -373,7 +373,7 @@ static class FrontendReadBuilder
 
     /// <summary>
     ///     The style the route mark was written in: the typed constant on a TypeScript
-    ///     frontend, the style the .NET reader saw on a Blazor or Android frontend,
+    ///     frontend, the style the .NET reader saw on an Android frontend,
     ///     and the declared style when the reader recorded none.
     /// </summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
@@ -383,7 +383,7 @@ static class FrontendReadBuilder
     /// <returns>The mark style that applies to this route mark.</returns>
     private static MarkStyle RouteStyle(ConsumerConfig config, FrontendConfig frontend, RouteFact route, int index)
     {
-        if (frontend.Platform is "svelte" or "react")
+        if (frontend.Platform is "svelte")
         {
             return MarkStyle.Typed;
         }
@@ -397,12 +397,11 @@ static class FrontendReadBuilder
     }
 
     /// <summary>The module folder name a mark finding shows: the path under the modules root.</summary>
-    /// <param name="frontend">The frontend whose files are read.</param>
     /// <param name="folder">The module folder path, relative to the frontend root.</param>
     /// <returns>The module folder name as findings show it, under the modules root.</returns>
-    private static string ModuleName(FrontendConfig frontend, string folder)
+    private static string ModuleName(string folder)
     {
-        var root = frontend.Platform == "react" ? "src/modules/" : "src/lib/modules/";
+        const string root = "src/lib/modules/";
 
         return folder.StartsWith(root, StringComparison.Ordinal) ? folder[root.Length..] : folder;
     }

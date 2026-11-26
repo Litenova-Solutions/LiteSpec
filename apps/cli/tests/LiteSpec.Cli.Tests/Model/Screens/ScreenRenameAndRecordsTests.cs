@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Screens;
 public sealed class ScreenRenameAndRecordsTests
 {
     /// <summary>Records Unions Hold Only The Frontends Own Entry Points.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void RecordsUnionsHoldOnlyTheFrontendsOwnEntryPoints()
     {
@@ -28,7 +28,7 @@ public sealed class ScreenRenameAndRecordsTests
     }
 
     /// <summary>A Frontend Naming Its Entry Point Is Read Through It Before Any Screen Exists.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void AFrontendNamingItsEntryPointIsReadThroughItBeforeAnyScreenExists()
     {

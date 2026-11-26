@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2028: in one project per module only the Contracts project and the module entry type are public.</summary>
-/// <follows>litespec/backend/dotnet/architecture#expose-only-contracts-and-the-entry-point</follows>
+/// <follows>litespec/packs/dotnet/architecture#expose-only-contracts-and-the-entry-point</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ModuleVisibilityAnalyzer : LayerAnalyzer
 {

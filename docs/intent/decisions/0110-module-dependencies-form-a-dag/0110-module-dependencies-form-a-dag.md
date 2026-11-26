@@ -37,7 +37,7 @@ The reader's current loans moved from the reader aggregate to Lending, keyed by 
 
 Every concept has one owning module, and the dependency graph shows which module builds on which. The graph counts Contracts references, `queries` edges, `commands` edges, and reactions to facts. A dependency cycle is a finding naming both modules and the edges that close it, and its fix moves the split concept into one module.
 
-The widened provision is `litespec/core/model#keep-module-dependencies-free-of-cycles`, with `litespec/backend/architecture#give-every-module-relationship-one-direction`, `litespec/backend/architecture#run-every-spanning-process-from-its-most-downstream-participant`, and `litespec/backend/architecture#merge-modules-that-need-each-others-model` beside it.
+The widened provision is `litespec/core/model#keep-module-dependencies-free-of-cycles`, with `litespec/core/backend-architecture#give-every-module-relationship-one-direction`, `litespec/core/backend-architecture#run-every-spanning-process-from-its-most-downstream-participant`, and `litespec/core/backend-architecture#merge-modules-that-need-each-others-model` beside it.
 
 ## Revisit Conditions
 

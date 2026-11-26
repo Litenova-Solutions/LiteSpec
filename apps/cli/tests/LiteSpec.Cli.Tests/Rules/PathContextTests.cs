@@ -134,7 +134,7 @@ public sealed class PathContextTests
     }
 
     /// <summary>A job file in a use case Application folder derives the job artifact.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void RulesJobInUseCaseApplicationFolderDerivesJobArtifact()
     {

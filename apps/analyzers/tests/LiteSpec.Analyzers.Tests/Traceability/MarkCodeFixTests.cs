@@ -10,7 +10,7 @@ public sealed class MarkCodeFixTests
 {
     /// <summary>Convert mark turns a documentation tag into an attribute.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns a documentation tag into an attribute")]
     public Task ConvertMarkTurnsATagIntoAnAttribute() =>
         Verify.CodeFixAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -52,7 +52,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Convert mark turns a follows tag into an attribute.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns a follows tag into an attribute")]
     public Task ConvertMarkTurnsAFollowsTagIntoAnAttribute() =>
         Verify.CodeFixAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -86,7 +86,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Convert mark turns a follows attribute into a documentation tag.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns a follows attribute into a documentation tag")]
     public Task ConvertMarkTurnsAFollowsAttributeIntoATag() =>
         Verify.CodeFixAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -132,7 +132,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Convert mark turns an attribute into a documentation tag.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns an attribute into a documentation tag")]
     public Task ConvertMarkTurnsAnAttributeIntoATag() =>
         Verify.CodeFixAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -184,7 +184,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Add partial declares the type partial.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "Add partial declares the type partial")]
     public Task AddPartialDeclaresTheTypePartial() =>
         Verify.CodeFixAsync<PartialTypeAnalyzer, AddPartialCodeFixProvider>(
@@ -210,7 +210,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Delete value removes the drifting hand-written Classification.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Delete value removes the drifting hand-written Classification")]
     public Task DeleteValueRemovesTheDriftingClassification() =>
         Verify.CodeFixAsync<RuntimeValueAnalyzer, DeleteHandWrittenValueCodeFixProvider>(
@@ -241,7 +241,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Delete value removes the hand-written value equal to the record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Delete value removes the hand-written value equal to the record")]
     public Task DeleteValueRemovesTheValueEqualToTheRecord() =>
         Verify.CodeFixAsync<PartialTypeAnalyzer, DeleteHandWrittenValueCodeFixProvider>(
@@ -272,7 +272,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Fix All converts every mark across the solution.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Fix All converts every mark across the solution")]
     public Task FixAllConvertsEveryMark() =>
         Verify.CodeFixAllAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -351,9 +351,9 @@ public sealed class MarkCodeFixTests
             "Shop.Spending");
 
     /// <summary>Convert mark, add partial and delete value offer Fix All.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
-    /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Convert mark, add partial and delete value offer Fix All")]
     public void ConvertAddPartialAndDeleteOfferFixAll()
     {
@@ -364,7 +364,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Convert mark writes a qualified attribute that compiles with the generator.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark writes a qualified attribute that compiles with the generator")]
     public Task ConvertMarkWritesQualifiedAttributeCompilingWithGenerator() =>
         Verify.CodeFixWithGeneratorAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -406,7 +406,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Convert mark to attribute keeps the summary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark to attribute keeps the summary")]
     public Task ConvertMarkToAttributeKeepsSummary() =>
         Verify.CodeFixAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(
@@ -450,7 +450,7 @@ public sealed class MarkCodeFixTests
 
     /// <summary>Convert mark to tag keeps the summary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    /// <proves>litespec/packs/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark to tag keeps the summary")]
     public Task ConvertMarkToXmlKeepsSummary() =>
         Verify.CodeFixFilesAsync<MarkStyleAnalyzer, ConvertMarkStyleCodeFixProvider>(

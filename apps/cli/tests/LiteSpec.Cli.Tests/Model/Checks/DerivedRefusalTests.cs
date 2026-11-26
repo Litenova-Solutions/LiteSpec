@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class DerivedRefusalTests
 {
     /// <summary>An input rule refused as the generic rule-not-stated derives it.</summary>
-    /// <proves>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</proves>
+    /// <proves>litespec/core/knowledge#refuse-a-missing-rule-with-a-reason</proves>
     [Fact]
     public void InputRuleRefusedAsRuleNotStatedDerives()
     {
@@ -30,7 +30,7 @@ public sealed class DerivedRefusalTests
     }
 
     /// <summary>A taken rule citing a knowledge table derives rule-not-stated.</summary>
-    /// <proves>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</proves>
+    /// <proves>litespec/core/knowledge#refuse-a-missing-rule-with-a-reason</proves>
     [Fact]
     public void TakenRuleCitingKnowledgeTableDerives()
     {
@@ -60,7 +60,7 @@ public sealed class DerivedRefusalTests
     }
 
     /// <summary>A use case reading no knowledge derives no rule-not-stated.</summary>
-    /// <proves>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</proves>
+    /// <proves>litespec/core/knowledge#refuse-a-missing-rule-with-a-reason</proves>
     [Fact]
     public void UseCaseWithoutKnowledgeReadsDerivesNone()
     {
@@ -75,7 +75,7 @@ public sealed class DerivedRefusalTests
     }
 
     /// <summary>An input rule refused as an ordinary refusal derives no rule-not-stated.</summary>
-    /// <proves>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</proves>
+    /// <proves>litespec/core/knowledge#refuse-a-missing-rule-with-a-reason</proves>
     [Fact]
     public void InputRuleWithOrdinaryRefusalDerivesNone()
     {
@@ -95,7 +95,7 @@ public sealed class DerivedRefusalTests
     }
 
     /// <summary>A taken rule citing a table no knowledge area owns derives no rule-not-stated.</summary>
-    /// <proves>litespec/backend/knowledge#refuse-a-missing-rule-with-a-reason</proves>
+    /// <proves>litespec/core/knowledge#refuse-a-missing-rule-with-a-reason</proves>
     [Fact]
     public void TakenRuleCitingModuleTableDerivesNone()
     {

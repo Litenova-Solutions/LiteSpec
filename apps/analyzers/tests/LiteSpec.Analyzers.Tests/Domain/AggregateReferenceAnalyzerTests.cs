@@ -30,7 +30,7 @@ public sealed class AggregateReferenceAnalyzerTests
 
     /// <summary>LS1016 reports a property typed as another aggregate's root.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
+    /// <proves>litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
     [Fact(DisplayName = "LS1016 reports a property typed as another aggregate's root")]
     public Task ReportsAPropertyTypedAsAnotherAggregatesRoot() =>
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
@@ -52,7 +52,7 @@ public sealed class AggregateReferenceAnalyzerTests
 
     /// <summary>LS1016 reports a property typed as another aggregate's entity.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
+    /// <proves>litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
     [Fact(DisplayName = "LS1016 reports a property typed as another aggregate's entity")]
     public Task ReportsAPropertyTypedAsAnotherAggregatesEntity() =>
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
@@ -84,7 +84,7 @@ public sealed class AggregateReferenceAnalyzerTests
 
     /// <summary>LS1016 accepts a property typed as the other aggregate's identifier.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
+    /// <proves>litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
     [Fact(DisplayName = "LS1016 accepts a property typed as the other aggregate's identifier")]
     public Task AcceptsAPropertyTypedAsATypedIdentifier() =>
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(
@@ -107,7 +107,7 @@ public sealed class AggregateReferenceAnalyzerTests
 
     /// <summary>LS1016 accepts a property typed as the same aggregate's own entity.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
+    /// <proves>litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier</proves>
     [Fact(DisplayName = "LS1016 accepts a property typed as the same aggregate's own entity")]
     public Task AcceptsAPropertyTypedAsTheSameAggregate() =>
         Verify.AnalyzerAsync<AggregateReferenceAnalyzer>(

@@ -419,7 +419,7 @@ public sealed class KindReaderSymbolTests
     }
 
     /// <summary>A symbol message definition class takes no kind: definitions take no mark.</summary>
-    /// <proves>litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
     [Fact(DisplayName = "A symbol message definition class takes no kind")]
     public void SymbolMessageDefinitionClassTakesNoKind()
     {

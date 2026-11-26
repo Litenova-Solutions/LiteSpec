@@ -9,7 +9,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     reached, with the nested types of each. An adapter reads and builds whatever its port names, and a
 ///     repository builds whatever its Domain interface returns, so both rules allow this set.
 /// </summary>
-/// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>
+/// <follows>litespec/packs/dotnet/architecture#follow-layer-direction-in-every-file</follows>
 internal static class SignatureReach
 {
     /// <summary>Returns the types the interfaces reach through their member signatures.</summary>

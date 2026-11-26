@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Consumer;
 
@@ -42,7 +43,7 @@ public sealed partial class ConsumerValidatorTests
     public void ProjectNamingNoBackendStack()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("react"));
+        ConsumerFixture.MutateProject(folder.Path, project => project["stacks"] = new JsonArray("svelte"));
         AssertProblem(RunConsumer(folder.Path), "stacks name 0 backend stacks; name exactly one of dotnet");
     }
 
@@ -56,18 +57,26 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "stack 'cobol' is not a stack the pinned LiteSpec release ships");
     }
 
+    static TempFolder HomeWithDotnetScopedExtension() =>
+        ConsumerFixture.CreateHome(manifest =>
+        {
+            var extensions = (JsonObject)manifest["extensions"]!;
+            extensions["fixture-scoped"] = new JsonObject { ["path"] = "docs/packs/dotnet/fixture.md" };
+        });
+
     /// <summary>Stack-scoped extension without its stack.</summary>
     /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "stack-scoped extension without its stack")]
     public void StackScopedExtensionWithoutItsStack()
     {
         using var folder = ConsumerFixture.Create();
+        using var home = HomeWithDotnetScopedExtension();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("svelte");
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "bdd", ["criterion"] = "orders need scenario coverage" });
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "fixture-scoped", ["criterion"] = "orders need scenario coverage" });
         });
-        AssertProblem(RunConsumer(folder.Path), "extensions 'bdd' supports only the dotnet stack, which the project does not name in stacks");
+        AssertProblem(RunConsumer(folder.Path, home), "extensions 'fixture-scoped' supports only the dotnet stack, which the project does not name in stacks");
     }
 
     /// <summary>Stack-scoped extension with its stack.</summary>
@@ -76,9 +85,10 @@ public sealed partial class ConsumerValidatorTests
     public void StackScopedExtensionWithItsStack()
     {
         using var folder = ConsumerFixture.Create();
+        using var home = HomeWithDotnetScopedExtension();
         ConsumerFixture.MutateProject(folder.Path, project =>
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "bdd", ["criterion"] = "orders need scenario coverage" }));
-        AssertAbsent(RunConsumer(folder.Path), "supports only the dotnet stack");
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "fixture-scoped", ["criterion"] = "orders need scenario coverage" }));
+        AssertAbsent(RunConsumer(folder.Path, home), "supports only the dotnet stack");
     }
 
     /// <summary>Frontend declaring the backend stack as its platform.</summary>
@@ -110,7 +120,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "web", ["path"] = "apps/missing", ["platform"] = "react" });
+                new JsonObject { ["name"] = "web", ["path"] = "apps/missing", ["platform"] = "android" });
         });
         AssertProblem(RunConsumer(folder.Path), "frontend 'web' path 'apps/missing' does not exist");
     }

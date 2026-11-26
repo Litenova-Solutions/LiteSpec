@@ -94,7 +94,6 @@ static class BookRecordDetails
             BookProofDetail.AddReachable(detail, index, id, type);
             BookProofDetail.AddKept(detail, kept, id, type);
             BookFlowDetail.AddSteps(detail, served, index, record, id, type);
-            BookBlueprintDetail.AddWireframe(detail, record, type);
             BookBlueprintDetail.AddNavigationMap(detail, index, outline, id, type);
             BookBlueprintDetail.AddStoryboard(detail, served, record, id, type);
             if (!proven && type == "flow")

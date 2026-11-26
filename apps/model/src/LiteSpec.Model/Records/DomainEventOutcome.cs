@@ -3,7 +3,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The outcome the records state for a domain event: ignored, consumed, or missing.
 /// </summary>
-/// <follows>litespec/ext/outbox#decide-every-domain-event-outcome</follows>
+/// <follows>litespec/core/outbox#decide-every-domain-event-outcome</follows>
 public enum DomainEventOutcome
 {
     /// <summary>The event record states `ignored: true`: nothing consumes the event.</summary>

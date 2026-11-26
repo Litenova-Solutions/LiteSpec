@@ -3,7 +3,7 @@
 <!-- generated:agent-protocol -->
 When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 
-This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions audit.
+This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
 Before a task, read the LiteSpec pages of this release at ../../docs and open only the pages the task touches.
 Read this release only: never substitute another version when a page is missing.
@@ -44,12 +44,12 @@ This example holds no solution file, C# project file or package manifest, so its
 
 Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema)
 
-Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#justify-each-freestyle-route-with-a-decision-record)
+Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/core/ui-ia#compose-each-route-from-one-locked-archetype, litespec/core/ui-ia#declare-each-screen-job-and-archetype)
 
 Reach each declared refusal in an evidence specification and assert it by its result's code. (litespec/frontend/testing#assert-each-declared-refusal-by-its-code)
 
-Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#name-the-evidence-for-each-ui-change, litespec/frontend/ui#pass-every-route-suite-check)
+Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/core/ui-verification#review-changed-routes-with-an-independent-visual-critic, litespec/core/ui-verification#run-geometry-sensors-on-every-route)
 
-Record a waiver before selecting another visual system or component base. (litespec/frontend/ui#record-one-shared-ui-package)
+Record a waiver before selecting another visual system or component base. (litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives)
 
 Report every skipped check with its reason, and name the provisions `rules` returned and how each was judged. (litespec/core/release#report-verification-exactly)

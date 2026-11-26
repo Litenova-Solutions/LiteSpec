@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class DomainEventOutcomeCheckTests
 {
     /// <summary>A domain event no consumer names and not stated ignored reports outcome missing.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void DomainEventWithNoConsumerReportsMissing()
     {
@@ -20,7 +20,7 @@ public sealed class DomainEventOutcomeCheckTests
     }
 
     /// <summary>A domain event named by a reaction trigger passes.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void DomainEventWithReactionConsumerPasses()
     {
@@ -36,7 +36,7 @@ public sealed class DomainEventOutcomeCheckTests
     }
 
     /// <summary>A domain event translated by a module event passes.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void DomainEventWithModuleEventTranslationPasses()
     {
@@ -52,7 +52,7 @@ public sealed class DomainEventOutcomeCheckTests
     }
 
     /// <summary>A domain event translated by an integration event passes.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void DomainEventWithIntegrationEventTranslationPasses()
     {
@@ -68,7 +68,7 @@ public sealed class DomainEventOutcomeCheckTests
     }
 
     /// <summary>A domain event stating ignored with no consumer passes.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void IgnoredDomainEventWithNoConsumerPasses()
     {
@@ -83,7 +83,7 @@ public sealed class DomainEventOutcomeCheckTests
     }
 
     /// <summary>A domain event stating ignored that a reaction names reports outcome drift.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void IgnoredDomainEventWithConsumerReportsDrift()
     {
@@ -102,7 +102,7 @@ public sealed class DomainEventOutcomeCheckTests
     }
 
     /// <summary>A domain event stating ignored that a translating event names reports outcome drift.</summary>
-    /// <proves>litespec/ext/outbox#decide-every-domain-event-outcome</proves>
+    /// <proves>litespec/core/outbox#decide-every-domain-event-outcome</proves>
     [Fact]
     public void IgnoredDomainEventWithTranslationReportsDrift()
     {

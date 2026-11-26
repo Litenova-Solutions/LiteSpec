@@ -6,37 +6,37 @@ namespace LiteSpec.Cli.Tests.Consumer;
 public sealed partial class ConsumerValidatorTests
 {
     /// <summary>Controlled frontend without its shared package.</summary>
-    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact(DisplayName = "controlled frontend without its shared package")]
     public void ControlledFrontendWithoutItsSharedPackage()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "react");
+            project["stacks"] = new JsonArray("dotnet", "svelte");
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "react" });
+                new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "svelte" });
         });
         AssertProblem(RunConsumer(folder.Path), "missing required property 'ui'");
     }
 
     /// <summary>Frontend outside the controlled contract stays quiet.</summary>
-    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact(DisplayName = "frontend outside the controlled contract stays quiet")]
     public void FrontendOutsideTheControlledContractStaysQuiet()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "blazor");
+            project["stacks"] = new JsonArray("dotnet", "android");
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
+                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "android" });
         });
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
     }
 
     /// <summary>Child validator findings merge with their prefix.</summary>
-    /// <proves>litespec/frontend/ui#record-one-shared-ui-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact(DisplayName = "child validator findings merge with their prefix")]
     public void ChildValidatorFindingsMergeWithTheirPrefix()
     {
@@ -45,13 +45,13 @@ public sealed partial class ConsumerValidatorTests
         // validator, and its findings merge into this validator's list.
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "react");
+            project["stacks"] = new JsonArray("dotnet", "svelte");
             project["frontends"] = new JsonArray(
                 new JsonObject
                 {
                     ["name"] = "web",
                     ["path"] = "apps/web",
-                    ["platform"] = "react",
+                    ["platform"] = "svelte",
                     ["ui"] = new JsonObject { ["profile"] = "application-balanced" },
                 });
             project["ui"] = new JsonObject { ["package"] = new JsonObject

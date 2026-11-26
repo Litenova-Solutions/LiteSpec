@@ -273,31 +273,11 @@ export function collectGotoNames(sourceFile: ts.SourceFile): Set<string> {
   return names;
 }
 
-// The navigation target of a JSX anchor, link, button or form opening: the
-// `href` or `action` attribute initializer, or null for any other tag or
-// attribute. A `Link` or `Button` component counts like an anchor.
-function jsxNavigationTarget(opening: ts.JsxOpeningLikeElement): ts.Expression | null {
-  if (!ts.isIdentifier(opening.tagName)) return null;
-  const tag = opening.tagName.text;
-  const wanted = tag === "a" || tag === "Link" || tag === "Button" ? "href" : tag === "form" ? "action" : null;
-  if (wanted === null) return null;
-  for (const attribute of opening.attributes.properties) {
-    if (!ts.isJsxAttribute(attribute) || !ts.isIdentifier(attribute.name) || attribute.name.text !== wanted) continue;
-    const initializer = attribute.initializer;
-    if (initializer === undefined) return null;
-    if (ts.isStringLiteral(initializer)) return initializer;
-    if (ts.isJsxExpression(initializer) && initializer.expression !== undefined) return initializer.expression;
-    return null;
-  }
-  return null;
-}
-
 // Every full-page navigation of a source in source order: an assignment to the
 // location itself or to a location `href`, a `location.assign` or
-// `location.replace` call, a call to a `goto` imported from SvelteKit's
-// navigation module, and a literal `href` on an anchor, `Link` or `Button`, or
-// `action` on a form. Only literal paths or template literals with a literal
-// path prefix count; anything dynamic is never a navigation.
+// `location.replace` call, or a call to a `goto` imported from SvelteKit's
+// navigation module. Only literal paths count; anything dynamic is never a
+// navigation.
 export function collectNavigations(sourceFile: ts.SourceFile, lineOffset: number, gotoNames: Set<string>): NavigationSite[] {
   const navigations: NavigationSite[] = [];
   const push = (target: ts.Expression | null, node: ts.Node): void => {
@@ -329,31 +309,8 @@ export function collectNavigations(sourceFile: ts.SourceFile, lineOffset: number
       }
       return;
     }
-    if (ts.isJsxElement(node)) {
-      push(jsxNavigationTarget(node.openingElement), node.openingElement);
-      return;
-    }
-    if (ts.isJsxSelfClosingElement(node)) {
-      push(jsxNavigationTarget(node), node);
-    }
   });
   return navigations;
-}
-
-// The createFileRoute("...") path argument of a React route file, when present.
-export function collectRoutePath(sourceFile: ts.SourceFile): string | null {
-  let found: string | null = null;
-  walk(sourceFile, node => {
-    if (found !== null || !ts.isCallExpression(node)) return;
-    if (!ts.isIdentifier(node.expression) || node.expression.text !== "createFileRoute") return;
-    if (node.arguments.length === 0) return;
-    const first = node.arguments[0];
-    if (first !== undefined) {
-      const text = plainText(first);
-      if (text !== null) found = text;
-    }
-  });
-  return found;
 }
 
 export function parseTypeScript(fileName: string, text: string): ts.SourceFile | null {
@@ -494,7 +451,7 @@ function extractTypeScript(text: string, fileName: string): FileFacts | null {
     calls: collectCalls(sourceFile, 0),
     imports: collectImports(sourceFile),
     functions: collectExportedFunctions(sourceFile),
-    route: collectRoutePath(sourceFile),
+    route: null,
     navigations: collectNavigations(sourceFile, 0, collectGotoNames(sourceFile)),
   };
 }

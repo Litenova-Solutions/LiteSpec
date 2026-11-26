@@ -57,7 +57,7 @@ public sealed class LayerResolverTests
     /// <summary>The nearest layer folder names the layer.</summary>
     /// <param name="filePath">The file path under test.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Theory]
     [InlineData("Claimwick/Organizations/Teams/Domain/Team.cs", ArchitectureLayer.Domain)]
     [InlineData("Claimwick/Organizations/Teams/Application/CreateTeam.cs", ArchitectureLayer.Application)]
@@ -80,7 +80,7 @@ public sealed class LayerResolverTests
     /// <summary>A role suffix names the layer of a use case, reaction or job file.</summary>
     /// <param name="fileName">The file name under test.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Theory]
     [InlineData("CreateTeamEndpoint.cs", ArchitectureLayer.WebApi)]
     [InlineData("CreateTeamRequestModel.cs", ArchitectureLayer.WebApi)]
@@ -103,7 +103,7 @@ public sealed class LayerResolverTests
     /// <summary>A module file reads its layer from its folder or its role suffix.</summary>
     /// <param name="filePath">The file path under test.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Theory]
     [InlineData("Claimwick/Organizations/Teams/Domain/Team.cs", ArchitectureLayer.Domain)]
     [InlineData("Claimwick/Organizations/Contracts/TeamId.cs", ArchitectureLayer.Application)]
@@ -122,7 +122,7 @@ public sealed class LayerResolverTests
         Assert.Equal(expected, ArchitectureLayerResolver.FileLayer(filePath, "Claimwick", null));
 
     /// <summary>A module project names no layer: the file's folder decides.</summary>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Fact]
     public void ResolvesModuleFilesFromFoldersNotAssemblies()
     {
@@ -135,7 +135,7 @@ public sealed class LayerResolverTests
     /// <summary>A host file reads its layer from its assembly.</summary>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Theory]
     [InlineData("Claimwick.WebApi", ArchitectureLayer.WebApi)]
     [InlineData("Claimwick.Worker", ArchitectureLayer.Worker)]
@@ -143,7 +143,7 @@ public sealed class LayerResolverTests
         Assert.Equal(expected, ArchitectureLayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, null));
 
     /// <summary>A test file stays in the test layer whatever folders it mirrors.</summary>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Fact]
     public void ResolvesATestFileFromItsAssembly()
     {
@@ -154,7 +154,7 @@ public sealed class LayerResolverTests
     }
 
     /// <summary>A declared layer wins over folders and assemblies.</summary>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Fact]
     public void DeclaredLayerWins()
     {
@@ -167,7 +167,7 @@ public sealed class LayerResolverTests
     /// <summary>The use case folder is the folder holding the file below Application, WebApi or Infrastructure.</summary>
     /// <param name="filePath">The file path under test.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
+    /// <proves>litespec/core/backend-architecture#point-dependencies-inward</proves>
     [Theory]
     [InlineData("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", "SubmitExpense")]
     [InlineData("Claimwick.Spending/WebApi/SubmitExpense/SubmitExpenseEndpoint.cs", "SubmitExpense")]

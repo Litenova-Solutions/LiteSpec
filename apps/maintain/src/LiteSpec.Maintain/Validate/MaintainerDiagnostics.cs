@@ -60,7 +60,6 @@ internal static class MaintainerDiagnostics
         Codes.PageTitleCase,
         Codes.PageTitleCount,
         Codes.PageUnknownSection,
-        Codes.PatternInvalid,
         Codes.ProseNonAscii,
         Codes.ProseNormativeLocation,
         Codes.ProvisionsStale,
@@ -117,7 +116,6 @@ internal static class MaintainerDiagnostics
         Codes.ExampleRecordUnknown,
         Codes.FindingCodeUnknown,
         Codes.IndexPageMissing,
-        Codes.PatternOptionCount,
         Codes.PackagedPathLong,
         Codes.TemplateCitedUnknown,
         Codes.TemplateCitationUnknown,
@@ -210,7 +208,7 @@ internal static class MaintainerDiagnostics
         /// <summary>A layer page reached by no stack selection.</summary>
         public const string LayerUnreachable = "LAYER_UNREACHABLE";
 
-        /// <summary>A shape backend page outside docs/backend.</summary>
+        /// <summary>A shape backend page outside docs/core.</summary>
         public const string ShapePage = "SHAPE_PAGE";
 
         /// <summary>A stack folder that holds no stack.md.</summary>
@@ -308,9 +306,6 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A page with an unknown section.</summary>
         public const string PageUnknownSection = "PAGE_UNKNOWN_SECTION";
-
-        /// <summary>An invalid pattern page.</summary>
-        public const string PatternInvalid = "PATTERN_INVALID";
 
         /// <summary>A non-ASCII character in prose.</summary>
         public const string ProseNonAscii = "PROSE_NON_ASCII";
@@ -479,9 +474,6 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A docs page that the index page does not link, directly or through a section index.</summary>
         public const string IndexPageMissing = "INDEX_PAGE_MISSING";
-
-        /// <summary>A pattern that offers more than three options.</summary>
-        public const string PatternOptionCount = "PATTERN_OPTION_COUNT";
 
         /// <summary>A file the tool package carries whose path is too long for NuGet to pack.</summary>
         public const string PackagedPathLong = "PACKAGED_PATH_LONG";

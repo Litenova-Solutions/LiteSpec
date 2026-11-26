@@ -10,16 +10,14 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>
-///     The screen blueprint checks: every screen with a route names its page frame and a busy
-///     screen follows a hub frame, the primary action names an offered use case, every screen
+///     The screen blueprint checks: the primary action names an offered use case, every screen
 ///     is led to or starts its entry point, no screen ends with nothing done, interface text
 ///     uses glossary terms rather than their aliases, every refusal a screen can reach carries
 ///     its sentence, and every written refusal carries its sentence in each language its entry
 ///     points declare beside the default.
 /// </summary>
-/// <follows>litespec/frontend/ui#link-each-screen-to-its-next-screens</follows>
+/// <follows>litespec/core/ui-ia#declare-each-screen-job-and-archetype</follows>
 /// <follows>litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal</follows>
-/// <follows>litespec/frontend/ui#name-money-and-moment-formats-on-each-entry-point</follows>
 internal static class UiBlueprintChecks
 {
     /// <summary>The field naming the screens a person reaches from a screen in one step.</summary>
@@ -31,24 +29,11 @@ internal static class UiBlueprintChecks
     /// <summary>The field carrying the other spellings of a glossary term.</summary>
     private const string AliasesField = "aliases";
 
-    /// <summary>The page-frame patterns a busy screen follows: home, settings home, queue or list.</summary>
-    private static readonly HashSet<string> HubFrames = new(StringComparer.Ordinal)
-    {
-        "home-page", "settings-home", "queue", "list-page",
-    };
-
-    /// <summary>The page frames exempt from the offer limit: a record page offers the commands its states permit, one primary at a time.</summary>
-    private static readonly HashSet<string> RecordFrames = new(StringComparer.Ordinal)
-    {
-        "record-page",
-    };
-
-    /// <summary>Reports screen-pageframe-missing, screen-pageframe-invalid, screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
+    /// <summary>Reports screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        CheckScreenFrames(model, findings);
         CheckPrimaryActions(model, findings);
         CheckUnreachable(model, findings);
         CheckDeadEnd(model, findings);
@@ -121,61 +106,6 @@ internal static class UiBlueprintChecks
                     screen.File, screen.Line, SubjectOf(screen)));
             }
         }
-    }
-
-    /// <summary>Reports each screen with a route that names no page frame, and each screen offering past the offer limit that follows no hub frame.</summary>
-    /// <param name="model">The loaded project model that holds every screen and the composition limits.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckScreenFrames(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
-        {
-            if (screen.Field(RecordFields.Route) is not { Length: > 0 })
-            {
-                continue;
-            }
-
-            var pattern = PageFramePatternOf(screen);
-
-            if (pattern is null)
-            {
-                findings.Add(new Finding(
-                    "screen-pageframe-missing",
-                    $"Screen '{screen.Id}' has a route and names no page frame in `pageFrame`.",
-                    screen.File, screen.Line, SubjectOf(screen)));
-                continue;
-            }
-
-            // A query an offered select or table reads is not a starting point, so only commands count.
-            var offers = screen.Ids(RecordFields.Offers)
-                .Count(id => !model.ById.TryGetValue(Identifiers.BaseId(id), out var offered) || offered.Field(RecordFields.Kind) != "query");
-
-            if (offers > model.Config.UiLimits.Offers && !HubFrames.Contains(pattern) && !RecordFrames.Contains(pattern))
-            {
-                findings.Add(new Finding(
-                    "screen-pageframe-invalid",
-                    $"Screen '{screen.Id}' offers {offers} commands, past the {model.Config.UiLimits.Offers} a screen offers outside a hub frame, and follows '{pattern}' instead of a hub frame.",
-                    screen.File, screen.Line, SubjectOf(screen)));
-            }
-        }
-    }
-
-    /// <summary>The page-frame pattern a screen follows, or null when it names none.</summary>
-    /// <param name="screen">The screen record whose page frame is read.</param>
-    /// <returns>The pattern slug, or null when the screen names no page frame or no pattern.</returns>
-    private static string? PageFramePatternOf(Record screen)
-    {
-        if (screen.Raw.ValueKind != JsonValueKind.Object
-            || !screen.Raw.TryGetProperty(RecordFields.PageFrame, out var frame)
-            || frame.ValueKind != JsonValueKind.Object
-            || !frame.TryGetProperty(RecordFields.Pattern, out var pattern)
-            || pattern.ValueKind != JsonValueKind.String
-            || pattern.GetString() is not { Length: > 0 } name)
-        {
-            return null;
-        }
-
-        return name;
     }
 
     /// <summary>Reports each screen whose primary action names no use case the screen offers.</summary>

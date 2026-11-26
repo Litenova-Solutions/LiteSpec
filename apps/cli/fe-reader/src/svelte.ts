@@ -1,4 +1,4 @@
-// Use-case module reading (both web stacks) and Svelte route reading. A module
+// Use-case module reading and Svelte route reading. A module
 // entry comes from a use-case folder below the modules root: a module-level
 // use case two levels deep, {module}/{use-case}/, or an aggregate use case
 // three levels deep, {module}/{aggregate}/{use-case}/; its marks are every

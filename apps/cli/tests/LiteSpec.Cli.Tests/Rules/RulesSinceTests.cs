@@ -36,7 +36,7 @@ public sealed class RulesSinceTests
         var result = TestCli.Run("rules", "--root", root.Path, "--since", "HEAD");
 
         Assert.Equal(0, result.Status);
-        Assert.Equal(1, Occurrences(result.Output, "litespec/backend/api#keep-one-name-for-a-use-case-across-layers"));
+        Assert.Equal(1, Occurrences(result.Output, "litespec/core/backend-api#keep-one-name-for-a-use-case-across-layers"));
     }
 
     /// <summary>Every skeleton line carries its file count, most governed first, and a provision both files share governs two files.</summary>
@@ -68,7 +68,7 @@ public sealed class RulesSinceTests
             Assert.True(counts[index] <= counts[index - 1], "The skeleton orders by governing file count, most first.");
         }
 
-        Assert.Contains(lines, line => line.StartsWith("- litespec/backend/api#keep-one-name-for-a-use-case-across-layers (2 files): ", StringComparison.Ordinal));
+        Assert.Contains(lines, line => line.StartsWith("- litespec/core/backend-api#keep-one-name-for-a-use-case-across-layers (2 files): ", StringComparison.Ordinal));
     }
 
     /// <summary>A convention without a verification line asks its Default sentence in the skeleton.</summary>

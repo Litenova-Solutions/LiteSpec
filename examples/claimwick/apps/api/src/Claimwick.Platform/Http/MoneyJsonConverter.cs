@@ -6,7 +6,7 @@ using Claimwick.Kernel.Values;
 namespace Claimwick.Platform.Http;
 
 /// <summary>Converts money on the wire as a string amount with a three-letter currency code.</summary>
-/// <follows>litespec/backend/dotnet/api#convert-money-with-the-platform-converter</follows>
+/// <follows>litespec/packs/dotnet/api#convert-money-with-the-platform-converter</follows>
 internal sealed class MoneyJsonConverter : JsonConverter<Money>
 {
     public override Money? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

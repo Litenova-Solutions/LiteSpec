@@ -7,7 +7,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class ActEventsTests
 {
     /// <summary>An event a method raises without a listing is undeclared on that method.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "An event a method raises without a listing is undeclared on that method")]
     public void UndeclaredPerMethodAndEvent()
     {
@@ -29,7 +29,7 @@ public sealed class ActEventsTests
     }
 
     /// <summary>A listed event no method raises is unraised once on the first method.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A listed event no method raises is unraised once on the first method")]
     public void UnraisedOnceOnFirstMethod()
     {
@@ -46,7 +46,7 @@ public sealed class ActEventsTests
     }
 
     /// <summary>A use case with no marked method yields nothing.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A use case with no marked method yields nothing")]
     public void NoMethodsYieldsNothing()
     {
@@ -58,7 +58,7 @@ public sealed class ActEventsTests
     }
 
     /// <summary>Declared events each raised yield nothing.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Declared events each raised yield nothing")]
     public void AllRaisedYieldsNothing()
     {
@@ -73,7 +73,7 @@ public sealed class ActEventsTests
     }
 
     /// <summary>A listed event raised by another marked method yields nothing.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A listed event raised by another marked method yields nothing")]
     public void RaisedUnionAcrossMethods()
     {
@@ -90,7 +90,7 @@ public sealed class ActEventsTests
     }
 
     /// <summary>A twice-listed unraised event is reported once.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A twice-listed unraised event is reported once")]
     public void DuplicateRaisesYieldOneUnraised()
     {
@@ -104,7 +104,7 @@ public sealed class ActEventsTests
     }
 
     /// <summary>A twice-raised undeclared event is reported once per method.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A twice-raised undeclared event is reported once per method")]
     public void DuplicateRaisedYieldOneUndeclaredPerMethod()
     {
@@ -118,14 +118,14 @@ public sealed class ActEventsTests
     }
 
     /// <summary>Check rejects null raises.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Check rejects null raises")]
     public void CheckRejectsNullRaises() =>
         Assert.Throws<ArgumentNullException>(
             () => ActEvents.Check(null!, Array.Empty<ActMethodRaises>()));
 
     /// <summary>Check rejects null methods.</summary>
-    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
+    /// <proves>litespec/core/backend-domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Check rejects null methods")]
     public void CheckRejectsNullMethods() =>
         Assert.Throws<ArgumentNullException>(

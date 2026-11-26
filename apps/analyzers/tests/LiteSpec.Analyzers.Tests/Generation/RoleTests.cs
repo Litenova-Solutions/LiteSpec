@@ -12,7 +12,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RoleTests
 {
     /// <summary>Roles list each role with its scope and granted permissions in permission record order.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Roles list each role with its scope and granted permissions in record order")]
     public void RolesListScopeAndGrantedPermissionsInRecordOrder()
     {
@@ -42,7 +42,7 @@ public sealed class RoleTests
     }
 
     /// <summary>Of returns the entry for a known id and throws for an unknown id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Of returns the entry for a known id and throws for an unknown id")]
     public void OfReturnsKnownAndThrowsForUnknown()
     {
@@ -94,7 +94,7 @@ public sealed class RoleTests
     }
 
     /// <summary>A role without scope that no permission grants reads empty and empty.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A role without scope that no permission grants reads empty and empty")]
     public void RoleWithoutScopeReadsDefaults()
     {
@@ -111,7 +111,7 @@ public sealed class RoleTests
     }
 
     /// <summary>A permission granting an undeclared role is emitted and reports LS5012.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A permission granting an undeclared role is emitted and reports LS5012")]
     public void PermissionGrantingUndeclaredRoleReportsLS5012()
     {
@@ -136,7 +136,7 @@ public sealed class RoleTests
     }
 
     /// <summary>Two roles producing one name report LS5009 and emit no roles.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Two roles producing one name report LS5009 and emit no roles")]
     public void RoleCollisionReportsLS5009AndEmitsNoRoles()
     {

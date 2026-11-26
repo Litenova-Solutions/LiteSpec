@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1017: a typed identifier or value type whose constructor throws on invalid input offers a non-throwing parse.</summary>
-/// <follows>litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types</follows>
+/// <follows>litespec/packs/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ValueTypeParseAnalyzer : LayerAnalyzer
 {

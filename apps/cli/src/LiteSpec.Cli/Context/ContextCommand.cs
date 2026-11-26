@@ -336,8 +336,7 @@ static class ContextCommand
         file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
         && !string.Equals(Path.GetFileName(file), "refusals.yaml", StringComparison.OrdinalIgnoreCase)
         && !string.Equals(file, config.GlossaryPath, StringComparison.OrdinalIgnoreCase)
-        && !string.Equals(file, ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase)
-        && !string.Equals(file, config.UiPatternCatalog, StringComparison.OrdinalIgnoreCase);
+        && !string.Equals(file, ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase);
 
     /// <summary>The record layer of one record type, from the model.</summary>
     /// <param name="type">The record type.</param>

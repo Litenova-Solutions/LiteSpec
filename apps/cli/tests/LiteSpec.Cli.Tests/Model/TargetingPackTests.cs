@@ -11,7 +11,7 @@ public sealed class TargetingPackTests
     /// <param name="framework">The target framework.</param>
     /// <param name="major">The expected major version.</param>
     /// <param name="minor">The expected minor version.</param>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("net10.0", 10, 0)]
     [InlineData("net8.0", 8, 0)]
@@ -28,7 +28,7 @@ public sealed class TargetingPackTests
 
     /// <summary>Rejects a framework that names no .NET version.</summary>
     /// <param name="framework">The target framework.</param>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("netstandard2.0")]
     [InlineData("net48")]
@@ -43,7 +43,7 @@ public sealed class TargetingPackTests
     /// <summary>Parses a pack version folder name.</summary>
     /// <param name="folder">The pack version folder name.</param>
     /// <param name="expected">The expected version.</param>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("10.0.14", "10.0.14")]
     [InlineData("8.0.28", "8.0.28")]
@@ -57,7 +57,7 @@ public sealed class TargetingPackTests
 
     /// <summary>Rejects a pack folder name that names no version.</summary>
     /// <param name="folder">The pack folder name.</param>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("")]
     [InlineData("latest")]
@@ -65,7 +65,7 @@ public sealed class TargetingPackTests
         Assert.False(TargetingPack.TryParsePackVersion(folder, out _));
 
     /// <summary>Reports no dotnet installation when no root was found.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReportsNoDotnetInstallation()
     {
@@ -76,7 +76,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Reports no targeting pack when the roots hold none.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReportsNoTargetingPack()
     {
@@ -89,7 +89,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Picks the highest patch of the matching framework.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void PicksHighestPatchOfMatchingFramework()
     {
@@ -104,7 +104,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Picks the matching framework over the highest pack.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void PicksMatchingFrameworkOverHighestPack()
     {
@@ -119,7 +119,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Picks the highest pack when no framework is named.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void PicksHighestPackWithoutFramework()
     {
@@ -134,7 +134,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Reports no matching pack when the framework has none.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReportsNoMatchingPack()
     {
@@ -148,7 +148,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Reads the target frameworks the assets files name.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReadsTargetFrameworksFromAssets()
     {
@@ -160,7 +160,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Reads the framework before the target slash.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReadsFrameworkBeforeTargetSlash()
     {
@@ -172,7 +172,7 @@ public sealed class TargetingPackTests
     }
 
     /// <summary>Reads no framework when the assets name none.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReadsNoFrameworkWithoutTargets()
     {

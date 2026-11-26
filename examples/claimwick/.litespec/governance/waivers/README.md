@@ -5,7 +5,7 @@
 
 | Waiver | Module | Expires On | Covers | Closed By |
 |:---|:---|:---|:---|:---|
-| [Export Review Bypass](export-review-bypass/export-review-bypass.yaml) | - | 2027-01-01 | `litespec/backend/application#enforce-target-authorization-in-the-pipeline` | `use-case/spending.export-expenses` |
+| [Export Review Bypass](export-review-bypass/export-review-bypass.yaml) | - | 2027-01-01 | `litespec/core/backend-application#enforce-target-authorization-in-the-pipeline` | `use-case/spending.export-expenses` |
 | [Expense Screens Unimplemented](expense-screens-unimplemented/expense-screens-unimplemented.yaml) | - | 2027-06-01 | `use-case-unreached` | `use-case/reporting.list-reimbursed-expenses`, `use-case/spending.change-receipt-threshold`, `use-case/spending.change-reminder-preference`, `use-case/spending.export-expenses` |
 | [Expense Steps Unscreened](expense-steps-unscreened/expense-steps-unscreened.yaml) | - | 2027-06-01 | `step-screen-missing` | `step/export-approved-expenses.export-batch`, `step/set-receipt-threshold.set-threshold`, `step/submit-and-reimburse.set-reminder-preference` |
 | [Reimbursed List Unserved](reimbursed-list-unserved/reimbursed-list-unserved.yaml) | - | 2027-06-01 | `use-case-flow-missing` | `use-case/reporting.list-reimbursed-expenses` |

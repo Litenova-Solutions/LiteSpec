@@ -5,7 +5,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>Checks that every declared generated API client records the contract document it was generated from.</summary>
-/// <follows>litespec/frontend/data#regenerate-the-client-with-the-contract</follows>
+/// <follows>litespec/packs/svelte/data#add-the-stack-query-plugin-to-the-client-generator</follows>
 internal static class ClientFreshnessChecks
 {
     /// <summary>The file a generated client uses to record its source contract's hash.</summary>

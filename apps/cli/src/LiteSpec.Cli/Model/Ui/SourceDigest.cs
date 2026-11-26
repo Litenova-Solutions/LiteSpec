@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     source with uniform line endings and no trailing spaces. The lock check recomputes
 ///     it to compare, and <c>litespec model render</c> writes it, so both read one function.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#record-primitive-sources-in-the-source-lock</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</follows>
 static class SourceDigest
 {
     /// <summary>A line ending.</summary>

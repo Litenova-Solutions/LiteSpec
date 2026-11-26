@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ReactionSubscriptionCheckTests
 {
     /// <summary>Handler Subscribed To An Undeclared Event Reports Drift.</summary>
-    /// <proves>litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
+    /// <proves>litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
     [Fact]
     public void HandlerSubscribedToAnUndeclaredEventReportsDrift()
     {
@@ -22,7 +22,7 @@ public sealed class ReactionSubscriptionCheckTests
     }
 
     /// <summary>Declared Trigger With No Subscribed Handler Reports Unhandled.</summary>
-    /// <proves>litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
+    /// <proves>litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
     [Fact]
     public void DeclaredTriggerWithNoSubscribedHandlerReportsUnhandled()
     {
@@ -37,7 +37,7 @@ public sealed class ReactionSubscriptionCheckTests
     }
 
     /// <summary>Handler Subscribed To Its Declared Trigger Passes.</summary>
-    /// <proves>litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
+    /// <proves>litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
     [Fact]
     public void HandlerSubscribedToItsDeclaredTriggerPasses()
     {
@@ -51,7 +51,7 @@ public sealed class ReactionSubscriptionCheckTests
     }
 
     /// <summary>A Simple Event Name Two Records Claim Reports Neither Drift Nor Unhandled.</summary>
-    /// <proves>litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
+    /// <proves>litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
     [Fact]
     public void AmbiguousEventNameReportsNeitherDriftNorUnhandled()
     {
@@ -65,7 +65,7 @@ public sealed class ReactionSubscriptionCheckTests
     }
 
     /// <summary>A Handler Subscribed To An Unresolvable Event Type Reports No Unhandled Trigger.</summary>
-    /// <proves>litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
+    /// <proves>litespec/packs/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers</proves>
     [Fact]
     public void UnresolvableEventTypeReportsNoUnhandledTrigger()
     {

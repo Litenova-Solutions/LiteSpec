@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2026: two use case folders of one module declare no record with the same name and members.</summary>
-/// <follows>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</follows>
+/// <follows>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DuplicateModelAnalyzer : LayerAnalyzer
 {

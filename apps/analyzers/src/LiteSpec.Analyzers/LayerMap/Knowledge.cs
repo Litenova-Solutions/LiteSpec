@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 ///     beside it named <c>&lt;Product&gt;.&lt;Area&gt;.&lt;Variant&gt;</c> and references its model.
 ///     Nothing outside <c>Knowledge/</c> is ever a model or a set.
 /// </summary>
-/// <follows>litespec/backend/knowledge#read-knowledge-through-its-model</follows>
+/// <follows>litespec/core/knowledge#read-knowledge-through-its-model</follows>
 internal static class Knowledge
 {
     /// <summary>Returns the project folder below Knowledge holding the file, or null when no Knowledge folder does.</summary>

@@ -45,7 +45,7 @@ Availability and latency objectives show verified from production only; a projec
 | Availability and latency objectives | OpenTelemetry signals | Production dashboards linked in the book, with OpenSLO files where the Delivery extension applies. |
 | Security | An ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks | ZAP results under `TestResults/` with scan reports showing no unaccepted finding. |
 
-The [Security](security.md) page states the ASVS target and the security scans, the [Operations](operations.md) page states the availability objectives and dashboards, and `litespec/frontend/ui#pass-every-route-suite-check` states the route suite.
+The [Security](security.md) page states the ASVS target and the security scans, the [Operations](operations.md) page states the availability objectives and dashboards, and `litespec/core/ui-verification#run-geometry-sensors-on-every-route` states the route suite.
 
 ### Supply-Chain Gate
 
@@ -97,7 +97,7 @@ The [Delivery extension](../ext/delivery.md) gives projects that select it a sup
 
 **Statement:** The contract job MUST fail a pull request whose frontend code calls the backend outside the generated client.
 
-**Rationale:** Regenerating the contract proves the committed client matches the API, but a hand-written fetch beside it still compiles and drifts on the next contract change. Failing the pull request keeps every backend call inside the generated client that `litespec/frontend/data#use-one-configured-client-per-application` names. A contract change then breaks the build at the call sites that need to move.
+**Rationale:** Regenerating the contract proves the committed client matches the API, but a hand-written fetch beside it still compiles and drifts on the next contract change. Failing the pull request keeps every backend call inside the generated client. A contract change then breaks the build at the call sites that need to move.
 
 **Reviewed for:** Does the contract job show a clean regeneration with no backend call outside the generated client? Read the contract job report and its lint report.
 

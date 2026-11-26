@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class ExtensionFieldCheckTests
 {
     /// <summary>A command without audit reports audit-missing when the audit extension is selected.</summary>
-    /// <proves>litespec/ext/audit#declare-which-commands-are-audited</proves>
+    /// <proves>litespec/core/audit#declare-which-commands-are-audited</proves>
     [Fact]
     public void CommandWithoutAuditWithAuditSelectedReportsMissing()
     {
@@ -20,7 +20,7 @@ public sealed class ExtensionFieldCheckTests
     }
 
     /// <summary>A command with audit passes when the audit extension is selected.</summary>
-    /// <proves>litespec/ext/audit#declare-which-commands-are-audited</proves>
+    /// <proves>litespec/core/audit#declare-which-commands-are-audited</proves>
     [Fact]
     public void CommandWithAuditWithAuditSelectedPasses()
     {
@@ -35,7 +35,7 @@ public sealed class ExtensionFieldCheckTests
     }
 
     /// <summary>A command without audit passes the audit rule when the audit extension is not selected.</summary>
-    /// <proves>litespec/ext/audit#declare-which-commands-are-audited</proves>
+    /// <proves>litespec/core/audit#declare-which-commands-are-audited</proves>
     [Fact]
     public void CommandWithoutAuditWithoutExtensionPassesMissing()
     {
@@ -47,48 +47,48 @@ public sealed class ExtensionFieldCheckTests
         Assert.DoesNotContain("audit-missing", TestModel.Codes(model));
     }
 
-    /// <summary>A use case writing audit reports field-extension-unselected when the audit extension is not selected.</summary>
-    /// <proves>litespec/ext/audit#declare-which-commands-are-audited</proves>
+    /// <summary>A use case writing audit passes without the audit extension selected, because audit is core.</summary>
+    /// <proves>litespec/core/audit#declare-which-commands-are-audited</proves>
     [Fact]
-    public void AuditWrittenWithoutExtensionReportsUnselected()
+    public void AuditWrittenWithoutExtensionPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "audit": {"level": "none"}}"""));
 
-        Assert.Contains("field-extension-unselected", TestModel.Codes(model));
+        Assert.DoesNotContain("field-extension-unselected", TestModel.Codes(model));
     }
 
-    /// <summary>A query writing audit reports field-extension-unselected when the audit extension is not selected.</summary>
-    /// <proves>litespec/ext/audit#declare-which-commands-are-audited</proves>
+    /// <summary>A query writing audit passes without the audit extension selected, because audit is core.</summary>
+    /// <proves>litespec/core/audit#declare-which-commands-are-audited</proves>
     [Fact]
-    public void QueryWithAuditWithoutExtensionReportsUnselected()
+    public void QueryWithAuditWithoutExtensionPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.total-spending", Path.Combine(temp.Path, "total.yaml"), """{"kind": "query", "audit": {"level": "none"}}"""));
 
-        Assert.Contains("field-extension-unselected", TestModel.Codes(model));
+        Assert.DoesNotContain("field-extension-unselected", TestModel.Codes(model));
         Assert.DoesNotContain("audit-missing", TestModel.Codes(model));
     }
 
-    /// <summary>A command writing conflicts reports field-extension-unselected when the concurrency extension is not selected.</summary>
-    /// <proves>litespec/ext/concurrency#document-write-conflict-behavior</proves>
+    /// <summary>A command writing conflicts passes without the concurrency extension selected, because concurrency is core.</summary>
+    /// <proves>litespec/core/concurrency#document-write-conflict-behavior</proves>
     [Fact]
-    public void ConflictsWrittenWithoutExtensionReportsUnselected()
+    public void ConflictsWrittenWithoutExtensionPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command", "conflicts": [{"subject": "A second approval of the same expense.", "winner": "first-write", "refusal": "refusal/spending.approve-conflict"}]}"""));
 
-        Assert.Contains("field-extension-unselected", TestModel.Codes(model));
+        Assert.DoesNotContain("field-extension-unselected", TestModel.Codes(model));
     }
 
     /// <summary>A command writing conflicts passes when the concurrency extension is selected.</summary>
-    /// <proves>litespec/ext/concurrency#document-write-conflict-behavior</proves>
+    /// <proves>litespec/core/concurrency#document-write-conflict-behavior</proves>
     [Fact]
     public void ConflictsWrittenWithConcurrencySelectedPasses()
     {

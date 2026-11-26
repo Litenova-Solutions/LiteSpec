@@ -8,7 +8,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 {
     /// <summary>LS2020 reports a module naming another module outside its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 reports a module naming another module outside its Contracts")]
     public Task ReportsAModuleNamingAnotherModuleOutsideContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -48,7 +48,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 reports a module that publishes no Contracts folder yet.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 reports a module that publishes no Contracts folder yet")]
     public Task ReportsAModuleWithoutContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -77,7 +77,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 stays quiet in a project laid out without product layer folders, such as a tool.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 stays quiet in a project laid out without product layer folders")]
     public Task StaysQuietWithoutProductLayerFolders() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -106,7 +106,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 accepts a module naming another module through its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 accepts a module naming another module through its Contracts")]
     public Task AcceptsAModuleNamingContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -142,7 +142,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 accepts a module naming its own types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 accepts a module naming its own types")]
     public Task AcceptsAModuleNamingItsOwnTypes() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -181,7 +181,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 still reports a reference resolved through a global using.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 still reports a reference resolved through a global using")]
     public Task ReportsThroughAGlobalUsing() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -221,7 +221,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 stays quiet for shared files outside every module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 stays quiet for shared files outside every module")]
     public Task StaysQuietOutsideModules() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -253,7 +253,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 accepts another module naming a Contracts kind subfolder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 accepts another module naming a Contracts kind subfolder")]
     public Task AcceptsAContractsKindSubfolder() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -291,7 +291,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 stays quiet in a one-module-project compilation, where visibility holds the boundary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 stays quiet in a one-module-project compilation")]
     public Task StaysQuietInAModuleProject() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(

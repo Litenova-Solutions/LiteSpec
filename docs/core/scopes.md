@@ -15,7 +15,7 @@ The `layer` field names the record layer the provision governs, `trace` says whe
 
 | Field | Answers | Values |
 |:---|:---|:---|
-| `stack` | Which technology | `dotnet`, `react`, `svelte`, `blazor`, `android`, `any` |
+| `stack` | Which technology | `dotnet`, `svelte`, `android`, `any` |
 | `concern` | Which part of the system | `domain`, `application`, `infrastructure`, `web-api`, `frontend-ui`, `frontend-data`, `tests`, `records`, `workspace`, `operations` |
 | `artifact` | Which kind of thing is made | `any`, one code kind, several code kinds separated by a comma, or `record:<type>` for one record of that type |
 | `layer` | Which record layer the provision governs | `any`, `intent`, `behavior`, `implementation`, `proof` |
@@ -29,9 +29,7 @@ The `stack` field names the technology a provision governs:
 | Value | Meaning |
 |:---|:---|
 | `dotnet` | The .NET backend stack |
-| `react` | The React web stack |
 | `svelte` | The Svelte web stack |
-| `blazor` | The Blazor stack |
 | `android` | The Android mobile stack |
 | `any` | No technology; the provision applies to every stack |
 
@@ -113,7 +111,8 @@ Each page gives its provisions one default record layer. The default comes from 
 |:---|:---|
 | `docs/core/intent.md` | `intent` |
 | `docs/core/behavior.md`, `docs/core/use-cases.md`, and `docs/core/access.md` | `behavior` |
-| `docs/core/release.md` | `implementation` |
+| `docs/core/testing.md` and `docs/core/ui-verification.md` | `proof` |
+| `docs/core/release.md`, `docs/core/backend-*.md`, `docs/core/knowledge.md`, `docs/core/audit.md`, `docs/core/concurrency.md`, `docs/core/integrations.md`, `docs/core/jobs.md`, `docs/core/lifecycle.md`, `docs/core/locale.md`, `docs/core/outbox.md`, `docs/core/tenancy.md`, and `docs/core/ui-ia.md` | `implementation` |
 | Any other `docs/core/` page | `any` |
 | Any other page whose concern is `tests` | `proof` |
 | Every other standards page | `implementation` |
@@ -287,7 +286,7 @@ A .NET domain page opens with its Scope block, and its aggregate provision narro
 
 ### Guard Each Aggregate Boundary
 
-**ID:** `litespec/backend/domain#guard-each-aggregate-boundary`
+**ID:** `litespec/core/backend-domain#guard-each-aggregate-boundary`
 
 **Strength:** required
 

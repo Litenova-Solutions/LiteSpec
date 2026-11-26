@@ -185,11 +185,4 @@ public sealed partial class StandardsValidatorTests
     public void VerificationLinesSharingEvidence() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Does the topic live in its owning documentation area?", "`litespec-maintain validate` confirms the topic stays inside its declared boundary.")),
         [MaintainerDiagnostics.Codes.VerifyDuplicateEvidence]);
-
-    /// <summary>Pattern provision without a verification line.</summary>
-    /// <proves>litespec/core/authoring#end-each-provision-with-one-verification-line</proves>
-    [Fact(DisplayName = "pattern provision without a verification line")]
-    public void PatternWithoutVerificationLine() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "**Reviewed for:** Does the top of each record page match the default option or the one its catalog records?\n\n", "")),
-        [MaintainerDiagnostics.Codes.VerifyMissingId]);
 }

@@ -79,7 +79,7 @@ The identity is already a generated value, so a pipeline stage reads it from the
 
 **Rationale:** An identifier that each host formats its own way correlates nothing across the boundary between hosts. The `traceparent` format is what OpenTelemetry implements and every managed backend accepts, so a trace crosses a frontend, an API, a background host, and a provider without translation. One propagator, the component that reads and writes the headers, is the part that matters: two configured propagators produce two identifiers for one request, and the trace splits at whichever hop reads the other one.
 
-**Example:** The trace identifier in a Problem Details response is the `trace-id` field of the current `traceparent`, which is what `litespec/backend/api#return-stable-problem-details` returns.
+**Example:** The trace identifier in a Problem Details response is the `trace-id` field of the current `traceparent`, which is what `litespec/core/backend-api#return-stable-problem-details` returns.
 
 **Reviewed for:** Does one configured propagator read and write W3C trace context on every host? Look at the telemetry setup of each host.
 

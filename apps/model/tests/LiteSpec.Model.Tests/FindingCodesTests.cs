@@ -190,7 +190,6 @@ public sealed class FindingCodesTests
     [InlineData("quality-alert-missing", RecordLayer.Any, false, "delivery")]
     [InlineData("alert-link-missing", RecordLayer.Any, false, "delivery")]
     [InlineData("audit-missing", RecordLayer.Behavior, false, "audit")]
-    [InlineData("field-extension-unselected", RecordLayer.Behavior, false, null)]
     [InlineData("statement-measure-missing", RecordLayer.Proof, false, null)]
     [InlineData("rule-sibling-uncited", RecordLayer.Behavior, false, null)]
     [InlineData("exercises-uncited", RecordLayer.Behavior, false, null)]

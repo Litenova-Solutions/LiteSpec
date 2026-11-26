@@ -71,7 +71,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 reports a handler constructing an entity of an aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 reports a handler constructing an entity of an aggregate")]
     public Task ReportsAHandlerConstructingAnEntity() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -98,7 +98,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 accepts a handler constructing input records the root takes as a list, in a sub-namespace of the aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 accepts input records the root takes as a list")]
     public Task AcceptsInputRecordsTheRootTakesAsAList() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -142,7 +142,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 reports a handler constructing the aggregate root itself.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 reports a handler constructing the aggregate root itself")]
     public Task ReportsAHandlerConstructingTheRoot() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -168,7 +168,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 reports a handler constructing an event or an exception of an aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 reports a handler constructing an event or an exception of an aggregate")]
     public Task ReportsAHandlerConstructingAnEventOrAnException() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -208,7 +208,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 accepts the root constructing its parts inside its own folder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 accepts the root constructing its parts inside its own folder")]
     public Task AcceptsConstructionInsideTheAggregateFolder() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -238,7 +238,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 accepts a handler constructing the root's input record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 accepts a handler constructing the root's input record")]
     public Task AcceptsConstructionOfAnInputRecord() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -264,7 +264,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 accepts a handler constructing typed identifiers.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 accepts a handler constructing typed identifiers")]
     public Task AcceptsConstructionOfTypedIdentifiers() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -303,7 +303,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 reports construction from the one-modules-project deviation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 reports construction from the one-modules-project deviation")]
     public Task ReportsConstructionUnderOneModulesProject() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -330,7 +330,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 stays silent in a test project.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 stays silent in a test project")]
     public Task StaysSilentInATestProject() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -374,7 +374,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 accepts a repository building the query result its Domain interface returns.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 accepts a repository building the result its Domain interface returns")]
     public Task AcceptsARepositoryBuildingTheResultItsInterfaceReturns() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -411,7 +411,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 still reports a handler building the result a repository interface returns.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 reports a handler building the result a repository interface returns")]
     public Task ReportsAHandlerBuildingARepositoryResult() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(
@@ -437,7 +437,7 @@ public sealed class AggregateAccessAnalyzerTests
 
     /// <summary>LS1014 accepts a repository building the result its interface returns inside a lambda.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
+    /// <proves>litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root</proves>
     [Fact(DisplayName = "LS1014 accepts a repository building its interface result inside a lambda")]
     public Task AcceptsARepositoryBuildingItsResultInsideALambda() =>
         Verify.AnalyzerAsync<AggregateAccessAnalyzer>(

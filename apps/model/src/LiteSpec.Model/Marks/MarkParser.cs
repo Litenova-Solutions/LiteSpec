@@ -6,8 +6,8 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     Reads marks from text in every written form: the documentation tags and
-///     the generated attributes. The Blazor and operations readers share this,
-///     so all three read the same verbs with the same trimming. Matching is
+///     the generated attributes. The code readers share this,
+///     so every reader reads the same verbs with the same trimming. Matching is
 ///     exact and case sensitive. A malformed mark is left out rather than
 ///     returned with an empty identifier: text readers report what they find,
 ///     never what they cannot parse.

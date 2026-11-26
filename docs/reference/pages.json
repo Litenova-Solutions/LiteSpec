@@ -889,288 +889,6 @@
       ]
     },
     {
-      "file": "docs/backend/README.md",
-      "path": "backend/README",
-      "style": "index",
-      "area": "backend",
-      "title": "Overview",
-      "intent": "",
-      "sections": [
-        "How the Pages Fit Together",
-        "Backend Principles",
-        "Backend Stack"
-      ]
-    },
-    {
-      "file": "docs/backend/api.md",
-      "path": "backend/api",
-      "style": "standard",
-      "area": "backend",
-      "title": "HTTP API",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/application.md",
-      "path": "backend/application",
-      "style": "standard",
-      "area": "backend",
-      "title": "Application Layer",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/architecture.md",
-      "path": "backend/architecture",
-      "style": "standard",
-      "area": "backend",
-      "title": "Backend Architecture",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/domain.md",
-      "path": "backend/domain",
-      "style": "standard",
-      "area": "backend",
-      "title": "Domain Layer",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/api.md",
-      "path": "backend/dotnet/api",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET HTTP API",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/application.md",
-      "path": "backend/dotnet/application",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Application Layer",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/architecture.md",
-      "path": "backend/dotnet/architecture",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Architecture",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/config.md",
-      "path": "backend/dotnet/config",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Configuration",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/domain.md",
-      "path": "backend/dotnet/domain",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Domain Layer",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/ext/README.md",
-      "path": "backend/dotnet/ext/README",
-      "style": "index",
-      "area": "backend",
-      "title": "Overview",
-      "intent": "",
-      "sections": [
-        "How the Pages Fit Together",
-        ".NET Stack Extensions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/ext/bdd.md",
-      "path": "backend/dotnet/ext/bdd",
-      "style": "extension",
-      "area": "backend",
-      "title": "Executable BDD Acceptance Tests",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/naming.md",
-      "path": "backend/dotnet/naming",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Naming and Code Style",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/packages.md",
-      "path": "backend/dotnet/packages",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Packages",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/persistence.md",
-      "path": "backend/dotnet/persistence",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Persistence",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/stack.md",
-      "path": "backend/dotnet/stack",
-      "style": "stack",
-      "area": "backend",
-      "title": ".NET Stack",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/testing.md",
-      "path": "backend/dotnet/testing",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Testing",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/workspace.md",
-      "path": "backend/dotnet/workspace",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Workspace",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/knowledge.md",
-      "path": "backend/knowledge",
-      "style": "standard",
-      "area": "backend",
-      "title": "Knowledge",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/persistence.md",
-      "path": "backend/persistence",
-      "style": "standard",
-      "area": "backend",
-      "title": "Persistence",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/testing.md",
-      "path": "backend/testing",
-      "style": "standard",
-      "area": "backend",
-      "title": "Backend Testing",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
       "file": "docs/core/README.md",
       "path": "core/README",
       "style": "index",
@@ -1209,6 +927,19 @@
       ]
     },
     {
+      "file": "docs/core/audit.md",
+      "path": "core/audit",
+      "style": "standard",
+      "area": "core",
+      "title": "Audit Trail",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/core/authoring.md",
       "path": "core/authoring",
       "style": "standard",
@@ -1235,6 +966,74 @@
       ]
     },
     {
+      "file": "docs/core/backend-api.md",
+      "path": "core/backend-api",
+      "style": "standard",
+      "area": "core",
+      "title": "HTTP API",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/backend-application.md",
+      "path": "core/backend-application",
+      "style": "standard",
+      "area": "core",
+      "title": "Application Layer",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/backend-architecture.md",
+      "path": "core/backend-architecture",
+      "style": "standard",
+      "area": "core",
+      "title": "Backend Architecture",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/backend-domain.md",
+      "path": "core/backend-domain",
+      "style": "standard",
+      "area": "core",
+      "title": "Domain Layer",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/backend-persistence.md",
+      "path": "core/backend-persistence",
+      "style": "standard",
+      "area": "core",
+      "title": "Persistence",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
       "file": "docs/core/behavior.md",
       "path": "core/behavior",
       "style": "standard",
@@ -1246,6 +1045,19 @@
         "Standards",
         "Conventions",
         "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/concurrency.md",
+      "path": "core/concurrency",
+      "style": "standard",
+      "area": "core",
+      "title": "Concurrency and Idempotency",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
       ]
     },
     {
@@ -1289,6 +1101,19 @@
       ]
     },
     {
+      "file": "docs/core/integrations.md",
+      "path": "core/integrations",
+      "style": "standard",
+      "area": "core",
+      "title": "External Integrations",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/core/intent.md",
       "path": "core/intent",
       "style": "standard",
@@ -1300,6 +1125,32 @@
         "Standards",
         "Conventions",
         "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/jobs.md",
+      "path": "core/jobs",
+      "style": "standard",
+      "area": "core",
+      "title": "Scheduled Jobs and Reports",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/knowledge.md",
+      "path": "core/knowledge",
+      "style": "standard",
+      "area": "core",
+      "title": "Knowledge",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
       ]
     },
     {
@@ -1331,6 +1182,32 @@
       ]
     },
     {
+      "file": "docs/core/lifecycle.md",
+      "path": "core/lifecycle",
+      "style": "standard",
+      "area": "core",
+      "title": "Data Lifecycle",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/locale.md",
+      "path": "core/locale",
+      "style": "standard",
+      "area": "core",
+      "title": "Localization",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/core/maintaining.md",
       "path": "core/maintaining",
       "style": "standard",
@@ -1350,6 +1227,19 @@
       "style": "standard",
       "area": "core",
       "title": "Project Model",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/outbox.md",
+      "path": "core/outbox",
+      "style": "standard",
+      "area": "core",
+      "title": "Durable Delivery",
       "intent": "",
       "sections": [
         "Concepts",
@@ -1445,6 +1335,61 @@
       "style": "standard",
       "area": "core",
       "title": "LiteSpec",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/tenancy.md",
+      "path": "core/tenancy",
+      "style": "standard",
+      "area": "core",
+      "title": "Multitenancy",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/testing.md",
+      "path": "core/testing",
+      "style": "standard",
+      "area": "core",
+      "title": "Backend Testing",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/ui-ia.md",
+      "path": "core/ui-ia",
+      "style": "standard",
+      "area": "core",
+      "title": "User Interface Information Architecture",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/core/ui-verification.md",
+      "path": "core/ui-verification",
+      "style": "standard",
+      "area": "core",
+      "title": "User Interface Verification",
       "intent": "",
       "sections": [
         "Concepts",
@@ -1601,46 +1546,15 @@
       "sections": [
         "How to Select an Extension",
         "Project Extensions",
-        "Local Extensions",
-        "Stack Extensions"
+        "Local Extensions"
       ]
     },
     {
-      "file": "docs/ext/ai.md",
-      "path": "ext/ai",
+      "file": "docs/ext/ai-mcp.md",
+      "path": "ext/ai-mcp",
       "style": "extension",
       "area": "ext",
-      "title": "AI Assistance",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/audit.md",
-      "path": "ext/audit",
-      "style": "extension",
-      "area": "ext",
-      "title": "Audit Trail",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/cache.md",
-      "path": "ext/cache",
-      "style": "extension",
-      "area": "ext",
-      "title": "Caching",
+      "title": "AI and Model Context Protocol",
       "intent": "",
       "sections": [
         "Activation",
@@ -1666,146 +1580,11 @@
       ]
     },
     {
-      "file": "docs/ext/concurrency.md",
-      "path": "ext/concurrency",
-      "style": "extension",
-      "area": "ext",
-      "title": "Concurrency and Idempotency",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/customer-rules.md",
-      "path": "ext/customer-rules",
-      "style": "extension",
-      "area": "ext",
-      "title": "Customer Rules and Hooks",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
       "file": "docs/ext/delivery.md",
       "path": "ext/delivery",
       "style": "extension",
       "area": "ext",
       "title": "Delivery",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/devices.md",
-      "path": "ext/devices",
-      "style": "extension",
-      "area": "ext",
-      "title": "Connected Devices",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/integrations.md",
-      "path": "ext/integrations",
-      "style": "extension",
-      "area": "ext",
-      "title": "External Integrations",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/jobs.md",
-      "path": "ext/jobs",
-      "style": "extension",
-      "area": "ext",
-      "title": "Scheduled Jobs and Reports",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/lifecycle.md",
-      "path": "ext/lifecycle",
-      "style": "extension",
-      "area": "ext",
-      "title": "Data Lifecycle",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/locale.md",
-      "path": "ext/locale",
-      "style": "extension",
-      "area": "ext",
-      "title": "Localization",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/mcp.md",
-      "path": "ext/mcp",
-      "style": "extension",
-      "area": "ext",
-      "title": "Model Context Protocol",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/ext/outbox.md",
-      "path": "ext/outbox",
-      "style": "extension",
-      "area": "ext",
-      "title": "Durable Delivery",
       "intent": "",
       "sections": [
         "Activation",
@@ -1831,21 +1610,6 @@
       ]
     },
     {
-      "file": "docs/ext/queues.md",
-      "path": "ext/queues",
-      "style": "extension",
-      "area": "ext",
-      "title": "Human Work Queues",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
       "file": "docs/ext/realtime.md",
       "path": "ext/realtime",
       "style": "extension",
@@ -1861,506 +1625,6 @@
       ]
     },
     {
-      "file": "docs/ext/tenancy.md",
-      "path": "ext/tenancy",
-      "style": "extension",
-      "area": "ext",
-      "title": "Multitenancy",
-      "intent": "",
-      "sections": [
-        "Activation",
-        "Baseline Relationship",
-        "Standards",
-        "Conventions",
-        "Dependencies"
-      ]
-    },
-    {
-      "file": "docs/frontend/README.md",
-      "path": "frontend/README",
-      "style": "index",
-      "area": "frontend",
-      "title": "Overview",
-      "intent": "",
-      "sections": [
-        "How the Pages Fit Together",
-        "Frontend Principles",
-        "Shared Web Pages",
-        "Shared Mobile Pages",
-        "Stacks"
-      ]
-    },
-    {
-      "file": "docs/frontend/blazor/stack.md",
-      "path": "frontend/blazor/stack",
-      "style": "stack",
-      "area": "frontend",
-      "title": "Blazor Stack",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/components.md",
-      "path": "frontend/components",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Frontend Components",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/frontend/data.md",
-      "path": "frontend/data",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Frontend Data and State",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/README.md",
-      "path": "frontend/mobile/README",
-      "style": "index",
-      "area": "frontend",
-      "title": "Overview",
-      "intent": "",
-      "sections": [
-        "How the Pages Fit Together",
-        "Shared Mobile Pages",
-        "Stacks"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/android/stack.md",
-      "path": "frontend/mobile/android/stack",
-      "style": "stack",
-      "area": "frontend",
-      "title": "Android Stack",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/data.md",
-      "path": "frontend/mobile/data",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Mobile Data and State",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/device.md",
-      "path": "frontend/mobile/device",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Mobile Device Capabilities",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/screens.md",
-      "path": "frontend/mobile/screens",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Mobile Screens and Navigation",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/structure.md",
-      "path": "frontend/mobile/structure",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Mobile Structure",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/mobile/testing.md",
-      "path": "frontend/mobile/testing",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Mobile Testing",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns.md",
-      "path": "frontend/patterns",
-      "style": "standard",
-      "area": "frontend",
-      "title": "UI Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/README.md",
-      "path": "frontend/patterns/README",
-      "style": "index",
-      "area": "frontend",
-      "title": "Overview",
-      "intent": "",
-      "sections": [
-        "What Each Page Holds",
-        "Pattern Categories"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/admin-screens.md",
-      "path": "frontend/patterns/admin-screens",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Admin Screen Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/create-edit-remove.md",
-      "path": "frontend/patterns/create-edit-remove",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Create, Edit and Remove Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/dialogs-and-overlays.md",
-      "path": "frontend/patterns/dialogs-and-overlays",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Dialog and Overlay Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/feedback-and-states.md",
-      "path": "frontend/patterns/feedback-and-states",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Feedback and State Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/forms-and-fields.md",
-      "path": "frontend/patterns/forms-and-fields",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Form and Field Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/lists-and-tables.md",
-      "path": "frontend/patterns/lists-and-tables",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "List and Table Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/money-time-density.md",
-      "path": "frontend/patterns/money-time-density",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Money, Time and Density Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/navigation.md",
-      "path": "frontend/patterns/navigation",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Navigation Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/page-frames.md",
-      "path": "frontend/patterns/page-frames",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Page Frame Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/patterns/record-detail.md",
-      "path": "frontend/patterns/record-detail",
-      "style": "pattern",
-      "area": "frontend",
-      "title": "Record Detail Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Conventions",
-        "Patterns"
-      ]
-    },
-    {
-      "file": "docs/frontend/rendering.md",
-      "path": "frontend/rendering",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Frontend Rendering and Routes",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/structure.md",
-      "path": "frontend/structure",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Frontend Structure",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/frontend/testing.md",
-      "path": "frontend/testing",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Frontend Testing",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/frontend/ui.md",
-      "path": "frontend/ui",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Controlled UI Governance",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/README.md",
-      "path": "frontend/web/README",
-      "style": "index",
-      "area": "frontend",
-      "title": "Overview",
-      "intent": "",
-      "sections": [
-        "How the Pages Fit Together",
-        "Shared Web Pages",
-        "Stacks"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/components.md",
-      "path": "frontend/web/components",
-      "style": "standard",
-      "area": "frontend",
-      "title": "TypeScript Web Components",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/data.md",
-      "path": "frontend/web/data",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Web Data and State",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/patterns.md",
-      "path": "frontend/web/patterns",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Web UI Patterns",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/react/stack.md",
-      "path": "frontend/web/react/stack",
-      "style": "stack",
-      "area": "frontend",
-      "title": "React Stack",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/rendering.md",
-      "path": "frontend/web/rendering",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Web Rendering and Routes",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/structure.md",
-      "path": "frontend/web/structure",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Web Structure",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/svelte/stack.md",
-      "path": "frontend/web/svelte/stack",
-      "style": "stack",
-      "area": "frontend",
-      "title": "Svelte Stack",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/testing.md",
-      "path": "frontend/web/testing",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Web Testing",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/ui.md",
-      "path": "frontend/web/ui",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Web UI",
-      "intent": "",
-      "sections": [
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
       "file": "docs/guide/README.md",
       "path": "guide/README",
       "style": "index",
@@ -2371,19 +1635,6 @@
         "Where to Start",
         "Tutorials",
         "How-To Guides"
-      ]
-    },
-    {
-      "file": "docs/guide/add-a-blazor-frontend.md",
-      "path": "guide/add-a-blazor-frontend",
-      "style": "how-to",
-      "area": "guide",
-      "title": "Add a Blazor Frontend",
-      "intent": "",
-      "sections": [
-        "Prerequisites",
-        "Procedure",
-        "Check"
       ]
     },
     {
@@ -4767,6 +4018,379 @@
       ]
     },
     {
+      "file": "docs/packs/README.md",
+      "path": "packs/README",
+      "style": "index",
+      "area": "packs",
+      "title": "Overview",
+      "intent": "",
+      "sections": [
+        "Packs"
+      ]
+    },
+    {
+      "file": "docs/packs/android/README.md",
+      "path": "packs/android/README",
+      "style": "index",
+      "area": "packs",
+      "title": "Overview",
+      "intent": "",
+      "sections": [
+        "Reading Order"
+      ]
+    },
+    {
+      "file": "docs/packs/android/data.md",
+      "path": "packs/android/data",
+      "style": "standard",
+      "area": "packs",
+      "title": "Mobile Data and State",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/android/device.md",
+      "path": "packs/android/device",
+      "style": "standard",
+      "area": "packs",
+      "title": "Mobile Device Capabilities",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/android/screens.md",
+      "path": "packs/android/screens",
+      "style": "standard",
+      "area": "packs",
+      "title": "Mobile Screens and Navigation",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/android/stack.md",
+      "path": "packs/android/stack",
+      "style": "stack",
+      "area": "packs",
+      "title": "Android Stack",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/android/structure.md",
+      "path": "packs/android/structure",
+      "style": "standard",
+      "area": "packs",
+      "title": "Mobile Structure",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/android/testing.md",
+      "path": "packs/android/testing",
+      "style": "standard",
+      "area": "packs",
+      "title": "Mobile Testing",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/android/ui-primitives.md",
+      "path": "packs/android/ui-primitives",
+      "style": "standard",
+      "area": "packs",
+      "title": "Android UI Primitives",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/README.md",
+      "path": "packs/dotnet/README",
+      "style": "index",
+      "area": "packs",
+      "title": "Overview",
+      "intent": "",
+      "sections": [
+        "Reading Order"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/api.md",
+      "path": "packs/dotnet/api",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET HTTP API",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/application.md",
+      "path": "packs/dotnet/application",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Application Layer",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/architecture.md",
+      "path": "packs/dotnet/architecture",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Architecture",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/config.md",
+      "path": "packs/dotnet/config",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Configuration",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/domain.md",
+      "path": "packs/dotnet/domain",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Domain Layer",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/naming.md",
+      "path": "packs/dotnet/naming",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Naming and Code Style",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/packages.md",
+      "path": "packs/dotnet/packages",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Packages",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/persistence.md",
+      "path": "packs/dotnet/persistence",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Persistence",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions",
+        "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/stack.md",
+      "path": "packs/dotnet/stack",
+      "style": "stack",
+      "area": "packs",
+      "title": ".NET Stack",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/testing.md",
+      "path": "packs/dotnet/testing",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Testing",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/workspace.md",
+      "path": "packs/dotnet/workspace",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Workspace",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/README.md",
+      "path": "packs/svelte/README",
+      "style": "index",
+      "area": "packs",
+      "title": "Overview",
+      "intent": "",
+      "sections": [
+        "Reading Order"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/components.md",
+      "path": "packs/svelte/components",
+      "style": "standard",
+      "area": "packs",
+      "title": "Svelte Web Components",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/data.md",
+      "path": "packs/svelte/data",
+      "style": "standard",
+      "area": "packs",
+      "title": "Web Data and State",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/rendering.md",
+      "path": "packs/svelte/rendering",
+      "style": "standard",
+      "area": "packs",
+      "title": "Web Rendering and Routes",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/stack.md",
+      "path": "packs/svelte/stack",
+      "style": "stack",
+      "area": "packs",
+      "title": "Svelte Stack",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/structure.md",
+      "path": "packs/svelte/structure",
+      "style": "standard",
+      "area": "packs",
+      "title": "Web Structure",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/testing.md",
+      "path": "packs/svelte/testing",
+      "style": "standard",
+      "area": "packs",
+      "title": "Web Testing",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/ui-primitives.md",
+      "path": "packs/svelte/ui-primitives",
+      "style": "standard",
+      "area": "packs",
+      "title": "Svelte UI Primitives",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/quality/README.md",
       "path": "quality/README",
       "style": "index",
@@ -5305,89 +4929,34 @@
   "stacks": [
     {
       "id": "dotnet",
-      "folder": "docs/backend/dotnet",
+      "folder": "docs/packs/dotnet",
       "kind": "backend"
     },
     {
-      "id": "react",
-      "folder": "docs/frontend/web/react",
-      "kind": "frontend"
-    },
-    {
       "id": "svelte",
-      "folder": "docs/frontend/web/svelte",
-      "kind": "frontend"
-    },
-    {
-      "id": "blazor",
-      "folder": "docs/frontend/blazor",
+      "folder": "docs/packs/svelte",
       "kind": "frontend"
     },
     {
       "id": "android",
-      "folder": "docs/frontend/mobile/android",
+      "folder": "docs/packs/android",
       "kind": "frontend"
     }
   ],
   "extensions": [
     {
-      "id": "bdd",
-      "path": "docs/backend/dotnet/ext/bdd.md",
-      "stack": "dotnet"
+      "id": "delivery",
+      "path": "docs/ext/delivery.md",
+      "stack": null
+    },
+    {
+      "id": "ai-mcp",
+      "path": "docs/ext/ai-mcp.md",
+      "stack": null
     },
     {
       "id": "compat",
       "path": "docs/ext/compat.md",
-      "stack": null
-    },
-    {
-      "id": "cache",
-      "path": "docs/ext/cache.md",
-      "stack": null
-    },
-    {
-      "id": "concurrency",
-      "path": "docs/ext/concurrency.md",
-      "stack": null
-    },
-    {
-      "id": "lifecycle",
-      "path": "docs/ext/lifecycle.md",
-      "stack": null
-    },
-    {
-      "id": "integrations",
-      "path": "docs/ext/integrations.md",
-      "stack": null
-    },
-    {
-      "id": "audit",
-      "path": "docs/ext/audit.md",
-      "stack": null
-    },
-    {
-      "id": "locale",
-      "path": "docs/ext/locale.md",
-      "stack": null
-    },
-    {
-      "id": "mcp",
-      "path": "docs/ext/mcp.md",
-      "stack": null
-    },
-    {
-      "id": "tenancy",
-      "path": "docs/ext/tenancy.md",
-      "stack": null
-    },
-    {
-      "id": "plans",
-      "path": "docs/ext/plans.md",
-      "stack": null
-    },
-    {
-      "id": "outbox",
-      "path": "docs/ext/outbox.md",
       "stack": null
     },
     {
@@ -5396,33 +4965,8 @@
       "stack": null
     },
     {
-      "id": "jobs",
-      "path": "docs/ext/jobs.md",
-      "stack": null
-    },
-    {
-      "id": "queues",
-      "path": "docs/ext/queues.md",
-      "stack": null
-    },
-    {
-      "id": "delivery",
-      "path": "docs/ext/delivery.md",
-      "stack": null
-    },
-    {
-      "id": "devices",
-      "path": "docs/ext/devices.md",
-      "stack": null
-    },
-    {
-      "id": "customer-rules",
-      "path": "docs/ext/customer-rules.md",
-      "stack": null
-    },
-    {
-      "id": "ai",
-      "path": "docs/ext/ai.md",
+      "id": "plans",
+      "path": "docs/ext/plans.md",
       "stack": null
     }
   ],
@@ -5433,17 +4977,30 @@
       "files": [
         "docs/core/access.md",
         "docs/core/agent.md",
+        "docs/core/audit.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
+        "docs/core/backend-api.md",
+        "docs/core/backend-application.md",
+        "docs/core/backend-architecture.md",
+        "docs/core/backend-domain.md",
+        "docs/core/backend-persistence.md",
         "docs/core/behavior.md",
+        "docs/core/concurrency.md",
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/integrations.md",
         "docs/core/intent.md",
+        "docs/core/jobs.md",
+        "docs/core/knowledge.md",
         "docs/core/language.md",
         "docs/core/layers.md",
+        "docs/core/lifecycle.md",
+        "docs/core/locale.md",
         "docs/core/maintaining.md",
         "docs/core/model.md",
+        "docs/core/outbox.md",
         "docs/core/principles.md",
         "docs/core/privacy.md",
         "docs/core/release.md",
@@ -5451,6 +5008,10 @@
         "docs/core/scopes.md",
         "docs/core/stacks.md",
         "docs/core/system.md",
+        "docs/core/tenancy.md",
+        "docs/core/testing.md",
+        "docs/core/ui-ia.md",
+        "docs/core/ui-verification.md",
         "docs/core/use-cases.md",
         "docs/core/waivers.md",
         "docs/core/writing.md",
@@ -5467,273 +5028,46 @@
       ]
     },
     {
-      "key": "backend",
-      "title": "Backend Principles",
-      "files": [
-        "docs/backend/api.md",
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/backend/knowledge.md",
-        "docs/backend/persistence.md",
-        "docs/backend/testing.md"
-      ]
-    },
-    {
-      "key": "frontend",
-      "title": "Frontend Principles",
-      "files": [
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md"
-      ]
-    },
-    {
-      "key": "backend/dotnet",
+      "key": "packs/dotnet",
       "title": "Dotnet Stack",
       "files": [
-        "docs/backend/dotnet/api.md",
-        "docs/backend/dotnet/application.md",
-        "docs/backend/dotnet/architecture.md",
-        "docs/backend/dotnet/config.md",
-        "docs/backend/dotnet/domain.md",
-        "docs/backend/dotnet/naming.md",
-        "docs/backend/dotnet/packages.md",
-        "docs/backend/dotnet/persistence.md",
-        "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
-        "docs/backend/dotnet/workspace.md"
+        "docs/packs/dotnet/api.md",
+        "docs/packs/dotnet/application.md",
+        "docs/packs/dotnet/architecture.md",
+        "docs/packs/dotnet/config.md",
+        "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/naming.md",
+        "docs/packs/dotnet/packages.md",
+        "docs/packs/dotnet/persistence.md",
+        "docs/packs/dotnet/stack.md",
+        "docs/packs/dotnet/testing.md",
+        "docs/packs/dotnet/workspace.md"
       ]
     },
     {
-      "key": "frontend/web",
-      "title": "Web Shared Pages",
-      "files": [
-        "docs/frontend/web/components.md",
-        "docs/frontend/web/data.md",
-        "docs/frontend/web/patterns.md",
-        "docs/frontend/web/rendering.md",
-        "docs/frontend/web/structure.md",
-        "docs/frontend/web/testing.md",
-        "docs/frontend/web/ui.md"
-      ]
-    },
-    {
-      "key": "frontend/web/react",
-      "title": "React Stack",
-      "files": [
-        "docs/frontend/web/react/stack.md"
-      ]
-    },
-    {
-      "key": "frontend/web/svelte",
+      "key": "packs/svelte",
       "title": "Svelte Stack",
       "files": [
-        "docs/frontend/web/svelte/stack.md"
+        "docs/packs/svelte/components.md",
+        "docs/packs/svelte/data.md",
+        "docs/packs/svelte/rendering.md",
+        "docs/packs/svelte/stack.md",
+        "docs/packs/svelte/structure.md",
+        "docs/packs/svelte/testing.md",
+        "docs/packs/svelte/ui-primitives.md"
       ]
     },
     {
-      "key": "frontend/blazor",
-      "title": "Blazor Stack",
-      "files": [
-        "docs/frontend/blazor/stack.md"
-      ]
-    },
-    {
-      "key": "frontend/mobile",
-      "title": "Mobile Shared Pages",
-      "files": [
-        "docs/frontend/mobile/data.md",
-        "docs/frontend/mobile/device.md",
-        "docs/frontend/mobile/screens.md",
-        "docs/frontend/mobile/structure.md",
-        "docs/frontend/mobile/testing.md"
-      ]
-    },
-    {
-      "key": "frontend/mobile/android",
+      "key": "packs/android",
       "title": "Android Stack",
       "files": [
-        "docs/frontend/mobile/android/stack.md"
-      ]
-    },
-    {
-      "key": "patterns/admin-screens",
-      "title": "Admin Screen Patterns",
-      "files": [
-        "docs/frontend/patterns/admin-screens.md"
-      ]
-    },
-    {
-      "key": "patterns/create-edit-remove",
-      "title": "Create, Edit and Remove Patterns",
-      "files": [
-        "docs/frontend/patterns/create-edit-remove.md"
-      ]
-    },
-    {
-      "key": "patterns/dialogs-and-overlays",
-      "title": "Dialog and Overlay Patterns",
-      "files": [
-        "docs/frontend/patterns/dialogs-and-overlays.md"
-      ]
-    },
-    {
-      "key": "patterns/feedback-and-states",
-      "title": "Feedback and State Patterns",
-      "files": [
-        "docs/frontend/patterns/feedback-and-states.md"
-      ]
-    },
-    {
-      "key": "patterns/forms-and-fields",
-      "title": "Form and Field Patterns",
-      "files": [
-        "docs/frontend/patterns/forms-and-fields.md"
-      ]
-    },
-    {
-      "key": "patterns/lists-and-tables",
-      "title": "List and Table Patterns",
-      "files": [
-        "docs/frontend/patterns/lists-and-tables.md"
-      ]
-    },
-    {
-      "key": "patterns/money-time-density",
-      "title": "Money, Time and Density Patterns",
-      "files": [
-        "docs/frontend/patterns/money-time-density.md"
-      ]
-    },
-    {
-      "key": "patterns/navigation",
-      "title": "Navigation Patterns",
-      "files": [
-        "docs/frontend/patterns/navigation.md"
-      ]
-    },
-    {
-      "key": "patterns/page-frames",
-      "title": "Page Frame Patterns",
-      "files": [
-        "docs/frontend/patterns/page-frames.md"
-      ]
-    },
-    {
-      "key": "patterns/record-detail",
-      "title": "Record Detail Patterns",
-      "files": [
-        "docs/frontend/patterns/record-detail.md"
-      ]
-    },
-    {
-      "key": "ext/bdd",
-      "title": "Executable BDD Acceptance Tests",
-      "files": [
-        "docs/backend/dotnet/ext/bdd.md"
-      ]
-    },
-    {
-      "key": "ext/compat",
-      "title": "API Compatibility",
-      "files": [
-        "docs/ext/compat.md"
-      ]
-    },
-    {
-      "key": "ext/cache",
-      "title": "Caching",
-      "files": [
-        "docs/ext/cache.md"
-      ]
-    },
-    {
-      "key": "ext/concurrency",
-      "title": "Concurrency and Idempotency",
-      "files": [
-        "docs/ext/concurrency.md"
-      ]
-    },
-    {
-      "key": "ext/lifecycle",
-      "title": "Data Lifecycle",
-      "files": [
-        "docs/ext/lifecycle.md"
-      ]
-    },
-    {
-      "key": "ext/integrations",
-      "title": "External Integrations",
-      "files": [
-        "docs/ext/integrations.md"
-      ]
-    },
-    {
-      "key": "ext/audit",
-      "title": "Audit Trail",
-      "files": [
-        "docs/ext/audit.md"
-      ]
-    },
-    {
-      "key": "ext/locale",
-      "title": "Localization",
-      "files": [
-        "docs/ext/locale.md"
-      ]
-    },
-    {
-      "key": "ext/mcp",
-      "title": "Model Context Protocol",
-      "files": [
-        "docs/ext/mcp.md"
-      ]
-    },
-    {
-      "key": "ext/tenancy",
-      "title": "Multitenancy",
-      "files": [
-        "docs/ext/tenancy.md"
-      ]
-    },
-    {
-      "key": "ext/plans",
-      "title": "Plans and Entitlements",
-      "files": [
-        "docs/ext/plans.md"
-      ]
-    },
-    {
-      "key": "ext/outbox",
-      "title": "Durable Delivery",
-      "files": [
-        "docs/ext/outbox.md"
-      ]
-    },
-    {
-      "key": "ext/realtime",
-      "title": "Live Delivery",
-      "files": [
-        "docs/ext/realtime.md"
-      ]
-    },
-    {
-      "key": "ext/jobs",
-      "title": "Scheduled Jobs and Reports",
-      "files": [
-        "docs/ext/jobs.md"
-      ]
-    },
-    {
-      "key": "ext/queues",
-      "title": "Human Work Queues",
-      "files": [
-        "docs/ext/queues.md"
+        "docs/packs/android/data.md",
+        "docs/packs/android/device.md",
+        "docs/packs/android/screens.md",
+        "docs/packs/android/stack.md",
+        "docs/packs/android/structure.md",
+        "docs/packs/android/testing.md",
+        "docs/packs/android/ui-primitives.md"
       ]
     },
     {
@@ -5744,24 +5078,31 @@
       ]
     },
     {
-      "key": "ext/devices",
-      "title": "Connected Devices",
+      "key": "ext/ai-mcp",
+      "title": "AI and Model Context Protocol",
       "files": [
-        "docs/ext/devices.md"
+        "docs/ext/ai-mcp.md"
       ]
     },
     {
-      "key": "ext/customer-rules",
-      "title": "Customer Rules and Hooks",
+      "key": "ext/compat",
+      "title": "API Compatibility",
       "files": [
-        "docs/ext/customer-rules.md"
+        "docs/ext/compat.md"
       ]
     },
     {
-      "key": "ext/ai",
-      "title": "AI Assistance",
+      "key": "ext/realtime",
+      "title": "Live Delivery",
       "files": [
-        "docs/ext/ai.md"
+        "docs/ext/realtime.md"
+      ]
+    },
+    {
+      "key": "ext/plans",
+      "title": "Plans and Entitlements",
+      "files": [
+        "docs/ext/plans.md"
       ]
     }
   ],
@@ -5773,37 +5114,32 @@
         "dotnet"
       ],
       "pages": [
-        "docs/backend/api.md",
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/backend/dotnet/api.md",
-        "docs/backend/dotnet/application.md",
-        "docs/backend/dotnet/architecture.md",
-        "docs/backend/dotnet/config.md",
-        "docs/backend/dotnet/domain.md",
-        "docs/backend/dotnet/naming.md",
-        "docs/backend/dotnet/packages.md",
-        "docs/backend/dotnet/persistence.md",
-        "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
-        "docs/backend/dotnet/workspace.md",
-        "docs/backend/knowledge.md",
-        "docs/backend/persistence.md",
-        "docs/backend/testing.md",
         "docs/core/access.md",
         "docs/core/agent.md",
+        "docs/core/audit.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
+        "docs/core/backend-api.md",
+        "docs/core/backend-application.md",
+        "docs/core/backend-architecture.md",
+        "docs/core/backend-domain.md",
+        "docs/core/backend-persistence.md",
         "docs/core/behavior.md",
+        "docs/core/concurrency.md",
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/integrations.md",
         "docs/core/intent.md",
+        "docs/core/jobs.md",
+        "docs/core/knowledge.md",
         "docs/core/language.md",
         "docs/core/layers.md",
+        "docs/core/lifecycle.md",
+        "docs/core/locale.md",
         "docs/core/maintaining.md",
         "docs/core/model.md",
+        "docs/core/outbox.md",
         "docs/core/principles.md",
         "docs/core/privacy.md",
         "docs/core/release.md",
@@ -5811,9 +5147,24 @@
         "docs/core/scopes.md",
         "docs/core/stacks.md",
         "docs/core/system.md",
+        "docs/core/tenancy.md",
+        "docs/core/testing.md",
+        "docs/core/ui-ia.md",
+        "docs/core/ui-verification.md",
         "docs/core/use-cases.md",
         "docs/core/waivers.md",
         "docs/core/writing.md",
+        "docs/packs/dotnet/api.md",
+        "docs/packs/dotnet/application.md",
+        "docs/packs/dotnet/architecture.md",
+        "docs/packs/dotnet/config.md",
+        "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/naming.md",
+        "docs/packs/dotnet/packages.md",
+        "docs/packs/dotnet/persistence.md",
+        "docs/packs/dotnet/stack.md",
+        "docs/packs/dotnet/testing.md",
+        "docs/packs/dotnet/workspace.md",
         "docs/quality/ci.md",
         "docs/quality/development.md",
         "docs/quality/operations.md",
@@ -5827,102 +5178,7 @@
       ],
       "layers": [
         "core",
-        "backend",
-        "backend/dotnet"
-      ]
-    },
-    {
-      "key": "server.dotnet.react",
-      "shape": "server",
-      "stacks": [
-        "dotnet",
-        "react"
-      ],
-      "pages": [
-        "docs/backend/api.md",
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/backend/dotnet/api.md",
-        "docs/backend/dotnet/application.md",
-        "docs/backend/dotnet/architecture.md",
-        "docs/backend/dotnet/config.md",
-        "docs/backend/dotnet/domain.md",
-        "docs/backend/dotnet/naming.md",
-        "docs/backend/dotnet/packages.md",
-        "docs/backend/dotnet/persistence.md",
-        "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
-        "docs/backend/dotnet/workspace.md",
-        "docs/backend/knowledge.md",
-        "docs/backend/persistence.md",
-        "docs/backend/testing.md",
-        "docs/core/access.md",
-        "docs/core/agent.md",
-        "docs/core/authoring.md",
-        "docs/core/automation.md",
-        "docs/core/behavior.md",
-        "docs/core/designing.md",
-        "docs/core/domain-model.md",
-        "docs/core/edges.md",
-        "docs/core/intent.md",
-        "docs/core/language.md",
-        "docs/core/layers.md",
-        "docs/core/maintaining.md",
-        "docs/core/model.md",
-        "docs/core/principles.md",
-        "docs/core/privacy.md",
-        "docs/core/release.md",
-        "docs/core/scope.md",
-        "docs/core/scopes.md",
-        "docs/core/stacks.md",
-        "docs/core/system.md",
-        "docs/core/use-cases.md",
-        "docs/core/waivers.md",
-        "docs/core/writing.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
-        "docs/frontend/web/components.md",
-        "docs/frontend/web/data.md",
-        "docs/frontend/web/patterns.md",
-        "docs/frontend/web/react/stack.md",
-        "docs/frontend/web/rendering.md",
-        "docs/frontend/web/structure.md",
-        "docs/frontend/web/testing.md",
-        "docs/frontend/web/ui.md",
-        "docs/quality/ci.md",
-        "docs/quality/development.md",
-        "docs/quality/operations.md",
-        "docs/quality/security.md",
-        "docs/quality/testing.md",
-        "docs/workspace/config.md",
-        "docs/workspace/dependencies.md",
-        "docs/workspace/design.md",
-        "docs/workspace/naming.md",
-        "docs/workspace/structure.md"
-      ],
-      "layers": [
-        "core",
-        "backend",
-        "frontend",
-        "backend/dotnet",
-        "frontend/web",
-        "frontend/web/react"
+        "packs/dotnet"
       ]
     },
     {
@@ -5933,37 +5189,32 @@
         "svelte"
       ],
       "pages": [
-        "docs/backend/api.md",
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/backend/dotnet/api.md",
-        "docs/backend/dotnet/application.md",
-        "docs/backend/dotnet/architecture.md",
-        "docs/backend/dotnet/config.md",
-        "docs/backend/dotnet/domain.md",
-        "docs/backend/dotnet/naming.md",
-        "docs/backend/dotnet/packages.md",
-        "docs/backend/dotnet/persistence.md",
-        "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
-        "docs/backend/dotnet/workspace.md",
-        "docs/backend/knowledge.md",
-        "docs/backend/persistence.md",
-        "docs/backend/testing.md",
         "docs/core/access.md",
         "docs/core/agent.md",
+        "docs/core/audit.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
+        "docs/core/backend-api.md",
+        "docs/core/backend-application.md",
+        "docs/core/backend-architecture.md",
+        "docs/core/backend-domain.md",
+        "docs/core/backend-persistence.md",
         "docs/core/behavior.md",
+        "docs/core/concurrency.md",
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/integrations.md",
         "docs/core/intent.md",
+        "docs/core/jobs.md",
+        "docs/core/knowledge.md",
         "docs/core/language.md",
         "docs/core/layers.md",
+        "docs/core/lifecycle.md",
+        "docs/core/locale.md",
         "docs/core/maintaining.md",
         "docs/core/model.md",
+        "docs/core/outbox.md",
         "docs/core/principles.md",
         "docs/core/privacy.md",
         "docs/core/release.md",
@@ -5971,34 +5222,31 @@
         "docs/core/scopes.md",
         "docs/core/stacks.md",
         "docs/core/system.md",
+        "docs/core/tenancy.md",
+        "docs/core/testing.md",
+        "docs/core/ui-ia.md",
+        "docs/core/ui-verification.md",
         "docs/core/use-cases.md",
         "docs/core/waivers.md",
         "docs/core/writing.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
-        "docs/frontend/web/components.md",
-        "docs/frontend/web/data.md",
-        "docs/frontend/web/patterns.md",
-        "docs/frontend/web/rendering.md",
-        "docs/frontend/web/structure.md",
-        "docs/frontend/web/svelte/stack.md",
-        "docs/frontend/web/testing.md",
-        "docs/frontend/web/ui.md",
+        "docs/packs/dotnet/api.md",
+        "docs/packs/dotnet/application.md",
+        "docs/packs/dotnet/architecture.md",
+        "docs/packs/dotnet/config.md",
+        "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/naming.md",
+        "docs/packs/dotnet/packages.md",
+        "docs/packs/dotnet/persistence.md",
+        "docs/packs/dotnet/stack.md",
+        "docs/packs/dotnet/testing.md",
+        "docs/packs/dotnet/workspace.md",
+        "docs/packs/svelte/components.md",
+        "docs/packs/svelte/data.md",
+        "docs/packs/svelte/rendering.md",
+        "docs/packs/svelte/stack.md",
+        "docs/packs/svelte/structure.md",
+        "docs/packs/svelte/testing.md",
+        "docs/packs/svelte/ui-primitives.md",
         "docs/quality/ci.md",
         "docs/quality/development.md",
         "docs/quality/operations.md",
@@ -6012,97 +5260,8 @@
       ],
       "layers": [
         "core",
-        "backend",
-        "frontend",
-        "backend/dotnet",
-        "frontend/web",
-        "frontend/web/svelte"
-      ]
-    },
-    {
-      "key": "server.dotnet.blazor",
-      "shape": "server",
-      "stacks": [
-        "dotnet",
-        "blazor"
-      ],
-      "pages": [
-        "docs/backend/api.md",
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/backend/dotnet/api.md",
-        "docs/backend/dotnet/application.md",
-        "docs/backend/dotnet/architecture.md",
-        "docs/backend/dotnet/config.md",
-        "docs/backend/dotnet/domain.md",
-        "docs/backend/dotnet/naming.md",
-        "docs/backend/dotnet/packages.md",
-        "docs/backend/dotnet/persistence.md",
-        "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
-        "docs/backend/dotnet/workspace.md",
-        "docs/backend/knowledge.md",
-        "docs/backend/persistence.md",
-        "docs/backend/testing.md",
-        "docs/core/access.md",
-        "docs/core/agent.md",
-        "docs/core/authoring.md",
-        "docs/core/automation.md",
-        "docs/core/behavior.md",
-        "docs/core/designing.md",
-        "docs/core/domain-model.md",
-        "docs/core/edges.md",
-        "docs/core/intent.md",
-        "docs/core/language.md",
-        "docs/core/layers.md",
-        "docs/core/maintaining.md",
-        "docs/core/model.md",
-        "docs/core/principles.md",
-        "docs/core/privacy.md",
-        "docs/core/release.md",
-        "docs/core/scope.md",
-        "docs/core/scopes.md",
-        "docs/core/stacks.md",
-        "docs/core/system.md",
-        "docs/core/use-cases.md",
-        "docs/core/waivers.md",
-        "docs/core/writing.md",
-        "docs/frontend/blazor/stack.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
-        "docs/quality/ci.md",
-        "docs/quality/development.md",
-        "docs/quality/operations.md",
-        "docs/quality/security.md",
-        "docs/quality/testing.md",
-        "docs/workspace/config.md",
-        "docs/workspace/dependencies.md",
-        "docs/workspace/design.md",
-        "docs/workspace/naming.md",
-        "docs/workspace/structure.md"
-      ],
-      "layers": [
-        "core",
-        "backend",
-        "frontend",
-        "backend/dotnet",
-        "frontend/blazor"
+        "packs/dotnet",
+        "packs/svelte"
       ]
     },
     {
@@ -6113,37 +5272,32 @@
         "android"
       ],
       "pages": [
-        "docs/backend/api.md",
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/backend/dotnet/api.md",
-        "docs/backend/dotnet/application.md",
-        "docs/backend/dotnet/architecture.md",
-        "docs/backend/dotnet/config.md",
-        "docs/backend/dotnet/domain.md",
-        "docs/backend/dotnet/naming.md",
-        "docs/backend/dotnet/packages.md",
-        "docs/backend/dotnet/persistence.md",
-        "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
-        "docs/backend/dotnet/workspace.md",
-        "docs/backend/knowledge.md",
-        "docs/backend/persistence.md",
-        "docs/backend/testing.md",
         "docs/core/access.md",
         "docs/core/agent.md",
+        "docs/core/audit.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
+        "docs/core/backend-api.md",
+        "docs/core/backend-application.md",
+        "docs/core/backend-architecture.md",
+        "docs/core/backend-domain.md",
+        "docs/core/backend-persistence.md",
         "docs/core/behavior.md",
+        "docs/core/concurrency.md",
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/integrations.md",
         "docs/core/intent.md",
+        "docs/core/jobs.md",
+        "docs/core/knowledge.md",
         "docs/core/language.md",
         "docs/core/layers.md",
+        "docs/core/lifecycle.md",
+        "docs/core/locale.md",
         "docs/core/maintaining.md",
         "docs/core/model.md",
+        "docs/core/outbox.md",
         "docs/core/principles.md",
         "docs/core/privacy.md",
         "docs/core/release.md",
@@ -6151,32 +5305,31 @@
         "docs/core/scopes.md",
         "docs/core/stacks.md",
         "docs/core/system.md",
+        "docs/core/tenancy.md",
+        "docs/core/testing.md",
+        "docs/core/ui-ia.md",
+        "docs/core/ui-verification.md",
         "docs/core/use-cases.md",
         "docs/core/waivers.md",
         "docs/core/writing.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/mobile/android/stack.md",
-        "docs/frontend/mobile/data.md",
-        "docs/frontend/mobile/device.md",
-        "docs/frontend/mobile/screens.md",
-        "docs/frontend/mobile/structure.md",
-        "docs/frontend/mobile/testing.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
+        "docs/packs/android/data.md",
+        "docs/packs/android/device.md",
+        "docs/packs/android/screens.md",
+        "docs/packs/android/stack.md",
+        "docs/packs/android/structure.md",
+        "docs/packs/android/testing.md",
+        "docs/packs/android/ui-primitives.md",
+        "docs/packs/dotnet/api.md",
+        "docs/packs/dotnet/application.md",
+        "docs/packs/dotnet/architecture.md",
+        "docs/packs/dotnet/config.md",
+        "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/naming.md",
+        "docs/packs/dotnet/packages.md",
+        "docs/packs/dotnet/persistence.md",
+        "docs/packs/dotnet/stack.md",
+        "docs/packs/dotnet/testing.md",
+        "docs/packs/dotnet/workspace.md",
         "docs/quality/ci.md",
         "docs/quality/development.md",
         "docs/quality/operations.md",
@@ -6190,88 +5343,8 @@
       ],
       "layers": [
         "core",
-        "backend",
-        "frontend",
-        "backend/dotnet",
-        "frontend/mobile",
-        "frontend/mobile/android"
-      ]
-    },
-    {
-      "key": "client-only.react",
-      "shape": "client-only",
-      "stacks": [
-        "react"
-      ],
-      "pages": [
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/core/access.md",
-        "docs/core/agent.md",
-        "docs/core/authoring.md",
-        "docs/core/automation.md",
-        "docs/core/behavior.md",
-        "docs/core/designing.md",
-        "docs/core/domain-model.md",
-        "docs/core/edges.md",
-        "docs/core/intent.md",
-        "docs/core/language.md",
-        "docs/core/layers.md",
-        "docs/core/maintaining.md",
-        "docs/core/model.md",
-        "docs/core/principles.md",
-        "docs/core/privacy.md",
-        "docs/core/release.md",
-        "docs/core/scope.md",
-        "docs/core/scopes.md",
-        "docs/core/stacks.md",
-        "docs/core/system.md",
-        "docs/core/use-cases.md",
-        "docs/core/waivers.md",
-        "docs/core/writing.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
-        "docs/frontend/web/components.md",
-        "docs/frontend/web/data.md",
-        "docs/frontend/web/patterns.md",
-        "docs/frontend/web/react/stack.md",
-        "docs/frontend/web/rendering.md",
-        "docs/frontend/web/structure.md",
-        "docs/frontend/web/testing.md",
-        "docs/frontend/web/ui.md",
-        "docs/quality/ci.md",
-        "docs/quality/development.md",
-        "docs/quality/operations.md",
-        "docs/quality/security.md",
-        "docs/quality/testing.md",
-        "docs/workspace/config.md",
-        "docs/workspace/dependencies.md",
-        "docs/workspace/design.md",
-        "docs/workspace/naming.md",
-        "docs/workspace/structure.md"
-      ],
-      "layers": [
-        "core",
-        "backend",
-        "frontend",
-        "frontend/web",
-        "frontend/web/react"
+        "packs/dotnet",
+        "packs/android"
       ]
     },
     {
@@ -6281,22 +5354,32 @@
         "svelte"
       ],
       "pages": [
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
         "docs/core/access.md",
         "docs/core/agent.md",
+        "docs/core/audit.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
+        "docs/core/backend-api.md",
+        "docs/core/backend-application.md",
+        "docs/core/backend-architecture.md",
+        "docs/core/backend-domain.md",
+        "docs/core/backend-persistence.md",
         "docs/core/behavior.md",
+        "docs/core/concurrency.md",
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/integrations.md",
         "docs/core/intent.md",
+        "docs/core/jobs.md",
+        "docs/core/knowledge.md",
         "docs/core/language.md",
         "docs/core/layers.md",
+        "docs/core/lifecycle.md",
+        "docs/core/locale.md",
         "docs/core/maintaining.md",
         "docs/core/model.md",
+        "docs/core/outbox.md",
         "docs/core/principles.md",
         "docs/core/privacy.md",
         "docs/core/release.md",
@@ -6304,34 +5387,20 @@
         "docs/core/scopes.md",
         "docs/core/stacks.md",
         "docs/core/system.md",
+        "docs/core/tenancy.md",
+        "docs/core/testing.md",
+        "docs/core/ui-ia.md",
+        "docs/core/ui-verification.md",
         "docs/core/use-cases.md",
         "docs/core/waivers.md",
         "docs/core/writing.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
-        "docs/frontend/web/components.md",
-        "docs/frontend/web/data.md",
-        "docs/frontend/web/patterns.md",
-        "docs/frontend/web/rendering.md",
-        "docs/frontend/web/structure.md",
-        "docs/frontend/web/svelte/stack.md",
-        "docs/frontend/web/testing.md",
-        "docs/frontend/web/ui.md",
+        "docs/packs/svelte/components.md",
+        "docs/packs/svelte/data.md",
+        "docs/packs/svelte/rendering.md",
+        "docs/packs/svelte/stack.md",
+        "docs/packs/svelte/structure.md",
+        "docs/packs/svelte/testing.md",
+        "docs/packs/svelte/ui-primitives.md",
         "docs/quality/ci.md",
         "docs/quality/development.md",
         "docs/quality/operations.md",
@@ -6345,79 +5414,7 @@
       ],
       "layers": [
         "core",
-        "backend",
-        "frontend",
-        "frontend/web",
-        "frontend/web/svelte"
-      ]
-    },
-    {
-      "key": "client-only.blazor",
-      "shape": "client-only",
-      "stacks": [
-        "blazor"
-      ],
-      "pages": [
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
-        "docs/core/access.md",
-        "docs/core/agent.md",
-        "docs/core/authoring.md",
-        "docs/core/automation.md",
-        "docs/core/behavior.md",
-        "docs/core/designing.md",
-        "docs/core/domain-model.md",
-        "docs/core/edges.md",
-        "docs/core/intent.md",
-        "docs/core/language.md",
-        "docs/core/layers.md",
-        "docs/core/maintaining.md",
-        "docs/core/model.md",
-        "docs/core/principles.md",
-        "docs/core/privacy.md",
-        "docs/core/release.md",
-        "docs/core/scope.md",
-        "docs/core/scopes.md",
-        "docs/core/stacks.md",
-        "docs/core/system.md",
-        "docs/core/use-cases.md",
-        "docs/core/waivers.md",
-        "docs/core/writing.md",
-        "docs/frontend/blazor/stack.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
-        "docs/quality/ci.md",
-        "docs/quality/development.md",
-        "docs/quality/operations.md",
-        "docs/quality/security.md",
-        "docs/quality/testing.md",
-        "docs/workspace/config.md",
-        "docs/workspace/dependencies.md",
-        "docs/workspace/design.md",
-        "docs/workspace/naming.md",
-        "docs/workspace/structure.md"
-      ],
-      "layers": [
-        "core",
-        "backend",
-        "frontend",
-        "frontend/blazor"
+        "packs/svelte"
       ]
     },
     {
@@ -6427,22 +5424,32 @@
         "android"
       ],
       "pages": [
-        "docs/backend/application.md",
-        "docs/backend/architecture.md",
-        "docs/backend/domain.md",
         "docs/core/access.md",
         "docs/core/agent.md",
+        "docs/core/audit.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
+        "docs/core/backend-api.md",
+        "docs/core/backend-application.md",
+        "docs/core/backend-architecture.md",
+        "docs/core/backend-domain.md",
+        "docs/core/backend-persistence.md",
         "docs/core/behavior.md",
+        "docs/core/concurrency.md",
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/integrations.md",
         "docs/core/intent.md",
+        "docs/core/jobs.md",
+        "docs/core/knowledge.md",
         "docs/core/language.md",
         "docs/core/layers.md",
+        "docs/core/lifecycle.md",
+        "docs/core/locale.md",
         "docs/core/maintaining.md",
         "docs/core/model.md",
+        "docs/core/outbox.md",
         "docs/core/principles.md",
         "docs/core/privacy.md",
         "docs/core/release.md",
@@ -6450,32 +5457,20 @@
         "docs/core/scopes.md",
         "docs/core/stacks.md",
         "docs/core/system.md",
+        "docs/core/tenancy.md",
+        "docs/core/testing.md",
+        "docs/core/ui-ia.md",
+        "docs/core/ui-verification.md",
         "docs/core/use-cases.md",
         "docs/core/waivers.md",
         "docs/core/writing.md",
-        "docs/frontend/components.md",
-        "docs/frontend/data.md",
-        "docs/frontend/mobile/android/stack.md",
-        "docs/frontend/mobile/data.md",
-        "docs/frontend/mobile/device.md",
-        "docs/frontend/mobile/screens.md",
-        "docs/frontend/mobile/structure.md",
-        "docs/frontend/mobile/testing.md",
-        "docs/frontend/patterns.md",
-        "docs/frontend/patterns/admin-screens.md",
-        "docs/frontend/patterns/create-edit-remove.md",
-        "docs/frontend/patterns/dialogs-and-overlays.md",
-        "docs/frontend/patterns/feedback-and-states.md",
-        "docs/frontend/patterns/forms-and-fields.md",
-        "docs/frontend/patterns/lists-and-tables.md",
-        "docs/frontend/patterns/money-time-density.md",
-        "docs/frontend/patterns/navigation.md",
-        "docs/frontend/patterns/page-frames.md",
-        "docs/frontend/patterns/record-detail.md",
-        "docs/frontend/rendering.md",
-        "docs/frontend/structure.md",
-        "docs/frontend/testing.md",
-        "docs/frontend/ui.md",
+        "docs/packs/android/data.md",
+        "docs/packs/android/device.md",
+        "docs/packs/android/screens.md",
+        "docs/packs/android/stack.md",
+        "docs/packs/android/structure.md",
+        "docs/packs/android/testing.md",
+        "docs/packs/android/ui-primitives.md",
         "docs/quality/ci.md",
         "docs/quality/development.md",
         "docs/quality/operations.md",
@@ -6489,10 +5484,7 @@
       ],
       "layers": [
         "core",
-        "backend",
-        "frontend",
-        "frontend/mobile",
-        "frontend/mobile/android"
+        "packs/android"
       ]
     }
   ]

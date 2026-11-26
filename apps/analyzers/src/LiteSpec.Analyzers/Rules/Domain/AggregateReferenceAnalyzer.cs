@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1016: a property of one aggregate is never typed as another aggregate's root or entity.</summary>
-/// <follows>litespec/backend/dotnet/domain#reference-other-aggregates-by-typed-identifier</follows>
+/// <follows>litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateReferenceAnalyzer : LayerAnalyzer
 {

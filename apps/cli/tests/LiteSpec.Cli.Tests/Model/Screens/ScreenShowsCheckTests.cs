@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Model.Screens;
 public sealed class ScreenShowsCheckTests
 {
     /// <summary>A row field an offered query outputs reports nothing.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsRowFieldFromOfferedQueryReportsNothing()
     {
@@ -27,7 +27,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>An input field an offered command accepts reports nothing.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsInputFieldFromOfferedCommandReportsNothing()
     {
@@ -42,7 +42,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A field no offered use case outputs or accepts reports screen-shows-unknown.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsFieldNoOfferedUseCaseCarriesReportsShowsUnknown()
     {
@@ -57,7 +57,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A field from a use case the screen does not offer reports screen-shows-unknown.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsFieldFromUnofferedUseCaseReportsShowsUnknown()
     {
@@ -72,7 +72,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A field another offered use case carries reports screen-shows-drift.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsFieldAnotherOfferedUseCaseCarriesReportsShowsDrift()
     {
@@ -87,7 +87,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A field matching only when case and separators are ignored reports screen-shows-drift.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsFieldMatchingOnlyByNameReportsShowsDrift()
     {
@@ -102,7 +102,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A field from a record nothing holds reports reference-unknown.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsFieldFromUnknownRecordReportsReferenceUnknown()
     {
@@ -117,7 +117,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A field from a record that is no use case reports record-invalid.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ShowsFieldFromNonUseCaseReportsRecordInvalid()
     {
@@ -132,7 +132,7 @@ public sealed class ScreenShowsCheckTests
     }
 
     /// <summary>A screen naming no shows entries reports nothing.</summary>
-    /// <proves>litespec/frontend/ui#show-only-fields-an-offered-use-case-outputs-or-accepts</proves>
+    /// <proves>litespec/core/ui-ia#compose-each-screen-from-its-owners-queries</proves>
     [Fact]
     public void ScreenWithoutShowsReportsNothing()
     {

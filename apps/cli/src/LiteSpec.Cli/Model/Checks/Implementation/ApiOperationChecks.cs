@@ -5,7 +5,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The API operation checks: every published operation has a unique operation id and names the use case it runs.</summary>
-/// <follows>litespec/backend/api#name-the-use-case-on-every-published-operation</follows>
+/// <follows>litespec/core/backend-api#name-the-use-case-on-every-published-operation</follows>
 internal static class ApiOperationChecks
 {
     /// <summary>Runs the API operation checks.</summary>

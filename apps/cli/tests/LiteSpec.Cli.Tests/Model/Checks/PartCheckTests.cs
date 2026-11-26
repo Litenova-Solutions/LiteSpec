@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class PartCheckTests
 {
     /// <summary>State Beside Its Root Is Listed Under The Aggregate.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void StateBesideItsRootIsListedUnderTheAggregate()
     {
@@ -30,7 +30,7 @@ public sealed class PartCheckTests
     }
 
     /// <summary>Type In A Subfolder Of The Aggregate Folder Passes.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void TypeInASubfolderOfTheAggregateFolderPasses()
     {
@@ -46,7 +46,7 @@ public sealed class PartCheckTests
     }
 
     /// <summary>Type In A Module Folder With No Root Reports.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void TypeInAModuleFolderWithNoRootReports()
     {
@@ -69,7 +69,7 @@ public sealed class PartCheckTests
     }
 
     /// <summary>Type In The Kernel Is Listed Under Kernel.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void TypeInTheKernelIsListedUnderKernel()
     {
@@ -87,7 +87,7 @@ public sealed class PartCheckTests
     }
 
     /// <summary>Marked Domain Service Is Never A Part.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void MarkedDomainServiceIsNeverAPart()
     {
@@ -105,7 +105,7 @@ public sealed class PartCheckTests
     }
 
     /// <summary>Two Roots In One Folder Orphan The Type.</summary>
-    /// <proves>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</proves>
+    /// <proves>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</proves>
     [Fact]
     public void TwoRootsInOneFolderOrphanTheType()
     {

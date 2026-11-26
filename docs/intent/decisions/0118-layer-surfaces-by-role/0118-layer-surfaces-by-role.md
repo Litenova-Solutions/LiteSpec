@@ -26,7 +26,7 @@ Each layer differs from the surface it sits on by at least 1.06:1 relative lumin
 
 ## Consequences
 
-The token table on `docs/frontend/ui.md` states the layer limits, and the Surfaces and Layers concepts name the stack. The rendered-page audit holds neighbouring fills apart where the token file cannot see them.
+The token table on `docs/frontend/ui.md` states the layer limits, and the Surfaces and Layers concepts name the stack. The rendered-page audit holds neighbouring fills apart where the token file cannot see them. This decision supersedes `decision/0102-draw-platform-composites-with-native-elements` for composites on surfaces: a composite takes the layer its role names and draws no surface of its own.
 
 ## Revisit Conditions
 

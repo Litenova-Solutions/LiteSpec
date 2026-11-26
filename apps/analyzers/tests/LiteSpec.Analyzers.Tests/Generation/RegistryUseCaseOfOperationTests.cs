@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RegistryUseCaseOfOperationTests
 {
     /// <summary>A module maps each endpoint operation name to its use case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A module maps each endpoint operation name to its use case")]
     public void ModuleMapsOperationNamesToUseCases()
     {
@@ -51,7 +51,7 @@ public sealed class RegistryUseCaseOfOperationTests
     }
 
     /// <summary>A host beside a module project maps the operations of its own endpoints.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A host beside a module project maps the operations of its own endpoints")]
     public void ModuleHostMapsItsOwnOperations()
     {
@@ -77,7 +77,7 @@ public sealed class RegistryUseCaseOfOperationTests
     }
 
     /// <summary>A module without marked endpoints maps no operation.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A module without marked endpoints maps no operation")]
     public void ModuleWithoutMarkedEndpointsMapsNothing()
     {

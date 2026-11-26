@@ -51,7 +51,7 @@ public sealed class HandlerMediationSettingsAnalyzerTests
 
     /// <summary>LS2034 reports a command dispatch without settings in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
+    /// <proves>litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
     [Fact(DisplayName = "LS2034 reports a command dispatch without settings in an event handler")]
     public Task ReportsACommandDispatchWithoutSettings() =>
         Verify.AnalyzerAsync<HandlerMediationSettingsAnalyzer>(
@@ -87,7 +87,7 @@ public sealed class HandlerMediationSettingsAnalyzerTests
 
     /// <summary>LS2034 reports a query dispatch without settings in an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
+    /// <proves>litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
     [Fact(DisplayName = "LS2034 reports a query dispatch without settings in an event handler")]
     public Task ReportsAQueryDispatchWithoutSettings() =>
         Verify.AnalyzerAsync<HandlerMediationSettingsAnalyzer>(
@@ -130,7 +130,7 @@ public sealed class HandlerMediationSettingsAnalyzerTests
 
     /// <summary>LS2034 accepts a dispatch that names its mediation settings.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
+    /// <proves>litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
     [Fact(DisplayName = "LS2034 accepts a dispatch that names its mediation settings")]
     public Task AcceptsADispatchWithSettings() =>
         Verify.AnalyzerAsync<HandlerMediationSettingsAnalyzer>(
@@ -167,7 +167,7 @@ public sealed class HandlerMediationSettingsAnalyzerTests
 
     /// <summary>LS2034 stays quiet for a dispatch outside an event handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
+    /// <proves>litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
     [Fact(DisplayName = "LS2034 stays quiet for a dispatch outside an event handler")]
     public Task StaysQuietOutsideAnEventHandler() =>
         Verify.AnalyzerAsync<HandlerMediationSettingsAnalyzer>(
@@ -200,7 +200,7 @@ public sealed class HandlerMediationSettingsAnalyzerTests
 
     /// <summary>LS2034 stays quiet outside Application, Infrastructure and Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
+    /// <proves>litespec/packs/dotnet/application#pass-explicit-mediation-settings-to-nested-use-cases</proves>
     [Fact(DisplayName = "LS2034 stays quiet outside Application, Infrastructure and Worker")]
     public Task StaysQuietOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerMediationSettingsAnalyzer>(

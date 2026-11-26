@@ -11,7 +11,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     refusal type with its line. The refusal check reads this for every root method and helper
 ///     a handler calls, so a thrown code meets a result its use case declares.
 /// </summary>
-/// <follows>litespec/backend/application#return-only-declared-results-and-refusals</follows>
+/// <follows>litespec/core/backend-application#return-only-declared-results-and-refusals</follows>
 public static class ThrownRefusals
 {
     /// <summary>One constructed refusal type: its simple name with its line.</summary>

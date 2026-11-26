@@ -5,5 +5,5 @@ namespace LiteSpec.Cli.Model.Readers;
 /// <param name="File">The file holding the call, relative to the frontend root with forward slashes.</param>
 /// <param name="Line">The 1-based line of the call.</param>
 /// <param name="FromLayout">Whether a layout above the route reaches the call, rather than the route's own files.</param>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 sealed record CallFact(string Operation, string File, int Line, bool FromLayout = false);

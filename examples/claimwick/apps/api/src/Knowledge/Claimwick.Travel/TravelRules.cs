@@ -6,7 +6,7 @@ using Claimwick.Travel.PerDiem;
 namespace Claimwick.Travel;
 
 /// <summary>Answers travel lookups from the registered sets by role and date.</summary>
-/// <follows>litespec/backend/knowledge#read-knowledge-by-role-and-date</follows>
+/// <follows>litespec/core/knowledge#read-knowledge-by-role-and-date</follows>
 public sealed class TravelRules : ITravelRules
 {
     private readonly Dictionary<string, ITravelSet> sets;

@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class RefusalDeclarationCheckTests
 {
     /// <summary>A handler throwing a declared refusal reports nothing.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void DeclaredHandlerRefusalReportsNothing()
     {
@@ -29,7 +29,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A handler throwing an undeclared refusal reports refusal-undeclared.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void UndeclaredHandlerRefusalReports()
     {
@@ -49,7 +49,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A root method the handler calls throwing a declared refusal reports nothing, marked or not.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void DeclaredRootRefusalReportsNothing()
     {
@@ -76,7 +76,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A root method the handler calls throwing an undeclared refusal reports refusal-undeclared from its place.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void UndeclaredRootRefusalReportsFromPlace()
     {
@@ -104,7 +104,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A helper the handler calls throwing an undeclared refusal reports refusal-undeclared via its place.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void UndeclaredHelperRefusalReportsViaPlace()
     {
@@ -145,7 +145,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A derived generic result covers the code its use case throws.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void DerivedGenericResultCovers()
     {
@@ -164,7 +164,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A root method throwing an exception with no refusal code reports nothing.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void UncodedThrowReportsNothing()
     {
@@ -187,7 +187,7 @@ public sealed class RefusalDeclarationCheckTests
     }
 
     /// <summary>A called method with no file keeps no refusal rule.</summary>
-    /// <proves>litespec/backend/application#return-only-declared-results-and-refusals</proves>
+    /// <proves>litespec/core/backend-application#return-only-declared-results-and-refusals</proves>
     [Fact]
     public void UnknownHelperReportsNothing()
     {

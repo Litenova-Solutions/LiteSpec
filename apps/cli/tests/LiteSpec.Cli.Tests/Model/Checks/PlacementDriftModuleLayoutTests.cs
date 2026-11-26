@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class PlacementDriftModuleLayoutTests
 {
     /// <summary>A module-level use case endpoint in its WebApi folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLevelEndpointInWebApiFolderReportsNothing()
     {
@@ -28,7 +28,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A module-level use case handler nested under an aggregate folder reports that folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLevelHandlerNestedUnderAggregateReportsFolder()
     {
@@ -45,7 +45,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An endpoint of an aggregate-owned use case in its WebApi folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateOwnedEndpointInWebApiFolderReportsNothing()
     {
@@ -59,7 +59,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An endpoint nested under an aggregate folder reports that folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateOwnedEndpointInWrongAggregateReportsFolder()
     {
@@ -76,7 +76,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An aggregate-owned handler in its Application folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateOwnedHandlerInApplicationFolderReportsNothing()
     {
@@ -91,7 +91,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A domain event of a module named like a layer folder reports nothing in its plural Domain aggregate folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void DomainEventOfModuleNamedLikeLayerFolderReportsNothing()
     {
@@ -105,7 +105,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An endpoint beside an aggregate named like its module reports nothing in its WebApi folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void EndpointWithSameNamedAggregateInWebApiFolderReportsNothing()
     {
@@ -119,7 +119,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An aggregate root directly in Domain reports the aggregate folder it belongs in.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateRootDirectlyInDomainReportsAggregateFolder()
     {
@@ -136,7 +136,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An aggregate root of a same-named aggregate directly in Domain reports the aggregate folder: no single-aggregate shortcut stays flat.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void SameNamedAggregateRootDirectlyInDomainReportsAggregateFolder()
     {
@@ -153,7 +153,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An aggregate root in its Domain aggregate folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateRootInDomainAggregateFolderReportsNothing()
     {
@@ -167,7 +167,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A rule exception in its module Contracts folder reports that the folder names no declared aggregate.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void RuleExceptionInModuleContractsReportsFolderDrift()
     {
@@ -181,7 +181,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A product rule exception in the Kernel reports nothing, wherever its record file sits.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ProductRuleExceptionInKernelReportsNothing()
     {
@@ -196,7 +196,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A product rule exception in a module reports that it belongs in the Kernel.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ProductRuleExceptionInAModuleReportsTheKernel()
     {
@@ -221,7 +221,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A rule exception in another module Contracts folder reports the module folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void RuleExceptionInAnotherModuleContractsReportsModuleFolder()
     {
@@ -238,7 +238,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A domain event in its module Contracts folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void DomainEventInOwnModuleContractsReportsNothing()
     {
@@ -252,7 +252,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A rule exception beside an aggregate its rule governs reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void RuleExceptionBesideGovernedAggregateReportsNothing()
     {
@@ -266,7 +266,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A rule exception beside an aggregate its rule neither homes nor governs reports that folder.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void RuleExceptionBesideUngovernedAggregateReportsFolder()
     {
@@ -283,7 +283,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A test under its use case folder for a module-level use case reports nothing.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void TestForModuleLevelUseCaseInUseCaseFolderReportsNothing()
     {
@@ -297,7 +297,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A test under its use case folder for an aggregate-owned use case reports nothing.</summary>
-    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    /// <proves>litespec/core/testing#mirror-production-module-names</proves>
     [Fact]
     public void TestForAggregateOwnedUseCaseInUseCaseFolderReportsNothing()
     {
@@ -311,7 +311,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A module-level handler directly under the module leaves the folder to the closed folder check.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLevelHandlerDirectlyUnderModuleReportsFolderOnly()
     {
@@ -329,7 +329,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An aggregate-owned handler nested above its layer reports the aggregate folder it belongs in.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void AggregateOwnedHandlerNestedUnderAggregateReportsFolder()
     {
@@ -346,7 +346,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>An endpoint flat in its module folder reports the missing layer level.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void EndpointFlatInModuleReportsModuleFolder()
     {
@@ -419,7 +419,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A file directly in a module Contracts folder reports the aggregate folders.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <proves>litespec/core/backend-architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void FileDirectlyInContractsReportsDrift()
     {
@@ -436,7 +436,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>The Contracts project file in a module Contracts folder reports nothing, while a type beside it still reports the aggregate folders.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
+    /// <proves>litespec/packs/dotnet/architecture#compile-each-contracts-folder-as-its-own-project</proves>
     [Fact]
     public void ContractsProjectFileReportsNothing()
     {
@@ -455,7 +455,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A nested model and a row in a use case WebApi folder report nothing, a handler there still reports, and a row in Application stays a result part.</summary>
-    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    /// <proves>litespec/core/backend-application#use-this-use-case-layout</proves>
     [Fact]
     public void WebApiNestedModelAndRowReportNothing()
     {
@@ -477,7 +477,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A folder in the Kernel outside its grouping folders reports the Kernel folders.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void KernelFolderOutsideGroupingsReportsKernelFolders()
     {
@@ -494,7 +494,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A Platform capability folder reports nothing.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformCapabilityFolderReportsNothing()
     {
@@ -506,7 +506,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A Platform folder outside its closed set of capability folders reports the Platform folders.</summary>
-    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
     public void PlatformFolderOutsideClosedSetReportsPlatformFolder()
     {

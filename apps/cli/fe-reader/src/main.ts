@@ -11,7 +11,6 @@ import { readTests } from "./tests";
 import { parseRequest, Diagnostic, FrontendFacts, FrontendRequest, PROTOCOL_VERSION, READER_VERSION, ReaderContext, ReaderResponse } from "./protocol";
 import * as ts from "typescript";
 import { VERSION as SVELTE_VERSION } from "svelte/compiler";
-import { readReactRoutes } from "./react";
 import { readModules, readSvelteRoutes } from "./svelte";
 
 function readStdin(): string {
@@ -49,9 +48,7 @@ function readFrontend(request: FrontendRequest, cacheDir: string | null): Fronte
   const routes =
     request.platform === "svelte"
       ? readSvelteRoutes(routesAbs, modulesAbs, frameAbs, { operations, aliases }, context)
-      : request.platform === "react"
-        ? readReactRoutes(routesAbs, modulesAbs, frameAbs, { operations, aliases }, context)
-        : [];
+      : [];
   const tests = readTests(request.testRoots.map(at), context);
   diagnostics.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
   return { name: request.name, modules: scan.modules, routes, tests, diagnostics };

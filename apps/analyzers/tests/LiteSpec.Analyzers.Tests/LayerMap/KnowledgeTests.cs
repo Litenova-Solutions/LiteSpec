@@ -13,7 +13,7 @@ namespace LiteSpec.Analyzers.Tests.LayerMap;
 public sealed class KnowledgeTests
 {
     /// <summary>A file in a knowledge model project reads as Domain and sits in no module.</summary>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact]
     public void ModelFileReadsAsDomain()
     {
@@ -27,7 +27,7 @@ public sealed class KnowledgeTests
     }
 
     /// <summary>A file in a knowledge set project reads as no layer and sits in no module.</summary>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact]
     public void SetFileReadsAsNoLayer()
     {
@@ -41,7 +41,7 @@ public sealed class KnowledgeTests
     }
 
     /// <summary>A module file is no knowledge file and keeps its folder layer.</summary>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact]
     public void ModuleFileIsNoKnowledgeFile()
     {
@@ -55,7 +55,7 @@ public sealed class KnowledgeTests
     }
 
     /// <summary>A model name holds a product and an area, a set name adds a variant, and a Contracts name is no set.</summary>
-    /// <proves>litespec/backend/knowledge#read-knowledge-through-its-model</proves>
+    /// <proves>litespec/core/knowledge#read-knowledge-through-its-model</proves>
     [Fact]
     public void ProjectNamesDecideModelAndSet()
     {
@@ -68,7 +68,7 @@ public sealed class KnowledgeTests
     }
 
     /// <summary>A compilation is a model when its assembly names its Knowledge project, and a set when it also references its model.</summary>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact]
     public void CompilationNamesDecideModelAndSet()
     {
@@ -88,7 +88,7 @@ public sealed class KnowledgeTests
     }
 
     /// <summary>A set-named compilation under Knowledge that references no model is no set.</summary>
-    /// <proves>litespec/backend/knowledge#keep-knowledge-sets-free-of-logic</proves>
+    /// <proves>litespec/core/knowledge#keep-knowledge-sets-free-of-logic</proves>
     [Fact]
     public void SetCompilationWithoutAModelReferenceIsNoSet()
     {

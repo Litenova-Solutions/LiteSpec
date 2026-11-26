@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.Code;
 ///     the type, a type in the Kernel belongs to the kernel, and anything else is orphaned.
 ///     A marked type is never a part.
 /// </summary>
-/// <follows>litespec/backend/domain#place-every-part-type-in-its-aggregates-folder</follows>
+/// <follows>litespec/core/backend-domain#place-every-part-type-in-its-aggregates-folder</follows>
 static class Parts
 {
     /// <summary>Computes the parts map onto the model, keys and entries sorted.</summary>

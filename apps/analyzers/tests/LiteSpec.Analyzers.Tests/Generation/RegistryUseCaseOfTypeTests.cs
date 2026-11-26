@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RegistryUseCaseOfTypeTests
 {
     /// <summary>UseCaseOfType answers the use case of a marked type and null for an unmarked type.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOfType answers the use case of a marked type and null for an unmarked type")]
     public void UseCaseOfTypeAnswersTheMarkedUseCase()
     {
@@ -53,7 +53,7 @@ public sealed class RegistryUseCaseOfTypeTests
     }
 
     /// <summary>UseCaseOfType normalizes the nested-type separator before the lookup.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOfType normalizes the nested-type separator before the lookup")]
     public void UseCaseOfTypeNormalizesNestedTypeNames()
     {

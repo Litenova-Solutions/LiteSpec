@@ -15,3 +15,6 @@ options:
 choice: "Ship a rendered-page audit command with ten codes"
 consequences: "The command `litespec ui audit` opens each route at the given widths and schemes and reports `surface-nesting-invalid`, `surface-contrast-failed`, `field-surface-missing`, `field-width-invalid`, `action-group-invalid`, `primary-action-duplicate`, `column-alignment-invalid`, `text-code-invalid`, `tab-label-invalid` and `table-clip-invalid`. Each screen is still reviewed from screenshots at phone, laptop and wide widths in each declared scheme before it is reported done."
 reopenedWhen: "The audit cannot reach a product's routes, or its findings duplicate route-suite assertions closely enough that one of the two stops earning its keep."
+supersedes:
+- decision/0117-compose-screens-from-checked-structure
+- decision/0118-layer-surfaces-by-role

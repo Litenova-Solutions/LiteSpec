@@ -162,7 +162,7 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
         Assert.Contains("Provisions matching 'render-receipts':", result.Stdout, StringComparison.Ordinal);
         Assert.Contains(
-            "- litespec/frontend/components#render-data-states: A data component MUST render loading, empty, error, forbidden, and ready.",
+            "- litespec/packs/svelte/rendering#show-route-failure-on-the-error-surface: A route failure MUST render on `+error.svelte`, which draws the shared problem state.",
             result.Stdout,
             StringComparison.Ordinal);
         Assert.True(
@@ -203,7 +203,7 @@ public sealed class NewDecisionTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "- litespec/ext/queues#show-a-preview-before-bulk-money-actions:",
+            "- litespec/core/audit#audit-only-selected-commands:",
             result.Stdout,
             StringComparison.Ordinal);
     }

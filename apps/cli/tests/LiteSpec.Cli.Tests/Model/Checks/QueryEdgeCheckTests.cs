@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class QueryEdgeCheckTests
 {
     /// <summary>Use Case Querying Command Reports.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void UseCaseQueryingCommandReports()
     {
@@ -22,7 +22,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Use Case Querying Query That Lists No Calling Module Reports.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void UseCaseQueryingQueryThatListsNoCallingModuleReports()
     {
@@ -37,7 +37,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Use Case Querying Listed Public Query Passes.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void UseCaseQueryingListedPublicQueryPasses()
     {
@@ -52,7 +52,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Reaction Querying Listed Public Query Passes.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void ReactionQueryingListedPublicQueryPasses()
     {
@@ -68,7 +68,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Use Case Querying Its Own Module Query Reports.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void UseCaseQueryingItsOwnModuleQueryReports()
     {
@@ -84,7 +84,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Reaction Querying Its Own Module Query Reports.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void ReactionQueryingItsOwnModuleQueryReports()
     {
@@ -101,7 +101,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Public Query No Module Queries Reports.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void PublicQueryNoModuleQueriesReports()
     {
@@ -116,7 +116,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Use Case Querying Notification Reports.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void UseCaseQueryingNotificationReports()
     {
@@ -131,7 +131,7 @@ public sealed class QueryEdgeCheckTests
     }
 
     /// <summary>Queries Edge To Unknown Target Reports Only Reference Unknown.</summary>
-    /// <proves>litespec/backend/application#ask-another-module-one-question-through-a-decision-port</proves>
+    /// <proves>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</proves>
     [Fact]
     public void QueriesEdgeToUnknownTargetReportsOnlyReferenceUnknown()
     {

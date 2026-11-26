@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class PermissionMetadataTests
 {
     /// <summary>The entry takes its scope from the role that grants it, and carries group and risks from the record.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "The entry takes its scope from the role that grants it and carries group and risks")]
     public void EntryCarriesFactsFromTheRecord()
@@ -53,7 +53,7 @@ public sealed class PermissionMetadataTests
     }
 
     /// <summary>An entry without group and risks, and granted by no role, reads empty scope, null group and empty risks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An entry granted by no role reads an empty scope, null group and empty risks")]
     public void EntryWithoutFactsReadsDefaults()
     {
@@ -95,7 +95,7 @@ public sealed class PermissionMetadataTests
     }
 
     /// <summary>Of returns the entry for a known id and throws for an unknown id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Of returns the entry for a known id and throws for an unknown id")]
     public void OfReturnsKnownAndThrowsForUnknown()
     {

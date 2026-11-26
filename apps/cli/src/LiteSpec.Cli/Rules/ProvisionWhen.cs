@@ -28,6 +28,9 @@ internal static class ProvisionWhen
     /// <param name="Outputs">The output names and meanings.</param>
     /// <param name="Queries">The effects.queries targets.</param>
     /// <param name="Commands">The effects.commands targets.</param>
+    /// <param name="IsAudited">Whether the use case declares an audit entry that is not exempt.</param>
+    /// <param name="HasConcurrency">Whether the use case declares conflicts or client-key idempotency.</param>
+    /// <param name="Tenant">The declared access.tenant scope, or empty.</param>
     internal sealed record RecordFields(
         string Type,
         string Id,
@@ -38,7 +41,10 @@ internal static class ProvisionWhen
         IReadOnlyList<RecordInput> Inputs,
         IReadOnlyList<string> Outputs,
         IReadOnlyList<string> Queries,
-        IReadOnlyList<string> Commands);
+        IReadOnlyList<string> Commands,
+        bool IsAudited,
+        bool HasConcurrency,
+        string Tenant);
 
     /// <summary>One use-case input with its origin.</summary>
     /// <param name="Name">The input name.</param>
@@ -68,10 +74,14 @@ internal static class ProvisionWhen
 
         return when switch
         {
+            "audited" => records.Any(record =>
+                record.Type == "use-case" && record.IsAudited),
             "query" => records.Any(record =>
                 record.Type == "use-case" && record.Kind == "query"),
             "command" => records.Any(record =>
                 record.Type == "use-case" && record.Kind == "command"),
+            "concurrency" => records.Any(record =>
+                record.Type == "use-case" && record.HasConcurrency),
             "upload" => records.Any(record =>
                 record.Type == "use-case" && HasFileInput(record)),
             "document-number" => records.Any(record =>
@@ -80,6 +90,8 @@ internal static class ProvisionWhen
                 (record.Type == "use-case" || record.Type == "job") && ErasesPersonalData(record)),
             "cross-module" => records.Any(record =>
                 (record.Type == "use-case" || record.Type == "reaction" || record.Type == "job") && (record.Queries.Count > 0 || record.Commands.Count > 0)),
+            "cross-tenant" => records.Any(record =>
+                record.Type == "use-case" && record.Tenant.Length > 0 && record.Tenant is not "own" and not "none"),
             "project" => false,
             _ => false,
         };
@@ -229,7 +241,35 @@ internal static class ProvisionWhen
         InputsOf(root),
         OutputsOf(root),
         QueriesOf(root),
-        CommandsOf(root));
+        CommandsOf(root),
+        IsAuditedOf(root),
+        HasConcurrencyOf(root),
+        TenantOf(root));
+
+    /// <summary>Whether the use case declares an audit block that is not exempt.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>True when the use case is audited.</returns>
+    static bool IsAuditedOf(JsonElement root) =>
+        root.TryGetProperty("audit", out var audit)
+        && audit.ValueKind == JsonValueKind.Object
+        && Text(audit, "exemptBecause").Length == 0;
+
+    /// <summary>Whether the use case declares conflicts or client-key idempotency.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>True when the use case uses conflicts or client-key idempotency.</returns>
+    static bool HasConcurrencyOf(JsonElement root) =>
+        (root.TryGetProperty("conflicts", out var conflicts) && conflicts.ValueKind == JsonValueKind.Object)
+        || (root.TryGetProperty("idempotency", out var idempotency)
+            && idempotency.ValueKind == JsonValueKind.Object
+            && string.Equals(Text(idempotency, "mode"), "key", StringComparison.Ordinal));
+
+    /// <summary>The declared access.tenant scope of a use case, or empty when none is declared.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>The tenant scope text, or empty.</returns>
+    static string TenantOf(JsonElement root) =>
+        root.TryGetProperty("access", out var access) && access.ValueKind == JsonValueKind.Object
+            ? Text(access, "tenant")
+            : "";
 
     /// <summary>The use-case inputs with their origin.</summary>
     /// <param name="root">The parsed record object.</param>
