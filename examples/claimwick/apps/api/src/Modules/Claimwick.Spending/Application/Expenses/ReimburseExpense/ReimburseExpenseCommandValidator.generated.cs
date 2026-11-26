@@ -26,6 +26,11 @@ internal sealed partial class ReimburseExpenseCommandValidator : ICommandValidat
             failures.Add(new ValidationFailure("An expense is required.", "ExpenseId", "required"));
         }
 
+        if (command.Fee.HasValue && command.Fee.Value < 0m)
+        {
+            failures.Add(new ValidationFailure("The fee must be at least 0.", "Fee", "too-small"));
+        }
+
         ValidateExtra(command, failures);
 
         return Task.FromResult(failures.Count == 0 ? Validity.Valid : Validity.Invalid(failures));

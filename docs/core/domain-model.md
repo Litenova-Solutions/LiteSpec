@@ -97,19 +97,19 @@ When a query shows a value and a command records it, both cite the same calculat
 
 Reference data is a table of dated business values the running system looks up: rates, thresholds, deadlines, and time zones with the dates each row takes effect. It carries the identifier `reference-data/<home>.<name>`, where the home is the module or knowledge area that owns the values. A module-owned table lives at `.litespec/behavior/modules/<module>/reference-data/<name>/<name>.yaml`; a knowledge table lives at `.litespec/behavior/knowledge/<area>/reference-data/<name>/<name>.yaml` under its area. A setting holds one operator configuration value, aggregate data holds what the business changes while the system runs, and reference data holds the dated tables rules look up.
 
-Rules cite the table instead of stating its values: a use case names it in `reads` and a step cites it in `cites`, and a rule statement names it by its identifier. The model checks that every cited table exists and that no two rows overlap in time.
+Rules cite the table instead of stating its values: a use case names it in `reads` and a step cites it in `cites`, and a rule statement names it by its identifier. The model checks that every cited table exists and that no two rows of one key overlap in time.
 
 A table can take its values from an external pack file, such as a country pack, instead of writing each row by hand. The `pack` field names a file relative to the consumer root, such as `data/country-pack.csv`; the file must exist, and its rows still carry their effective dates and their sources.
 
 A table holds one value column: the `value` each row carries, which behavior reads. That column is the table's meaning column. A table whose meaning column changes behavior lists every allowed value in `choices`, so a value outside the list is reported instead of interpreted by each caller. A table whose values are open counts or amounts carries no `choices`. A table with `choices` states what each value means in `valueMeanings`, keyed by the written choice text, so the generated closed set documents each case; every key names a listed choice.
 
-A table lists in `requiredRoles` the roles its citing rules read, and each row names the role it plays in `role`. A row carries a stable `key` within its table, and a row reads a row of another table in `refersTo` as `reference-data/<home>.<table>#<key>`. Callers ask the table for a role; the table says which row plays it.
+A table lists in `requiredRoles` the roles its citing rules read, and each row names the role it plays in `role`. A row carries a stable `key` within its table. One key repeats across disjoint spans to hold the dated history of one value: each span answers its own dates, and a lookup reads the row whose span holds the date. A row reads a row of another table in `refersTo` as `reference-data/<home>.<table>#<key>`, which names the key whose row in force answers. Callers ask the table for a role; the table says which row plays it.
 
-A table whose rows differ by variant states the dimension in `variation`, such as `country`, and each row names the variant it belongs to in `variant`. Only knowledge tables vary: a module-owned table states no `variation` and names no `variant`. Each variant's rows form their own timeline, so periods, coverage, and roles are judged within one variant, while keys stay unique across the table so `refersTo` keeps resolving.
+A table whose rows differ by variant states the dimension in `variation`, such as `country`, and each row names the variant it belongs to in `variant`. Only knowledge tables vary: a module-owned table states no `variation` and names no `variant`. Each variant's rows form their own timeline, so periods, coverage, and roles are judged within one variant. Rows of different variants never share a timeline, so one key repeats freely across variants.
 
-The rows of each variant cover every date the product reads: consecutive rows of one variant leave no date without a row in force, and where the cast declares `today`, a row of each variant covers it. A released row is never edited: a new value arrives as a new row, and the old row takes an end date. A row the source states with no start date states in `effectiveFrom` the earliest date the source covers.
+The rows of each variant cover every date the product reads: consecutive rows of one variant leave no date without a row in force, and where the cast declares `today`, a row of each variant covers it. A released row is never edited: a new value arrives as a new row, and the old row takes an end date. A row the source states with no start date states in `effectiveFrom` the earliest date the source covers. A table with no rows yet states in `summary` what rows it will hold.
 
-A knowledge table whose sets the project generates states how each row builds: `row` names the qualified model row type with its static factory, or nothing when rows build through the constructor, and `columns` maps one row field to one row parameter with how the value renders. A column renders as a literal of its kind (`string`, `number`, `boolean`), a `date` construction, a `money` construction with its currency, a `decimal`, a typed `key` through the model's factory, a `member` of the model's closed set, a `case` of the model's nested closed set built as a new case, an `object` built from its sub-columns, a `map` of row values to literals, or a `list` of items rendering as its `items` states. A list of objects builds each item from its sub-columns, which read the item fields. A row carries extra fields beside the fixed ones where the model takes more values: scalars a leaf column reads, or lists a list column reads. Every extra field feeds a column, and every item field feeds a sub-column. A column the row does not state renders as null, as does a nested object none of whose fields the row states; a stated list renders its items in written order, and an empty list renders empty. A table stating `singleton` holds one dated row with no key per variant and renders one `Value` instead of a row list. Every row of a generated table that varies names its variant, so each set builds from its own rows. A table without the mapping keeps hand-written sets. Claimwick's per-diem table builds one `PerDiemRate` per row through its factory, mapping the variant to the country, the value to a money amount, and the role to its member.
+A knowledge table whose sets the project generates states how each row builds: `row` names the qualified model row type with its static factory, or nothing when rows build through the constructor, and `columns` maps one row field to one row parameter with how the value renders. A column renders as a literal of its kind (`string`, `number`, `boolean`), a `date` construction, a `money` construction with its currency, a `decimal`, a typed `key` through the model's factory, a `member` of the model's closed set, a `case` of the model's nested closed set built as a new case from the declared case name matching the code, an `object` built from its sub-columns, a `map` of row values to literals, or a `list` of items rendering as its `items` states. A list of objects builds each item from its sub-columns, which read the item fields. A row carries extra fields beside the fixed ones where the model takes more values: scalars a leaf column reads, lists a list column reads, or null where the row states no value. Every extra field feeds a column, and every item field feeds a sub-column. A column the row does not state, or states as null, renders as null, as does a nested object none of whose fields the row states; a stated list renders its items in written order, and an empty list renders empty. A list empty in every row keeps its declared sub-columns, which the first stated items are judged against. A table stating `singleton` holds one dated row with no key per variant and renders one `Value` instead of a row list. Every row of a generated table that varies names its variant, so each set builds from its own rows. A table with no rows yet renders one empty table per area variant. A table without the mapping keeps hand-written sets. Claimwick's per-diem table builds one `PerDiemRate` per row through its factory, mapping the variant to the country, the value to a money amount, and the role to its member.
 
 | Field | Meaning |
 |:---|:---|
@@ -120,8 +120,8 @@ A knowledge table whose sets the project generates states how each row builds: `
 | `singleton` | True when the table holds one value instead of a row list: one dated row with no key per variant. Knowledge tables only, stated with `row` and `columns`; optional. |
 | `pack` | The path of an external file whose values this table copies, relative to the consumer root. Optional; the named file must exist. |
 | `row`, `columns` | How each row builds: the qualified model row type with its static factory, or nothing when rows build through the constructor, and the column-to-parameter mapping with how each value renders, including nested objects from sub-columns and lists with `items` naming how each item renders. Knowledge tables only; optional. |
-| `rows` | One entry per dated value, each with its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. A generated table's rows may carry extra fields the columns read: scalars a leaf column reads, or lists a list column reads. |
-| `key`, `role`, `variant`, `refersTo` | Row fields: the stable key of the row, the role the row plays, the variant the row belongs to, and the row of another table the row reads. |
+| `rows` | One entry per dated value, or empty while no variant has stated a value; each entry carries its `value`, the `effectiveFrom` date it takes effect, the `effectiveTo` date it stops applying left out while the row stands, and the `source` naming the constraint, research, or decision behind the value. A generated table's rows may carry extra fields the columns read: scalars a leaf column reads, lists a list column reads, or null where the row states no value. |
+| `key`, `role`, `variant`, `refersTo` | Row fields: the stable key of the row, repeated across disjoint spans for dated history; the role the row plays; the variant the row belongs to; and the row of another table the row reads. |
 
 ### Amount Signs
 
@@ -453,7 +453,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Example:** Claimwick reads the per-diem rate for an expense day when submitting and when approving the expense. Both slices call one calculation on the travel knowledge model with the day and the country, instead of each carrying its own walk over the per-diem rows. A copy of the walk in the approval slice would report `logic-duplicate`.
 
-**Checked by:** `litespec model check` reports `logic-duplicate` (level S) for one method or local-function body of at least 6 statements or 80 tokens carried in two or more different folders.
+**Checked by:** `litespec model check` reports `logic-duplicate` (level S) for one method or local-function body of at least 6 statements or 80 tokens carried in two or more different folders, besides the `TryParse` each typed identifier carries by provision.
 
 ### Tabulate Every Calculation with Examples
 
@@ -543,6 +543,22 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Checked by:** `litespec model check` reports `record-invalid` for a reference-data row without `effectiveFrom` or `source`.
 
+### State What an Empty Table Will Hold
+
+**ID:** `litespec/core/domain-model#state-what-an-empty-table-will-hold`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reference-data
+
+**Statement:** Each reference-data table with no rows MUST state in `summary` what rows it will hold.
+
+**Rationale:** A table with no rows and no summary leaves a reader guessing whether the table is new, abandoned, or waiting on another team. The summary names the values the rows will state and who will state them, so an empty table reads as a promise instead of a gap.
+
+**Example:** Claimwick's accepted-agencies table holds no rows and states in `summary` that each country will name the agencies it accepts bookings from.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a reference-data table with no rows and no summary.
+
 ### Bind a Reference-Data Table to an External Pack
 
 **ID:** `litespec/core/domain-model#bind-a-reference-data-table-to-an-external-pack`
@@ -567,13 +583,13 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Applies to:** artifact: record:reference-data
 
-**Statement:** The validity periods of the rows of one reference-data table MUST NOT overlap.
+**Statement:** The validity periods of the rows of one key of a reference-data table MUST NOT overlap within one variant.
 
-**Rationale:** Two rows in force on one date give two answers to one lookup, and the reader guesses which holds. One row in force per date keeps every lookup single-valued. A row without `effectiveTo` stays in force, so it overlaps any later row until it gains an end date.
+**Rationale:** Two rows of one key in force on one date give two answers to one lookup, and the reader guesses which holds. One row in force per date and key keeps every lookup single-valued. Rows of different keys, different roles when rows carry no key, or different variants run on their own timelines, so they never overlap each other. A row without `effectiveTo` stays in force, so it overlaps any later row of its key until it gains an end date.
 
-**Example:** A second decision-target row starting 2027-01-01 needs the first row to end with `effectiveTo: 2026-12-31`.
+**Example:** Claimwick's German full-day per-diem rows share one key: the 28 EUR row runs 2025-01-01 to 2025-12-31 and the 30 EUR row runs from 2026-01-01, so each date answers one row.
 
-**Checked by:** `litespec model check` reports `reference-data-period-invalid` for rows whose validity periods overlap, or whose `effectiveTo` is no later than `effectiveFrom`.
+**Checked by:** `litespec model check` reports `reference-data-period-invalid` for rows of one key whose validity periods overlap, naming both rows and the overlap, or whose `effectiveTo` is no later than `effectiveFrom`.
 
 ### Close the Value Set of Every Meaning Column
 

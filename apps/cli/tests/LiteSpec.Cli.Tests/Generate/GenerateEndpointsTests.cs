@@ -288,8 +288,8 @@ public sealed class GenerateEndpointsTests
         Assert.Empty(plan.Errors);
         Assert.Empty(plan.Skips);
         var file = Assert.Single(plan.Files);
-        Assert.Contains("Fine: Money.Create(fine, \"EUR\")", file.Content, StringComparison.Ordinal);
-        Assert.Contains("Deposit: Money.Create(deposit, depositCurrency)", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Fine: new Money(fine, \"EUR\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Deposit: new Money(deposit, depositCurrency)", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A use case implying a tenant key renders no endpoint without a tenantReader and lists the skip with its reason.</summary>
@@ -597,6 +597,42 @@ public sealed class GenerateEndpointsTests
         Assert.Contains(".ProducesProblem(StatusCodes.Status400BadRequest)", text, StringComparison.Ordinal);
         Assert.Contains(".ProducesProblem(StatusCodes.Status422UnprocessableEntity)", text, StringComparison.Ordinal);
         Assert.Contains("Category: category", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>A DELETE endpoint with body inputs states its body binding, because minimal APIs infer a body only for POST, PUT and PATCH.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void DeleteBodyBindsFromBody()
+    {
+        var text = EndpointsRenderer.RenderDotnet(
+            "spending",
+            [new EndpointsRenderer.EndpointData(
+                "use-case/spending.withdraw-expense",
+                "WithdrawExpense",
+                "Withdraw Expense",
+                null,
+                "command",
+                "DELETE",
+                "/api/expenses",
+                null,
+                [new EndpointsRenderer.BoundInput(
+                    "reason", "Reason", "reason", "reason", "text", "body", true,
+                    "Why the expense is withdrawn.", null, null, null, "caller")],
+                new Dictionary<string, string>(),
+                false,
+                [],
+                "WithdrawExpenseCommand",
+                "Claimwick.Spending.Application.Expenses.WithdrawExpense",
+                "WithdrawExpenseCommandResult",
+                "WithdrawExpenseResponseModel",
+                "Claimwick.Spending.WebApi.Expenses.WithdrawExpense",
+                MarkStyle.Xml)],
+            "Claimwick.Spending.WebApi",
+            "Claimwick.Platform.Http.ActorClaims.ReadActorId",
+            []);
+
+        Assert.Contains("[FromBody] WithdrawExpenseRequest request,", text, StringComparison.Ordinal);
+        Assert.Contains("using Microsoft.AspNetCore.Mvc;", text, StringComparison.Ordinal);
     }
 
     /// <summary>A derived value the clock rule does not cover renders a derivation partial the sibling implements.</summary>
@@ -985,7 +1021,7 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("internal sealed partial record RetireCopyFinesRow(Guid Copy, decimal? Amount);", file.Content, StringComparison.Ordinal);
         Assert.Contains("List<ClearedFine>? finesRows = null;", file.Content, StringComparison.Ordinal);
         Assert.Contains("Copy: CopyId.From(row.Copy),", file.Content, StringComparison.Ordinal);
-        Assert.Contains("Amount: row.Amount is null ? null : Money.Create(row.Amount.Value, \"EUR\")", file.Content, StringComparison.Ordinal);
+        Assert.Contains("Amount: row.Amount is null ? null : new Money(row.Amount.Value, \"EUR\")", file.Content, StringComparison.Ordinal);
     }
 
     /// <summary>A single-field list without a row type binds as an array of its wire type.</summary>
@@ -2116,6 +2152,287 @@ public sealed class GenerateEndpointsTests
         Assert.Contains("RenewedAt: row.RenewedAt,", file.Content, StringComparison.Ordinal);
         Assert.Contains("Note: row.Note", file.Content, StringComparison.Ordinal);
         Assert.Contains("Renewals: renewalsRows", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A command stating an output answers 200 with the shaped response, the same shaping queries use.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CommandWithOutputAnswersOk()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            output:
+            - name: copyId
+              meaning: The retired copy.
+              type: id
+              identifies: aggregate/lending.copy
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains(".Produces<RetireCopyResponseModel>(StatusCodes.Status200OK)", file.Content, StringComparison.Ordinal);
+        Assert.Contains("return TypedResults.Ok(ShapeRetireCopyResponse(result));", file.Content, StringComparison.Ordinal);
+        Assert.Contains("private static partial RetireCopyResponseModel ShapeRetireCopyResponse(RetireCopyCommandResult result);", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>A query with one optional output group answers 404 naming the details when the result carries no group.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AbsentGroupAnswersNotFound()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        WriteReadLoan(temp.Path);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("if (result.Loan is null)", file.Content, StringComparison.Ordinal);
+        Assert.Contains("title: \"Unknown loan.\"", file.Content, StringComparison.Ordinal);
+        Assert.Contains("detail: $\"No loan answers '{loanId}'.\"", file.Content, StringComparison.Ordinal);
+        Assert.Contains("statusCode: StatusCodes.Status404NotFound);", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status404NotFound)", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>An input stating equals for the tenant key answers 403 before the message runs when the route value is not the caller's key.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EqualsTenantAnswersForbidden()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteTenancy(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+              tenantReader: Library.Platform.Http.TenantClaims.ReadTenantId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.WriteAllText(
+            retire,
+            File.ReadAllText(retire).Replace(
+                "route: /api/copies:retire",
+                "route: /api/{workspaceId}/copies:retire",
+                StringComparison.Ordinal));
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: workspace
+              meaning: The workspace the copy retires in.
+              type: id
+              required: true
+              origin: caller
+              binding: route
+              equals: tenant
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.DoesNotContain(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("if (!Equals(workspaceId, TenantClaims.ReadTenantId<Guid>(user)))", file.Content, StringComparison.Ordinal);
+        Assert.Contains("title: \"Forbidden workspace.\"", file.Content, StringComparison.Ordinal);
+        Assert.Contains("The workspace '{workspaceId}' is not the caller's workspace.", file.Content, StringComparison.Ordinal);
+        Assert.Contains("statusCode: StatusCodes.Status403Forbidden);", file.Content, StringComparison.Ordinal);
+        Assert.Contains(".ProducesProblem(StatusCodes.Status403Forbidden)", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>An input stating equals for a sibling input answers 400 before the message runs when the two values disagree.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EqualsSiblingAnswersBadRequest()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.WriteAllText(
+            retire,
+            File.ReadAllText(retire).Replace(
+                "route: /api/copies:retire",
+                "route: /api/loans/{loanId}/copies:retire",
+                StringComparison.Ordinal));
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: loanId
+              meaning: The loan the copy retires under.
+              type: id
+              identifies: aggregate/lending.loan
+              required: true
+              origin: caller
+              binding: route
+              equals: loanRef
+              classification: internal
+            - name: loanRef
+              meaning: The loan the request names.
+              type: id
+              identifies: aggregate/lending.loan
+              required: true
+              origin: caller
+              binding: body
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Skips);
+        var file = Assert.Single(plan.Files);
+        Assert.Contains("if (!Equals(loanId, LoanId.From(request.LoanRef)))", file.Content, StringComparison.Ordinal);
+        Assert.Contains("title: \"Mismatched loan id.\"", file.Content, StringComparison.Ordinal);
+        Assert.Contains("The loan id '{loanId}' does not match the loan ref '{request.LoanRef}'.", file.Content, StringComparison.Ordinal);
+        Assert.Contains("statusCode: StatusCodes.Status400BadRequest);", file.Content, StringComparison.Ordinal);
+    }
+
+    /// <summary>An input stating equals for no input renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EqualsUnknownInputSkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: loanId
+              meaning: The loan the copy retires under.
+              type: id
+              identifies: aggregate/lending.loan
+              required: true
+              origin: caller
+              binding: route
+              equals: no-such-input
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("names no input", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>An input stating equals for the tenant key with no implied tenant key renders no endpoint and lists the skip with its reason.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EqualsTenantWithoutImpliedKeySkipsWithReason()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: endpoints
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+              claimReader: Library.Lending.WebApi.ActorClaims.ReadActorId
+            """);
+        var retire = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "copies", "use-cases", "retire-copy", "retire-copy.yaml");
+        File.AppendAllText(retire, "\n" + """
+            input:
+            - name: workspace
+              meaning: The workspace the copy retires in.
+              type: id
+              identifies: aggregate/lending.workspace
+              required: true
+              origin: caller
+              binding: route
+              equals: tenant
+              classification: internal
+            """);
+
+        var plan = GeneratePlan.Build(ModelBuilder.Build(ConsumerConfig.Load(temp.Path)));
+
+        Assert.Empty(plan.Errors);
+        var skip = Assert.Single(plan.Skips, skip => skip.UseCaseId == "use-case/lending.retire-copy");
+        Assert.Contains("no implied tenant key", skip.Reason, StringComparison.Ordinal);
+    }
+
+    /// <summary>Writes the read-loan query with one optional output group, for the absent-details test.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteReadLoan(string root)
+    {
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "read-loan");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "read-loan.yaml"),
+            """
+            type: use-case
+            id: use-case/lending.read-loan
+            title: Read loan
+            kind: query
+            access:
+              grant: permission/read-loans
+              tenant: own
+            reachedThrough:
+            - entry-point/library-app
+            http:
+              method: GET
+              route: /api/loans/{loanId}
+            input:
+            - name: loanId
+              meaning: The loan to read.
+              type: id
+              identifies: aggregate/lending.loan
+              required: true
+              origin: caller
+              binding: route
+              classification: internal
+            output:
+              include:
+                loan:
+                  fields:
+                  - name: loanId
+                    meaning: The read loan.
+                    type: id
+                    identifies: aggregate/lending.loan
+                  - name: dueDate
+                    meaning: The day the loan is due.
+                    type: date
+                  classification: internal
+                  reads:
+                  - aggregate/lending.loan
+                  freshness:
+                    mode: immediate
+                  required: false
+            """);
     }
 
     /// <summary>Declares the renewal part on the loan aggregate and writes its declaring type with the renewal time and note, so the part members resolve.</summary>

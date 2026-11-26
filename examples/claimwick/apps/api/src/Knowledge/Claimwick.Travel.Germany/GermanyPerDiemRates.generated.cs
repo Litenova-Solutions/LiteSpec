@@ -15,18 +15,18 @@ public static partial class GermanyPerDiemRates
     {
         PerDiemRate.Create(
             country: "DE",
-            key: PerDiemRateKey.From("de-full-day-2025"),
+            key: PerDiemRateKey.From("de-full-day"),
             role: PerDiemRole.FullDay,
-            dailyAmount: Money.Create(28m, "EUR"),
+            dailyAmount: new Money(28m, "EUR"),
             validFrom: new DateOnly(2025, 1, 1),
             validTo: new DateOnly(2025, 12, 31),
             source: "decision/0003-travel-rates"
         ),
         PerDiemRate.Create(
             country: "DE",
-            key: PerDiemRateKey.From("de-full-day-2026"),
+            key: PerDiemRateKey.From("de-full-day"),
             role: PerDiemRole.FullDay,
-            dailyAmount: Money.Create(30m, "EUR"),
+            dailyAmount: new Money(30m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"
@@ -35,7 +35,7 @@ public static partial class GermanyPerDiemRates
             country: "DE",
             key: PerDiemRateKey.From("de-partial-day-2026"),
             role: PerDiemRole.PartialDay,
-            dailyAmount: Money.Create(15m, "EUR"),
+            dailyAmount: new Money(15m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"

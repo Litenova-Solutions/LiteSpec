@@ -627,6 +627,90 @@ public sealed class BehaviorContractCheckTests
         Assert.False(Reports(model, "record-invalid", "'scan'"));
     }
 
+    /// <summary>Use Case Input With Equals Naming No Sibling Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseInputWithEqualsNamingNoSiblingReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-loan", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo holds the loan."}], "input": [{"name": "loanId", "meaning": "The loan to hold.", "type": "id", "required": true, "equals": "no-such-input"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds input field 'loanId' with equals 'no-such-input', which names no sibling input"));
+    }
+
+    /// <summary>Use Case Input With Equals Naming Itself Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseInputWithEqualsNamingItselfReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-loan", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo holds the loan."}], "input": [{"name": "loanId", "meaning": "The loan to hold.", "type": "id", "required": true, "equals": "loanId"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds input field 'loanId' with equals 'loanId', which names the field itself"));
+    }
+
+    /// <summary>Use Case Input With Equals Naming Another Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseInputWithEqualsNamingAnotherTypeReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-loan", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo holds the loan."}], "input": [{"name": "loanId", "meaning": "The loan to hold.", "type": "id", "required": true, "equals": "note"}, {"name": "note", "meaning": "The hold note.", "type": "text", "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "with equals 'note' naming 'note' of type 'text', which is no id"));
+    }
+
+    /// <summary>Use Case List Input With Equals Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseListInputWithEqualsReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-loan", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo holds the loan."}], "input": [{"name": "tags", "meaning": "The hold tags.", "type": "list", "required": true, "rowShape": {"fields": [{"name": "tag", "meaning": "One tag.", "type": "text", "required": true}]}, "equals": "note"}, {"name": "note", "meaning": "The hold note.", "type": "text", "required": true}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds input field 'tags' of type list with equals 'note', which only a scalar, choice, or identifier input states"));
+    }
+
+    /// <summary>Use Case Input With Equals Tenant And No Tenant Term Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseInputWithEqualsTenantAndNoTenantTermReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-loan", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo holds the loan."}], "input": [{"name": "workspace", "meaning": "The workspace the loan belongs to.", "type": "id", "required": true, "equals": "tenant"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "holds input field 'workspace' with equals 'tenant' and the project selects no tenant term"));
+    }
+
+    /// <summary>Use Case Input With Equals Naming A Sibling Of The Same Type Passes.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
+    [Fact]
+    public void UseCaseInputWithEqualsNamingSameTypeSiblingPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("entry-point", "entry-point/web", Path.Combine(temp.Path, "web.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-loan", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/web"], "steps": [{"statement": "Jo holds the loan."}], "input": [{"name": "loanId", "meaning": "The loan to hold.", "type": "id", "required": true, "equals": "loanRef"}, {"name": "loanRef", "meaning": "The loan the request names.", "type": "id", "required": true}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "with equals"));
+    }
+
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>
     /// <param name="code">The finding code to look for.</param>

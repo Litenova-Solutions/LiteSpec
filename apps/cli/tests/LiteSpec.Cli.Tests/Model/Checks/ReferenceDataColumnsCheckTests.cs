@@ -676,6 +676,89 @@ public sealed class ReferenceDataColumnsCheckTests
         Assert.Contains("without a qualified model type; name the item type with its namespace", finding.Message);
     }
 
+    /// <summary>A singleton table with no rows yet reports reference-data-column-invalid: a singleton holds one row per variant.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EmptySingletonReportsInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableSingleton(temp.Path, """{"column": "value", "parameter": "dailyCap", "as": "number"}""", ""));
+
+        var finding = Assert.Single(Findings(model, "reference-data-column-invalid"));
+        Assert.Contains("holds no rows; a singleton table holds one row per variant", finding.Message);
+    }
+
+    /// <summary>A table with no rows yet and extra-field columns passes: the declared mapping stands with nothing to judge it against.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void EmptyTableWithExtraColumnsPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "value", "parameter": "dailyAmount", "as": "number"}, {"column": "labelNl", "parameter": "dutchLabel", "as": "string"}""",
+                ""));
+
+        Assert.Empty(Findings(model, "reference-data-column-invalid"));
+    }
+
+    /// <summary>A column whose rows all state null passes: a stated null renders null.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AllNullColumnPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "value", "parameter": "dailyAmount", "as": "number"}, {"column": "labelNl", "parameter": "dutchLabel", "as": "string"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "labelNl": null, "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        Assert.Empty(Findings(model, "reference-data-column-invalid"));
+    }
+
+    /// <summary>A list whose items state null passes: a stated null item renders null.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void NullListItemsPass()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "channels", "parameter": "channels", "as": "list", "items": "string"}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "channels": [null], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        Assert.Empty(Findings(model, "reference-data-column-invalid"));
+    }
+
+    /// <summary>An object list empty in every row passes: the sub-columns stand with no items to judge them against.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void AllEmptyObjectListsPass()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Area(temp.Path),
+            TableWith(
+                temp.Path,
+                """{"column": "bands", "parameter": "bands", "as": "list", "items": "object", "type": "Claimwick.Travel.PerDiem.FineSlice", "columns": [{"column": "minDays", "parameter": "minDays", "as": "number"}, {"column": "maxDays", "parameter": "maxDays", "as": "number"}]}""",
+                """{"value": 30, "key": "de-full-day-2026", "role": "full-day", "variant": "germany", "bands": [], "effectiveFrom": "2026-01-01", "source": "decision/0003-travel-rates"}"""));
+
+        Assert.Empty(Findings(model, "reference-data-column-invalid"));
+    }
+
     /// <summary>A row stating no start date reports record-invalid naming the earliest date the source covers.</summary>
     /// <proves>litespec/core/domain-model#date-every-reference-data-row</proves>
     [Fact]

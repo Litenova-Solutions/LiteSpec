@@ -8,6 +8,7 @@ using LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
@@ -44,10 +45,55 @@ static class GeneratePlan
     /// <param name="Reason">Why the record renders nothing.</param>
     public sealed record SkippedMessage(string UseCaseId, string Reason);
 
-    /// <summary>Renders every configured target in memory from the built model.</summary>
+    /// <summary>Renders every configured target in memory from the built model, reading planned files instead of the disk until the files stop changing.</summary>
     /// <param name="model">The built project model the files render from.</param>
     /// <returns>The rendered files with the target and configuration errors and the skipped use cases.</returns>
     public static Plan Build(ProjectModel model)
+    {
+        // Some renders read sibling files through the backend source: the
+        // declarations read each message's members, and messages, results and
+        // knowledge sets reuse backend types. A sibling the plan itself writes
+        // may sit stale on the disk or not there at all, and a render from it
+        // reproduces the stale disk and compares current against it. Rendering
+        // again with the planned files shadowing the disk converges on what
+        // the records render, so one generate run and one check see it all.
+        var plan = BuildOnce(model, overlay: null);
+
+        for (var pass = 0; pass < 2; pass++)
+        {
+            var shadowed = BuildOnce(model, OverlayOf(plan));
+
+            if (shadowed.Files.SequenceEqual(plan.Files))
+            {
+                return shadowed;
+            }
+
+            plan = shadowed;
+        }
+
+        return plan;
+    }
+
+    /// <summary>The planned files as the text the next render reads through: the file text by absolute path.</summary>
+    /// <param name="plan">The rendered plan whose files shadow the disk.</param>
+    /// <returns>The file text by absolute path, the last render winning when two targets write the same file.</returns>
+    private static Dictionary<string, string> OverlayOf(Plan plan)
+    {
+        var overlay = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var file in plan.Files)
+        {
+            overlay[file.AbsolutePath] = file.Content;
+        }
+
+        return overlay;
+    }
+
+    /// <summary>Renders every configured target once in memory from the built model.</summary>
+    /// <param name="model">The built project model the files render from.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
+    /// <returns>The rendered files with the target and configuration errors and the skipped use cases.</returns>
+    private static Plan BuildOnce(ProjectModel model, IReadOnlyDictionary<string, string>? overlay)
     {
         var files = new List<GeneratedFile>();
         var errors = new List<string>();
@@ -67,7 +113,7 @@ static class GeneratePlan
 
             valid.Add((target, index));
 
-            foreach (var file in RenderTarget(model, target, skips))
+            foreach (var file in RenderTarget(model, target, skips, overlay))
             {
                 files.Add(file);
                 fileTargets.Add((file, index));
@@ -423,8 +469,9 @@ static class GeneratePlan
     /// <param name="model">The built project model the files render from.</param>
     /// <param name="target">The validated target.</param>
     /// <param name="skips">The skipped use cases, appended in place.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
     /// <returns>The rendered files in module order.</returns>
-    private static List<GeneratedFile> RenderTarget(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips) =>
+    private static List<GeneratedFile> RenderTarget(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips, IReadOnlyDictionary<string, string>? overlay) =>
         target.Kind switch
         {
             "refusal-codes" => IsTypeScript(target)
@@ -438,12 +485,12 @@ static class GeneratePlan
             "exceptions" => RenderExceptions(model, target, skips),
             "domain-events" => RenderDomainEvents(model, target),
             "module-events" => RenderModuleEvents(model, target),
-            "declarations" => RenderDeclarations(model, target, skips),
+            "declarations" => RenderDeclarations(model, target, skips, overlay),
             "validators" => RenderValidators(model, target),
-            "messages" => RenderMessages(model, target),
-            "results" => RenderResults(model, target),
-            "endpoints" => RenderEndpoints(model, target, skips),
-            _ => RenderKnowledgeSets(model, target),
+            "messages" => RenderMessages(model, target, overlay),
+            "results" => RenderResults(model, target, overlay),
+            "endpoints" => RenderEndpoints(model, target, skips, overlay),
+            _ => RenderKnowledgeSets(model, target, overlay),
         };
 
     /// <summary>Renders one C# file per module holding refusals.</summary>
@@ -770,14 +817,15 @@ static class GeneratePlan
     /// <summary>Renders one C# file per use-case message in its use case folder, with the inputs, implied members, and message interface its record states.</summary>
     /// <param name="model">The built project model holding the use case records.</param>
     /// <param name="target">The validated target.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
     /// <returns>The rendered files in module, aggregate folder then use case order.</returns>
-    private static List<GeneratedFile> RenderMessages(ProjectModel model, GenerateTarget target)
+    private static List<GeneratedFile> RenderMessages(ProjectModel model, GenerateTarget target, IReadOnlyDictionary<string, string>? overlay)
     {
         var files = new List<GeneratedFile>();
         var usings = target.Usings ?? [];
         var wantPublic = target.Visibility == "public";
         var qualify = PartQualifier(model);
-        var source = new MessageFieldChecks.MessageSource(model);
+        var source = new MessageFieldChecks.MessageSource(model, overlay);
 
         foreach (var record in model.Records
             .Where(candidate => candidate.Type == RecordTypes.UseCase && !candidate.Derived && candidate.Module is not null)
@@ -832,14 +880,15 @@ static class GeneratePlan
     /// <summary>Renders one C# file per use-case result in its use case folder, with the fields, groups, and rows its output states, and the next cursor when the query pages by cursor.</summary>
     /// <param name="model">The built project model holding the use case records.</param>
     /// <param name="target">The validated target.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
     /// <returns>The rendered files in module, aggregate folder then use case order.</returns>
-    private static List<GeneratedFile> RenderResults(ProjectModel model, GenerateTarget target)
+    private static List<GeneratedFile> RenderResults(ProjectModel model, GenerateTarget target, IReadOnlyDictionary<string, string>? overlay)
     {
         var files = new List<GeneratedFile>();
         var usings = target.Usings ?? [];
         var wantPublic = target.Visibility == "public";
         var qualify = PartQualifier(model);
-        var source = new MessageFieldChecks.MessageSource(model);
+        var source = new MessageFieldChecks.MessageSource(model, overlay);
 
         foreach (var record in model.Records
             .Where(candidate => candidate.Type == RecordTypes.UseCase && !candidate.Derived && candidate.Module is not null)
@@ -1721,17 +1770,32 @@ static class GeneratePlan
     /// <summary>Gets the name of the `items` field: how each item of a list column renders.</summary>
     private const string ItemsField = "items";
 
-    /// <summary>Renders one C# file per knowledge table and variant holding row construction: a Rows list per variant, or a Value for a singleton table.</summary>
+    /// <summary>Renders one C# file per knowledge table and variant holding row construction: a Rows list per variant, a Value for a singleton table, or an empty Rows list per area variant for a table with no rows yet.</summary>
     /// <param name="model">The built project model holding the reference-data records.</param>
     /// <param name="target">The validated target.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
     /// <returns>The rendered files in table then variant order.</returns>
-    private static List<GeneratedFile> RenderKnowledgeSets(ProjectModel model, GenerateTarget target)
+    private static List<GeneratedFile> RenderKnowledgeSets(ProjectModel model, GenerateTarget target, IReadOnlyDictionary<string, string>? overlay)
     {
         var files = new List<GeneratedFile>();
         var tables = model.Records
             .Where(record => record.Type == RecordTypes.ReferenceData && !record.Derived)
             .OrderBy(record => record.Id, StringComparer.Ordinal)
             .ToList();
+        var backend = new MessageFieldChecks.MessageSource(model, overlay);
+        var knowledge = SourceRoots.KnowledgeRoot(model.Config);
+        var declared = new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
+
+        IReadOnlyDictionary<string, string> CaseNames(string qualifiedType)
+        {
+            if (!declared.TryGetValue(qualifiedType, out var names))
+            {
+                names = ClosedCaseReader.CasesOf(backend, knowledge, qualifiedType);
+                declared[qualifiedType] = names;
+            }
+
+            return names;
+        }
 
         foreach (var table in tables)
         {
@@ -1750,7 +1814,7 @@ static class GeneratePlan
                 continue;
             }
 
-            var mappings = MappingsOf(table);
+            var mappings = MappingsOf(table, CaseNames);
 
             if (mappings.Count == 0)
             {
@@ -1758,6 +1822,11 @@ static class GeneratePlan
             }
 
             var singleton = SingletonOf(table);
+
+            if (!singleton && table.Objects(RecordFields.Rows).Count == 0)
+            {
+                files.AddRange(EmptyTableFiles(model, target, table, home, name, rowType, factory, mappings));
+            }
 
             foreach (var (variant, rows) in RowsByVariant(table))
             {
@@ -1801,6 +1870,57 @@ static class GeneratePlan
         return files;
     }
 
+    /// <summary>Renders one empty C# file per area variant for a knowledge table with no rows yet: an empty Rows list each set fills when its rows are stated. A table stating no variation renders nothing, as its rows would, and a table whose area names no variants has no sets to build.</summary>
+    /// <param name="model">The built project model holding the knowledge area record.</param>
+    /// <param name="target">The validated target.</param>
+    /// <param name="table">The reference-data record whose empty files are rendered.</param>
+    /// <param name="home">The knowledge area name.</param>
+    /// <param name="name">The table name, the name segment of the record identifier.</param>
+    /// <param name="rowType">The qualified model row type.</param>
+    /// <param name="factory">The static factory method building one row, or null when rows build through the constructor.</param>
+    /// <param name="mappings">The column mappings in written order.</param>
+    /// <returns>The empty files in variant order.</returns>
+    private static List<GeneratedFile> EmptyTableFiles(
+        ProjectModel model,
+        GenerateTarget target,
+        Record table,
+        string home,
+        string name,
+        string rowType,
+        string? factory,
+        List<KnowledgeSetsRenderer.ColumnMapping> mappings)
+    {
+        var files = new List<GeneratedFile>();
+
+        if (table.Field(RecordFields.Variation) is not { Length: > 0 }
+            || !model.ById.TryGetValue($"{RecordTypes.KnowledgeArea}/{home}", out var area))
+        {
+            return files;
+        }
+
+        foreach (var variant in area.Strings(RecordFields.Variants).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        {
+            var folder = KnowledgeFolder(model.Config.Root, target, home, variant);
+            var file = $"{GenerateNaming.ConstName(variant)}{GenerateNaming.ConstName(name)}.generated.cs";
+            var @namespace = GenerateNaming.ResolveKnowledge(target.Namespace, home, variant);
+
+            files.Add(new GeneratedFile(
+                Path.Combine(folder, file),
+                KnowledgeSetsRenderer.RenderDotnet(
+                    home,
+                    variant,
+                    name,
+                    table.Id,
+                    rowType,
+                    factory,
+                    mappings,
+                    [],
+                    @namespace)));
+        }
+
+        return files;
+    }
+
     /// <summary>Reads how a table builds its rows: the qualified row type with its factory, or none when rows build through the constructor.</summary>
     /// <param name="table">The reference-data record whose row construction is read.</param>
     /// <param name="rowType">The qualified model row type, or empty when the table states none.</param>
@@ -1835,8 +1955,9 @@ static class GeneratePlan
 
     /// <summary>Reads the column mappings of a table: one entry per row parameter, in written order.</summary>
     /// <param name="table">The reference-data record whose column entries are read.</param>
+    /// <param name="caseNames">The declared case name by code of a closed-set type.</param>
     /// <returns>The well-shaped mappings; a malformed entry renders nothing, and the column check reports it.</returns>
-    private static List<KnowledgeSetsRenderer.ColumnMapping> MappingsOf(Record table)
+    private static List<KnowledgeSetsRenderer.ColumnMapping> MappingsOf(Record table, Func<string, IReadOnlyDictionary<string, string>> caseNames)
     {
         var mappings = new List<KnowledgeSetsRenderer.ColumnMapping>();
 
@@ -1849,7 +1970,7 @@ static class GeneratePlan
 
         foreach (var entry in columns.EnumerateArray())
         {
-            if (MappingOf(entry) is { } mapping)
+            if (MappingOf(entry, caseNames) is { } mapping)
             {
                 mappings.Add(mapping);
             }
@@ -1860,8 +1981,9 @@ static class GeneratePlan
 
     /// <summary>Reads one column entry with the sub-columns building its nested object or each object item.</summary>
     /// <param name="entry">The column entry as written.</param>
+    /// <param name="caseNames">The declared case name by code of a closed-set type.</param>
     /// <returns>The mapping, or null when the entry states no parameter or rendering; the column check reports it.</returns>
-    private static KnowledgeSetsRenderer.ColumnMapping? MappingOf(JsonElement entry)
+    private static KnowledgeSetsRenderer.ColumnMapping? MappingOf(JsonElement entry, Func<string, IReadOnlyDictionary<string, string>> caseNames)
     {
         if (entry.ValueKind != JsonValueKind.Object
             || RecordEntries.Str(entry, ParameterField) is not { } parameter
@@ -1892,23 +2014,32 @@ static class GeneratePlan
         {
             foreach (var child in columns.EnumerateArray())
             {
-                if (MappingOf(child) is { } mapping)
+                if (MappingOf(child, caseNames) is { } mapping)
                 {
                     nested.Add(mapping);
                 }
             }
         }
 
+        var closedType = RecordEntries.Str(entry, RecordFields.Type);
+        IReadOnlyDictionary<string, string>? declared = null;
+
+        if ((rendering == "case" || (rendering == "list" && items == "case")) && closedType is { Length: > 0 })
+        {
+            declared = caseNames(closedType);
+        }
+
         return new KnowledgeSetsRenderer.ColumnMapping(
             RecordEntries.Str(entry, ColumnField) ?? "",
             parameter,
             rendering,
-            RecordEntries.Str(entry, RecordFields.Type),
+            closedType,
             RecordEntries.Str(entry, FactoryField) is { Length: > 0 } factory ? factory : "From",
             RecordEntries.Str(entry, RecordFields.Currency),
             values,
             nested,
-            items);
+            items,
+            declared);
     }
 
     /// <summary>Groups a table's rows by variant in variant order, skipping rows that name none.</summary>
@@ -1967,8 +2098,9 @@ static class GeneratePlan
     /// <param name="model">The built project model holding the use case records.</param>
     /// <param name="target">The validated target.</param>
     /// <param name="skips">The skipped use cases, appended in place.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
     /// <returns>The rendered files in module order.</returns>
-    private static List<GeneratedFile> RenderDeclarations(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips)
+    private static List<GeneratedFile> RenderDeclarations(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips, IReadOnlyDictionary<string, string>? overlay)
     {
         var files = new List<GeneratedFile>();
         var uses = model.Records
@@ -1977,7 +2109,7 @@ static class GeneratePlan
         var handlers = model.Code.Handlers
             .GroupBy(handler => handler.UseCaseId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => (IReadOnlyList<CodeHandler>)group.ToList(), StringComparer.Ordinal);
-        var source = new MessageFieldChecks.MessageSource(model);
+        var source = new MessageFieldChecks.MessageSource(model, overlay);
 
         foreach (var (module, entries) in ByModule(uses))
         {
@@ -2827,6 +2959,18 @@ static class GeneratePlan
         var usesRegex = false;
         var usesLinq = false;
         var parameter = record.Field(RecordFields.Kind) == "query" ? "query" : "command";
+        var optional = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var entry in record.Objects(RecordFields.Input))
+        {
+            if (entry.ValueKind == JsonValueKind.Object
+                && RecordEntries.Str(entry, RecordFields.Name) is { Length: > 0 } entryName
+                && entry.TryGetProperty(RecordFields.Required, out var flag)
+                && flag.ValueKind == JsonValueKind.False)
+            {
+                optional.Add(entryName);
+            }
+        }
 
         foreach (var input in record.Objects(RecordFields.Input))
         {
@@ -2837,8 +2981,10 @@ static class GeneratePlan
                 continue;
             }
 
+            var currencyFromOptional = RecordEntries.Str(input, RecordFields.CurrencyField) is { Length: > 0 } carrier
+                && optional.Contains(carrier);
             var (guid, regex, linq) = ValidatorsRenderer.AddRulesFor(
-                rules, PropertyOf(name), parameter, CitesRefusalRule(model, input), input);
+                rules, PropertyOf(name), parameter, CitesRefusalRule(model, input), input, currencyFromOptional);
 
             usesGuid = usesGuid || guid;
             usesRegex = usesRegex || regex;
@@ -2899,14 +3045,15 @@ static class GeneratePlan
     /// <param name="model">The built project model holding the use case records.</param>
     /// <param name="target">The validated target.</param>
     /// <param name="skips">The skipped use cases, appended in place.</param>
+    /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
     /// <returns>The rendered files in module order.</returns>
-    private static List<GeneratedFile> RenderEndpoints(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips)
+    private static List<GeneratedFile> RenderEndpoints(ProjectModel model, GenerateTarget target, List<SkippedMessage> skips, IReadOnlyDictionary<string, string>? overlay)
     {
         var files = new List<GeneratedFile>();
         var uses = model.Records
             .Where(record => record.Type == RecordTypes.UseCase && !record.Derived && record.Module is not null)
             .Select(record => (record.Module!, record));
-        var source = new MessageFieldChecks.MessageSource(model);
+        var source = new MessageFieldChecks.MessageSource(model, overlay);
         var qualify = PartQualifier(model);
 
         foreach (var (module, entries) in ByModule(uses))
@@ -3048,15 +3195,30 @@ static class GeneratePlan
         }
 
         var created = kind == "command" ? RecordEntries.Str(http, RecordFields.Created) : null;
-        var projects = kind == "query" || created is { Length: > 0 };
+        var hasOutput = record.Raw.TryGetProperty(RecordFields.Output, out _);
 
-        if (projects && !record.Raw.TryGetProperty(RecordFields.Output, out _))
+        if (created is { Length: > 0 } && !hasOutput)
         {
-            skip = created is { Length: > 0 }
-                ? "states a created location with no output, which endpoints do not shape"
-                : "states no output, which endpoints do not shape";
+            skip = "states a created location with no output, which endpoints do not shape";
             return null;
         }
+
+        if (kind == "query" && !hasOutput)
+        {
+            skip = "states no output, which endpoints do not shape";
+            return null;
+        }
+
+        var projects = hasOutput;
+
+        var equalities = EqualitiesOf(record, inputs, tenant, out skip);
+
+        if (skip is not null)
+        {
+            return null;
+        }
+
+        var absent = AbsentGroupOf(record, kind, inputs);
 
         var messageName = Naming.Pascal(useCaseName);
         var messageType = messageName + (kind == "query" ? "Query" : "Command");
@@ -3094,7 +3256,151 @@ static class GeneratePlan
             tenant,
             paging,
             RequiresAuthOf(record),
-            resultNamespace);
+            resultNamespace,
+            equalities.Count > 0 ? equalities : null,
+            absent);
+    }
+
+    /// <summary>Reads the equalities a use case judges before its message runs, or the reason the endpoint renders nothing.</summary>
+    /// <param name="record">The use case record whose inputs are read.</param>
+    /// <param name="inputs">The bound inputs in written order.</param>
+    /// <param name="tenant">The tenant key the message carries first, or null when the use case implies none.</param>
+    /// <param name="skip">The skip reason when an equality states something the vocabulary cannot express.</param>
+    /// <returns>The equalities in written input order, or an empty list when the record states none.</returns>
+    private static List<EndpointsRenderer.EndpointEquality> EqualitiesOf(
+        Record record,
+        IReadOnlyList<EndpointsRenderer.BoundInput> inputs,
+        MessagesRenderer.TenantKey? tenant,
+        out string? skip)
+    {
+        skip = null;
+
+        var equalities = new List<EndpointsRenderer.EndpointEquality>();
+        var rendered = new HashSet<(string First, string Second)>();
+
+        foreach (var entry in record.Objects(RecordFields.Input))
+        {
+            var name = RecordEntries.Str(entry, RecordFields.Name);
+            var target = RecordEntries.Str(entry, RecordFields.Equals);
+
+            if (name is not { Length: > 0 } || target is not { Length: > 0 })
+            {
+                continue;
+            }
+
+            var input = inputs.FirstOrDefault(candidate => candidate.Name == name);
+
+            if (input is null)
+            {
+                continue;
+            }
+
+            if (target == "tenant")
+            {
+                if (input.Type != "id")
+                {
+                    skip = $"input '{name}' states equals tenant on type '{input.Type}', which endpoints compare as an identifier only";
+                    return [];
+                }
+
+                if (tenant is null)
+                {
+                    skip = $"input '{name}' states equals tenant with no implied tenant key";
+                    return [];
+                }
+
+                var key = input.IdentifierType ?? "Guid";
+
+                if (key != tenant.Type)
+                {
+                    skip = $"input '{name}' states equals tenant carrying '{key}', not the tenant key '{tenant.Type}'";
+                    return [];
+                }
+
+                equalities.Add(new EndpointsRenderer.EndpointEquality(name, null));
+                continue;
+            }
+
+            if (target == name)
+            {
+                skip = $"input '{name}' states equals '{target}', which names the input itself";
+                return [];
+            }
+
+            var other = inputs.FirstOrDefault(candidate => candidate.Name == target);
+
+            if (other is null)
+            {
+                skip = $"input '{name}' states equals '{target}', which names no input of the use case";
+                return [];
+            }
+
+            if (input.Type is "money" or "list" or "object" or "map" or "file" || input.Many || other.Many)
+            {
+                skip = $"input '{name}' states equals '{target}' on type '{input.Type}', which endpoints do not compare";
+                return [];
+            }
+
+            if (input.Type != other.Type)
+            {
+                skip = $"input '{name}' states equals '{target}' of type '{other.Type}', which is no {input.Type}";
+                return [];
+            }
+
+            if (input.Type == "id" && (input.IdentifierType ?? "Guid") != (other.IdentifierType ?? "Guid"))
+            {
+                skip = $"input '{name}' states equals '{target}' identifying another record, which endpoints do not compare";
+                return [];
+            }
+
+            if (input.Type == "choice" && input.SetType != other.SetType)
+            {
+                skip = $"input '{name}' states equals '{target}' taking values from another set, which endpoints do not compare";
+                return [];
+            }
+
+            var pair = string.Compare(name, target, StringComparison.Ordinal) < 0 ? (name, target) : (target, name);
+
+            if (rendered.Add(pair))
+            {
+                equalities.Add(new EndpointsRenderer.EndpointEquality(name, target));
+            }
+        }
+
+        return equalities;
+    }
+
+    /// <summary>The optional single group a query answers 404 without, or null when the query always answers its groups.</summary>
+    /// <param name="record">The use case record whose output is read.</param>
+    /// <param name="kind">The use case kind: command or query.</param>
+    /// <param name="inputs">The bound inputs in written order, naming the identity the details answer.</param>
+    /// <returns>The absent group, or null.</returns>
+    private static EndpointsRenderer.AbsentGroup? AbsentGroupOf(
+        Record record, string kind, IReadOnlyList<EndpointsRenderer.BoundInput> inputs)
+    {
+        if (kind != "query"
+            || record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Output, out var output)
+            || output.ValueKind != JsonValueKind.Object
+            || !output.TryGetProperty(RecordFields.Include, out var include)
+            || include.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var held = include.EnumerateObject()
+            .Where(group => group.Value.ValueKind == JsonValueKind.Object)
+            .ToList();
+
+        if (held.Count != 1 || IsRequiredGroup(held[0].Value))
+        {
+            return null;
+        }
+
+        return new EndpointsRenderer.AbsentGroup(
+            GenerateNaming.ConstName(held[0].Name),
+            held[0].Name,
+            inputs.FirstOrDefault(input => input.Type == "id")?.Name);
     }
 
     /// <summary>The paging an endpoint binds from the query, or null when the use case pages nothing.</summary>

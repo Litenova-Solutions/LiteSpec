@@ -15,9 +15,16 @@ using Claimwick.Spending.Application.Receipts.AttachReceipt;
 using Claimwick.Spending.Application.ReminderPreferences.ChangeReminderPreference;
 using Claimwick.Spending.Contracts.Expenses;
 using Claimwick.Spending.Domain.Receipts;
+using Claimwick.Spending.WebApi.Expenses.ApproveExpense;
+using Claimwick.Spending.WebApi.Expenses.ErasePersonalData;
 using Claimwick.Spending.WebApi.Expenses.ExportExpenses;
 using Claimwick.Spending.WebApi.Expenses.ListExpenses;
+using Claimwick.Spending.WebApi.Expenses.RefuseExpense;
+using Claimwick.Spending.WebApi.Expenses.ReimburseExpense;
 using Claimwick.Spending.WebApi.Expenses.SubmitExpense;
+using Claimwick.Spending.WebApi.Policies.ChangeReceiptThreshold;
+using Claimwick.Spending.WebApi.Receipts.AttachReceipt;
+using Claimwick.Spending.WebApi.ReminderPreferences.ChangeReminderPreference;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Builder;
@@ -44,7 +51,7 @@ internal static partial class SpendingEndpoints
                 .WithName("approveExpense")
                 .WithSummary("Approve Expense")
                 .WithDescription("A manager decides a submitted expense so the employee learns the outcome.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<ApproveExpenseResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -52,13 +59,13 @@ internal static partial class SpendingEndpoints
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<ApproveExpenseResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "expenseId")] ExpenseId expenseId,
             ClaimsPrincipal user,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new ApproveExpenseCommand(
                     ExpenseId: expenseId,
                     ApproverId: ActorClaims.ReadActorId<Guid>(user, "manager"),
@@ -67,9 +74,12 @@ internal static partial class SpendingEndpoints
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeApproveExpenseResponse(result));
         }
     }
+
+    /// <summary>Shapes the Approve Expense response.</summary>
+    private static partial ApproveExpenseResponseModel ShapeApproveExpenseResponse(ApproveExpenseCommandResult result);
 
     /// <summary>An employee adds a receipt to a submitted expense so it can be decided.</summary>
     /// <implements>use-case/spending.attach-receipt</implements>
@@ -82,14 +92,14 @@ internal static partial class SpendingEndpoints
                 .WithName("attachReceipt")
                 .WithSummary("Attach Receipt")
                 .WithDescription("An employee adds a receipt to a submitted expense so it can be decided.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<AttachReceiptResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<AttachReceiptResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromQuery(Name = "expenseId")] ExpenseId expenseId,
             [FromQuery(Name = "receiptId")] ReceiptId receiptId,
             IFormFileCollection scans,
@@ -104,7 +114,7 @@ internal static partial class SpendingEndpoints
                 scansBytes.Add(scansStream.ToArray());
             }
 
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new AttachReceiptCommand(
                     ExpenseId: expenseId,
                     ReceiptId: receiptId,
@@ -113,9 +123,12 @@ internal static partial class SpendingEndpoints
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeAttachReceiptResponse(result));
         }
     }
+
+    /// <summary>Shapes the Attach Receipt response.</summary>
+    private static partial AttachReceiptResponseModel ShapeAttachReceiptResponse(AttachReceiptCommandResult result);
 
     /// <summary>A manager sets the receipt threshold so small expenses stay light to submit.</summary>
     /// <implements>use-case/spending.change-receipt-threshold</implements>
@@ -128,29 +141,32 @@ internal static partial class SpendingEndpoints
                 .WithName("changeReceiptThreshold")
                 .WithSummary("Change Receipt Threshold")
                 .WithDescription("A manager sets the receipt threshold so small expenses stay light to submit.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<ChangeReceiptThresholdResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<ChangeReceiptThresholdResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromQuery(Name = "threshold")] decimal threshold,
             [FromQuery(Name = "currency")] string currency,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new ChangeReceiptThresholdCommand(
-                    Threshold: Money.Create(threshold, currency),
+                    Threshold: new Money(threshold, currency),
                     Currency: currency
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeChangeReceiptThresholdResponse(result));
         }
     }
+
+    /// <summary>Shapes the Change Receipt Threshold response.</summary>
+    private static partial ChangeReceiptThresholdResponseModel ShapeChangeReceiptThresholdResponse(ChangeReceiptThresholdCommandResult result);
 
     /// <summary>A manager sets whether they get an approval reminder for a waiting expense.</summary>
     /// <implements>use-case/spending.change-reminder-preference</implements>
@@ -163,14 +179,14 @@ internal static partial class SpendingEndpoints
                 .WithName("changeReminderPreference")
                 .WithSummary("Change Reminder Preference")
                 .WithDescription("A manager sets whether they get an approval reminder for a waiting expense.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<ChangeReminderPreferenceResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<ChangeReminderPreferenceResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "id")] Guid id,
             [FromQuery(Name = "receivesReminders")] bool receivesReminders,
             [FromQuery(Name = "reason")] string? reason,
@@ -178,7 +194,7 @@ internal static partial class SpendingEndpoints
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new ChangeReminderPreferenceCommand(
                     ManagerId: id,
                     ReceivesReminders: receivesReminders,
@@ -189,9 +205,12 @@ internal static partial class SpendingEndpoints
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeChangeReminderPreferenceResponse(result));
         }
     }
+
+    /// <summary>Shapes the Change Reminder Preference response.</summary>
+    private static partial ChangeReminderPreferenceResponseModel ShapeChangeReminderPreferenceResponse(ChangeReminderPreferenceCommandResult result);
 
     /// <summary>Derives ChangerIsFinance for Change Reminder Preference.</summary>
     private static partial bool DeriveChangeReminderPreferenceChangerIsFinance(ClaimsPrincipal user);
@@ -207,7 +226,7 @@ internal static partial class SpendingEndpoints
                 .WithName("erasePersonalData")
                 .WithSummary("Erase Personal Data")
                 .WithDescription("Finance erases the personal data of an old expense so nothing personal is kept past its need.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<ErasePersonalDataResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -215,20 +234,23 @@ internal static partial class SpendingEndpoints
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<ErasePersonalDataResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "expenseId")] ExpenseId expenseId,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new ErasePersonalDataCommand(
                     ExpenseId: expenseId
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeErasePersonalDataResponse(result));
         }
     }
+
+    /// <summary>Shapes the Erase Personal Data response.</summary>
+    private static partial ErasePersonalDataResponseModel ShapeErasePersonalDataResponse(ErasePersonalDataCommandResult result);
 
     /// <summary>Finance collects the approved expenses so the payout batch can run.</summary>
     /// <implements>use-case/spending.export-expenses</implements>
@@ -321,7 +343,7 @@ internal static partial class SpendingEndpoints
                 .WithName("refuseExpense")
                 .WithSummary("Refuse Expense")
                 .WithDescription("A manager turns down a submitted expense that falls outside the policy.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<RefuseExpenseResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -329,14 +351,14 @@ internal static partial class SpendingEndpoints
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<RefuseExpenseResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "expenseId")] ExpenseId expenseId,
             [FromQuery(Name = "reason")] string reason,
             ClaimsPrincipal user,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new RefuseExpenseCommand(
                     ExpenseId: expenseId,
                     Reason: reason,
@@ -345,9 +367,12 @@ internal static partial class SpendingEndpoints
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeRefuseExpenseResponse(result));
         }
     }
+
+    /// <summary>Shapes the Refuse Expense response.</summary>
+    private static partial RefuseExpenseResponseModel ShapeRefuseExpenseResponse(RefuseExpenseCommandResult result);
 
     /// <summary>The ReimburseExpense request body.</summary>
     /// <param name="Fee">The payment fee the reimbursement carries, in the currency of the expense.</param>
@@ -364,7 +389,7 @@ internal static partial class SpendingEndpoints
                 .WithName("reimburseExpense")
                 .WithSummary("Reimburse Expense")
                 .WithDescription("Finance pays an approved expense so the employee gets the money back.")
-                .Produces(StatusCodes.Status204NoContent)
+                .Produces<ReimburseExpenseResponseModel>(StatusCodes.Status200OK)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status401Unauthorized)
                 .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -372,13 +397,13 @@ internal static partial class SpendingEndpoints
                 .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
         }
 
-        private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
+        private static async Task<Results<Ok<ReimburseExpenseResponseModel>, ProblemHttpResult>> HandleAsync(
             [FromRoute(Name = "expenseId")] ExpenseId expenseId,
             ReimburseExpenseRequest request,
             ICommandMediator mediator,
             CancellationToken cancellationToken)
         {
-            await mediator.SendAsync(
+            var result = await mediator.SendAsync(
                 new ReimburseExpenseCommand(
                     ExpenseId: expenseId,
                     HandledAt: DateTimeOffset.UtcNow,
@@ -386,9 +411,12 @@ internal static partial class SpendingEndpoints
                 ),
                 cancellationToken);
 
-            return TypedResults.NoContent();
+            return TypedResults.Ok(ShapeReimburseExpenseResponse(result));
         }
     }
+
+    /// <summary>Shapes the Reimburse Expense response.</summary>
+    private static partial ReimburseExpenseResponseModel ShapeReimburseExpenseResponse(ReimburseExpenseCommandResult result);
 
     /// <summary>One row of Splits.</summary>
     /// <param name="CostCenter">The cost center carrying the split.</param>

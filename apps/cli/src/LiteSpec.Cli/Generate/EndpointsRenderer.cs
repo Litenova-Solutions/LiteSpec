@@ -86,6 +86,17 @@ static class EndpointsRenderer
         int Size = 32,
         bool CurrencyFromOptional = false);
 
+    /// <summary>One equality an endpoint judges before the message runs: an input matching the tenant key or a sibling input.</summary>
+    /// <param name="Input">The input name stating the equality.</param>
+    /// <param name="Other">The sibling input name the value must match, or null when it must match the tenant key.</param>
+    public sealed record EndpointEquality(string Input, string? Other);
+
+    /// <summary>The optional single group whose absence answers 404: the result carries no group when the details are missing.</summary>
+    /// <param name="Property">The result property carrying the group.</param>
+    /// <param name="Group">The group name the output states.</param>
+    /// <param name="Key">The input name holding the identity the details answer, or null when no id input names it.</param>
+    public sealed record AbsentGroup(string Property, string Group, string? Key);
+
     /// <summary>One use-case endpoint the plan renders.</summary>
     /// <param name="UseCaseId">The use case identifier.</param>
     /// <param name="UseCaseName">The use case name in PascalCase, without its message suffix.</param>
@@ -97,7 +108,7 @@ static class EndpointsRenderer
     /// <param name="Created">The created-location template, or null when the record states none.</param>
     /// <param name="Inputs">The declared inputs in written order.</param>
     /// <param name="LocationProperties">The result property by location parameter.</param>
-    /// <param name="Projects">Whether the response projects the result: a query, or a command stating a created location.</param>
+    /// <param name="Projects">Whether the response projects the result: a use case stating an output.</param>
     /// <param name="RefusalStatuses">The distinct refusal statuses the endpoint answers, ascending.</param>
     /// <param name="MessageType">The simple message type name, such as BorrowCopyCommand.</param>
     /// <param name="MessageNamespace">The C# namespace declaring the message type.</param>
@@ -109,6 +120,8 @@ static class EndpointsRenderer
     /// <param name="Paging">The paging the endpoint binds from the query, or null when the use case pages nothing.</param>
     /// <param name="RequiresAuth">Whether the use case grant requires a signed-in actor, so the endpoint lists authentication problems.</param>
     /// <param name="ResultNamespace">The C# namespace declaring the result type, or empty when the message namespace declares it.</param>
+    /// <param name="Equalities">The equalities the endpoint judges before the message runs, or null when the record states none.</param>
+    /// <param name="Absent">The optional single group whose absence answers 404, or null when the query always answers its groups.</param>
     public sealed record EndpointData(
         string UseCaseId,
         string UseCaseName,
@@ -131,7 +144,9 @@ static class EndpointsRenderer
         MessagesRenderer.TenantKey? Tenant = null,
         EndpointPaging? Paging = null,
         bool RequiresAuth = false,
-        string ResultNamespace = "");
+        string ResultNamespace = "",
+        IReadOnlyList<EndpointEquality>? Equalities = null,
+        AbsentGroup? Absent = null);
 
     /// <summary>The paging a collection endpoint binds from the query: the cursor or offset with the limit.</summary>
     /// <param name="Cursor">The cursor text the record states, or null when the query pages by offset.</param>
@@ -248,7 +263,8 @@ static class EndpointsRenderer
         };
 
         if (endpoints.Any(endpoint => endpoint.Paging is not null
-            || endpoint.Inputs.Any(input => input.Binding is "route" or "query" or "header")))
+            || endpoint.Inputs.Any(input => input.Binding is "route" or "query" or "header")
+            || (endpoint.Method == "DELETE" && endpoint.Inputs.Any(input => input.Binding == "body"))))
         {
             names.Add("Microsoft.AspNetCore.Mvc");
         }
@@ -523,7 +539,10 @@ static class EndpointsRenderer
             {
                 if (!requested)
                 {
-                    parameters.Add($"{endpoint.UseCaseName}Request request");
+                    // Minimal APIs infer a body only for POST, PUT and PATCH; a DELETE body binds only when stated.
+                    parameters.Add(endpoint.Method == "DELETE"
+                        ? $"[FromBody] {endpoint.UseCaseName}Request request"
+                        : $"{endpoint.UseCaseName}Request request");
                     requested = true;
                 }
 
@@ -595,8 +614,9 @@ static class EndpointsRenderer
         FileListLines(body, endpoint);
         ConversionLines(body, endpoint);
         ObjectLines(body, endpoint);
+        EqualityLines(body, endpoint, reader, tenant, values);
         DispatchLines(body, endpoint, reader, tenant, values);
-        ResponseLines(body, endpoint);
+        ResponseLines(body, endpoint, reader, values);
 
         foreach (var line in body)
         {
@@ -1019,6 +1039,87 @@ static class EndpointsRenderer
         }
     }
 
+    /// <summary>Writes the equality checks: each input matching the tenant key or a sibling input, judged before the message runs. A tenant mismatch answers 403, and a sibling mismatch answers 400.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose equalities are read.</param>
+    /// <param name="reader">The claim reader call.</param>
+    /// <param name="tenant">The tenant reader call.</param>
+    /// <param name="values">The claim value reader call.</param>
+    private static void EqualityLines(List<string> body, EndpointData endpoint, Reader reader, Reader tenant, Reader values)
+    {
+        foreach (var equality in endpoint.Equalities ?? [])
+        {
+            var input = endpoint.Inputs.FirstOrDefault(candidate => candidate.Name == equality.Input);
+
+            if (input is null)
+            {
+                continue;
+            }
+
+            var compared = ArgumentOf(endpoint, input, reader, values);
+
+            if (equality.Other is null)
+            {
+                if (endpoint.Tenant is null)
+                {
+                    continue;
+                }
+
+                var thing = TenantWordOf(endpoint.Tenant.Property);
+                var name = SpacedOf(input.Name);
+
+                body.Add($"if (!Equals({compared}, {tenant.Call}<{endpoint.Tenant.Type}>(user)))");
+                body.Add("{");
+                body.Add("    return TypedResults.Problem(");
+                body.Add($"        title: \"Forbidden {thing}.\",");
+                body.Add($"        detail: $\"The {name} '{{{BoundDisplayOf(endpoint, input, reader, values)}}}' is not the caller's {thing}.\",");
+                body.Add("        statusCode: StatusCodes.Status403Forbidden);");
+                body.Add("}");
+                body.Add("");
+
+                continue;
+            }
+
+            var other = endpoint.Inputs.FirstOrDefault(candidate => candidate.Name == equality.Other);
+
+            if (other is null)
+            {
+                continue;
+            }
+
+            var first = SpacedOf(input.Name);
+            var second = SpacedOf(other.Name);
+
+            body.Add($"if (!Equals({compared}, {ArgumentOf(endpoint, other, reader, values)}))");
+            body.Add("{");
+            body.Add("    return TypedResults.Problem(");
+            body.Add($"        title: \"Mismatched {first}.\",");
+            body.Add($"        detail: $\"The {first} '{{{BoundDisplayOf(endpoint, input, reader, values)}}}' does not match the {second} '{{{BoundDisplayOf(endpoint, other, reader, values)}}}'.\",");
+            body.Add("        statusCode: StatusCodes.Status400BadRequest);");
+            body.Add("}");
+            body.Add("");
+        }
+    }
+
+    /// <summary>The problem detail expression showing one equality input's bound value: the request member for a body input, the handler local for a route, query or header input, or the message value for a claim or derived input.</summary>
+    /// <param name="endpoint">The endpoint whose use case names the derivation.</param>
+    /// <param name="input">The input whose value is shown.</param>
+    /// <param name="reader">The claim reader call.</param>
+    /// <param name="values">The claim value reader call.</param>
+    /// <returns>The detail expression.</returns>
+    private static string BoundDisplayOf(EndpointData endpoint, BoundInput input, Reader reader, Reader values) =>
+        input.Binding == "body"
+            ? $"request.{input.Property}"
+            : input.Binding is "route" or "query" or "header"
+                ? input.Local
+                : ArgumentOf(endpoint, input, reader, values);
+
+    /// <summary>The tenant word of a tenant key property: the property without its identity suffix, spaced and lowered.</summary>
+    /// <param name="property">The tenant key property, such as WorkspaceId.</param>
+    /// <returns>The tenant word, such as workspace.</returns>
+    private static string TenantWordOf(string property) =>
+        SpacedOf(property.EndsWith("Id", StringComparison.Ordinal) && property.Length > 2 ? property[..^2] : property);
+
     /// <summary>The single row of a single-field list input, or null for any other input.</summary>
     /// <param name="input">The input whose row is read.</param>
     /// <returns>The single row, or null.</returns>
@@ -1077,12 +1178,19 @@ static class EndpointsRenderer
         body.Add("    cancellationToken);");
     }
 
-    /// <summary>Writes the success response: the shaped result with its status, or an empty answer.</summary>
+    /// <summary>Writes the success response: the absent-details check, then the shaped result with its status, or an empty answer.</summary>
     /// <param name="body">The handler body lines, appended in place.</param>
     /// <param name="endpoint">The endpoint whose response is read.</param>
-    private static void ResponseLines(List<string> body, EndpointData endpoint)
+    /// <param name="reader">The claim reader call.</param>
+    /// <param name="values">The claim value reader call.</param>
+    private static void ResponseLines(List<string> body, EndpointData endpoint, Reader reader, Reader values)
     {
         body.Add("");
+
+        if (endpoint is { Projects: true, Absent: not null })
+        {
+            AbsentLines(body, endpoint, reader, values);
+        }
 
         if (endpoint is { Projects: true, Created: { Length: > 0 } created })
         {
@@ -1098,6 +1206,36 @@ static class EndpointsRenderer
         {
             body.Add("return TypedResults.NoContent();");
         }
+    }
+
+    /// <summary>Writes the absent-details check: a missing optional group answers 404 naming the details before the response shapes.</summary>
+    /// <param name="body">The handler body lines, appended in place.</param>
+    /// <param name="endpoint">The endpoint whose absent group is read.</param>
+    /// <param name="reader">The claim reader call.</param>
+    /// <param name="values">The claim value reader call.</param>
+    private static void AbsentLines(List<string> body, EndpointData endpoint, Reader reader, Reader values)
+    {
+        var absent = endpoint.Absent!;
+        var display = SpacedOf(absent.Group);
+
+        body.Add($"if (result.{absent.Property} is null)");
+        body.Add("{");
+        body.Add("    return TypedResults.Problem(");
+        body.Add($"        title: \"Unknown {display}.\",");
+
+        if (absent.Key is { Length: > 0 } key
+            && endpoint.Inputs.FirstOrDefault(candidate => candidate.Name == key) is { } input)
+        {
+            body.Add($"        detail: $\"No {display} answers '{{{BoundDisplayOf(endpoint, input, reader, values)}}}'.\",");
+        }
+        else
+        {
+            body.Add($"        detail: \"No {display} answers the request.\",");
+        }
+
+        body.Add("        statusCode: StatusCodes.Status404NotFound);");
+        body.Add("}");
+        body.Add("");
     }
 
     /// <summary>The partial methods the sibling implements: one response shaping per projected result, one derivation per value the clock rule does not cover.</summary>
@@ -1180,8 +1318,8 @@ static class EndpointsRenderer
             var currency = CurrencyOf(endpoint, input);
 
             return Nullable(input)
-                ? $"{amount} is null ? null : Money.Create({amount}.Value, {currency})"
-                : $"Money.Create({amount}, {currency})";
+                ? $"{amount} is null ? null : new Money({amount}.Value, {currency})"
+                : $"new Money({amount}, {currency})";
         }
 
         if (input is { Binding: "form", Type: "list" } && SingleRowOf(input) is { Type: "file" })
@@ -1253,7 +1391,7 @@ static class EndpointsRenderer
             {
                 var currency = row is null ? CurrencyOf(endpoint, input) : RowCurrencyOf(input, row);
 
-                return $"Money.Create({target}, {currency})";
+                return $"new Money({target}, {currency})";
             }
 
             return null;
@@ -1313,8 +1451,8 @@ static class EndpointsRenderer
             var currency = RowCurrencyOf(input, row);
 
             return row.Required
-                ? $"Money.Create({source}, {currency})"
-                : $"{source} is null ? null : Money.Create({source}.Value, {currency})";
+                ? $"new Money({source}, {currency})"
+                : $"{source} is null ? null : new Money({source}.Value, {currency})";
         }
 
         return source;
@@ -1535,7 +1673,7 @@ static class EndpointsRenderer
         return FailureStatuses(endpoint).Count > 0 ? $"Results<{success}, ProblemHttpResult>" : success;
     }
 
-    /// <summary>The failure statuses the endpoint declares, distinct and ascending: 400 for caller inputs or paging the endpoint validates, 401 and 403 for a grant requiring a signed-in actor, 404 for a route identifier loading an aggregate, with each cited refusal status.</summary>
+    /// <summary>The failure statuses the endpoint declares, distinct and ascending: 400 for caller inputs, paging, or a sibling equality the endpoint validates, 401 and 403 for a grant requiring a signed-in actor or a tenant equality, 404 for a route identifier loading an aggregate or an absent optional group, with each cited refusal status.</summary>
     /// <param name="endpoint">The endpoint whose failures are read.</param>
     /// <returns>The declared statuses.</returns>
     private static List<int> FailureStatuses(EndpointData endpoint)
@@ -1544,6 +1682,7 @@ static class EndpointsRenderer
 
         if (endpoint.Paging is not null
             || endpoint.Inputs.Any(input => input.Origin == "caller")
+            || endpoint.Equalities?.Any(equality => equality.Other is not null) == true
             || endpoint.Inputs.Any(input => input is { Type: "choice", SetType: not null, Origin: not "derived" })
             || endpoint.Inputs.Any(input => input is { Type: "list", Origin: not "derived", Rows: not null }
                 && input.Rows!.Any(row => row is { Type: "choice", SetType: not null }))
@@ -1559,7 +1698,13 @@ static class EndpointsRenderer
             statuses.Add(403);
         }
 
-        if (endpoint.Inputs.Any(input => input is { Binding: "route", Type: "id", IdentifierType: not null }))
+        if (endpoint.Equalities?.Any(equality => equality.Other is null) == true)
+        {
+            statuses.Add(403);
+        }
+
+        if (endpoint.Absent is not null
+            || endpoint.Inputs.Any(input => input is { Binding: "route", Type: "id", IdentifierType: not null }))
         {
             statuses.Add(404);
         }

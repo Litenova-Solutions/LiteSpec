@@ -1073,7 +1073,7 @@ internal static class ContractChecks
         }
     }
 
-    /// <summary>Reports a contract field whose closed set, currency home, currency field, file media types and size, length span, or numeric span names nothing or contradicts itself.</summary>
+    /// <summary>Reports a contract field whose closed set, currency home, currency field, equality, file media types and size, length span, or numeric span names nothing or contradicts itself.</summary>
     /// <param name="model">The loaded project model that resolves each closed set and currency home.</param>
     /// <param name="record">The record that holds the contract field.</param>
     /// <param name="label">The record kind description that opens each finding.</param>
@@ -1141,6 +1141,8 @@ internal static class ContractChecks
             findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' of type file with no contentTypes and maxSize.", record.File, record.Line, SubjectOf(record)));
         }
 
+        CheckEquals(model, record, label, holder, name, type, entry, siblings, findings);
+
         if (entry.TryGetProperty(RecordFields.MinLength, out var minLength)
             && entry.TryGetProperty(RecordFields.MaxLength, out var maxLength)
             && minLength.TryGetInt32(out var min)
@@ -1161,6 +1163,65 @@ internal static class ContractChecks
             && floor > ceiling)
         {
             findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with bounds min {lower.GetRawText()} above max {upper.GetRawText()}.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a use-case input whose equality names itself, names no sibling input, names a sibling of another type, compares a value the endpoint cannot compare, or names the tenant key while the project selects no tenant term.</summary>
+    /// <param name="model">The loaded project model that carries the tenancy selection.</param>
+    /// <param name="record">The record that holds the contract field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="holder">The field noun each finding names.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="type">The contract field type that decides whether the endpoint can compare it.</param>
+    /// <param name="entry">The contract field object whose equality is judged.</param>
+    /// <param name="siblings">The field names beside the entry with the type each states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckEquals(ProjectModel model, Record record, string label, string holder, string name, string type, JsonElement entry, Dictionary<string, string?> siblings, List<Finding> findings)
+    {
+        if (holder != "input field" || Str(entry, RecordFields.Equals) is not { Length: > 0 } target)
+        {
+            return;
+        }
+
+        if (type is not ("text" or "integer" or "decimal" or "boolean" or "date" or "instant" or "duration" or "email" or "choice" or "id"))
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' of type {type} with equals '{target}', which only a scalar, choice, or identifier input states.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (entry.TryGetProperty(RecordFields.Many, out var plural) && plural.ValueKind == JsonValueKind.True)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' holding many values with equals '{target}', which compares one value only.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (target == "tenant")
+        {
+            if (type != "id")
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' of type {type} with equals 'tenant', which only an identifier input states.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (model.Config.TenancyTenantTerm.Length == 0)
+            {
+                findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with equals 'tenant' and the project selects no tenant term.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            return;
+        }
+
+        if (target == name)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with equals '{target}', which names the field itself.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (!siblings.TryGetValue(target, out var siblingType))
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with equals '{target}', which names no sibling input.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (siblingType is { Length: > 0 } && siblingType != type)
+        {
+            findings.Add(new Finding("record-invalid", $"{label} '{record.Id}' holds {holder} '{name}' with equals '{target}' naming '{target}' of type '{siblingType}', which is no {type}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

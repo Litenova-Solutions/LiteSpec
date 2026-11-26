@@ -147,7 +147,7 @@ A read that writes makes retries and caching unsafe: repeating the query would r
 
 **Example:** Claimwick's submit-expense handler calls `Expense.Submit` with the receipt threshold it loaded, and the approve-expense handler calls `expense.Approve`: each handler holds its three steps while the expense aggregate holds the rules. A per-diem walk copied into both handlers would report `logic-duplicate`; both call the travel knowledge model instead.
 
-**Checked by:** `litespec model check` reports `logic-duplicate` (level S) for one method or local-function body of at least 6 statements or 80 tokens carried in two or more different folders.
+**Checked by:** `litespec model check` reports `logic-duplicate` (level S) for one method or local-function body of at least 6 statements or 80 tokens carried in two or more different folders, besides the `TryParse` each typed identifier carries by provision.
 
 ### Dispatch Declared Effects Through Their Entry Points
 

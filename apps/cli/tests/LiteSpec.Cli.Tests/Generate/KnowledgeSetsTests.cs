@@ -402,6 +402,36 @@ public sealed class KnowledgeSetsTests
         Assert.Contains("using Library.Lending;", text);
     }
 
+    /// <summary>A case column renders the declared case name matching the code, falling back to the PascalCase code when the backend declares none.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void CaseRendersDeclaredCaseName()
+    {
+        using var document = JsonDocument.Parse("""
+            {"rows": [
+            {"role": "b2b", "key": "a-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"},
+            {"role": "market-stall", "key": "b-2026", "effectiveFrom": "2026-01-01", "source": "decision/0001-loan-period"}
+            ]}
+            """);
+        var rows = document.RootElement.GetProperty("rows").EnumerateArray().ToList();
+
+        var text = KnowledgeSetsRenderer.RenderDotnet(
+            "lending",
+            "central",
+            "channel-rules",
+            "reference-data/lending.channel-rules",
+            "Library.Lending.ChannelRule",
+            null,
+            [
+                new("role", "channel", "case", "Library.Lending.Channel", "From", null, new Dictionary<string, string>(StringComparer.Ordinal), [], "", new Dictionary<string, string>(StringComparer.Ordinal) { ["b2b"] = "B2B" }),
+            ],
+            rows,
+            "Library.Lending.Central");
+
+        Assert.Contains("channel: new Channel.B2B()", text);
+        Assert.Contains("channel: new Channel.MarketStall()", text);
+    }
+
     /// <summary>A decimal column renders its suffix, and a literal when the value states no number.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -506,6 +536,82 @@ public sealed class KnowledgeSetsTests
         Assert.Contains("branch: \"HB\",", harborText);
         Assert.Contains("maxDays: 14,", harborText);
         Assert.DoesNotContain("central-standard-2026", harborText);
+    }
+
+    /// <summary>Generate writes one empty table per area variant for a table with no rows yet.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GenerateWritesEmptyTablesPerVariant()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteEmptyRecords(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: knowledge-sets
+              stack: dotnet
+              path: apps/api/src/Knowledge/Library.{Area}.{Variant}
+              namespace: Library.{Area}.{Variant}
+            """);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        var central = Path.Combine(temp.Path, "apps", "api", "src", "Knowledge", "Library.Lending.Central", "CentralAcceptedAgencies.generated.cs");
+        var harbor = Path.Combine(temp.Path, "apps", "api", "src", "Knowledge", "Library.Lending.Harbor", "HarborAcceptedAgencies.generated.cs");
+        Assert.True(File.Exists(central), "central empty table file");
+        Assert.True(File.Exists(harbor), "harbor empty table file");
+
+        var text = File.ReadAllText(central);
+        Assert.Contains("namespace Library.Lending.Central;", text);
+        Assert.Contains("public static partial class CentralAcceptedAgencies", text);
+        Assert.Contains("public static IReadOnlyList<AcceptedAgency> Rows { get; } = new AcceptedAgency[]", text);
+        Assert.DoesNotContain("new AcceptedAgency(", text);
+    }
+
+    /// <summary>Generate renders a case column through the case names the backend declares, matching each code to its case.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GenerateRendersDeclaredCaseNames()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteChannelRecords(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: knowledge-sets
+              stack: dotnet
+              path: apps/api/src/Knowledge/Library.{Area}.{Variant}
+              namespace: Library.{Area}.{Variant}
+            """);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        var text = File.ReadAllText(Path.Combine(temp.Path, "apps", "api", "src", "Knowledge", "Library.Lending.Central", "CentralChannelRules.generated.cs"));
+        Assert.Contains("channel: new Channel.B2B(),", text);
+        Assert.Contains("channel: new Channel.Standard(),", text);
+    }
+
+    /// <summary>Generate renders a stated null as null and an empty object list as empty.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void GenerateRendersNullsAndEmptyLists()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        WriteNullRecords(temp.Path);
+        AppendGenerate(temp.Path, """
+            generate:
+            - kind: knowledge-sets
+              stack: dotnet
+              path: apps/api/src/Knowledge/Library.{Area}.{Variant}
+              namespace: Library.{Area}.{Variant}
+            """);
+
+        var result = TestCli.Run("generate", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        var text = File.ReadAllText(Path.Combine(temp.Path, "apps", "api", "src", "Knowledge", "Library.Lending.Central", "CentralFineBands.generated.cs"));
+        Assert.Contains("dutchLabel: null,", text);
+        Assert.Contains("bands: []", text);
     }
 
     /// <summary>Generate refuses a knowledge-sets target on a TypeScript stack, which writes no C#.</summary>
@@ -661,8 +767,10 @@ public sealed class KnowledgeSetsTests
     /// <summary>The golden file by generated file name, one per Claimwick travel set.</summary>
     static readonly IReadOnlyDictionary<string, string> Goldens = new Dictionary<string, string>(StringComparer.Ordinal)
     {
+        ["GermanyAcceptedAgencies.generated.cs"] = "knowledge-sets-dotnet-germany-accepted-agencies.txt",
         ["GermanyMileageRates.generated.cs"] = "knowledge-sets-dotnet-germany-mileage-rates.txt",
         ["GermanyPerDiemRates.generated.cs"] = "knowledge-sets-dotnet-germany-per-diem-rates.txt",
+        ["NetherlandsAcceptedAgencies.generated.cs"] = "knowledge-sets-dotnet-netherlands-accepted-agencies.txt",
         ["NetherlandsMileageRates.generated.cs"] = "knowledge-sets-dotnet-netherlands-mileage-rates.txt",
         ["NetherlandsPerDiemRates.generated.cs"] = "knowledge-sets-dotnet-netherlands-per-diem-rates.txt",
     };
@@ -1042,6 +1150,185 @@ public sealed class KnowledgeSetsTests
               maxHolds: 5
               homeBranch: central
               openWeekdays: [monday, tuesday, wednesday, thursday, friday]
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+    }
+
+    /// <summary>Writes a knowledge area with one empty table into the fixture consumer.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteEmptyRecords(string root)
+    {
+        var area = Path.Combine(root, ".litespec", "behavior", "knowledge", "lending");
+        Directory.CreateDirectory(area);
+        File.WriteAllText(
+            Path.Combine(area, "knowledge-area.yaml"),
+            """
+            type: knowledge-area
+            id: knowledge-area/lending
+            title: Lending
+            meaning: The loan rules the library looks up by branch.
+            variants:
+            - central
+            - harbor
+            """);
+        WriteTable(
+            area,
+            "accepted-agencies",
+            """
+            type: reference-data
+            id: reference-data/lending.accepted-agencies
+            title: Accepted Agencies
+            summary: The agencies each branch accepts bookings from; no branch has stated its agencies yet.
+            variation: branch
+            row:
+              type: Library.Lending.AcceptedAgency
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.AcceptedAgencyKey
+            - column: value
+              parameter: name
+              as: string
+            - column: source
+              parameter: source
+              as: string
+            rows: []
+            """);
+    }
+
+    /// <summary>Writes a knowledge area with one channel table and the backend closed set its case column reads into the fixture consumer.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteChannelRecords(string root)
+    {
+        var area = Path.Combine(root, ".litespec", "behavior", "knowledge", "lending");
+        Directory.CreateDirectory(area);
+        File.WriteAllText(
+            Path.Combine(area, "knowledge-area.yaml"),
+            """
+            type: knowledge-area
+            id: knowledge-area/lending
+            title: Lending
+            meaning: The loan rules the library looks up by branch.
+            variants:
+            - central
+            """);
+        WriteTable(
+            area,
+            "channel-rules",
+            """
+            type: reference-data
+            id: reference-data/lending.channel-rules
+            title: Channel Rules
+            summary: The rules per sales channel.
+            row:
+              type: Library.Lending.ChannelRule
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.ChannelRuleKey
+            - column: role
+              parameter: channel
+              as: case
+              type: Library.Lending.Channel
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 1
+              key: central-b2b-2026
+              role: b2b
+              variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            - value: 1
+              key: central-standard-2026
+              role: standard
+              variant: central
+              effectiveFrom: 2026-01-01
+              source: decision/0001-loan-period
+            """);
+        var model = Path.Combine(root, "apps", "api", "src", "Knowledge", "Library.Lending");
+        Directory.CreateDirectory(model);
+        File.WriteAllText(
+            Path.Combine(model, "Channel.cs"),
+            """
+            namespace Library.Lending;
+
+            public abstract record Channel
+            {
+                public abstract string Code { get; }
+
+                public sealed record B2B : Channel
+                {
+                    public override string Code => "b2b";
+                }
+
+                public sealed record Standard : Channel
+                {
+                    public override string Code => "standard";
+                }
+            }
+            """);
+    }
+
+    /// <summary>Writes a knowledge area with one table stating a null extra field and an empty object list into the fixture consumer.</summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    static void WriteNullRecords(string root)
+    {
+        var area = Path.Combine(root, ".litespec", "behavior", "knowledge", "lending");
+        Directory.CreateDirectory(area);
+        File.WriteAllText(
+            Path.Combine(area, "knowledge-area.yaml"),
+            """
+            type: knowledge-area
+            id: knowledge-area/lending
+            title: Lending
+            meaning: The loan rules the library looks up by branch.
+            variants:
+            - central
+            """);
+        WriteTable(
+            area,
+            "fine-bands",
+            """
+            type: reference-data
+            id: reference-data/lending.fine-bands
+            title: Fine Bands
+            summary: The daily fine per overdue band.
+            row:
+              type: Library.Lending.FineBand
+            columns:
+            - column: key
+              parameter: key
+              as: key
+              type: Library.Lending.FineBandKey
+            - column: labelNl
+              parameter: dutchLabel
+              as: string
+            - column: bands
+              parameter: bands
+              as: list
+              items: object
+              type: Library.Lending.FineSlice
+              columns:
+              - column: minDays
+                parameter: minDays
+                as: number
+              - column: maxDays
+                parameter: maxDays
+                as: number
+            - column: source
+              parameter: source
+              as: string
+            rows:
+            - value: 1
+              key: central-standard-2026
+              variant: central
+              labelNl: null
+              bands: []
               effectiveFrom: 2026-01-01
               source: decision/0001-loan-period
             """);

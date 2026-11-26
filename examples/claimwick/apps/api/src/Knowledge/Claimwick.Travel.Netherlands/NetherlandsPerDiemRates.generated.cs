@@ -17,7 +17,7 @@ public static partial class NetherlandsPerDiemRates
             country: "NL",
             key: PerDiemRateKey.From("nl-full-day-2026"),
             role: PerDiemRole.FullDay,
-            dailyAmount: Money.Create(25m, "EUR"),
+            dailyAmount: new Money(25m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"
@@ -26,7 +26,7 @@ public static partial class NetherlandsPerDiemRates
             country: "NL",
             key: PerDiemRateKey.From("nl-partial-day-2026"),
             role: PerDiemRole.PartialDay,
-            dailyAmount: Money.Create(12m, "EUR"),
+            dailyAmount: new Money(12m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"

@@ -134,6 +134,7 @@ internal static class FieldTable
         new("ends", "How the branch path ends", "string", "flowBranch"),
         new("enforcedBy", "The jobs or use cases that enforce retention", "array", "dataClassEntry"),
         new("environment", "Where a quality requirement must hold", "string", "requirementPage"),
+        new("equals", "The tenant key or sibling input the value must match", "string", "useCaseInput"),
         new("erasedBy", "The event that erases the read model field", "string", "readModelField"),
         new("erasure", "How personal data held outside is erased", "object", "externalSystemPage"),
         new("escalation", "Who to call when the runbook fails", "string", "runbookPage"),

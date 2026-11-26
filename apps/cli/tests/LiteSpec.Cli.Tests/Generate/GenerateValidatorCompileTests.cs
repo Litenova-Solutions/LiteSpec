@@ -90,6 +90,8 @@ public sealed class GenerateValidatorCompileTests
             int ExtensionDays,
             decimal? Fine,
             Money Deposit,
+            decimal Fee,
+            string? FeeCurrency,
             LoanKind Kind) : LiteBus.Commands.Abstractions.ICommand;
         """;
 

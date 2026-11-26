@@ -1384,7 +1384,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module.</summary>
+    /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module, and every file directly in WebApi/ besides a file a generate target places and its hand-written partial sibling.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="webApi">The absolute WebApi folder of one module.</param>
     /// <param name="moduleName">The module folder name as written on disk.</param>
@@ -1420,10 +1420,26 @@ internal static class ClosedFolderChecks
 
         foreach (var file in ChildFiles(webApi))
         {
-            if (owned.Count > 0)
+            if (owned.Count == 0)
             {
-                findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case.", file, 1, null));
+                continue;
             }
+
+            // A file a generate target places, and the hand-written partial beside it, sit where the target names.
+            if (LiteSpec.Model.Roslyn.GeneratedCode.IsGeneratedFileName(file))
+            {
+                continue;
+            }
+
+            var stem = Path.GetFileNameWithoutExtension(file);
+            var sibling = Path.Combine(webApi, stem + ".generated.cs");
+
+            if (File.Exists(sibling))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in WebApi/, which holds only one folder per aggregate and use case.", file, 1, null));
         }
     }
 

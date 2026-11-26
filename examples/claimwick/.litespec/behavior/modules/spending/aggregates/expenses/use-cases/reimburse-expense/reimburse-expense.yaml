@@ -38,6 +38,8 @@ input:
   meaning: The payment fee the reimbursement carries, in the currency of the expense.
   type: money
   currencyHome: aggregate/spending.expense
+  bounds:
+    min: 0
   required: false
   origin: caller
   binding: body

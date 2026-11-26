@@ -3,7 +3,8 @@ namespace Claimwick.Kernel.Values;
 /// <summary>One exact amount with its ISO 4217 currency code.</summary>
 public sealed record Money
 {
-    private Money(decimal amount, string currency)
+    /// <summary>Creates one amount with its currency.</summary>
+    public Money(decimal amount, string currency)
     {
         Amount = amount;
         Currency = currency;
@@ -14,9 +15,6 @@ public sealed record Money
 
     /// <summary>The ISO 4217 currency code.</summary>
     public string Currency { get; }
-
-    /// <summary>Creates one amount with its currency.</summary>
-    public static Money Create(decimal amount, string currency) => new(amount, currency);
 
     /// <inheritdoc />
     public override string ToString() => $"{Amount} {Currency}";

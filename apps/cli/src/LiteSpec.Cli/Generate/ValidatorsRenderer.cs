@@ -200,15 +200,16 @@ static class ValidatorsRenderer
             ? validatorInterface[..validatorInterface.LastIndexOf('.')]
             : string.Empty;
 
-    /// <summary>Appends the rules one input field states: its presence rule with one rule per constraint the validator owns.</summary>
+    /// <summary>Appends the rules one input field states: its presence rule with one rule per constraint the validator owns. A money bound compares the decimal directly when the message carries the amount as a decimal.</summary>
     /// <param name="rules">The rules, appended in place.</param>
     /// <param name="member">The message property judging the field.</param>
     /// <param name="parameter">The validate parameter name: command or query.</param>
     /// <param name="domainOwned">True when a cited rule states a refusal, so Domain refuses the constraints.</param>
     /// <param name="input">The input field as the record states it.</param>
+    /// <param name="currencyFromOptional">True when a money input takes its currency from an optional sibling, so the message carries the decimal amount.</param>
     /// <returns>Whether the appended rules compare against Guid.Empty, match a regular expression, or read map values through Linq.</returns>
     internal static (bool UsesGuid, bool UsesRegex, bool UsesLinq) AddRulesFor(
-        List<ValidationRule> rules, string member, string parameter, bool domainOwned, JsonElement input)
+        List<ValidationRule> rules, string member, string parameter, bool domainOwned, JsonElement input, bool currencyFromOptional = false)
     {
         var usesGuid = false;
         var usesRegex = false;
@@ -286,7 +287,9 @@ static class ValidatorsRenderer
             var exclusive = bounds.TryGetProperty(RecordFields.Inclusive, out var inclusive)
                 && inclusive.ValueKind == JsonValueKind.False;
             var literal = type == "integer" ? string.Empty : "m";
-            var money = type == "money" && RecordEntries.Str(input, RecordFields.CurrencyHome) is not { Length: > 0 };
+            var money = type == "money"
+                && RecordEntries.Str(input, RecordFields.CurrencyHome) is not { Length: > 0 }
+                && !currencyFromOptional;
 
             if (NumberOf(bounds, RecordFields.Min) is { } min)
             {

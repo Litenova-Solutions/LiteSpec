@@ -1,0 +1,31 @@
+type: reference-data
+id: reference-data/travel.accepted-agencies
+title: Accepted Agencies
+summary: The travel agencies each country accepts bookings from. No country has stated its agencies yet; each row will name one agency with the date the product starts accepting its bookings.
+variation: country
+row:
+  type: Claimwick.Travel.Agencies.AcceptedAgency
+columns:
+- column: variant
+  parameter: country
+  as: map
+  literals:
+    germany: DE
+    netherlands: NL
+- column: key
+  parameter: key
+  as: key
+  type: Claimwick.Travel.Agencies.AcceptedAgencyKey
+- column: value
+  parameter: name
+  as: string
+- column: effectiveFrom
+  parameter: validFrom
+  as: date
+- column: effectiveTo
+  parameter: validTo
+  as: date
+- column: source
+  parameter: source
+  as: string
+rows: []

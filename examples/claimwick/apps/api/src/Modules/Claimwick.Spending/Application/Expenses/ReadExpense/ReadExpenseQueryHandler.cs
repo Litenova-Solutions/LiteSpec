@@ -33,7 +33,7 @@ internal sealed class ReadExpenseQueryHandler : IQueryHandler<ReadExpenseQuery, 
         }
         var subtotals = expense.Lines
             .GroupBy(line => line.Category)
-            .Select(group => new CategoryTotal(group.Key, Money.Create(group.Sum(line => line.Amount.Amount), expense.Total.Currency)))
+            .Select(group => new CategoryTotal(group.Key, new Money(group.Sum(line => line.Amount.Amount), expense.Total.Currency)))
             .ToList();
         return new ReadExpenseResult(expense.Id, StateName(expense.State), new ExpenseTotal(expense.Total.Amount, expense.Total.Currency), new ExpenseSubtotals(subtotals, expense.Total));
     }

@@ -402,6 +402,24 @@ public sealed class PlacementCheckTests
         Assert.Contains(placed, finding => finding.Message == "File 'apps/api/src/Library.Modules/Lending/Domain/Loans/WebApi/LoanResponseModel.cs' holds a message, result or transport model outside a use case folder.");
     }
 
+    /// <summary>A module endpoints file a generate target places, with its hand-written sibling, reports nothing in WebApi/ while a stray file still reports.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void ModuleLayoutGeneratedEndpointsInWebApiReportsNothingForPlacedFiles()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = PlacementModel(temp.Path);
+        WriteCode(ProductFile(temp.Path, "Lending", "WebApi", "LendingEndpoints.generated.cs"), "Library.Lending.WebApi", "LendingEndpoints");
+        WriteCode(ProductFile(temp.Path, "Lending", "WebApi", "LendingEndpoints.cs"), "Library.Lending.WebApi", "LendingEndpoints");
+        var stray = ProductFile(temp.Path, "Lending", "WebApi", "StrayRoutes.cs");
+        WriteCode(stray, "Library.Lending.WebApi", "StrayRoutes");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/WebApi/StrayRoutes.cs' sits directly in WebApi/, which holds only one folder per aggregate and use case.", finding.Message);
+    }
+
     /// <summary>A read-model projection in its Application read-models folder reports nothing.</summary>
     /// <proves>litespec/backend/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
     [Fact]

@@ -51,7 +51,7 @@ internal static class MarkChecks
         CheckUnrecorded(unrecorded, findings);
     }
 
-    /// <summary>Reports each code element that carries no mark its kind takes, except the ones an unrecorded folder or trigger covers.</summary>
+    /// <summary>Reports each code element that carries no mark its kind takes, except the ones an unrecorded folder or trigger covers and a technical class beside its generated file, which carries no mark by design.</summary>
     /// <param name="model">The loaded project model that holds each marked code element.</param>
     /// <param name="unrecorded">The unrecorded folders and triggers whose classes keep no per-class mark finding.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -64,11 +64,33 @@ internal static class MarkChecks
                 continue;
             }
 
+            // A validator and an endpoints container carry no mark: the handler beside the validator and the nested
+            // endpoints carry the use case marks. The hand-written partial beside its generated file is the same type.
+            if (element.Kind == CodeKind.Technical && HasGeneratedSibling(element))
+            {
+                continue;
+            }
+
             if (!element.Marks.Any(mark => MarkRules.TakesVerb(element.Kind, mark.Verb)))
             {
                 findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no mark.", element.File, element.Line, null));
             }
         }
+    }
+
+    /// <summary>Whether the element is a hand-written partial beside its generated file in the same folder.</summary>
+    /// <param name="element">The marked code element under test.</param>
+    /// <returns>True when the same folder holds the class named generated file; otherwise false.</returns>
+    private static bool HasGeneratedSibling(MarkedElement element)
+    {
+        if (LiteSpec.Model.Roslyn.GeneratedCode.IsGeneratedFileName(element.File))
+        {
+            return false;
+        }
+
+        var folder = Path.GetDirectoryName(element.File);
+
+        return folder is not null && File.Exists(Path.Combine(folder, element.Class + ".generated.cs"));
     }
 
     /// <summary>Reports each mark that names no record of the kind it takes or uses the wrong verb, and each frontend element that breaks its kind count, except on the elements an unrecorded folder or trigger covers.</summary>

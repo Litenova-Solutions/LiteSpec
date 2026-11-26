@@ -255,6 +255,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `environment` field.</summary>
     public const string Environment = "environment";
 
+    /// <summary>Gets the name of the `equals` field: the tenant key or sibling input the value must match.</summary>
+    public new const string Equals = "equals";
+
     /// <summary>Gets the name of the `erasedBy` field.</summary>
     public const string ErasedBy = "erasedBy";
 

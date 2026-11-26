@@ -23,11 +23,11 @@ internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpens
         CancellationToken cancellationToken)
     {
         var policy = await _policies.GetForGuardAsync(cancellationToken);
-        var lines = command.Lines.Select(row => new LineItem(row.Category, Money.Create(row.Amount, command.Currency))).ToList();
+        var lines = command.Lines.Select(row => new LineItem(row.Category, new Money(row.Amount, command.Currency))).ToList();
         var expense = Expense.Submit(
             command.ExpenseId,
             command.EmployeeId,
-            Money.Create(command.Amount, command.Currency),
+            new Money(command.Amount, command.Currency),
             ExpenseCategory.FromCode(command.Category),
             command.ReceiptId,
             policy.ReceiptThreshold,

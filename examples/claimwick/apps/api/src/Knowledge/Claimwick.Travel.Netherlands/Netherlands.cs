@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Claimwick.Travel.Agencies;
 using Claimwick.Travel.Mileage;
 using Claimwick.Travel.PerDiem;
 
@@ -19,4 +20,7 @@ public sealed class Netherlands : ITravelSet
 
     /// <summary>The mileage rows in force in the Netherlands.</summary>
     public IReadOnlyList<MileageRate> MileageRates => NetherlandsMileageRates.Rows;
+
+    /// <summary>The accepted agencies in force in the Netherlands.</summary>
+    public IReadOnlyList<AcceptedAgency> AcceptedAgencies => NetherlandsAcceptedAgencies.Rows;
 }

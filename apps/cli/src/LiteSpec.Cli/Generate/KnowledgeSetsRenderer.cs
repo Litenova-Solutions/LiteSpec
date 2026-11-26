@@ -23,6 +23,7 @@ static class KnowledgeSetsRenderer
     /// <param name="Literals">The literal by row value of a map column, or by item of mapped items.</param>
     /// <param name="Nested">The sub-columns building a nested object or each object item, or empty when the entry states none.</param>
     /// <param name="Items">How each item of a list entry renders, or empty when the entry is no list.</param>
+    /// <param name="Cases">The declared case name by code of a case column, or null when the backend declares none the reader matches.</param>
     public sealed record ColumnMapping(
         string Column,
         string Parameter,
@@ -32,7 +33,8 @@ static class KnowledgeSetsRenderer
         string? Currency,
         IReadOnlyDictionary<string, string> Literals,
         IReadOnlyList<ColumnMapping> Nested,
-        string Items = "");
+        string Items = "",
+        IReadOnlyDictionary<string, string>? Cases = null);
 
     /// <summary>
     ///     Renders one variant's rows of one table as C#: a public static partial class with a
@@ -498,7 +500,7 @@ static class KnowledgeSetsRenderer
         {
             used.Add(space);
 
-            return $"{ShortName(type)}.Create({amount.ToString(CultureInfo.InvariantCulture)}m, \"{currency}\")";
+            return $"new {ShortName(type)}({amount.ToString(CultureInfo.InvariantCulture)}m, \"{currency}\")";
         }
 
         return Literal(value);
@@ -559,7 +561,7 @@ static class KnowledgeSetsRenderer
         return Literal(value);
     }
 
-    /// <summary>Renders one closed-set value as a new case of its nested set, or a literal when the entry or value states less.</summary>
+    /// <summary>Renders one closed-set value as a new case of its nested set: the declared case name matching the code, or the PascalCase code when the backend declares none, or a literal when the entry or value states less.</summary>
     /// <param name="mapping">The column mapping.</param>
     /// <param name="value">The row value as written.</param>
     /// <param name="used">The model namespaces the rendered arguments use, appended in place.</param>
@@ -572,6 +574,11 @@ static class KnowledgeSetsRenderer
             && value.GetString() is { } text)
         {
             used.Add(space);
+
+            if (mapping.Cases?.TryGetValue(text, out var declared) == true)
+            {
+                return $"new {ShortName(type)}.{declared}()";
+            }
 
             return $"new {ShortName(type)}.{GenerateNaming.ConstName(text)}()";
         }

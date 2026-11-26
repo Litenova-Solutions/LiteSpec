@@ -13,6 +13,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <summary>The duplicate-logic check: one rule, calculation or projection keeps one home instead of living as a copy in two slices.</summary>
 /// <follows>litespec/core/domain-model#keep-one-home-for-each-rule-calculation-and-projection</follows>
 /// <follows>litespec/backend/dotnet/application#call-shared-logic-instead-of-copying-it</follows>
+/// <follows>litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types</follows>
 internal static class DuplicateLogicChecks
 {
     /// <summary>
@@ -33,8 +34,8 @@ internal static class DuplicateLogicChecks
     /// <summary>
     ///     Reports each method or local-function body of at least the threshold size whose normalized
     ///     text repeats in two or more different folders: the same logic lives in two slices, so one
-    ///     rule keeps two homes. Same-file and same-folder repeats are not reported. Generated code
-    ///     and test projects are left out.
+    ///     rule keeps two homes. Same-file and same-folder repeats are not reported. Generated code,
+    ///     test projects, and the TryParse each typed identifier carries by provision are left out.
     /// </summary>
     /// <param name="model">The loaded project model that holds the consumer configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -77,7 +78,7 @@ internal static class DuplicateLogicChecks
     /// <param name="Line">The 1-based line of the declaration name.</param>
     sealed record ComparedBody(string Hash, string Name, string Type, string File, string Folder, int Line);
 
-    /// <summary>Every compared body of the backend: each method and local-function body of at least the threshold size that is not generated and sits outside the test projects.</summary>
+    /// <summary>Every compared body of the backend: each method and local-function body of at least the threshold size that is not generated, sits outside the test projects, and is no TryParse.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <returns>Each compared body in file order.</returns>
     private static List<ComparedBody> ReadBodies(ConsumerConfig config)
@@ -113,6 +114,12 @@ internal static class DuplicateLogicChecks
 
             foreach (var body in MethodBodies.Read(tree))
             {
+                // Each typed identifier carries its own TryParse by provision, so identical parsers are by design, not a copied rule.
+                if (string.Equals(body.Name, "TryParse", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 if (body.Statements < MinStatements && body.Tokens < MinTokens)
                 {
                     continue;

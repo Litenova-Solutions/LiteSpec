@@ -302,6 +302,20 @@ public sealed class DuplicateLogicCheckTests
         Assert.Empty(Run(model));
     }
 
+    /// <summary>Identical TryParse On Two Identifiers Passes.</summary>
+    /// <proves>litespec/backend/dotnet/domain#offer-a-non-throwing-parse-on-validated-value-types</proves>
+    [Fact]
+    public void IdenticalTryParseOnTwoIdentifiersPasses()
+    {
+        using var temp = TestCli.Temp("duplicates");
+        WriteProject(temp.Path);
+        var model = ModelWithoutRecords(temp.Path);
+        WriteSource(temp.Path, Path.Combine("Library.Spending", "Domain", "Expenses"), "ExpenseId.cs", IdentifierClass("Library.Spending.Domain.Expenses", "ExpenseId"));
+        WriteSource(temp.Path, Path.Combine("Library.Reporting", "Domain", "Loans"), "LoanId.cs", IdentifierClass("Library.Reporting.Domain.Loans", "LoanId"));
+
+        Assert.Empty(Run(model));
+    }
+
     /// <summary>Runs the duplicate logic check and keeps its findings.</summary>
     /// <param name="model">The project model to check.</param>
     /// <returns>The logic duplicate findings.</returns>
@@ -421,6 +435,34 @@ public sealed class DuplicateLogicCheckTests
             }
         }
         """.Replace("USECASE", useCase).Replace("NAME", name).Replace("SOURCE", source);
+
+    /// <summary>One typed identifier with the TryParse each identifier carries.</summary>
+    /// <param name="ns">The namespace of the identifier.</param>
+    /// <param name="name">The identifier type name.</param>
+    /// <returns>The file text.</returns>
+    static string IdentifierClass(string ns, string name) =>
+        """
+        namespace NS;
+
+        public readonly record struct NAME(Guid Value) : IParsable<NAME>
+        {
+            public static NAME From(Guid value) => new NAME(value);
+
+            public static NAME Parse(string value, IFormatProvider? provider) => From(Guid.Parse(value));
+
+            public static bool TryParse(string? value, IFormatProvider? provider, out NAME result)
+            {
+                if (Guid.TryParse(value, out var parsed))
+                {
+                    result = From(parsed);
+                    return true;
+                }
+
+                result = default;
+                return false;
+            }
+        }
+        """.Replace("NS", ns).Replace("NAME", name);
 
     /// <summary>Writes the fixture project with two modules, the Kernel and the Platform.</summary>
     /// <param name="root">The fixture root folder.</param>

@@ -10,6 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The reference-data checks: every row value stays within its table's closed set, every stated value meaning names a listed value, every cross-reference names a row key its table holds, every required role is played by a row, every row states its start date, the rows leave no date uncovered, the use cases computing one value agree on its sign, and every column mapping names columns its rows hold with the rendering their values need.</summary>
 /// <follows>litespec/core/domain-model#date-every-reference-data-row</follows>
+/// <follows>litespec/core/domain-model#state-what-an-empty-table-will-hold</follows>
 /// <follows>litespec/core/domain-model#close-the-value-set-of-every-meaning-column</follows>
 /// <follows>litespec/backend/knowledge#name-a-role-not-a-row</follows>
 /// <follows>litespec/backend/knowledge#validate-reference-data-before-serving</follows>
@@ -327,6 +328,27 @@ internal static class ReferenceDataChecks
         }
     }
 
+    /// <summary>Reports a reference-data table with no rows yet that states no summary: the summary states what rows the table will hold.</summary>
+    /// <param name="model">The loaded project model that holds every reference-data record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunEmptySummary(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var table in model.Records
+            .Where(record => record.Type == RecordTypes.ReferenceData)
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            if (RowsOf(table).Count == 0 && table.Field(RecordFields.Summary) is not { Length: > 0 })
+            {
+                findings.Add(new Finding(
+                    "record-invalid",
+                    $"Reference data '{table.Id}' holds no rows and states no summary; state in `summary` what rows the table will hold.",
+                    table.File,
+                    table.Line,
+                    SubjectOf(table)));
+            }
+        }
+    }
+
     /// <summary>Reports a reference-data table whose rows of one variant leave dates with no row in force, or cover no row on the date the cast declares as today. Each variant covers its own dates.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record and the cast.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -497,7 +519,7 @@ internal static class ReferenceDataChecks
         }
     }
 
-    /// <summary>Reports a reference-data table whose row construction its rows cannot build: a half mapping, a table no knowledge area owns, a column no row holds, an extra field no column reads, a shared parameter, a missing model type, currency, value map or sub-columns list, a variant the map skips, a value of the wrong kind, a list entry without its item rendering, an item of the wrong kind, an item field no sub-column reads, or a singleton row with a key or a variant with more than one row.</summary>
+    /// <summary>Reports a reference-data table whose row construction its rows cannot build: a half mapping, a table no knowledge area owns, a column no row holds, an extra field no column reads, a shared parameter, a missing model type, currency, value map or sub-columns list, a variant the map skips, a value of the wrong kind, a list entry without its item rendering, an item of the wrong kind, an item field no sub-column reads, or a singleton row with a key, a variant with more than one row, or no rows at all.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record and knowledge area.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunColumnMapping(ProjectModel model, List<Finding> findings)
@@ -564,12 +586,25 @@ internal static class ReferenceDataChecks
         }
     }
 
-    /// <summary>Reports each row of a singleton table stating a key, and each variant holding more than one row: a singleton holds one dated row with no key per variant.</summary>
+    /// <summary>Reports each row of a singleton table stating a key, each variant holding more than one row, and a singleton table with no rows at all: a singleton holds one dated row with no key per variant.</summary>
     /// <param name="table">The reference-data record whose rows are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSingletonRows(Record table, List<Finding> findings)
     {
         var rows = RowsOf(table);
+
+        if (rows.Count == 0)
+        {
+            findings.Add(new Finding(
+                "reference-data-column-invalid",
+                $"Reference data '{table.Id}' holds no rows; a singleton table holds one row per variant.",
+                table.File,
+                table.Line,
+                SubjectOf(table)));
+
+            return;
+        }
+
         var index = 0;
 
         foreach (var row in rows)
@@ -922,11 +957,11 @@ internal static class ReferenceDataChecks
         CheckListValues(table, entry, at, column, items, scope, findings);
     }
 
-    /// <summary>Whether a column entry names a field its level holds: a fixed field, or a field at least one map of the level states.</summary>
+    /// <summary>Whether a column entry names a field its level holds: a fixed field, a field at least one map of the level states, or any well-formed field when the level holds no maps to judge against.</summary>
     /// <param name="table">The reference-data record holding the rows.</param>
     /// <param name="column">The field name as written.</param>
     /// <param name="scope">The field level the entry reads.</param>
-    /// <returns>True when the name is fixed or held by a map of the level; otherwise false.</returns>
+    /// <returns>True when the name is fixed, held by a map of the level, or the level holds no maps; otherwise false.</returns>
     private static bool IsKnownField(Record table, string column, FieldScope scope)
     {
         if (scope.Fixed.Contains(column, StringComparer.Ordinal))
@@ -939,7 +974,16 @@ internal static class ReferenceDataChecks
             return false;
         }
 
-        return RowsOf(table).Any(row => scope.Maps(row).Any(map => map.Map.TryGetProperty(column, out _)));
+        var maps = RowsOf(table).SelectMany(row => scope.Maps(row)).ToList();
+
+        // With no maps to judge against, a table with no rows or a list with no
+        // object items yet, the declared shape stands: its type comes from the mapping.
+        if (maps.Count == 0)
+        {
+            return true;
+        }
+
+        return maps.Any(map => map.Map.TryGetProperty(column, out _));
     }
 
     /// <summary>Reports each extra field no column entry of the level reads: every extra row field feeds the generated rows, and every item field feeds its list.</summary>
@@ -1091,7 +1135,7 @@ internal static class ReferenceDataChecks
         }
     }
 
-    /// <summary>Reports each map of the level the column entry cannot read: a value of the wrong kind, or a value the map skips.</summary>
+    /// <summary>Reports each map of the level the column entry cannot read: a value of the wrong kind, or a value the map skips. A stated null renders null under any rendering.</summary>
     /// <param name="table">The reference-data record holding the rows.</param>
     /// <param name="entry">The column entry as written.</param>
     /// <param name="at">The entry number as finding text.</param>
@@ -1112,7 +1156,7 @@ internal static class ReferenceDataChecks
         {
             foreach (var (map, where) in scope.Maps(row))
             {
-                if (!map.TryGetProperty(column, out var value))
+                if (!map.TryGetProperty(column, out var value) || value.ValueKind == JsonValueKind.Null)
                 {
                     continue;
                 }
@@ -1194,7 +1238,7 @@ internal static class ReferenceDataChecks
         }
     }
 
-    /// <summary>Reports one list item the list entry cannot read: an item of the wrong kind, or an item the map skips.</summary>
+    /// <summary>Reports one list item the list entry cannot read: an item of the wrong kind, or an item the map skips. A stated null item renders null under any item rendering.</summary>
     /// <param name="table">The reference-data record holding the rows.</param>
     /// <param name="at">The entry number as finding text.</param>
     /// <param name="items">The rendering each item states.</param>
@@ -1206,6 +1250,11 @@ internal static class ReferenceDataChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckListItem(Record table, string at, string items, HashSet<string>? mapped, int rowIndex, string where, int itemIndex, JsonElement item, List<Finding> findings)
     {
+        if (item.ValueKind == JsonValueKind.Null)
+        {
+            return;
+        }
+
         if (items == "object")
         {
             if (item.ValueKind != JsonValueKind.Object)
@@ -1496,30 +1545,18 @@ internal static class ReferenceDataChecks
     private static string Show(JsonElement value) =>
         value.ValueKind == JsonValueKind.String ? $"'{value.GetString()}'" : value.GetRawText();
 
-    /// <summary>Reports a row key outside kebab-case and a key two rows of one table share.</summary>
+    /// <summary>Reports a row key outside kebab-case. One key repeats across disjoint spans to hold the dated history; the period check reports the spans of one key that overlap.</summary>
     /// <param name="table">The reference-data record whose row keys are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRowKeys(Record table, List<Finding> findings)
     {
-        var seen = new Dictionary<string, int>(StringComparer.Ordinal);
         var index = 0;
 
         foreach (var row in RowsOf(table))
         {
-            if (Str(row, RecordFields.Key) is { } key)
+            if (Str(row, RecordFields.Key) is { } key && !KebabName.IsMatch(key))
             {
-                if (!KebabName.IsMatch(key))
-                {
-                    findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds row {index} with key '{key}' outside lowercase kebab-case.", table.File, table.Line, SubjectOf(table)));
-                }
-                else if (seen.TryGetValue(key, out var first))
-                {
-                    findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds key '{key}' on rows {first} and {index}.", table.File, table.Line, SubjectOf(table)));
-                }
-                else
-                {
-                    seen.Add(key, index);
-                }
+                findings.Add(new Finding("record-invalid", $"Reference data '{table.Id}' holds row {index} with key '{key}' outside lowercase kebab-case.", table.File, table.Line, SubjectOf(table)));
             }
 
             index++;

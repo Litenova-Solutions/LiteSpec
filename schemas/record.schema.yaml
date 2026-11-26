@@ -2621,6 +2621,9 @@ $defs:
       routeParameter:
         description: The route template parameter carrying the input when it differs from the input name.
         $ref: '#/$defs/nonEmptyString'
+      equals:
+        description: The tenant key or the sibling input the value must match, judged before the message runs. The value tenant states the input carries the caller's tenant key; any other value names a sibling input of the same type.
+        $ref: '#/$defs/nonEmptyString'
       classification:
         $ref: '#/$defs/classification'
       sign:
@@ -5176,17 +5179,19 @@ $defs:
         x-reads-as: rests on
         x-read-back-as: is the source for
   referenceDataExtraField:
-    description: 'An extra field value of a generated table row: a scalar a leaf column reads, or a list a list column reads. Tables without row construction state no extra field.'
+    description: 'An extra field value of a generated table row: a scalar a leaf column reads, a list a list column reads, or null, which renders null. Tables without row construction state no extra field.'
     anyOf:
     - $ref: '#/$defs/nonEmptyString'
     - type: number
     - type: boolean
+    - type: 'null'
     - type: array
       items:
         anyOf:
         - $ref: '#/$defs/nonEmptyString'
         - type: number
         - type: boolean
+        - type: 'null'
         - $ref: '#/$defs/referenceDataItemMap'
   referenceDataItemMap:
     description: 'One item map of an object list: the fields one item builds from, each read by a sub-column of the list entry.'
@@ -5357,8 +5362,8 @@ $defs:
         items:
           $ref: '#/$defs/referenceDataColumn'
       rows:
+        description: 'One entry per dated value. Empty while no variant has stated a value; the summary then states what rows the table will hold.'
         type: array
-        minItems: 1
         items:
           $ref: '#/$defs/referenceDataRow'
     allOf:

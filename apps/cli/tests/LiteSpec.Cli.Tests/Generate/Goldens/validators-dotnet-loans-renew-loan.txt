@@ -72,6 +72,11 @@ internal sealed partial class RenewLoanCommandValidator : ICommandValidator<Rene
             failures.Add(new ValidationFailure("The deposit must be at least 0.", "Deposit", "too-small"));
         }
 
+        if (command.Fee < 0m)
+        {
+            failures.Add(new ValidationFailure("The fee must be at least 0.", "Fee", "too-small"));
+        }
+
         if (command.Kind is null)
         {
             failures.Add(new ValidationFailure("A kind is required.", "Kind", "required"));

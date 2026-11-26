@@ -17,7 +17,7 @@ public static partial class NetherlandsMileageRates
             country: "NL",
             key: MileageRateKey.From("nl-bicycle-2026"),
             vehicle: VehicleKind.Bicycle,
-            amountPerKilometre: Money.Create(0.10m, "EUR"),
+            amountPerKilometre: new Money(0.10m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"
@@ -26,7 +26,7 @@ public static partial class NetherlandsMileageRates
             country: "NL",
             key: MileageRateKey.From("nl-car-2026"),
             vehicle: VehicleKind.Car,
-            amountPerKilometre: Money.Create(0.25m, "EUR"),
+            amountPerKilometre: new Money(0.25m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"
@@ -35,7 +35,7 @@ public static partial class NetherlandsMileageRates
             country: "NL",
             key: MileageRateKey.From("nl-motorcycle-2026"),
             vehicle: VehicleKind.Motorcycle,
-            amountPerKilometre: Money.Create(0.15m, "EUR"),
+            amountPerKilometre: new Money(0.15m, "EUR"),
             validFrom: new DateOnly(2026, 1, 1),
             validTo: null,
             source: "decision/0003-travel-rates"

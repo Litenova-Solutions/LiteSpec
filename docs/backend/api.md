@@ -179,6 +179,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Outcome | Status |
 |:---|:---:|
 | Successful read | 200 |
+| Successful command with a response body | 200 |
 | Successful creation of a readable resource | 201 with the resource location |
 | Successful creation without a read route | 201 |
 | Successful command without a response body | 204 |
@@ -186,6 +187,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Missing or invalid authentication | 401 |
 | Authenticated but forbidden | 403 |
 | Resource unavailable under the disclosure policy | 404 |
+| Absent details of a single-resource query | 404 |
 | Generic conflict or unstated rule | 409 |
 | Written refusal | The status its refusal record states |
 | Upstream refusal | 503 |

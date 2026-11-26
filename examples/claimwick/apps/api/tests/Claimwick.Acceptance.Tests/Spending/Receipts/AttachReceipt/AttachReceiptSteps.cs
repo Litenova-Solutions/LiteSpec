@@ -14,7 +14,7 @@ public sealed class AttachReceiptSteps
 
     public Task TheReceiptIsAttachedAsync()
     {
-        Assert.Equal(HttpStatusCode.NoContent, ExpensesWorld.LastResponse!.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, ExpensesWorld.LastResponse!.StatusCode);
         return Task.CompletedTask;
     }
 

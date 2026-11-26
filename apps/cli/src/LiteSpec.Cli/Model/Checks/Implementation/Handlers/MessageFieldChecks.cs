@@ -50,22 +50,30 @@ internal static class MessageFieldChecks
         /// <summary>The type names with two generated files in different folders, which stay ambiguous.</summary>
         readonly HashSet<string> ambiguousGenerated = new(StringComparer.Ordinal);
 
+        /// <summary>The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</summary>
+        readonly IReadOnlyDictionary<string, string>? overlay;
+
+        /// <summary>The trees parsed from the planned text, which the disk compilation never read.</summary>
+        readonly HashSet<SyntaxTree> overlaid = [];
+
         /// <summary>Whether the backend file names were indexed.</summary>
         bool indexed;
 
         /// <summary>Initializes a new instance of the <see cref="MessageSource" /> class.</summary>
         /// <param name="model">The loaded project model that names the backend roots.</param>
-        internal MessageSource(ProjectModel model)
+        /// <param name="overlay">The planned file text by absolute path, winning over the same files on disk, or null to read the disk.</param>
+        internal MessageSource(ProjectModel model, IReadOnlyDictionary<string, string>? overlay = null)
         {
             this.model = model;
             semantics = model.BackendSemantics;
             roots = SourceRoots.BackendRoots(model.Config);
+            this.overlay = overlay;
         }
 
-        /// <summary>The semantic model of one tree, or null when the syntax-only path ran or the tree is not part of the read.</summary>
+        /// <summary>The semantic model of one tree, or null when the syntax-only path ran, the tree is not part of the read, or the tree parses planned text.</summary>
         /// <param name="tree">The parsed syntax tree.</param>
         /// <returns>The semantic model of the tree, or null.</returns>
-        internal SemanticModel? SemanticOf(SyntaxTree tree) => semantics?.ModelFor(tree);
+        internal SemanticModel? SemanticOf(SyntaxTree tree) => overlaid.Contains(tree) ? null : semantics?.ModelFor(tree);
 
         /// <summary>The file declaring the type: the generated file beside the hint first, then a generated file anywhere, then the hand-written file beside the hint, then the backend roots by file name.</summary>
         /// <param name="typeName">The simple type name.</param>
@@ -84,9 +92,11 @@ internal static class MessageFieldChecks
             {
                 // The generated part carries the declared fields; a hand-written
                 // sibling beside it carries only hand members, which stay unchecked.
+                // Planned text counts as the generated part, so a render reads what
+                // the plan writes even before it reaches the disk.
                 var generated = Path.Combine(folder, typeName + ".generated.cs");
 
-                if (File.Exists(generated))
+                if (File.Exists(generated) || overlay?.ContainsKey(generated) == true)
                 {
                     return generated;
                 }
@@ -149,6 +159,26 @@ internal static class MessageFieldChecks
         /// <returns>Each declaration with its tree, or an empty list when the file does not read or declares none.</returns>
         internal IReadOnlyList<(SyntaxTree Tree, TypeDeclarationSyntax Declared)> TypesIn(string file, string typeName)
         {
+            if (overlay is not null && overlay.TryGetValue(file, out var planned))
+            {
+                // Planned text wins over the disk compilation and the disk file:
+                // the render reads what the plan writes. The tree stays
+                // syntax-only, since the compilation never read it.
+                if (!trees.TryGetValue(file, out var overlaidTree))
+                {
+                    overlaidTree = CSharpSyntaxTree.ParseText(planned, path: file);
+                    trees[file] = overlaidTree;
+                    overlaid.Add(overlaidTree);
+                }
+
+                return
+                [
+                    .. overlaidTree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+                        .Where(declared => declared.Identifier.ValueText == typeName)
+                        .Select(declared => (overlaidTree, declared)),
+                ];
+            }
+
             if (semantics is not null && semantics.TryTypesIn(file, typeName, out var shared))
             {
                 return shared;
@@ -330,6 +360,48 @@ internal static class MessageFieldChecks
                     {
                         ambiguousGenerated.Add(key);
                     }
+                }
+            }
+
+            // Planned files win over the disk under their type names, so a render
+            // resolves what the plan writes even when the disk holds a stale file
+            // or none. Two planned files in different folders stay ambiguous, as on disk.
+            if (overlay is not null)
+            {
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                var clash = new HashSet<string>(StringComparer.Ordinal);
+
+                foreach (var file in overlay.Keys.Order(StringComparer.Ordinal))
+                {
+                    if (!file.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var name = Path.GetFileNameWithoutExtension(file);
+
+                    if (name.Length == 0 || !name.EndsWith(".generated", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    var key = name[..^".generated".Length];
+
+                    if (key.Length == 0 || clash.Contains(key))
+                    {
+                        continue;
+                    }
+
+                    generatedNames.Add(key);
+
+                    if (!seen.Add(key))
+                    {
+                        files[key] = null;
+                        clash.Add(key);
+                        continue;
+                    }
+
+                    files[key] = file;
                 }
             }
         }

@@ -310,6 +310,30 @@ public sealed class GenerateValidatorsTests
         Assert.Equal("command.Fee.HasValue && command.Fee.Value < 0m", guarded.Condition);
     }
 
+    /// <summary>A money bound taking its currency from an optional sibling compares the decimal directly, guarding null when optional.</summary>
+    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void MoneyWithOptionalSiblingCurrencyComparesDecimalDirectly()
+    {
+        var rules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(rules, "Fee", "command", false, Input("""{ "name": "fee", "type": "money", "currencyField": "feeCurrency", "bounds": { "min": 0 }, "required": true }"""), true);
+
+        var rule = Assert.Single(rules);
+
+        Assert.Equal("Fee", rule.Member);
+        Assert.Equal("too-small", rule.Code);
+        Assert.Equal("command.Fee < 0m", rule.Condition);
+
+        var guardedRules = new List<ValidatorsRenderer.ValidationRule>();
+
+        ValidatorsRenderer.AddRulesFor(guardedRules, "Fee", "command", false, Input("""{ "name": "fee", "type": "money", "currencyField": "feeCurrency", "bounds": { "min": 0 }, "required": false }"""), true);
+
+        var guarded = Assert.Single(guardedRules);
+
+        Assert.Equal("command.Fee.HasValue && command.Fee.Value < 0m", guarded.Condition);
+    }
+
     /// <summary>A required map renders a presence rule judging null.</summary>
     /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
     [Fact]
@@ -485,6 +509,21 @@ public sealed class GenerateValidatorsTests
               bounds:
                 min: 0
               required: true
+              origin: caller
+              classification: internal
+            - name: fee
+              meaning: The processing fee of the renewal, in the stated currency or the loan currency.
+              type: money
+              currencyField: feeCurrency
+              bounds:
+                min: 0
+              required: true
+              origin: caller
+              classification: internal
+            - name: feeCurrency
+              meaning: The ISO 4217 currency code of the fee, the loan currency when absent.
+              type: text
+              required: false
               origin: caller
               classification: internal
             - name: adjustment

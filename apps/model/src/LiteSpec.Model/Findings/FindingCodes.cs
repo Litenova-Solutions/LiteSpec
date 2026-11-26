@@ -127,7 +127,7 @@ public static class FindingCodes
             "A read model's `keyedBy` names an aggregate of the read model's own module.",
             "Read the module's own aggregate directly, and key the read model by an aggregate of another module."),
         new("reference-data-period-invalid", "G", RecordLayer.Behavior, trace: false,
-            "Two rows of one reference-data table overlap in time, or a row ends no later than it starts.",
+            "Two rows of one key of a reference-data table overlap in time within one variant, or a row ends no later than it starts.",
             "Give the rows disjoint effective periods, ending the earlier row where the later one takes effect, and end each row after it starts."),
         new("reference-data-pack-missing", "G", RecordLayer.Behavior, trace: false,
             "A reference-data table names an external pack file that does not exist.",
