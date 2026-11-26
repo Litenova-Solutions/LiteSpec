@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "AfterTool": [
+      {
+        "matcher": "write_file|replace",
+        "hooks": [
+          {
+            "name": "fuse-check",
+            "type": "command",
+            "command": "fuse hook gemini post-edit",
+            "timeout": 60000
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "name": "fuse-dotnet",
+            "type": "command",
+            "command": "fuse hook gemini pre-shell",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "name": "fuse-stop",
+            "type": "command",
+            "command": "fuse hook gemini stop",
+            "timeout": 300000
+          }
+        ]
+      }
+    ]
+  }
+}

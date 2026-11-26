@@ -19,3 +19,4 @@ node_modules/
 
 # Agent working files stay local.
 .agents/
+.fuse/
