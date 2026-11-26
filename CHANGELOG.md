@@ -395,9 +395,9 @@ The new rules are `litespec/frontend/data#hold-every-monetary-amount-in-the-fram
 - A layer listed in `explanations.layers` requires an explanation file for every record on it, requirements included; the exemption for requirements is removed, and `litespec new requirement` writes the explanation from `templates/consumer/requirement.md`.
 - `governance` is a valid entry in `explanations.layers`, so a project can require an explanation for each decision, convention and waiver.
 
-### Part AP: LiteBus 8.0.0-preview.3 Binding
+### Part AP: LiteBus 8.0.0-preview.8 Binding
 
-- Every `LiteBus.*` package is pinned at `8.0.0-preview.3`. The manifest adds `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions`, `LiteBus.Auditing.Storage.Marten` and `LiteBus.Extensions.AspNetCore`, which carry the audit chain and the ASP.NET Core problem details.
+- Every `LiteBus.*` package is pinned at `8.0.0-preview.8`, which carries the declaration sources, the refusal catalog and the contract checks the generated declarations and endpoints use. The manifest adds `LiteBus.Auditing`, `LiteBus.Auditing.Abstractions`, `LiteBus.Auditing.Storage.Marten` and `LiteBus.Extensions.AspNetCore`, which carry the audit chain and the ASP.NET Core problem details.
 - Domain events reach the outbox by harvesting: `outbox.HarvestDomainEvents(...)` names the aggregate root base, the Marten harvester is registered on the storage builder, and each domain event type takes one decision (`TranslateDomainEvent`, `IgnoreDomainEvent`) with `RequireDomainEventDecision()`. Hand collection stays for a deletion by predicate or by id, a carrier type that is never stored, and an event raised outside an aggregate.
 - The authorization guard derives from `AuthorizationGuard<TMessage>`, the audit chain is configured through `AddAuditing` with `UseMartenStore` and `UseHashChain`, and problem responses map through `AddLiteBusExceptionHandler` and `IRefusalProblemCatalog`.
 - The nested-command rule turns on with `litebus_forbid_nested_commands`, which enables `LB1023`.

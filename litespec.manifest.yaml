@@ -180,34 +180,34 @@ packages:
     EFCore.NamingConventions: 10.x
     FsCheck: 3.x
     LightBDD.XUnit3: 3.x
-    LiteBus.Analyzers: 8.0.0-preview.3
-    LiteBus.Auditing: 8.0.0-preview.3
-    LiteBus.Auditing.Abstractions: 8.0.0-preview.3
-    LiteBus.Auditing.Storage.Marten: 8.0.0-preview.3
-    LiteBus.Commands: 8.0.0-preview.3
-    LiteBus.Commands.Abstractions: 8.0.0-preview.3
-    LiteBus.Commands.Recurring: 8.0.0-preview.3
-    LiteBus.Events: 8.0.0-preview.3
-    LiteBus.Events.Abstractions: 8.0.0-preview.3
-    LiteBus.Extensions.AspNetCore: 8.0.0-preview.3
-    LiteBus.Extensions.Microsoft.DependencyInjection: 8.0.0-preview.3
-    LiteBus.Messaging: 8.0.0-preview.3
-    LiteBus.Messaging.Abstractions: 8.0.0-preview.3
-    # The pinned pipeline binding needs the LiteBus 8.0.0-preview.3 APIs, including the auditing, dispatch, storage, extensions, ASP.NET Core problem details, and durable-messaging test pins.
-    LiteBus.Outbox: 8.0.0-preview.3
-    LiteBus.Outbox.Abstractions: 8.0.0-preview.3
-    LiteBus.Outbox.Dispatch.Amqp: 8.0.0-preview.3
-    LiteBus.Outbox.Dispatch.InProcess: 8.0.0-preview.3
-    LiteBus.Outbox.Dispatch.Kafka: 8.0.0-preview.3
-    LiteBus.Outbox.Extensions.OpenTelemetry: 8.0.0-preview.3
-    LiteBus.Outbox.Storage.EntityFrameworkCore: 8.0.0-preview.3
-    LiteBus.Outbox.Storage.Marten: 8.0.0-preview.3
-    LiteBus.Outbox.Storage.PostgreSql: 8.0.0-preview.3
-    LiteBus.Queries: 8.0.0-preview.3
-    LiteBus.Queries.Abstractions: 8.0.0-preview.3
-    LiteBus.Storage.PostgreSql: 8.0.0-preview.3
-    LiteBus.Testing.DurableMessaging: 8.0.0-preview.3
-    LiteBus.Testing.Mediation: 8.0.0-preview.3
+    LiteBus.Analyzers: 8.0.0-preview.8
+    LiteBus.Auditing: 8.0.0-preview.8
+    LiteBus.Auditing.Abstractions: 8.0.0-preview.8
+    LiteBus.Auditing.Storage.Marten: 8.0.0-preview.8
+    LiteBus.Commands: 8.0.0-preview.8
+    LiteBus.Commands.Abstractions: 8.0.0-preview.8
+    LiteBus.Commands.Recurring: 8.0.0-preview.8
+    LiteBus.Events: 8.0.0-preview.8
+    LiteBus.Events.Abstractions: 8.0.0-preview.8
+    LiteBus.Extensions.AspNetCore: 8.0.0-preview.8
+    LiteBus.Extensions.Microsoft.DependencyInjection: 8.0.0-preview.8
+    LiteBus.Messaging: 8.0.0-preview.8
+    LiteBus.Messaging.Abstractions: 8.0.0-preview.8
+    # The pinned pipeline binding needs the LiteBus 8.0.0-preview.8 APIs, including the auditing, dispatch, storage, extensions, ASP.NET Core problem details, and durable-messaging test pins.
+    LiteBus.Outbox: 8.0.0-preview.8
+    LiteBus.Outbox.Abstractions: 8.0.0-preview.8
+    LiteBus.Outbox.Dispatch.Amqp: 8.0.0-preview.8
+    LiteBus.Outbox.Dispatch.InProcess: 8.0.0-preview.8
+    LiteBus.Outbox.Dispatch.Kafka: 8.0.0-preview.8
+    LiteBus.Outbox.Extensions.OpenTelemetry: 8.0.0-preview.8
+    LiteBus.Outbox.Storage.EntityFrameworkCore: 8.0.0-preview.8
+    LiteBus.Outbox.Storage.Marten: 8.0.0-preview.8
+    LiteBus.Outbox.Storage.PostgreSql: 8.0.0-preview.8
+    LiteBus.Queries: 8.0.0-preview.8
+    LiteBus.Queries.Abstractions: 8.0.0-preview.8
+    LiteBus.Storage.PostgreSql: 8.0.0-preview.8
+    LiteBus.Testing.DurableMessaging: 8.0.0-preview.8
+    LiteBus.Testing.Mediation: 8.0.0-preview.8
     LiteSpec.Analyzers: 7.0.0
     Marten: 9.x
     Microsoft.AspNetCore.Authentication.JwtBearer: 10.x

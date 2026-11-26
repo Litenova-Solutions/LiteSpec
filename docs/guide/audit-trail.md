@@ -12,7 +12,7 @@ Start with:
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
 - The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.yaml`.
-- The pipeline reference in the `site/content/docs` folder of the [LiteBus 8.0.0-preview.3 tag](https://github.com/litenova/LiteBus/tree/v8.0.0-preview.3/site/content/docs). It defines the handler interfaces this guide implements.
+- The pipeline reference in the `site/content/docs` folder of the [LiteBus 8.0.0-preview.8 tag](https://github.com/litenova/LiteBus/tree/v8.0.0-preview.8/site/content/docs). It defines the handler interfaces this guide implements.
 
 Read the [audit extension](../ext/audit.md) before this guide. It states the obligations, and this guide shows one compliant way to meet them.
 
