@@ -9,7 +9,10 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
-/// <summary>LS2019: a use case folder names no type of another use case folder, the message and result of another use case included.</summary>
+/// <summary>
+///     LS2019: a use case folder names no type of another use case folder, the message and result of another use case
+///     included, except the command a reaction or job sends from a catch for the use case it runs on refusal.
+/// </summary>
 /// <follows>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseCaseIsolationAnalyzer : LayerAnalyzer
@@ -59,8 +62,52 @@ public sealed class UseCaseIsolationAnalyzer : LayerAnalyzer
             return;
         }
 
+        if (IsRefusalRun(node, type, context.SemanticModel, context.CancellationToken))
+        {
+            return;
+        }
+
         context.ReportDiagnostic(Diagnostic.Create(
             Descriptors.LS2019, node.Identifier.GetLocation(), name, CodeMap.FolderName(other)));
+    }
+
+    /// <summary>
+    ///     Returns true when a reaction or job names the command message of another use case inside a catch: the run of
+    ///     the use case its record names in onRefusal, which follows only a refused run that committed nothing.
+    /// </summary>
+    /// <param name="node">The name under inspection.</param>
+    /// <param name="type">The type the name resolves to.</param>
+    /// <param name="model">The semantic model of the file.</param>
+    /// <param name="cancellationToken">The analysis cancellation token.</param>
+    /// <returns>True when the name is the refusal run of a trigger; otherwise false.</returns>
+    /// <follows>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</follows>
+    private static bool IsRefusalRun(SimpleNameSyntax node, INamedTypeSymbol type, SemanticModel model, System.Threading.CancellationToken cancellationToken)
+    {
+        if (!type.Name.EndsWith("Command", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var inCatch = false;
+        TypeDeclarationSyntax? declaration = null;
+
+        foreach (var ancestor in node.Ancestors())
+        {
+            if (ancestor is CatchClauseSyntax)
+            {
+                inCatch = true;
+            }
+            else if (ancestor is TypeDeclarationSyntax found)
+            {
+                declaration = found;
+                break;
+            }
+        }
+
+        return inCatch
+            && declaration is not null
+            && model.GetDeclaredSymbol(declaration, cancellationToken) is INamedTypeSymbol owner
+            && TriggerTypes.IsReactionOrJob(owner);
     }
 
     /// <summary>Returns the other use case key declaring the type, or null when it declares none.</summary>

@@ -512,4 +512,151 @@ public sealed class UseCaseIsolationAnalyzerTests
                     """),
             ],
             assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2019 accepts a reaction that sends the command of the use case it runs on refusal from the catch of the refused run.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 accepts a reaction sending its refusal use case command from a catch")]
+    public Task AcceptsARefusalCommandSentFromACatch() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamOnTeamRequestedHandler.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
+
+                    using Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+                    using LiteBus.Events.Abstractions;
+
+                    internal sealed class CreateTeamOnTeamRequestedHandler : IEventHandler<string>
+                    {
+                        internal void Handle()
+                        {
+                            try
+                            {
+                            }
+                            catch (System.InvalidOperationException)
+                            {
+                                var command = new RecordTeamRefusedCommand();
+                            }
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Teams/RecordTeamRefused/RecordTeamRefusedCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+
+                    internal sealed class RecordTeamRefusedCommand
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Teams/RecordTeamRefused/RecordTeamRefusedCommandResult.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+
+                    internal sealed class RecordTeamRefusedCommandResult
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/EventHandler.cs", """
+                    namespace LiteBus.Events.Abstractions;
+
+                    public interface IEventHandler<TEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2019 reports a reaction that names another use case command outside a catch.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 reports a reaction naming another use case command outside a catch")]
+    public Task ReportsAnotherUseCaseCommandOutsideACatch() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamOnTeamRequestedHandler.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
+
+                    using Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+                    using LiteBus.Events.Abstractions;
+
+                    internal sealed class CreateTeamOnTeamRequestedHandler : IEventHandler<string>
+                    {
+                        internal void Handle()
+                        {
+                            var command = new {|LS2019:RecordTeamRefusedCommand|}();
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Teams/RecordTeamRefused/RecordTeamRefusedCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+
+                    internal sealed class RecordTeamRefusedCommand
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Teams/RecordTeamRefused/RecordTeamRefusedCommandResult.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+
+                    internal sealed class RecordTeamRefusedCommandResult
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/EventHandler.cs", """
+                    namespace LiteBus.Events.Abstractions;
+
+                    public interface IEventHandler<TEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2019 reports another use case result even inside a catch: only the command message is the refusal run.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/packs/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 reports another use case result inside a catch")]
+    public Task ReportsAnotherUseCaseResultInsideACatch() =>
+        Verify.AnalyzerAsync<UseCaseIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Organizations/Application/Teams/CreateTeam/CreateTeamOnTeamRequestedHandler.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.CreateTeam;
+
+                    using Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+                    using LiteBus.Events.Abstractions;
+
+                    internal sealed class CreateTeamOnTeamRequestedHandler : IEventHandler<string>
+                    {
+                        internal void Handle()
+                        {
+                            try
+                            {
+                            }
+                            catch (System.InvalidOperationException)
+                            {
+                                {|LS2019:RecordTeamRefusedCommandResult|} result = new {|LS2019:RecordTeamRefusedCommandResult|}();
+                            }
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Teams/RecordTeamRefused/RecordTeamRefusedCommand.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+
+                    internal sealed class RecordTeamRefusedCommand
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Application/Teams/RecordTeamRefused/RecordTeamRefusedCommandResult.cs", """
+                    namespace Claimwick.Organizations.Application.Teams.RecordTeamRefused;
+
+                    internal sealed class RecordTeamRefusedCommandResult
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/EventHandler.cs", """
+                    namespace LiteBus.Events.Abstractions;
+
+                    public interface IEventHandler<TEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
 }

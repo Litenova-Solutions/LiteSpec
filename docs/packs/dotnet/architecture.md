@@ -306,7 +306,7 @@ Handlers, reactions, and jobs name another module public query or query result w
 
 **Applies to:** artifact: use-case, command-handler, query-handler, validator, endpoint, reaction
 
-**Statement:** The folders of one use case MUST reference no type in the folders of another use case.
+**Statement:** The folders of one use case MUST reference no type in the folders of another use case, except the command a reaction or job sends for the use case its record names in `onRefusal`.
 
 **Rationale:** The folders of one use case hold one behavior, so a link between two use case folders joins behaviors that change for different reasons. A reaction or job that runs a use case sits in that use case `Application` folder and uses the message from inside, and no handler sends a command: another module public query is the one message a handler sends, with a declared `queries` edge.
 

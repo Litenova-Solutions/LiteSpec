@@ -11551,7 +11551,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "The folders of one use case MUST reference no type in the folders of another use case.",
+      "statement": "The folders of one use case MUST reference no type in the folders of another use case, except the command a reaction or job sends for the use case its record names in \u0060onRefusal\u0060.",
       "rationale": "The folders of one use case hold one behavior, so a link between two use case folders joins behaviors that change for different reasons. A reaction or job that runs a use case sits in that use case \u0060Application\u0060 folder and uses the message from inside, and no handler sends a command: another module public query is the one message a handler sends, with a declared \u0060queries\u0060 edge. A shape shared by two use cases appears in each, as \u0060litespec/core/backend-architecture#give-each-use-case-its-own-models\u0060 states. Behavior shared more widely lives in the module or product folder that holds every consumer, as \u0060litespec/core/backend-architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060 states. The rule covers files and global usings alike. Kernel values stay referenced directly: money, typed identifiers, dates, and closed sets the Kernel owns come from any layer the layer table allows, and WebApi models carry them on the wire. The shared \u0060Application\u0060 folders \u0060Notifications\u0060, \u0060ExternalSystems\u0060, \u0060ReadModels\u0060, and \u0060Settings\u0060 belong to no use case: a use case folder names those types freely, and the check reports no link either way.",
       "example": ""
     },
