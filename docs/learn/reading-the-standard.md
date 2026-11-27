@@ -1,6 +1,6 @@
 # Read the Standard
 
-A project applies only the part of LiteSpec its selection names. A Svelte frontend follows different pages than a React one, and a project with no backend has no use for the API rules. Your project records its selection in `.litespec/project.yaml`: its size, shape, technology stacks, the record layers it claims, and the extensions it selects. That selection decides which pages apply.
+A project applies only the part of LiteSpec its selection names. An Android client follows different pages than a Svelte frontend, and a project with no backend has no use for the API rules. Your project records its selection in `.litespec/project.yaml`: its size, shape, technology stacks, the record layers it claims, and the extensions it selects. That selection decides which pages apply.
 
 ## A Project's Selection
 
@@ -10,11 +10,11 @@ The selection is four choices, plus any extensions your project selects:
 |:---|:---|:---|
 | Size | `small` or `large` | Which record types the project keeps. A large project adds goals, problems, features, flows, and scenarios. |
 | Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project lists no backend stack: the architecture, domain, and application pages still apply to its domain model, while the persistence, HTTP API, and API testing pages have no target. |
-| Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
+| Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `svelte` or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |
 | Layers | `intent`, `behavior`, `implementation`, `proof` | Which record layers the project claims, as [Supported Scope](../core/scope.md#layer-claims) states. |
 
-`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/select/) on the site fills in the same choices in a form and shows which pages apply.
+`litespec init --preset dotnet-svelte --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/select/) on the site fills in the same choices in a form and shows which pages apply.
 
 The Claimwick example in `examples/claimwick/` declares its own selection in `.litespec/project.yaml`:
 
@@ -32,7 +32,7 @@ layers:
   proof: litespec
 ```
 
-That selection names size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer under LiteSpec practice. It applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.
+That selection names size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer under LiteSpec practice. It applies `packs/dotnet/` and `packs/svelte/`, and it does not apply `packs/android/`.
 
 The project file holds more than the selection. `paths` points at the folders the tools read, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team reviewed. The [project file page](../reference/project-file.md) lists every field.
 
@@ -43,23 +43,14 @@ The folder a page sits in decides which projects apply it:
 ```text
 docs/
   core/  workspace/  quality/   every project
-  backend/                      every project with a backend
+  packs/
     dotnet/                     projects that select the dotnet stack
-  frontend/                     every project with a frontend
-    patterns/                   UI patterns, for every frontend
-    web/                        React and Svelte frontends
-      react/  svelte/           each web stack
-    blazor/                     Blazor frontends
-    mobile/                     native mobile apps
-      android/                  Android apps
+    svelte/                     projects that select the svelte stack
+    android/                    projects that select the android stack
   ext/                          only the extensions a project selects
 ```
 
-Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack of their own. A React project applies `frontend/`, `frontend/web/`, and `frontend/web/react/`, and with `frontend/` it also applies `frontend/patterns/`, which holds no stack. The upper pages state the principle, for example that pages compose shared components only. The lower pages state how one stack follows it, for example which component library and which test runner.
-
-The diagram shows which folders a server project with the dotnet and react stacks applies, and which it does not.
-
-![A server project with dotnet and react applies core, workspace, quality, backend, backend/dotnet, frontend, frontend/web, frontend/web/react, and selected extensions; it does not apply frontend/web/svelte or frontend/blazor.](../assets/diagrams/learn-selection-layers.svg)
+Selecting a stack applies its pack folder beside the Core pages. A server project with the dotnet and svelte stacks applies `core/`, `workspace/`, `quality/`, `packs/dotnet/`, and `packs/svelte/`, plus the extensions it selects, and never `packs/android/`. The Core pages state the principle, for example that pages compose shared components only. A pack page states how one stack follows it, for example which component library and which test runner.
 
 The folders outside that map explain rather than govern. `learn/` holds these pages, `tutorial/` and `guide/` walk through tasks, `reference/` lists exact values, `example/` works through Claimwick, and `tools/` describes each command. The remaining folders serve those pages: the analyzer rules, the maintainer commands, LiteSpec's own records under `intent/`, and the diagrams under `assets/`.
 

@@ -45,7 +45,7 @@ With `--only-paths <paths...>`, the command reports only the findings on the nam
 
 `render` rewrites the fenced generated regions in explanation files and documents, touching no text outside the fences. It writes the `source-links` region at the end of each research and constraint explanation that declares sources, and it inserts or rewrites the `agent-protocol` region in `AGENTS.md` from the carried release and the project file.
 
-It also rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each React and Svelte frontend frame, and writes the UI source lock beside the shared package. `render` writes nothing when a record file does not parse: it lists each invalid file and exits 2, so a rendered identifier list is never quietly short.
+It also rewrites each marked project-scope skill copy that differs from what the carried release generates, writes `litespec-records.ts` into each Svelte frontend frame, and writes the UI source lock beside the shared package. `render` writes nothing when a record file does not parse: it lists each invalid file and exits 2, so a rendered identifier list is never quietly short.
 
 `query` prints one record with its links in both directions, showing its identifier and its folder path; agents use it to load a record's context. For a `step/<flow>.<act>` id it prints the step with its `title`, `statement`, `failure`, and branches, the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and for each serving or fulfilling record the code files whose marks name it and the tests proving its scenarios. Its completion block carries the stage with three counts, `inScope`, `parked` and `total`: `heldBy` lists only the in-scope records holding the stage back, and `parkedBy` lists each parked record with the waiver parking it and its `expiresOn`.
 
@@ -82,7 +82,7 @@ The generated regions `render` writes, each fenced by `<!-- generated:<name> -->
 
 Each project-scope skill copy carrying the generated marker is rewritten when it differs from what the carried release generates, holding exactly the carried files. A copy without the marker is left alone, a missing copy is never created, and global copies live outside the project and stay outside the render.
 
-`render` also writes `litespec-records.ts` into every React and Svelte frontend frame: the use-case and screen ids of that frontend's own entry points with the `proves` helper browser tests annotate with.
+`render` also writes `litespec-records.ts` into every Svelte frontend frame: the use-case and screen ids of that frontend's own entry points with the `proves` helper browser tests annotate with.
 
 The UI source lock is written at `ui.package.sourceLock` when the project declares a shared package and the lock file exists. Each component's `digest` covers its paths: the digest of its one path, or the SHA-256 of its paths' digests joined by newlines in recorded order. The `preset` is copied from the manifest baseline for the package's platform, and `cli` is the manifest pin of that platform's CLI. The team's entries, the `registry`, the `formatter`, and the `generator` stay as written. `render` never creates the lock, and a lock whose text is already current is left byte for byte as it was.
 
@@ -226,7 +226,7 @@ The .NET stack reader links each code element to its record through its mark, in
 
 Every check has a level. G reads records only and always blocks. S reads code through a stack reader, the reader a stack selects to read its code, screens or tests: it blocks where the reader that produced the finding is qualified, and reports otherwise. R reads prose quality a person weighs: `litespec model review` reports it, and it never blocks.
 
-Qualification is per reader: a reader is qualified when it ran and its handshake matched. The golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified, and a finding no reader produced, a record finding, is qualified.
+Qualification is per reader: a reader is qualified when it ran and its handshake matched. The golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader stays qualified, and a finding no reader produced, a record finding, is qualified.
 
 A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent; a missing structural parent is level G, and so is every other required link.
 
@@ -236,7 +236,7 @@ So a check that reads records alone carries the layer `any` or `behavior` and ru
 
 A web frontend is read by a TypeScript reader that ships with the tool as one bundled script. Once per command run that builds the model, the tool runs it with Node, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions. A version mismatch, an absent Node, or a reader failure produces the single `reader-missing` finding for that frontend instead of passing silently.
 
-A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches, and the golden corpus is a test contract for the reader bundle that does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified, and a finding no reader produced, a record finding, is qualified.
+A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches, and the golden corpus is a test contract for the reader bundle that does not gate a consumer run. The .NET (Roslyn) reader stays qualified, and a finding no reader produced, a record finding, is qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/project.yaml`, shared provisions from the release the tool carries, and the test run from TRX or JUnit XML files under `paths.testResults`.
 

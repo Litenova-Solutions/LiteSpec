@@ -6,7 +6,7 @@ Every guide cites the standard it applies and adds no rule of its own, so you le
 
 ## Where to Start
 
-If LiteSpec is new to you, work in this order. Install the command line first with [Install the CLI](install-the-cli.md), because every later guide runs it. Then work through [Start a Consumer Repository](../tutorial/getting-started.md), which builds a working consumer with one coded use case on the `dotnet` backend and a React frontend. Then work through [Model a Behavior Module](../tutorial/model-domain.md), which specifies one business area from Intent into Behavior that the model builder reads.
+If LiteSpec is new to you, work in this order. Install the command line first with [Install the CLI](install-the-cli.md), because every later guide runs it. Then work through [Start a Consumer Repository](../tutorial/getting-started.md), which builds a working consumer with one coded use case on the `dotnet` backend and a Svelte frontend. Then work through [Model a Behavior Module](../tutorial/model-domain.md), which specifies one business area from Intent into Behavior that the model builder reads.
 
 A team that wants records, the book, and the checks before changing any code follows [Start with Records Only](start-with-records-only.md) instead. That guide claims the Intent and Behavior records alone.
 

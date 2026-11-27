@@ -19,8 +19,6 @@ A repeatable build resolves the same versions on each machine. Three pins give t
 
 The root `package.json` declares the manifest pnpm stack release in `packageManager` and a Node.js engine matching the manifest node stack release. CI provisions that Node.js release and invokes the declared pnpm release, so local installs and CI installs resolve identically. One root `package.json`, `pnpm-workspace.yaml`, and `pnpm-lock.yaml` cover the TypeScript workspace, with nested lockfiles left out.
 
-When the workspace holds a React frontend, its ESLint flat config sets a concrete `settings.react.version` instead of `detect`. The `detect` setting calls context APIs that the pinned ESLint release removed, so it fails under the pinned toolchain. A concrete version skips detection entirely and lints against the version the workspace ships.
-
 ### Secrets and Local Values
 
 A tracked configuration file reaches each clone and stays in history after deletion. Tracked files hold safe defaults and placeholders only, while real values live in user secrets locally and on the deployment platform when hosted. A new developer copies the example to start, and a reviewer reads it to learn which names the application needs.

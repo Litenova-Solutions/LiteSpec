@@ -18,13 +18,11 @@ It writes `.litespec/project.yaml` into the consumer root: it reads the consumer
 
 When a preset lists no stacks or no frontends, the project file has neither: a server project without a frontend omits `frontends`. The command refuses to overwrite an existing project file.
 
-Five presets ship with the release:
+Three presets ship with the release:
 
 | Preset | Shape | Stacks | Frontend | Layers |
 |:---|:---|:---|:---|:---|
-| `dotnet-react` | `server` | `dotnet`, `react` | `web` at `apps/web` on `react` | `intent`, `behavior`, `implementation`, `proof` |
 | `dotnet-svelte` | `server` | `dotnet`, `svelte` | `web` at `apps/web` on `svelte` | `intent`, `behavior`, `implementation`, `proof` |
-| `blazor-client` | `client-only` | `blazor` | `app` at `apps/app` on `blazor` | `intent`, `behavior`, `implementation`, `proof` |
 | `android-client` | `client-only` | `android` | `android` at `apps/mobile/src/{name}.Android` on `android` | `intent`, `behavior`, `implementation`, `proof` |
 | `records` | `server` | none | none | `intent`, `behavior` |
 
@@ -54,7 +52,7 @@ None.
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--preset <name>` | required | Selects the preset: `android-client`, `blazor-client`, `dotnet-react`, `dotnet-svelte`, or `records`. |
+| `--preset <name>` | required | Selects the preset: `android-client`, `dotnet-svelte`, or `records`. |
 | `--size <size>` | required | Sets the project size: `small` or `large`. |
 | `--install <install>` | `tool` | States how the project installs the CLI: `tool`, a local .NET tool pinned in `.config/dotnet-tools.json`, or `standalone`, the native binary from the GitHub release. |
 | `--root <path>` | the working directory | Selects the folder to write into. The command uses this folder as written, with no walk-up. |
@@ -73,16 +71,16 @@ None.
 
 ## Examples
 
-Start a small React consumer in a new folder:
+Start a small Svelte consumer in a new folder:
 
 ```bash
-litespec init --preset dotnet-react --size small --root ./shop
+litespec init --preset dotnet-svelte --size small --root ./shop
 ```
 
-Start a large Blazor client and name the project:
+Start a large Android client and name the project:
 
 ```bash
-litespec init --preset blazor-client --size large --name shop
+litespec init --preset android-client --size large --name shop
 ```
 
 Start a small Svelte consumer that runs the standalone binary, with no .NET tool manifest:
@@ -100,13 +98,13 @@ litespec init --preset records --size small --root ./shop
 Start a small consumer and install the skill for two agents:
 
 ```bash
-litespec init --preset dotnet-react --size small --root ./shop --skill agents,claude
+litespec init --preset dotnet-svelte --size small --root ./shop --skill agents,claude
 ```
 
 Start a small consumer and install the skill for every project of the user:
 
 ```bash
-litespec init --preset dotnet-react --size small --root ./shop --skill agents --skill-global
+litespec init --preset dotnet-svelte --size small --root ./shop --skill agents --skill-global
 ```
 
 ## Underneath

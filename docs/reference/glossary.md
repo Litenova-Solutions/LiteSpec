@@ -136,7 +136,7 @@ Source: web API practice.
 
 ### Page File
 
-The framework file serving one address: `+page.svelte` with its `+page.ts` on Svelte, and one route file on React. A page file renders one screen. The screen is the record, the route is the address, and the page file is the code.
+The framework file serving one address: `+page.svelte` with its `+page.ts` on Svelte. A page file renders one screen. The screen is the record, the route is the address, and the page file is the code.
 
 Home: docs/frontend/web/structure.md
 

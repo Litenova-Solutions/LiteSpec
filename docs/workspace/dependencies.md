@@ -33,7 +33,7 @@ A project that selects the Delivery extension generates a bill of materials in C
 
 ### Frontends and Generated Code
 
-Frontends share nothing by source import: one frontend imports neither another application source nor another module internal feature files. Sharing goes through a shared package with a documented public entry point that depends on no application. A React web frontend takes its UI packages from the `uiBaseline` in `litespec.manifest.yaml`, and a Svelte web frontend from `uiBaselineSvelte`.
+Frontends share nothing by source import: one frontend imports neither another application source nor another module internal feature files. Sharing goes through a shared package with a documented public entry point that depends on no application. A Svelte web frontend takes its UI packages from the `uiBaseline` in `litespec.manifest.yaml`.
 
 Generated types mirror the API contract, and the shared client only passes them to queries. The generated API types stay free of dependencies, and the shared client stays limited to the pinned generator runtime, its query plugin, and those types. A generated package that owns state, UI behavior, or authentication policy is no longer regenerable.
 

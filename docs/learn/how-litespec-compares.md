@@ -16,7 +16,7 @@ Each section below summarizes one approach from its own official pages, linked a
 
 LiteSpec ([Why LiteSpec Exists](why-litespec.md)) is a standard for building one bounded-context business application. It has three parts: versioned rules, project records written top down through Intent, Behavior, Implementation, and Proof, and a model with tools. The tools follow the marks by which code and tests point up to records, and render the book that product people read.
 
-Your project selects one size, one shape, and its stacks from .NET, React, Svelte, Blazor, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, as [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows. Your project also declares the record layers it claims, as [Supported Scope](../core/scope.md#layer-claims) states, and the tools report only the claimed part. The `litespec` CLI, the Roslyn analyzers, and model findings check that claimed part. Your project pins one release, as [How LiteSpec Works](how-litespec-works.md) describes.
+Your project selects one size, one shape, and its stacks from .NET, Svelte, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, as [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows. Your project also declares the record layers it claims, as [Supported Scope](../core/scope.md#layer-claims) states, and the tools report only the claimed part. The `litespec` CLI, the Roslyn analyzers, and model findings check that claimed part. Your project pins one release, as [How LiteSpec Works](how-litespec-works.md) describes.
 
 ### GitHub Spec Kit
 
@@ -110,7 +110,7 @@ The table summarizes each approach on the same dimensions, from the official pag
 
 | Approach | Unit of specification | Ships rules or process | Stable rule IDs | Verified by tools | Versioned rules | Intent linked to code | Stack coverage |
 |:---|:---|:---|:---|:---|:---|:---|:---|
-| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | Checked share in the [provision index](../reference/provisions.md); the rest reviewed | Pinned releases | Marks up, computed completion | .NET, React, Svelte, Blazor, Android |
+| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | Checked share in the [provision index](../reference/provisions.md); the rest reviewed | Pinned releases | Marks up, computed completion | .NET, Svelte, Android |
 | GitHub Spec Kit | Feature, bug, idea | Process, templates | None described | Converge gates, review | Pinned CLI; specs in the repository | None described | Neutral; Linux, macOS, Windows |
 | Kiro | Feature, bug fix | Process, design docs | None described | Requirements analysis, correctness tests | Project files | Tasks tracked in IDE | Neutral |
 | Tessl tile | Task; org-wide skills | Process, format rules, library tiles | Named skills, rules | Spec lint, link checks, evals | Tiles versioned in registry | `[@test]` links, `targets` | Neutral; MCP agents |
@@ -149,7 +149,7 @@ Each property below names the page that states it. Together they answer when Lit
 LiteSpec is not the right answer everywhere. The points below favor another approach, stated in the makers' own terms.
 
 - A team that wants a light per-feature flow can use OpenSpec, Spec Kit, or Kiro. OpenSpec is brownfield-first across 30 or more tools, Spec Kit pairs a constitution with per-feature commands and convergence gates, and Kiro turns requirements into design and tasks.
-- A team on another stack can use a neutral approach. LiteSpec supports .NET with React, Svelte, Blazor, or Android, while BMAD names Unity, Unreal, Godot, and Phaser, ArchUnit covers Java bytecode, and Cucumber spans many programming languages.
+- A team on another stack can use a neutral approach. LiteSpec supports .NET with Svelte or Android, while BMAD names Unity, Unreal, Godot, and Phaser, ArchUnit covers Java bytecode, and Cucumber spans many programming languages.
 - A team with strong conventions to keep can use Agent OS or plain instruction files. Agent OS discovers, deploys, and indexes the team's standards, and instruction files carry whatever the team writes.
 - A team whose agents misuse library APIs can use Tessl tiles. The registry holds library-usage tiles per ecosystem alongside the methodology tile, while LiteSpec pins package versions without teaching API surfaces.
 - A team that wants architecture documentation for readers rather than checks for machines can use ADRs, arc42, and C4. ADRs keep the decision log, arc42 gives the 12-section template, and C4 diagrams the system from context to code.

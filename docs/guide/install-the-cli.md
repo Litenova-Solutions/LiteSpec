@@ -18,7 +18,7 @@ Start by picking the install method that fits the machine. The table compares th
 
 The `init` command writes the project for the method you chose: `litespec init --install tool` writes a project that runs the local .NET tool, while `litespec init --install standalone` writes one that runs the standalone binary. The [init command reference](../tools/init.md) lists what each option writes.
 
-Two more tools apply to some projects. A project with a React or Svelte frontend needs Node at the version the manifest pins (`stack.node`), because the CLI reads those frontends through a bundled Node reader. Running `model check --since` needs `git`, because the command reads the change set from git history.
+Two more tools apply to some projects. A project with a Svelte frontend needs Node at the version the manifest pins (`stack.node`), because the CLI reads those frontends through a bundled Node reader. Running `model check --since` needs `git`, because the command reads the change set from git history.
 
 ## Procedure
 
