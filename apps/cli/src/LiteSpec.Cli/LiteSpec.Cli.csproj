@@ -126,7 +126,7 @@
         paths run past the 128 characters a NuGet package path may hold (NU5123). litespec init reads the
         folder in a repository checkout and the archive in an installed tool.
     -->
-    <Target Name="ZipBootstrapStarters" BeforeTargets="AssignTargetPaths">
+    <Target Name="ZipBootstrapStarters" BeforeTargets="AssignTargetPaths" Condition="Exists('$(MSBuildThisFileDirectory)../../../../templates/bootstrap')">
         <ItemGroup>
             <_BootstrapStarter Include="$([System.IO.Directory]::GetDirectories('$(MSBuildThisFileDirectory)../../../../templates/bootstrap'))" />
         </ItemGroup>
