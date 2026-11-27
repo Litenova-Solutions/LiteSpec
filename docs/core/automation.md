@@ -20,7 +20,7 @@ The name follows `<verb>-<what>-on-<fact>`. The record carries `summary`, and th
 | `triggeredBy` | The `domain-event/...`, `module-event/...`, or `integration-event/...` ids the reaction answers, as one id or a list: a domain event of its own module, a module event of an upstream module of the product, or an inbound integration event. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
 | `compensates` | The `use-case/...` id the reaction undoes, for a reaction answering a later step's failure, optional. |
-| `effects` | `{ runs / sends / calls / queries / commands, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A reaction leaves `timing` out for `async`. Each effect runs on its own. |
+| `effects` | `{ runs / sends / calls / queries / commands, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry, which may name in `onRefusal` the use case of the reaction's own module that records a refusal of the run use case. A reaction leaves `timing` out for `async`. Each effect runs on its own. |
 | `outcomes` | The run endings: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `ifExhausted` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `ifExhausted` come with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
@@ -30,6 +30,8 @@ The name follows `<verb>-<what>-on-<fact>`. The record carries `summary`, and th
 Scenarios sit under the reaction as child entries, and each one ends in a result of a use case the reaction runs or in one of the reaction's own outcomes. The event handler carrying it out marks itself with `implements reaction/<module>.<name>`.
 
 An event with several outcomes needs one reaction per outcome, because a reaction runs at most one use case. In Claimwick, the expense decision ends approved or refused: `domain-event/expense.approved` triggers the reaction running `use-case/spending.reimburse-expense`, while `domain-event/expense.refused` triggers the reaction sending the refusal notice. There is no shared decided event with one reaction choosing between the two.
+
+A reaction that runs another module's use case can name in `onRefusal` the use case of its own module that records a refusal. A refusal commits nothing, so the second run never follows a committed first one, and the record states both. In the library, the loan-returned reaction in Lending runs Billing's settle-fine use case, and when Billing refuses because the member account is closed, it runs `use-case/lending.record-fine-refused`, so the loan shows the fine as unsettled.
 
 ### Module Events
 
@@ -63,7 +65,7 @@ The name follows `<verb>-<what>`, using the verb of the use case it runs, or its
 | `kind` | `scheduled` or `one-off`. |
 | `schedule` | The schedule, with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timeZone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. The time zone is a literal IANA zone, or `{ "setting": "setting/<module>.<name>" }` or `{ "field": "aggregate/<module>.<aggregate>#<field>" }` naming where the zone is stored. `every` accepts a `settingId` naming a setting. |
 | `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhen`, `serviceLevel`, `evidence` | What each run selects, how many items per batch, the lock with its duration, where resume state lives, the runbook answering the run, the condition it runs under, the promised service level, and the evidence the run leaves. |
-| `effects` | `{ runs / sends / calls / queries / commands, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry. A job states `timing` on each entry. Each effect runs on its own. |
+| `effects` | `{ runs / sends / calls / queries / commands, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, and at most one `runs` entry, which may name in `onRefusal` the use case of the job's own module that records a refusal of the run use case. A job states `timing` on each entry. Each effect runs on its own. |
 | `outcomes` | The run endings: `{ name, meaning }` entries with `name` from `completed`, `skipped`, `suppressed`, `failed`, `retry-scheduled`, `nothing-selected`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads` | The requirements carried, the flow steps served, the failure handling, the idempotency, and the aggregates and settings read, as on a use case. |
 | `onFailure` | `{ mode, retry, ifExhausted, deadLetter, surfacesIn, runbook }`, shaped as on a reaction. Delays and `after` are ISO 8601 durations. |
@@ -253,7 +255,7 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Statement:** A reaction or job MUST run at most one use case, a job running it once per selected item.
 
-**Rationale:** A reaction or job is an entry point: it turns one fact or one selected item into one message, as an endpoint turns one request into one message. A reaction running two use cases decides their order and their joint failure in code no record states, and the second fails after the first committed. Two follow-on acts are two reactions to the same fact, each with its own failure handling. A reaction or job only sending or calling runs no use case.
+**Rationale:** A reaction or job is an entry point: it turns one fact or one selected item into one message, as an endpoint turns one request into one message. A reaction running two use cases decides their order and their joint failure in code no record states, and the second fails after the first committed. Two follow-on acts are two reactions to the same fact, each with its own failure handling. A use case named in `onRefusal` does not count, since it runs only after a refusal that committed nothing; settled by decision/0127-record-a-refused-run-on-the-reacting-side. A reaction or job only sending or calling runs no use case.
 
 **Example:** The erase-expired-personal-data job selects decided expenses past retention and runs `use-case/spending.erase-personal-data` once for each.
 

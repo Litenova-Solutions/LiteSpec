@@ -1,5 +1,7 @@
+using System.Text.Json;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -32,6 +34,29 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.yaml"), """{"triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "The copy was returned again."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "Returning the same copy again changes nothing."}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>An effect that names onRefusal without a runs target is refused, because only a run use case can refuse.</summary>
+    /// <proves>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</proves>
+    [Fact]
+    public void OnRefusalWithoutRunsIsRefused()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "sends.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.due-notice", "timing": "async", "onRefusal": "use-case/lending.record-return-refused"}], "outcomes": [{"name": "completed", "meaning": "The notice was sent."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "none", "reason": "A repeated notice is harmless."}}"""));
+
+        Assert.True(Reports(model, "record-invalid", "onRefusal"));
+    }
+
+    /// <summary>The runs edge reads the use case a reaction runs first, then the use case it runs on refusal.</summary>
+    [Fact]
+    public void RunsEdgeReadsTheRunThenTheRefusalUseCase()
+    {
+        using var document = JsonDocument.Parse("""{"effects": [{"runs": "use-case/lending.return-copy", "timing": "async", "onRefusal": "use-case/lending.record-return-refused"}]}""");
+        var record = new LiteSpec.Cli.Model.Records.Record { Type = "reaction", Id = "reaction/lending.return-copy-on-loan-returned", Raw = document.RootElement.Clone() };
+
+        Assert.Equal(["use-case/lending.return-copy", "use-case/lending.record-return-refused"], record.EdgeIds(RecordFields.Runs));
     }
 
     /// <summary>A reaction whose effects run two use cases is refused: a reaction or job runs at most one use case.</summary>

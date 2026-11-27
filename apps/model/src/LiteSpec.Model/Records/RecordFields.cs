@@ -473,6 +473,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `onFailure` field.</summary>
     public const string OnFailure = "onFailure";
 
+    /// <summary>Gets the name of the `onRefusal` field.</summary>
+    public const string OnRefusal = "onRefusal";
+
     /// <summary>Gets the name of the `onTimeout` field.</summary>
     public const string OnTimeout = "onTimeout";
 

@@ -80,7 +80,8 @@ sealed class Record : IRecordFields
 
     /// <summary>
     ///     Reads the targets of one edge verb (runs, sends, calls, queries, commands): the entries of
-    ///     <c>effects</c> carrying the verb, then a top-level field of the same name.
+    ///     <c>effects</c> carrying the verb, then a top-level field of the same name. For runs, an entry's
+    ///     <c>onRefusal</c> use case follows the use case it runs, since the reaction runs it when that one refuses.
     /// </summary>
     /// <param name="verb">The edge verb to read: runs, sends, calls, queries or commands.</param>
     /// <returns>The target ids the verb names, from effects entries then a same-named field.</returns>
@@ -100,6 +101,14 @@ sealed class Record : IRecordFields
                     && target.GetString() is { Length: > 0 } id)
                 {
                     ids.Add(id);
+
+                    if (verb == RecordFields.Runs
+                        && entry.TryGetProperty(RecordFields.OnRefusal, out var refusal)
+                        && refusal.ValueKind == JsonValueKind.String
+                        && refusal.GetString() is { Length: > 0 } refused)
+                    {
+                        ids.Add(refused);
+                    }
                 }
             }
         }

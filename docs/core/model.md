@@ -470,6 +470,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `triggeredBy` | reaction | domain event, module event, integration event | is triggered by | triggers |
 | `compensates` | reaction | use case | compensates | is compensated by |
 | `effects.runs` | reaction, job | use case | runs | is run by |
+| `effects.onRefusal` | reaction, job | use case | runs on refusal | records the refusal for |
 | `onFailure.surfacesIn` | reaction, job | entry point | surfaces in | surfaces |
 | `onFailure.runbook` | reaction, job | runbook | is answered by | answers |
 | `tracksState.aggregate` | reaction, job | aggregate | settles | is settled by |

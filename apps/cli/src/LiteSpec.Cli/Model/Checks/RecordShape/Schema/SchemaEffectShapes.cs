@@ -94,7 +94,11 @@ internal static class SchemaEffectShapes
         ];
     }
 
-    /// <summary>Reports a reaction or job whose effects hold more than one runs entry: it runs at most one use case.</summary>
+    /// <summary>
+    ///     Reports a reaction or job whose effects hold more than one runs entry: it runs at most one use case. The
+    ///     onRefusal use case an entry names does not count, since it runs only after a refusal that committed nothing,
+    ///     and an onRefusal on an entry with no runs target reports.
+    /// </summary>
     /// <param name="record">The reaction or job record whose effects are counted.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <follows>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</follows>
@@ -109,9 +113,20 @@ internal static class SchemaEffectShapes
 
         foreach (var entry in list.EnumerateArray())
         {
-            if (entry.ValueKind == JsonValueKind.Object && entry.TryGetProperty(RecordFields.Runs, out _))
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var running = entry.TryGetProperty(RecordFields.Runs, out _);
+
+            if (running)
             {
                 runs++;
+            }
+            else if (entry.TryGetProperty(RecordFields.OnRefusal, out _))
+            {
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' names an onRefusal use case on an effect that runs no use case; only a run use case can refuse.", record.File, record.Line, SubjectOf(record)));
             }
         }
 

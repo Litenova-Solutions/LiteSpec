@@ -1242,6 +1242,11 @@ $defs:
         $ref: '#/$defs/useCaseId'
         x-reads-as: runs
         x-read-back-as: is run by
+      onRefusal:
+        $ref: '#/$defs/useCaseId'
+        description: The use case of the reaction's own module that records a refusal of the use case in runs. A refusal commits nothing, so this run never follows a committed one.
+        x-reads-as: runs on refusal
+        x-read-back-as: records the refusal for
       sends:
         $ref: '#/$defs/notificationId'
         x-reads-as: sends
@@ -1265,6 +1270,9 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       forEach:
         $ref: '#/$defs/nonEmptyString'
+    dependentRequired:
+      onRefusal:
+      - runs
     oneOf:
     - required:
       - runs

@@ -1925,7 +1925,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A reaction or job MUST run at most one use case, a job running it once per selected item.",
-      "rationale": "A reaction or job is an entry point: it turns one fact or one selected item into one message, as an endpoint turns one request into one message. A reaction running two use cases decides their order and their joint failure in code no record states, and the second fails after the first committed. Two follow-on acts are two reactions to the same fact, each with its own failure handling. A reaction or job only sending or calling runs no use case.",
+      "rationale": "A reaction or job is an entry point: it turns one fact or one selected item into one message, as an endpoint turns one request into one message. A reaction running two use cases decides their order and their joint failure in code no record states, and the second fails after the first committed. Two follow-on acts are two reactions to the same fact, each with its own failure handling. A use case named in \u0060onRefusal\u0060 does not count, since it runs only after a refusal that committed nothing; settled by decision/0127-record-a-refused-run-on-the-reacting-side. A reaction or job only sending or calling runs no use case.",
       "example": "The erase-expired-personal-data job selects decided expenses past retention and runs \u0060use-case/spending.erase-personal-data\u0060 once for each."
     },
     {

@@ -3711,6 +3711,21 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0127-record-a-refused-run-on-the-reacting-side/0127-record-a-refused-run-on-the-reacting-side.md",
+      "path": "intent/decisions/0127-record-a-refused-run-on-the-reacting-side/0127-record-a-refused-run-on-the-reacting-side",
+      "style": "decision",
+      "area": "intent",
+      "title": "Record a Refused Run on the Reacting Side",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-delivery-empirical-evidence/agent-delivery-empirical-evidence.md",
       "path": "intent/research/agent-delivery-empirical-evidence/agent-delivery-empirical-evidence",
       "style": "research",
