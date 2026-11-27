@@ -685,6 +685,12 @@ internal static class ScreenChecks
             }
         }
 
+        // A permissions.yaml file holds its permissions as entries with no set identity of its own, so the
+        // builder loads each entry as a permission record rather than as one permission-set record.
+        declared.UnionWith(model.Records
+            .Where(candidate => candidate.Type == RecordTypes.Permission && candidate.Id.Length > 0)
+            .Select(candidate => candidate.Id));
+
         return declared;
     }
 
