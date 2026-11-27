@@ -1,6 +1,7 @@
 using System.Text.Json;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Checks;
+using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
@@ -172,7 +173,7 @@ static class SyncPlan
             foreach (var offered in screen.Ids(RecordFields.Offers))
             {
                 if (model.ById.TryGetValue(offered, out var useCase)
-                    && GrantOf(useCase) is { Length: > 0 } grant)
+                    && UseCaseQueries.GrantedPermission(useCase) is { } grant)
                 {
                     permissions.Add(grant);
                 }
@@ -185,23 +186,6 @@ static class SyncPlan
         }
 
         return screens;
-    }
-
-    /// <summary>The permission a use case grants, or null when its record states none.</summary>
-    /// <param name="record">The use case record.</param>
-    /// <returns>The granted permission id, or null.</returns>
-    private static string? GrantOf(Record record)
-    {
-        if (record.Raw.ValueKind != JsonValueKind.Object
-            || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
-            || access.ValueKind != JsonValueKind.Object
-            || !access.TryGetProperty(RecordFields.Grant, out var grant)
-            || grant.ValueKind != JsonValueKind.String)
-        {
-            return null;
-        }
-
-        return grant.GetString() is { Length: > 0 } text ? text : null;
     }
 
     /// <summary>The replaced generated files that exist on disk, one per rendered C# file.</summary>

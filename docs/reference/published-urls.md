@@ -39,7 +39,7 @@ The selection page renders the `AGENTS.md` block from the consumer protocol temp
 
 ```text
 <!-- generated:agent-protocol -->
-When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them.
+When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 ...
 <!-- /generated:agent-protocol -->
 ```

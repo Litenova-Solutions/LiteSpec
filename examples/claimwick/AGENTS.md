@@ -1,7 +1,7 @@
 # Claimwick Agent Context
 
 <!-- generated:agent-protocol -->
-When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them.
+When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 
 This project follows LiteSpec 7.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.

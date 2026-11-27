@@ -193,6 +193,57 @@ public sealed class SyncCommandTests
         Assert.Contains("\"/loans\": [\"permission/read-loans\"],", capabilityText);
     }
 
+    /// <summary>
+    ///     The capabilities table holds permission ids only: a self() grant reads through to its
+    ///     permission, and a signed-in grant names none.
+    /// </summary>
+    /// <proves>litespec/core/model#sync-record-determined-code-from-the-records</proves>
+    [Fact]
+    public void SyncCapabilitiesHoldPermissionIdsOnly()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AppendGenerate(temp.Path, """
+            sync:
+            - kind: refusal-codes
+              stack: dotnet
+              path: apps/api/src/Modules/Library.{Module}
+              namespace: Library.{Module}
+            """);
+        ReplaceFrontends(temp.Path);
+        var useCases = Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates");
+        ReplaceGrant(Path.Combine(useCases, "holds", "use-cases", "cancel-hold", "cancel-hold.yaml"), "permission/place-hold", "self(permission/place-hold)");
+        ReplaceGrant(Path.Combine(useCases, "copies", "use-cases", "register-copy", "register-copy.yaml"), "permission/manage-copies", "signed-in");
+        var folder = Path.Combine(temp.Path, ".litespec", "behavior", "entry-points", "library-app", "screens", "hold-list");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(
+            Path.Combine(folder, "hold-list.yaml"),
+            """
+            type: screen
+            id: screen/library-app.hold-list
+            title: Hold List
+            summary: A reader sees their holds and cancels one.
+            route: /holds
+            offers:
+            - use-case/lending.cancel-hold
+            - use-case/lending.register-copy
+            """);
+
+        var result = TestCli.Run("sync", "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        var capabilityText = File.ReadAllText(Path.Combine(temp.Path, "packages", "api", "src", "litespec", "capabilities.ts"));
+        Assert.Contains("\"/holds\": [\"permission/place-hold\"],", capabilityText);
+        Assert.DoesNotContain("self(", capabilityText);
+        Assert.DoesNotContain("signed-in", capabilityText);
+
+        static void ReplaceGrant(string file, string from, string to)
+        {
+            var text = File.ReadAllText(file);
+            Assert.Contains($"grant: {from}", text);
+            File.WriteAllText(file, text.Replace($"grant: {from}", $"grant: {to}", StringComparison.Ordinal));
+        }
+    }
+
     /// <summary>Sync writes one event decision file per module with the decisions the records state.</summary>
     /// <proves>litespec/core/model#sync-record-determined-code-from-the-records</proves>
     [Fact]

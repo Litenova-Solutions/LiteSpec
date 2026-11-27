@@ -40,7 +40,7 @@ An agent that can fetch URLs reads the standard from litespec.dev instead of the
 
 ```markdown
 <!-- generated:agent-protocol -->
-When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them.
+When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them. Between a record and its explanation file, the record wins; a disagreement is a defect in the explanation.
 
 This project follows LiteSpec 7.0.0: size small, shape server, stacks dotnet, react, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
