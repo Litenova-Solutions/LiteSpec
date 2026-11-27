@@ -154,6 +154,20 @@ scenarios:
     competesWith: use-case/<module>.<name, or remove this line>
     examples:
       - <field>: <value>
+    probe:
+      as: person/<name, or remove this line for anonymous>
+      request:
+        method: <GET|POST|PUT|PATCH|DELETE>
+        path: <request path, such as /expenses/{expenseId}>
+        body: <request body, or remove this line>
+      expect:
+        status: <expected status, such as 201>
+        refusal: <refusal code, such as spending.receipt-missing, or remove this line>
+        fields:
+          - path: /state
+            equals: submitted
+          - path: /expenseId
+            present: true
   - id: scenario/<use-case>.<name>
     title: <Title in Title Case>
     terms:

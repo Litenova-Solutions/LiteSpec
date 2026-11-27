@@ -181,6 +181,22 @@ A scenario proving a guard against a competing command carries that command in `
 
 Each rule boundary named in `exercises` carries its own scenario at the line: the hold expiry rule carries one scenario collecting on the last pickup day and one after the lapse. Each scenario carries its own `given`, `when`, and `then`. Shared narrative lives in the explanation file beside the record file, and the retired `background` name fails validation.
 
+A scenario that the running product answers carries `probe` with the caller, the request, and the expected response. The `as` names the cast person that calls, and an omitted `as` means anonymous. The `request` names the HTTP `method`, the `path` with `{name}` placeholders resolved from `verify.values`, and the optional `body`. The `expect` names the `status`, the optional `refusal` code, and the optional `fields` checks. A refusal matches when the problem `code` equals the named code or the problem `type` ends with `/<code>`. Each field check names a JSON Pointer `path` with either `equals` or `present`.
+
+| Field | Holds |
+|:---|:---|
+| `probe.as` | The cast person id that calls, such as `person/ava`; omitted means anonymous. |
+| `probe.request.method` | The HTTP method: `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`. |
+| `probe.request.path` | The request path from the base address, such as `/api/expenses/{expense}`. |
+| `probe.request.body` | The request body as any JSON value, with `{name}` resolved inside strings. |
+| `probe.expect.status` | The expected HTTP status code, such as `201`. |
+| `probe.expect.refusal` | The expected problem code, such as `spending.receipt-missing`. |
+| `probe.expect.fields[].path` | The JSON Pointer of the checked value, such as `/state`. |
+| `probe.expect.fields[].equals` | The expected value at the path, as any JSON value. |
+| `probe.expect.fields[].present` | True when the path must exist, false when it must be absent. |
+
+In Claimwick, the submit-expense scenario that files a train fare with its receipt carries a probe as `person/ava` posting to `/api/expenses/{expense}` and expecting `201` with `/state` equal to `submitted`.
+
 ### Settings
 
 A setting is one operator configuration value with its type, range, unit, setter, and bound behavior: a provider timeout, a batch size, or a delay the operator tunes, read by the running system. A business value a person changes through work is aggregate data instead: its range is a rule with a refusal, and its change is a use case with access and audit. A value a tenant administrator changes for the whole tenant is a tenant setting with `setBy: tenant`, changed by a `change-*` use case.

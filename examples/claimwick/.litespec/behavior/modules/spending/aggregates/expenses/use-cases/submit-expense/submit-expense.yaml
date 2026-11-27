@@ -125,6 +125,22 @@ scenarios:
   exercises:
   - rule/expense.receipt-required-above-threshold
   - rule/expense.travel-allowance-from-per-diem
+  probe:
+    as: person/ava
+    request:
+      method: POST
+      path: /api/expenses
+      body:
+        expenseId: "{expense}"
+        amount: 48.9
+        currency: EUR
+    expect:
+      status: 201
+      fields:
+      - path: /state
+        equals: submitted
+      - path: /expenseId
+        present: true
 - id: scenario/submit-expense.submitting-without-a-receipt-is-refused
   title: Submitting Without a Receipt Is Refused
   given: An employee paid for a train ticket and lost the receipt.

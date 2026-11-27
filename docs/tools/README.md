@@ -38,4 +38,8 @@ Every command accepts `--help`. `model check` also accepts `--format json`, whic
 - [Skill](skill.md): installs or removes the litespec skill.
 - [Context](context.md): writes the specification as one plain-text file for an AI chat.
 - [Api Explore](api-explore.md): walks a running API from its OpenAPI document and reports server faults.
+- [Verify](verify.md): runs the scenario probes against the running product, and with `--adversarial` replays them through the access, race and input matrices.
+- [Verify Persistence Compat](verify-persistence-compat.md): records stored snapshots through the consumer harness, or checks that every earlier snapshot still reads.
+- [Verify Production Smoke](verify-production-smoke.md): boots the production containers, waits for readiness, and requests the smoke paths behind a forwarded https scheme.
+- [Audit Semantic](audit-semantic.md): writes one review packet per changed use case and reports stub markers on changed lines.
 - [UI Audit](ui-audit.md): visits each route of a running application in a browser and reports what the rendered pages show wrong.

@@ -4,7 +4,7 @@ Each provision ID resolves here to its heading, owning page, scope, record layer
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 756 provisions in 4 groups across 5 areas.
+The active release states 758 provisions in 4 groups across 5 areas.
 
 ## Checked Share by Page
 
@@ -38,7 +38,7 @@ The active release states 756 provisions in 4 groups across 5 areas.
 | [core/outbox](../core/outbox.md) | 9 | 1 | 11% |
 | [core/principles](../core/principles.md) | 10 | 4 | 40% |
 | [core/privacy](../core/privacy.md) | 7 | 3 | 43% |
-| [core/release](../core/release.md) | 8 | 2 | 25% |
+| [core/release](../core/release.md) | 9 | 3 | 33% |
 | [core/scope](../core/scope.md) | 9 | 6 | 67% |
 | [core/scopes](../core/scopes.md) | 7 | 5 | 71% |
 | [core/stacks](../core/stacks.md) | 1 | 0 | 0% |
@@ -126,6 +126,7 @@ The active release states 756 provisions in 4 groups across 5 areas.
 | litespec/core/agent#read-the-full-record-before-changing-a-boundary | [Read the Full Record Before Changing a Boundary](../core/agent.md#read-the-full-record-before-changing-a-boundary) | convention | any | workspace | any | any | no | default | guidance | Does each file generation or boundary change cite the full record it matched? Check the change beside the cited records. |
 | litespec/core/agent#replace-only-declared-conventions | [Replace Only Declared Conventions](../core/agent.md#replace-only-declared-conventions) | rule | any | workspace | any | any | no | required | guidance | Does each convention replacement resolve to a recorded local convention? Check the replacements beside the project documentation. |
 | litespec/core/agent#restrict-unapproved-side-effects | [Restrict Unapproved Side Effects](../core/agent.md#restrict-unapproved-side-effects) | rule | any | workspace | any | any | no | required | guidance | Does an explicit task instruction naming the action and its bounds cover each consequential action beyond the task, or does the project's `AGENTS.md` grant the wider authority? Check the task text beside the actions taken. |
+| litespec/core/agent#review-changed-use-cases-from-an-independent-packet | [Review Changed Use Cases from an Independent Packet](../core/agent.md#review-changed-use-cases-from-an-independent-packet) | rule | any | workspace | any | any | no | advisory | checkable | `litespec audit semantic` writes the packet of each changed use case and reports `code-unimplemented` for a changed line outside the tests that still holds a stub marker. |
 | litespec/core/agent#scope-every-convention-to-files-it-governs | [Scope Every Convention to Files It Governs](../core/agent.md#scope-every-convention-to-files-it-governs) | rule | any | workspace | any | any | no | required | checkable | `litespec model check` reports `convention-unreached` (level G) for a project convention whose Applies to matches no file in the project tree and no record. |
 | litespec/core/agent#search-the-provisions-before-recording-a-decision | [Search the Provisions Before Recording a Decision](../core/agent.md#search-the-provisions-before-recording-a-decision) | convention | any | workspace | any | any | no | default | guidance | Does any technical decision restate a choice a provision already makes? Compare each decision with the `rules` output for its subject. |
 | litespec/core/agent#select-task-context | [Select Task Context](../core/agent.md#select-task-context) | rule | any | workspace | any | any | no | required | guidance | Does the completion report name the model query that selected the cited records, or the prose-only correction and the record it read? Check the report beside the cited records. |
@@ -543,6 +544,7 @@ The active release states 756 provisions in 4 groups across 5 areas.
 | litespec/core/privacy#purge-erased-data-from-restored-backups | [Purge Erased Data from Restored Backups](../core/privacy.md#purge-erased-data-from-restored-backups) | rule | any | records | record:runbook | any | no | required | guidance | Does every restore runbook name its sweep job? Check the restore runbooks. |
 | litespec/core/privacy#round-an-event-start-to-a-calendar-end | [Round an Event Start to a Calendar End](../core/privacy.md#round-an-event-start-to-a-calendar-end) | rule | any | records | aggregate | any | no | required | guidance | Does every retention period counted from a rounded event name its event and rounding? Check `periodStartsAt` on each data class. |
 | litespec/core/privacy#scope-erasure-to-what-the-subject-requested | [Scope Erasure to What the Subject Requested](../core/privacy.md#scope-erasure-to-what-the-subject-requested) | rule | any | records | record:use-case | any | no | required | guidance | Does every erasure use case cite the request it answers and touch only the data in it? Check the erasure use cases beside their requests. |
+| litespec/core/release#boot-the-production-configuration-before-release | [Boot the Production Configuration Before Release](../core/release.md#boot-the-production-configuration-before-release) | rule | any | operations | any | implementation | no | required | checkable | `litespec verify production-smoke` reports `production-readiness-failed`, `path-failed` and `stub-adapter-shown` for the project that names a production block in `verify`. |
 | litespec/core/release#check-intent-and-behavior-changes-with-the-book | [Check Intent and Behavior Changes with the Book](../core/release.md#check-intent-and-behavior-changes-with-the-book) | rule | any | operations | any | implementation | no | required | checkable | `litespec model check` exits zero when it reports no G finding, such as `record-invalid`, and the inspection was complete. |
 | litespec/core/release#qualify-each-stack-reader-with-fixtures | [Qualify Each Stack Reader with Fixtures](../core/release.md#qualify-each-stack-reader-with-fixtures) | rule | any | operations | any | implementation | no | required | guidance | Does every gating S reader show passing fixture runs? Check the fixture results beside the stack reader. |
 | litespec/core/release#record-the-release-artifact | [Record the Release Artifact](../core/release.md#record-the-release-artifact) | rule | any | operations | any | implementation | no | required | guidance | Does every release show one record naming its immutable artifact? Check the release records beside each artifact. |

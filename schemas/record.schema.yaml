@@ -2832,6 +2832,87 @@ $defs:
         type: array
         items:
           type: object
+      probe:
+        $ref: '#/$defs/scenarioProbe'
+  scenarioProbe:
+    description: "The black-box probe of the scenario: who calls, what request is sent and what response is expected."
+    type: object
+    additionalProperties: false
+    required:
+    - request
+    - expect
+    properties:
+      as:
+        description: The cast person id that calls, such as person/ava. Omitted means anonymous.
+        $ref: '#/$defs/personId'
+        x-reads-as: is probed as
+        x-read-back-as: calls the probe of
+      request:
+        $ref: '#/$defs/scenarioProbeRequest'
+      expect:
+        $ref: '#/$defs/scenarioProbeExpect'
+  scenarioProbeRequest:
+    description: The HTTP request the probe sends to the running product.
+    type: object
+    additionalProperties: false
+    required:
+    - method
+    - path
+    properties:
+      method:
+        description: The HTTP method of the probe request.
+        enum:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      path:
+        description: The request path from the base address, with {name} placeholders resolved from verify.values.
+        type: string
+        pattern: '^/'
+      body: {}
+  scenarioProbeExpect:
+    description: The response the probe expects from the running product.
+    type: object
+    additionalProperties: false
+    required:
+    - status
+    properties:
+      status:
+        description: The expected HTTP status code.
+        type: integer
+        minimum: 100
+        maximum: 599
+      refusal:
+        description: The expected problem code, such as spending.receipt-missing. The response is a problem whose code equals this, or whose type ends with /<this>.
+        $ref: '#/$defs/nonEmptyString'
+      fields:
+        description: JSON Pointer checks on the response body.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/scenarioProbeField'
+  scenarioProbeField:
+    description: One JSON Pointer check on the probe response body.
+    type: object
+    additionalProperties: false
+    required:
+    - path
+    properties:
+      path:
+        description: The JSON Pointer of the checked value, such as /state.
+        type: string
+        pattern: '^/'
+      equals: {}
+      present:
+        description: True when the path must exist, false when it must be absent.
+        type: boolean
+    anyOf:
+    - required:
+      - equals
+    - required:
+      - present
   domainEventPage:
     type: object
     additionalProperties: false

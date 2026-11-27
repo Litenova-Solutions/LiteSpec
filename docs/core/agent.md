@@ -359,6 +359,24 @@ Test expected values come only from the scenario Then, not from code runs. Money
 
 **Reviewed for:** Does each new code shape trace to a record and its provisions, with the neighbour used only for style and each contradiction reported? Check the change beside the cited records and the neighbours it read.
 
+### Review Changed Use Cases from an Independent Packet
+
+**ID:** `litespec/core/agent#review-changed-use-cases-from-an-independent-packet`
+
+**Strength:** advisory
+
+**Applies to:** artifact: any
+
+**Statement:** A change to a use case SHOULD get a semantic review by a reader other than its author, working from the use case packet that holds the record, its judgment provisions, its neighbours and the changed code.
+
+**Deviation:** A change that alters no rule, refusal, permission or calculated value, such as a renamed label, where the author's own model check covers the change.
+
+**Rationale:** The author of a change checks it against what the author meant, so a rule that never fires, a wrong unit, or a screen that skips a permission passes the author's own review. A second reader working from the record and the changed code alone sees the change as the specification states it.
+
+**Example:** After a change to Claimwick's submit-expense handler, `litespec audit semantic --since main` writes the submit-expense packet, and a second agent reads it and reports that the receipt threshold rule is never consulted for foreign-currency expenses.
+
+**Checked by:** `litespec audit semantic` writes the packet of each changed use case and reports `code-unimplemented` for a changed line outside the tests that still holds a stub marker.
+
 ## Conventions
 
 ### Read the Full Record Before Changing a Boundary

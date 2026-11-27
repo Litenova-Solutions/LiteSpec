@@ -70,6 +70,13 @@ ui:
     designContract: packages/ui/DESIGN.md
     publicExports:
     - '@claimwick/ui/expenses'
+verify:
+  baseUrl: http://localhost:5000
+  signIn:
+  - method: GET
+    path: /auth/development/{person}
+  values:
+    expense: 9f2c1a3e4b5d4e6f8a7b1c2d3e4f5a6b
 selectedExtensions: []
 dependencies:
   licenses:

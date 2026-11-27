@@ -184,6 +184,22 @@ Generated application contracts stay deterministic: no timestamps, machine paths
 
 **Reviewed for:** Does every completion report name its commands, outcomes, scope, omissions, differences, limits, and covered use cases? Check the report beside the change.
 
+### Boot the Production Configuration Before Release
+
+**ID:** `litespec/core/release#boot-the-production-configuration-before-release`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Before a release, a server project MUST boot its production containers from the committed configuration against an empty database and confirm that the readiness path answers, each public path answers behind the forwarded https scheme, and no stub adapter serves traffic.
+
+**Rationale:** A product that only ever ran with development settings fails in production on what development hides: a missing migration, a proxy that strips the scheme, or a stand-in adapter left bound. Booting the production configuration once before release finds those failures while they cost a rerun instead of an outage.
+
+**Example:** Before the Claimwick release, the team boots the production compose file with the example environment file, migrates the empty database, and sees the readiness path answer and the expense API answer behind the proxy, with no stub mail sender bound.
+
+**Checked by:** `litespec verify production-smoke` reports `production-readiness-failed`, `path-failed` and `stub-adapter-shown` for the project that names a production block in `verify`.
+
 ## Conventions
 
 None.

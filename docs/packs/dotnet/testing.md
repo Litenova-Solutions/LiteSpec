@@ -50,6 +50,13 @@ The small pull-request subset carries a critical test trait on the LightBDD scen
 
 Scenarios run on the LightBDD runner with `xunit.v3.mtp-v2`, each pinned in the manifest. LightBDD 3.12 builds against the xUnit v3 3.2 line, so the acceptance test project runs the 3.2 line while other test projects run the current one.
 
+### Persistence Snapshot Harness
+
+A .NET consumer proves its stored documents still read by keeping one snapshot per release and a small console project that reads and writes them. On record the harness serializes one canonical instance of each stored aggregate root and outbox envelope through the product serializer and writes the snapshots; on check it deserializes every snapshot and prints one JSON object per line with the snapshot file, whether it reads, and why not.
+
+In Claimwick, the harness holds one submitted expense and one payout outbox envelope. After the team changes how the expense stores its amount, the check run prints a failed line for the earlier release, and `litespec verify persistence-compat` reports the snapshot as incompatible until the team adds the converter that reads the earlier shape.
+The harness prints only the JSON lines, one object per line, such as `{"file": ".litespec/proof/persistence-snapshots/v1/expense.json", "status": "ok", "message": ""}`. It serializes through the product serializer, not a test copy, and it holds one canonical instance of each stored document, so a passing check proves the current code reads what the earlier release stored.
+
 ## Standards
 
 None.

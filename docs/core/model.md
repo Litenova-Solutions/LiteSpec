@@ -448,6 +448,7 @@ The table below is generated from the schema's `x-reads-as` and `x-read-back-as`
 | `result` | scenario | result, derived result | ends in | is shown by |
 | `exercises` | scenario | rule | exercises | is exercised by |
 | `competesWith` | scenario | use case | competes with | is competed with by |
+| `probe.as` | scenario | person | is probed as | calls the probe of |
 | `access.recentSignInWindow` | use case | setting | is limited by | limits |
 | `access.preconditions` | use case | rule | is authorized under | authorizes |
 | `serves` | use case, reaction, job, screen | flow step | serves | is served by |

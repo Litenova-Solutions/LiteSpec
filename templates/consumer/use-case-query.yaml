@@ -102,3 +102,17 @@ scenarios:
     result: result/<use-case>.<name>
     exercises:
       - rule/<home>.<name, or remove this line>
+    probe:
+      as: person/<name, or remove this line for anonymous>
+      request:
+        method: <GET|POST|PUT|PATCH|DELETE>
+        path: <request path, such as /expenses/{expenseId}>
+        body: <request body, or remove this line>
+      expect:
+        status: <expected status, such as 200>
+        refusal: <refusal code, such as spending.receipt-missing, or remove this line>
+        fields:
+          - path: /state
+            equals: submitted
+          - path: /expenseId
+            present: true

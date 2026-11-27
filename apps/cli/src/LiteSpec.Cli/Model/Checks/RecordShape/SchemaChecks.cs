@@ -69,8 +69,8 @@ internal static class SchemaChecks
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ProjectModel, HashSet<string>> RunTargetCache = new();
 
     /// <summary>
-    ///     The use cases a reaction or job runs through its `runs` effect. Such a use case is
-    ///     reached from inside the system.
+    ///     The use cases a reaction or job runs through its `runs` effect, with the use case it runs on
+    ///     refusal. Such a use case is reached from inside the system.
     /// </summary>
     /// <param name="model">The loaded project model whose reactions and jobs declare the runs effects.</param>
     /// <returns>The identifiers of use cases that a reaction or job runs.</returns>
@@ -84,18 +84,7 @@ internal static class SchemaChecks
                 continue;
             }
 
-            if (!record.Raw.TryGetProperty(RecordFields.Effects, out var list) || list.ValueKind != JsonValueKind.Array)
-            {
-                continue;
-            }
-
-            foreach (var entry in list.EnumerateArray())
-            {
-                if (Str(entry, RecordFields.Runs) is { Length: > 0 } target)
-                {
-                    targets.Add(target);
-                }
-            }
+            targets.UnionWith(record.EdgeIds(RecordFields.Runs));
         }
 
         return targets;

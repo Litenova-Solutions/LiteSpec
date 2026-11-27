@@ -667,6 +667,24 @@
       "example": "A task naming the migration and its scope approves it. A task silent on releases leaves a release unmade."
     },
     {
+      "id": "litespec/core/agent#review-changed-use-cases-from-an-independent-packet",
+      "heading": "Review Changed Use Cases from an Independent Packet",
+      "page": "docs/core/agent.md",
+      "anchor": "review-changed-use-cases-from-an-independent-packet",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec audit semantic\u0060 writes the packet of each changed use case and reports \u0060code-unimplemented\u0060 for a changed line outside the tests that still holds a stub marker.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "advisory",
+      "statement": "A change to a use case SHOULD get a semantic review by a reader other than its author, working from the use case packet that holds the record, its judgment provisions, its neighbours and the changed code.",
+      "rationale": "The author of a change checks it against what the author meant, so a rule that never fires, a wrong unit, or a screen that skips a permission passes the author\u0027s own review. A second reader working from the record and the changed code alone sees the change as the specification states it.",
+      "example": "After a change to Claimwick\u0027s submit-expense handler, \u0060litespec audit semantic --since main\u0060 writes the submit-expense packet, and a second agent reads it and reports that the receipt threshold rule is never consulted for foreign-currency expenses."
+    },
+    {
       "id": "litespec/core/agent#scope-every-convention-to-files-it-governs",
       "heading": "Scope Every Convention to Files It Governs",
       "page": "docs/core/agent.md",
@@ -8195,6 +8213,24 @@
       "statement": "Erasure that answers a subject request MUST use \u0060reach: requested\u0060 and touch only the data the request names.",
       "rationale": "A subject asking to delete one order asks nothing about the account. The requested reach ties the erasure to the request it answers. A narrow request thus stays narrow, and a broad request names everything.",
       "example": "A reader request naming one hold erases that hold. The reader other loans stay untouched."
+    },
+    {
+      "id": "litespec/core/release#boot-the-production-configuration-before-release",
+      "heading": "Boot the Production Configuration Before Release",
+      "page": "docs/core/release.md",
+      "anchor": "boot-the-production-configuration-before-release",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec verify production-smoke\u0060 reports \u0060production-readiness-failed\u0060, \u0060path-failed\u0060 and \u0060stub-adapter-shown\u0060 for the project that names a production block in \u0060verify\u0060.",
+      "stack": "any",
+      "concern": "operations",
+      "artifact": "any",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Before a release, a server project MUST boot its production containers from the committed configuration against an empty database and confirm that the readiness path answers, each public path answers behind the forwarded https scheme, and no stub adapter serves traffic.",
+      "rationale": "A product that only ever ran with development settings fails in production on what development hides: a missing migration, a proxy that strips the scheme, or a stand-in adapter left bound. Booting the production configuration once before release finds those failures while they cost a rerun instead of an outage.",
+      "example": "Before the Claimwick release, the team boots the production compose file with the example environment file, migrates the empty database, and sees the readiness path answer and the expense API answer behind the proxy, with no stub mail sender bound."
     },
     {
       "id": "litespec/core/release#check-intent-and-behavior-changes-with-the-book",

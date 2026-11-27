@@ -4851,6 +4851,24 @@
       ]
     },
     {
+      "file": "docs/tools/audit-semantic.md",
+      "path": "tools/audit-semantic",
+      "style": "command",
+      "area": "tools",
+      "title": "Audit Semantic",
+      "intent": "\u0060litespec audit semantic\u0060 maps the files changed since a revision to the use cases they touch and writes one review packet per use case.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/tools/book.md",
       "path": "tools/book",
       "style": "command",
@@ -5145,6 +5163,60 @@
       "area": "tools",
       "title": "Upgrade Check",
       "intent": "\u0060litespec upgrade --check\u0060 reports the release changes between the reviewed LiteSpec version of the consumer and the carried release.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/verify-persistence-compat.md",
+      "path": "tools/verify-persistence-compat",
+      "style": "command",
+      "area": "tools",
+      "title": "Verify Persistence Compat",
+      "intent": "\u0060litespec verify persistence-compat\u0060 checks that every stored persistence snapshot still reads through the current serializer.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/verify-production-smoke.md",
+      "path": "tools/verify-production-smoke",
+      "style": "command",
+      "area": "tools",
+      "title": "Verify Production Smoke",
+      "intent": "\u0060litespec verify production-smoke\u0060 boots the production containers and probes them.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/verify.md",
+      "path": "tools/verify",
+      "style": "command",
+      "area": "tools",
+      "title": "Verify",
+      "intent": "\u0060litespec verify\u0060 runs every scenario probe against the running product and reports each failed expectation.",
       "sections": [
         "Name",
         "Synopsis",

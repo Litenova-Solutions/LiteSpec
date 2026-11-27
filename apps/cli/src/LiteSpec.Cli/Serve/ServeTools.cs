@@ -183,7 +183,7 @@ static class ServeTools
     /// <param name="state">The warm model the packet reads.</param>
     /// <param name="target">The file path or record id.</param>
     /// <returns>The packet text and whether the target named nothing.</returns>
-    static (string Text, bool IsError) TaskPacketText(ServeModel state, string target)
+    internal static (string Text, bool IsError) TaskPacketText(ServeModel state, string target)
     {
         if (target.Length == 0)
         {
