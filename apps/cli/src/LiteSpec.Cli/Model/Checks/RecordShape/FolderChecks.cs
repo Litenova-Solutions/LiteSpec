@@ -43,10 +43,10 @@ internal static class FolderChecks
         "intent", "behavior", "implementation", "governance", "proof",
     };
 
-    /// <summary>Generated folders the check skips: the builder owns their shape.</summary>
+    /// <summary>Generated folders the check skips: the builder owns the model and book, and the verify, audit and explore commands own their report folders.</summary>
     private static readonly HashSet<string> GeneratedFolders = new(StringComparer.Ordinal)
     {
-        "model", "book",
+        "model", "book", "verify", "audit", "explore",
     };
 
     /// <summary>Reports record-placement-invalid.</summary>

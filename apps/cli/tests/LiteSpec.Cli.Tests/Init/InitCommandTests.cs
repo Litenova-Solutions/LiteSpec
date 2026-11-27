@@ -177,7 +177,7 @@ public sealed class InitCommandTests
         Assert.Contains($"Wrote {agents}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {glossary}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {cast}.", result.Stdout, StringComparison.Ordinal);
-        Assert.Equal("model/\nbook/\n", File.ReadAllText(Path.Combine(consumer.Path, ".litespec", ".gitignore")));
+        Assert.Equal("model/\nbook/\nverify/\naudit/\nexplore/\n", File.ReadAllText(Path.Combine(consumer.Path, ".litespec", ".gitignore")));
         Assert.Contains("Fill every <placeholder> in the copied files before validating.", result.Stdout, StringComparison.Ordinal);
     }
 

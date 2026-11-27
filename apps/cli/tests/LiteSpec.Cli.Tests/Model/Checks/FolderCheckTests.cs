@@ -214,6 +214,20 @@ public sealed class FolderCheckTests
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
     }
 
+    /// <summary>The report folders the verify, audit and explore commands write are tool output, not records, and are skipped.</summary>
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void ToolReportFoldersSkipped()
+    {
+        using var temp = TestCli.Temp("checks");
+        DirAt(temp.Path, ".litespec", "verify");
+        DirAt(temp.Path, ".litespec", "audit", "semantic");
+        DirAt(temp.Path, ".litespec", "explore");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+
+        Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
+    }
+
     /// <summary>Implementation Entry Point Nesting Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]

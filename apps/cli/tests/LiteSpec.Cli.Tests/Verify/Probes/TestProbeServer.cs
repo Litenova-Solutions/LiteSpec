@@ -34,6 +34,9 @@ sealed class TestProbeServer : IDisposable
     /// <summary>Gets the request bodies the server answered, in order.</summary>
     public ConcurrentQueue<string> Bodies { get; } = new();
 
+    /// <summary>Gets the headers of every request, in arrival order.</summary>
+    public ConcurrentQueue<System.Collections.Specialized.NameValueCollection> Headers { get; } = new();
+
     /// <summary>Starts a server that answers each request from the handler.</summary>
     /// <param name="handler">The handler that answers one request with a status and a body.</param>
     /// <returns>The running server.</returns>
@@ -86,10 +89,18 @@ sealed class TestProbeServer : IDisposable
 
         Paths.Enqueue(context.Request.Url!.AbsolutePath);
         Bodies.Enqueue(body ?? string.Empty);
+        Headers.Enqueue(new System.Collections.Specialized.NameValueCollection(context.Request.Headers));
 
         var answer = handler(context.Request, body);
         var bytes = Encoding.UTF8.GetBytes(answer.Body);
         context.Response.StatusCode = answer.Status;
+
+        // A redirect answer carries its target in the body, which becomes the Location header.
+        if (answer.Status is >= 300 and < 400)
+        {
+            context.Response.RedirectLocation = answer.Body;
+        }
+
         context.Response.ContentType = "application/json";
         context.Response.ContentLength64 = bytes.Length;
 

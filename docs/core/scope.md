@@ -70,7 +70,7 @@ Every LiteSpec record, document, explanation file, and generated file in a consu
 
 Inside `.litespec/`, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own. The files `project.yaml`, `glossary.yaml`, and `cast.yaml` sit at its top level, with the cast's explanation `cast.md` beside it. Proof holds no authored records. Structured LiteSpec data is YAML; explanation files are Markdown.
 
-The tool builds its model in memory, keeps its working files in `model/`, and writes its book to `book/` under `.litespec/`. A `.gitignore` there keeps those two generated folders out of source control, so a checkout holds committed records apart from built files. A command finds the consumer by walking up from the working folder to the first folder holding `.litespec/project.yaml`.
+The tool builds its model in memory, keeps its working files in `model/`, and writes its book to `book/` under `.litespec/`; the verify, audit and explore commands write their reports to `verify/`, `audit/` and `explore/` there. A `.gitignore` there keeps those generated folders out of source control, so a checkout holds committed records apart from built files. A command finds the consumer by walking up from the working folder to the first folder holding `.litespec/project.yaml`.
 
 ### Extensions, Constraints, and the Boundary
 

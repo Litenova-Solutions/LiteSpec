@@ -14,7 +14,8 @@ namespace LiteSpec.Cli.Init;
 ///     starting agent context, glossary, and cast from <c>templates/consumer/</c>,
 ///     writes the UI quality requirements from <c>templates/consumer/requirements/</c>
 ///     as product-level requirements, and inserts the agent-protocol region into an
-///     existing <c>AGENTS.md</c> that holds none.
+///     existing <c>AGENTS.md</c> that holds none, and optionally copies the runnable
+///     starter from <c>templates/bootstrap/dotnet-svelte/</c>.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
@@ -52,7 +53,7 @@ static class InitCommand
 
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--help]
+        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--bootstrap] [--help]
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
@@ -80,6 +81,15 @@ static class InitCommand
         no release. Without --skill and without --skill-global, the command prints the
         skill add command as its last line instead of installing. When the root holds
         a CLAUDE.md that does not import AGENTS.md, the command prints a line saying so.
+        With --bootstrap, valid only with --preset dotnet-svelte, the command also copies
+        templates/bootstrap/dotnet-svelte/ from the carried release into the root after
+        writing the project file, filling __PROJECT__, __NAMESPACE__ (the PascalCase name
+        with letters and digits only) and __SCOPE__ (the lowercase package scope) in file
+        contents and path segments, and copying binary files unchanged. The template file
+        .litespec/project.bootstrap.yaml is not copied: its top-level keys (such as verify)
+        are merged into the written project file after filling the tokens. The command
+        refuses with exit 1 before writing anything when any bootstrap target file already
+        exists; --bootstrap with another preset is a usage error.
 
           --preset   One of: android-client, dotnet-svelte, records.
           --size     The project size: small or large.
@@ -88,17 +98,18 @@ static class InitCommand
           --name     The project name. Defaults to the root folder's name.
           --skill    The agents to install the skill for at project scope: one or more of claude, opencode, agents, comma separated. With --skill-global the copies are written at global scope instead.
           --skill-global  Write the skill copies under the user's home instead of the consumer. Without --skill it installs the default agents.
+          --bootstrap  Copy the runnable dotnet-svelte starter from the carried release into the root. Valid only with --preset dotnet-svelte.
           --help     Print this text and exit.
 
-        Exit codes: 0 written, 1 the release's template, preset, scaffold, requirement, or skill file is unreadable or a skill target holds a folder this tool did not write, 2 the project file exists or an option or agent is invalid.
+        Exit codes: 0 written, 1 the release's template, preset, scaffold, requirement, bootstrap, or skill file is unreadable, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, 2 the project file exists, an option or agent is invalid, or --bootstrap names another preset.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
-    /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name and skill options.</param>
-    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written or a skill target holds a folder this tool did not write, and 2 when the project file exists or an option or agent is invalid.</returns>
+    /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name, skill and bootstrap options.</param>
+    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, and 2 when the project file exists, an option or agent is invalid, or --bootstrap names another preset.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, ["--skill-global"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
+        var parsed = CliArgs.Parse(args, ["--skill-global", "--bootstrap"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
 
         if (parsed.Help)
         {
@@ -123,6 +134,13 @@ static class InitCommand
         if (preset is null || !Presets.Contains(preset))
         {
             return CommandFailure.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
+        }
+
+        var bootstrap = parsed.Has("--bootstrap");
+
+        if (bootstrap && preset != "dotnet-svelte")
+        {
+            return CommandFailure.UsageError($"--bootstrap needs --preset dotnet-svelte; preset '{preset}' cannot bootstrap.", Usage, json: false);
         }
 
         var install = parsed.Value("--install") ?? "tool";
@@ -348,6 +366,73 @@ static class InitCommand
         // kebab case: Team Expenses becomes @team-expenses/ui.
         Fill(project, "@__PROJECT__/", $"@{PackageScope(name)}/");
         Fill(project, "__PROJECT__", name);
+
+        var bootstrapPlan = new List<(string Source, string Target, byte[] Bytes)>();
+
+        if (bootstrap)
+        {
+            var namespaceName = ToNamespace(name);
+            var scopeName = PackageScope(name);
+            if (StarterFiles.Read(home, preset, out var starterError) is not { } starter)
+            {
+                CliHost.Error.WriteLine(starterError);
+                return 1;
+            }
+
+            string? overlayText = null;
+
+            foreach (var (relative, bytes) in starter)
+            {
+                if (relative == ".litespec/project.bootstrap.yaml")
+                {
+                    overlayText = System.Text.Encoding.UTF8.GetString(bytes);
+                    continue;
+                }
+
+                // A template file ending in .template, such as a project file, is written without the suffix,
+                // so the release tree holds no file a build tool would treat as its own project.
+                var filledRelative = FillBootstrapText(relative, name, namespaceName, scopeName);
+                filledRelative = filledRelative.EndsWith(TemplateSuffix, StringComparison.Ordinal) ? filledRelative[..^TemplateSuffix.Length] : filledRelative;
+                bootstrapPlan.Add((relative, Path.Combine(root, filledRelative), bytes));
+            }
+
+            // A bootstrap target that already exists refuses the run before anything is written.
+            foreach (var (_, destination, _) in bootstrapPlan)
+            {
+                if (File.Exists(destination) || Directory.Exists(destination))
+                {
+                    CliHost.Error.WriteLine($"'{destination}' already exists; litespec init --bootstrap never overwrites it.");
+                    return 1;
+                }
+            }
+
+            if (overlayText is not null)
+            {
+                JsonNode? overlayNode;
+
+                try
+                {
+                    overlayNode = RecordText.Parse(FillBootstrapText(overlayText, name, namespaceName, scopeName), yaml: true);
+                }
+                catch (JsonTextException exception)
+                {
+                    CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/bootstrap/{preset}/.litespec/project.bootstrap.yaml: {exception.Message}");
+                    return 1;
+                }
+
+                if (overlayNode is not JsonObject overlayObject)
+                {
+                    CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/bootstrap/{preset}/.litespec/project.bootstrap.yaml.");
+                    return 1;
+                }
+
+                foreach (var property in overlayObject)
+                {
+                    project[property.Key] = property.Value?.DeepClone();
+                }
+            }
+        }
+
         var unfilled = Placeholders(project).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
 
         try
@@ -366,6 +451,36 @@ static class InitCommand
         }
 
         CliHost.Out.WriteLine($"Wrote {target}.");
+
+        if (bootstrapPlan.Count > 0)
+        {
+            var namespaceName = ToNamespace(name);
+            var scopeName = PackageScope(name);
+
+            foreach (var (_, destination, bytes) in bootstrapPlan)
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+
+                    if (TryDecodeText(bytes, out var decoded))
+                    {
+                        File.WriteAllText(destination, FillBootstrapText(decoded, name, namespaceName, scopeName));
+                    }
+                    else
+                    {
+                        File.WriteAllBytes(destination, bytes);
+                    }
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+                    return 1;
+                }
+
+                CliHost.Out.WriteLine($"Wrote {destination}.");
+            }
+        }
 
         var copied = 0;
         var shapeText = (string?)project["shape"] ?? "server";
@@ -453,7 +568,7 @@ static class InitCommand
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(gitignore)!);
-                File.WriteAllText(gitignore, "model/\nbook/\n");
+                File.WriteAllText(gitignore, "model/\nbook/\nverify/\naudit/\nexplore/\n");
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
@@ -764,6 +879,74 @@ static class InitCommand
     /// <returns>The lowercase kebab-case scope form of the name.</returns>
     static string PackageScope(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9._-]+", "-").Trim('-');
+
+    /// <summary>The project name as a C# namespace stem: each letter-or-digit run capitalized and joined, with no separators.</summary>
+    /// <param name="name">The project name to convert into a namespace stem.</param>
+    /// <returns>The PascalCase namespace form of the name with letters and digits only.</returns>
+    static string ToNamespace(string name)
+    {
+        var builder = new System.Text.StringBuilder();
+
+        foreach (var part in System.Text.RegularExpressions.Regex.Split(name, "[^A-Za-z0-9]+"))
+        {
+            if (part.Length == 0)
+            {
+                continue;
+            }
+
+            builder.Append(char.ToUpperInvariant(part[0]));
+
+            if (part.Length > 1)
+            {
+                builder.Append(part, 1, part.Length - 1);
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>The suffix a starter file carries in the release so no tool treats it as live, dropped on copy.</summary>
+    const string TemplateSuffix = ".template";
+
+    /// <summary>Replaces the three bootstrap tokens in starter text or a starter path segment.</summary>
+    /// <param name="text">The template text holding the tokens.</param>
+    /// <param name="projectName">The value for <c>__PROJECT__</c>.</param>
+    /// <param name="namespaceName">The value for <c>__NAMESPACE__</c>.</param>
+    /// <param name="scopeName">The value for <c>__SCOPE__</c>.</param>
+    /// <returns>The text with every token filled.</returns>
+    static string FillBootstrapText(string text, string projectName, string namespaceName, string scopeName) =>
+        text.Replace("__PROJECT__", projectName, StringComparison.Ordinal)
+            .Replace("__NAMESPACE__", namespaceName, StringComparison.Ordinal)
+            .Replace("__SCOPE__", scopeName, StringComparison.Ordinal);
+
+    /// <summary>Decodes starter bytes as text unless they are binary.</summary>
+    /// <param name="bytes">The template file bytes.</param>
+    /// <param name="text">The decoded text, or empty when the bytes are binary.</param>
+    /// <returns>True when the bytes decode as UTF-8 text without a null byte; otherwise false for a binary file.</returns>
+    static bool TryDecodeText(byte[] bytes, out string text)
+    {
+        if (Array.IndexOf(bytes, (byte)0) >= 0)
+        {
+            text = string.Empty;
+            return false;
+        }
+
+        try
+        {
+            text = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true).GetString(bytes);
+            return true;
+        }
+        catch (System.Text.DecoderFallbackException)
+        {
+            text = string.Empty;
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            text = string.Empty;
+            return false;
+        }
+    }
 
     /// <summary>Replaces a placeholder inside every string value of the document.</summary>
     /// <param name="node">The JSON node whose string values are rewritten in place, or null when the subtree holds no value.</param>

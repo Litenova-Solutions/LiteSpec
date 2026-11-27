@@ -218,6 +218,61 @@ public sealed class VerifyCommandTests
         File.AppendAllText(project, $"{Environment.NewLine}verify:{Environment.NewLine}  values:{Environment.NewLine}{values}{Environment.NewLine}  valuesFrom: '{quoted}'{Environment.NewLine}");
     }
 
+    /// <summary>A sign-in answered with a redirect counts as signed in; the command does not follow it.</summary>
+    [Fact]
+    public void SignInRedirectCountsAsSignedIn()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddCast(temp.Path);
+        AddSignIn(temp.Path);
+        AddNamedProbe(temp.Path, "borrow-copy", "scenario/borrow-copy.after-redirect", "person/ava", 200);
+
+        using var server = TestProbeServer.Start((request, body) => request.Url!.AbsolutePath switch
+        {
+            var path when path.StartsWith("/auth/", StringComparison.Ordinal) => (302, "/"),
+            "/" => (404, "{}"),
+            _ => (200, """{"state":"lent"}"""),
+        });
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("/", server.Paths);
+    }
+
+    /// <summary>The verify headers go on every sign-in and probe request.</summary>
+    [Fact]
+    public void VerifyHeadersGoOnEveryRequest()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddCast(temp.Path);
+        AddSignIn(temp.Path);
+        File.AppendAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), $"  headers:{Environment.NewLine}    X-Library-Request: '1'{Environment.NewLine}");
+        AddNamedProbe(temp.Path, "borrow-copy", "scenario/borrow-copy.with-header", "person/ava", 200);
+
+        using var server = TestProbeServer.Start((request, body) => (200, """{"state":"lent"}"""));
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.Equal(2, server.Headers.Count);
+        Assert.All(server.Headers, headers => Assert.Equal("1", headers["X-Library-Request"]));
+    }
+
+    /// <summary>Without verify headers no extra header is sent.</summary>
+    [Fact]
+    public void NoVerifyHeadersSendsNone()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddCast(temp.Path);
+        AddSignIn(temp.Path);
+        AddNamedProbe(temp.Path, "borrow-copy", "scenario/borrow-copy.without-header", "person/ava", 200);
+
+        using var server = TestProbeServer.Start((request, body) => (200, """{"state":"lent"}"""));
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.All(server.Headers, headers => Assert.Null(headers["X-Library-Request"]));
+    }
+
     /// <summary>Two probes of one person sign that person in once.</summary>
     [Fact]
     public void ProbeSignsPersonInOnce()

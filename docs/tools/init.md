@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--help]
+litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--bootstrap] [--help]
 ```
 
 ## Description
@@ -28,7 +28,7 @@ Three presets ship with the release:
 
 The `records` preset claims `intent` and `behavior` in `layers` and lists no stacks and no frontends. Every other preset keeps the layers of the template, which claims all four. Every written project file validates against `schemas/litespec-project.schema.yaml`.
 
-Beyond the project file, the command copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the cast at `.litespec/cast.yaml`, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. Files that already exist are left alone.
+Beyond the project file, the command copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the cast at `.litespec/cast.yaml`, and writes `.litespec/.gitignore` listing the generated `model/`, `book/`, `verify/`, `audit/` and `explore/` folders. Files that already exist are left alone.
 
 For a preset that writes the consumer scaffold, it also writes the six UI quality requirements of the consumer preset, one folder each under `.litespec/intent/requirements/<name>/`: `ui-text-contrast`, `ui-control-boundary`, `ui-focus-indicator`, `ui-chart-series`, `ui-reflow`, and `ui-target-size`. Each names a constraint or goal the project cites, with the measure and target its check proves.
 
@@ -43,6 +43,8 @@ Without `--skill` and without `--skill-global`, nothing is installed: the comman
 When a target holds a folder this tool did not write, that folder is left alone and the run fails, while the project file stays written.
 
 When the root holds a `CLAUDE.md` that does not import `AGENTS.md`, the command prints a line saying so, since Claude Code reads `AGENTS.md` only through that import.
+
+With `--bootstrap`, valid only with `--preset dotnet-svelte`, the command also copies the runnable starter from `templates/bootstrap/dotnet-svelte/` in the carried release into the root after writing the project file. It fills three tokens in file contents and in path segments: `__PROJECT__` with the project name, `__NAMESPACE__` with the PascalCase name with letters and digits only (`Team Expenses` becomes `TeamExpenses`), and `__SCOPE__` with the lowercase package scope (`team-expenses`). Binary files are copied unchanged. The template file `.litespec/project.bootstrap.yaml` is not copied: its top-level keys (such as `verify`) are merged into the written project file after filling the tokens. The command checks every bootstrap target before writing anything and refuses with exit code 1 when any target file already exists; `--bootstrap` with another preset is a usage error.
 
 ## Arguments
 
@@ -59,6 +61,7 @@ None.
 | `--name <project>` | the root folder's name | Sets the project name. |
 | `--skill <agent>[,<agent>]` | off | Installs the skill at project scope for the named agents: one or more of `claude`, `opencode`, `agents`, comma separated. With `--skill-global` the copies are written at global scope instead. |
 | `--skill-global` | off | Writes the skill copies under the user's home instead of the consumer. Without `--skill` it installs the default agents. |
+| `--bootstrap` | off | Copies the runnable dotnet-svelte starter from the carried release into the root. Valid only with `--preset dotnet-svelte`. |
 | `--help` | off | Prints the synopsis, the options, and the exit codes, then exits zero. |
 
 ## Exit Codes
@@ -66,8 +69,8 @@ None.
 | Code | Meaning |
 |:--|:--|
 | `0` | The project file was written. |
-| `1` | The release holds no readable template, preset, scaffold file, skill file, or version, or a skill target holds a folder this tool did not write. |
-| `2` | The root folder is missing or invalid, the project file already exists, the preset, size, install, or agent is invalid, or an option is unknown, repeated, or empty. A usage error is reported before `--help` is honored. |
+| `1` | The release holds no readable template, preset, scaffold file, skill file, bootstrap file, or version, a skill target holds a folder this tool did not write, or a bootstrap target file already exists. |
+| `2` | The root folder is missing or invalid, the project file already exists, the preset, size, install, or agent is invalid, `--bootstrap` names another preset, or an option is unknown, repeated, or empty. A usage error is reported before `--help` is honored. |
 
 ## Examples
 
@@ -107,8 +110,14 @@ Start a small consumer and install the skill for every project of the user:
 litespec init --preset dotnet-svelte --size small --root ./shop --skill agents --skill-global
 ```
 
+Start a small consumer with the runnable starter:
+
+```bash
+litespec init --preset dotnet-svelte --size small --name "Team Expenses" --bootstrap
+```
+
 ## Underneath
 
-The command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. The scaffold files come from `templates/consumer/`: the glossary as `.litespec/glossary.yaml` and the cast as `.litespec/cast.yaml`. The command writes `.litespec/.gitignore` with literal content listing the generated `model/` and `book/` folders. A tool install adds `.config/dotnet-tools.json`. The `agent-protocol` region comes from `templates/consumer/project-agents.md`.
+The command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. The scaffold files come from `templates/consumer/`: the glossary as `.litespec/glossary.yaml` and the cast as `.litespec/cast.yaml`. The command writes `.litespec/.gitignore` with literal content listing the generated `model/`, `book/`, `verify/`, `audit/` and `explore/` folders. A tool install adds `.config/dotnet-tools.json`. The `agent-protocol` region comes from `templates/consumer/project-agents.md`.
 
-With `--skill`, the skill copies come from `templates/skill/litespec/` in the same way the [Skill](skill.md) page states, and `LITESPEC_SKILL_HOME` points the global scope at another home folder. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.
+With `--skill`, the skill copies come from `templates/skill/litespec/` in the same way the [Skill](skill.md) page states, and `LITESPEC_SKILL_HOME` points the global scope at another home folder. With `--bootstrap`, the starter copies come from `templates/bootstrap/dotnet-svelte/`, with the three tokens filled in contents and path segments, binary files passed through unchanged, and `.litespec/project.bootstrap.yaml` merged into the written project file instead of copied. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.

@@ -118,7 +118,27 @@
         <Content Include="../../../../litespec.manifest.yaml" Link="litespec.manifest.yaml" CopyToPublishDirectory="PreserveNewest" Pack="false" />
         <Content Include="../../../../schemas/**" Link="schemas/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />
         <Content Include="../../../../docs/**" Link="docs/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />
-        <Content Include="../../../../templates/**" Link="templates/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />
+        <Content Include="../../../../templates/**" Exclude="../../../../templates/bootstrap/**" Link="templates/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />
     </ItemGroup>
+
+    <!--
+        Each runnable starter ships as one archive, templates/bootstrap/<preset>.zip, because its own
+        paths run past the 128 characters a NuGet package path may hold (NU5123). litespec init reads the
+        folder in a repository checkout and the archive in an installed tool.
+    -->
+    <Target Name="ZipBootstrapStarters" BeforeTargets="AssignTargetPaths">
+        <ItemGroup>
+            <_BootstrapStarter Include="$([System.IO.Directory]::GetDirectories('$(MSBuildThisFileDirectory)../../../../templates/bootstrap'))" />
+        </ItemGroup>
+        <MakeDir Directories="$(IntermediateOutputPath)bootstrap" />
+        <ZipDirectory SourceDirectory="%(_BootstrapStarter.Identity)" DestinationFile="$(IntermediateOutputPath)bootstrap/%(_BootstrapStarter.Filename)%(_BootstrapStarter.Extension).zip" Overwrite="true" />
+        <ItemGroup>
+            <Content Include="@(_BootstrapStarter->'$(IntermediateOutputPath)bootstrap/%(Filename)%(Extension).zip')">
+                <Link>templates/bootstrap/%(Filename).zip</Link>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <Pack>false</Pack>
+            </Content>
+        </ItemGroup>
+    </Target>
 
 </Project>

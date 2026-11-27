@@ -37,17 +37,28 @@ internal sealed class ProbeSession : IDisposable
     /// <param name="baseUrl">The API host address the requests run against.</param>
     /// <param name="signIn">The sign-in requests, run in order.</param>
     /// <param name="values">The fixed values a path or body names as {name}.</param>
+    /// <param name="headers">The headers sent on every request of the session.</param>
     /// <returns>The signed-in session.</returns>
     /// <exception cref="ProbeUnreachableException">The host or the sign-in could not be reached.</exception>
     public static ProbeSession SignIn(
         string? person,
         string baseUrl,
         IReadOnlyList<VerifyRequest> signIn,
-        IReadOnlyDictionary<string, string> values)
+        IReadOnlyDictionary<string, string> values,
+        IReadOnlyDictionary<string, string> headers)
     {
         var cookies = new CookieContainer();
-        var handler = new HttpClientHandler { CookieContainer = cookies, AllowAutoRedirect = true };
+
+        // The session never follows a redirect: a sign-in that redirects has set its cookie, and a probe sees the
+        // answer the host gave, not the page a redirect leads to.
+        var handler = new HttpClientHandler { CookieContainer = cookies, AllowAutoRedirect = false };
         var client = new HttpClient(handler) { BaseAddress = new Uri(EnsureSlash(baseUrl)), Timeout = TimeSpan.FromSeconds(10) };
+
+        foreach (var (name, value) in headers)
+        {
+            client.DefaultRequestHeaders.TryAddWithoutValidation(name, value);
+        }
+
         var session = new ProbeSession(person, client, cookies);
 
         try

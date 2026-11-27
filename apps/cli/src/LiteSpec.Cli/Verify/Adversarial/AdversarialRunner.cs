@@ -322,7 +322,7 @@ internal static class AdversarialRunner
 
         try
         {
-            var session = ProbeSession.SignIn(person, baseUrl, config.Verify.SignIn, VerifyValues.Of(config));
+            var session = ProbeSession.SignIn(person, baseUrl, config.Verify.SignIn, VerifyValues.Of(config), config.Verify.Headers);
             sessions[key] = session;
             return session;
         }
