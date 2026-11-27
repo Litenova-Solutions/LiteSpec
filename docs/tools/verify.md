@@ -33,7 +33,7 @@ In Claimwick, the submit-expense scenario that files a train fare carries a prob
 
 `litespec verify --adversarial` replays every scenario probe the command above collects through three hostile matrices and reports each weakness the replay exposes. With `--use-case` it replays only the probes of that use case, such as `use-case/spending.submit-expense`.
 
-Access replays every probe with `as` that expects 2xx with no session. A 2xx reply is an `access-limit-failed` finding: the use case answers a caller it should refuse. Race sends every probe of a command use case whose `idempotency.mode` is `key` or `state` five times at once. Any 5xx is an `idempotency-failed` finding, and so are two 2xx replies with different bodies: the repeat ran twice instead of returning one result.
+Access replays every probe with `as` that expects 2xx with no session. A 2xx reply is an `access-limit-failed` finding: the use case answers a caller it should refuse. Race sends every write probe (any method but GET, HEAD and OPTIONS) of a command use case whose `idempotency.mode` is `key` or `state` five times at once; a read probe on such a scenario reads back what the command left, so it is not raced. Any 5xx is an `idempotency-failed` finding, and so are two 2xx replies with different bodies: the repeat ran twice instead of returning one result.
 
 Input replays every probe with a JSON object body once per top-level property with that value's JSON type swapped, and once with a 10,000-character string. Text swaps to `12345`, a number swaps to `"x"`, a true or false value swaps to `"x"`, and an object or array swaps to `"x"`. A 5xx is an `input-handling-failed` finding; a 2xx to a swapped type is an `input-validation-failed` finding.
 

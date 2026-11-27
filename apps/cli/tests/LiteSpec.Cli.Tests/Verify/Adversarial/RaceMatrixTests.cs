@@ -23,6 +23,23 @@ public sealed class RaceMatrixTests
         Assert.Equal(5, server.Paths.Count);
     }
 
+    /// <summary>A read probe on an idempotent command's scenario is not raced: only a write can run twice.</summary>
+    [Fact]
+    public void ReadProbeIsNotRaced()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AdversarialFixture.PatchIdempotencyKey(temp.Path, "borrow-copy");
+        AdversarialFixture.AddProbe(temp.Path, "borrow-copy", "scenario/borrow-copy.adversarial-race-read", null, "GET", "/api/loans/l1", null, 200);
+
+        var calls = 0;
+        using var server = TestProbeServer.Start((request, body) => (200, $$"""{"read":{{Interlocked.Increment(ref calls)}}}"""));
+        var result = AdversarialFixture.RunAdversarial(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.Empty(AdversarialFixture.ReportCodes(temp.Path));
+        Assert.True(server.Paths.Count < 5, "the read was raced");
+    }
+
     /// <summary>Repeats that share one success body report nothing.</summary>
     [Fact]
     public void RepeatsThatShareOneBodyReportNothing()

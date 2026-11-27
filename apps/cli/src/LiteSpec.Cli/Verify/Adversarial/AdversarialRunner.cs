@@ -144,7 +144,9 @@ internal static class AdversarialRunner
         ProbeCase probe,
         IReadOnlySet<string> raceOwners)
     {
-        if (!raceOwners.Contains(probe.OwnerId))
+        // Only a write can run twice: a read probe on a command's scenario reads back what the command left, and a
+        // read whose answer names its read moment differs per call by design.
+        if (!raceOwners.Contains(probe.OwnerId) || probe.Method is "GET" or "HEAD" or "OPTIONS")
         {
             return true;
         }
