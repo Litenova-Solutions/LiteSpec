@@ -144,6 +144,9 @@ sealed class ConsumerConfig
     /// <summary>Gets the tenant glossary term id the top-level <c>tenancy</c> block names in <c>tenant</c>; empty when the project declares no tenancy.</summary>
     public string TenancyTenantTerm { get; private set; } = "";
 
+    /// <summary>Gets the top-level <c>verify</c> block: the API host, the sign-in requests, the probe values and the persistence and production settings.</summary>
+    public VerifyConfig Verify { get; private set; } = VerifyConfig.Empty;
+
     /// <summary>Gets the mark style the project declares.</summary>
     public MarkStyle Marks { get; private set; } = MarkStyle.Xml;
 
@@ -335,6 +338,7 @@ sealed class ConsumerConfig
         config.TestRoots = ReadRoots(config.Root, paths, "testRoots", []);
         config.Frontends = ReadFrontends(config.Root, document);
         config.Sync = ReadSyncTargets(document);
+        config.Verify = VerifyConfig.Read(ObjectAt(document, "verify"));
         config.ApiClientSrc = Path.Combine(
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
 
