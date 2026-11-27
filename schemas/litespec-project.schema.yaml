@@ -474,6 +474,10 @@ properties:
         type: object
         additionalProperties:
           type: [string, number, boolean]
+      valuesFrom:
+        description: A command run from the consumer root whose output is one JSON object of values, such as the identities a fresh seed created. Its values overlay the fixed values.
+        type: string
+        minLength: 1
       persistence:
         description: The consumer harness the persistence check runs; LiteSpec appends record or check and the snapshot folder.
         type: object

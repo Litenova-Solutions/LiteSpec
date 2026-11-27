@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model;
@@ -32,70 +30,7 @@ internal static class PersistenceHarness
     {
         var script = $"{command} {mode} \"{folder}\"";
 
-        if (OperatingSystem.IsWindows())
-        {
-            return RunWindows(script, root);
-        }
-
-        return ProcessRunner.Capture("/bin/sh", ["-c", script], root, Timeout);
-    }
-
-    /// <summary>Runs the harness through the Windows shell with a verbatim command line.</summary>
-    /// <param name="script">The harness command with its mode and snapshot folder.</param>
-    /// <param name="root">The consumer root the harness runs in.</param>
-    /// <returns>The captured harness run.</returns>
-    private static ProcessRunner.Result RunWindows(string script, string root)
-    {
-        // The argument list escapes inner quotes with a backslash, which the Windows shell
-        // does not read, so the shell takes its command line verbatim here instead. The one
-        // outer pair with /S keeps every inner quote the harness command carries intact.
-        var start = new ProcessStartInfo("cmd.exe")
-        {
-            Arguments = "/D /S /C \"" + script + "\"",
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            WorkingDirectory = root,
-        };
-
-        try
-        {
-            using var process = Process.Start(start)!;
-            using var output = new MemoryStream();
-            var stdout = Task.Run(() => process.StandardOutput.BaseStream.CopyTo(output));
-            var stderr = process.StandardError.ReadToEndAsync();
-
-            try
-            {
-                process.StandardInput.Write(string.Empty);
-                process.StandardInput.Close();
-            }
-            catch (IOException)
-            {
-                // The harness exited before reading its input; its exit code and output report why.
-            }
-
-            if (!process.WaitForExit(Timeout) || !stdout.Wait(Timeout))
-            {
-                try
-                {
-                    process.Kill(entireProcessTree: true);
-                }
-                catch (InvalidOperationException)
-                {
-                    // The harness exited between the wait and the kill.
-                }
-
-                return new ProcessRunner.Result(1, [], "cmd.exe did not finish in 300 seconds.", TimedOut: true);
-            }
-
-            return new ProcessRunner.Result(process.ExitCode, output.ToArray(), stderr.GetAwaiter().GetResult());
-        }
-        catch (Win32Exception)
-        {
-            return new ProcessRunner.Result(1, [], "cmd.exe is not available.");
-        }
+        return ShellCommand.Run(script, root, Timeout);
     }
 
     /// <summary>Reads every snapshot line the harness prints, in order, skipping blank lines.</summary>

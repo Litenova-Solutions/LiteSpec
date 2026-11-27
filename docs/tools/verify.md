@@ -17,6 +17,8 @@ The command loads the project model as `litespec model check` does and selects e
 
 Each probe names the caller in `as`, the request in `request`, and the expected response in `expect`. An omitted `as` means anonymous. The `request` names the HTTP `method`, the `path` with `{name}` placeholders resolved from `verify.values`, and the optional `body` with the same placeholders inside strings. The `expect` names the `status`, the optional `refusal` code, and the optional `fields` checks.
 
+A `{name}` placeholder reads `verify.values`. When `verify.valuesFrom` names a command, the command runs it once from the consumer root before the first probe, and the JSON object it prints overlays the fixed values, so a probe can name the expense a fresh seed created. A values command that fails or prints no JSON object is a `probe-unreachable` finding for every probe, and no request is sent.
+
 The command signs each cast person in once through the `verify.signIn` requests, in order, with one cookie container per person. A sign-in path names the person as `{person}` without the `person/` prefix, such as `ava` for `person/ava`. An anonymous probe sends with no session. The request goes to `--base-url` when it is passed, else to `verify.baseUrl` of the project file.
 
 The command compares the answered status with the expected status, the refusal with the problem the host answered, and each field with the response body. A refusal matches when the problem `code` equals the named code or the problem `type` ends with `/<code>`. Each field names a JSON Pointer `path` with either `equals` for the exact value or `present` for whether the path exists.

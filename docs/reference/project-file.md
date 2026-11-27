@@ -71,7 +71,7 @@ The schema states the `criterion` saying why one deployment serves many separate
 
 ### The `verify` Object
 
-The schema states how the verify commands reach the running product: `baseUrl` for the API host, `signIn` for the requests that sign one cast person in with `{person}` standing for the person id without its `person/` prefix, `values` for the fixed values a probe names as `{name}`, `persistence.command` for the consumer harness the persistence check runs, and `production` for the compose file, environment file, address, optional `migrate` command, `health` path, and `paths` the production smoke requests. A project without black-box verification omits the object. In Claimwick, `signIn` holds one `GET /auth/development/{person}` request, so a probe written `as: person/ava` runs with Ava's session.
+The schema states how the verify commands reach the running product: `baseUrl` for the API host, `signIn` for the requests that sign one cast person in with `{person}` standing for the person id without its `person/` prefix, `values` for the fixed values a probe names as `{name}`, `valuesFrom` for a command whose JSON object output overlays them with values such as the identities a fresh seed created, `persistence.command` for the consumer harness the persistence check runs, and `production` for the compose file, environment file, address, optional `migrate` command, `health` path, and `paths` the production smoke requests. A project without black-box verification omits the object. In Claimwick, `signIn` holds one `GET /auth/development/{person}` request, so a probe written `as: person/ava` runs with Ava's session.
 
 ### A `selectedExtensions` Entry
 

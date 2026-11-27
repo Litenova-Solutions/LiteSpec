@@ -10,17 +10,19 @@ namespace LiteSpec.Cli.Model.Configuration;
 /// <param name="BaseUrl">The API host address, or null when the declaration names none.</param>
 /// <param name="SignIn">The requests that sign one cast person in, in order.</param>
 /// <param name="Values">The fixed values a probe path or body names as {name}.</param>
+/// <param name="ValuesFrom">The command whose JSON object output overlays the fixed values, or null for none.</param>
 /// <param name="Persistence">The persistence harness, or null when the declaration names none.</param>
 /// <param name="Production">The production smoke settings, or null when the declaration names none.</param>
 sealed record VerifyConfig(
     string? BaseUrl,
     IReadOnlyList<VerifyRequest> SignIn,
     IReadOnlyDictionary<string, string> Values,
+    string? ValuesFrom,
     VerifyPersistence? Persistence,
     VerifyProduction? Production)
 {
     /// <summary>Gets the settings of a declaration with no <c>verify</c> block.</summary>
-    public static VerifyConfig Empty { get; } = new(null, [], new Dictionary<string, string>(StringComparer.Ordinal), null, null);
+    public static VerifyConfig Empty { get; } = new(null, [], new Dictionary<string, string>(StringComparer.Ordinal), null, null, null);
 
     /// <summary>Reads the <c>verify</c> block, or returns <see cref="Empty"/> when the block is absent.</summary>
     /// <param name="block">The <c>verify</c> object of the declaration, or null.</param>
@@ -76,7 +78,7 @@ sealed record VerifyConfig(
             production = new VerifyProduction(compose, envFile, smokeUrl, Text(smoke, "migrate"), health, paths);
         }
 
-        return new VerifyConfig(Text(block, "baseUrl"), signIn, values, persistence, production);
+        return new VerifyConfig(Text(block, "baseUrl"), signIn, values, Text(block, "valuesFrom"), persistence, production);
     }
 
     /// <summary>The non-empty string a property holds, or null.</summary>

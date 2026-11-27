@@ -151,6 +151,73 @@ public sealed class VerifyCommandTests
         Assert.Contains("l1", seenBody);
     }
 
+    /// <summary>The values command output fills a probe path and overrides a fixed value of the same name.</summary>
+    [Fact]
+    public void ValuesFromOverlaysTheFixedValues()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddValuesBlock(temp.Path, "    loan: l1", ValuesCommand("process.stdout.write(JSON.stringify({loan:'l2'}))"));
+        AddValuesProbe(temp.Path);
+
+        string seenPath = string.Empty;
+        using var server = TestProbeServer.Start((request, body) =>
+        {
+            seenPath = request.Url!.AbsolutePath;
+            return (200, """{"state":"lent"}""");
+        });
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.Equal("/api/loans/l2", seenPath);
+    }
+
+    /// <summary>A values command that fails reports the probe as unreachable and sends nothing.</summary>
+    [Fact]
+    public void FailingValuesCommandReportsUnreachable()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddValuesBlock(temp.Path, "    loan: l1", ValuesCommand("process.exit(3)"));
+        AddValuesProbe(temp.Path);
+
+        using var server = TestProbeServer.Start((request, body) => (200, """{"state":"lent"}"""));
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(1, result.Status);
+        Assert.Contains("[probe-unreachable]", result.Stdout, StringComparison.Ordinal);
+        Assert.Empty(server.Paths);
+    }
+
+    /// <summary>A values command that prints no JSON object reports the probe as unreachable.</summary>
+    [Fact]
+    public void ValuesCommandWithoutJsonObjectReportsUnreachable()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddValuesBlock(temp.Path, "    loan: l1", ValuesCommand("process.stdout.write('[1]')"));
+        AddValuesProbe(temp.Path);
+
+        using var server = TestProbeServer.Start((request, body) => (200, """{"state":"lent"}"""));
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(1, result.Status);
+        Assert.Contains("[probe-unreachable]", result.Stdout, StringComparison.Ordinal);
+    }
+
+    /// <summary>A node command line that runs the script, quoted for both the Windows shell and sh.</summary>
+    /// <param name="script">The JavaScript to run.</param>
+    /// <returns>The command line.</returns>
+    static string ValuesCommand(string script) => $"node -e \"{script}\"";
+
+    /// <summary>Adds the verify block with fixed values and a values command.</summary>
+    /// <param name="root">The fixture root.</param>
+    /// <param name="values">The fixed value lines, indented under values.</param>
+    /// <param name="command">The values command.</param>
+    static void AddValuesBlock(string root, string values, string command)
+    {
+        var project = Path.Combine(root, ".litespec", "project.yaml");
+        var quoted = command.Replace("'", "''", StringComparison.Ordinal);
+        File.AppendAllText(project, $"{Environment.NewLine}verify:{Environment.NewLine}  values:{Environment.NewLine}{values}{Environment.NewLine}  valuesFrom: '{quoted}'{Environment.NewLine}");
+    }
+
     /// <summary>Two probes of one person sign that person in once.</summary>
     [Fact]
     public void ProbeSignsPersonInOnce()
