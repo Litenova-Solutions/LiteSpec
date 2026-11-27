@@ -1,0 +1,9 @@
+type: entry-point
+id: entry-point/__SCOPE__-app
+title: __PROJECT__ App
+summary: The __PROJECT__ app is the Android app where the visitor looks over recorded check-ins. Every Health screen in these records is reached through it, so it is the only entry point of the starter.
+kind: device
+authentication:
+- none
+audience:
+- actor/health-visitor

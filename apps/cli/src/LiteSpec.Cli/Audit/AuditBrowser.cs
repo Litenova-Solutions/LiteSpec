@@ -10,6 +10,9 @@ namespace LiteSpec.Cli.Audit;
 /// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 static class AuditBrowser
 {
+    /// <summary>Gets or sets the runner for one browser run: the options, routes, script and output folder to the run, or null to run the installed browser. Tests set it to a canned run.</summary>
+    internal static Func<AuditOptions, IReadOnlyList<AuditRoute>, string, string, Task<Run?>>? Runner { get; set; }
+
     /// <summary>The viewport height for every audited width.</summary>
     const int ViewportHeight = 900;
 
@@ -31,6 +34,11 @@ static class AuditBrowser
     internal static async Task<Run?> RunAsync(
         AuditOptions options, IReadOnlyList<AuditRoute> routes, string script, string outDir)
     {
+        if (Runner is not null)
+        {
+            return await Runner(options, routes, script, outDir);
+        }
+
         var browserPath = AuditBrowserDiscovery.Find(options.Browser);
 
         if (browserPath is null)

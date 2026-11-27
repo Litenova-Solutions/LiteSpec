@@ -1,0 +1,36 @@
+type: screen
+id: screen/__SCOPE__-app.check-in-list
+title: Check-in List
+summary: Ava scans the recorded check-ins to find one, opens it, or records a new one.
+route: /check-ins
+offers:
+- use-case/health.list-check-ins
+- use-case/health.record-check-in
+fieldSources:
+- field: checkInId
+  from: use-case/health.list-check-ins
+- field: recordedAt
+  from: use-case/health.list-check-ins
+- field: note
+  from: use-case/health.list-check-ins
+- field: state
+  from: use-case/health.list-check-ins
+serves:
+- step/look-over-check-ins.watch-check-ins
+- step/look-over-check-ins.record-check-in
+fulfills:
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
+leadsTo:
+- screen/__SCOPE__-app.check-in-record
+- screen/__SCOPE__-app.home
+job: Ava scans the recorded check-ins to find one, opens it, or records a new one.
+archetype: ListPage
+states:
+- name: Loading
+  shows: The rows show as placeholders while the check-ins load.
+- name: Empty
+  shows: The list says no check-in is recorded yet and offers to record one.
+- name: Failed
+  shows: The list says the check-ins are unavailable and offers to try again.

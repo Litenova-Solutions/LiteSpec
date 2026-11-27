@@ -582,6 +582,59 @@ Checks now compare code with the record field by field, generated code replaces 
 - `reviewedLiteSpecVersion` accepts a development-feed version (`-dev.N`). A push to `release/*` publishes the CLI and analyzers to GitHub Packages, and `litespec-maintain publish-local --from-ci <run>` pins a consumer to that build.
 - The test suite compiles the whole Claimwick backend.
 
+### Part BG: Scenario Probes and the Verify Commands
+
+`litespec verify` runs every scenario probe against the running product and reports each failed expectation. Three subcommands cover the remaining verification shapes: adversarial replay, stored snapshot compatibility, and the production smoke.
+
+- A probe names its caller in `as`, its request in `request`, and its expected response in `expect`. An omitted `as` means anonymous. The `request` names the HTTP `method`, the `path` with `{name}` placeholders resolved from `verify.values`, and the optional `body` with the same placeholders inside strings. The `expect` names the `status`, the optional `refusal` code, and the optional `fields` checks, each with either `equals` for the exact value or `present` for whether the path exists.
+- The command signs each cast person in once through the `verify.signIn` requests, with `{person}` standing for the person id without its `person/` prefix, and sends every sign-in and probe request with the `verify.headers`. The request goes to `--base-url` when passed, else to `verify.baseUrl`. A failed status, refusal, or field is a `probe-failed` finding, a host or sign-in the command cannot reach is a `probe-unreachable` finding, and the run writes `.litespec/verify/report.json`. In Claimwick, the submit-expense scenario carries a probe as `person/ava` posting to `/api/expenses` and expecting `201` with `/state` equal to `submitted`.
+- `litespec verify --adversarial` replays every collected probe through three hostile matrices. Access replays each probe that expects 2xx with no session, and a 2xx reply is an `access-limit-failed` finding. Race sends each probe of a command use case with `key` or `state` idempotency five times at once, and any 5xx or two 2xx replies with different bodies is an `idempotency-failed` finding. Input replays each probe with a JSON object body once per top-level property with that value type swapped, plus once with a 10,000-character string, and a 5xx is an `input-handling-failed` finding while a 2xx to a swapped type is an `input-validation-failed` finding. The run writes `.litespec/verify/adversarial.json`.
+- `litespec verify persistence-compat` runs the persistence harness the project file names in `verify.persistence.command` and reports the stored snapshots that no longer read. Snapshots live at `.litespec/proof/persistence-snapshots/<release>/<name>.json`, one folder per release. A failed snapshot line is a `snapshot-read-failed` finding, a release folder with no snapshot is a `snapshot-missing` finding, and the run writes `.litespec/verify/persistence-compat.json`.
+- `litespec verify production-smoke` boots the production containers and probes them. The `production` block names the compose file, the env file, the base address, the optional `migrate` command, the `health` path, and the smoke `paths`. The smoke brings the compose file up, runs the migration when named, polls the health path for up to 120 seconds, then requests each path with `X-Forwarded-Proto: https`. A host that never answers 2xx is `production-readiness-failed`, a path that answers 5xx or gives no answer is `path-failed`, and a readiness body listing a stand-in in `stubAdapters` is `stub-adapter-shown`. The down command always runs, so a smoke never leaves containers behind, and the run writes `.litespec/verify/production-smoke.json`.
+
+### Part BH: Semantic Review Packets
+
+`litespec audit semantic` maps the files changed since a revision to the use cases they touch and writes one review packet per use case.
+
+- The command lists the files changed since `--since` from the tracked differences plus the untracked files, leaving out the audit output it writes itself. Each changed file maps to the use cases whose marked code or records hold it, and each mapped use case gets one packet at `.litespec/audit/semantic/<use-case-name>.md` holding the task packet, the changed record and code files, and the current content of each changed code file.
+- A changed line outside the tests holding `NotImplementedException`, `TODO`, or `throw new Error("not implemented")` is a `code-unimplemented` finding with its file, line, and first use case. The command writes `.litespec/audit/semantic.json` with the revision, the use-case identifiers, the packet paths, and the findings, and exits 0 when no changed line holds a stub marker and 1 when one does.
+
+### Part BI: The Runnable Starter
+
+`litespec init --bootstrap` copies a runnable starter beside the project file, so a new consumer builds, boots, and passes the gates with no hand edit.
+
+- The flag is valid only with a preset that carries a starter: `dotnet-svelte` and `android-client`. The command copies `templates/bootstrap/<preset>/` from the carried release into the root, filling `__PROJECT__` with the project name, `__NAMESPACE__` with the PascalCase name, and `__SCOPE__` with the lowercase package scope in contents and path segments, passing binary files through unchanged. The template file `.litespec/project.bootstrap.yaml` is not copied: its top-level keys are merged into the written project file. The command checks every bootstrap target before writing anything and refuses with exit code 1 when any target file already exists.
+- The `dotnet-svelte` starter carries the Health sample with its module, use cases, scenarios, probes, screens, entry point, cast, glossary terms, and `verify` block, whose `valuesFrom` command records the check-in its read probe names. Its gate is a fresh folder with no hand edit: `dotnet build` with 0 warnings and 0 errors, `pnpm install` with the web check and lint, `litespec sync --check`, the API boot, `litespec verify` passing every probe, the route suite and `litespec ui audit` passing signed in, and `litespec model check` with 0 findings.
+- The `android-client` starter carries the same sample as a client that reads check-ins from the API and keeps the last list in app-private storage. Its project file claims no browser routes, so `init` leaves out the two requirements that name `route-suite`. A fresh copy reports 0 findings in `litespec model check`, and its core projects build with 0 warnings.
+- The starter ships in the tool package as `templates/bootstrap/<preset>.zip`, which keeps every packed path within the NuGet path limit. Project and solution files carry a `.template` suffix in the release, so the repository build never picks them up, and `init` drops the suffix as it writes them.
+
+### Part BJ: Refused Runs Recorded on the Reacting Side
+
+A reaction or job that runs another module's public use case can name the use case of its own module that records a refusal of that run.
+
+- The triggered effect entry carries `onRefusal` beside `runs`, naming the recording use case. A refusal commits nothing, so the recording run never follows a committed one, and the record states both runs and their order. In the library, the loan-returned reaction in Lending runs Billing's settle-fine use case, and when Billing refuses because the member account is closed, it runs `use-case/lending.record-fine-refused`.
+- `model check` reports `record-invalid` for an `onRefusal` on an effect with no `runs`. The one-use-case count ignores the recording use case, while the access, reach, locality, and proof checks cover it. The layer check exempts the recording command: a reaction or job may name the command of another use case inside a `catch` for the refusal run its record names in `onRefusal`.
+
+Decision 0127, Record a Refused Run on the Reacting Side, records why.
+
+### Part BK: Project File Blocks for Verification and Tenancy
+
+The project file gains the `verify` block that tells the verify commands how the running product is reached, and the `tenancy` block that states the product serves many customers.
+
+- The `verify` block states `baseUrl` for the API host, `signIn` for the requests that sign one cast person in with `{person}` standing for the person id, `values` for the fixed values a probe names as `{name}`, `headers` sent on every sign-in and probe request, `valuesFrom` for a command whose JSON object output overlays the fixed values, `persistence.command` for the consumer harness the persistence check runs, and `production` for the compose file, env file, address, optional `migrate` command, `health` path, and smoke `paths`. A project without black-box verification omits the object.
+- The `tenancy` block states the `criterion` saying why one deployment serves many separate customers and the `tenant` glossary term naming one tenant. A product serving one customer omits the object. A tenant term no record holds is a `reference-unknown` finding, and the tenant identity on each command and query of a use case with `access.tenant` of `own` is implied rather than declared as an input.
+
+### Part BL: Proof from Probes and Measured UI Requirements
+
+Probes, token checks, and the rendered-page audit now count as proof, so a project that proves its scenarios and UI requirements through the running product reaches 0 findings without a separate test run.
+
+- The model check reads `.litespec/verify/report.json` as a test run. A passed probe proves its scenario, a failed probe fails it, and an unreachable probe is no run. A passing probe records its run in the proof ledger like a passing test, so its proof goes stale when code outside the record paths changes.
+- The `verify.valuesFrom` command reads the base address the probes run against in `LITESPEC_BASE_URL`, so it can create the records a probe names through the same host.
+- A requirement naming `token-limits` counts as measured when the token limit checks of the same run report no finding. Each `litespec ui audit` run writes `route-suite.json` under `paths.checkResults`, and a requirement naming `route-suite` counts as measured while the latest audit reports no findings.
+- The report folders the commands write under `.litespec/` (`model`, `book`, `verify`, `audit`, and `explore`) are never read as records or pages.
+- The LS2041 code fix replaces a closed-set code literal with the typed case it names: a type test outside a queryable expression, and the case's `CodeValue` constant inside an expression tree.
+- `litespec-maintain publish-local --fast` packs the analyzers and the framework-dependent tool only, with a top-level tool package that lists that build alone. Every run holds the committed lock files aside during the packs and writes them back.
+
 ### Part U: Provision Changes Since v6.0.0
 
 Provisions whose rule changed take the identifier their heading derives:

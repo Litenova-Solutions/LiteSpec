@@ -64,6 +64,32 @@ static class PublishLocal
     internal static string CiDevVersion(string baseVersion, string run) =>
         $"{baseVersion}-dev.{run}";
 
+    /// <summary>The packs a run performs, in run order.</summary>
+    /// <param name="fast">True for a fast run, which skips the native package of the machine.</param>
+    /// <param name="runtimeIdentifier">The machine's runtime identifier, which the native pack of a full run carries.</param>
+    /// <returns>The analyzers pack with the CLI packs behind it: the top-level tool package, the framework-dependent package, then the native package of a full run.</returns>
+    internal static IReadOnlyList<PublishPack> Packs(bool fast, string runtimeIdentifier)
+    {
+        // A fast run's top-level tool package lists only the framework-dependent build, so a consumer restores
+        // that one instead of looking for the native package of its machine, which a fast run never packs.
+        string[] topLevel = fast
+            ? ["-p:TopLevelToolPackage=true", "-p:ToolPackageRuntimeIdentifiers=any"]
+            : ["-p:TopLevelToolPackage=true"];
+        var packs = new List<PublishPack>
+        {
+            new(PublishPackProject.Analyzers, []),
+            new(PublishPackProject.Cli, topLevel),
+            new(PublishPackProject.Cli, ["--runtime", "any", "-p:PublishAot=false"]),
+        };
+
+        if (!fast)
+        {
+            packs.Add(new(PublishPackProject.Cli, ["--runtime", runtimeIdentifier]));
+        }
+
+        return packs;
+    }
+
     /// <summary>Whether a <c>--from-ci</c> value names a CI run: a positive whole number.</summary>
     /// <param name="value">The option value.</param>
     /// <returns>True when the value holds ASCII digits naming a number above zero; otherwise false.</returns>

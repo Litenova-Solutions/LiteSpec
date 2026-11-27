@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model.Configuration;
@@ -32,6 +33,7 @@ internal static class ProbeReport
         var report = new JsonObject
         {
             ["baseUrl"] = baseUrl,
+            ["date"] = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             ["probes"] = new JsonArray([.. probes.Select(probe => (JsonNode?)new JsonObject
             {
                 ["scenario"] = probe.ScenarioId,
@@ -40,6 +42,7 @@ internal static class ProbeReport
                 ["method"] = probe.Method,
                 ["path"] = probe.Path,
                 ["status"] = probe.Status,
+                ["result"] = ResultOf(probe.ScenarioId, findings),
             })]),
             ["findings"] = new JsonArray([.. findings.Select(finding => (JsonNode?)new JsonObject
             {
@@ -68,5 +71,31 @@ internal static class ProbeReport
         }
 
         return absolute;
+    }
+
+    /// <summary>The run result one probe carries in the report: unreachable when the host could not be reached, failed on any finding, else passed.</summary>
+    /// <param name="scenario">The scenario identifier the probe proves.</param>
+    /// <param name="findings">The findings the run raised, in probe order.</param>
+    /// <returns>The probe result the model reader proves the scenario with.</returns>
+    private static string ResultOf(string scenario, IReadOnlyList<Finding> findings)
+    {
+        var seen = false;
+
+        foreach (var finding in findings)
+        {
+            if (!string.Equals(finding.Subject, scenario, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            seen = true;
+
+            if (string.Equals(finding.Code, "probe-unreachable", StringComparison.Ordinal))
+            {
+                return "unreachable";
+            }
+        }
+
+        return seen ? "failed" : "passed";
     }
 }

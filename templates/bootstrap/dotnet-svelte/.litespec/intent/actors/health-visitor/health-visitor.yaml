@@ -1,0 +1,12 @@
+type: actor
+id: actor/health-visitor
+title: Health Visitor
+summary: A visitor opens the Health sample to look over recorded check-ins.
+kind: person
+belongsToTeam: false
+holds:
+- role/health-visitor
+responsibilities:
+- Looks over the recorded check-ins.
+knowledge:
+- The product assumes the visitor knows which morning the check-in belongs to.

@@ -17,7 +17,7 @@ static class PublishLocalCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec-maintain publish-local --consumer <path> [--feed <dir>] [--from-ci <run>] [--help]
+        Usage: litespec-maintain publish-local --consumer <path> [--feed <dir>] [--from-ci <run>] [--fast] [--help]
 
         Hands the current checkout's CLI and analyzers to a consumer without waiting for
         NuGet: it packs LiteSpec.Cli and LiteSpec.Analyzers at one dev version, the manifest
@@ -27,6 +27,12 @@ static class PublishLocalCommand
         dotnet tool restore in the consumer. The CLI packs are the top-level tool
         package, the framework-dependent package, and the native package of the
         machine the command runs on, which is what the restore installs.
+
+        With --fast, the command packs only the framework-dependent tool package and
+        the analyzers, skipping the native package of the machine. A fast run pins
+        the consumer exactly as a full run does. The restore still installs the
+        native package of the machine, so it needs that package in the feed at the
+        pinned version, which a fast run does not pack.
 
         With --from-ci <run>, the command packs nothing: it pins the consumer to the
         manifest release with a -dev.<run> suffix, the build the dev-feed workflow
@@ -41,6 +47,9 @@ static class PublishLocalCommand
                         Cannot be combined with --from-ci.
           --from-ci     The CI run number whose published build the consumer takes,
                         instead of a locally packed one.
+          --fast        Pack only the framework-dependent tool package and the
+                        analyzers, skipping the native package of the machine.
+                        Cannot be combined with --from-ci.
           --help        Print this text and exit.
 
         Exit codes: 0 published, 1 a publish step failed, 2 usage error or unreadable input.
@@ -57,7 +66,7 @@ static class PublishLocalCommand
     /// <returns>The exit code: 0 published, 1 a publish step failed, 2 usage error or unreadable input.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--consumer", "--feed", "--from-ci"]);
+        var parsed = CliArgs.Parse(args, ["--fast"], ["--consumer", "--feed", "--from-ci"]);
 
         if (parsed.Help)
         {
@@ -116,6 +125,15 @@ static class PublishLocalCommand
         if (runOption is not null && feedOption is not null)
         {
             Console.Error.WriteLine("Options --feed and --from-ci cannot be combined: a CI build restores from GitHub Packages, not a local feed.");
+            Console.Error.WriteLine(Usage);
+            return 2;
+        }
+
+        var fast = parsed.Has("--fast");
+
+        if (fast && runOption is not null)
+        {
+            Console.Error.WriteLine("Options --fast and --from-ci cannot be combined: a CI build packs nothing, so there is nothing to skip.");
             Console.Error.WriteLine(Usage);
             return 2;
         }
@@ -292,6 +310,11 @@ static class PublishLocalCommand
         {
             Console.WriteLine($"Feed: {feed}");
             Console.WriteLine($"Version: {version}");
+
+            if (fast)
+            {
+                Console.WriteLine("Fast run: packs the framework-dependent tool and the analyzers, skipping the native package.");
+            }
         }
 
         if (!fromCi)
@@ -307,36 +330,25 @@ static class PublishLocalCommand
             }
 
             var before = FeedPackages(feed);
+            var packs = PublishLocal.Packs(fast, RuntimeInformation.RuntimeIdentifier);
 
-            if (Pack(root, analyzersProject, version, feed, []) is { } analyzersFailure)
-            {
-                Console.Error.WriteLine(analyzersFailure);
-                return 1;
-            }
-
-            if (Pack(root, cliProject, version, feed, ["-p:TopLevelToolPackage=true"]) is { } toolFailure)
-            {
-                Console.Error.WriteLine(toolFailure);
-                return 1;
-            }
-
-            if (Pack(root, cliProject, version, feed, ["--runtime", "any", "-p:PublishAot=false"]) is { } runtimeFailure)
-            {
-                Console.Error.WriteLine(runtimeFailure);
-                return 1;
-            }
-
-            // The restore installs the native package of its own machine, so the feed holds this machine's build too.
-            // Its restore adds runtime assets the committed lock files do not cover, so their bytes are held aside
-            // and written back after the pack, leaving the checkout exactly as it was.
+            // The restore installs the native package of its own machine, so a full run holds this machine's build too.
+            // Every pack restores at the dev version, and a runtime pack adds runtime assets, which rewrites the
+            // committed lock files. Their bytes are held aside and written back after the packs, leaving the checkout
+            // exactly as it was.
             var locks = SnapshotLockFiles(root);
 
             try
             {
-                if (Pack(root, cliProject, version, feed, ["--runtime", RuntimeInformation.RuntimeIdentifier]) is { } nativeFailure)
+                foreach (var pack in packs)
                 {
-                    Console.Error.WriteLine(nativeFailure);
-                    return 1;
+                    var project = pack.Project == PublishPackProject.Cli ? cliProject : analyzersProject;
+
+                    if (Pack(root, project, version, feed, pack.Extra) is { } failure)
+                    {
+                        Console.Error.WriteLine(failure);
+                        return 1;
+                    }
                 }
             }
             finally

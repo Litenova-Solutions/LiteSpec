@@ -106,10 +106,24 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 - [Scaffold Record](tools/new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
 - [Rename Record](tools/rename.md): renames a record identifier and rewrites every link.
 - [Model Builder](tools/model.md): checks the project model, formats record files, renders generated regions, answers record queries, and reports module edges.
+- [Scaffold](tools/scaffold.md): writes the normal per-use-case code files for one use case record, and never overwrites an existing file.
+- [Sync](tools/sync.md): writes the pure data the records determine, from the `sync` targets and the frontend clients of the consumer declaration.
+- [Serve](tools/serve.md): keeps the project model warm and answers the four MCP tools an agent calls.
+- [Agent Sync](tools/agent-sync.md): writes the thin root agent context, the path-scoped rule files and the hook settings.
+- [Hook](tools/hook.md): runs the agent harness hooks for one edit or the stop.
+- [Plan Waves](tools/plan-waves.md): lists conflict-free parallel slices with their exclusive paths from the module graph.
+- [Upgrade](tools/upgrade.md): reports the release changes the project has not applied yet.
+- [Docs Review and Render](tools/docs.md): lints changed docs and records and writes a review packet, or re-renders the book pages of changed records.
+- [UI Review](tools/ui-review.md): lists the changed routes with their golden baselines and writes a review packet.
 - [Book](tools/book.md): serves the project book live on localhost, or writes the static book with `--out`.
 - [Rules Query](tools/rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
 - [Skill](tools/skill.md): installs or removes the litespec skill.
 - [Context](tools/context.md): writes the specification as one plain-text file for an AI chat.
+- [Api Explore](tools/api-explore.md): walks a running API from its OpenAPI document and reports server faults.
+- [Verify](tools/verify.md): runs the scenario probes against the running product, and with `--adversarial` replays them through the access, race and input matrices.
+- [Verify Persistence Compat](tools/verify-persistence-compat.md): records stored snapshots through the consumer harness, or checks that every earlier snapshot still reads.
+- [Verify Production Smoke](tools/verify-production-smoke.md): boots the production containers, waits for readiness, and requests the smoke paths behind a forwarded https scheme.
+- [Audit Semantic](tools/audit-semantic.md): writes one review packet per changed use case and reports stub markers on changed lines.
 - [UI Audit](tools/ui-audit.md): visits each route of a running application in a browser and reports what the rendered pages show wrong.
 
 ### Maintain

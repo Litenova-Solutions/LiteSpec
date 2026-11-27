@@ -51,6 +51,13 @@ static class InitCommand
         "ui-chart-series", "ui-reflow", "ui-target-size",
     ];
 
+    /// <summary>The UI quality requirements <c>litespec init</c> writes for the Android preset: the token limit ones, with no browser route suite.</summary>
+    static readonly string[] AndroidUiRequirements =
+    [
+        "ui-text-contrast", "ui-control-boundary", "ui-focus-indicator",
+        "ui-chart-series",
+    ];
+
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
         Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--bootstrap] [--help]
@@ -81,15 +88,16 @@ static class InitCommand
         no release. Without --skill and without --skill-global, the command prints the
         skill add command as its last line instead of installing. When the root holds
         a CLAUDE.md that does not import AGENTS.md, the command prints a line saying so.
-        With --bootstrap, valid only with --preset dotnet-svelte, the command also copies
-        templates/bootstrap/dotnet-svelte/ from the carried release into the root after
+        With --bootstrap, valid only with a preset that carries a runnable starter
+        (android-client, dotnet-svelte), the command also copies
+        templates/bootstrap/<preset>/ from the carried release into the root after
         writing the project file, filling __PROJECT__, __NAMESPACE__ (the PascalCase name
         with letters and digits only) and __SCOPE__ (the lowercase package scope) in file
         contents and path segments, and copying binary files unchanged. The template file
         .litespec/project.bootstrap.yaml is not copied: its top-level keys (such as verify)
         are merged into the written project file after filling the tokens. The command
         refuses with exit 1 before writing anything when any bootstrap target file already
-        exists; --bootstrap with another preset is a usage error.
+        exists; --bootstrap with a preset with no starter is a usage error.
 
           --preset   One of: android-client, dotnet-svelte, records.
           --size     The project size: small or large.
@@ -98,15 +106,15 @@ static class InitCommand
           --name     The project name. Defaults to the root folder's name.
           --skill    The agents to install the skill for at project scope: one or more of claude, opencode, agents, comma separated. With --skill-global the copies are written at global scope instead.
           --skill-global  Write the skill copies under the user's home instead of the consumer. Without --skill it installs the default agents.
-          --bootstrap  Copy the runnable dotnet-svelte starter from the carried release into the root. Valid only with --preset dotnet-svelte.
+          --bootstrap  Copy the runnable starter of the preset from the carried release into the root. Valid only with a preset that carries one.
           --help     Print this text and exit.
 
-        Exit codes: 0 written, 1 the release's template, preset, scaffold, requirement, bootstrap, or skill file is unreadable, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, 2 the project file exists, an option or agent is invalid, or --bootstrap names another preset.
+        Exit codes: 0 written, 1 the release's template, preset, scaffold, requirement, bootstrap, or skill file is unreadable, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, 2 the project file exists, an option or agent is invalid, or --bootstrap names a preset with no starter.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
     /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name, skill and bootstrap options.</param>
-    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, and 2 when the project file exists, an option or agent is invalid, or --bootstrap names another preset.</returns>
+    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, and 2 when the project file exists, an option or agent is invalid, or --bootstrap names a preset with no starter.</returns>
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, ["--skill-global", "--bootstrap"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
@@ -136,11 +144,30 @@ static class InitCommand
             return CommandFailure.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
         }
 
+        string home;
+
+        try
+        {
+            home = LiteSpecHome.RequireRoot();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return CommandFailure.UsageError(exception.Message, Usage, json: false);
+        }
+
         var bootstrap = parsed.Has("--bootstrap");
 
-        if (bootstrap && preset != "dotnet-svelte")
+        if (bootstrap)
         {
-            return CommandFailure.UsageError($"--bootstrap needs --preset dotnet-svelte; preset '{preset}' cannot bootstrap.", Usage, json: false);
+            // The template folder decides which presets can bootstrap: a preset
+            // bootstraps when the release carries its starter folder or archive.
+            var starters = StarterFiles.Presets(home);
+
+            if (!starters.Contains(preset))
+            {
+                var known = starters.Count > 0 ? string.Join(", ", starters) : "none yet";
+                return CommandFailure.UsageError($"--bootstrap needs a preset with a runnable starter; presets with one: {known}. Preset '{preset}' cannot bootstrap.", Usage, json: false);
+            }
         }
 
         var install = parsed.Value("--install") ?? "tool";
@@ -205,17 +232,6 @@ static class InitCommand
             return 2;
         }
 
-        string home;
-
-        try
-        {
-            home = LiteSpecHome.RequireRoot();
-        }
-        catch (InvalidOperationException exception)
-        {
-            return CommandFailure.UsageError(exception.Message, Usage, json: false);
-        }
-
         var release = LiteSpecHome.Version;
 
         if (release is null)
@@ -266,14 +282,16 @@ static class InitCommand
             }
 
             // The UI quality requirements are read the same way. A release without
-            // the requirements folder writes no requirements.
+            // the requirements folder writes no requirements. The Android preset
+            // has no browser routes, so its requirements stop at the token limits.
             requirements = [];
 
+            var wanted = preset == "android-client" ? AndroidUiRequirements : UiRequirements;
             var requirementsDir = Path.Combine(home, "templates", "consumer", "requirements");
 
             if (Directory.Exists(requirementsDir))
             {
-                foreach (var stem in UiRequirements)
+                foreach (var stem in wanted)
                 {
                     var yamlSource = Path.Combine(requirementsDir, stem + ".yaml");
 

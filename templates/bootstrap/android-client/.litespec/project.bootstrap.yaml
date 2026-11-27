@@ -1,0 +1,9 @@
+stackConfig:
+  dotnet:
+    modules: apps/mobile/src/Modules/__NAMESPACE__.Health
+    kernel: apps/mobile/src/__NAMESPACE__.Domain
+    platform: apps/mobile/src/__NAMESPACE__.Infrastructure
+frontends:
+- name: android
+  path: apps/mobile/src/__NAMESPACE__.Android
+  platform: android

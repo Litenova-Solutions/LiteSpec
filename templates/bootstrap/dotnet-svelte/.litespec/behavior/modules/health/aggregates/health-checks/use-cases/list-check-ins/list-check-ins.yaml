@@ -1,0 +1,89 @@
+type: use-case
+id: use-case/health.list-check-ins
+title: List Check-ins
+summary: Health lists the stored check-ins newest first so the web list shows them.
+kind: query
+access:
+  grant: signed-in
+  tenant: none
+  tenantReason: The Health sample is a single-tenant starter with no tenant split.
+serves:
+- step/look-over-check-ins.watch-check-ins
+via:
+- entry-point/__SCOPE__-app
+http:
+  method: GET
+  route: /api/health/check-ins
+outputs:
+  include:
+    rows:
+      fields:
+      - name: checkIns
+        meaning: The set of rows with one row per check-in, newest first.
+        type: list
+        items:
+          fields:
+          - name: checkInId
+            meaning: The listed check-in.
+            type: id
+            identifies: aggregate/health.health-check
+            required: true
+          - name: recordedAt
+            meaning: The moment the check-in was recorded.
+            type: date-time
+            required: true
+          - name: note
+            meaning: The note recorded with the check-in, if any.
+            type: text
+            required: false
+          - name: state
+            meaning: The state code the check-in is in.
+            type: text
+            required: true
+          unique:
+          - checkInId
+      classification: internal
+      reads:
+      - aggregate/health.health-check
+      freshness:
+        mode: immediate
+paging:
+  mode: none
+  reason: The list answers the latest hundred check-ins in one response.
+reads:
+- aggregate/health.health-check
+audit:
+  level: required
+  category: personal-data-read
+  targetKind: health-check
+steps:
+- statement: The visitor opens the check-ins list.
+  cites:
+  - aggregate/health.health-check
+- statement: Health returns the check-ins newest first.
+  cites:
+  - result/list-check-ins.listed
+  - aggregate/health.health-check
+results:
+- id: result/list-check-ins.listed
+  title: Listed
+  outcome: success
+  meaning: The check-ins are listed.
+scenarios:
+- id: scenario/list-check-ins.listing-recorded-check-ins-succeeds
+  title: Listing Recorded Check-ins Succeeds
+  given: Ava recorded two check-ins.
+  when: Ava opens the check-ins list.
+  then: Both check-ins are listed newest first.
+  result: result/list-check-ins.listed
+  exercises: []
+  probe:
+    as: person/ava
+    request:
+      method: GET
+      path: /api/health/check-ins
+    expect:
+      status: 200
+      fields:
+      - path: /checkIns/0/state
+        equals: recorded

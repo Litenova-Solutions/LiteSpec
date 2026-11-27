@@ -1,0 +1,7 @@
+type: refusal-set
+summary: The refusals the Health module answers.
+refusals:
+- id: refusal/health.check-in-unknown
+  title: Check-in Unknown
+  meaning: The check-in the caller named is unknown.
+  status: 404

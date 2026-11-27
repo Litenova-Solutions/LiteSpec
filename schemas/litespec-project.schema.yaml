@@ -480,7 +480,7 @@ properties:
         additionalProperties:
           type: string
       valuesFrom:
-        description: A command run from the consumer root whose output is one JSON object of values, such as the identities a fresh seed created. Its values overlay the fixed values.
+        description: A command run from the consumer root whose output is one JSON object of values, such as the identities a fresh seed created. Its values overlay the fixed values. The command reads the base address the probes run against in LITESPEC_BASE_URL.
         type: string
         minLength: 1
       persistence:

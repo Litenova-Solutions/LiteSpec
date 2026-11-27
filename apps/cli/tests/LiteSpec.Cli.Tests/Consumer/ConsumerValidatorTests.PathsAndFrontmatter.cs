@@ -218,6 +218,18 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "no frontmatter block");
     }
 
+    /// <summary>A report Markdown file the verify, audit or explore command writes is tool output, not a page.</summary>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
+    [Fact(DisplayName = "tool report Markdown is not a page")]
+    public void ToolReportMarkdownIsNotAPage()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.WriteFile(folder.Path, ".litespec/audit/semantic/orders.place-order.md", "# Place Order\n\nA review packet.\n");
+        ConsumerFixture.WriteFile(folder.Path, ".litespec/verify/notes.md", "# Notes\n\nA run note.\n");
+        ConsumerFixture.WriteFile(folder.Path, ".litespec/explore/2026-11-27.md", "# Walk\n\nA walk report.\n");
+        AssertClean(RunConsumer(folder.Path));
+    }
+
     /// <summary>Page with a broken frontmatter block.</summary>
     /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with a broken frontmatter block")]

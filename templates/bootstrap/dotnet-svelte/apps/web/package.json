@@ -1,0 +1,43 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "__PROJECT__ web app: the home page, the check-ins list, and the check-in record page.",
+  "packageManager": "pnpm@11.28.5",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "svelte-kit sync && vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "lint": "eslint .",
+    "test:routes": "playwright test tests/routes/every-route.spec.ts"
+  },
+  "dependencies": {
+    "@__SCOPE__/api": "workspace:*",
+    "@__SCOPE__/ui": "workspace:*",
+    "@tanstack/svelte-query": "6.x",
+    "svelte": "5.x"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.x",
+    "@playwright/test": "1.x",
+    "@sveltejs/adapter-node": "6.x",
+    "@sveltejs/kit": "3.x",
+    "@sveltejs/vite-plugin-svelte": "7.x",
+    "@tailwindcss/vite": "4.x",
+    "@types/node": "26.x",
+    "eslint": "10.x",
+    "eslint-plugin-svelte": "3.x",
+    "globals": "17.x",
+    "svelte-check": "4.x",
+    "tailwindcss": "4.x",
+    "typescript": "6.x",
+    "typescript-eslint": "8.x",
+    "vite": "8.x"
+  }
+}

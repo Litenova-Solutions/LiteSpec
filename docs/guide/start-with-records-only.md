@@ -46,7 +46,7 @@ Start with:
    dotnet litespec book
    ```
 
-   The model check runs the check level G findings alone, so no finding names code layout, marks, or proof. The book serves Intent, Behavior, and governance on localhost, and it shows Implementation and Proof as not claimed.
+   The model check runs the check level G findings alone, so no finding names code layout, marks, or proof. The book serves Intent, Behavior, and governance on localhost, and it shows Implementation and Proof as not claimed. Agents editing the records read the warm model from `litespec serve` and the path-scoped rules from `litespec agent sync`, as the [Serve](../tools/serve.md) and [Agent Sync](../tools/agent-sync.md) pages state.
 
 ## Check
 

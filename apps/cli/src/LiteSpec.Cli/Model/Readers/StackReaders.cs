@@ -4,6 +4,7 @@ using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Readers.Dotnet.Scenarios;
 using LiteSpec.Cli.Model.Readers.Frontend;
 using LiteSpec.Cli.Model.Readers.JUnit;
+using LiteSpec.Cli.Model.Readers.Verify;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
 
@@ -48,7 +49,7 @@ static class StackReaders
             }
         }
 
-        ITestRunReader runs = new CombinedTestRunReader(new TrxTestRunReader(), new JUnitRunReader());
+        ITestRunReader runs = new CombinedTestRunReader(new TrxTestRunReader(), new JUnitRunReader(), new ProbeRunReader());
 
         var problems = new List<Finding>();
 

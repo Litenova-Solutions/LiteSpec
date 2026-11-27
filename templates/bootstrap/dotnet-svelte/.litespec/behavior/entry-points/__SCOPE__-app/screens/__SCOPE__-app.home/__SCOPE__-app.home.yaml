@@ -1,0 +1,15 @@
+type: screen
+id: screen/__SCOPE__-app.home
+title: Home
+summary: Ava opens the sample to reach the check-ins list.
+route: /
+fulfills:
+- requirement/ui-reflow
+- requirement/ui-text-contrast
+leadsTo:
+- screen/__SCOPE__-app.check-in-list
+job: Ava opens the sample home and follows the link to the check-ins list.
+archetype: HomePage
+states:
+- name: Ready
+  shows: The home shows the sample title and the link to the check-ins list.

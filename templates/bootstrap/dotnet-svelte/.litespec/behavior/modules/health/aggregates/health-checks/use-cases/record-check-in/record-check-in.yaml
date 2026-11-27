@@ -1,0 +1,97 @@
+type: use-case
+id: use-case/health.record-check-in
+title: Record Check-in
+summary: A visitor records a check-in with an optional note so the list shows it.
+kind: command
+access:
+  grant: signed-in
+  tenant: none
+  tenantReason: The Health sample is a single-tenant starter with no tenant split.
+serves:
+- step/look-over-check-ins.record-check-in
+via:
+- entry-point/__SCOPE__-app
+raises:
+- domain-event/health-check.check-in-recorded
+http:
+  method: POST
+  route: /api/health/check-ins
+  created: /api/health/check-ins/{checkInId}
+inputs:
+- name: checkInId
+  meaning: The check-in identifier the endpoint mints for one record attempt, so a repeated request finds the same check-in.
+  type: id
+  identifies: aggregate/health.health-check
+  required: true
+  origin: derived
+  classification: internal
+- name: recordedAt
+  meaning: The moment the check-in was recorded, taken from the endpoint clock.
+  type: date-time
+  required: true
+  origin: derived
+  classification: internal
+- name: note
+  meaning: The note recorded with the check-in, if any.
+  type: text
+  required: false
+  origin: caller
+  classification: internal
+outputs:
+- name: checkInId
+  meaning: The recorded check-in.
+  type: id
+  identifies: aggregate/health.health-check
+- name: state
+  meaning: The state code the record call left the check-in in.
+  type: text
+writes:
+- aggregate/health.health-check
+idempotency:
+  mode: key
+  key: "{checkInId}"
+  scope: global
+  replay: returns-first-result
+audit:
+  level: required
+  category: personal-data-read
+  target:
+    from: outputs
+    field: checkInId
+  targetKind: aggregate/health.health-check
+steps:
+- statement: The visitor records a check-in with a note.
+  cites:
+  - aggregate/health.health-check
+- statement: Health stores the check-in as Recorded and raises the recorded event.
+  cites:
+  - result/record-check-in.recorded
+  - domain-event/health-check.check-in-recorded
+  - aggregate/health.health-check
+results:
+- id: result/record-check-in.recorded
+  title: Recorded
+  outcome: success
+  meaning: The check-in is recorded.
+scenarios:
+- id: scenario/record-check-in.recording-a-check-in-succeeds
+  title: Recording a Check-in Succeeds
+  given: Ava opens the check-ins list on the web.
+  when: Ava records a check-in with a morning note.
+  then: The check-in is recorded.
+  result: result/record-check-in.recorded
+  exercises: []
+  probe:
+    as: person/ava
+    request:
+      method: POST
+      path: /api/health/check-ins
+      body:
+        note: Morning check-in.
+    expect:
+      status: 201
+      fields:
+      - path: /state
+        equals: recorded
+      - path: /checkInId
+        present: true

@@ -1,0 +1,186 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Health API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health/check-ins": {
+      "get": {
+        "summary": "List the check-ins the caller may read.",
+        "operationId": "listCheckIns",
+        "x-litespec-use-case": "use-case/health.list-check-ins",
+        "responses": {
+          "200": {
+            "description": "The check-ins the caller may read, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCheckInsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Record a check-in.",
+        "operationId": "recordCheckIn",
+        "x-litespec-use-case": "use-case/health.record-check-in",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordCheckInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The recorded check-in with its state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordCheckInResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The posted check-in is invalid."
+          }
+        }
+      }
+    },
+    "/api/health/check-ins/{checkInId}": {
+      "parameters": [
+        {
+          "name": "checkInId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read one check-in by its identifier.",
+        "operationId": "readCheckIn",
+        "x-litespec-use-case": "use-case/health.read-check-in",
+        "responses": {
+          "200": {
+            "description": "The stored check-in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadCheckInResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The check-in the caller named is unknown."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RecordCheckInRequest": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "RecordCheckInResponse": {
+        "type": "object",
+        "required": [
+          "checkInId",
+          "state"
+        ],
+        "properties": {
+          "checkInId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "CheckInRow": {
+        "type": "object",
+        "required": [
+          "checkInId",
+          "recordedAt",
+          "state"
+        ],
+        "properties": {
+          "checkInId": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "ListCheckInsResponse": {
+        "type": "object",
+        "required": [
+          "checkIns"
+        ],
+        "properties": {
+          "checkIns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckInRow"
+            }
+          }
+        }
+      },
+      "ReadCheckInResponse": {
+        "type": "object",
+        "required": [
+          "checkInId",
+          "recordedAt",
+          "state"
+        ],
+        "properties": {
+          "checkInId": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+type: requirement
+id: requirement/check-in-trail
+title: Check-in Audit Trail
+kind: quality
+statement: Every check-in write and read leaves an audit entry under one category.
+rationale: Check-ins carry free-text notes, so the trail shows who recorded or read each one.
+stimulus: A visitor records or reads a check-in.
+environment: Normal operation of the sample.
+response: The trail holds an entry for the attempt under personal-data-read.
+measure: Check-in attempts with no audit entry.
+target: Zero attempts.
+check: route-suite
+basedOn:
+- goal/readable-check-ins
+- decision/0001-audit-trail

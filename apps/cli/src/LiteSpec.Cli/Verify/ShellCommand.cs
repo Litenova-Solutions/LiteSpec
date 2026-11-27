@@ -12,18 +12,22 @@ internal static class ShellCommand
     /// <param name="script">The command line.</param>
     /// <param name="root">The consumer root the command runs in.</param>
     /// <param name="timeout">The longest time the command may run.</param>
+    /// <param name="environment">The variables set in the command's environment, or null for none.</param>
     /// <returns>The captured run.</returns>
-    internal static ProcessRunner.Result Run(string script, string root, TimeSpan timeout) =>
+    internal static ProcessRunner.Result Run(
+        string script, string root, TimeSpan timeout, IReadOnlyDictionary<string, string>? environment = null) =>
         OperatingSystem.IsWindows()
-            ? RunWindows(script, root, timeout)
-            : ProcessRunner.Capture("/bin/sh", ["-c", script], root, timeout);
+            ? RunWindows(script, root, timeout, environment)
+            : ProcessRunner.Capture("/bin/sh", ["-c", script], root, timeout, environment: environment);
 
     /// <summary>Runs the command through the Windows shell with a verbatim command line.</summary>
     /// <param name="script">The command line.</param>
     /// <param name="root">The consumer root the command runs in.</param>
     /// <param name="timeout">The longest time the command may run.</param>
+    /// <param name="environment">The variables set in the command's environment, or null for none.</param>
     /// <returns>The captured run.</returns>
-    private static ProcessRunner.Result RunWindows(string script, string root, TimeSpan timeout)
+    private static ProcessRunner.Result RunWindows(
+        string script, string root, TimeSpan timeout, IReadOnlyDictionary<string, string>? environment)
     {
         // The argument list escapes inner quotes with a backslash, which the Windows shell
         // does not read, so the shell takes its command line verbatim here instead. The one
@@ -37,6 +41,11 @@ internal static class ShellCommand
             UseShellExecute = false,
             WorkingDirectory = root,
         };
+
+        foreach (var (name, value) in environment ?? new Dictionary<string, string>())
+        {
+            start.Environment[name] = value;
+        }
 
         try
         {

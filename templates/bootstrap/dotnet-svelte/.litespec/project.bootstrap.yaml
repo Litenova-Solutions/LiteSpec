@@ -1,0 +1,29 @@
+stackConfig:
+  dotnet:
+    modules: apps/api/src/Modules/*
+    kernel: apps/api/src/__NAMESPACE__.Kernel
+    platform: apps/api/src/__NAMESPACE__.Platform
+    webapi:
+    - apps/api/src/Hosts/__NAMESPACE__.WebApi
+frontends:
+- name: web
+  path: apps/web
+  platform: svelte
+  entryPoint: entry-point/__SCOPE__-app
+  client:
+    contract: packages/api/openapi/openapi.json
+    generated: packages/api/src/generated
+  ui:
+    profile: application-balanced
+    globalCss: apps/web/src/styles.css
+verify:
+  baseUrl: http://localhost:5005
+  signIn:
+  - method: GET
+    path: /auth/development/{person}
+  valuesFrom: node scripts/verify-values.mjs
+  production:
+    compose: deploy/compose.yaml
+    envFile: deploy/.env.example
+    baseUrl: http://localhost:5005
+    health: /health/ready

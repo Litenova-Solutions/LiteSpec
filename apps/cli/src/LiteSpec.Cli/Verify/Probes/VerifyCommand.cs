@@ -176,7 +176,7 @@ internal static class VerifyCommand
 
             try
             {
-                var session = ProbeSession.SignIn(person, baseUrl, config.Verify.SignIn, VerifyValues.Of(config), config.Verify.Headers);
+                var session = ProbeSession.SignIn(person, baseUrl, config.Verify.SignIn, VerifyValues.Of(config, baseUrl), config.Verify.Headers);
                 sessions[key] = session;
                 return session;
             }
@@ -228,7 +228,7 @@ internal static class VerifyCommand
             var shortName = probe.As is { Length: > 0 } person
                 ? (person.StartsWith("person/", StringComparison.Ordinal) ? person["person/".Length..] : person)
                 : null;
-            var request = ResolvedProbeRequest.From(probe, VerifyValues.Of(config), shortName);
+            var request = ResolvedProbeRequest.From(probe, VerifyValues.Of(config, baseUrl), shortName);
 
             int status;
             string body;

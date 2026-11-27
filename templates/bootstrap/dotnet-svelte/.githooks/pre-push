@@ -1,0 +1,14 @@
+#!/bin/sh
+# __PROJECT__ pre-push hook: the structural checks must pass before a push.
+# One-time setup: git config core.hooksPath .githooks
+set -u
+
+status=0
+dotnet litespec model check --root . || status=1
+dotnet litespec sync --root . --check || status=1
+
+if [ "$status" -ne 0 ]; then
+  echo "pre-push: a check failed, so the push is blocked." >&2
+  echo "pre-push: to skip this hook once: git push --no-verify" >&2
+  exit 1
+fi

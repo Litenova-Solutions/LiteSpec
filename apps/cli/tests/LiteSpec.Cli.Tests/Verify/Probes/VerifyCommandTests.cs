@@ -171,6 +171,26 @@ public sealed class VerifyCommandTests
         Assert.Equal("/api/loans/l2", seenPath);
     }
 
+    /// <summary>The values command reads the base address the probes run against from LITESPEC_BASE_URL.</summary>
+    [Fact]
+    public void ValuesCommandReadsTheBaseAddress()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddValuesBlock(temp.Path, "    loan: l1", ValuesCommand("process.stdout.write(JSON.stringify({loan:new URL(process.env.LITESPEC_BASE_URL).port}))"));
+        AddValuesProbe(temp.Path);
+
+        string seenPath = string.Empty;
+        using var server = TestProbeServer.Start((request, body) =>
+        {
+            seenPath = request.Url!.AbsolutePath;
+            return (200, """{"state":"lent"}""");
+        });
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.Equal($"/api/loans/{new Uri(server.BaseUrl).Port}", seenPath);
+    }
+
     /// <summary>A values command that fails reports the probe as unreachable and sends nothing.</summary>
     [Fact]
     public void FailingValuesCommandReportsUnreachable()

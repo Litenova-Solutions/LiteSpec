@@ -1,0 +1,8 @@
+type: domain-event
+id: domain-event/check-in.check-in-recorded
+title: Check-in recorded
+meaning: A check-in was recorded.
+fields:
+- name: checkInId
+  type: text
+ignored: true

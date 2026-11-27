@@ -146,6 +146,14 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Standards", string.Join("\n", ["## Concepts", "", "### Empty concept", "", "### Second concept", "", "This concept has a body.", "", "## Standards"]))),
         [MaintainerDiagnostics.Codes.HeadingEmptyBody]);
 
+    /// <summary>A starter README is the consumer's own file, so its numbered run steps are no LiteSpec index procedure.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
+    [Fact(DisplayName = "starter README is not a LiteSpec page")]
+    public void StarterReadmeIsNotALiteSpecPage() => Check(
+        root => StandardsFixture.Write(root, "templates/bootstrap/dotnet-svelte/README.md", string.Join("\n", ["# __PROJECT__", "", "The starter of __PROJECT__.", "", "## Run locally", "", "1. Start the stack.", ""])),
+        [],
+        [MaintainerDiagnostics.Codes.IndexContainsProcedure, MaintainerDiagnostics.Codes.PageHeadingCase]);
+
     /// <summary>Numbered procedure inside an index.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "numbered procedure inside an index")]

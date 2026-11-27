@@ -1,0 +1,19 @@
+type: screen
+id: screen/__SCOPE__-app.check-in-detail
+title: Check-in Detail
+summary: Ava reads the recorded state of the check-in she opened from the list.
+route: /check-ins/{checkInId}
+fulfills:
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+leadsTo:
+- screen/__SCOPE__-app.check-in-list
+job: Ava reads the recorded state of the check-in she opened from the list.
+archetype: RecordPage
+states:
+- name: Loading
+  shows: The rows show as placeholders while the check-in loads.
+- name: Empty
+  shows: The detail never shows empty; without an identifier it shows failed.
+- name: Failed
+  shows: The detail says the check-in is unavailable.

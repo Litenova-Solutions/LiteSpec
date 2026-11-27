@@ -94,6 +94,13 @@ internal static class StandardsValidator
                 Add(relative, PageText.LineNumber(prose, nonAscii), MaintainerDiagnostics.Codes.ProseNonAscii, PageText.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
+            // A runnable starter is the consumer's own project: its files stay ASCII, but its
+            // README and docs are the consumer's, so no LiteSpec page rule applies to them.
+            if (relative.StartsWith("templates/bootstrap/", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             // Long paragraphs and banned phrases are mechanical style-card
             // lints over the same prose, so they run beside the ASCII scan.
             if (ProseLints.IsProseTarget(relative))

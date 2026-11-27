@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="check_in_background">#FFFFFF</color>
+  <color name="check_in_text">#1A1A1A</color>
+  <color name="check_in_muted">#5F6368</color>
+  <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+    <item name="android:windowBackground">@color/check_in_background</item>
+  </style>
+  <style name="CheckInTitle" parent="android:TextAppearance.Material.Title">
+    <item name="android:textColor">@color/check_in_text</item>
+  </style>
+  <style name="CheckInBody" parent="android:TextAppearance.Material.Body1">
+    <item name="android:textColor">@color/check_in_text</item>
+  </style>
+  <style name="CheckInMuted" parent="android:TextAppearance.Material.Small">
+    <item name="android:textColor">@color/check_in_muted</item>
+  </style>
+</resources>

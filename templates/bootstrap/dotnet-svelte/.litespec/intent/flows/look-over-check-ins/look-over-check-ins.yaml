@@ -1,0 +1,22 @@
+type: flow
+id: flow/look-over-check-ins
+title: Look over Check-ins
+actor: actor/health-visitor
+summary: A visitor who had a check-in recorded opens the sample, scans the list, and reads one check-in behind it.
+serves:
+- goal/readable-check-ins
+startedWhen: The visitor opens the Health sample.
+finishedWhen: The visitor has looked over the recorded check-ins.
+steps:
+- id: step/look-over-check-ins.watch-check-ins
+  title: Watch Check-ins
+  statement: The visitor scans the recorded check-ins in the list.
+  actor: actor/health-visitor
+- id: step/look-over-check-ins.record-check-in
+  title: Record Check-in
+  statement: The visitor records a check-in with a morning note.
+  actor: actor/health-visitor
+- id: step/look-over-check-ins.read-check-in
+  title: Read Check-in
+  statement: The visitor reads one check-in from the list.
+  actor: actor/health-visitor

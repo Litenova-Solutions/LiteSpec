@@ -1,0 +1,8 @@
+type: role
+id: role/health-visitor
+title: Health Visitor
+summary: Visitors look over their own recorded check-ins.
+scope: self
+excludes:
+- The visitor records no check-in for another visitor.
+- The visitor changes no recorded check-in.

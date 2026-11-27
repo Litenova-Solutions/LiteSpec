@@ -1,0 +1,26 @@
+{
+  "name": "@__SCOPE__/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "__PROJECT__ typed API client, generated from the published OpenAPI document.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./openapi.json": "./openapi/openapi.json"
+  },
+  "scripts": {
+    "api:types": "node scripts/write-hash.mjs",
+    "api:codegen": "openapi-ts -c openapi.config.ts && node scripts/write-hash.mjs",
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "4.x"
+  },
+  "peerDependencies": {
+    "svelte": "5.x"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.x",
+    "typescript": "6.x"
+  }
+}

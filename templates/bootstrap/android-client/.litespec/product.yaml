@@ -1,0 +1,7 @@
+type: product
+id: product/__SCOPE__
+title: __PROJECT__
+summary: __PROJECT__ is the Android app where visitors look over their recorded health check-ins. Visitors read the recorded check-ins in a list and one detail screen; the app records no check-in of its own.
+boundary: __PROJECT__ shows recorded health check-ins in a list and one detail screen.
+users:
+- actor/health-visitor

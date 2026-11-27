@@ -50,6 +50,41 @@ public sealed class InitCommandTests
         Assert.Equal(expected, project.ContainsKey("ui"));
     }
 
+    /// <summary>Init with the Android preset writes no requirement naming the route suite.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init with the Android preset writes no requirement naming the route suite")]
+    public void AndroidClientWritesNoRouteSuiteRequirement()
+    {
+        using var consumer = TestCli.Temp("init-android-ui");
+
+        var result = TestCli.Run("init", "--preset", "android-client", "--size", "small", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var folder = Path.Combine(consumer.Path, ".litespec", "intent", "requirements");
+        var namingRouteSuite = Directory.GetFiles(folder, "*.yaml", SearchOption.AllDirectories)
+            .Where(file => File.ReadAllText(file).Contains("route-suite", StringComparison.Ordinal))
+            .ToList();
+        Assert.Empty(namingRouteSuite);
+    }
+
+    /// <summary>Init with the Android preset writes the four token limit requirements.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init with the Android preset writes the four token limit requirements")]
+    public void AndroidClientWritesTheTokenLimitRequirements()
+    {
+        using var consumer = TestCli.Temp("init-android-ui");
+
+        var result = TestCli.Run("init", "--preset", "android-client", "--size", "small", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var folder = Path.Combine(consumer.Path, ".litespec", "intent", "requirements");
+        var stems = Directory.GetDirectories(folder)
+            .Select(Path.GetFileName)
+            .Order(StringComparer.Ordinal)
+            .ToList();
+        Assert.Equal(["ui-chart-series", "ui-control-boundary", "ui-focus-indicator", "ui-text-contrast"], stems);
+    }
+
     /// <summary>Init writes a project file that validates against the project schema for each preset.</summary>
     /// <param name="preset">The preset name that selects the stack combination.</param>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>

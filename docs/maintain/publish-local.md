@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec-maintain publish-local --consumer <path> [--feed <dir>] [--from-ci <run>] [--help]
+litespec-maintain publish-local --consumer <path> [--feed <dir>] [--from-ci <run>] [--fast] [--help]
 ```
 
 ## Description
@@ -15,6 +15,8 @@ litespec-maintain publish-local --consumer <path> [--feed <dir>] [--from-ci <run
 A maintainer hands a consumer the current branch's CLI and analyzers without waiting for NuGet: one command packs both packages at one dev version, points the consumer at them, and restores its tool. The dev version is the manifest release with a `-dev.<yyyyMMddHHmmss>` suffix in UTC, so each run names the build it packed.
 
 The command packs `LiteSpec.Cli` as the top-level tool package, the framework-dependent runtime package, and the native package of the machine the command runs on, and `LiteSpec.Analyzers`, into the feed, which defaults to `.agents/local-feed` under the consumer. It adds a `litespec-local` source to the consumer's `nuget.config`, keeping the other sources, and creates the config when the consumer holds none. It sets the `LiteSpec.Cli` version in `.config/dotnet-tools.json`, creating the manifest when the consumer holds none, and sets `LiteSpec.Analyzers` in every `Directory.Packages.props` under the consumer that declares it. A project file that references the analyzers directly keeps its version, and the command names each such file so the maintainer moves it by hand. It then runs `dotnet tool restore` in the consumer.
+
+With `--fast`, the command packs only the framework-dependent tool package and the analyzers, skipping the native package of the machine the command runs on. A fast run pins the consumer exactly as a full run does: the same dev version in the tool manifest and every central package file. The top-level tool package of a fast run lists only the framework-dependent build, so the consumer restore installs that build and needs no native package in the feed.
 
 With `--from-ci <run>`, the command packs nothing: it pins the consumer to the build the dev-feed workflow published from that CI run, the manifest release with a `-dev.<run>` suffix, leaving the feed and the `nuget.config` alone. It still sets the tool manifest and every central analyzer version, still names direct analyzer pins, and still runs `dotnet tool restore` in the consumer. A local feed lives on one developer's disk, which the consumer's CI cannot read; a CI build lives on GitHub Packages, so the consumer's CI restores the exact build its developers use.
 
@@ -52,6 +54,7 @@ None.
 | `--consumer <path>` | none, required | Selects the consumer folder holding `.litespec/project.yaml`. |
 | `--feed <dir>` | `.agents/local-feed` under the consumer | Selects the package feed folder; a relative path resolves under the consumer. Cannot be combined with `--from-ci`. |
 | `--from-ci <run>` | off | Pins the consumer to the CI build of this run number instead of packing locally. |
+| `--fast` | off | Packs only the framework-dependent tool package and the analyzers, skipping the native package of the machine. Cannot be combined with `--from-ci`. |
 | `--help` | off | Prints the synopsis, the options, and the exit codes, then exits zero. |
 
 ## Exit Codes
@@ -76,6 +79,12 @@ Publish into another feed folder:
 litespec-maintain publish-local --consumer ../consumer --feed ../consumer/.agents/next-feed
 ```
 
+Skip the native package:
+
+```bash
+litespec-maintain publish-local --consumer ../consumer --fast
+```
+
 Pin a consumer to a CI build:
 
 ```bash
@@ -84,4 +93,4 @@ litespec-maintain publish-local --consumer ../consumer --from-ci 42
 
 ## Underneath
 
-The packs reuse the release settings: the `Release` configuration, `-p:Version` at the dev version, the top-level tool package, the framework-dependent runtime package, and the native package of the machine's runtime identifier. A CI build carries the manifest release with a `-dev.<run number>` suffix, packed in `Release` by the dev-feed workflow on a `release/*` branch and pushed to GitHub Packages. The restore runs `dotnet tool restore` in the consumer. Nothing beneath this command is separately runnable.
+The packs reuse the release settings: the `Release` configuration, `-p:Version` at the dev version, the top-level tool package, the framework-dependent runtime package, and the native package of the machine's runtime identifier. A fast run packs the top-level tool package, the framework-dependent runtime package, and the analyzers, skipping the native package. Every run holds the committed lock files aside during the packs and writes them back, because each pack restores at the dev version and rewrites them. A CI build carries the manifest release with a `-dev.<run number>` suffix, packed in `Release` by the dev-feed workflow on a `release/*` branch and pushed to GitHub Packages. The restore runs `dotnet tool restore` in the consumer. Nothing beneath this command is separately runnable.

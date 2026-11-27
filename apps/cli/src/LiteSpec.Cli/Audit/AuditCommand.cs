@@ -144,6 +144,15 @@ static class AuditCommand
             return CommandFailure.Fail($"Cannot write '{reportPath}': {exception.Message}", json: false, code: 1);
         }
 
+        try
+        {
+            AuditCheckResult.Write(config, routes, findings);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return CommandFailure.Fail(exception.Message, json: false, code: 1);
+        }
+
         if (findings.Count == 0)
         {
             CliHost.Out.WriteLine($"No findings across {routes.Count} routes.");

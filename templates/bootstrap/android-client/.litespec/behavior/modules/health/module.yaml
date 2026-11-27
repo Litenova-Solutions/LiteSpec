@@ -1,0 +1,10 @@
+type: module
+id: module/health
+title: Health
+summary: Health shows the check-ins the backend sample records, on the phone.
+dependsOn: []
+covers:
+- Health shows the recorded check-ins in a list and one detail screen.
+- Health reads the check-ins of the backend starter over HTTP.
+excludes:
+- Health records no check-in of its own; recording stays with the backend starter.

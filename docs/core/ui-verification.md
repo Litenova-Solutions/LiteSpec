@@ -52,6 +52,12 @@ The sensor suite runs on every route at `1440x900`, `1280x800`, and `390x844` vi
 
 The owner gives plain visual feedback on the five golden screens ("too cramped", "buttons misaligned", "too noisy"), and the agent iterates those five until they read as sharp. The owner reviews readable artifacts through the workflow: the jobs table, five rendered screens, and defect tickets written in plain words.
 
+### How Requirements Name Their Measures
+
+The six UI quality requirements init writes name two checks. The four contrast requirements name `token-limits`, which the model check runs itself: a requirement naming `token-limits` counts as measured when the token limit checks of the same run report no finding, and the token findings carry the failure when they report one, so no result file is needed. The two layout requirements name `route-suite`, which the rendered-page audit measures: each `litespec ui audit` run writes `route-suite.json` under `paths.checkResults`, and a passing run measures every requirement naming `route-suite`.
+
+Claimwick's text contrast requirement names `token-limits` and stays measured while the token file meets every limit, and its reflow requirement names `route-suite` and stays measured while the latest audit reports no findings.
+
 ## Standards
 
 ### Run Geometry Sensors on Every Route

@@ -1,0 +1,43 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Central versions: every package below restores from nuget.org at the version the LiteSpec manifest pins. -->
+    <PackageVersion Include="Marten" Version="9.62.0" />
+    <PackageVersion Include="Npgsql" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.19.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.1" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.0.0" />
+    <PackageVersion Include="LiteBus.Analyzers" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Auditing" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Auditing.Abstractions" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Auditing.Storage.Marten" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Commands" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Commands.Abstractions" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Commands.Recurring" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Commands.Storage.Marten" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Events" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Events.Abstractions" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Extensions.AspNetCore" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Extensions.Microsoft.DependencyInjection" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Messaging" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Messaging.Abstractions" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Outbox" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Outbox.Abstractions" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Outbox.Dispatch.InProcess" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Outbox.Storage.Marten" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Outbox.Storage.PostgreSql" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Queries" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Queries.Abstractions" Version="8.0.0-preview.8" />
+    <PackageVersion Include="LiteBus.Storage.PostgreSql" Version="8.0.0-preview.8" />
+    <!-- The gate supplies LiteSpec.Analyzers from a local feed; no project restores it from nuget.org. -->
+    <PackageVersion Include="LiteSpec.Analyzers" Version="7.0.0" />
+  </ItemGroup>
+</Project>

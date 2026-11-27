@@ -1,0 +1,32 @@
+type: screen
+id: screen/__SCOPE__-app.check-in-record
+title: Check-in Record
+summary: Ava reads the recorded state of the check-in she opened from the list.
+route: /check-ins/{checkInId}
+offers:
+- use-case/health.read-check-in
+fieldSources:
+- field: checkInId
+  from: use-case/health.read-check-in
+- field: recordedAt
+  from: use-case/health.read-check-in
+- field: note
+  from: use-case/health.read-check-in
+- field: state
+  from: use-case/health.read-check-in
+serves:
+- step/look-over-check-ins.read-check-in
+fulfills:
+- requirement/ui-control-boundary
+- requirement/ui-focus-indicator
+leadsTo:
+- screen/__SCOPE__-app.check-in-list
+job: Ava reads the recorded state of the check-in she opened from the list.
+archetype: RecordPage
+states:
+- name: Loading
+  shows: The record shows as placeholders while the check-in loads.
+- name: Empty
+  shows: The record says the check-in does not exist.
+- name: Failed
+  shows: The record says the check-in is unavailable and offers to try again.

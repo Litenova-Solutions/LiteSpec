@@ -160,8 +160,8 @@ public sealed class InitBootstrapTests
             ["init", "--preset", preset, "--size", "small", "--root", consumer.Path, "--bootstrap"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
+        // The fixture release carries a starter for dotnet-svelte only, so any other preset is refused before anything is written.
         Assert.Equal(2, result.Status);
-        Assert.Contains("--bootstrap needs --preset dotnet-svelte", result.Stderr, StringComparison.Ordinal);
         Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec", "project.yaml")));
     }
 

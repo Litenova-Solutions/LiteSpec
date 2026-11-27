@@ -1,0 +1,8 @@
+type: permission-set
+title: Permissions
+permissions:
+- id: permission/read-check-ins
+  title: Read check-ins
+  meaning: Look over recorded check-ins.
+  grantedTo:
+  - role/health-visitor

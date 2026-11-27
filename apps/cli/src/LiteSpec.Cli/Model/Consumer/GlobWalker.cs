@@ -14,14 +14,13 @@ static class GlobWalker
     /// <summary>The glob includes that collect the record files and the Markdown files.</summary>
     private static readonly string[] PageIncludes = ["**/*" + RecordFiles.Extension, "**/*" + RecordFile.ExplanationExtension];
 
-    /// <summary>The glob excludes that leave out generated output, hidden files and the top-level model and book folders.</summary>
+    /// <summary>The glob excludes that leave out installed packages, hidden files and every generated folder the tools write.</summary>
     private static readonly string[] PageExcludes =
     [
         "**/node_modules/**/*",
         "**/.*",
         "**/.*/**/*",
-        "model/**/*",
-        "book/**/*",
+        .. GeneratedFolders.Names.Order(StringComparer.Ordinal).Select(folder => folder + "/**/*"),
     ];
 
     /// <summary>

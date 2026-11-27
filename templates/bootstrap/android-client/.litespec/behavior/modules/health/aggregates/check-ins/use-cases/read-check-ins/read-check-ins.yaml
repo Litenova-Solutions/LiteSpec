@@ -1,0 +1,61 @@
+type: use-case
+id: use-case/health.read-check-ins
+title: Read check-ins
+summary: Health lists the stored check-ins newest first so the phone list shows them.
+kind: query
+access:
+  grant: permission/read-check-ins
+  tenant: own
+fulfills:
+- requirement/read-check-ins
+via:
+- entry-point/__SCOPE__-app
+raises: []
+outputs:
+  include:
+    rows:
+      fields:
+      - name: checkIns
+        meaning: The set of rows with one row per check-in, newest first.
+        type: list
+        items:
+          fields:
+          - name: checkInId
+            meaning: The listed check-in.
+            type: id
+            identifies: aggregate/health.check-in
+            required: true
+          - name: state
+            meaning: The state code the check-in is in.
+            type: text
+            required: true
+          unique:
+          - checkInId
+      classification: internal
+      reads:
+      - aggregate/health.check-in
+      freshness:
+        mode: immediate
+paging:
+  mode: pages
+  order: Newest first.
+  cursor: The identifier of the last row.
+  defaultLimit: 25
+  maxLimit: 100
+reads:
+- aggregate/health.check-in
+audit:
+  exemptBecause: Read-only query whose output holds no personal data.
+steps:
+- statement: The visitor opens the check-ins list.
+  cites:
+  - aggregate/health.check-in
+- statement: Health returns the check-ins newest first.
+  cites:
+  - result/read-check-ins.listed
+  - aggregate/health.check-in
+results:
+- id: result/read-check-ins.listed
+  title: Listed
+  outcome: success
+  meaning: The check-ins are listed.

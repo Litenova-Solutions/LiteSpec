@@ -1,0 +1,14 @@
+{
+  "name": "__SCOPE__",
+  "version": "0.1.0",
+  "private": true,
+  "description": "__PROJECT__ starter: SvelteKit web app, shared UI package, generated API client.",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.28.5",
+  "scripts": {
+    "api:types": "pnpm --filter @__SCOPE__/api api:types",
+    "dev": "pnpm --filter web dev"
+  }
+}

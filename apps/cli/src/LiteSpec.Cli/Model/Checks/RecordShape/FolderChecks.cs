@@ -43,11 +43,6 @@ internal static class FolderChecks
         "intent", "behavior", "implementation", "governance", "proof",
     };
 
-    /// <summary>Generated folders the check skips: the builder owns the model and book, and the verify, audit and explore commands own their report folders.</summary>
-    private static readonly HashSet<string> GeneratedFolders = new(StringComparer.Ordinal)
-    {
-        "model", "book", "verify", "audit", "explore",
-    };
 
     /// <summary>Reports record-placement-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
@@ -242,7 +237,7 @@ internal static class FolderChecks
     /// <summary>Whether the name is a record layer or a generated folder.</summary>
     /// <param name="name">The folder name under test.</param>
     /// <returns>True when the name is a record layer or a generated folder; otherwise false.</returns>
-    private static bool IsLayer(string name) => Layers.Contains(name) || GeneratedFolders.Contains(name);
+    private static bool IsLayer(string name) => Layers.Contains(name) || Records.GeneratedFolders.Names.Contains(name);
 
     /// <summary>Whether the folder's subtree is skipped: generated output or free-form documents.</summary>
     /// <param name="full">The directory segments anchored at the record layer.</param>
@@ -254,7 +249,7 @@ internal static class FolderChecks
             return true;
         }
 
-        if (GeneratedFolders.Contains(full[0]) || full[0] == "proof")
+        if (Records.GeneratedFolders.Names.Contains(full[0]) || full[0] == "proof")
         {
             return true;
         }
@@ -305,7 +300,7 @@ internal static class FolderChecks
             "behavior" => IsBehaviorFolder(full),
             "implementation" => IsImplementationFolder(full),
             "governance" => IsGovernanceFolder(full),
-            _ when GeneratedFolders.Contains(full[0]) || full[0] == "proof" => true,
+            _ when Records.GeneratedFolders.Names.Contains(full[0]) || full[0] == "proof" => true,
             _ => false,
         };
     }
@@ -486,7 +481,7 @@ internal static class FolderChecks
                 continue;
             }
 
-            if (segments.Length > 0 && GeneratedFolders.Contains(segments[0]))
+            if (segments.Length > 0 && Records.GeneratedFolders.Names.Contains(segments[0]))
             {
                 continue;
             }

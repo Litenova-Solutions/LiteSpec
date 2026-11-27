@@ -1,0 +1,11 @@
+type: domain-event
+id: domain-event/health-check.check-in-recorded
+title: Check-in Recorded
+meaning: A check-in was recorded.
+fields:
+- name: checkInId
+  type: id
+  identifies: aggregate/health.health-check
+- name: recordedAt
+  type: date-time
+ignored: true

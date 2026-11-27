@@ -16,6 +16,32 @@ internal static class StarterFiles
     /// <param name="Bytes">The file content.</param>
     internal sealed record StarterFile(string Relative, byte[] Bytes);
 
+    /// <summary>The presets whose runnable starter the release carries: every starter folder and archive under templates/bootstrap.</summary>
+    /// <param name="home">The release root the tool carries.</param>
+    /// <returns>The preset names with a starter, in ordinal order.</returns>
+    internal static IReadOnlyList<string> Presets(string home)
+    {
+        var found = new SortedSet<string>(StringComparer.Ordinal);
+        var root = Path.Combine(home, "templates", "bootstrap");
+
+        if (!Directory.Exists(root))
+        {
+            return [];
+        }
+
+        foreach (var folder in Directory.EnumerateDirectories(root))
+        {
+            found.Add(Path.GetFileName(folder));
+        }
+
+        foreach (var archive in Directory.EnumerateFiles(root, "*.zip"))
+        {
+            found.Add(Path.GetFileNameWithoutExtension(archive));
+        }
+
+        return [.. found];
+    }
+
     /// <summary>Reads every file of the preset's starter, in ordinal path order.</summary>
     /// <param name="home">The release root the tool carries.</param>
     /// <param name="preset">The preset whose starter is read.</param>

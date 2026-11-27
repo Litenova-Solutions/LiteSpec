@@ -1,0 +1,11 @@
+type: cast
+id: cast/__SCOPE__
+title: __PROJECT__ Cast
+summary: The sample visitor the Health screens serve.
+people:
+- type: person
+  id: person/ava
+  name: Ava
+  actor: actor/health-visitor
+  email: ava@example.com
+  does: Opens the Health sample to look over her recorded check-ins.

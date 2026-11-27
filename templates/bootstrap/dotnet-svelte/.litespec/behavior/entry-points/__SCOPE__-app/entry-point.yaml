@@ -1,0 +1,13 @@
+type: entry-point
+id: entry-point/__SCOPE__-app
+title: __PROJECT__ App
+summary: The __PROJECT__ web app is where the visitor looks over recorded check-ins. Every Health screen in these records is reached through it, so it is the only entry point of the starter.
+kind: browser
+authentication:
+- session
+audience:
+- actor/health-visitor
+density: application-balanced
+voice: The __PROJECT__ sample addresses the visitor plainly and names the next step on every screen.
+languages:
+- en

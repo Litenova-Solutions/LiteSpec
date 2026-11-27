@@ -1,0 +1,30 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
+
+  <!--
+    The __PROJECT__ local stack: PostgreSQL, the API and the web app, started
+    with a single command (see the README run section). It models how the
+    applications run together and ships nowhere, so it lives in deploy/
+    beside the container files.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- ASPIRE010: the AppHost runs through `dotnet run` with the orchestrator and
+         dashboard from NuGet, without the separate Aspire CLI bundle. -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.6.5" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.6.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../apps/api/src/Hosts/__NAMESPACE__.WebApi/__NAMESPACE__.WebApi.csproj" />
+  </ItemGroup>
+
+</Project>

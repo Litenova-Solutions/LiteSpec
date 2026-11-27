@@ -8,11 +8,14 @@ namespace LiteSpec.Cli.Verify.Probes;
 /// <summary>
 ///     The values a probe path or body names as {name}: the fixed <c>verify.values</c>, overlaid by the JSON object the
 ///     <c>verify.valuesFrom</c> command prints, such as the identities a fresh seed created. The command runs once per
-///     configuration.
+///     configuration, with the base address the probes run against in <c>LITESPEC_BASE_URL</c>.
 /// </summary>
 /// <follows>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</follows>
 internal static class VerifyValues
 {
+    /// <summary>The environment variable that holds the base address for the values command.</summary>
+    internal const string BaseUrlVariable = "LITESPEC_BASE_URL";
+
     /// <summary>The longest time the values command may run.</summary>
     private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(5);
 
@@ -21,19 +24,21 @@ internal static class VerifyValues
 
     /// <summary>Returns the values of the configuration, running the values command on first use.</summary>
     /// <param name="config">The consumer configuration.</param>
+    /// <param name="baseUrl">The base address the probes run against, passed to the values command.</param>
     /// <returns>The merged values.</returns>
     /// <exception cref="ProbeUnreachableException">The values command failed or printed no JSON object.</exception>
-    internal static IReadOnlyDictionary<string, string> Of(ConsumerConfig config)
+    internal static IReadOnlyDictionary<string, string> Of(ConsumerConfig config, string baseUrl)
     {
-        var resolved = Cache.GetValue(config, Resolve);
+        var resolved = Cache.GetValue(config, key => Resolve(key, baseUrl));
 
         return resolved.Error is { } error ? throw new ProbeUnreachableException(error) : resolved.Values;
     }
 
     /// <summary>Merges the fixed values with the output of the values command.</summary>
     /// <param name="config">The consumer configuration.</param>
+    /// <param name="baseUrl">The base address the probes run against, passed to the values command.</param>
     /// <returns>The merged values, or the reason the command output could not be read.</returns>
-    private static Resolved Resolve(ConsumerConfig config)
+    private static Resolved Resolve(ConsumerConfig config, string baseUrl)
     {
         var values = new Dictionary<string, string>(config.Verify.Values, StringComparer.Ordinal);
 
@@ -42,7 +47,8 @@ internal static class VerifyValues
             return new Resolved(values, null);
         }
 
-        var run = ShellCommand.Run(command, config.Root, Timeout);
+        var run = ShellCommand.Run(
+            command, config.Root, Timeout, new Dictionary<string, string> { [BaseUrlVariable] = baseUrl });
         var output = run.Stdout;
 
         if (run.Status != 0)

@@ -163,8 +163,13 @@ OpenCode has no stop hook, so the end-of-turn check stays manual. Run `litespec 
 
 The hooks above and the MCP service are independent pieces. The [AI and Model Context Protocol](../ext/ai-mcp.md) extension separately covers a shipped MCP server, a local process that an LLM client starts on the user's own machine so the model can call the product's public API. Install the recipes on this page whether or not your project ships that server.
 
+### Serve the Warm Model to Agents
+
+When an agent works through the MCP tools instead of the command line, run `litespec serve` from the consumer root. It loads the project model once, keeps it warm across edits, and answers the four agent tools: the task packet, the open findings, the impact of a record, and the slice verification of one use case. The [Serve](../tools/serve.md) page states the tools and their shapes.
+
 ## Check
 
 - Run `litespec agent sync --check` from the consumer root and confirm it reports no file would change.
 - Edit one consumer file and confirm the agent sees the `hook post-edit` output for that file beside the edit result.
 - Run `litespec hook pre-stop` from the consumer root. With no blocking finding it prints one line and exits 0, and with one it prints the findings and exits 2.
+- Start `litespec serve` from the consumer root and confirm `tools/list` answers the four agent tools.

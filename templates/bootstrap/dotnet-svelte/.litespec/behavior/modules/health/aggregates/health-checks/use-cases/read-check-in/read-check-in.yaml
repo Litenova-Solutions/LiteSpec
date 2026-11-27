@@ -1,0 +1,109 @@
+type: use-case
+id: use-case/health.read-check-in
+title: Read Check-in
+summary: Health returns one recorded check-in with its state so the record screen shows it.
+kind: query
+access:
+  grant: signed-in
+  tenant: none
+  tenantReason: The Health sample is a single-tenant starter with no tenant split.
+serves:
+- step/look-over-check-ins.read-check-in
+via:
+- entry-point/__SCOPE__-app
+http:
+  method: GET
+  route: /api/health/check-ins/{checkInId}
+inputs:
+- name: checkInId
+  meaning: The check-in to read.
+  type: id
+  identifies: aggregate/health.health-check
+  required: true
+  origin: caller
+  classification: internal
+outputs:
+  include:
+    checkIn:
+      fields:
+      - name: checkInId
+        meaning: The read check-in.
+        type: id
+        identifies: aggregate/health.health-check
+      - name: recordedAt
+        meaning: The moment the check-in was recorded.
+        type: date-time
+      - name: note
+        meaning: The note recorded with the check-in, if any.
+        type: text
+      - name: state
+        meaning: The state code the check-in is in.
+        type: text
+      classification: internal
+      reads:
+      - aggregate/health.health-check
+      freshness:
+        mode: immediate
+paging:
+  mode: none
+  reason: One check-in answers the query.
+reads:
+- aggregate/health.health-check
+audit:
+  level: required
+  category: personal-data-read
+  targetKind: health-check
+steps:
+- statement: The record screen names one check-in.
+  cites:
+  - aggregate/health.health-check
+- statement: Health returns the check-in with its recorded state.
+  cites:
+  - result/read-check-in.read
+  - aggregate/health.health-check
+- statement: Health refuses the read with `health.check-in-unknown` when the check-in is unknown.
+  cites:
+  - result/read-check-in.check-in-unknown
+results:
+- id: result/read-check-in.read
+  title: Read
+  outcome: success
+  meaning: The check-in is read.
+- id: result/read-check-in.check-in-unknown
+  title: Check-in Unknown
+  outcome: refusal
+  refusal: refusal/health.check-in-unknown
+  message: The check-in is unknown.
+scenarios:
+- id: scenario/read-check-in.reading-a-recorded-check-in-succeeds
+  title: Reading a Recorded Check-in Succeeds
+  given: Ava recorded a check-in in the morning.
+  when: Ava opens the check-in from the list.
+  then: The check-in is read with its recorded state.
+  result: result/read-check-in.read
+  exercises: []
+  probe:
+    as: person/ava
+    request:
+      method: GET
+      path: /api/health/check-ins/{recordedCheckIn}
+    expect:
+      status: 200
+      fields:
+      - path: /state
+        equals: recorded
+- id: scenario/read-check-in.reading-unknown-check-in-refused
+  title: Reading Unknown Check-in Refused
+  given: No check-in carries the named identifier.
+  when: Ava opens the check-in from a stale link.
+  then: The read is refused because the check-in is unknown.
+  result: result/read-check-in.check-in-unknown
+  exercises: []
+  probe:
+    as: person/ava
+    request:
+      method: GET
+      path: /api/health/check-ins/0190a000-0000-7000-8000-000000000000
+    expect:
+      status: 404
+      refusal: health.check-in-unknown

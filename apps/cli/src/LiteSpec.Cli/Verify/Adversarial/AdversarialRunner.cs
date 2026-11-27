@@ -97,7 +97,7 @@ internal static class AdversarialRunner
             return true;
         }
 
-        var request = ResolvedProbeRequest.From(probe, VerifyValues.Of(config), ShortNameOf(person));
+        var request = ResolvedProbeRequest.From(probe, VerifyValues.Of(config, baseUrl), ShortNameOf(person));
 
         int status;
 
@@ -156,7 +156,7 @@ internal static class AdversarialRunner
             return true;
         }
 
-        var request = ResolvedProbeRequest.From(probe, VerifyValues.Of(config), ShortNameOf(probe.As));
+        var request = ResolvedProbeRequest.From(probe, VerifyValues.Of(config, baseUrl), ShortNameOf(probe.As));
         var outcomes = new (bool Reached, int Status, string Body)[RaceRepeatCount];
 
         Parallel.For(0, RaceRepeatCount, index =>
@@ -237,7 +237,7 @@ internal static class AdversarialRunner
             return;
         }
 
-        if (ResolvedProbeRequest.ResolveBody(probe.Body, VerifyValues.Of(config), ShortNameOf(probe.As)) is not { } resolved
+        if (ResolvedProbeRequest.ResolveBody(probe.Body, VerifyValues.Of(config, baseUrl), ShortNameOf(probe.As)) is not { } resolved
             || JsonNode.Parse(resolved) is not { } body)
         {
             return;
@@ -255,7 +255,7 @@ internal static class AdversarialRunner
             return;
         }
 
-        var template = ResolvedProbeRequest.From(probe, VerifyValues.Of(config), ShortNameOf(probe.As));
+        var template = ResolvedProbeRequest.From(probe, VerifyValues.Of(config, baseUrl), ShortNameOf(probe.As));
 
         foreach (var (label, bodyJson) in variants)
         {
@@ -324,7 +324,7 @@ internal static class AdversarialRunner
 
         try
         {
-            var session = ProbeSession.SignIn(person, baseUrl, config.Verify.SignIn, VerifyValues.Of(config), config.Verify.Headers);
+            var session = ProbeSession.SignIn(person, baseUrl, config.Verify.SignIn, VerifyValues.Of(config, baseUrl), config.Verify.Headers);
             sessions[key] = session;
             return session;
         }

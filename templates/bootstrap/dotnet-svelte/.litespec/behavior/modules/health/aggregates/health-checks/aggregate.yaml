@@ -1,0 +1,21 @@
+type: aggregate
+id: aggregate/health.health-check
+title: Health Check
+summary: A health check is one recorded check-in moment the Health module holds.
+states:
+- name: Recorded
+  meaning: The check-in is stored with its time and note.
+transitions:
+- from: "-"
+  to: Recorded
+  movedBy: use-case/health.record-check-in
+data:
+- name: recordedAt
+  meaning: The moment the check-in was recorded.
+  classification: internal
+- name: note
+  meaning: The note recorded with the check-in, if any.
+  classification: internal
+- name: state
+  meaning: The lifecycle state of the check-in.
+  classification: internal

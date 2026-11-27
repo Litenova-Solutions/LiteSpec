@@ -1,0 +1,8 @@
+type: rule
+id: rule/health.note-length
+title: Note Length
+kind: invariant
+statement: A check-in note holds at most 500 characters.
+governs:
+- aggregate/health.health-check
+rationale: A short note keeps the list readable and bounds what each check-in stores.
