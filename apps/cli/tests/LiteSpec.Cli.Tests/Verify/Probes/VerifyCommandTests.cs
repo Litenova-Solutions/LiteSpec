@@ -239,6 +239,42 @@ public sealed class VerifyCommandTests
         Assert.DoesNotContain("/", server.Paths);
     }
 
+    /// <summary>A secure session cookie from a loopback host goes back on the probe, as a browser sends it to localhost.</summary>
+    [Fact]
+    public void SecureCookieFromLoopbackGoesBackOnTheProbe()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddCast(temp.Path);
+        AddSignIn(temp.Path);
+        AddNamedProbe(temp.Path, "borrow-copy", "scenario/borrow-copy.with-session", "person/ava", 200);
+
+        using var server = TestProbeServer.Start((request, body) => (200, """{"state":"lent"}"""));
+        server.SignInCookie = "__Host-library-session=abc; path=/; secure; samesite=lax; httponly";
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        var probe = server.Headers.Last();
+        Assert.Contains("__Host-library-session=abc", probe["Cookie"] ?? string.Empty, StringComparison.Ordinal);
+    }
+
+    /// <summary>A person signed in sends no cookie that another person's sign-in set.</summary>
+    [Fact]
+    public void AnonymousProbeSendsNoSessionCookie()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddCast(temp.Path);
+        AddSignIn(temp.Path);
+        AddNamedProbe(temp.Path, "borrow-copy", "scenario/borrow-copy.with-session", "person/ava", 200);
+        AddAnonymousProbe(temp.Path, "extend-loan", "scenario/extend-loan.anonymous", 200, "/state", "lent");
+
+        using var server = TestProbeServer.Start((request, body) => (200, """{"state":"lent"}"""));
+        server.SignInCookie = "__Host-library-session=abc; path=/; secure; samesite=lax; httponly";
+        var result = RunVerify(temp.Path, server.BaseUrl);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains(server.Headers, headers => headers["Cookie"] is null);
+    }
+
     /// <summary>The verify headers go on every sign-in and probe request.</summary>
     [Fact]
     public void VerifyHeadersGoOnEveryRequest()

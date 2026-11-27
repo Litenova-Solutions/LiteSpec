@@ -16,11 +16,13 @@ internal sealed class ProbeSession : IDisposable
     /// <param name="person">The cast person id, or null for anonymous.</param>
     /// <param name="client">The HTTP client sending with the session cookies.</param>
     /// <param name="cookies">The cookie container holding the session.</param>
-    private ProbeSession(string? person, HttpClient client, CookieContainer cookies)
+    /// <param name="cookieUri">The address the session keeps its cookies under.</param>
+    private ProbeSession(string? person, HttpClient client, CookieContainer cookies, Uri cookieUri)
     {
         Person = person;
         Client = client;
         Cookies = cookies;
+        CookieUri = cookieUri;
     }
 
     /// <summary>Gets the cast person id, or null for anonymous.</summary>
@@ -31,6 +33,12 @@ internal sealed class ProbeSession : IDisposable
 
     /// <summary>Gets the cookie container holding the session.</summary>
     public CookieContainer Cookies { get; }
+
+    /// <summary>
+    ///     Gets the address the session keeps its cookies under: the base address, with the https scheme for a
+    ///     loopback host, because a browser treats localhost as a secure context and sends it a secure cookie.
+    /// </summary>
+    public Uri CookieUri { get; }
 
     /// <summary>Signs one cast person in through the verify sign-in requests.</summary>
     /// <param name="person">The cast person id, or null for anonymous.</param>
@@ -51,15 +59,16 @@ internal sealed class ProbeSession : IDisposable
 
         // The session never follows a redirect: a sign-in that redirects has set its cookie, and a probe sees the
         // answer the host gave, not the page a redirect leads to.
-        var handler = new HttpClientHandler { CookieContainer = cookies, AllowAutoRedirect = false };
-        var client = new HttpClient(handler) { BaseAddress = new Uri(EnsureSlash(baseUrl)), Timeout = TimeSpan.FromSeconds(10) };
+        var handler = new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false };
+        var baseUri = new Uri(EnsureSlash(baseUrl));
+        var client = new HttpClient(handler) { BaseAddress = baseUri, Timeout = TimeSpan.FromSeconds(10) };
 
         foreach (var (name, value) in headers)
         {
             client.DefaultRequestHeaders.TryAddWithoutValidation(name, value);
         }
 
-        var session = new ProbeSession(person, client, cookies);
+        var session = new ProbeSession(person, client, cookies, CookieUriOf(baseUri));
 
         try
         {
@@ -85,7 +94,7 @@ internal sealed class ProbeSession : IDisposable
 
                 try
                 {
-                    response = client.Send(message, HttpCompletionOption.ResponseHeadersRead);
+                    response = session.Exchange(message);
                 }
                 catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException or InvalidOperationException or UriFormatException)
                 {
@@ -127,7 +136,7 @@ internal sealed class ProbeSession : IDisposable
 
         try
         {
-            response = Client.Send(message, HttpCompletionOption.ResponseHeadersRead);
+            response = Exchange(message);
         }
         catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException or InvalidOperationException or UriFormatException)
         {
@@ -143,6 +152,46 @@ internal sealed class ProbeSession : IDisposable
 
     /// <summary>Releases the HTTP client.</summary>
     public void Dispose() => Client.Dispose();
+
+    /// <summary>Sends one request with the session cookies and keeps the cookies the answer sets.</summary>
+    /// <param name="message">The request.</param>
+    /// <returns>The answer.</returns>
+    private HttpResponseMessage Exchange(HttpRequestMessage message)
+    {
+        var header = Cookies.GetCookieHeader(CookieUri);
+
+        if (header.Length > 0)
+        {
+            message.Headers.TryAddWithoutValidation("Cookie", header);
+        }
+
+        var response = Client.Send(message, HttpCompletionOption.ResponseHeadersRead);
+
+        if (response.Headers.TryGetValues("Set-Cookie", out var setCookies))
+        {
+            foreach (var setCookie in setCookies)
+            {
+                try
+                {
+                    Cookies.SetCookies(CookieUri, setCookie);
+                }
+                catch (CookieException)
+                {
+                    // A cookie the container cannot read is not this session's; the probe answer shows its effect.
+                }
+            }
+        }
+
+        return response;
+    }
+
+    /// <summary>The address the session keeps its cookies under, with the https scheme for a loopback host.</summary>
+    /// <param name="baseUri">The base address of the host.</param>
+    /// <returns>The cookie address.</returns>
+    private static Uri CookieUriOf(Uri baseUri) =>
+        baseUri.IsLoopback && baseUri.Scheme == Uri.UriSchemeHttp
+            ? new UriBuilder(baseUri) { Scheme = Uri.UriSchemeHttps, Port = baseUri.Port }.Uri
+            : baseUri;
 
     /// <summary>The short person name without the person/ prefix.</summary>
     /// <param name="person">The cast person id, such as person/ava.</param>

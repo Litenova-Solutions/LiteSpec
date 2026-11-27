@@ -43,6 +43,9 @@ sealed class TestProbeServer : IDisposable
     public static TestProbeServer Start(Func<HttpListenerRequest, string?, (int Status, string Body)> handler) =>
         new(FreePort(), handler);
 
+    /// <summary>Gets or sets the Set-Cookie header every sign-in answer under /auth/ carries, or null for none.</summary>
+    public string? SignInCookie { get; set; }
+
     /// <summary>Stops the server and waits for its loop to end.</summary>
     public void Dispose()
     {
@@ -94,6 +97,11 @@ sealed class TestProbeServer : IDisposable
         var answer = handler(context.Request, body);
         var bytes = Encoding.UTF8.GetBytes(answer.Body);
         context.Response.StatusCode = answer.Status;
+
+        if (SignInCookie is not null && context.Request.Url!.AbsolutePath.StartsWith("/auth/", StringComparison.Ordinal))
+        {
+            context.Response.AppendHeader("Set-Cookie", SignInCookie);
+        }
 
         // A redirect answer carries its target in the body, which becomes the Location header.
         if (answer.Status is >= 300 and < 400)
