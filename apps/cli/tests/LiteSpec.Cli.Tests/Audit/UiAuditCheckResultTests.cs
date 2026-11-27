@@ -20,7 +20,7 @@ public sealed class UiAuditCheckResultTests
 
         try
         {
-            var result = TestCli.Run(
+            var result = TestCli.RunInProcess(
                 "ui", "audit", "--base-url", "http://localhost:4173", "--routes", routes,
                 "--root", consumer.Path, "--out", Path.Combine(consumer.Path, "ui-audit"));
 
@@ -50,7 +50,7 @@ public sealed class UiAuditCheckResultTests
 
         try
         {
-            var result = TestCli.Run(
+            var result = TestCli.RunInProcess(
                 "ui", "audit", "--base-url", "http://localhost:4173", "--routes", routes,
                 "--root", consumer.Path, "--out", Path.Combine(consumer.Path, "ui-audit"));
 
@@ -80,7 +80,7 @@ public sealed class UiAuditCheckResultTests
 
         try
         {
-            var result = TestCli.Run(
+            var result = TestCli.RunInProcess(
                 "ui", "audit", "--base-url", "http://localhost:4173", "--routes", routes,
                 "--fail-on", "none", "--root", consumer.Path, "--out", Path.Combine(consumer.Path, "ui-audit"));
 

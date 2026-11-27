@@ -45,11 +45,15 @@ sealed class TestProbeServer : IDisposable
 
     /// <summary>Gets or sets the Set-Cookie header every sign-in answer under /auth/ carries, or null for none.</summary>
     public string? SignInCookie { get; set; }
+    volatile bool stopped;
 
     /// <summary>Stops the server and waits for its loop to end.</summary>
     public void Dispose()
     {
-        listener.Stop();
+        stopped = true;
+        // Close stops and disposes the listener once; calling Stop before Close on Unix
+        // triggers a second RemoveListener that re-binds the released port and fails with
+        // Address already in use.
         listener.Close();
         worker.Wait(TimeSpan.FromSeconds(10));
     }
@@ -57,7 +61,7 @@ sealed class TestProbeServer : IDisposable
     /// <summary>Answers requests until the listener stops.</summary>
     void Loop()
     {
-        while (listener.IsListening)
+        while (!stopped)
         {
             HttpListenerContext context;
 

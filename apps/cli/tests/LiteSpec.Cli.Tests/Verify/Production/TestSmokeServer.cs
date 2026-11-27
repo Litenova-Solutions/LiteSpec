@@ -34,6 +34,7 @@ sealed class TestSmokeServer : IDisposable
     /// <summary>Gets the number of requests the server answered.</summary>
     public int Hits => hits;
     int hits;
+    volatile bool stopped;
 
     /// <summary>Starts a server that answers each request from the handler.</summary>
     /// <param name="handler">The handler that answers one request with a status and a body.</param>
@@ -44,7 +45,10 @@ sealed class TestSmokeServer : IDisposable
     /// <summary>Stops the server and waits for its loop to end.</summary>
     public void Dispose()
     {
-        listener.Stop();
+        stopped = true;
+        // Close stops and disposes the listener once; calling Stop before Close on Unix
+        // triggers a second RemoveListener that re-binds the released port and fails with
+        // Address already in use.
         listener.Close();
         worker.Wait(TimeSpan.FromSeconds(10));
     }
@@ -52,7 +56,7 @@ sealed class TestSmokeServer : IDisposable
     /// <summary>Answers requests until the listener stops.</summary>
     void Loop()
     {
-        while (listener.IsListening)
+        while (!stopped)
         {
             HttpListenerContext context;
 

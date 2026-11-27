@@ -154,6 +154,16 @@ static class TestCli
     /// <returns>The exit code and the two output streams of the run.</returns>
     public static CliResult Run(params string[] args) => Run((IEnumerable<string>)args);
 
+    /// <summary>
+    ///     Runs <c>litespec</c> inside this process even when <see cref="Executable"/> or
+    ///     <c>LITESPEC_TEST_PROCESS</c> is set. Use only for tests that install an in-process
+    ///     fake hook (such as <c>AuditBrowser.Runner</c>) that cannot cross a process boundary.
+    /// </summary>
+    /// <param name="args">The command arguments.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
+    public static CliResult RunInProcess(params string[] args) =>
+        RunInProcess(args, workingDirectory: null, environment: null);
+
     /// <summary>A fresh, empty temporary folder that the caller deletes.</summary>
     /// <param name="prefix">The prefix in the temporary folder name.</param>
     /// <returns>The fresh temporary folder.</returns>
