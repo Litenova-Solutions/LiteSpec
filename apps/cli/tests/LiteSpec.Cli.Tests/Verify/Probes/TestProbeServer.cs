@@ -96,24 +96,24 @@ sealed class TestProbeServer : IDisposable
 
         var answer = handler(context.Request, body);
         var bytes = Encoding.UTF8.GetBytes(answer.Body);
-        context.Response.StatusCode = answer.Status;
-
-        if (SignInCookie is not null && context.Request.Url!.AbsolutePath.StartsWith("/auth/", StringComparison.Ordinal))
-        {
-            context.Response.AppendHeader("Set-Cookie", SignInCookie);
-        }
-
-        // A redirect answer carries its target in the body, which becomes the Location header.
-        if (answer.Status is >= 300 and < 400)
-        {
-            context.Response.RedirectLocation = answer.Body;
-        }
-
-        context.Response.ContentType = "application/json";
-        context.Response.ContentLength64 = bytes.Length;
 
         try
         {
+            context.Response.StatusCode = answer.Status;
+
+            if (SignInCookie is not null && context.Request.Url!.AbsolutePath.StartsWith("/auth/", StringComparison.Ordinal))
+            {
+                context.Response.AppendHeader("Set-Cookie", SignInCookie);
+            }
+
+            // A redirect answer carries its target in the body, which becomes the Location header.
+            if (answer.Status is >= 300 and < 400)
+            {
+                context.Response.RedirectLocation = answer.Body;
+            }
+
+            context.Response.ContentType = "application/json";
+            context.Response.ContentLength64 = bytes.Length;
             context.Response.OutputStream.Write(bytes, 0, bytes.Length);
         }
         catch (HttpListenerException)
@@ -122,9 +122,24 @@ sealed class TestProbeServer : IDisposable
         catch (IOException)
         {
         }
+        catch (InvalidOperationException)
+        {
+        }
         finally
         {
-            context.Response.Close();
+            try
+            {
+                context.Response.Close();
+            }
+            catch (HttpListenerException)
+            {
+            }
+            catch (IOException)
+            {
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
     }
 

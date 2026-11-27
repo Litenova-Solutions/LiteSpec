@@ -87,7 +87,7 @@ starter="$work/starter"
 mkdir -p "$starter"
 cd "$starter"
 prepare
-litespec init --preset dotnet-react --size small --install "$install"
+litespec init --preset dotnet-svelte --size small --install "$install"
 test -f .litespec/project.yaml
 grep -Eq "^reviewedLiteSpecVersion: ['\"]?$version['\"]?\$" .litespec/project.yaml
 

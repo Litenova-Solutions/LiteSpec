@@ -81,12 +81,12 @@ sealed class TestSmokeServer : IDisposable
         ForwardedProto[context.Request.Url!.AbsolutePath] = context.Request.Headers["X-Forwarded-Proto"];
         Interlocked.Increment(ref hits);
         var bytes = Encoding.UTF8.GetBytes(answer.Body);
-        context.Response.StatusCode = answer.Status;
-        context.Response.ContentType = "application/json";
-        context.Response.ContentLength64 = bytes.Length;
 
         try
         {
+            context.Response.StatusCode = answer.Status;
+            context.Response.ContentType = "application/json";
+            context.Response.ContentLength64 = bytes.Length;
             context.Response.OutputStream.Write(bytes, 0, bytes.Length);
         }
         catch (HttpListenerException)
@@ -99,7 +99,7 @@ sealed class TestSmokeServer : IDisposable
         }
         catch (InvalidOperationException)
         {
-            // The server stopped while the answer was still written; nothing is owed back.
+            // The server stopped or closed while the answer was still written; nothing is owed back.
         }
         finally
         {
