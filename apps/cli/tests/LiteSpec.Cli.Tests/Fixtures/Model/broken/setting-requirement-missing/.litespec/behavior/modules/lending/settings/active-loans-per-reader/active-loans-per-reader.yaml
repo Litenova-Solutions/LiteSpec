@@ -1,8 +1,9 @@
 type: setting
 id: setting/lending.active-loans-per-reader
 title: Active loans per reader
-valueType: integer
-default: 5
-range: 1 to 20
-unit: loans
+value:
+  type: integer
+  default: 5
+  range: 1 to 20
+  unit: loans
 setBy: decider

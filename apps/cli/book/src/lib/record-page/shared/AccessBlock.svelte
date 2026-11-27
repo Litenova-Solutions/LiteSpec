@@ -16,7 +16,7 @@
   const auth = $derived(stringList(a, "authentication"));
   const grant = $derived(a ? (stringField(a, "grant") ?? "") : "");
   const selfGrant = $derived(grant.startsWith("self(") && grant.endsWith(")") ? grant.slice(5, -1) : "");
-  const reachedThrough = $derived(stringList(f, "reachedThrough"));
+  const via = $derived(stringList(f, "via"));
   const tenant = $derived(tenantWord(a?.tenant));
 </script>
 
@@ -38,9 +38,9 @@
         {/if}
       </DefinitionRow>
       <DefinitionRow label="Tenant">{capitalize(tenant)}</DefinitionRow>
-      {#if reachedThrough.length}
+      {#if via.length}
         <DefinitionRow label="Reached through">
-          {#each reachedThrough as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={x} />{/each}
+          {#each via as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={x} />{/each}
         </DefinitionRow>
       {/if}
       <DefinitionRow label="Roles">

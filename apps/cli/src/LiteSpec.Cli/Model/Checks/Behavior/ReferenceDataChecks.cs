@@ -776,16 +776,16 @@ internal static class ReferenceDataChecks
         return found;
     }
 
-    /// <summary>The input and output field entries of a use case: its input list with its command output list or its query output groups.</summary>
+    /// <summary>The inputs and outputs field entries of a use case: its inputs list with its command outputs list or its query outputs groups.</summary>
     /// <param name="useCase">The use-case record whose fields are read.</param>
     /// <returns>The field entries in written order.</returns>
     private static List<JsonElement> FieldEntriesOf(Record useCase)
     {
         var fields = new List<JsonElement>();
-        fields.AddRange(useCase.Objects(RecordFields.Input));
+        fields.AddRange(useCase.Objects(RecordFields.Inputs));
 
         if (useCase.Raw.ValueKind != JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Output, out var output))
+            || !useCase.Raw.TryGetProperty(RecordFields.Outputs, out var output))
         {
             return fields;
         }

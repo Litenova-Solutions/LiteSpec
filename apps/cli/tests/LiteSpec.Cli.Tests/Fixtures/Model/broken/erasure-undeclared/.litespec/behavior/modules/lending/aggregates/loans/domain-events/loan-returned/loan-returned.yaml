@@ -2,7 +2,7 @@ type: domain-event
 id: domain-event/loan.loan-returned
 title: Loan returned
 meaning: A copy was returned.
-carries:
+fields:
   - name: loanId
     type: text
   - name: returnedAt

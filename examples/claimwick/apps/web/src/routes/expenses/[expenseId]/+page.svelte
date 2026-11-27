@@ -5,13 +5,11 @@
 </script>
 
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import {
     approveExpense,
     attachReceipt,
     client,
-    erasePersonalData,
     refuseExpense,
     reimburseExpense,
     type ExpenseRow,
@@ -34,13 +32,11 @@
   let refusing = $state(false);
   let attaching = $state(false);
   let reimbursing = $state(false);
-  let erasing = $state(false);
 
   let approvalNotice = $state<string | null>(null);
   let refusalNotice = $state<string | null>(null);
   let attachNotice = $state<string | null>(null);
   let reimburseNotice = $state<string | null>(null);
-  let eraseNotice = $state<string | null>(null);
 
   async function loadExpense(): Promise<void> {
     loading = true;
@@ -134,23 +130,7 @@
     }
   }
 
-  async function erase(): Promise<void> {
-    erasing = true;
-    eraseNotice = null;
-    try {
-      await erasePersonalData({ throwOnError: true, path: { expenseId } });
-      await goto("/expenses");
-    } catch (error) {
-      eraseNotice = sentenceFor(
-        "erase",
-        error,
-        "The personal data could not be erased. Try again in a moment.",
-      );
-    } finally {
-      erasing = false;
-    }
-  }
-</script>
+  const erasureHref = `/expenses/${expenseId}/erasure`;</script>
 
 <ListPage title={expenseId}>
   <nav aria-label="Breadcrumb">
@@ -239,12 +219,7 @@
 
     <section aria-label="Personal data">
       <h2>Personal data</h2>
-      <button onclick={() => void erase()} disabled={erasing}>
-        {erasing ? "Erasing personal data." : "Erase Personal Data"}
-      </button>
-      {#if eraseNotice}
-        <p role="alert">{eraseNotice}</p>
-      {/if}
+      <p><a href={erasureHref}>Erase personal data</a></p>
     </section>
   {/if}
 </ListPage>

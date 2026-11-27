@@ -17,7 +17,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "returns-first-result"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "returns-first-result"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: true)");
 
         Assert.Empty(Run(model));
@@ -30,7 +30,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "returns-first-result"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "returns-first-result"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: false)");
 
         var finding = Assert.Single(Run(model));
@@ -47,7 +47,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "refuses"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "refuses"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: false)");
 
         Assert.Empty(Run(model));
@@ -60,7 +60,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "refuses"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "refuses"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: true)");
 
         var finding = Assert.Single(Run(model));
@@ -77,7 +77,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "acts-again"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "acts-again"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: false)");
 
         Assert.Empty(Run(model));
@@ -90,7 +90,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "acts-again"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "acts-again"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: true)");
 
         var finding = Assert.Single(Run(model));
@@ -107,7 +107,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "returns-first-result"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "returns-first-result"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\")");
 
         Assert.Contains(Run(model), finding => finding.Code == "idempotency-replay-drift");
@@ -120,7 +120,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "returns-first-result"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "returns-first-result"}}""");
         WriteDefinition(folder, "new IdempotencyDeclaration(static message => \"copy-id\") { ReplayResult = true }");
 
         Assert.Empty(Run(model));
@@ -133,7 +133,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "returns-first-result"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "returns-first-result"}}""");
         WriteDefinition(folder, "new IdempotencyDeclaration(static message => \"copy-id\") { ReplayResult = false }");
 
         var finding = Assert.Single(Run(model));
@@ -165,7 +165,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant"}}""");
         WriteDefinition(folder, "IdempotencyDeclaration.Idempotent(static message => \"copy-id\", scope: \"tenant\", replayResult: true)");
 
         Assert.Empty(Run(model));
@@ -178,7 +178,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "returns-first-result"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "returns-first-result"}}""");
 
         Assert.Empty(Run(model));
     }
@@ -190,7 +190,7 @@ public sealed class IdempotencyReplayCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant", "replay": "refuses"}}""");
+        var model = ReplayModel(temp.Path, folder, """{"access": {"grant": "permission/borrow-copy", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant", "replay": "refuses"}}""");
         File.WriteAllText(Path.Combine(folder, "BorrowCopyCommandIdempotencyDefinition.cs"), "internal sealed class BorrowCopyCommandIdempotencyDefinition : IIdempotencyDefinition<BorrowCopyCommand>\n{\n    public IdempotencyDeclaration Idempotency { get; } = IdempotencyDeclaration.Idempotent(static message =>\n}\n");
 
         Assert.Empty(Run(model));

@@ -17,7 +17,7 @@
   import { objectList, stringList } from "../page-values";
   import { useCaseModel } from "./use-case-model";
 
-  // A use case: access, data, input and output, effects, results and scenarios.
+  // A use case: access, data, inputs and outputs, effects, results and scenarios.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f = $derived(r.fields ?? {});
@@ -30,11 +30,10 @@
   const model = $derived(useCaseModel(f, r, resultInputs));
   const scs = $derived(book.scenariosOf(id).filter((s) => book.get(stripStep(s))));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
-  const exposure = $derived(proseOf(r, "exposure"));
   const steps = $derived(objectList(f, "steps"));
   const edgeCases = $derived(stringList(f, "edgeCases"));
   const inputClassification = $derived.by(() => {
-    const all = model.input.map((x) => String(x.classification ?? ""));
+    const all = model.inputs.map((x) => String(x.classification ?? ""));
     if (!all.length || !all[0]) return "";
     return all.every((c) => c === all[0]) ? (all[0] ?? "") : "";
   });
@@ -42,7 +41,6 @@
   function inputQualifiers(x: RecordFields): string {
     const quals = [
       x.required === true ? "required" : x.required === false ? "optional" : "",
-      x.many ? "many" : "",
       x.origin ? "from " + String(x.origin) : "",
     ].filter(Boolean);
     return quals.length ? muted(quals.map(esc).join(" &middot; ")) : "";
@@ -61,9 +59,6 @@
 
 {#if whatHappens}
   <PageSection blockKey="wh" heading="whatHappens"><RenderedProse html={whatHappens} /></PageSection>
-{/if}
-{#if exposure}
-  <PageSection blockKey="exp" heading="exposure"><RenderedProse html={exposure} /></PageSection>
 {/if}
 {#if steps.length}
   <PageSection blockKey="steps" heading="steps" count={steps.length}>
@@ -84,12 +79,12 @@
 {/if}
 <AccessBlock {id} {f} />
 <DataTouched {id} {f} guarantees carrier={r.type} />
-{#if model.input.length}
-  <PageSection blockKey="in" heading="input" count={model.input.length}>
+{#if model.inputs.length}
+  <PageSection blockKey="in" heading="inputs" count={model.inputs.length}>
     <DataTable
       head={["Name", "Type", "Meaning", "Rules"]}
-      caption={`Input of ${r.title}`}
-      rows={model.input.map((x) => [
+      caption={`Inputs of ${r.title}`}
+      rows={model.inputs.map((x) => [
         thRow(
           codeOf(String(x.name ?? "")) +
             inputQualifiers(x) +
@@ -106,7 +101,7 @@
   </PageSection>
 {/if}
 {#if model.hasOutput}
-  <PageSection blockKey="out" heading="output">
+  <PageSection blockKey="out" heading="outputs">
     {#if model.outputSections.length}
       {#each model.outputSections as s (s.key)}
         <div class="mt-6 mb-2 text-sm font-semibold text-text-secondary">

@@ -86,10 +86,10 @@ export const SITE_DEFAULT_COMMAND = "dotnet litespec";
 /** The layers the site fills: the consumer template claims every layer for LiteSpec. */
 export const SITE_DEFAULT_LAYERS = "intent and behavior: litespec, implementation and proof: litespec";
 
-/** The stacks of the site's default selection: the first backend stack with React when published. */
+/** The stacks of the site's default selection: the first backend stack with the first frontend stack when published. */
 export function siteDefaultStacks(): string[] {
   const backend = backendStacks[0] ?? "";
-  const frontend = frontendStacks.includes("react") ? "react" : (frontendStacks[0] ?? "");
+  const frontend = frontendStacks.includes("svelte") ? "svelte" : (frontendStacks[0] ?? "");
   return frontend ? [backend, frontend] : [backend];
 }
 

@@ -89,8 +89,8 @@ public sealed class ReactionSubscriptionCheckTests
         var model = TestModel.Model(
             TestModel.Config(root),
             TestModel.Record("reaction", "reaction/lending.notify-reader-on-borrow", Path.Combine(root, "notify.yaml"), """{"status": "reviewed", "triggeredBy": [""" + triggerList + """], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(root, "borrowed.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-returned", Path.Combine(root, "returned.yaml"), """{"status": "reviewed", "meaning": "A copy was returned.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(root, "borrowed.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "fields": []}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-returned", Path.Combine(root, "returned.yaml"), """{"status": "reviewed", "meaning": "A copy was returned.", "fields": []}"""));
 
         var file = Path.Combine(root, "NotifyReaderOnCopyBorrowedHandler.cs");
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(root, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
@@ -109,8 +109,8 @@ public sealed class ReactionSubscriptionCheckTests
         var model = TestModel.Model(
             TestModel.Config(root),
             TestModel.Record("reaction", "reaction/lending.notify-reader-on-borrow", Path.Combine(root, "notify.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(root, "borrowed.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-returned", Path.Combine(root, "returned.yaml"), """{"status": "reviewed", "meaning": "A copy was returned.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(root, "borrowed.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "fields": []}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-returned", Path.Combine(root, "returned.yaml"), """{"status": "reviewed", "meaning": "A copy was returned.", "fields": []}"""));
 
         var file = Path.Combine(root, "NotifyReaderOnCopyBorrowedHandler.cs");
         model.Code.Events.Add(new CodeDomainEvent("LoanEvent", Path.Combine(root, "Borrowing", "LoanEvent.cs"), 3, "domain-event/loan.loan-borrowed"));

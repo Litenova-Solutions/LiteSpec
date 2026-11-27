@@ -11,24 +11,22 @@ access:
 serves: []
 fulfills:
   - requirement/borrowing.copy-shelf-home
-reachedThrough:
+via:
   - entry-point/library-app
 raises:
   - domain-event/copy.copy-retired
-records:
-  - type: result
-    id: result/retire-copy.retired
+results:
+  - id: result/retire-copy.retired
     title: Retired
     outcome: success
     meaning: The copy is retired.
-  - type: result
-    id: result/retire-copy.copy-on-loan
+  - id: result/retire-copy.copy-on-loan
     title: Copy on loan
     outcome: refusal
     code: lending.copy-on-loan
     meaning: The copy is on loan.
-  - type: scenario
-    id: scenario/retire-copy.retiring-an-available-copy-succeeds
+scenarios:
+  - id: scenario/retire-copy.retiring-an-available-copy-succeeds
     title: Retiring an available copy succeeds
     given: A copy sits available past weeding.
     when: The librarian retires the copy.

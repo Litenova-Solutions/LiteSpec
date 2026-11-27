@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Output;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Book.Details;
 
@@ -33,7 +34,7 @@ static class BookRequiresDetail
                     continue;
                 }
 
-                foreach (var cited in BookDetailValues.StringsOf(BookRender.Fields(requirement)?["cites"]))
+                foreach (var cited in BookDetailValues.StringsOf(BookRender.Fields(requirement)?[RecordFields.BasedOn]))
                 {
                     if (string.Equals(cited, id, StringComparison.Ordinal))
                     {

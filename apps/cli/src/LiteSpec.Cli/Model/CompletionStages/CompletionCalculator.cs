@@ -258,7 +258,7 @@ static class CompletionCalculator
     }
 
     /// <summary>
-    ///     One feature's completion from the in-scope requirements citing it and
+    ///     One feature's completion from the in-scope requirements based on it and
     ///     the in-scope flows citing those requirements. The feature is only as
     ///     far as its weakest in-scope child.
     /// </summary>
@@ -273,7 +273,7 @@ static class CompletionCalculator
     {
         var model = facts.Model;
         var citing = facts.OfType(RecordTypes.Requirement)
-            .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(feature.Id, StringComparer.Ordinal))
+            .Where(requirement => requirement.Ids(RecordFields.BasedOn).Contains(feature.Id, StringComparer.Ordinal))
             .ToList();
         var flows = FlowsCiting(facts, citing);
         var inScopeRequirements = InScope(facts, citing);
@@ -337,7 +337,7 @@ static class CompletionCalculator
 
     /// <summary>
     ///     One goal's completion from the in-scope features advancing it, the
-    ///     in-scope flows serving it and the in-scope requirements citing it.
+    ///     in-scope flows serving it and the in-scope requirements based on it.
     ///     The goal is only as far as its weakest in-scope child.
     /// </summary>
     /// <param name="facts">The model's records and links, indexed for this computation.</param>
@@ -353,7 +353,7 @@ static class CompletionCalculator
             .Where(flow => flow.Ids(RecordFields.Serves).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
         var requirements = facts.OfType(RecordTypes.Requirement)
-            .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(goal.Id, StringComparer.Ordinal))
+            .Where(requirement => requirement.Ids(RecordFields.BasedOn).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
         var inScopeFeatures = InScope(facts, features);
         var inScopeFlows = InScope(facts, flows);

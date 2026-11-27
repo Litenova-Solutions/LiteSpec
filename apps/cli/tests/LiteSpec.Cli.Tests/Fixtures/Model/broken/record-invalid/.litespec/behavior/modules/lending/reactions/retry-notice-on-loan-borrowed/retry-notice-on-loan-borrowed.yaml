@@ -9,5 +9,5 @@ onFailure: Retry a few times, then give up.
 idempotency:
   mode: key
   key: notice per loan
-  keyScope: branch-office
+  scope: branch-office
 runs: use-case/lending.return-copy

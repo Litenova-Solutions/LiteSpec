@@ -183,7 +183,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The checkout is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","message":"The checkout is refused."}""",
             temp.Path));
 
         var findings = WithCode(model, "wording-alias");
@@ -205,7 +205,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The sales invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","message":"The sales invoice is refused."}""",
             temp.Path));
 
         Assert.Empty(WithCode(model, "wording-alias"));
@@ -223,7 +223,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","message":"The invoice is refused."}""",
             temp.Path));
 
         var findings = WithCode(model, "wording-alias");
@@ -245,7 +245,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The sales invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","message":"The sales invoice is refused."}""",
             temp.Path));
 
         Assert.Empty(WithCode(model, "wording-alias"));
@@ -264,7 +264,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"The invoice is refused."}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","message":"The invoice is refused."}""",
             temp.Path));
 
         var findings = WithCode(model, "wording-alias");
@@ -325,7 +325,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec(
             "result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentences":{"nl":"De lijst is geweigerd."}}""",
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","translations":{"nl":"De lijst is geweigerd."}}""",
             temp.Path));
 
         Assert.Empty(WithCode(model, "sentence-language-missing"));
@@ -380,7 +380,7 @@ public sealed class UiBlueprintCheckTests
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser","languages":["en","nl"]}""", temp.Path));
         model.Records.Add(Rec("entry-point", "entry-point/kiosk", """{"kind":"browser","languages":["en","fr"]}""", temp.Path));
         model.Records.RemoveAll(record => record.Id == "use-case/lending.list-loans");
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app","entry-point/kiosk"]}""", temp.Path));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","via":["entry-point/app","entry-point/kiosk"]}""", temp.Path));
 
         var finding = Assert.Single(WithCode(model, "sentence-language-missing"));
 
@@ -399,7 +399,7 @@ public sealed class UiBlueprintCheckTests
     {
         foreach (var name in names)
         {
-            model.Records.Add(Rec("use-case", $"use-case/lending.{name}", """{"kind":"command","reachedThrough":["entry-point/app"]}""", root));
+            model.Records.Add(Rec("use-case", $"use-case/lending.{name}", """{"kind":"command","via":["entry-point/app"]}""", root));
         }
     }
 
@@ -460,14 +460,14 @@ public sealed class UiBlueprintCheckTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","via":["entry-point/app"]}""", root));
         model.Records.Add(Rec("result", "result/list-loans.listed", """{"outcome":"success","meaning":"The loans are listed."}""", root));
         model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused"}""", root));
 
         return model;
     }
 
-    static Record Screen(string id, string route, IReadOnlyList<string> offers, IReadOnlyList<string> serves, IReadOnlyList<string>? leadsTo = null, string? pageFramePattern = "list-page", string? primaryAction = null) =>
+    static Record Screen(string id, string route, IReadOnlyList<string> offers, IReadOnlyList<string> serves, IReadOnlyList<string>? leadsTo = null, string? primaryAction = null) =>
         new()
         {
             Type = "screen",
@@ -480,14 +480,10 @@ public sealed class UiBlueprintCheckTests
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":" + JsonSerializer.Serialize(serves)
                 + ",\"leadsTo\":" + JsonSerializer.Serialize(leadsTo ?? [])
-                + PageFrameJson(pageFramePattern)
+                + ",\"job\":\"The reader lists loans and opens one to read it.\""
+                + ",\"archetype\":\"ListPage\""
                 + PrimaryActionJson(primaryAction) + "}").RootElement.Clone(),
         };
-
-    static string PageFrameJson(string? pattern) =>
-        pattern is null
-            ? ""
-            : ",\"pageFrame\":{\"pattern\":" + JsonSerializer.Serialize(pattern) + ",\"option\":\"search-and-a-state-filter-only\"}";
 
     static string PrimaryActionJson(string? primary) =>
         primary is null ? "" : ",\"primaryAction\":" + JsonSerializer.Serialize(primary);

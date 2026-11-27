@@ -44,7 +44,7 @@
     {#if outcome.observations.length}
       <DataTable
         head={["Date", "Value", "Source"]}
-        rows={outcome.observations.map((o) => [tdHtml(esc(book.fmtDate(o.date))), tdHtml(esc(o.value)), tdHtml(esc(o.source))])}
+        rows={outcome.observations.map((o) => [tdHtml(esc(book.fmtDate(o.observedOn))), tdHtml(esc(o.value)), tdHtml(esc(o.source))])}
       />
     {/if}
   </PageSection>

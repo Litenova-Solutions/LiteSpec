@@ -1,7 +1,7 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
 $id: 'https://litespec.dev/7.0.0/schemas/record.schema.yaml'
 title: LiteSpec Project Record
-description: 'The record file holding a consumer record page: one page record or one container page, with the entry records it carries.'
+description: 'The record file holding a consumer record page: one page record or one container page, with the child entries it carries.'
 oneOf:
 - $ref: '#/$defs/productPage'
 - $ref: '#/$defs/goalPage'
@@ -146,6 +146,38 @@ $defs:
       identity:
         description: True when the part carries its own identity, so an identifies field can name it.
         type: boolean
+      choices:
+        description: The closed set of values the part holds, when the part is a closed set.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+      states:
+        description: The lifecycle states of the part, each with its name, meaning and the states it moves to.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/aggregatePartState'
+  aggregatePartState:
+    description: One lifecycle state of an aggregate part, with its name, meaning and the states it moves to.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - meaning
+    properties:
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      meaning:
+        $ref: '#/$defs/nonEmptyString'
+      transitions:
+        description: The states this state moves to, by name.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/nonEmptyString'
   reactionId:
     type: string
     pattern: '^reaction/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
@@ -164,6 +196,11 @@ $defs:
   referenceDataId:
     type: string
     pattern: '^reference-data/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+  referenceDataIdArray:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/referenceDataId'
   referenceDataRowRef:
     type: string
     pattern: '^reference-data/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*#[a-z0-9][a-z0-9-]*$'
@@ -259,7 +296,7 @@ $defs:
           type: string
           pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
   useCaseStep:
-    description: One step of a use case, in order, with the records it applies.
+    description: One step of a use case, in order, with the entries it applies.
     type: object
     additionalProperties: false
     required:
@@ -268,10 +305,10 @@ $defs:
       statement:
         $ref: '#/$defs/nonEmptyString'
       cites:
-        $ref: '#/$defs/useCaseStepCitesArray'
+        $ref: '#/$defs/useCaseStepAppliesArray'
         x-reads-as: applies
         x-read-back-as: is applied in
-  useCaseStepCitesArray:
+  useCaseStepAppliesArray:
     type: array
     minItems: 1
     uniqueItems: true
@@ -306,7 +343,7 @@ $defs:
     - from
     properties:
       field:
-        description: The field as the use case spells it in its input or output.
+        description: The field as the use case spells it in its inputs or outputs.
         $ref: '#/$defs/nonEmptyString'
       from:
         description: The offered use case that outputs or accepts the field.
@@ -368,7 +405,7 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/domainEventId'
-  reachedThroughArray:
+  useCaseViaArray:
     type: array
     minItems: 1
     uniqueItems: true
@@ -424,13 +461,15 @@ $defs:
       anyOf:
       - $ref: '#/$defs/genericRecordId'
       - $ref: '#/$defs/flowStepId'
-  basedOnArray:
+  ruleBasedOnArray:
     type: array
     uniqueItems: true
     items:
       anyOf:
       - $ref: '#/$defs/constraintId'
       - $ref: '#/$defs/researchId'
+      - $ref: '#/$defs/decisionId'
+      - $ref: '#/$defs/requirementId'
   decisionBasedOnArray:
     type: array
     uniqueItems: true
@@ -445,7 +484,7 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/researchId'
-  citesArray:
+  requirementBasedOnArray:
     type: array
     uniqueItems: true
     items:
@@ -454,14 +493,6 @@ $defs:
       - $ref: '#/$defs/directionId'
       - $ref: '#/$defs/problemId'
       - $ref: '#/$defs/featureId'
-      - $ref: '#/$defs/constraintId'
-      - $ref: '#/$defs/researchId'
-      - $ref: '#/$defs/decisionId'
-  settledBasedOnArray:
-    type: array
-    uniqueItems: true
-    items:
-      anyOf:
       - $ref: '#/$defs/constraintId'
       - $ref: '#/$defs/researchId'
       - $ref: '#/$defs/decisionId'
@@ -509,7 +540,7 @@ $defs:
     minItems: 1
     items:
       $ref: '#/$defs/outcomeEntry'
-  settlesObject:
+  tracksStateObject:
     type: object
     additionalProperties: false
     required:
@@ -569,7 +600,10 @@ $defs:
         x-read-back-as: grants
       tenant:
         $ref: '#/$defs/tenantScope'
-      recentSignIn:
+      tenantReason:
+        description: The reason the use case runs without a tenant or across tenants, stated when tenant is none or cross.
+        $ref: '#/$defs/nonEmptyString'
+      recentSignInWindow:
         anyOf:
         - $ref: '#/$defs/isoDuration'
         - $ref: '#/$defs/settingId'
@@ -757,29 +791,99 @@ $defs:
         not:
           required:
           - choices
-  contractListShape:
-    description: "The rows of a list value: each field of a row with its type, its requiredness and its meaning, the number of rows at least, and the fields that must be unique across rows."
+  contractScalarItem:
+    description: One scalar item of a list value, with its type and the properties that type needs.
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    properties:
+      type:
+        $ref: '#/$defs/contractScalarType'
+      identifies:
+        $ref: '#/$defs/identifiesId'
+        x-reads-as: identifies
+        x-read-back-as: is identified by
+      choices:
+        $ref: '#/$defs/contractFieldChoices'
+      contentTypes:
+        $ref: '#/$defs/contractContentTypes'
+      maxSize:
+        $ref: '#/$defs/contractMaxSize'
+      unique:
+        type: boolean
+    allOf:
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: id
+      then:
+        required:
+        - identifies
+      else:
+        not:
+          required:
+          - identifies
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: choice
+      then:
+        required:
+        - choices
+      else:
+        not:
+          required:
+          - choices
+    - if:
+        required:
+        - type
+        properties:
+          type:
+            const: file
+      then:
+        required:
+        - contentTypes
+        - maxSize
+      else:
+        not:
+          anyOf:
+          - required:
+            - contentTypes
+          - required:
+            - maxSize
+  contractRowItem:
+    description: "One row shape of a list value: an object with named fields."
     type: object
     additionalProperties: false
     required:
     - fields
     properties:
+      type:
+        const: object
       fields:
         type: array
         minItems: 1
         items:
           $ref: '#/$defs/contractRowField'
-      minItems:
-        type: integer
-        minimum: 0
       unique:
+        description: The row fields whose values identify one row, so no two rows share them.
         type: array
         minItems: 1
         uniqueItems: true
         items:
           $ref: '#/$defs/nonEmptyString'
+  contractListItems:
+    description: "The items of a list value: one scalar item shape or one row shape."
+    anyOf:
+    - $ref: '#/$defs/contractScalarItem'
+    - $ref: '#/$defs/contractRowItem'
   contractValueRules:
-    description: Ties a value field's type to the properties that type needs, so an id names a record in identifies, a list names its row shape in rowShape, a choice lists its choices and a file names its media types and size.
+    description: Ties a value field's type to the properties that type needs, so an id names a record in identifies, a list names its item shape in items, a choice lists its choices and a file names its media types and size.
     allOf:
     - if:
         required:
@@ -801,10 +905,10 @@ $defs:
             const: list
       then:
         required:
-        - rowShape
+        - items
         properties:
-          rowShape:
-            $ref: '#/$defs/contractListShape'
+          items:
+            $ref: '#/$defs/contractListItems'
     - if:
         required:
         - type
@@ -824,7 +928,7 @@ $defs:
       else:
         not:
           required:
-          - rowShape
+          - items
     - if:
         required:
         - type
@@ -876,7 +980,7 @@ $defs:
     type: object
     additionalProperties: false
     x-rejected-fields:
-      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on list-row fields under `rowShape`."
+      required: "Output fields take no `required` key: every output field is always present. Put `required` on input fields and on row fields under `items`."
     required:
     - name
     - meaning
@@ -896,16 +1000,15 @@ $defs:
         description: How the module keeps the identifier the field names. Opaque states the module stores and passes the identifier but never loads, queries, or reasons about the named aggregate.
         enum:
         - opaque
-      rowShape:
-        $ref: '#/$defs/contractListShape'
+      items:
+        $ref: '#/$defs/contractListItems'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
         $ref: '#/$defs/contractMaxSize'
-      many:
-        description: True when the field holds a list of values of its type.
+      unique:
         type: boolean
       sign:
         $ref: '#/$defs/amountSign'
@@ -1151,10 +1254,6 @@ $defs:
         $ref: '#/$defs/useCaseId'
         x-reads-as: queries
         x-read-back-as: is queried by
-      commands:
-        $ref: '#/$defs/useCaseId'
-        x-reads-as: commands
-        x-read-back-as: is commanded by
       timing:
         enum:
         - inline
@@ -1175,8 +1274,6 @@ $defs:
       - calls
     - required:
       - queries
-    - required:
-      - commands
   isoDuration:
     type: string
     pattern: '^P(?=.*\d)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$'
@@ -1224,7 +1321,7 @@ $defs:
         - none
       key:
         $ref: '#/$defs/nonEmptyString'
-      keyScope:
+      scope:
         enum:
         - tenant
         - account
@@ -1241,6 +1338,9 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       reason:
         $ref: '#/$defs/nonEmptyString'
+      enforcement:
+        description: How the once-only promise is enforced, in one sentence.
+        $ref: '#/$defs/nonEmptyString'
     allOf:
     - if:
         required:
@@ -1251,7 +1351,7 @@ $defs:
       then:
         required:
         - key
-        - keyScope
+        - scope
     - if:
         required:
         - mode
@@ -1297,7 +1397,7 @@ $defs:
         - bulk-export
         - background-process-change
       target:
-        description: The audited record as one input, a list of two or more inputs forming a composite target, or the output field carrying it when the handler determines it.
+        description: The audited record as one input, a list of two or more inputs forming a composite target, or the outputs field carrying it when the handler determines it.
         anyOf:
         - $ref: '#/$defs/nonEmptyString'
         - type: array
@@ -1308,6 +1408,12 @@ $defs:
         - $ref: '#/$defs/auditTargetFromOutput'
       targetKind:
         $ref: '#/$defs/nonEmptyString'
+      properties:
+        description: The field names the audit trail records for the use case.
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/nonEmptyString'
     allOf:
     - if:
         required:
@@ -1334,7 +1440,7 @@ $defs:
           - required:
             - target
   auditTargetFromOutput:
-    description: The output field carrying the audited record when the handler determines the target.
+    description: The outputs field carrying the audited record when the handler determines the target.
     type: object
     additionalProperties: false
     required:
@@ -1342,7 +1448,7 @@ $defs:
     - field
     properties:
       from:
-        const: output
+        const: outputs
       field:
         $ref: '#/$defs/nonEmptyString'
   auditExempt:
@@ -1451,7 +1557,7 @@ $defs:
     - classification
     - fields
     - onErasure
-    - basis
+    - basedOn
     - period
     - periodStartsAt
     - enforcedBy
@@ -1468,7 +1574,7 @@ $defs:
           $ref: '#/$defs/nonEmptyString'
       onErasure:
         $ref: '#/$defs/erasurePosition'
-      basis:
+      basedOn:
         $ref: '#/$defs/retentionBasisArray'
         x-reads-as: rests on
         x-read-back-as: is the basis for
@@ -1559,12 +1665,17 @@ $defs:
     additionalProperties: false
     properties:
       every:
-        $ref: '#/$defs/isoDuration'
+        description: How often the schedule runs, as a duration or as the setting that states it.
+        x-reads-as: runs every
+        x-read-back-as: sets interval for
+        anyOf:
+        - $ref: '#/$defs/isoDuration'
+        - $ref: '#/$defs/settingId'
       cron:
         $ref: '#/$defs/nonEmptyString'
       at:
         const: startup
-      timezone:
+      timeZone:
         anyOf:
         - $ref: '#/$defs/nonEmptyString'
         - type: object
@@ -1620,69 +1731,107 @@ $defs:
     allOf:
     - if:
         required:
-        - valueType
+        - value
         properties:
-          valueType:
-            const: integer
+          value:
+            required:
+            - type
+            properties:
+              type:
+                const: integer
       then:
         properties:
-          default:
-            type: number
+          value:
+            properties:
+              default:
+                type: number
     - if:
         required:
-        - valueType
+        - value
         properties:
-          valueType:
-            const: duration
+          value:
+            required:
+            - type
+            properties:
+              type:
+                const: duration
       then:
         properties:
-          default:
-            $ref: '#/$defs/isoDuration'
+          value:
+            properties:
+              default:
+                $ref: '#/$defs/isoDuration'
     - if:
         required:
-        - valueType
+        - value
         properties:
-          valueType:
-            const: money
+          value:
+            required:
+            - type
+            properties:
+              type:
+                const: money
       then:
         properties:
-          default:
-            $ref: '#/$defs/moneyValue'
+          value:
+            properties:
+              default:
+                $ref: '#/$defs/moneyValue'
     - if:
         required:
-        - valueType
+        - value
         properties:
-          valueType:
-            const: boolean
+          value:
+            required:
+            - type
+            properties:
+              type:
+                const: boolean
       then:
         properties:
-          default:
-            type: boolean
+          value:
+            properties:
+              default:
+                type: boolean
     - if:
         required:
-        - valueType
+        - value
         properties:
-          valueType:
-            enum:
-            - text
-            - choice
+          value:
+            required:
+            - type
+            properties:
+              type:
+                enum:
+                - text
+                - choice
       then:
         properties:
-          default:
-            type: string
+          value:
+            properties:
+              default:
+                type: string
     - if:
         required:
-        - valueType
+        - value
         properties:
-          valueType:
-            const: choice
+          value:
+            required:
+            - type
+            properties:
+              type:
+                const: choice
       then:
-        required:
-        - choices
+        properties:
+          value:
+            required:
+            - choices
       else:
-        not:
-          required:
-          - choices
+        properties:
+          value:
+            not:
+              required:
+              - choices
   leaseObject:
     type: object
     additionalProperties: false
@@ -1707,7 +1856,7 @@ $defs:
         $ref: '#/$defs/requirementId'
         x-reads-as: claims
         x-read-back-as: is claimed by
-  integrationEventPayload:
+  integrationEventField:
     type: object
     additionalProperties: false
     required:
@@ -1728,22 +1877,21 @@ $defs:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
-      rowShape:
-        $ref: '#/$defs/contractListShape'
+      items:
+        $ref: '#/$defs/contractListItems'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
         $ref: '#/$defs/contractMaxSize'
-      many:
-        description: True when the field holds a list of values of its type.
+      unique:
         type: boolean
       required:
         type: boolean
     allOf:
     - $ref: '#/$defs/contractValueRules'
-  domainEventCarry:
+  domainEventField:
     type: object
     additionalProperties: false
     required:
@@ -1758,14 +1906,16 @@ $defs:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
-      rowShape:
-        $ref: '#/$defs/contractListShape'
+      items:
+        $ref: '#/$defs/contractListItems'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
         $ref: '#/$defs/contractMaxSize'
+      unique:
+        type: boolean
     allOf:
     - $ref: '#/$defs/contractValueRules'
   externalOperation:
@@ -1773,7 +1923,7 @@ $defs:
     additionalProperties: false
     required:
     - name
-    - action
+    - direction
     - timeout
     - rejected
     - accepted
@@ -1784,7 +1934,7 @@ $defs:
     properties:
       name:
         $ref: '#/$defs/nonEmptyString'
-      action:
+      direction:
         enum:
         - send
         - receive
@@ -1960,11 +2110,11 @@ $defs:
     type: object
     additionalProperties: false
     required:
-    - date
+    - observedOn
     - value
     - source
     properties:
-      date:
+      observedOn:
         $ref: '#/$defs/isoDate'
       value:
         anyOf:
@@ -2126,16 +2276,15 @@ $defs:
         description: How the module keeps the identifier the field names. Opaque states the module stores and passes the identifier but never loads, queries, or reasons about the named aggregate.
         enum:
         - opaque
-      rowShape:
-        $ref: '#/$defs/contractListShape'
+      items:
+        $ref: '#/$defs/contractListItems'
       choices:
         $ref: '#/$defs/contractFieldChoices'
       contentTypes:
         $ref: '#/$defs/contractContentTypes'
       maxSize:
         $ref: '#/$defs/contractMaxSize'
-      many:
-        description: True when the field holds a list of values of its type.
+      unique:
         type: boolean
       required:
         type: boolean
@@ -2236,24 +2385,13 @@ $defs:
         uniqueItems: true
         items:
           $ref: '#/$defs/nonEmptyString'
-  pageFrameObject:
-    type: object
-    additionalProperties: false
-    required:
-    - pattern
-    - option
-    properties:
-      pattern:
-        type: string
-        pattern: '^[a-z][a-z0-9-]*$'
-      option:
-        $ref: '#/$defs/nonEmptyString'
-  resultSentences:
+  localeMap:
+    description: Localized text by BCP 47 language tag, beside the product language the record states.
     type: object
     minProperties: 1
     additionalProperties: false
     patternProperties:
-      "^[a-z]{2}$":
+      "^[a-z]{2,3}(-[A-Z]{2})?$":
         $ref: '#/$defs/nonEmptyString'
   refusalEntry:
     type: object
@@ -2274,15 +2412,36 @@ $defs:
       meaning:
         $ref: '#/$defs/nonEmptyString'
       status:
-        description: The HTTP status the refusal answers with when a use case reached through an api or browser entry point cites it. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 stays out.
+        description: The HTTP status the refusal answers with when a use case reached via an api or browser entry point names it. A refusal reporting an upstream system refusing or unreachable answers 503. A server fault is never a refusal, so 500 stays out.
         type: integer
         enum:
         - 400
+        - 401
         - 403
         - 404
         - 409
         - 422
+        - 428
+        - 429
         - 503
+      message:
+        description: The message a person reads when the refusal reaches them, in the product's language.
+        $ref: '#/$defs/nonEmptyString'
+      translations:
+        description: The message in each interface language beside the product's, by BCP 47 language tag.
+        $ref: '#/$defs/localeMap'
+      field:
+        description: The input field the refusal reports on, as the use case spells it.
+        $ref: '#/$defs/nonEmptyString'
+      retryable:
+        description: True when sending the same command again can succeed without changing it.
+        type: boolean
+      fields:
+        description: The typed values the refusal carries beside its message, each with its name, type and meaning.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/refusalField'
       parameters:
         description: The values the meaning varies by, each named in `meaning` as `{name}`; the generator writes a constructor taking them.
         type: array
@@ -2300,19 +2459,21 @@ $defs:
               pattern: '^[A-Za-z_][A-Za-z0-9_]*$'
             meaning:
               $ref: '#/$defs/nonEmptyString'
-  recordsArray:
-    type: array
-    items:
-      oneOf:
-      - $ref: '#/$defs/permissionEntry'
-      - $ref: '#/$defs/resultEntry'
-      - $ref: '#/$defs/scenarioEntry'
-      - $ref: '#/$defs/entryPointEntry'
-  refusalRecordsArray:
-    type: array
-    minItems: 1
-    items:
-      $ref: '#/$defs/refusalEntry'
+  refusalField:
+    description: One typed value a refusal carries beside its message, with its name, type and meaning.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - type
+    - meaning
+    properties:
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      type:
+        $ref: '#/$defs/contractScalarType'
+      meaning:
+        $ref: '#/$defs/nonEmptyString'
   requirementPage:
     type: object
     additionalProperties: false
@@ -2369,12 +2530,8 @@ $defs:
         - production
       evidence:
         $ref: '#/$defs/nonEmptyString'
-      cites:
-        $ref: '#/$defs/citesArray'
-        x-reads-as: cites
-        x-read-back-as: is cited by
       basedOn:
-        $ref: '#/$defs/settledBasedOnArray'
+        $ref: '#/$defs/requirementBasedOnArray'
         x-reads-as: is based on
         x-read-back-as: is a basis for
       except:
@@ -2420,20 +2577,19 @@ $defs:
             pattern: '^requirement/[a-z0-9][a-z0-9-]*$'
       then:
         required:
-        - cites
+        - basedOn
         properties:
-          cites:
-            $ref: '#/$defs/citesArray'
+          basedOn:
+            $ref: '#/$defs/requirementBasedOnArray'
             minItems: 1
-            x-reads-as: cites
-            x-read-back-as: is cited by
+            x-reads-as: is based on
+            x-read-back-as: is a basis for
   permissionEntry:
     type: object
     additionalProperties: false
     x-rejected-fields:
       heldBy: Name the roles in the permission's `grantedTo` list.
     required:
-    - type
     - id
     - title
     - meaning
@@ -2495,16 +2651,12 @@ $defs:
         $ref: '#/$defs/governsArray'
         x-reads-as: governs
         x-read-back-as: is governed by
-      binds:
-        $ref: '#/$defs/aggregateIdArray'
-        x-reads-as: binds
-        x-read-back-as: is bound by
       refusal:
         $ref: '#/$defs/refusalId'
         x-reads-as: is refused as
         x-read-back-as: is the refusal for
       basedOn:
-        $ref: '#/$defs/settledBasedOnArray'
+        $ref: '#/$defs/ruleBasedOnArray'
         x-reads-as: is based on
         x-read-back-as: is a basis for
       source:
@@ -2512,10 +2664,6 @@ $defs:
         - law
         - product-choice
         - contract
-      cites:
-        $ref: '#/$defs/basedOnArray'
-        x-reads-as: cites
-        x-read-back-as: is cited by
       fulfills:
         $ref: '#/$defs/requirementIdArray'
         x-reads-as: fulfills
@@ -2558,7 +2706,7 @@ $defs:
             const: atomicity
       then:
         required:
-        - binds
+        - governs
     - if:
         required:
         - source
@@ -2567,12 +2715,11 @@ $defs:
             const: law
       then:
         required:
-        - cites
+        - basedOn
   resultEntry:
     type: object
     additionalProperties: false
     required:
-    - type
     - id
     - title
     - outcome
@@ -2597,12 +2744,12 @@ $defs:
         x-read-back-as: is the refusal for
       meaning:
         $ref: '#/$defs/nonEmptyString'
-      sentence:
-        description: The sentence a person reads when the result reaches them, in the product's language.
+      message:
+        description: The message a person reads when the result reaches them, in the product's language.
         $ref: '#/$defs/nonEmptyString'
-      sentences:
-        description: The sentence in each interface language beside the product's, by language code.
-        $ref: '#/$defs/resultSentences'
+      translations:
+        description: The message in each interface language beside the product's, by BCP 47 language tag.
+        $ref: '#/$defs/localeMap'
       recorded:
         type: boolean
       codes:
@@ -2631,7 +2778,6 @@ $defs:
     type: object
     additionalProperties: false
     required:
-    - type
     - id
     - title
     - given
@@ -2686,7 +2832,7 @@ $defs:
     - id
     - title
     - meaning
-    - carries
+    - fields
     properties:
       type:
         const: domain-event
@@ -2700,18 +2846,97 @@ $defs:
         x-read-back-as: is used by
       meaning:
         $ref: '#/$defs/nonEmptyString'
-      carries:
+      fields:
         type: array
         uniqueItems: true
         items:
-          $ref: '#/$defs/domainEventCarry'
+          $ref: '#/$defs/domainEventField'
       ignored:
         type: boolean
+  mcpUseCase:
+    $comment: Composed from schemas/fragments/ext/ai-mcp.schema.yaml, the home of the ai-mcp extension schema.
+    description: "The MCP tool exposure of the use case: the tool name, what it does and whether it changes state."
+    type: object
+    additionalProperties: false
+    required:
+    - tool
+    properties:
+      tool:
+        $ref: '#/$defs/nonEmptyString'
+      description:
+        $ref: '#/$defs/nonEmptyString'
+      readOnly:
+        type: boolean
+  mcpEntryPoint:
+    $comment: Composed from schemas/fragments/ext/ai-mcp.schema.yaml, the home of the ai-mcp extension schema.
+    description: "The MCP server block of the entry point: the server name, its transport and the tools it mounts."
+    type: object
+    additionalProperties: false
+    required:
+    - serverName
+    properties:
+      serverName:
+        $ref: '#/$defs/nonEmptyString'
+      transport:
+        $ref: '#/$defs/nonEmptyString'
+      tools:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/nonEmptyString'
+  entryPointLinkItem:
+    description: One navigation item of an entry point, naming its label and the screen or route it opens.
+    type: object
+    additionalProperties: false
+    required:
+    - label
+    properties:
+      label:
+        $ref: '#/$defs/nonEmptyString'
+      screen:
+        $ref: '#/$defs/screenId'
+        x-reads-as: opens
+        x-read-back-as: is opened from
+      route:
+        $ref: '#/$defs/nonEmptyString'
+  entryPointNavigation:
+    description: One navigation group of an entry point, with the items it holds.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - items
+    properties:
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      items:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/entryPointLinkItem'
+  entryPointSection:
+    description: One named section of an entry point, with its title and ordered items.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - title
+    - items
+    properties:
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      items:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/entryPointLinkItem'
   entryPointEntry:
     type: object
     additionalProperties: false
     required:
-    - type
     - id
     - title
     - kind
@@ -2744,7 +2969,7 @@ $defs:
         x-read-back-as: uses
       session:
         $ref: '#/$defs/sessionPolicy'
-      reauthenticationTriggers:
+      reauthenticateWhen:
         $ref: '#/$defs/sentenceArray'
       excludes:
         $ref: '#/$defs/sentenceArray'
@@ -2808,6 +3033,23 @@ $defs:
               $ref: '#/$defs/requirementIdArray'
               x-reads-as: fulfills
               x-read-back-as: is fulfilled by
+      mcp:
+        $ref: '#/$defs/mcpEntryPoint'
+        x-reads-as: is mounted as
+        x-read-back-as: mounts
+      navigation:
+        description: The navigation groups of the entry point, at most three for a primary sidebar.
+        type: array
+        minItems: 1
+        maxItems: 3
+        items:
+          $ref: '#/$defs/entryPointNavigation'
+      sections:
+        description: The named sections of the entry point, each with its title and ordered items.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/entryPointSection'
   configurationKey:
     description: 'A configuration path in the host''s spelling: sections and the key joined by colons.'
     type: string
@@ -2828,7 +3070,7 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       location:
         $ref: '#/$defs/nonEmptyString'
-      failureBehavior:
+      onFailure:
         $ref: '#/$defs/nonEmptyString'
   productPage:
     type: object
@@ -2851,8 +3093,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       boundary:
@@ -2893,8 +3133,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       statement:
@@ -2944,7 +3182,7 @@ $defs:
     - kind
     - applies
     - appliesBecause
-    - coverage
+    - scope
     - obligations
     - productEffect
     properties:
@@ -2958,8 +3196,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       authority:
@@ -2985,7 +3221,7 @@ $defs:
         type: boolean
       appliesBecause:
         $ref: '#/$defs/nonEmptyString'
-      coverage:
+      scope:
         $ref: '#/$defs/nonEmptyString'
       obligations:
         type: array
@@ -2994,7 +3230,7 @@ $defs:
           $ref: '#/$defs/sourcedStatement'
       productEffect:
         $ref: '#/$defs/nonEmptyString'
-      openPoints:
+      openQuestions:
         $ref: '#/$defs/sentenceArray'
   researchPage:
     type: object
@@ -3020,8 +3256,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       sources:
         type: array
         minItems: 1
@@ -3063,8 +3297,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       kind:
         enum:
         - provider
@@ -3124,8 +3356,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       affects:
         type: array
         minItems: 1
@@ -3206,8 +3436,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       kind:
@@ -3248,8 +3476,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       scope:
@@ -3264,15 +3490,20 @@ $defs:
     maxItems: 1
     items:
       $ref: '#/$defs/goalId'
-  flowAnswersArray:
-    description: The problem or constraint a flow answers, as a list of exactly one identifier. Every link field holds a list, so one name keeps one shape.
+  flowSolvesArray:
+    description: The problems a flow moves toward solving, as a list of problem identifiers.
     type: array
     minItems: 1
-    maxItems: 1
+    uniqueItems: true
     items:
-      anyOf:
-      - $ref: '#/$defs/problemId'
-      - $ref: '#/$defs/constraintId'
+      $ref: '#/$defs/problemId'
+  flowBasedOnArray:
+    description: The constraints a flow rests on, as a list of constraint identifiers.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/constraintId'
   flowPage:
     type: object
     additionalProperties: false
@@ -3289,7 +3520,9 @@ $defs:
     - required:
       - serves
     - required:
-      - answers
+      - solves
+    - required:
+      - basedOn
     properties:
       type:
         const: flow
@@ -3301,8 +3534,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       actor:
         $ref: '#/$defs/actorId'
         x-reads-as: is taken by
@@ -3313,10 +3544,14 @@ $defs:
         $ref: '#/$defs/flowServesArray'
         x-reads-as: serves
         x-read-back-as: is served by
-      answers:
-        $ref: '#/$defs/flowAnswersArray'
-        x-reads-as: answers
-        x-read-back-as: is answered by
+      solves:
+        $ref: '#/$defs/flowSolvesArray'
+        x-reads-as: solves
+        x-read-back-as: is solved by
+      basedOn:
+        $ref: '#/$defs/flowBasedOnArray'
+        x-reads-as: is based on
+        x-read-back-as: is a basis for
       startedWhen:
         $ref: '#/$defs/nonEmptyString'
       finishedWhen:
@@ -3347,8 +3582,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       dependsOn:
@@ -3388,6 +3621,23 @@ $defs:
         items:
           type: string
           pattern: '^[a-z0-9][a-z0-9-]*$'
+  concurrencyObject:
+    description: "The conflict promise of the aggregate: how it detects a conflicting write, the refusal it answers and the once-only guarantee it keeps."
+    type: object
+    additionalProperties: false
+    required:
+    - mode
+    properties:
+      mode:
+        enum:
+        - optimistic
+        - pessimistic
+      refusal:
+        $ref: '#/$defs/refusalId'
+        x-reads-as: is refused as
+        x-read-back-as: is the refusal for
+      guarantee:
+        $ref: '#/$defs/nonEmptyString'
   aggregatePage:
     type: object
     additionalProperties: false
@@ -3407,8 +3657,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       parts:
@@ -3435,6 +3683,10 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/dataClassEntry'
+      concurrency:
+        $ref: '#/$defs/concurrencyObject'
+        x-reads-as: promises
+        x-read-back-as: is promised by
       excludes:
         $ref: '#/$defs/sentenceArray'
     allOf:
@@ -3468,11 +3720,19 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
+      results:
+        description: The results of the use case, each with its outcome and the message a person reads.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/resultEntry'
+      scenarios:
+        description: The scenarios of the use case, each with its given, when and then.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/scenarioEntry'
       summary:
-        $ref: '#/$defs/nonEmptyString'
-      exposure:
         $ref: '#/$defs/nonEmptyString'
       kind:
         enum:
@@ -3492,9 +3752,9 @@ $defs:
         $ref: '#/$defs/ruleIdArray'
         x-reads-as: is computed by
         x-read-back-as: computes
-      reachedThrough:
-        $ref: '#/$defs/reachedThroughArray'
-        x-reads-as: is reached through
+      via:
+        $ref: '#/$defs/useCaseViaArray'
+        x-reads-as: is reached via
         x-read-back-as: reaches
       raises:
         $ref: '#/$defs/domainEventIdArray'
@@ -3502,11 +3762,11 @@ $defs:
         x-read-back-as: is raised by
       http:
         $ref: '#/$defs/httpObject'
-      input:
+      inputs:
         type: array
         items:
           $ref: '#/$defs/useCaseInput'
-      output:
+      outputs:
         anyOf:
         - $ref: '#/$defs/queryOutput'
         - $ref: '#/$defs/commandOutput'
@@ -3537,8 +3797,10 @@ $defs:
         x-read-back-as: sets consent for
       audit:
         $ref: '#/$defs/auditValue'
-      background:
-        $ref: '#/$defs/nonEmptyString'
+      mcp:
+        $ref: '#/$defs/mcpUseCase'
+        x-reads-as: is exposed as
+        x-read-back-as: exposes
       steps:
         type: array
         minItems: 1
@@ -3555,9 +3817,9 @@ $defs:
             const: query
       then:
         required:
-        - output
+        - outputs
         properties:
-          output:
+          outputs:
             $ref: '#/$defs/queryOutput'
         not:
           anyOf:
@@ -3577,7 +3839,7 @@ $defs:
         required:
         - idempotency
         properties:
-          output:
+          outputs:
             $ref: '#/$defs/commandOutput'
     - if:
         required:
@@ -3614,8 +3876,12 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
+      scenarios:
+        description: The scenarios of the reaction, each with its given, when and then.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/scenarioEntry'
       summary:
         $ref: '#/$defs/nonEmptyString'
       triggeredBy:
@@ -3651,8 +3917,8 @@ $defs:
         $ref: '#/$defs/readsArray'
         x-reads-as: reads
         x-read-back-as: is read by
-      settles:
-        $ref: '#/$defs/settlesObject'
+      tracksState:
+        $ref: '#/$defs/tracksStateObject'
   jobPage:
     type: object
     additionalProperties: false
@@ -3676,8 +3942,12 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
+      scenarios:
+        description: The scenarios of the job, each with its given, when and then.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/scenarioEntry'
       summary:
         $ref: '#/$defs/nonEmptyString'
       kind:
@@ -3727,8 +3997,8 @@ $defs:
         $ref: '#/$defs/readsArray'
         x-reads-as: reads
         x-read-back-as: is read by
-      settles:
-        $ref: '#/$defs/settlesObject'
+      tracksState:
+        $ref: '#/$defs/tracksStateObject'
     allOf:
     - if:
         required:
@@ -3749,6 +4019,20 @@ $defs:
         not:
           required:
           - schedule
+  notificationMessage:
+    description: The template and parameters the notification renders, with the template key naming the template file.
+    type: object
+    additionalProperties: false
+    required:
+    - templateKey
+    properties:
+      templateKey:
+        $ref: '#/$defs/nonEmptyString'
+      parameters:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/nonEmptyString'
   notificationPage:
     type: object
     additionalProperties: false
@@ -3758,8 +4042,8 @@ $defs:
     - title
     - template
     - audience
-    - channel
-    - deliveredThrough
+    - channels
+    - via
     - frequency
     - deduplicationKey
     - parameters
@@ -3775,12 +4059,14 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       summary:
         $ref: '#/$defs/nonEmptyString'
       template:
         $ref: '#/$defs/nonEmptyString'
+      message:
+        $ref: '#/$defs/notificationMessage'
+        x-reads-as: renders
+        x-read-back-as: is rendered by
       audience:
         type: array
         minItems: 1
@@ -3789,7 +4075,7 @@ $defs:
           $ref: '#/$defs/actorId'
         x-reads-as: is sent to
         x-read-back-as: is the audience of
-      channel:
+      channels:
         type: array
         minItems: 1
         uniqueItems: true
@@ -3798,9 +4084,9 @@ $defs:
           - email
           - sms
           - push
-      deliveredThrough:
+      via:
         $ref: '#/$defs/externalSystemId'
-        x-reads-as: is delivered through
+        x-reads-as: is delivered via
         x-read-back-as: delivers
       consentRule:
         $ref: '#/$defs/ruleId'
@@ -3853,8 +4139,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       vendor:
         $ref: '#/$defs/nonEmptyString'
       represents:
@@ -3909,8 +4193,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       fields:
         description: The names of the fields of the translated domain event that the module event publishes.
         type: array
@@ -3932,12 +4214,12 @@ $defs:
     - type
     - id
     - title
-    - action
+    - direction
     - eventType
     - source
     - subject
-    - payload
-    - through
+    - fields
+    - via
     - compatibility
     properties:
       type:
@@ -3952,9 +4234,7 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
-      action:
+      direction:
         enum:
         - send
         - receive
@@ -3964,20 +4244,16 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       subject:
         $ref: '#/$defs/nonEmptyString'
-      payload:
+      fields:
         type: array
         items:
-          $ref: '#/$defs/integrationEventPayload'
-      through:
-        $ref: '#/$defs/externalSystemId'
-        x-reads-as: travels through
-        x-read-back-as: carries
-      arrivesThrough:
+          $ref: '#/$defs/integrationEventField'
+      via:
         anyOf:
         - $ref: '#/$defs/entryPointId'
         - $ref: '#/$defs/externalSystemId'
-        x-reads-as: arrives through
-        x-read-back-as: receives
+        x-reads-as: travels via
+        x-read-back-as: carries
       delivery:
         $ref: '#/$defs/nonEmptyString'
       requires:
@@ -4001,29 +4277,26 @@ $defs:
     allOf:
     - if:
         required:
-        - action
+        - direction
         properties:
-          action:
+          direction:
             const: send
       then:
         required:
         - translates
         not:
-          anyOf:
-          - required:
-            - correlation
-          - required:
-            - arrivesThrough
+          required:
+          - correlation
     - if:
         required:
-        - action
+        - direction
         properties:
-          action:
+          direction:
             const: receive
       then:
         required:
         - correlation
-        - arrivesThrough
+        - via
         not:
           anyOf:
           - required:
@@ -4093,14 +4366,12 @@ $defs:
         $ref: '#/$defs/identifiesId'
         x-reads-as: identifies
         x-read-back-as: is identified by
-      rowShape:
-        $ref: '#/$defs/contractListShape'
+      items:
+        $ref: '#/$defs/contractListItems'
       choices:
         $ref: '#/$defs/contractFieldChoices'
-      many:
-        type: boolean
       from:
-        description: The module event or outbound integration event and the payload field of it that the read model takes the value from.
+        description: The module event or outbound integration event and the fields entry of it that the read model takes the value from.
         type: string
         pattern: '^(integration-event/[a-z0-9][a-z0-9-]*|module-event/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*)#[a-z][a-zA-Z0-9]*$'
         x-reads-as: is copied from
@@ -4160,8 +4431,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       trigger:
         $ref: '#/$defs/nonEmptyString'
       severity:
@@ -4205,8 +4474,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       waives:
         type: array
         minItems: 1
@@ -4294,8 +4561,12 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
+      permissions:
+        description: The permissions of the set, each with the roles it grants.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/permissionEntry'
       excludes:
         $ref: '#/$defs/sentenceArray'
   entryPointPage:
@@ -4321,8 +4592,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
       kind:
         enum:
         - browser
@@ -4339,7 +4608,7 @@ $defs:
         x-read-back-as: uses
       session:
         $ref: '#/$defs/sessionPolicy'
-      reauthenticationTriggers:
+      reauthenticateWhen:
         $ref: '#/$defs/sentenceArray'
       excludes:
         $ref: '#/$defs/sentenceArray'
@@ -4403,6 +4672,23 @@ $defs:
               $ref: '#/$defs/requirementIdArray'
               x-reads-as: fulfills
               x-read-back-as: is fulfilled by
+      mcp:
+        $ref: '#/$defs/mcpEntryPoint'
+        x-reads-as: is mounted as
+        x-read-back-as: mounts
+      navigation:
+        description: The navigation groups of the entry point, at most three for a primary sidebar.
+        type: array
+        minItems: 1
+        maxItems: 3
+        items:
+          $ref: '#/$defs/entryPointNavigation'
+      sections:
+        description: The named sections of the entry point, each with its title and ordered items.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/entryPointSection'
   entryPointSetPage:
     type: object
     additionalProperties: false
@@ -4421,8 +4707,12 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
+      entryPoints:
+        description: The entry points of the set, each with its kind, authentication and audience.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/entryPointEntry'
   screenPage:
     type: object
     additionalProperties: false
@@ -4430,8 +4720,9 @@ $defs:
     - type
     - id
     - title
-    - task
-    - displayStates
+    - job
+    - archetype
+    - states
     properties:
       type:
         const: screen
@@ -4474,21 +4765,39 @@ $defs:
         $ref: '#/$defs/requirementIdArray'
         x-reads-as: fulfills
         x-read-back-as: is fulfilled by
-      pageFrame:
-        description: The page-frame pattern the screen follows, with the option the product chose.
-        $ref: '#/$defs/pageFrameObject'
       leadsTo:
         description: The screens a person reaches from this screen in one step.
         $ref: '#/$defs/screenIdArray'
         x-reads-as: leads to
         x-read-back-as: is reached from
-      task:
+      job:
+        description: The single user job the screen serves, in one plain sentence.
         $ref: '#/$defs/nonEmptyString'
-      displayStates:
+      archetype:
+        description: The locked archetype the screen follows.
+        enum:
+        - HomePage
+        - ListPage
+        - WorkPage
+        - RecordPage
+        - SettingsPage
+        - FormPage
+        - AuthPage
+        - OutcomePage
+        - ReportPage
+      section:
+        description: The sub-nav parent the screen sits under, for a screen inside a sectioned entry point.
+        $ref: '#/$defs/nonEmptyString'
+      states:
         type: array
         minItems: 1
         items:
           $ref: '#/$defs/screenState'
+      referenceData:
+        description: The reference-data tables the screen reads values from.
+        $ref: '#/$defs/referenceDataIdArray'
+        x-reads-as: reads values from
+        x-read-back-as: provides values to
     oneOf:
     - required:
       - route
@@ -4500,13 +4809,18 @@ $defs:
       not:
         required:
         - route
-    allOf:
-    - if:
-        required:
-        - route
-      then:
-        required:
-        - pageFrame
+  settingBounds:
+    description: The numeric bounds of a setting value, with whether each end holds.
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      min:
+        type: number
+      max:
+        type: number
+      inclusive:
+        type: boolean
   settingPage:
     type: object
     additionalProperties: false
@@ -4514,7 +4828,7 @@ $defs:
     - type
     - id
     - title
-    - valueType
+    - value
     - setBy
     properties:
       type:
@@ -4529,27 +4843,39 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
-      valueType:
-        enum:
-        - integer
-        - duration
-        - money
-        - boolean
-        - text
-        - choice
-      default:
-        $ref: '#/$defs/settingValue'
-      choices:
-        $ref: '#/$defs/contractFieldChoices'
+      value:
+        description: "The value definition of the setting: its type and the defaults, bounds and ranges around it."
+        type: object
+        additionalProperties: false
+        required:
+        - type
+        properties:
+          type:
+            enum:
+            - integer
+            - duration
+            - money
+            - boolean
+            - text
+            - choice
+          default:
+            $ref: '#/$defs/settingValue'
+          choices:
+            $ref: '#/$defs/contractFieldChoices'
+          bounds:
+            $ref: '#/$defs/settingBounds'
+          range:
+            $ref: '#/$defs/nonEmptyString'
+          unit:
+            $ref: '#/$defs/nonEmptyString'
+          outOfRange:
+            enum:
+            - refuse
+            - truncate
+            - degrade
       dated:
         description: True when each value applies from a date and never changes a posted record.
         type: boolean
-      range:
-        $ref: '#/$defs/nonEmptyString'
-      unit:
-        $ref: '#/$defs/nonEmptyString'
       setBy:
         enum:
         - product
@@ -4559,11 +4885,6 @@ $defs:
         $ref: '#/$defs/configurationKey'
       meaning:
         $ref: '#/$defs/nonEmptyString'
-      outOfRange:
-        enum:
-        - refuse
-        - truncate
-        - degrade
       secret:
         type: boolean
       fulfills:
@@ -4654,10 +4975,18 @@ $defs:
         items:
           type: string
           pattern: '^[a-z0-9][a-z0-9-]*$'
-      variation:
+      variesBy:
         description: The dimension the table varies by, such as country; each row names its variant in `variant`.
         type: string
         pattern: '^[a-z0-9][a-z0-9-]*$'
+      scope:
+        description: "The reach of the table: a shared table holds jurisdiction-neutral values, a jurisdiction table holds one jurisdiction's values."
+        enum:
+        - shared
+        - jurisdiction
+      dated:
+        description: True when each row holds a dated value with an effective range.
+        type: boolean
       pack:
         description: 'The path of an external pack file, relative to the consumer root, whose values this table copies. The file must exist.'
         $ref: '#/$defs/nonEmptyString'
@@ -4672,7 +5001,7 @@ $defs:
     required:
     - type
     - summary
-    - records
+    - refusals
     properties:
       type:
         const: refusal-set
@@ -4686,8 +5015,12 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/refusalRecordsArray'
+      refusals:
+        description: The refusals of the set, each with its status and the message a person reads.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/refusalEntry'
   indexPage:
     type: object
     additionalProperties: false
@@ -4706,8 +5039,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   tutorialPage:
     type: object
     additionalProperties: false
@@ -4726,8 +5057,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   howToPage:
     type: object
     additionalProperties: false
@@ -4746,8 +5075,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   referencePage:
     type: object
     additionalProperties: false
@@ -4766,8 +5093,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   commandPage:
     type: object
     additionalProperties: false
@@ -4786,8 +5111,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   configurationPage:
     type: object
     additionalProperties: false
@@ -4806,8 +5129,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   glossaryPage:
     type: object
     additionalProperties: false
@@ -4826,8 +5147,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
         x-reads-as: uses
         x-read-back-as: is used by
-      records:
-        $ref: '#/$defs/recordsArray'
   castPage:
     description: 'The cast of the project: the parties, people, occasions and figures every example draws from.'
     type: object
@@ -4929,7 +5248,7 @@ $defs:
         $ref: '#/$defs/actorId'
         x-reads-as: plays
         x-read-back-as: is played by
-      partyOf:
+      party:
         $ref: '#/$defs/partyId'
         x-reads-as: belongs to
         x-read-back-as: has member
@@ -4953,7 +5272,7 @@ $defs:
         $ref: '#/$defs/occasionId'
       title:
         $ref: '#/$defs/nonEmptyString'
-      date:
+      occursOn:
         $ref: '#/$defs/isoDate'
       place:
         $ref: '#/$defs/nonEmptyString'

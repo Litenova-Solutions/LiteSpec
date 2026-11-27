@@ -92,6 +92,31 @@ Design by contract states what always holds and what must hold before a call: in
 
 **Differs:** LiteSpec adds calculation, atomicity, reservation, and frozen-value as rule kinds, so computed values, atomic writes, held capacity, and frozen commercial values each have a home. Each rule is proven by scenarios, each violation ends in a refusal with a stable code, and refusals are ordered so the first match wins.
 
+## Kernel, Platform, and Port
+
+A .NET backend groups code into a small shared Kernel, a technical Platform, and one project per module that talks outward through ports. The grouping keeps business words in one place and technical setup in another, so a reader finds each kind of code by project.
+
+**Takes:** the shared kernel from Eric Evans's *Domain-Driven Design* (2003): a small part of the model that each part of the system shares and changes together; the microservice chassis from Chris Richardson (microservices.io): the technical base that handles the cross-cutting work each service repeats, such as persistence setup, messaging, and security; and the port from Alistair Cockburn's "Hexagonal Architecture" (2005) ([alistair.cockburn.us](https://alistair.cockburn.us/hexagonal-architecture/)): the application talks outward only through named ports, and adapters convert between a port and a technology.
+
+**Words:** kernel, for the business values every module uses; platform, for the technical capabilities every module reuses; port, with `Ports/{Port}/` holding `I{Port}` and `Infrastructure/{Port}/` holding the adapters that implement it.
+
+**Differs:** LiteSpec builds one bounded context per product, so the kernel drops Shared and holds vocabulary, not an agreement between contexts. The platform uses a plain word for the chassis, and modules plug into it by adding data to its registries instead of calling services. Ports cover external systems, file formats, and the clock alike, and the same idea appears as Fowler's Gateway ([martinfowler.com](https://martinfowler.com/eaaCatalog/gateway.html)), Palermo's Onion Architecture ([jeffreypalermo.com](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/)), and Clean Architecture gateways ([blog.cleancoder.com](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)): the inner code owns the interface and the outer code implements it. No interface crosses between modules: a module reaches another module through published data and the mediator.
+
+Names set aside when the three words were picked:
+
+| Name | Why not |
+|:---|:---|
+| `SharedKernel` | The full pattern name; "Shared" adds nothing and the pattern describes an agreement between bounded contexts. |
+| `Core`, `Common`, `Shared` | Too vague: each invites technical and business code into one project, the mix the split exists to prevent. |
+| `BuildingBlocks` | Common in modular monolith samples, where it holds both business and technical pieces. |
+| `Primitives` | Accurate for money and identifiers, but it undersells the aggregate root and the domain exception. |
+| `Infrastructure` | Collides with the `Infrastructure/` layer folder inside every module. |
+| `Framework` | Suggests code reused across products, while the platform serves one product. |
+| `Hosting`, `Runtime` | `Hosting` collides with `Hosts/`; `Runtime` fits messaging but not persistence setup or authorization. |
+| `Chassis` | Kept as the pattern the platform follows, not as the project name. |
+| `Gateway` | Fits an external system, but less a file format or the clock. |
+| `Interfaces`, `Abstractions` | Say nothing about why these interfaces are grouped. |
+
 ## Next
 
 [Work with Agents](working-with-agents.md) explains how an agent uses the standard and the records together.

@@ -173,10 +173,10 @@ public sealed class ScreenShowsCheckTests
 
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.list-loans",
-            """{"kind":"query","reachedThrough":["entry-point/app"],"output":{"include":{"rows":{"fields":[{"name":"loans","type":"list","rowShape":{"fields":[{"name":"loanId"},{"name":"state"}]}}]}}}}""",
+            """{"kind":"query","via":["entry-point/app"],"outputs":{"include":{"rows":{"fields":[{"name":"loans","type":"list","items":{"fields":[{"name":"loanId"},{"name":"state"}]}}]}}}}""",
             root));
         model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy",
-            """{"kind":"command","reachedThrough":["entry-point/app"],"input":[{"name":"reference"},{"name":"reason"}]}""",
+            """{"kind":"command","via":["entry-point/app"],"inputs":[{"name":"reference"},{"name":"reason"}]}""",
             root));
 
         return model;
@@ -194,7 +194,8 @@ public sealed class ScreenShowsCheckTests
                 "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":[],\"leadsTo\":[]"
-                + ",\"pageFrame\":{\"pattern\":\"list-page\",\"option\":\"search-and-a-state-filter-only\"}"
+                + ",\"job\":\"The reader lists loans and opens one to read it.\""
+                + ",\"archetype\":\"ListPage\""
                 + (showsJson is null ? string.Empty : ",\"fieldSources\":" + showsJson) + "}").RootElement.Clone(),
         };
 

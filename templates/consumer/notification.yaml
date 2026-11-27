@@ -2,23 +2,23 @@ type: notification
 id: notification/<module>.<name>
 title: <Title in Title Case>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 summary: <what the message says and who gets it, or remove this line>
 template: <template key>
 audience:
-- actor/<name>
-channel:
-- <email|sms|push>
-deliveredThrough: external-system/<name>
+  - actor/<name>
+channels:
+  - <email|sms|push>
+via: external-system/<name>
 consentRule: rule/<home>.<name, or remove this line>
 frequency: <once|per-attempt>
 deduplicationKey: <dedup template, such as reminder-{expenseId}>
 parameters:
-- <parameter name>
+  - <parameter name>
 locale: <the languages the template ships, such as English only>
 suppressedWhen: <when no message goes out, or remove this line>
 claims:
-- claim: <what the message promises>
-  requirement: requirement/<feature>.<name>
+  - claim: <what the message promises>
+    requirement: requirement/<feature>.<name>
 fulfills:
-- requirement/<feature>.<name, or remove this line>
+  - requirement/<feature>.<name, or remove this line>

@@ -1,0 +1,25 @@
+type: screen
+id: screen/claimwick-app.expense-erasure
+title: Expense Erasure
+summary: Finance erases the personal data of one decided expense after its retention ends.
+route: /expenses/{expenseId}/erasure
+offers:
+- use-case/spending.erase-personal-data
+primaryAction: use-case/spending.erase-personal-data
+fulfills:
+- requirement/ui-focus-indicator
+- requirement/ui-reflow
+- requirement/ui-target-size
+- requirement/ui-text-contrast
+leadsTo:
+- screen/claimwick-app.expense-list
+- screen/claimwick-app.expense-record
+job: Finance confirms the expense, then erases its personal data.
+archetype: FormPage
+states:
+- name: Working
+  shows: The erase action shows it is working and takes no second press.
+- name: Refused
+  shows: The refusal sentence appears beside the erase action.
+- name: Failed
+  shows: The page offers to try again.

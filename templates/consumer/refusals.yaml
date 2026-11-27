@@ -3,12 +3,9 @@ summary: <what refusals this module declares and why they are split this way>
 id: <page id, or remove this line>
 title: <Title in Title Case, or remove this line>
 terms:
-- <term id, or remove this line>
-records:
-- id: refusal/<module>.<name>
-  title: <Title in Title Case>
-  meaning: <what happened, in one sentence>
-  status: <400, 403, 404, 409, 422, or 503; 503 reports an upstream refusing or unreachable, and 500 never appears here, or remove this line>
-  # parameters: when the message varies per failure; each names a {name} in meaning
-  # - name: <valueName>
-  #   meaning: <what the value says, in one sentence>
+  - <term id, or remove this line>
+refusals:
+  - id: refusal/<module>.<name>
+    title: <Title in Title Case>
+    meaning: <what happened, in one sentence>
+    status: <400, 403, 404, 409, 422, or 503; 503 reports an upstream refusing or unreachable, and 500 never appears here, or remove this line>

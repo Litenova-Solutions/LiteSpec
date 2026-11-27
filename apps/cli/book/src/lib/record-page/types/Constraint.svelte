@@ -8,17 +8,17 @@
   import SourceList from "../SourceList.svelte";
   import { objectList, stringField, stringList } from "../page-values";
 
-  // A constraint: the authority behind it, its coverage, the rules it states, the effect on the product, and what it requires.
+  // A constraint: the authority behind it, its scope, the rules it states, the effect on the product, and what it requires.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
   const authority = $derived(stringField(f, "authority") ?? "");
-  const coverage = $derived(stringField(f, "coverage") ?? "");
-  const coverageHtml = $derived(coverage ? inline(book, coverage, r.src ?? null) : "");
+  const scope = $derived(stringField(f, "scope") ?? "");
+  const scopeHtml = $derived(scope ? inline(book, scope, r.src ?? null) : "");
   const obligations = $derived(objectList(f, "obligations"));
   const productEffect = $derived(stringField(f, "productEffect") ?? "");
   const productEffectHtml = $derived(productEffect ? inline(book, productEffect, r.src ?? null) : "");
-  const openPoints = $derived(stringList(f, "openPoints"));
+  const openQuestions = $derived(stringList(f, "openQuestions"));
   const sources = $derived(objectList(f, "sources"));
   const requires = $derived(r.requires ?? []);
 
@@ -36,8 +36,8 @@
 <PageSection blockKey="src" heading="authority">
   <RenderedProse html={inline(book, authority, r.src ?? null)} />
 </PageSection>
-{#if coverage}
-  <PageSection blockKey="coverage" heading="constraint.coverage"><RenderedProse html={coverageHtml} /></PageSection>
+{#if scope}
+  <PageSection blockKey="scope" heading="constraint.scope"><RenderedProse html={scopeHtml} /></PageSection>
 {/if}
 {#if obligations.length}
   <PageSection blockKey="obl" heading="obligations" count={obligations.length}>
@@ -71,9 +71,9 @@
 {#if productEffect}
   <PageSection blockKey="prod" heading="productEffect"><RenderedProse html={productEffectHtml} /></PageSection>
 {/if}
-{#if openPoints.length}
-  <PageSection blockKey="open" heading="openPoints" count={openPoints.length}>
-    <BulletList items={openPoints} />
+{#if openQuestions.length}
+  <PageSection blockKey="open" heading="openQuestions" count={openQuestions.length}>
+    <BulletList items={openQuestions} />
   </PageSection>
 {/if}
 <SourceList {sources} />

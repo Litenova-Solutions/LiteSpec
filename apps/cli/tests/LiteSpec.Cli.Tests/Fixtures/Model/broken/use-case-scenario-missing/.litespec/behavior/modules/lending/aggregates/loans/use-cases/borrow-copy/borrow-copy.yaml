@@ -12,18 +12,16 @@ serves:
   - step/borrow-and-return.borrow-copy
 fulfills:
   - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
   - entry-point/library-app
 raises:
   - domain-event/loan.loan-borrowed
-records:
-  - type: result
-    id: result/borrow-copy.borrowed
+results:
+  - id: result/borrow-copy.borrowed
     title: Borrowed
     outcome: success
     meaning: The copy is lent.
-  - type: result
-    id: result/borrow-copy.copy-unavailable
+  - id: result/borrow-copy.copy-unavailable
     title: Copy unavailable
     outcome: refusal
     code: lending.copy-not-available

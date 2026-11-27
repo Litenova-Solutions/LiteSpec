@@ -150,7 +150,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("domain-event", "domain-event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "fields": []}"""));
         model.Code.Events.Add(new CodeDomainEvent(
             "GhostRaisedEvent", Path.Combine(temp.Path, "GhostRaisedEvent.cs"), 3, "domain-event/ghost.raised"));
 

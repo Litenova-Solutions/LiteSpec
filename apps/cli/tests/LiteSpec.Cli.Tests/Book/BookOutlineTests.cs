@@ -206,7 +206,7 @@ public sealed class BookOutlineTests
         Assert.Null(Find(outline.Layers, "rule/loan.one-loan-per-copy"));
     }
 
-    /// <summary>A feature requirement parents its feature by identifier home; a product-level requirement parents the product; cites never move either.</summary>
+    /// <summary>A feature requirement parents its feature by identifier home; a product-level requirement parents the product; basedOn never moves either.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void RequirementParentsItsFeatureByIdentifierHome()
@@ -226,7 +226,7 @@ public sealed class BookOutlineTests
                 "requirement/self-checkout.max-wait",
                 "Max Wait",
                 "approved",
-                new JsonObject { ["cites"] = Links("goal/faster-borrowing") }));
+                new JsonObject { ["basedOn"] = Links("goal/faster-borrowing") }));
 
         Assert.Equal("feature/self-checkout", BookParents.ParentOf(model, "requirement/self-checkout.max-wait"));
 
@@ -243,7 +243,7 @@ public sealed class BookOutlineTests
                 "requirement/self-checkout.max-wait",
                 "Max Wait",
                 "approved",
-                new JsonObject { ["cites"] = Links("feature/self-checkout") }));
+                new JsonObject { ["basedOn"] = Links("feature/self-checkout") }));
 
         Assert.Null(BookParents.ParentOf(missing, "requirement/self-checkout.max-wait"));
         Assert.Contains("requirement/self-checkout.max-wait", BookOutline.Build(missing).Unplaced);
@@ -256,7 +256,7 @@ public sealed class BookOutlineTests
                 "requirement/evening-access",
                 "Evening Access",
                 "approved",
-                new JsonObject { ["cites"] = Links("constraint/opening-hours") }));
+                new JsonObject { ["basedOn"] = Links("constraint/opening-hours") }));
 
         Assert.Equal("product/library", BookParents.ParentOf(productLevel, "requirement/evening-access"));
         Assert.DoesNotContain("requirement/evening-access", BookOutline.Build(productLevel).Unplaced);

@@ -50,7 +50,7 @@ On a route file, a `Page frame:` block prints after the Decided group. It names 
 
 Without `--full`, the provisions print in two parts after the card. First come the provisions that need judgment and match the file kind or its record, as statements grouped in strength order: Required, Defaults, Advisory, then Patterns. Each item shows its identifier, its statement, and its reasons, such as `[path match (artifact endpoint); record use-case/spending.submit-expense]`.
 
-Then the checked provisions collapse into one line of the form `<n> checked provisions apply; model check and the analyzers enforce them (litespec rules <path> --all lists them).` The tools already enforce them, so the default output spends no line on each. With `--all`, they print under `Checked by a tool:` instead, one line per provision with its finding codes and analyzer IDs backticked, such as the line for `litespec/core/backend-application#implement-one-outcome-path-per-command` naming LS2014. A checked provision that names no code prints its checking command instead.
+Then the checked provisions collapse into one line of the form `<n> checked provisions apply; model check and the analyzers enforce them (litespec rules <path> --all lists them).` The tools already enforce them, so the default output spends no line on each. With `--all`, they print under `Checked by a tool:` instead, one line per provision with its finding codes and analyzer IDs backticked, such as the line for `litespec/core/backend-application#implement-one-outcome-path-per-command` with LS2014. A checked provision that lists no code prints its checking command instead.
 
 The concern-wide provisions, which govern only through the target's concern, stay out of the default output; with `--all` they print by identifier only under `Concern-wide:`. With `--full`, every returned provision prints as a statement grouped by strength, rationale and example under each item, with no checked or concern-wide shortening.
 
@@ -81,8 +81,8 @@ The result holds only provisions on pages the consumer's stacks, shape, and sele
 | Code | Meaning |
 |:--|:--|
 | `0` | The provisions are listed. |
-| `1` | The target names no file, record, provision or page, or the records cannot be read. |
-| `2` | The arguments are wrong, the root or the project file is missing or invalid, the revision names no commit, or the carried release cannot be read. |
+| `1` | The target matches no file, record, provision or page, or the records cannot be read. |
+| `2` | The arguments are wrong, the root or the project file is missing or invalid, the revision matches no commit, or the carried release cannot be read. |
 
 ## Examples
 
@@ -136,8 +136,16 @@ litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Infras
 
 ## Underneath
 
-The command reads the provisions, with each provision's layer, trace and verification mark, from the generated `docs/reference/provisions.json` in the carried release when it exists, and parses the standards pages themselves otherwise, so it works with or without the generated file. The claimed layers come from `.litespec/project.yaml` through the consumer configuration the model builder reads. The applied pages and provisions resolve through the manifest's stack folders, shape pages, and selected extensions, the same selection `litespec model check` enforces. Project conventions come from `.litespec/governance/conventions/` and waiver records from the waivers folders under `.litespec/governance/`.
+The command reads the provisions, with each provision's layer, trace and verification mark, from the generated `docs/reference/provisions.json` in the carried release when it exists, and parses the standards pages themselves otherwise, so it works with or without the generated file.
 
-Each `when` condition is evaluated against the marked record file: the use-case kind for `query` and `command`, a caller input naming a file for upload (file, upload, photo, image, picture, attachment, receipt, scan, pdf or document, without naming a number), an invoice, payout, reimbursement, voucher, document number or legal number for document-number, erasure, pseudonymizing or anonymizing for erasure, a `queries` edge to another module's public query or a `commands` edge to another module's public command for cross-module, and the decision the audit selection in `.litespec/project.yaml` names in its `decision` field for audit-adoption. Project holds for no record. The contract card reads the use case, reaction or job record file the target names from the consumer's record roots and restates its contract one item per line. The Decided group reads each followed decision's `choice` and `reopenedWhen` from its record file. The Page frame block derives the file's route address the way the frontend readers do and matches it against each screen record's `route`. It reads the pattern's Question, Default and wireframes from the page-frame pattern page in the carried release.
+The claimed layers come from `.litespec/project.yaml` through the consumer configuration the model builder reads. The applied pages and provisions resolve through the manifest's stack folders, shape pages, and selected extensions, the same selection `litespec model check` enforces.
+
+Project conventions come from `.litespec/governance/conventions/` and waiver records from the waivers folders under `.litespec/governance/`.
+
+Each `when` condition is evaluated against the marked record file: the use-case kind for `query` and `command`, a caller input carrying a file for upload, an invoice, payout, reimbursement, voucher, document number or legal number for document-number, erasure, pseudonymizing or anonymizing for erasure, a `queries` edge or a `commands` edge for cross-module, and the decision the audit selection states in its `decision` field for audit-adoption. Project holds for no record.
+
+The contract card reads the use case, reaction or job record file the target states from the consumer's record roots and restates its contract one item per line. The Decided group reads each followed decision's `choice` and `reopenedWhen` from its record file.
+
+The Page frame block derives the file's route address the way the frontend readers do and matches it against each screen record's `route`. It reads the pattern's Question, Default and wireframes from the page-frame pattern page in the carried release.
 
 Change-set mode runs the git reading `model check --since` uses. Identifier lookup reads every provision from the carried provisions file without selection filtering, so it works offline. Nothing beneath this command is separately runnable.

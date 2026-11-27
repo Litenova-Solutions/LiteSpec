@@ -5,11 +5,11 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The command-edge checks: every commands edge names another module's command use case that lists the sending module in reachedThrough, and every module a use case lists commands it from a record.</summary>
+/// <summary>The command-edge checks: every runs edge naming another module's command use case lists the sending module in via, and every module a use case lists runs it from a record.</summary>
 /// <follows>litespec/core/model#connect-across-modules-only-through-declared-dependencies</follows>
 internal static class CommandEdgeChecks
 {
-    /// <summary>Reports a commands edge naming no command use case, and a public use case no listed module commands.</summary>
+    /// <summary>Reports a runs edge naming no command use case, and a public use case no listed module runs.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -18,7 +18,7 @@ internal static class CommandEdgeChecks
         CheckPublicCommandsCalled(model, findings);
     }
 
-    /// <summary>Reports a commands edge on a use case, which only a reaction or a job declares, and a commands edge naming a record that is no command use case, a command of the sending module itself, or a command whose reachedThrough does not name the sending module.</summary>
+    /// <summary>Reports a runs edge on a use case, which only a reaction or a job declares, and a runs edge naming a record that is no command use case or a command whose via does not name the sending module.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckCommandsTargets(ProjectModel model, List<Finding> findings)
@@ -28,13 +28,13 @@ internal static class CommandEdgeChecks
         {
             var module = LocalityChecks.ModuleOf(model, holder);
 
-            foreach (var target in holder.EdgeIds(RecordFields.Commands).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+            foreach (var target in holder.EdgeIds(RecordFields.Runs).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
             {
                 // A command handler never sends a command, so a use case declares no
-                // commands edge: the edge belongs to the reaction or job that sends it.
+                // runs edge: the edge belongs to the reaction or job that sends it.
                 if (holder.Type == RecordTypes.UseCase)
                 {
-                    findings.Add(new Finding("command-edge-invalid", $"Use case '{holder.Id}' commands '{target}'; only a reaction or a job commands a use case.", holder.File, holder.Line, SubjectOf(holder)));
+                    findings.Add(new Finding("command-edge-invalid", $"Use case '{holder.Id}' runs '{target}'; only a reaction or a job runs a use case.", holder.File, holder.Line, SubjectOf(holder)));
                     continue;
                 }
 
@@ -58,7 +58,7 @@ internal static class CommandEdgeChecks
 
                 if (resolved.Field(RecordFields.Kind) == "query")
                 {
-                    findings.Add(new Finding("command-target-invalid", $"{Label(holder.Type)} '{holder.Id}' commands '{target}', which is a query; only a command use case is commanded.", holder.File, holder.Line, SubjectOf(holder)));
+                    findings.Add(new Finding("command-target-invalid", $"{Label(holder.Type)} '{holder.Id}' runs '{target}', which is a query; only a command use case is run cross-module.", holder.File, holder.Line, SubjectOf(holder)));
                     continue;
                 }
 
@@ -67,26 +67,18 @@ internal static class CommandEdgeChecks
                     continue;
                 }
 
-                // A reaction or job runs its own module's commands through a runs
-                // edge, so a commands edge stays cross-module.
                 if (module is { Length: > 0 }
                     && LocalityChecks.ModuleOf(model, resolved) is { } targetModule
-                    && targetModule.Equals(module, StringComparison.Ordinal))
+                    && !targetModule.Equals(module, StringComparison.Ordinal)
+                    && !resolved.Ids(RecordFields.Via).Contains($"module/{module}", StringComparer.Ordinal))
                 {
-                    findings.Add(new Finding("command-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' commands '{target}', which is a command of its own module; a reaction or job runs its own module's commands through a `runs` edge.", holder.File, holder.Line, SubjectOf(holder)));
-                    continue;
-                }
-
-                if (module is { Length: > 0 }
-                    && !resolved.Ids(RecordFields.ReachedThrough).Contains($"module/{module}", StringComparer.Ordinal))
-                {
-                    findings.Add(new Finding("command-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' commands '{target}', whose reachedThrough names no 'module/{module}'.", holder.File, holder.Line, SubjectOf(holder)));
+                    findings.Add(new Finding("command-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' runs '{target}', whose via names no 'module/{module}'.", holder.File, holder.Line, SubjectOf(holder)));
                 }
             }
         }
     }
 
-    /// <summary>Reports a use case naming a module in reachedThrough that commands it from no reaction or job of that module. A commands edge on a use case is itself invalid, so it never counts as the call.</summary>
+    /// <summary>Reports a use case naming a module in via that runs it from no reaction or job of that module. A runs edge on a use case is itself invalid, so it never counts as the call.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPublicCommandsCalled(ProjectModel model, List<Finding> findings)
@@ -101,7 +93,7 @@ internal static class CommandEdgeChecks
                 continue;
             }
 
-            foreach (var target in holder.EdgeIds(RecordFields.Commands))
+            foreach (var target in holder.EdgeIds(RecordFields.Runs))
             {
                 commanded.Add((module, Identifiers.BaseId(target)));
             }
@@ -113,20 +105,20 @@ internal static class CommandEdgeChecks
             {
                 if (!commanded.Contains((module, useCase.Id)))
                 {
-                    findings.Add(new Finding("command-consumer-missing", $"Use case '{useCase.Id}' is reached through 'module/{module}', which commands it from no record.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("command-consumer-missing", $"Use case '{useCase.Id}' is reached via 'module/{module}', which runs it from no record.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 }
             }
         }
     }
 
-    /// <summary>The modules a use case lists in reachedThrough.</summary>
-    /// <param name="useCase">The use case record whose reachedThrough is read.</param>
+    /// <summary>The modules a use case lists in via.</summary>
+    /// <param name="useCase">The use case record whose via is read.</param>
     /// <returns>Each module name the use case lists, once.</returns>
     private static HashSet<string> ModulesOf(Record useCase)
     {
         var modules = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var id in useCase.Ids(RecordFields.ReachedThrough))
+        foreach (var id in useCase.Ids(RecordFields.Via))
         {
             if (Identifiers.TrySplit(Identifiers.BaseId(id), out var prefix, out _, out var name)
                 && prefix == RecordTypes.Module

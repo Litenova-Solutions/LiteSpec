@@ -4,5 +4,5 @@ title: Renewal by text message
 kind: functional
 statement: A member renews a loan by replying to a text message.
 rationale: Members renew without visiting the desk.
-cites:
+basedOn:
   - research/loan-period-benchmarks

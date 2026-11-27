@@ -10,5 +10,5 @@ response: Every text role meets its contrast limit against its surface
 measure: Lowest contrast ratio of body text and of large text against its surface, per declared scheme
 target: At least 4.5:1 for body text and 3:1 for large text
 check: token-limits
-cites:
+basedOn:
 - goal/decided-in-days

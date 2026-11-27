@@ -17,7 +17,7 @@ public sealed class ReachedThroughTests
             TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command", "steps": [{"statement": "The desk sends the due notice."}]}"""));
 
         Assert.Contains(Checker.Check(model).Findings, finding =>
-            finding.Code == "record-invalid" && finding.Message.Contains("has no reachedThrough", StringComparison.Ordinal));
+            finding.Code == "record-invalid" && finding.Message.Contains("has no via", StringComparison.Ordinal));
     }
 
     /// <summary>Use Case A Job Runs Needs No Entry Point.</summary>
@@ -32,32 +32,20 @@ public sealed class ReachedThroughTests
             TestModel.Record("job", "job/lending.send-due-notices", Path.Combine(temp.Path, "job.yaml"), """{"kind": "scheduled", "effects": [{"runs": "use-case/lending.send-due-notice"}]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, finding =>
-            finding.Code == "record-invalid" && finding.Message.Contains("has no reachedThrough", StringComparison.Ordinal));
+            finding.Code == "record-invalid" && finding.Message.Contains("has no via", StringComparison.Ordinal));
     }
 
-    /// <summary>Use Case Reached Only Through Modules States No Exposure.</summary>
-    /// <proves>litespec/core/use-cases#state-the-exposure-of-every-use-case</proves>
+    /// <summary>Use Case Via Modules Only Needs No Entry Point.</summary>
+    /// <proves>litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case</proves>
     [Fact]
-    public void UseCaseReachedOnlyThroughModulesStatesNoExposure()
+    public void UseCaseViaModulesOnlyNeedsNoEntryPoint()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
 
-        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "exposure-missing");
-    }
-
-    /// <summary>Use Case Reached Through Entry Point States Exposure.</summary>
-    /// <proves>litespec/core/use-cases#state-the-exposure-of-every-use-case</proves>
-    [Fact]
-    public void UseCaseReachedThroughEntryPointStatesExposure()
-    {
-        using var temp = TestCli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/web"]}"""));
-
-        Assert.Contains(Checker.Check(model).Findings, finding => finding.Code == "exposure-missing");
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding =>
+            finding.Code == "record-invalid" && finding.Message.Contains("has no via", StringComparison.Ordinal));
     }
 }

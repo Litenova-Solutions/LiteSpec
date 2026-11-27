@@ -49,23 +49,21 @@ public sealed class PlacementTests
             type: use-case
             id: use-case/finance.request-payout
             title: Request payout
-            records:
-              - type: result
-                id: result/request-payout.requested
+            results:
+              - id: result/request-payout.requested
                 title: Requested
                 outcome: success
                 meaning: The payout is requested.
-              - type: scenario
-                id: scenario/request-payout.requesting-succeeds
+            scenarios:
+              - id: scenario/request-payout.requesting-succeeds
                 title: Requesting succeeds
                 result: result/request-payout.requested
             """);
         Write(temp.Path, ".litespec/behavior/modules/finance/permissions.yaml", """
             type: permission-set
             title: Permissions
-            records:
-              - type: permission
-                id: permission/approve-expense
+            permissions:
+              - id: permission/approve-expense
                 title: Approve expense
             """);
         Write(temp.Path, ".litespec/behavior/entry-points/claimwick-app/entry-point.yaml", """
@@ -126,7 +124,7 @@ public sealed class PlacementTests
             title: Request payout
             access:
               grant: permission/approve-expense
-            input:
+            inputs:
               - name: amount
                 rules: required
             """);

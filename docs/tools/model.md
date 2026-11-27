@@ -115,7 +115,7 @@ The UI source lock is written at `ui.package.sourceLock` when the project declar
 |:--|:--|
 | `0` | The command finished with no open blocking finding and, for `check`, a complete inspection. `review` always exits 0. |
 | `1` | `check` found an open blocking finding or an expired waiver, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. With `--search` or `--list`, no match prints nothing and exits 0. |
-| `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, the `--list` type or `--module` name is unknown, or `format` or `render` found a file that does not parse. |
+| `2` | The arguments are wrong, the root holds no project record, the `--since` revision matches no commit, the `--list` type or `--module` name is unknown, or `format` or `render` found a file that does not parse. |
 | `3` | `check` found no open blocking finding but the inspection was incomplete: a reader was missing, so some level S findings report without blocking. The run prints `inspection incomplete: reader for <frontend> missing, <N> findings not blocking` as its last line, one clause per frontend. |
 
 ## Examples
@@ -216,7 +216,11 @@ The model holds every record with its identifier, its folder path, and its resol
 
 Each screen lists its `operations`, its `useCases`, and its `calls`, with each call pairing one operation with the use case it reaches. The `calls` links carry one link per pair: a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
-A proof is fresh when its run commit is HEAD, or when every path changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads `last passed at <short commit>, <N> commits ago`. The committed `.litespec/proof/proofs.json` holds, for each scenario, the run commit and the outcome of the last passing run. Only `check --record-proof` writes it; a check without the flag reads it. The command computes the changed paths once per run with git (`git diff --name-only <commit>` plus untracked files), cached per distinct run commit. When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check with `--record-proof` after the test run, in the same job, so the run on the pull request head is recorded before the pull request merges.
+A proof is fresh when its run commit is HEAD, or when every path changed between the run commit and the working tree, committed and uncommitted, is a record or documentation path: under the project's LiteSpec folder (`paths.docs`, default `.litespec/`) or a Markdown file. Otherwise the proof is `stale` and reads `last passed at <short commit>, <N> commits ago`.
+
+The committed `.litespec/proof/proofs.json` holds, for each scenario, the run commit and the outcome of the last passing run. Only `check --record-proof` writes it; a check without the flag reads it. The command computes the changed paths once per run with git (`git diff --name-only <commit>` plus untracked files), cached per distinct run commit.
+
+When git is unavailable or the run commit is unknown to the repository, the proof is `stale` with the reason. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check with `--record-proof` after the test run, in the same job, so the run on the pull request head is recorded before the pull request merges.
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. The link is always the mark, never a folder or a type name. A marked refusal type declares the `code` of the refusal result its rule names.
 
@@ -236,7 +240,7 @@ A finding records the reader that produced its facts, and its level takes that r
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/project.yaml`, shared provisions from the release the tool carries, and the test run from TRX or JUnit XML files under `paths.testResults`.
 
-A JUnit `testcase` proves a Behavior scenario directly by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value: `<properties><property name="litespec.proves" value="scenario/borrow-copy.borrowing-an-available-copy-succeeds" /></properties>`. The case proves each id it names with the same rules as a `proves` mark on a test method, so a runner whose steps carry no mark, or a stack with no code reader, still proves its scenarios.
+A JUnit `testcase` proves a Behavior scenario directly by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value: `<properties><property name="litespec.proves" value="scenario/borrow-copy.borrowing-an-available-copy-succeeds" /></properties>`. The case proves each id it carries with the same rules as a `proves` mark on a test method, so a runner whose steps carry no mark, or a stack with no code reader, still proves its scenarios.
 
 A check `--since` base is read through an archive (`git archive`) into a temporary folder, which is removed after the check. The command checks that tree and the working tree and compares the two finding sets. Nothing beneath it is separately runnable.
 
@@ -244,4 +248,4 @@ A search or list line holds the identifier, the title and the file path relative
 
 A finding belongs to a module when its subject record sits under that module's folder, else when its file does. A finding on no record and no module file belongs to no module, so a module check omits it. A finding belongs to the named `--only-paths` paths when its file is one of them or sits under one of them, or when its subject record's file does. A finding on no record and no named file belongs to no named path, so a scoped check omits it.
 
-Edges read the written record links the model resolves: a link from a record under one module folder to a record under another counts once under its field, and an effect entry counts under its verb. A link whose target names no record is skipped. Kind lines order by kind, module splits by module, modules by name, and mutual pairs by name.
+Edges read the written record links the model resolves: a link from a record under one module folder to a record under another counts once under its field, and an effect entry counts under its verb. A link whose target matches no record is skipped. Kind lines order by kind, module splits by module, modules by name, and mutual pairs by name.

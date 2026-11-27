@@ -7,9 +7,6 @@ governs:
 - use-case/spending.attach-receipt
 - aggregate/spending.expense
 - aggregate/spending.receipt
-binds:
-- aggregate/spending.expense
-- aggregate/spending.receipt
 basedOn: []
 fulfills:
 - requirement/approval.above-threshold-receipt

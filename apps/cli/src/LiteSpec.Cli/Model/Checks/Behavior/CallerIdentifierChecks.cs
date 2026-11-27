@@ -37,7 +37,7 @@ internal static class CallerIdentifierChecks
 
         foreach (var query in queries)
         {
-            foreach (var point in query.Ids(RecordFields.ReachedThrough).Distinct(StringComparer.Ordinal))
+            foreach (var point in query.Ids(RecordFields.Via).Distinct(StringComparer.Ordinal))
             {
                 var basePoint = Identifiers.BaseId(point);
 
@@ -90,7 +90,7 @@ internal static class CallerIdentifierChecks
     /// <param name="useCase">The use case whose caller-supplied identifiers are judged.</param>
     /// <param name="inputs">The required caller-supplied identifiers of the use case, each with its field label and identified record.</param>
     /// <param name="points">The entry points reaching the use case, in sorted order.</param>
-    /// <param name="byEntryPoint">The queries by the base entry-point or module id their reachedThrough names.</param>
+    /// <param name="byEntryPoint">The queries by the base entry-point or module id their via names.</param>
     /// <param name="returned">The identified records each query returns, by query id.</param>
     /// <param name="model">The loaded project model that resolves each identified record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -183,15 +183,15 @@ internal static class CallerIdentifierChecks
         }
     }
 
-    /// <summary>The entry points reaching a use case: the reachedThrough ids resolving to an entry point record.</summary>
-    /// <param name="model">The loaded project model that resolves each reachedThrough id.</param>
-    /// <param name="useCase">The use case whose reachedThrough is read.</param>
+    /// <summary>The entry points reaching a use case: the via ids resolving to an entry point record.</summary>
+    /// <param name="model">The loaded project model that resolves each via id.</param>
+    /// <param name="useCase">The use case whose via is read.</param>
     /// <returns>Each reaching entry-point id without its fragment, in sorted order.</returns>
     private static List<string> EntryPointsOf(ProjectModel model, Record useCase)
     {
         var points = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var id in useCase.Ids(RecordFields.ReachedThrough))
+        foreach (var id in useCase.Ids(RecordFields.Via))
         {
             var baseId = Identifiers.BaseId(id);
 
@@ -212,7 +212,7 @@ internal static class CallerIdentifierChecks
         var found = new List<(string Field, string Identifies)>();
 
         if (useCase.Raw.ValueKind != JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Input, out var input)
+            || !useCase.Raw.TryGetProperty(RecordFields.Inputs, out var input)
             || input.ValueKind != JsonValueKind.Array)
         {
             return found;
@@ -243,7 +243,7 @@ internal static class CallerIdentifierChecks
             }
 
             if (Str(entry, RecordFields.Type) == "list"
-                && entry.TryGetProperty(RecordFields.RowShape, out var shape)
+                && entry.TryGetProperty(RecordFields.Items, out var shape)
                 && shape.ValueKind == JsonValueKind.Object
                 && shape.TryGetProperty(RecordFields.Fields, out var rows)
                 && rows.ValueKind == JsonValueKind.Array)
@@ -295,7 +295,7 @@ internal static class CallerIdentifierChecks
         var found = new HashSet<string>(StringComparer.Ordinal);
 
         if (query.Raw.ValueKind != JsonValueKind.Object
-            || !query.Raw.TryGetProperty(RecordFields.Output, out var output)
+            || !query.Raw.TryGetProperty(RecordFields.Outputs, out var output)
             || output.ValueKind != JsonValueKind.Object
             || !output.TryGetProperty(RecordFields.Include, out var include)
             || include.ValueKind != JsonValueKind.Object)
@@ -327,7 +327,7 @@ internal static class CallerIdentifierChecks
                 }
 
                 if (Str(field, RecordFields.Type) == "list"
-                    && field.TryGetProperty(RecordFields.RowShape, out var shape)
+                    && field.TryGetProperty(RecordFields.Items, out var shape)
                     && shape.ValueKind == JsonValueKind.Object
                     && shape.TryGetProperty(RecordFields.Fields, out var rows)
                     && rows.ValueKind == JsonValueKind.Array)

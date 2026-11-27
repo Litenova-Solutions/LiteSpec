@@ -5,7 +5,7 @@ summary: Each night the job erases the personal data of decided expenses past th
 kind: scheduled
 schedule:
   every: P1D
-  timezone: Europe/Amsterdam
+  timeZone: Europe/Amsterdam
 selection: Decided expenses past their retention.
 runbook: runbook/clear-stuck-reimbursements
 effects:
@@ -38,13 +38,12 @@ idempotency:
   recognizedBy: the Erased state and the missing row, so a rerun selects only what remains
 reads:
 - aggregate/spending.expense
-settles:
+tracksState:
   aggregate: aggregate/spending.expense
   pending: Reimbursed
   done: Erased
-records:
-- type: scenario
-  id: scenario/erase-expired-personal-data.expired-expenses-are-erased
+scenarios:
+- id: scenario/erase-expired-personal-data.expired-expenses-are-erased
   title: Expired Expenses Are Erased
   given: Two decided expenses are past their retention.
   when: The nightly run selects them.
@@ -52,8 +51,7 @@ records:
   result: result/erase-personal-data.erased
   exercises:
   - rule/expense.erased-after-retention
-- type: scenario
-  id: scenario/erase-expired-personal-data.nothing-expired-selects-nothing
+- id: scenario/erase-expired-personal-data.nothing-expired-selects-nothing
   title: Nothing Expired Selects Nothing
   given: No decided expense is past its retention.
   when: The nightly run selects.

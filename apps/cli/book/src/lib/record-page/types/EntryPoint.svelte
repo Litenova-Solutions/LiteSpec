@@ -20,7 +20,7 @@
   const session = $derived(objectField(f, "session"));
   const lifetime = $derived(session ? (stringField(session, "lifetime") ?? "") : "");
   const idleTimeout = $derived(session ? (stringField(session, "idleTimeout") ?? "") : "");
-  const reauth = $derived(stringList(f, "reauthenticationTriggers"));
+  const reauth = $derived(stringList(f, "reauthenticateWhen"));
   const excludes = $derived(stringList(f, "excludes"));
   const served = $derived(objectList(f, "servedContent"));
   // The screens of this entry point in outline order: the screens placed
@@ -77,7 +77,7 @@
   </PageSection>
 {/if}
 {#if reauth.length}
-  <PageSection blockKey="reauth" heading="reauthenticationTriggers" count={reauth.length}>
+  <PageSection blockKey="reauth" heading="reauthenticateWhen" count={reauth.length}>
     <BulletList items={reauth} />
   </PageSection>
 {/if}

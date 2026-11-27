@@ -16,12 +16,12 @@
   const selected = $derived(stringList(f, "fields"));
   const translates = $derived(stringField(f, "translates"));
   const compatibility = $derived(stringField(f, "compatibility") ?? "");
-  // The translated domain event's carries by name: each selected field reads its type here.
-  const carryOf = $derived.by(() => {
+  // The translated domain event's fields by name: each selected field reads its type here.
+  const fieldOf = $derived.by(() => {
     const byName: Record<string, RecordFields> = {};
-    for (const carry of objectList(book.get(translates ?? "")?.fields, "carries")) {
-      const name = stringField(carry, "name");
-      if (name) byName[name] = carry;
+    for (const field of objectList(book.get(translates ?? "")?.fields, "fields")) {
+      const name = stringField(field, "name");
+      if (name) byName[name] = field;
     }
     return byName;
   });
@@ -39,8 +39,8 @@
       head={["Name", "Type"]}
       caption={`Fields of ${r.title}`}
       rows={selected.map((name) => {
-        const carry = carryOf[name];
-        return [thRow(codeOf(name)), td(carry ? fieldType(book, carry) : "")];
+        const field = fieldOf[name];
+        return [thRow(codeOf(name)), td(field ? fieldType(book, field) : "")];
       })}
     />
   </PageSection>

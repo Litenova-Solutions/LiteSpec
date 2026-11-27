@@ -4,9 +4,9 @@ title: Loan due
 template: loan-due-reader
 audience:
 - actor/reader
-channel:
+channels:
 - email
-deliveredThrough: external-system/text-gateway
+via: external-system/text-gateway
 frequency: once
 deduplicationKey: loan-due per loan
 parameters:

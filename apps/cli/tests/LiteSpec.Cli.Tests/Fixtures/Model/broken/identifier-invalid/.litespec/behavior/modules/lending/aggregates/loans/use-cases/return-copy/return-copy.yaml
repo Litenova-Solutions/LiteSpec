@@ -12,24 +12,22 @@ serves:
   - step/borrow-and-return.return-copy
 fulfills:
   - requirement/borrowing.loan-period-days
-reachedThrough:
+via:
   - entry-point/library-app
 raises:
   - domain-event/loan.loan-returned
-records:
-  - type: result
-    id: result/return-copy.returned
+results:
+  - id: result/return-copy.returned
     title: Returned
     outcome: success
     meaning: The copy is returned.
-  - type: result
-    id: result/return-copy.LOAN-INACTIVE
+  - id: result/return-copy.LOAN-INACTIVE
     title: Loan inactive
     outcome: refusal
     code: lending.loan-not-active
     meaning: The loan is inactive.
-  - type: scenario
-    id: scenario/return-copy.returning-a-borrowed-copy-succeeds
+scenarios:
+  - id: scenario/return-copy.returning-a-borrowed-copy-succeeds
     title: Returning a borrowed copy succeeds
     given: A reader holds an active loan.
     when: The reader returns the copy.

@@ -8,14 +8,14 @@
   import { codeOf, refLink } from "../shared/record-cells";
   import { isRecord, refusalOf, stringField, stringList } from "../page-values";
 
-  // A rule: the refusal it raises, and what it binds, reads and releases.
+  // A rule: the refusal it raises, and what it governs, reads and releases.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
   const refusalId = $derived(book.outs(stripStep(id), "refusal")[0] ?? null);
   const rf = $derived(refusalOf(refusalId ? book.get(refusalId) : null, refusalId));
   const refusalLink = $derived(refusalId ?? "");
-  const binds = $derived(stringList(f, "binds"));
+  const governs = $derived(stringList(f, "governs"));
   const reads = $derived(stringList(f, "reads"));
   const rationale = $derived(stringField(f, "rationale") ?? "");
   const frozenWhen = $derived(stringField(f, "frozenWhen"));
@@ -45,8 +45,8 @@
 {#if rationale}
   <PageSection blockKey="rat" heading="rationale">{rationale}</PageSection>
 {/if}
-{#if binds.length}
-  <PageSection blockKey="binds" heading="binds" count={binds.length}><RecordList ids={binds} /></PageSection>
+{#if governs.length}
+  <PageSection blockKey="governs" heading="governs" count={governs.length}><RecordList ids={governs} /></PageSection>
 {/if}
 {#if reads.length}
   <PageSection blockKey="reads" heading="reads" count={reads.length}><RecordList ids={reads} /></PageSection>

@@ -27,7 +27,7 @@ public sealed class RecordSchemaParityTests
         ["product"] = ("product/library", """{"summary": "The lending desk.", "boundary": "The lending desk only.", "users": ["actor/reader"]}"""),
         ["goal"] = ("goal/faster-pickup", """{"summary": "Readers wait less.", "statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days."}"""),
         ["direction"] = ("direction/open-shelves", """{"summary": "Open shelves.", "statement": "Every reader finds a copy."}"""),
-        ["constraint"] = ("constraint/privacy-law", """{"summary": "Reader data is personal.", "authority": "Privacy law.", "sources": [{"name": "privacy-law", "url": "https://example.com/privacy-law", "readOn": "2026-01-02"}], "kind": "legal", "applies": true, "appliesBecause": "We hold reader data.", "coverage": "Reader data.", "obligations": [{"statement": "Do not share reader data.", "sources": ["privacy-law"]}], "productEffect": "Reader data stays private."}"""),
+        ["constraint"] = ("constraint/privacy-law", """{"summary": "Reader data is personal.", "authority": "Privacy law.", "sources": [{"name": "privacy-law", "url": "https://example.com/privacy-law", "readOn": "2026-01-02"}], "kind": "legal", "applies": true, "appliesBecause": "We hold reader data.", "scope": "Reader data.", "obligations": [{"statement": "Do not share reader data.", "sources": ["privacy-law"]}], "productEffect": "Reader data stays private."}"""),
         ["research"] = ("research/loan-terms", """{"summary": "Loan terms.", "sources": [{"name": "lib-manual", "url": "https://example.com/manual", "readOn": "2026-01-02"}], "question": "How long is a loan?", "conclusion": "Loans run for two weeks.", "findings": [{"statement": "Loans run for two weeks.", "sources": ["lib-manual"]}]}"""),
         ["decision"] = ("decision/0001-loan-store", """{"summary": "Loan storage.", "options": [{"name": "Documents", "pros": "Simple.", "cons": "Slow."}], "choice": "Documents.", "consequences": "Loans are documents.", "reopenedWhen": "Reads exceed one second.", "context": "Loans need a store."}"""),
         ["requirement"] = ("requirement/lending.loan-limit", """{"kind": "policy", "statement": "A reader holds five loans.", "rationale": "Fair shares.", "values": [{"value": "5", "effectiveFrom": "2026-01-01"}]}"""),
@@ -38,17 +38,17 @@ public sealed class RecordSchemaParityTests
         ["flow"] = ("flow/submit-expense", """{"summary": "A reader borrows.", "actor": "actor/reader", "serves": ["goal/faster-pickup"], "startedWhen": "The reader is at the desk with a copy.", "finishedWhen": "The copy is out.", "steps": [{"id": "step/submit-expense.borrow-copy", "title": "Borrow Copy", "statement": "The reader borrows the copy.", "actor": "actor/reader", "branches": [{"when": "The shelf is empty.", "ends": "The reader leaves without a copy."}]}]}"""),
         ["module"] = ("module/lending", """{"summary": "Lending.", "dependsOn": [], "covers": ["Lends copies."], "excludes": ["Sells copies."]}"""),
         ["aggregate"] = ("aggregate/copy.loan", """{"summary": "A loan.", "states": [{"name": "on-loan", "meaning": "The copy is out."}]}"""),
-        ["use-case"] = ("use-case/lending.borrow-copy", """{"summary": "Borrow a copy.", "kind": "command", "reachedThrough": ["entry-point/library-app"], "access": {"grant": "permission/borrow", "tenant": "own"}, "steps": [{"statement": "The reader borrows the copy."}], "idempotency": {"mode": "none", "reason": "A second borrow is refused."},"audit": {"level": "none", "targetKind": "No audit entry."}}"""),
+        ["use-case"] = ("use-case/lending.borrow-copy", """{"summary": "Borrow a copy.", "kind": "command", "via": ["entry-point/library-app"], "access": {"grant": "permission/borrow", "tenant": "own"}, "steps": [{"statement": "The reader borrows the copy."}], "idempotency": {"mode": "none", "reason": "A second borrow is refused."},"audit": {"level": "none", "targetKind": "No audit entry."}}"""),
         ["reaction"] = ("reaction/lending.send-due-notice", """{"summary": "Send a due notice.", "triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "The due notice was sent."}], "onFailure": {"mode": "skip-and-log"}, "idempotency": {"mode": "none", "reason": "A second notice is harmless."}}"""),
         ["job"] = ("job/lending.scan-due", """{"summary": "Scan for due loans.", "kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}], "outcomes": [{"name": "completed", "meaning": "Due loans were scanned."}], "onFailure": {"mode": "skip-and-log"}, "idempotency": {"mode": "none", "reason": "A second scan repeats the same selection."}}"""),
-        ["setting"] = ("setting/lending.loan-days", """{"summary": "Loan length.", "valueType": "integer", "setBy": "operator"}"""),
+        ["setting"] = ("setting/lending.loan-days", """{"summary": "Loan length.", "value": {"type": "integer"}, "setBy": "operator"}"""),
         ["read-model"] = ("read-model/reporting.reimbursed-expense", """{"summary": "What Reporting keeps about each reimbursed expense.", "keyedBy": "aggregate/spending.expense", "fields": [{"name": "employeeId", "meaning": "The employee who was paid.", "type": "id", "identifies": "actor/employee", "from": "integration-event/expense-reimbursed#employeeId", "classification": "internal"}], "freshness": {"mode": "snapshot", "within": "PT5S"}}"""),
         ["module-event"] = ("module-event/lending.loan-borrowed", """{"summary": "A loan was borrowed.", "translates": "domain-event/lending.loan-borrowed", "fields": ["copyId"], "compatibility": "Version 1."}"""),
-        ["integration-event"] = ("integration-event/loan-borrowed", """{"summary": "A loan was borrowed outside.", "action": "send", "eventType": "loan.borrowed", "source": "Lending", "subject": "Loan", "payload": [], "through": "external-system/sample", "translates": "domain-event/lending.loan-borrowed", "compatibility": "Version 1."}"""),
+        ["integration-event"] = ("integration-event/loan-borrowed", """{"summary": "A loan was borrowed outside.", "direction": "send", "eventType": "loan.borrowed", "source": "Lending", "subject": "Loan", "fields": [], "via": "external-system/sample", "translates": "domain-event/lending.loan-borrowed", "compatibility": "Version 1."}"""),
         ["external-system"] = ("external-system/payments", """{"summary": "The payment provider.", "vendor": "Northwind Traders", "represents": "actor/clerk"}"""),
         ["runbook"] = ("runbook/restart-queue", """{"summary": "Restart the queue.", "trigger": "The queue stalls.", "impact": "Notices pause.", "prerequisites": "Access to the queue.", "procedure": "Restart the worker.", "verification": "Notices flow again.", "recovery": "Restart again.", "escalation": "Page the on-call."}"""),
         ["waiver"] = ("waiver/legacy-export", """{"summary": "A legacy export.", "kind": "gap", "reason": "The export predates the schema.", "waives": ["litespec/core/model#keep-each-name-unique-in-its-record-type"], "appliesTo": ["module/lending"], "exitWhen": "The export moves into the new pipeline.", "expiresOn": "2027-06-01", "closedBy": ["module/lending"]}"""),
-        ["screen"] = ("screen/lending.loan-list", """{"summary": "The loan list.", "route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}, "task": "List the loans.", "displayStates": [{"name": "Empty", "shows": "No loans."}]}"""),
+        ["screen"] = ("screen/lending.loan-list", """{"summary": "The loan list.", "route": "/loans", "job": "List the loans.", "archetype": "ListPage", "states": [{"name": "Empty", "shows": "No loans."}]}"""),
         ["entry-point"] = ("entry-point/library-app", """{"summary": "The library app.", "kind": "browser", "authentication": ["session"], "audience": ["actor/reader"]}"""),
     };
 
@@ -93,7 +93,7 @@ public sealed class RecordSchemaParityTests
         ("product", "boundary"), ("product", "users"),
         ("goal", "statement"), ("goal", "measure"), ("goal", "target"),
         ("direction", "statement"),
-        ("constraint", "authority"), ("constraint", "sources"), ("constraint", "kind"), ("constraint", "applies"), ("constraint", "appliesBecause"), ("constraint", "coverage"), ("constraint", "obligations"), ("constraint", "productEffect"),
+        ("constraint", "authority"), ("constraint", "sources"), ("constraint", "kind"), ("constraint", "applies"), ("constraint", "appliesBecause"), ("constraint", "scope"), ("constraint", "obligations"), ("constraint", "productEffect"),
         ("research", "sources"), ("research", "conclusion"), ("research", "findings"),
         ("decision", "options"), ("decision", "reopenedWhen"), ("decision", "choice"), ("decision", "context"),
         ("requirement", "kind"), ("requirement", "statement"), ("requirement", "rationale"), ("requirement", "values"),
@@ -113,7 +113,7 @@ public sealed class RecordSchemaParityTests
         ("external-system", "vendor"),
         ("runbook", "trigger"),
         ("waiver", "reason"), ("waiver", "waives"), ("waiver", "kind"), ("waiver", "expiresOn"), ("waiver", "exitWhen"), ("waiver", "closedBy"),
-        ("screen", "route"), ("screen", "task"), ("screen", "displayStates"),
+        ("screen", "route"), ("screen", "job"), ("screen", "states"),
         ("entry-point", "kind"), ("entry-point", "audience"),
     ];
 
@@ -152,7 +152,7 @@ public sealed class RecordSchemaParityTests
         ("lasting waiver without consequences", "waiver", json => Without(Without(Without(Replace(json, "kind", "\"lasting\""), "expiresOn"), "exitWhen"), "closedBy")),
         ("screen with a route and a host", "screen", json => Replace(json, "host", "\"screen/lending.loan-list\"")),
         ("setting with an unknown setBy", "setting", json => Replace(json, "setBy", "\"robot\"")),
-        ("use case with an unknown idempotency keyScope", "use-case", json => Replace(json, "idempotency", "{\"mode\": \"key\", \"key\": \"loan:{copyId}\", \"keyScope\": \"branch\"}")),
+        ("use case with an unknown idempotency scope", "use-case", json => Replace(json, "idempotency", "{\"mode\": \"key\", \"key\": \"loan:{copyId}\", \"scope\": \"branch\"}")),
     ];
 
     /// <summary>A valid baseline must pass the schema and the model check.</summary>

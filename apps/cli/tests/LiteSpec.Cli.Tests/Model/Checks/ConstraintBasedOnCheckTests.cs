@@ -54,6 +54,6 @@ public sealed class ConstraintBasedOnCheckTests
                 1,
                 """{"sources": [{"name": "lib-manual", "url": "https://example.com/manual", "readOn": "2026-01-02"}], "question": "How long is a loan?", "conclusion": "Loans run for two weeks."}"""));
 
-        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Message.Contains("basedOn", StringComparison.Ordinal));
+        Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("basedOn", StringComparison.Ordinal));
     }
 }

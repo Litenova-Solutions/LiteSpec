@@ -73,7 +73,7 @@ internal static class AuditTargetChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSingle(Record useCase, JsonElement audit, string target, List<Finding> findings)
     {
-        var input = useCase.Objects(RecordFields.Input)
+        var input = useCase.Objects(RecordFields.Inputs)
             .FirstOrDefault(entry => string.Equals(Str(entry, RecordFields.Name), target, StringComparison.Ordinal));
 
         if (input.ValueKind != JsonValueKind.Object)
@@ -120,7 +120,7 @@ internal static class AuditTargetChecks
                 continue;
             }
 
-            var input = useCase.Objects(RecordFields.Input)
+            var input = useCase.Objects(RecordFields.Inputs)
                 .FirstOrDefault(candidate => string.Equals(Str(candidate, RecordFields.Name), name, StringComparison.Ordinal));
 
             if (input.ValueKind != JsonValueKind.Object)
@@ -172,7 +172,7 @@ internal static class AuditTargetChecks
         var fields = new List<string>();
 
         if (useCase.Raw.ValueKind != JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Output, out var output))
+            || !useCase.Raw.TryGetProperty(RecordFields.Outputs, out var output))
         {
             return fields;
         }

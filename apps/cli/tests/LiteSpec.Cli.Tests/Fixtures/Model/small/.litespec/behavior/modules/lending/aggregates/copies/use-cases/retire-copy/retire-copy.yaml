@@ -1,30 +1,29 @@
 type: use-case
 id: use-case/lending.retire-copy
 title: Retire copy
-exposure: A signed-in librarian reaches this command through the library app under the manage-copies permission. A wrong retirement removes a copy readers can still borrow.
 kind: command
 access:
   grant: permission/manage-copies
   tenant: own
 fulfills:
 - requirement/borrowing.copy-shelf-home
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/copy.copy-retired
 idempotency:
   mode: none
   reason: Each call retires its own copy, and retiring a copy on loan is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The librarian retires the copy from lending.
-records:
-- type: result
-  id: result/retire-copy.retired
+results:
+- id: result/retire-copy.retired
   title: Retired
   outcome: success
   meaning: The copy is retired.
-- type: result
-  id: result/retire-copy.copy-on-loan
+- id: result/retire-copy.copy-on-loan
   title: Copy on loan
   outcome: refusal
   refusal: refusal/lending.copy-on-loan

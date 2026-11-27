@@ -206,7 +206,7 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "purpose", "whatHappens", "affects", "affectsSegment", "actor", "advances",
   "serves", "risk", "costToday", "workaroundToday", "finishedWhen",
   "route", "host", "entryPoint",
-  "workaround", "cost", "scope", "coverage", "productEffect", "context", "compatibility", "task",
+  "workaround", "cost", "scope", "productEffect", "context", "compatibility", "job",
   "questions", "evidence", "lifecycle", "plannedFor", "refusedBecause", "provenance",
   "decider", "decideBy", "owner", "approvedBy", "approvedOn", "approvedHash", "reviewBy",
   // A scenario shows these in its own Given, When, Then and Result sections.
@@ -219,8 +219,6 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "compensates",
   // A flow shows these in its own start and finish callouts.
   "startedWhen",
-  // A screen draws its wireframe in its own section.
-  "wireframe",
   // A refusal result shows its joined problem type in its own section.
   "problemType",
 ]);

@@ -241,28 +241,28 @@ public static class RecordTypes
     ///     Whether the field names a link, and which record types it may point at.
     ///     An empty set means any record type. A calls target of
     ///     external-system/&lt;name&gt;#&lt;operation&gt; resolves through its system.
-    ///     A flow's serves names one goal and its answers one problem or constraint; only serves moves a goal.
+    ///     A flow's serves names one goal, its solves the problems it answers, and its basedOn the constraints it rests on; only serves moves a goal.
     /// </summary>
     public static readonly Dictionary<string, HashSet<string>> LinkTargets =
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             ["cites"] = new HashSet<string> { "goal", "direction", "problem", "feature", "constraint", "research", "decision", "requirement" },
-            ["basedOn"] = new HashSet<string> { "constraint", "research", "direction", "decision", "requirement" },
+            ["basedOn"] = new HashSet<string> { "constraint", "research", "direction", "decision", "requirement", "goal", "problem", "feature" },
             ["affects"] = new HashSet<string> { "actor" },
             ["audience"] = new HashSet<string> { "actor" },
             ["users"] = new HashSet<string> { "actor" },
             ["requires"] = new HashSet<string> { "actor", "permission" },
             ["advances"] = new HashSet<string> { "goal" },
             ["serves"] = new HashSet<string> { "goal", "flow", "step" },
-            ["answers"] = new HashSet<string> { "problem", "constraint" },
+            ["solves"] = new HashSet<string> { "problem" },
             ["fulfills"] = new HashSet<string> { "requirement" },
-            ["governs"] = new HashSet<string> { "aggregate", "use-case" },
+            ["governs"] = new HashSet<string> { "aggregate", "use-case", "module" },
             ["raises"] = new HashSet<string> { "domain-event" },
             ["runs"] = new HashSet<string> { "use-case" },
             ["sends"] = new HashSet<string> { "notification" },
             ["calls"] = new HashSet<string> { "external-system" },
             ["queries"] = new HashSet<string> { "use-case" },
-            ["commands"] = new HashSet<string> { "use-case" },
+            ["via"] = new HashSet<string> { "entry-point", "external-system", "module" },
             ["triggeredBy"] = new HashSet<string> { "domain-event", "module-event", "integration-event" },
             ["compensates"] = new HashSet<string> { "use-case" },
             ["decidedBy"] = new HashSet<string> { "use-case", "aggregate" },
@@ -277,9 +277,6 @@ public static class RecordTypes
             ["competesWith"] = new HashSet<string> { "use-case" },
             ["supersedes"] = new HashSet<string> { "decision" },
             ["translates"] = new HashSet<string> { "domain-event" },
-            ["through"] = new HashSet<string> { "external-system" },
-            ["arrivesThrough"] = new HashSet<string> { "entry-point", "external-system" },
-            ["deliveredThrough"] = new HashSet<string> { "external-system" },
             ["consentRule"] = new HashSet<string> { "rule" },
             ["movedBy"] = new HashSet<string> { "job" },
             ["fallback"] = new HashSet<string> { "requirement" },
@@ -289,12 +286,11 @@ public static class RecordTypes
             ["effects"] = new HashSet<string> { "use-case", "notification", "external-system" },
             ["access"] = new HashSet<string> { "permission" },
             ["except"] = new HashSet<string> { "requirement" },
-            ["dataClasses"] = new HashSet<string> { "job", "use-case", "decision", "requirement" },
+            ["dataClasses"] = new HashSet<string> { "job", "use-case", "decision", "requirement", "constraint", "domain-event", "module-event", "integration-event" },
             ["freshness"] = new HashSet<string>(),
             ["erasure"] = new HashSet<string> { "external-system", "module-event", "integration-event" },
             ["grantedTo"] = new HashSet<string> { "role" },
             ["represents"] = new HashSet<string> { "actor" },
-            ["reachedThrough"] = new HashSet<string> { "entry-point", "module" },
             ["dependsOn"] = new HashSet<string> { "module" },
             ["terms"] = new HashSet<string> { "term" },
             ["result"] = new HashSet<string> { "result" },
@@ -304,7 +300,7 @@ public static class RecordTypes
             ["leadsTo"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
             ["appliesTo"] = new HashSet<string>(),
-            ["partyOf"] = new HashSet<string> { "party" },
+            ["party"] = new HashSet<string> { "party" },
             ["involves"] = new HashSet<string> { "person", "party" },
             ["term"] = new HashSet<string> { "term" },
             ["values"] = new HashSet<string>(),

@@ -102,7 +102,7 @@ Every use case names its grant and the entry point that reaches it, and most nam
 
 The Submit expense file lists its inputs, its results, and its scenarios. It takes a submission identifier, an amount, a currency, and an optional receipt. It has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the refusal `refusal/spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
 
-The flow steps run in the order the flow file gives them. Submit expense serves `step/submit-and-reimburse.submit-expense`, and Attach receipt serves `step/submit-and-reimburse.attach-receipt`. The flow file names no use case; each use case names the step it serves.
+The flow steps run in the order the flow file gives them. Submit expense serves `step/submit-and-reimburse.submit-expense`, and Attach receipt serves `step/submit-and-reimburse.attach-receipt`. The flow file lists no use case; each use case states the step it serves.
 
 ## The Entry Point and the Screen
 

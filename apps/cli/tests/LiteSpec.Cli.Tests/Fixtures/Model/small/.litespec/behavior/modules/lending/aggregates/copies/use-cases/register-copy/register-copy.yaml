@@ -1,18 +1,17 @@
 type: use-case
 id: use-case/lending.register-copy
 title: Register copy
-exposure: A signed-in librarian reaches this command through the library app under the manage-copies permission. A wrong registration puts a copy that never arrived into lending.
 kind: command
 access:
   grant: permission/manage-copies
   tenant: own
 fulfills:
 - requirement/borrowing.copy-shelf-home
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/copy.copy-registered
-input:
+inputs:
 - name: copyId
   meaning: The identity of the copy the librarian registers.
   type: id
@@ -29,16 +28,16 @@ input:
 idempotency:
   mode: none
   reason: Each call registers its own copy, and registering the same barcode twice is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The librarian registers the copy on its home shelf.
-records:
-- type: result
-  id: result/register-copy.registered
+results:
+- id: result/register-copy.registered
   title: Registered
   outcome: success
   meaning: The copy is registered.
-- type: result
-  id: result/register-copy.copy-already-registered
+- id: result/register-copy.copy-already-registered
   title: Copy already registered
   outcome: refusal
   refusal: refusal/lending.copy-already-registered

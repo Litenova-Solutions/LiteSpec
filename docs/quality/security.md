@@ -9,35 +9,41 @@ Security covers who acts, what an operation touches, and what it keeps: authenti
 
 ### Actors, Roles, and Permissions
 
-Every protected operation answers one question: who may do what to which target. The actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role's scope sets its reach, such as one organization. Each permission names the roles that hold it in `grantedTo`, and each use case declares the permissions it needs.
+Each protected operation answers one question: who acts on which target under which grant. The actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role scope sets its reach, such as one organization.
 
-The application guard authorizes every protected operation from those declarations, so two operations about the same record ask the same question. For example, the use case that approves an expense declares the permission it needs, and the guard resolves the caller's roles at the scope of that expense.
+Each permission names the roles that hold it in `grantedTo`, and each use case declares the permissions it needs. The application guard authorizes each protected operation from those declarations, so two operations about the same record ask the same question. The use case that approves an expense declares the permission it needs, and the guard resolves the caller roles at the scope of that expense.
 
 ### Trust Boundaries
 
-A trust boundary is any point where data crosses from one party to another: a request arriving at the API, a file upload, a provider response, database content rendered into a new output, or generated text shown to a user. Each boundary validates what crosses it before use, because data that was safe in its old context can be unsafe in the new one.
-
-Application validators check message shape, while Domain checks business invariants. An expense receipt upload is validated as a file at the boundary before any use case reads it.
+A trust boundary is each point where data crosses from one party to another: a request arriving at the API, a file upload, a provider response, database content rendered into a new output, or generated text shown to a user. Each boundary validates what crosses it before use, because data that was safe in its old context turns unsafe in the new one. Application validators check message shape, while Domain checks business invariants. An expense receipt upload gets validated as a file at the boundary before each use case reads it.
 
 ### Personal Data and Its Stores
 
-Personal data spreads further than the database: logs, search indexes, outboxes, snapshots, and backups each hold their own copy. Each store that holds personal data keeps its own inventory entry naming the fields, the purposes, and the retention. Every export, erasure, and breach answer then starts from the same map instead of a fresh search.
+Personal data spreads further than the database: logs, search indexes, outboxes, snapshots, and backups each hold their own copy. Each store that holds personal data keeps its own inventory entry naming the fields, the purposes, and the retention. Each export, erasure, and breach answer then starts from the same map instead of a fresh search.
+
+### Identity, Sessions, and Secrets
+
+The backend accepts one thing: a token whose issuer, audience, signature, lifetime, and named claims validate through OIDC and JWT Bearer. Provider-specific login and session behavior belongs to a frontend or an extension, since the API rechecks no login flow it sees nowhere. An unsigned token, an unvalidated decode, or a client-supplied identity header mints an identity for anyone, so none gets accepted.
+
+Claims mapping has one home: a narrow accessor in WebApi that maps verified claims once to typed identity, roles, and scopes. Application receives the actor through input that WebApi creates, or through a narrow trusted port when behavior stays host-independent. A second accessor invites a second interpretation of the same claims.
+
+Platform secret stores hold the values, and diagnostics redact sensitive configuration before emitting it, so the value enters the observable stream nowhere. Each production secret carries an inventory entry naming its storage location and next rotation date, with revocation and recovery in a runbook. Production values live on the host, and the repository example file holds placeholders only.
+
+### Data Duties
+
+A use case collects, returns, logs, exports, and retains only the fields its input and results declare. A use case handling sensitive data states its classification, access, retention, deletion, and audit behavior on its page, so the promise sits beside the fields it covers. Erasure and export reach each store on the inventory, and a backup carries a retention bound instead, so the data ages out when the backup expires.
+
+A digest without a salt reverses by table lookup, so it gets the same handling as the data itself. Live data at rest carries encryption, with a visible gap waiver where encryption is not in place yet. The breach procedure names the person who acts and a backup person, and meets the deadline the applicable constraint record states.
+
+### Browser, Origin, and Release Checks
+
+The cross-origin policy lists its allowed origins, methods, headers, and credential mode, with no wildcard origin. Deployments with more than one replica read their rate and concurrency counters from one shared store, so the applied limit equals the declared one. Each security audit event records actor, action, target, outcome, timestamp, trace identifier, and reason, and stays available for incident review under a documented retention and access policy.
+
+One quality requirement carries the security target as an ASVS 5.0 level, with its measure. The ZAP baseline runs the spider with passive scanning on each pull request, with WARN, FAIL, and IGNORE config and a JSON report under `TestResults/` showing no medium or high alert. Each pull request gets a scan for security findings from a free static analyzer: CodeQL on public repositories, a free alternative with its choice recorded in CI documentation on private ones, with each accepted finding living as a gap waiver.
+
+The browser reads the secure headers together: Content Security Policy, frame restrictions, content-type protection, referrer policy, and transport security in one host location. Authorization gets proved one caller at a time: anonymous, invalid-token, unrelated-actor, owner, and each privileged grant for each protected operation. A UI redirect or a hidden control counts as no evidence.
 
 ## Standards
-
-### Keep Backend Authentication Provider-Neutral
-
-**ID:** `litespec/quality/security#keep-backend-authentication-provider-neutral`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A backend MUST validate issuer, audience, signature, lifetime, and required claims through OIDC and JWT Bearer.
-
-**Rationale:** The backend accepts one thing: a token whose issuer, audience, signature, lifetime, and required claims validate through OIDC and JWT Bearer. Provider-specific login and session behavior belongs to a frontend or an extension, because the API cannot recheck a login flow it cannot see. An unsigned token, an unvalidated decode, or a client-supplied identity header lets a caller mint its own identity, so none is ever accepted.
-
-**Reviewed for:** Does the backend validate issuer, audience, signature, lifetime, and required claims, with no identity header accepted? Look at the authentication configuration in WebApi.
 
 ### Derive the Actor from Claims
 
@@ -47,9 +53,9 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Applies to:** artifact: command-handler, query-handler, endpoint
 
-**Statement:** Actor resolution MUST follow `litespec/quality/security#use-one-current-actor-abstraction`.
+**Statement:** Actor resolution MUST map verified claims to identity, roles, and scopes through the one current-actor accessor in WebApi.
 
-**Rationale:** The actor comes from verified claims, not from the request. The WebApi boundary maps those claims to identity, roles, and scopes through the one current-actor accessor, and every operation reads the actor from there. Anything the caller sends can name anyone, so request data never supplies the current actor. With one resolution path, every operation answers who acts from the same verified source.
+**Rationale:** The actor comes from verified claims, not from the request. The WebApi boundary maps those claims to identity, roles, and scopes through the one current-actor accessor, and each operation reads the actor from there. Request data names anyone the caller wants, so it supplies the current actor nowhere.
 
 **Reviewed for:** Does WebApi map verified claims through the one current-actor accessor, with no request data supplying the actor? Look at the actor resolution in WebApi.
 
@@ -63,9 +69,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** The application guard MUST authorize every protected operation from its use case's declared permissions, as `litespec/core/backend-application#enforce-target-authorization-in-the-pipeline` states, with endpoints adding only coarse policies.
 
-**Rationale:** Two operations about the same record ask the same authorization question. The use case declares the permissions it needs, the guard resolves the actor roles at the scope of the target, and the decision follows from that declaration.
-
-A message whose target is always the caller carries no target (`litespec/core/access#remove-a-target-that-must-be-the-caller`). A handler never compares the caller with a target and never throws the forbidden refusal itself: the guard decides. Endpoints add only coarse policies, because a policy that cannot see business data cannot decide about an aggregate.
+**Rationale:** Two operations about the same record ask the same authorization question. The use case declares the permissions it needs, the guard resolves the actor roles at the scope of the target, and the decision follows from that declaration. A message whose target is the caller itself carries no target, and the guard decides while endpoints add coarse policies only.
 
 **Reviewed for:** Does each protected operation pass the application guard from its use case's declared permissions? Look at the guard decision for each protected operation in the authorization tests and the pipeline.
 
@@ -79,9 +83,9 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A protected collection query MUST apply its authorization scope as a database predicate, before paging, rather than filter a materialized result.
 
-**Rationale:** A collection has no single target, so the check that `litespec/quality/security#authorize-each-target-resource` states has nothing to resolve against. The scope becomes part of the database query itself. Reading the unrestricted set already exposes the rows to the process, and a page assembled from them leaks the total count even when every row is dropped. Filtering after the load is the shape [OWASP lists as broken object level authorization](https://owasp.org/www-project-top-ten/2021/A01_2021-Broken_Access_Control/).
+**Rationale:** A collection has no single target, so the per-target check has nothing to resolve against. The scope becomes part of the database query itself. Reading the unrestricted set exposes the rows to the process, and a page assembled from them leaks the total count even when each row drops.
 
-**Example:** A Claimwick query for the expenses of an organization adds the organization predicate to the database query. It does not load every expense and drop the ones the caller may not read.
+**Example:** A Claimwick query for the expenses of an organization adds the organization predicate to the database query. It loads no full set first.
 
 **Reviewed for:** Does each protected collection query apply its authorization scope as a database predicate before paging? Look at each query handler that returns a collection.
 
@@ -95,7 +99,7 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A trust boundary MUST validate transport shape and file metadata before use, leaving message checks to application validators as `litespec/core/backend-application#separate-input-validation-from-invariants` states.
 
-**Rationale:** Each layer validates what it can see: the boundary checks transport shape and file metadata, the application validators from `litespec/core/backend-application#separate-input-validation-from-invariants` check message shape, required values, length, range, format, and pagination bounds, and Domain checks business invariants. Database content, provider responses, file contents, and generated text stay untrusted when they cross into a new output context, because validation for one context proves nothing about the next.
+**Rationale:** Each layer validates what it sees: the boundary checks transport shape and file metadata, the application validators check message shape, values, length, range, format, and pagination bounds, and Domain checks business invariants. Database content, provider responses, file contents, and generated text stay untrusted when they cross into a new output context, because validation for one context proves nothing about the next.
 
 **Reviewed for:** Does each trust boundary validate transport shape and file metadata before use? Look at the endpoints, the upload handlers, and the provider response readers.
 
@@ -109,7 +113,7 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A secret MUST NOT appear in source, logs, traces, exception messages, generated files, URLs, snapshots, container layers, or browser storage.
 
-**Rationale:** Every place a secret lands is a place it leaks from: source reaches every clone, logs and traces reach every dashboard reader, URLs reach every proxy log, snapshots and container layers outlive the process, and browser storage reaches the user. Platform secret stores hold the values instead, and diagnostics redact sensitive configuration before emitting it, so the value never enters the observable stream.
+**Rationale:** Each place a secret lands is a place it leaks from: source reaches each clone, logs and traces reach each dashboard reader, URLs reach each proxy log, snapshots and container layers outlive the process, and browser storage reaches the user. Platform secret stores hold the values instead, and diagnostics redact sensitive configuration before emitting it, so the value enters the observable stream nowhere.
 
 **Reviewed for:** Does any source, log, trace, exception message, generated file, URL, snapshot, container layer, or browser storage hold a secret? Search the tree and a sample of log and trace output for key and token values.
 
@@ -123,7 +127,7 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** An external value reaching the database MUST travel through a provider query API or a parameterized SQL parameter.
 
-**Rationale:** String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. Under the baseline, the provider query API is the Marten API, and it parameterizes. The reporting extension owns the reviewed raw SQL patterns.
+**Rationale:** String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. Under the baseline, the provider query API is the Marten API, and it parameterizes.
 
 **Reviewed for:** Does each external value reach the database through a query API call or a SQL parameter? Look at the repository code and each raw SQL file.
 
@@ -137,7 +141,7 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A public error MUST use the error contract `litespec/core/backend-api#return-stable-problem-details` defines.
 
-**Rationale:** The HTTP API rules own the error contract, so every public error carries the same stable shape with nothing extra. A stack trace, SQL, connection detail, provider body, uncontracted internal identifier, or authorization reason that reveals resource existence hands an attacker the structure of the system with every error.
+**Rationale:** The HTTP API rules own the error contract, so each public error carries the same stable shape with nothing extra. A stack trace, SQL, connection detail, provider body, uncontracted internal identifier, or authorization reason that reveals resource existence hands an attacker the structure of the system with each error.
 
 **Reviewed for:** Does each public error carry the HTTP API error contract shape, with no stack trace, SQL, or provider body? Look at the error responses the endpoint tests assert.
 
@@ -151,51 +155,9 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A frontend MUST apply framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content.
 
-**Rationale:** The browser renders every response as page content, so injected scripts, forged requests, malicious redirects, and hostile markup arrive as ordinary content. Each listed defense blocks one of those attacks. A route guard or hidden control only changes what the user sees, so it never replaces API authorization.
+**Rationale:** The browser renders each response as page content, so injected scripts, forged requests, malicious redirects, and hostile markup arrive as ordinary content. Each listed defense blocks one of those attacks. A route guard or hidden control only changes what the user sees, so it replaces API authorization at no point.
 
 **Reviewed for:** Does each frontend ship framework escaping, a Content Security Policy, secure headers, redirect validation, forgery protection, and rich-content sanitization? Look at the frontend host configuration and the response headers it sends.
-
-### Limit Each Use Case to Its Declared Fields
-
-**ID:** `litespec/quality/security#limit-each-use-case-to-its-declared-fields`
-
-**Strength:** required
-
-**Applies to:** artifact: use-case, command-handler, query-handler
-
-**Statement:** A use case MUST collect, return, log, export, and retain only the fields its input and results declare.
-
-**Rationale:** A use case that collects only what it declares has nothing extra to leak. Collecting, returning, logging, exporting, and retaining only the declared fields keeps the exposure of each use case exactly what its page promises. A use case handling sensitive data states its classification, access, retention, deletion, and audit behavior on its page, so the promise sits beside the fields it covers.
-
-**Reviewed for:** Does each use case collect, return, log, export, and retain only the fields its input and results declare? Look at each use case's input and result types and its log calls.
-
-### Keep a Personal-Data Inventory per Store
-
-**ID:** `litespec/quality/security#keep-a-personal-data-inventory-per-store`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A platform holding personal data MUST keep a personal-data inventory per store naming the fields, purposes, and retention of each store.
-
-**Rationale:** Export, erasure, and breach answers each open with the same question: which stores hold this person's data, which fields, for which purposes, and for how long. An inventory the team can read answers it in one place. Without it, each request starts with a search across logs, indexes, and outboxes, and the store nobody remembers stays out of the answer.
-
-**Reviewed for:** Does the inventory name the fields, purposes, and retention of each store that holds personal data? Look at the inventory document beside the stores it lists.
-
-### Apply Erasure and Export to Every Store
-
-**ID:** `litespec/quality/security#apply-erasure-and-export-to-every-store`
-
-**Strength:** required
-
-**Applies to:** artifact: use-case; when: erasure
-
-**Statement:** Erasure and export MUST reach every store holding personal data, with backups expiring inside the retention bound the retention schedule states.
-
-**Rationale:** The database is only one of the stores that hold personal data; logs, search indexes, and outboxes hold their own copies. Honoring a request in the database while leaving a log export untouched answers half the duty and breaks the promise to the person. A backup cannot erase field by field, so it carries a retention bound instead, and the data ages out when the backup expires.
-
-**Reviewed for:** Do erasure and export reach every store on the inventory, with backups expiring inside their retention bound? Look at the erasure and export jobs and the backup retention setting.
 
 ### Keep Personal Data Out of Logs
 
@@ -207,51 +169,9 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A log, trace, or diagnostic record MUST NOT carry personal data in clear.
 
-**Rationale:** Once a log line leaves the process, it flows through collectors, dashboards, and long-term archives the product does not control. Redaction at the sink is one pipeline stage that fails once, and by then the cleartext is already downstream. A field that is never emitted cannot leak from the pipeline.
+**Rationale:** Once a log line leaves the process, it flows through collectors, dashboards, and long-term archives the product controls nowhere. Redaction at the sink is one pipeline stage that fails once, and by then the cleartext is downstream. A field that leaves the process in no log line stays out of that pipeline.
 
 **Reviewed for:** Do logs, traces, and diagnostic records carry personal data in clear? Search the log sinks and a sample of recent log output for personal fields.
-
-### Treat an Unsalted Digest as Personal Data
-
-**ID:** `litespec/quality/security#treat-an-unsalted-digest-as-personal-data`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An unsalted digest of personal data MUST receive the same handling as the data itself.
-
-**Rationale:** A digest without a salt reverses by table lookup: anyone holding a table of common values recovers the original. It hides nothing, so it gets none of the relaxed handling a truly one-way value gets. Handling it the same as the data itself keeps the digest from leaking what the data would.
-
-**Reviewed for:** Does each unsalted digest of personal data receive the handling its source data receives? Look at each hashing call on a personal field and the storage class of its result.
-
-### Report a Breach Within Its Deadline
-
-**ID:** `litespec/quality/security#report-a-breach-within-its-deadline`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A breach-notification procedure MUST name the person who acts and a backup person and meet the deadline the applicable constraint record states.
-
-**Rationale:** A breach deadline starts running at discovery, and the applicable constraint record states the deadline the outside rule sets. A deadline with nobody named to meet it slips past the team, and one named person fails on the first absence. Naming the person who acts and a backup before anything happens keeps the procedure starting on time.
-
-**Reviewed for:** Does the breach procedure name the person who acts, a backup person, and the deadline the constraint record states? Look at the breach runbook and the constraint record it cites.
-
-### Protect Live Data at Rest
-
-**ID:** `litespec/quality/security#protect-live-data-at-rest`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Live data at rest MUST carry encryption or a waiver covering this provision.
-
-**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, a gap waiver covering this provision keeps the gap visible with its reason, exit, closing records, and expiry date instead of silent.
-
-**Reviewed for:** Does each live store carry encryption, or does a waiver cover this provision? Look at each store's encryption setting and the waiver records.
 
 ### Bound Abuse at Exposed Endpoints
 
@@ -263,143 +183,11 @@ A message whose target is always the caller carries no target (`litespec/core/ac
 
 **Statement:** A public, authentication, webhook, search, or upload endpoint MUST declare its limit as a setting record with key and rejection response.
 
-**Rationale:** Public, authentication, webhook, search, and upload endpoints invite abuse: credential stuffing, scraping, flooding. Declaring the bound as a setting record names the key that isolates one caller from another and the rejection response the caller sees. The rejection is `429` with a stable code, so legitimate callers can back off and retry.
+**Rationale:** Public, authentication, webhook, search, and upload endpoints invite abuse: credential stuffing, scraping, flooding. Declaring the bound as a setting record names the key that isolates one caller from another and the rejection response the caller sees. The rejection is `429` with a stable code, so legitimate callers back off and retry.
 
 **Reviewed for:** Does each public, authentication, webhook, search, and upload endpoint declare its setting with key and rejection response? Look at the setting records beside each endpoint.
 
-### Keep One Limit Store Across Replicas
-
-**ID:** `litespec/quality/security#keep-one-limit-store-across-replicas`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A deployment running more than one replica MUST hold its rate and concurrency counters in one store that every replica reads.
-
-**Rationale:** With a counter in each process, the declared limit multiplies by the replica count: the specification states one limit while the system applies another. The multiplier shifts with every scale event, so the effective limit is never stated and never reviewed. One store that every replica reads keeps the applied limit equal to the declared one.
-
-**Reviewed for:** Do all replicas read their rate and concurrency counters from one store? Look at the counter configuration of each deployment that runs more than one replica.
-
-### Restrict Cross-Origin Access
-
-**ID:** `litespec/quality/security#restrict-cross-origin-access`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A cross-origin policy MUST list its allowed origins, methods, headers, and credential mode without using a wildcard origin.
-
-**Rationale:** A wildcard origin lets any site call the API with the user's credentials and turns every malicious page into an API client. Listing the allowed origins, methods, headers, and credential mode keeps each cross-origin caller explicit. Validated configuration owns the allowlist so an unlisted origin cannot arrive by mistake, and deployment-owned origins are allowed when the allowlist shape is validated at startup.
-
-**Reviewed for:** Does the cross-origin policy list its origins, methods, headers, and credential mode, with no wildcard origin? Look at the cross-origin configuration in each host.
-
-### Record Security Audit Events
-
-**ID:** `litespec/quality/security#record-security-audit-events`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A security audit event MUST record actor, action, target, outcome, timestamp, trace identifier, and available reason.
-
-**Rationale:** After an incident, the review reconstructs who did what to which target, with what outcome and why. That reconstruction is guesswork unless each security event records actor, action, target, outcome, timestamp, trace identifier, and reason.
-
-Audit records follow a documented retention and access policy, exclude secrets, and stay available for incident review. A consumer that activates the audit extension records the event through that extension instead, which states a wider field set, a classification rule, and a tamper-evidence rule.
-
-**Reviewed for:** Does each security audit event record actor, action, target, outcome, timestamp, trace identifier, and reason? Look at the audit writes and a sample of audit records.
-
-### Rotate Production Secrets
-
-**ID:** `litespec/quality/security#rotate-production-secrets`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A production secret MUST have a secret-inventory entry naming its storage location and next rotation date, with revocation and recovery in a runbook.
-
-**Rationale:** Every secret leaks eventually, through a departing teammate, a copied file, or an old backup. A secret-inventory entry naming the storage location and next rotation date keeps the lifetime of each secret bounded, and rotation allows overlap while clients switch. Procedures, logs, artifacts, and audit records carry no secret value, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, while revocation and recovery live in a runbook.
-
-**Reviewed for:** Does each production secret carry an inventory entry with its location and next rotation date, beside its revocation runbook? Look at `.litespec/implementation/operations/secrets.json` and the runbooks.
-
-### Set an ASVS Level as the Security Target
-
-**ID:** `litespec/quality/security#set-an-asvs-level-as-the-security-target`
-
-**Strength:** required
-
-**Applies to:** artifact: record:requirement; layer: intent
-
-**Statement:** A consumer MUST set an ASVS 5.0 level as its security target.
-
-**Rationale:** ASVS 5.0 defines three levels, L1, L2, and L3, with each requirement verifiable to pass or fail. The organization picks one by risk and records it on a quality requirement with its measure, as `litespec/core/intent#state-the-measure-on-a-counted-requirement` states, so the target is checked rather than declared. The level choice and each accepted finding are decided once by a person.
-
-**Reviewed for:** Does the security quality requirement name its ASVS 5.0 level, with a passing measure? Look at the requirement record and its measure.
-
-### Scan Every Release with the ZAP Baseline
-
-**ID:** `litespec/quality/security#scan-every-release-with-the-zap-baseline`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** CI MUST scan the running API with the ZAP baseline on every pull request.
-
-**Rationale:** The ZAP baseline runs the spider with passive scanning and no active attacks, so it is safe on every pull request. A WARN, FAIL, and IGNORE config file tunes it, its JSON report feeds the model with the other measured results, and the scan passes with no medium or high alert. ZAP is free and maintained under Apache-2.0.
-
-**Reviewed for:** Does the ZAP result file under `TestResults/` show no medium or high alert for the pull request? Look at the ZAP report.
-
-### Scan Every Pull Request with a Free Static Analyzer
-
-**ID:** `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** CI MUST scan every pull request for security findings with a free static analyzer.
-
-**Rationale:** CodeQL needs no paid plan on public repositories, so it is free there. On a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a gap waiver covering the finding, with its reason, exit, closing records, and expiry date, so each acceptance stays visible and dated.
-
-**Reviewed for:** Does the static analysis report for the pull request show a waiver for each accepted finding? Look at the analyzer report and the waiver records.
-
 ## Conventions
-
-### Use One Current Actor Abstraction
-
-**ID:** `litespec/quality/security#use-one-current-actor-abstraction`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Expose one narrow current-actor accessor in WebApi that maps verified claims to typed identity, roles, and scopes.
-
-**Replacement:** A consumer records a current-actor convention naming its accessor and mapping.
-
-**Rationale:** Claims mapping has one home: a narrow accessor in WebApi that maps verified claims once to typed identity, roles, and scopes. Application receives the actor through input that WebApi creates, or through a narrow trusted port when behavior needs to stay host-independent. A second accessor invites a second interpretation of the same claims.
-
-**Reviewed for:** Does WebApi expose one current-actor accessor, or does the convention name another arrangement? Look at WebApi's identity code and the convention.
-
-### Keep Secure Headers in Host Configuration
-
-**ID:** `litespec/quality/security#keep-secure-headers-in-host-configuration`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Define Content Security Policy, frame restrictions, content-type protection, referrer policy, and transport security in one host location.
-
-**Replacement:** A consumer records a secure-headers convention naming where its headers live.
-
-**Rationale:** The browser reads the secure headers together: Content Security Policy, frame restrictions, content-type protection, referrer policy, and transport security form one set. Spread across middleware registrations, one of them is always the header nobody remembers. One host location keeps the set reviewable as a whole.
-
-**Reviewed for:** Do the secure headers sit in one host location, or does the convention name another arrangement? Look at the host configuration.
 
 ### Use Deny-by-Default Policies
 
@@ -413,25 +201,9 @@ Audit records follow a documented retention and access policy, exclude secrets, 
 
 **Replacement:** A consumer records an endpoint-protection convention naming how each endpoint is protected.
 
-**Rationale:** Without a fallback, a new endpoint nobody secured is public by accident. A fallback policy requiring an authenticated user keeps each new endpoint protected until somebody marks it public on purpose with `AllowAnonymous`. Named role or scope policies add coarse checks while the guard retains resource authorization.
+**Rationale:** Without a fallback, a new endpoint nobody secured is public by accident. A fallback policy that asks for an authenticated user keeps each new endpoint protected until somebody marks it public on purpose with `AllowAnonymous`. Named role or scope policies add coarse checks while the guard keeps resource authorization.
 
-**Reviewed for:** Does each new endpoint require authentication unless it carries `AllowAnonymous` on purpose? Look at the fallback policy and each endpoint marked `AllowAnonymous`.
-
-### Test the Resource Authorization Matrix
-
-**ID:** `litespec/quality/security#test-the-resource-authorization-matrix`
-
-**Strength:** default
-
-**Applies to:** artifact: test
-
-**Default:** Cover anonymous, invalid-token, unrelated-actor, owner, and each privileged grant for every protected operation.
-
-**Replacement:** A consumer records an authorization-matrix convention naming the caller cases each operation passes.
-
-**Rationale:** Authorization fails one caller at a time: the anonymous caller who gets in, or the unrelated actor who reads another tenant's row. Covering anonymous, invalid-token, unrelated-actor, owner, and each privileged grant for every protected operation proves each caller separately. The matrix also covers disclosure behavior and the collection query predicate, and a UI redirect or hidden control counts as no evidence.
-
-**Reviewed for:** Does each protected operation pass every caller in the matrix, or does the convention name another set? Look at the authorization tests beside each protected operation.
+**Reviewed for:** Does each new endpoint ask for authentication unless it carries `AllowAnonymous` on purpose? Look at the fallback policy and each endpoint marked `AllowAnonymous`.
 
 ## Reference Example
 

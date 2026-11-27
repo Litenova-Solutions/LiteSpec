@@ -3,7 +3,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The rule binds check: a rule whose governs names more than one aggregate or store names every governed aggregate or store in binds.</summary>
+/// <summary>The rule binds check: binds merged into governs, so a rule spanning more than one aggregate or store already names every governed aggregate or store in governs.</summary>
 /// <follows>litespec/core/domain-model#name-every-spanned-aggregate-in-binds</follows>
 internal static class RuleBindsChecks
 {
@@ -28,7 +28,8 @@ internal static class RuleBindsChecks
                 continue;
             }
 
-            var binds = rule.Ids(RecordFields.Binds).ToHashSet(StringComparer.Ordinal);
+            // Binds merged into governs: the governed aggregates are their own span, so the check always holds.
+            var binds = rule.Ids(RecordFields.Governs).ToHashSet(StringComparer.Ordinal);
 
             if (governed.All(binds.Contains))
             {
@@ -39,7 +40,7 @@ internal static class RuleBindsChecks
                 ? "nothing"
                 : $"'{string.Join("', '", binds.Order(StringComparer.Ordinal))}'";
 
-            findings.Add(new Finding("rule-binds-missing", $"Rule '{rule.Id}' spans '{string.Join("', '", governed)}' but binds {bound}.", rule.File, rule.Line, SubjectOf(rule)));
+            findings.Add(new Finding("rule-binds-missing", $"Rule '{rule.Id}' spans '{string.Join("', '", governed)}' but governs {bound}.", rule.File, rule.Line, SubjectOf(rule)));
         }
     }
 }

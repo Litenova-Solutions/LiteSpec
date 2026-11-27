@@ -2,11 +2,11 @@
 
 An AI coding agent reads task context, changes files, and runs checks. It does its best work when the rules are written down and the checks run before review. Without that, it fills gaps from its training and from whichever files it happens to open.
 
-This page shows how an agent finds the LiteSpec rules for a project, the order it follows on a task, and which decisions stay with the team. Read it before handing work to an agent, so the agent starts from project records instead of its own habits.
+This page shows how an agent finds the LiteSpec rules for a project, the order it follows on a task, and which decisions stay with your team. Read it before handing work to an agent, so the agent starts from project records instead of its own habits.
 
 ## Rules, Records, and Checks
 
-Without LiteSpec, an agent takes architecture, naming, and testing from its training and from whichever files it happens to open. Two agents given the same request can produce two designs that both compile and both pass their tests. With LiteSpec, those choices are already made and written down, so the agent spends its effort on the work it was asked for.
+Without LiteSpec, an agent takes architecture, naming, and testing from its training and from whichever files it happens to open. Two agents given the same request can produce two designs that both compile and both pass their tests. With LiteSpec, those choices are already made and written down, so the agent spends its effort on the work you asked for.
 
 An agent gets three things:
 
@@ -14,15 +14,17 @@ An agent gets three things:
 - **Records it can trust.** The records in git say what to build. The specification is closed: the agent builds what they state and nothing more.
 - **Checks it can run.** `dotnet litespec model check` and the CI gates tell the agent whether its change holds before review.
 
+For example, an agent asked to add a receipt rule to Claimwick cites the requirement the rule fulfills, changes only the submit use case, and runs the model check before reporting. The check confirms the change instead of the agent's word.
+
 ## Rule Sources
 
-An agent finds the rules in two places: the installed tool and the published site. Both carry the same release the project pinned, so the agent reads one contract either way.
+An agent finds the rules in two places: the installed tool and the published site. Both carry the same release your project pinned, so the agent reads one contract either way.
 
 ### The Installed Tool
 
-The project installs the `litespec` command line at the adopted release, as a local .NET tool or as the standalone binary. Either one carries its whole release: manifest, schemas, docs, and templates, so every check reads the same contract the team pinned.
+Your project installs the `litespec` command line at the adopted release, as a local .NET tool or as the standalone binary. Either one carries its whole release: manifest, schemas, docs, and templates, so every check reads the same contract your team pinned.
 
-The project's `AGENTS.md` carries a generated agent protocol region that names the release and its selection, and the agent reads only the pages a task touches.
+Your project's `AGENTS.md` carries a generated agent protocol region that names the release and its selection, and the agent reads only the pages a task touches.
 
 Before editing a file, the agent asks which provisions govern it:
 
@@ -30,7 +32,7 @@ Before editing a file, the agent asks which provisions govern it:
 dotnet litespec rules apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
-The command lists the provisions grouped by strength, as one-line statements, with the project's conventions and waivers merged in. When a statement is not enough, `--full` adds rationale and example.
+The command lists the provisions grouped by strength, as one-line statements, with your project's conventions and waivers merged in. When a statement is not enough, `--full` adds rationale and example.
 
 ### The Published Site
 
@@ -49,7 +51,7 @@ UI work: the pattern pages of this release.
 <!-- /generated:agent-protocol -->
 ```
 
-The region opens with a precedence sentence: when the file disagrees with tool output or a record, the tool output and the record win. `litespec model render` rewrites the region from the project's release and selection, and `litespec model check` reports drift when a hand edit changed it.
+The region opens with a precedence sentence: when the file disagrees with tool output or a record, the tool output and the record win. `litespec model render` rewrites the region from your project's release and selection, and `litespec model check` reports drift when a hand edit changed it.
 
 That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/7.0.0/backend/domain.md`.
 
@@ -63,7 +65,7 @@ A LiteSpec skill teaches Claude Code and OpenCode the LiteSpec procedure: read t
 
 ## Entry Files per Agent
 
-Each agent reads its own entry file, so the project bridges each one to the shared `AGENTS.md` protocol. The table names the file and how to bridge it.
+Each agent reads its own entry file, so your project bridges each one to the shared `AGENTS.md` protocol. The table names the file and how to bridge it.
 
 | Agent | Reads | Bridge |
 |:---|:---|:---|
@@ -90,7 +92,7 @@ For example, an agent asked to change how expense reimbursement works starts wit
 dotnet litespec model query use-case/spending.submit-expense
 ```
 
-The answer prints the record with its links in both directions. The agent reads the requirement, the rule, and the results the use case touches, then the standards pages they cite, before it opens the handler. The agent protocol region in the project's `AGENTS.md`, shown above, tells the agent where the selection index lives.
+The answer prints the record with its links in both directions. The agent reads the requirement, the rule, and the results the use case touches, then the standards pages they cite, before it opens the handler. The agent protocol region in your project's `AGENTS.md`, shown above, tells the agent where the selection index lives.
 
 When the identifier is unknown, the agent searches by words instead of guessing a path:
 
@@ -110,7 +112,7 @@ An agent makes the decisions the standard has already made: where a type goes, h
 
 The agent protects proofs. It does not delete, skip, or weaken a test that proves a scenario, and it does not change expected values unless the scenario changed in the same change. When a proving test fails or looks wrong, the agent stops and reports the mismatch instead of fitting the test to the code.
 
-The agent treats UI decisions the same way. For each recurring interface question, LiteSpec offers options, each drawn as a wireframe, and a Default. An agent builds the Default with the project's own components and style and records it with `source: recommended`. It waits for the owner only when the route departs from the Default or no Default exists; in that case it shows the options on the pattern's page on the LiteSpec site and recommends one. If it sees a better option while working, it finishes on the recorded option and proposes the idea in its report instead of changing the decision.
+The agent treats UI decisions the same way. For each recurring interface question, LiteSpec offers options, each drawn as a wireframe, and a Default. An agent builds the Default with your project's own components and style and records it with `source: recommended`. It waits for the owner only when the route departs from the Default or no Default exists; in that case it shows the options on the pattern's page on the LiteSpec site and recommends one. If it sees a better option while working, it finishes on the recorded option and proposes the idea in its report instead of changing the decision.
 
 ## Next Steps
 

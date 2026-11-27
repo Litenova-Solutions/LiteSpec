@@ -350,7 +350,7 @@ internal static class MessageFieldChecks
         }
 
         var properties = PropertiesOf(parts);
-        var inputs = ContractFields(useCase, RecordFields.Input);
+        var inputs = ContractFields(useCase, RecordFields.Inputs);
         var drift = Compare(inputs, properties, "input", implied: ImpliedMessage(useCase, tenant));
 
         if (drift.Count == 0)
@@ -374,7 +374,7 @@ internal static class MessageFieldChecks
     static void CheckOutput(MessageSource source, CodeHandler handler, Record useCase, List<Finding> findings)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Output, out var output))
+            || !useCase.Raw.TryGetProperty(RecordFields.Outputs, out var output))
         {
             return;
         }

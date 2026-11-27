@@ -63,7 +63,7 @@ export interface UseCaseModel {
   results: UseCaseResult[];
   ok: UseCaseResult[];
   refused: UseCaseResult[];
-  input: RecordFields[];
+  inputs: RecordFields[];
   outputSections: UseCaseOutputSection[];
   outputRows: { name: string; meaning: string }[];
   paging: { label: string; html: string }[] | null;
@@ -87,11 +87,11 @@ export function useCaseModel(f: RecordFields, r: BookRecord, results: UseCaseRes
       kind: /\.(forbidden|invalid-input)$/.test(id) ? "generic" : "",
     };
   });
-  const output = uf.output;
+  const outputs = uf.outputs;
   let outputSections: UseCaseOutputSection[] = [];
   let outputRows: { name: string; meaning: string }[] = [];
-  if (!Array.isArray(output) && isRecord(output) && isRecord(output.include)) {
-    const include = output.include;
+  if (!Array.isArray(outputs) && isRecord(outputs) && isRecord(outputs.include)) {
+    const include = outputs.include;
     outputSections = Object.keys(include).map((k) => {
       const g: RecordFields = isRecord(include[k]) ? include[k] : {};
       return {
@@ -105,8 +105,8 @@ export function useCaseModel(f: RecordFields, r: BookRecord, results: UseCaseRes
         })),
       };
     });
-  } else if (Array.isArray(output)) {
-    outputRows = output
+  } else if (Array.isArray(outputs)) {
+    outputRows = outputs
       .filter(isRecord)
       .map((x) => ({ name: stringField(x, "name") ?? "", meaning: stringField(x, "meaning") ?? "" }));
   }
@@ -115,7 +115,7 @@ export function useCaseModel(f: RecordFields, r: BookRecord, results: UseCaseRes
     results: rows,
     ok: rows.filter((x) => x.outcome === "success"),
     refused: rows.filter((x) => x.outcome !== "success"),
-    input: uf.input,
+    inputs: uf.inputs,
     outputSections,
     outputRows,
     paging,

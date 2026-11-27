@@ -78,7 +78,7 @@ public sealed class CastRecordTests
     [Fact(DisplayName = "the cast links name the types they point at")]
     public void CastLinksNameTheirTargets()
     {
-        Assert.True(RecordTypes.LinkTargets["partyOf"].SetEquals(["party"]));
+        Assert.True(RecordTypes.LinkTargets["party"].SetEquals(["party"]));
         Assert.True(RecordTypes.LinkTargets["involves"].SetEquals(["person", "party"]));
         Assert.True(RecordTypes.LinkTargets["term"].SetEquals(["term"]));
     }
@@ -97,7 +97,7 @@ public sealed class CastRecordTests
     }
 
     /// <summary>A seeds tag names a cast entry, and no element mark reads it.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact(DisplayName = "a seeds tag names a cast entry and no element mark reads it")]
     public void SeedsTagIsReadApartFromElementMarks()
     {
@@ -112,7 +112,7 @@ public sealed class CastRecordTests
     }
 
     /// <summary>A TypeScript line comment names a cast entry as a seeds mark.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact(DisplayName = "a TypeScript comment names a cast entry as a seeds mark")]
     public void SeedsCommentNamesACastEntry()
     {
@@ -124,7 +124,7 @@ public sealed class CastRecordTests
     }
 
     /// <summary>A comment naming another verb and an empty seeds tag name no cast entry.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact(DisplayName = "a comment naming another verb and an empty seeds tag are no seeds mark")]
     public void OtherVerbAndEmptySeedsAreNoSeedsMark()
     {
@@ -133,7 +133,7 @@ public sealed class CastRecordTests
     }
 
     /// <summary>The seeds verb has its documentation tag name, and the attribute form does not exist for it.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact(DisplayName = "the seeds verb reads as the seeds tag and no attribute")]
     public void SeedsVerbHasTheTagNameOnly()
     {

@@ -77,17 +77,23 @@ public sealed class RecordTypesTests
         Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(["notification"]));
         Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(["external-system"]));
         Assert.True(RecordTypes.LinkTargets["queries"].SetEquals(["use-case"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("commands"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("answers"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("emits"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("issues"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
     }
 
-    /// <summary>A use case is reached through entry points and consumer modules.</summary>
+    /// <summary>A use case is reached through entry points, and an event through entry points and external systems.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void ReachedThroughLinksEntryPointsAndModules()
+    public void ViaLinksEntryPointsAndExternalSystems()
     {
-        Assert.True(RecordTypes.LinkTargets["reachedThrough"].SetEquals(["entry-point", "module"]));
+        Assert.True(RecordTypes.LinkTargets["via"].SetEquals(["entry-point", "external-system", "module"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("reachedThrough"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("through"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("arrivesThrough"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("deliveredThrough"));
     }
 
     /// <summary>A read model links the aggregate it is keyed by, the integration events it takes fields from and removes rows on, and the use cases that read it.</summary>
@@ -135,7 +141,7 @@ public sealed class RecordTypesTests
             ["external-system", "module-event", "integration-event"]));
         Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["job", "use-case"]));
         Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
-            ["job", "use-case", "decision", "requirement"]));
+            ["job", "use-case", "decision", "requirement", "constraint", "domain-event", "module-event", "integration-event"]));
     }
 
     /// <summary>BasedOn links the records a limit or a choice rests on, and the renamed fields are gone.</summary>
@@ -144,9 +150,22 @@ public sealed class RecordTypesTests
     public void BasedOnLinksLimitsAndChoices()
     {
         Assert.True(RecordTypes.LinkTargets["basedOn"].SetEquals(
-            ["constraint", "research", "direction", "decision", "requirement"]));
+            ["constraint", "research", "direction", "decision", "requirement", "goal", "problem", "feature"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("acceptedBy"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("entryPoint"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("basis"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("binds"));
+    }
+
+    /// <summary>A rule governs the aggregates, use cases and modules it holds for, and a flow solves the problems it answers.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void GovernsAndSolvesLinkTheirTargets()
+    {
+        Assert.True(RecordTypes.LinkTargets["governs"].SetEquals(
+            ["aggregate", "use-case", "module"]));
+        Assert.True(RecordTypes.LinkTargets["solves"].SetEquals(["problem"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("binds"));
     }
 
     /// <summary>The link sets match the Written on columns of the Links table.</summary>

@@ -120,7 +120,7 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
             steps.AddRange(flow.StepIds());
         }
 
-        // A problem is reached by a feature in its folder or a flow that answers it; a constraint by a flow that answers it.
+        // A problem is reached by a feature in its folder or a flow that solves it; a constraint by a flow based on it.
         var answeredBy = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         foreach (var record in model.Records.Where(record => !record.Derived))
@@ -133,7 +133,7 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
 
             if (record.Type == RecordTypes.Flow)
             {
-                foreach (var target in record.Ids(RecordFields.Answers))
+                foreach (var target in record.Ids(RecordFields.Solves).Concat(record.Ids(RecordFields.BasedOn)))
                 {
                     Add(answeredBy, target, record.Id);
                 }
@@ -152,7 +152,7 @@ sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
 
     /// <summary>
     ///     One entry per problem, then one per constraint, each in identifier order, reached by the features
-    ///     in its folder or the flows that name it in <c>answers</c>.
+    ///     in its folder or the flows that name it in <c>solves</c> or <c>basedOn</c>.
     /// </summary>
     /// <param name="model">The built project model that holds every record.</param>
     /// <param name="answeredBy">The feature or flow record ids per problem or constraint id.</param>

@@ -30,4 +30,4 @@ onFailure:
 idempotency:
   mode: key
   key: loan-due-{loanId}
-  keyScope: global
+  scope: global

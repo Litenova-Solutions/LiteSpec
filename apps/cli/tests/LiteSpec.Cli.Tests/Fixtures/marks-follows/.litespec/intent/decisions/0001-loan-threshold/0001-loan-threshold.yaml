@@ -3,8 +3,8 @@ id: decision/0001-loan-threshold
 title: Loan threshold
 context: Readers borrow more copies, and the desk needed one threshold for open loans.
 options:
-  - name: Five open loans
-    pros: Readers borrow more
-    cons: Late returns grow
+- name: Five open loans
+  pros: Readers borrow more
+  cons: Late returns grow
 consequences: Late returns may grow, and the notice reaction covers them.
 reopenedWhen: Late returns pass five percent

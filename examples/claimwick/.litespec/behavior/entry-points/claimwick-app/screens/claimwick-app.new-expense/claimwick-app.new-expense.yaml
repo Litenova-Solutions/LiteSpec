@@ -22,14 +22,12 @@ fulfills:
 - requirement/ui-reflow
 - requirement/ui-target-size
 - requirement/ui-text-contrast
-pageFrame:
-  pattern: form-page
-  option: one-section-one-column-of-fields-cancel-beside-save
 leadsTo:
 - screen/claimwick-app.expense-list
 - screen/claimwick-app.expense-record
-task: The employee enters the amount and currency, attaches the receipt, and submits. An expense above EUR 25.00 needs its receipt attached before it can be submitted.
-displayStates:
+job: The employee enters the amount and currency, attaches the receipt, and submits. An expense above EUR 25.00 needs its receipt attached before it can be submitted.
+archetype: FormPage
+states:
 - name: Working
   shows: The submit action shows it is working and takes no second press.
 - name: Refused

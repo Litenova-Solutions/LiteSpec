@@ -169,7 +169,7 @@ internal static class ReachChecks
 
         var citedProblems = model.Records
             .Where(record => record.Type == RecordTypes.Requirement && reachingRequirements.Contains(record.Id))
-            .SelectMany(record => record.Ids(RecordFields.Cites))
+            .SelectMany(record => record.Ids(RecordFields.BasedOn))
             .ToHashSet(StringComparer.Ordinal);
 
         foreach (var problem in model.Records.Where(record => record.Type == RecordTypes.Problem && !record.Derived))
@@ -212,10 +212,10 @@ internal static class ReachChecks
             }
         }
 
-        // A flow holds no cites in 7.0.0; its steps cite requirements, so research is reached through a requirement.
+        // A flow holds solves and basedOn in 7.0.0, not cites; its steps cite requirements, so research is reached through a requirement.
         var citedResearch = model.Records
             .Where(record => record.Type == RecordTypes.Requirement && reachingRequirements.Contains(record.Id))
-            .SelectMany(record => record.Ids(RecordFields.Cites))
+            .SelectMany(record => record.Ids(RecordFields.BasedOn))
             .ToHashSet(StringComparer.Ordinal);
 
         foreach (var research in model.Records.Where(record => record.Type == RecordTypes.Research && !record.Derived))

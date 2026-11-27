@@ -18,7 +18,7 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -37,8 +37,8 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "output": {"include": {"rows": {"fields": [{"name": "loans", "meaning": "The loans.", "type": "list", "rowShape": {"fields": [{"name": "loanId", "meaning": "The listed loan.", "type": "id", "identifies": "aggregate/lending.loan", "required": true}]}}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "via": ["entry-point/library-app"], "outputs": {"include": {"rows": {"fields": [{"name": "loans", "meaning": "The loans.", "type": "list", "items": {"fields": [{"name": "loanId", "meaning": "The listed loan.", "type": "id", "identifies": "aggregate/lending.loan", "required": true}]}}]}}}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -56,8 +56,8 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "output": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "via": ["entry-point/library-app"], "outputs": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -76,8 +76,8 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("entry-point", "entry-point/library-api", Path.Combine(temp.Path, "api.yaml"), """{"kind": "api", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-api"], "output": {"include": {"rows": {"fields": [{"name": "loanId", "meaning": "The listed loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "via": ["entry-point/library-api"], "outputs": {"include": {"rows": {"fields": [{"name": "loanId", "meaning": "The listed loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -96,7 +96,7 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "loan", "meaning": "The loan to read.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "output": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "via": ["entry-point/library-app"], "inputs": [{"name": "loan", "meaning": "The loan to read.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "outputs": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -114,7 +114,7 @@ public sealed class CallerIdentifierCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/catalog"], "input": [{"name": "loan", "meaning": "The loan to read.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "output": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "via": ["module/catalog"], "inputs": [{"name": "loan", "meaning": "The loan to read.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "outputs": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -132,8 +132,8 @@ public sealed class CallerIdentifierCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/catalog"], "input": [{"name": "loan", "meaning": "The loan to read.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "output": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""),
-            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "reachedThrough": ["module/catalog"], "output": {"include": {"rows": {"fields": [{"name": "loanId", "meaning": "The listed loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "via": ["module/catalog"], "inputs": [{"name": "loan", "meaning": "The loan to read.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "outputs": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""),
+            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "via": ["module/catalog"], "outputs": {"include": {"rows": {"fields": [{"name": "loanId", "meaning": "The listed loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -151,7 +151,7 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": false, "origin": "caller", "classification": "internal"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.renew-loan", UseCaseFile(temp.Path, "renew-loan.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "loan", "meaning": "The loan to renew.", "type": "id", "identifies": "aggregate/lending.loan", "required": false, "origin": "caller", "classification": "internal"}]}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -169,7 +169,7 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.create-loan", UseCaseFile(temp.Path, "create-loan.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "requestId", "meaning": "The identifier the app mints for one creation attempt.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "idempotency": {"mode": "key", "key": "{requestId}", "keyScope": "account", "replay": "returns-first-result"}}"""));
+            TestModel.Record("use-case", "use-case/lending.create-loan", UseCaseFile(temp.Path, "create-loan.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "requestId", "meaning": "The identifier the app mints for one creation attempt.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "caller", "classification": "internal"}], "idempotency": {"mode": "key", "key": "{requestId}", "scope": "account", "replay": "returns-first-result"}}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);
@@ -187,7 +187,7 @@ public sealed class CallerIdentifierCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "borrower", "meaning": "The borrower listing their loans.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "claim", "classification": "internal"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.list-loans", UseCaseFile(temp.Path, "list-loans.yaml"), """{"kind": "query", "via": ["entry-point/library-app"], "inputs": [{"name": "borrower", "meaning": "The borrower listing their loans.", "type": "id", "identifies": "aggregate/lending.loan", "required": true, "origin": "claim", "classification": "internal"}]}"""));
 
         var findings = new List<Finding>();
         CallerIdentifierChecks.Run(model, findings);

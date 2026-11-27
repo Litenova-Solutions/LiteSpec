@@ -1,8 +1,8 @@
 # Overview
 
-The guides teach by doing. Tutorials take a reader to a first working result one step at a time, and how-to guides solve one stated problem in a project that already runs.
+The guides teach by doing. Tutorials take you to a first working result one step at a time, and how-to guides solve one stated problem in a project that already runs.
 
-Every guide cites the standard it applies and adds no rule of its own, so a reader learns the standard by following along.
+Every guide cites the standard it applies and adds no rule of its own, so you learn the standard by following along. For example, the problem guide cites the Intent provisions behind each step while you write one Claimwick problem.
 
 ## Where to Start
 
@@ -34,5 +34,5 @@ To find where a record file lives, look it up in [Record Folders](../reference/f
 - [Write a Flow](write-a-flow.md): write one actor path toward one goal or one problem, from its start through its steps, blockers, and branches.
 - [Write a Research Record](write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.
 - [Build an Audit Trail](audit-trail.md): implement the audit extension on the .NET LiteBus pipeline, step by step.
-- [Run Rules After Every Edit](run-rules-after-every-edit.md): run `rules` on each file after it is edited, and check the change set before the agent stops.
+- [Agent Hooks and MCP](agent-hooks-and-mcp.md): run `rules` on each file after it is edited, and check the change set before the agent stops.
 - [Add a Stack or an Extension](add-a-stack-or-extension.md): add a stack folder or an extension page to the release manifest.

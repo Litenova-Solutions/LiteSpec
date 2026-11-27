@@ -194,7 +194,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.RemoveAll(record => record.Id == "result/list-loans.refused");
         model.Records.Add(Rec("result", "result/list-loans.refused",
-            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","sentence":"That list is not available."}""", temp.Path));
+            """{"outcome":"refusal","meaning":"The listing is refused.","refusal":"refusal/lending.refused","message":"That list is not available."}""", temp.Path));
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
 
         Assert.Empty(WithCode(model, "refusal-sentence-missing"));
@@ -360,7 +360,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         var model = BaseModel(temp.Path);
         model.Records.Add(Rec("entry-point", "entry-point/admin", """{"kind":"browser"}""", temp.Path));
-        model.Records.Add(Rec("use-case", "use-case/lending.other", """{"kind":"query","reachedThrough":["entry-point/admin"]}""", temp.Path));
+        model.Records.Add(Rec("use-case", "use-case/lending.other", """{"kind":"query","via":["entry-point/admin"]}""", temp.Path));
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
@@ -478,8 +478,8 @@ public sealed class ScreenCheckTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","via":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","via":["entry-point/app"],"serves":["step/walk.start-walk"]}""", root));
         model.Records.Add(Rec("flow", "flow/walk", """{"actor":["actor/employee"],"steps":[{"id":"step/walk.start-walk","title":"Start Walk","statement":"The employee starts the walk."},{"id":"step/walk.finish-walk","title":"Finish Walk","statement":"The employee finishes the walk."}]}""", root));
         model.Records.Add(Rec("step", "step/walk.start-walk", """{"title":"Start Walk","statement":"The employee starts the walk."}""", root));
         model.Records.Add(Rec("step", "step/walk.finish-walk", """{"title":"Finish Walk","statement":"The employee finishes the walk."}""", root));
@@ -502,7 +502,8 @@ public sealed class ScreenCheckTests
                 "{\"entryPoint\":\"entry-point/app\",\"route\":" + JsonSerializer.Serialize(route)
                 + ",\"offers\":" + JsonSerializer.Serialize(offers)
                 + ",\"serves\":" + JsonSerializer.Serialize(serves)
-                + ",\"pageFrame\":{\"pattern\":\"list-page\",\"option\":\"search-and-a-state-filter-only\"}}").RootElement.Clone(),
+                + ",\"job\":\"The reader lists loans and opens one to read it.\""
+                + ",\"archetype\":\"ListPage\"}").RootElement.Clone(),
         };
 
     /// <summary>Route Outside The Routes Root Reports Placement Drift.</summary>

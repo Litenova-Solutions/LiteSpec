@@ -959,7 +959,7 @@ function parseGoalOutcome(raw: unknown, what: string): GoalOutcome | undefined {
   const observations = observationsValue.map((item): GoalObservation => {
     if (isRecord(item) === false) fail(what + " needs observation objects");
     return {
-      date: reqString(item, "date", what + " observation"),
+      observedOn: reqString(item, "observedOn", what + " observation"),
       value: String(item["value"] ?? ""),
       source: reqString(item, "source", what + " observation"),
     };

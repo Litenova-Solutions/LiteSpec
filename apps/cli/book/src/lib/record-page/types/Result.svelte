@@ -14,9 +14,9 @@
   const f: RecordFields = $derived(r.fields ?? {});
   const code = $derived(refusalCodeOf(stringField(f, "refusal") ?? stringField(f, "code") ?? "") || null);
   const problemType = $derived(stringField(f, "problemType"));
-  const sentence = $derived(stringField(f, "sentence"));
-  const sentences = $derived.by(() => {
-    const v = f.sentences;
+  const message = $derived(stringField(f, "message"));
+  const translations = $derived.by(() => {
+    const v = f.translations;
     if (!isRecord(v)) return [];
     return Object.keys(v).map((lang) => ({ lang, text: String(v[lang] ?? "") })).filter((x) => x.text !== "");
   });
@@ -51,11 +51,11 @@
     >
   </PageSection>
 {/if}
-{#if sentence || sentences.length}
-  <PageSection blockKey="sent" heading="Sentences">
+{#if message || translations.length}
+  <PageSection blockKey="sent" heading="Message">
     <DefinitionList>
-      {#if sentence}<DefinitionRow label="Sentence">{sentence}</DefinitionRow>{/if}
-      {#each sentences as s (s.lang)}
+      {#if message}<DefinitionRow label="Message">{message}</DefinitionRow>{/if}
+      {#each translations as s (s.lang)}
         <DefinitionRow label={s.lang}>{s.text}</DefinitionRow>
       {/each}
     </DefinitionList>

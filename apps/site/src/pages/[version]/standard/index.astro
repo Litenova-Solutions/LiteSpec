@@ -1,6 +1,6 @@
 ---
-// The generated Standard overview: the six standard areas in order, then the
-// stack folders under backend and frontend, each with its title, its first
+// The generated Standard overview: the standard areas in order, then the
+// stack folders under packs, each with its title, its first
 // sentence and a link. It uses the normal docs frame with the sidebar and the
 // breadcrumb; the Standard breadcrumb and the pager link here.
 import Base from "../../../layouts/Base.astro";
@@ -21,7 +21,7 @@ export function getStaticPaths() {
 const path = `/${version}/standard/`;
 const title = pageTitle("Standard");
 const description =
-  "The Standard holds the rules every LiteSpec project follows, in six areas: the shared core, the backend and frontend principles with their stack bindings, quality, the workspace, and the conditional extensions.";
+  "The Standard holds the rules every LiteSpec project follows: the shared core, the stack packs, quality, the workspace, and the conditional extensions.";
 
 /** The first sentence of a page's intent, as plain text. */
 function firstSentence(page: Page): string {
@@ -41,7 +41,7 @@ interface Entry {
   url: string;
 }
 
-const areas: Entry[] = ["core", "backend", "frontend", "quality", "workspace", "ext"].map((area) => {
+const areas: Entry[] = ["core", "packs", "quality", "workspace", "ext"].map((area) => {
   const readme = pageByFile(`docs/${area}/README.md`);
   if (!readme) throw new Error(`No README for docs/${area}`);
   return { title: areaLabel(area), sentence: firstSentence(readme), url: pageUrl(readme) };

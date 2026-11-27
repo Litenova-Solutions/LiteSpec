@@ -4,5 +4,5 @@ title: Reimbursed Expenses Listed
 kind: functional
 statement: Finance lists each reimbursed expense with the employee it was paid to.
 rationale: Finance checks each payout against the employee it was paid to.
-cites:
+basedOn:
 - feature/approval

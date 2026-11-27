@@ -398,7 +398,7 @@ public sealed class ProvisionWhenTests
             record += """
 
                 effects:
-                - commands: use-case/billing.approve-invoice
+                - runs: use-case/billing.approve-invoice
                   timing: inline
                 """;
         }

@@ -68,8 +68,8 @@ internal static class GraphChecks
 
         foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
         {
-            var carries = setting.Raw.ValueKind == JsonValueKind.Object
-                && setting.Raw.TryGetProperty(RecordFields.Default, out var value)
+            var carries = SettingValue(setting) is { } settingValue
+                && settingValue.TryGetProperty(RecordFields.Default, out var value)
                 && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined);
 
             if (carries && setting.Ids(RecordFields.Fulfills).Count == 0)
@@ -90,14 +90,14 @@ internal static class GraphChecks
     private static readonly string[] SettingValueTypes = ["integer", "duration", "money", "boolean", "text", "choice"];
 
     /// <summary>
-    ///     Reports a setting whose valueType is outside its set, a choice setting with no choices, and a default that does
+    ///     Reports a setting whose value type is outside its set, a choice setting with no choices, and a default that does
     ///     not take its value type: an ISO 8601 duration, an amount with its currency, a whole number, true or false, text, or one of the choices.
     /// </summary>
     /// <param name="setting">The setting record whose value type and default are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSettingShape(Record setting, List<Finding> findings)
     {
-        var valueType = Str(setting.Raw, RecordFields.ValueType);
+        var valueType = SettingValueType(setting);
 
         if (valueType is null)
         {
@@ -106,23 +106,23 @@ internal static class GraphChecks
 
         if (!SettingValueTypes.Contains(valueType, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds valueType '{valueType}' outside {string.Join(", ", SettingValueTypes)}.", setting.File, setting.Line, SubjectOf(setting)));
+            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds type '{valueType}' outside {string.Join(", ", SettingValueTypes)}.", setting.File, setting.Line, SubjectOf(setting)));
             return;
         }
 
-        var choices = setting.Raw.ValueKind == JsonValueKind.Object
-            && setting.Raw.TryGetProperty(RecordFields.Choices, out var list)
+        var choices = SettingValue(setting) is { } valueObject
+            && valueObject.TryGetProperty(RecordFields.Choices, out var list)
             && list.ValueKind == JsonValueKind.Array
                 ? list.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!).ToList()
                 : new List<string>();
 
         if (valueType == "choice" && choices.Count == 0)
         {
-            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' has valueType choice and names no choices.", setting.File, setting.Line, SubjectOf(setting)));
+            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' has type choice and names no choices.", setting.File, setting.Line, SubjectOf(setting)));
         }
 
-        if (setting.Raw.ValueKind != JsonValueKind.Object
-            || !setting.Raw.TryGetProperty(RecordFields.Default, out var value)
+        if (SettingValue(setting) is not { } nested
+            || !nested.TryGetProperty(RecordFields.Default, out var value)
             || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
         {
             return;
@@ -143,9 +143,30 @@ internal static class GraphChecks
 
         if (!fits)
         {
-            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds a default that does not take its valueType {valueType}.", setting.File, setting.Line, SubjectOf(setting)));
+            findings.Add(new Finding("record-invalid", $"Setting '{setting.Id}' holds a default that does not take its type {valueType}.", setting.File, setting.Line, SubjectOf(setting)));
         }
     }
+
+    /// <summary>Reads the value object a setting declares.</summary>
+    /// <param name="setting">The setting record whose value object is read.</param>
+    /// <returns>The value object, or null when the setting carries none.</returns>
+    private static JsonElement? SettingValue(Record setting)
+    {
+        if (setting.Raw.ValueKind != JsonValueKind.Object
+            || !setting.Raw.TryGetProperty(RecordFields.Value, out var value)
+            || value.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return value;
+    }
+
+    /// <summary>Reads the value type a setting declares in its value object.</summary>
+    /// <param name="setting">The setting record whose value type is read.</param>
+    /// <returns>The value type name, or null when the setting carries none.</returns>
+    private static string? SettingValueType(Record setting) =>
+        SettingValue(setting) is { } value ? Str(value, RecordFields.Type) : null;
 
     /// <summary>Reports a reference-data table whose rows of one variant and one key overlap in time or end no later than they start. Rows of different variants run on their own timelines, as do rows of different keys, or of different roles when rows carry no key, so they never overlap each other.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record.</param>
@@ -648,8 +669,8 @@ internal static class GraphChecks
                 findings.Add(new Finding("rule-governs-drift", $"Rule '{rule.Id}' governs '{string.Join("', '", governed.Order(StringComparer.Ordinal))}' but its links reach '{string.Join("', '", linked.Order(StringComparer.Ordinal))}'.", rule.File, rule.Line, SubjectOf(rule)));
             }
 
-            // An aggregate or store is reached when the rule binds it, or a use case reaching the rule writes it.
-            var reachedAggregates = rule.Ids(RecordFields.Binds).ToHashSet(StringComparer.Ordinal);
+            // An aggregate or store is reached when the rule governs it, or a use case reaching the rule writes it.
+            var reachedAggregates = GovernedOfType(model, rule, RecordTypes.Aggregate);
 
             foreach (var useCaseId in linked)
             {
@@ -704,12 +725,12 @@ internal static class GraphChecks
     }
 
     /// <summary>The rule identifiers each input of a use case names.</summary>
-    /// <param name="useCase">The use case record whose input array is read.</param>
+    /// <param name="useCase">The use case record whose inputs array is read.</param>
     /// <returns>The rule identifiers named by its inputs, in written order.</returns>
     private static IEnumerable<string> InputRules(Record useCase)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Input, out var inputs)
+            || !useCase.Raw.TryGetProperty(RecordFields.Inputs, out var inputs)
             || inputs.ValueKind != JsonValueKind.Array)
         {
             return [];

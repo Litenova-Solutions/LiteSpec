@@ -709,6 +709,18 @@
       ]
     },
     {
+      "file": "docs/analyzers/rules/ls2041.md",
+      "path": "analyzers/rules/ls2041",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2041: Closed-Set Code Written as a String Literal",
+      "intent": "",
+      "sections": [
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/analyzers/rules/ls3001.md",
       "path": "analyzers/rules/ls3001",
       "style": "reference",
@@ -975,8 +987,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     },
     {
@@ -1002,8 +1013,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     },
     {
@@ -1093,6 +1103,19 @@
       "style": "standard",
       "area": "core",
       "title": "Edges and Screens",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/core/evolution.md",
+      "path": "core/evolution",
+      "style": "standard",
+      "area": "core",
+      "title": "Product Evolution",
       "intent": "",
       "sections": [
         "Concepts",
@@ -1677,6 +1700,19 @@
       ]
     },
     {
+      "file": "docs/guide/agent-hooks-and-mcp.md",
+      "path": "guide/agent-hooks-and-mcp",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Agent Hooks and MCP",
+      "intent": "",
+      "sections": [
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
       "file": "docs/guide/audit-trail.md",
       "path": "guide/audit-trail",
       "style": "how-to",
@@ -1695,19 +1731,6 @@
       "style": "how-to",
       "area": "guide",
       "title": "Install the CLI",
-      "intent": "",
-      "sections": [
-        "Prerequisites",
-        "Procedure",
-        "Check"
-      ]
-    },
-    {
-      "file": "docs/guide/run-rules-after-every-edit.md",
-      "path": "guide/run-rules-after-every-edit",
-      "style": "how-to",
-      "area": "guide",
-      "title": "Run Rules After Every Edit",
       "intent": "",
       "sections": [
         "Prerequisites",
@@ -1814,6 +1837,7 @@
       "title": "Overview",
       "intent": "",
       "sections": [
+        "Version 7 Direction",
         "Research and Decisions"
       ]
     },
@@ -3582,6 +3606,123 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0120-scaffold-explicit-files-and-sync-pure-data/0120-scaffold-explicit-files-and-sync-pure-data.md",
+      "path": "intent/decisions/0120-scaffold-explicit-files-and-sync-pure-data/0120-scaffold-explicit-files-and-sync-pure-data",
+      "style": "decision",
+      "area": "intent",
+      "title": "Scaffold Explicit Files and Sync Pure Data",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0121-keep-explanation-mirrors-human-only/0121-keep-explanation-mirrors-human-only.md",
+      "path": "intent/decisions/0121-keep-explanation-mirrors-human-only/0121-keep-explanation-mirrors-human-only",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Explanation Mirrors Human Only",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0122-isolate-three-stack-packs/0122-isolate-three-stack-packs.md",
+      "path": "intent/decisions/0122-isolate-three-stack-packs/0122-isolate-three-stack-packs",
+      "style": "decision",
+      "area": "intent",
+      "title": "Isolate Three Stack Packs and Retire Blazor React",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0123-name-fields-in-record-context/0123-name-fields-in-record-context.md",
+      "path": "intent/decisions/0123-name-fields-in-record-context/0123-name-fields-in-record-context",
+      "style": "decision",
+      "area": "intent",
+      "title": "Name Fields in Record Context",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0124-jobs-first-ui-verification/0124-jobs-first-ui-verification.md",
+      "path": "intent/decisions/0124-jobs-first-ui-verification/0124-jobs-first-ui-verification",
+      "style": "decision",
+      "area": "intent",
+      "title": "Organize UI Around Jobs and Visual Verification",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0125-deliver-standards-through-five-agent-layers/0125-deliver-standards-through-five-agent-layers.md",
+      "path": "intent/decisions/0125-deliver-standards-through-five-agent-layers/0125-deliver-standards-through-five-agent-layers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Deliver Standards Through Five Agent Layers",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0126-consolidate-everyday-capabilities-into-core/0126-consolidate-everyday-capabilities-into-core.md",
+      "path": "intent/decisions/0126-consolidate-everyday-capabilities-into-core/0126-consolidate-everyday-capabilities-into-core",
+      "style": "decision",
+      "area": "intent",
+      "title": "Consolidate Everyday Capabilities into Core",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/research/agent-delivery-empirical-evidence/agent-delivery-empirical-evidence.md",
+      "path": "intent/research/agent-delivery-empirical-evidence/agent-delivery-empirical-evidence",
+      "style": "research",
+      "area": "intent",
+      "title": "Agent Delivery Empirical Evidence",
+      "intent": "",
+      "sections": [
+        "Findings",
+        "Source Notes"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -3930,6 +4071,7 @@
         "Decision Records",
         "Role-Based Access Control",
         "Design by Contract",
+        "Kernel, Platform, and Port",
         "Next"
       ]
     },
@@ -4066,6 +4208,19 @@
       ]
     },
     {
+      "file": "docs/packs/android/golden-slice.md",
+      "path": "packs/android/golden-slice",
+      "style": "standard",
+      "area": "packs",
+      "title": "Android Golden Slice",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/packs/android/screens.md",
       "path": "packs/android/screens",
       "style": "standard",
@@ -4164,8 +4319,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     },
     {
@@ -4204,8 +4358,20 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/dotnet/golden-slice.md",
+      "path": "packs/dotnet/golden-slice",
+      "style": "standard",
+      "area": "packs",
+      "title": ".NET Golden Slice",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
       ]
     },
     {
@@ -4245,8 +4411,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     },
     {
@@ -4318,6 +4483,19 @@
       "style": "standard",
       "area": "packs",
       "title": "Web Data and State",
+      "intent": "",
+      "sections": [
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
+      "file": "docs/packs/svelte/golden-slice.md",
+      "path": "packs/svelte/golden-slice",
+      "style": "standard",
+      "area": "packs",
+      "title": "Svelte Golden Slice",
       "intent": "",
       "sections": [
         "Concepts",
@@ -4441,8 +4619,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     },
     {
@@ -4868,8 +5045,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     },
     {
@@ -4921,8 +5097,7 @@
       "sections": [
         "Concepts",
         "Standards",
-        "Conventions",
-        "Reference Example"
+        "Conventions"
       ]
     }
   ],
@@ -4990,6 +5165,7 @@
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/evolution.md",
         "docs/core/integrations.md",
         "docs/core/intent.md",
         "docs/core/jobs.md",
@@ -5036,6 +5212,7 @@
         "docs/packs/dotnet/architecture.md",
         "docs/packs/dotnet/config.md",
         "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/golden-slice.md",
         "docs/packs/dotnet/naming.md",
         "docs/packs/dotnet/packages.md",
         "docs/packs/dotnet/persistence.md",
@@ -5050,6 +5227,7 @@
       "files": [
         "docs/packs/svelte/components.md",
         "docs/packs/svelte/data.md",
+        "docs/packs/svelte/golden-slice.md",
         "docs/packs/svelte/rendering.md",
         "docs/packs/svelte/stack.md",
         "docs/packs/svelte/structure.md",
@@ -5063,6 +5241,7 @@
       "files": [
         "docs/packs/android/data.md",
         "docs/packs/android/device.md",
+        "docs/packs/android/golden-slice.md",
         "docs/packs/android/screens.md",
         "docs/packs/android/stack.md",
         "docs/packs/android/structure.md",
@@ -5129,6 +5308,7 @@
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/evolution.md",
         "docs/core/integrations.md",
         "docs/core/intent.md",
         "docs/core/jobs.md",
@@ -5159,6 +5339,7 @@
         "docs/packs/dotnet/architecture.md",
         "docs/packs/dotnet/config.md",
         "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/golden-slice.md",
         "docs/packs/dotnet/naming.md",
         "docs/packs/dotnet/packages.md",
         "docs/packs/dotnet/persistence.md",
@@ -5204,6 +5385,7 @@
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/evolution.md",
         "docs/core/integrations.md",
         "docs/core/intent.md",
         "docs/core/jobs.md",
@@ -5234,6 +5416,7 @@
         "docs/packs/dotnet/architecture.md",
         "docs/packs/dotnet/config.md",
         "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/golden-slice.md",
         "docs/packs/dotnet/naming.md",
         "docs/packs/dotnet/packages.md",
         "docs/packs/dotnet/persistence.md",
@@ -5242,6 +5425,7 @@
         "docs/packs/dotnet/workspace.md",
         "docs/packs/svelte/components.md",
         "docs/packs/svelte/data.md",
+        "docs/packs/svelte/golden-slice.md",
         "docs/packs/svelte/rendering.md",
         "docs/packs/svelte/stack.md",
         "docs/packs/svelte/structure.md",
@@ -5287,6 +5471,7 @@
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/evolution.md",
         "docs/core/integrations.md",
         "docs/core/intent.md",
         "docs/core/jobs.md",
@@ -5314,6 +5499,7 @@
         "docs/core/writing.md",
         "docs/packs/android/data.md",
         "docs/packs/android/device.md",
+        "docs/packs/android/golden-slice.md",
         "docs/packs/android/screens.md",
         "docs/packs/android/stack.md",
         "docs/packs/android/structure.md",
@@ -5324,6 +5510,7 @@
         "docs/packs/dotnet/architecture.md",
         "docs/packs/dotnet/config.md",
         "docs/packs/dotnet/domain.md",
+        "docs/packs/dotnet/golden-slice.md",
         "docs/packs/dotnet/naming.md",
         "docs/packs/dotnet/packages.md",
         "docs/packs/dotnet/persistence.md",
@@ -5369,6 +5556,7 @@
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/evolution.md",
         "docs/core/integrations.md",
         "docs/core/intent.md",
         "docs/core/jobs.md",
@@ -5396,6 +5584,7 @@
         "docs/core/writing.md",
         "docs/packs/svelte/components.md",
         "docs/packs/svelte/data.md",
+        "docs/packs/svelte/golden-slice.md",
         "docs/packs/svelte/rendering.md",
         "docs/packs/svelte/stack.md",
         "docs/packs/svelte/structure.md",
@@ -5439,6 +5628,7 @@
         "docs/core/designing.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
+        "docs/core/evolution.md",
         "docs/core/integrations.md",
         "docs/core/intent.md",
         "docs/core/jobs.md",
@@ -5466,6 +5656,7 @@
         "docs/core/writing.md",
         "docs/packs/android/data.md",
         "docs/packs/android/device.md",
+        "docs/packs/android/golden-slice.md",
         "docs/packs/android/screens.md",
         "docs/packs/android/stack.md",
         "docs/packs/android/structure.md",

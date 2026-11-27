@@ -9,5 +9,5 @@ environment: Normal operation, the search index warm.
 response: Each listing answers from the index.
 measure: p95 latency
 dueBy: under 200 ms
-cites:
+basedOn:
   - research/loan-period-benchmarks

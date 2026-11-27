@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Refusals;
 ///     The refusal sets of the model and the generic refusals it derives. Each aggregate declares the refusals
 ///     its rules raise in <c>behavior/modules/&lt;m&gt;/aggregates/&lt;a&gt;/refusals.yaml</c>, and the module
 ///     declares only refusals no aggregate raises in <c>behavior/modules/&lt;m&gt;/refusals.yaml</c>, each under
-///     the <c>records</c> list. The seven generic refusals are derived from a use case's access, inputs, kind
+///     the <c>refusals</c> list. The seven generic refusals are derived from a use case's access, inputs, kind
 ///     and knowledge reads, and are never written.
 /// </summary>
 /// <follows>litespec/core/use-cases#declare-each-modules-refusals-once</follows>
@@ -92,10 +92,10 @@ static class RefusalSetReader
         }
 
         if (root.Kind != JsonKind.Object
-            || !root.TryGetProperty(RecordFields.Records, out var list)
+            || !root.TryGetProperty(RecordFields.Refusals, out var list)
             || list.Kind != JsonKind.Array)
         {
-            problems.Add(new Finding("record-invalid", $"Refusal set '{file}' holds no records list of refusals.", file, 1, null));
+            problems.Add(new Finding("record-invalid", $"Refusal set '{file}' holds no refusals list.", file, 1, null));
             return;
         }
 
@@ -315,7 +315,7 @@ static class RefusalSetReader
     /// <summary>
     ///     The generic refusals a use case derives: <c>forbidden</c> when it names a grant other than anonymous or
     ///     system, <c>unauthenticated</c> for <c>signed-in</c>, <c>sign-in-too-old</c> when it sets
-    ///     <c>recentSignIn</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
+    ///     <c>recentSignInWindow</c>, <c>invalid-input</c> when an input carries rules, <c>not-found</c> when an input is an
     ///     id of an aggregate, <c>conflict</c> when a command declares <c>conflicts</c>, and <c>rule-not-stated</c>
     ///     when the use case reads knowledge with no rule in force for the asked key or day.
     /// </summary>
@@ -337,7 +337,7 @@ static class RefusalSetReader
             codes.Add("unauthenticated");
         }
 
-        if (AccessHas(useCase, RecordFields.RecentSignIn))
+        if (AccessHas(useCase, RecordFields.RecentSignInWindow))
         {
             codes.Add("sign-in-too-old");
         }
@@ -347,7 +347,7 @@ static class RefusalSetReader
             codes.Add("invalid-input");
         }
 
-        if (useCase.Objects(RecordFields.Input).Any(input =>
+        if (useCase.Objects(RecordFields.Inputs).Any(input =>
             TextOf(input, RecordFields.Type) == "id" && TextOf(input, RecordFields.Identifies).StartsWith("aggregate/", StringComparison.Ordinal)))
         {
             codes.Add("not-found");
@@ -539,9 +539,9 @@ static class RefusalSetReader
         return false;
     }
 
-    /// <summary>The rule identifiers the use case takes: its steps' rule cites, its input rules, and its consistency boundBy.</summary>
+    /// <summary>The rule identifiers the use case takes: its steps' cites, its inputs' rules, and its consistency boundBy.</summary>
     /// <param name="useCase">The use case record whose citations are read.</param>
-    /// <returns>The taken rule identifiers, in steps, input, then boundBy order.</returns>
+    /// <returns>The taken rule identifiers, in steps, inputs, then boundBy order.</returns>
     private static IEnumerable<string> TakenRules(Record useCase)
     {
         foreach (var cited in useCase.AppliedCitations())
@@ -568,12 +568,12 @@ static class RefusalSetReader
     }
 
     /// <summary>The rule identifiers each input of a use case names.</summary>
-    /// <param name="useCase">The use case record whose input array is read.</param>
+    /// <param name="useCase">The use case record whose inputs array is read.</param>
     /// <returns>The rule identifiers named by its inputs, in written order.</returns>
     private static IEnumerable<string> InputRules(Record useCase)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Input, out var inputs)
+            || !useCase.Raw.TryGetProperty(RecordFields.Inputs, out var inputs)
             || inputs.ValueKind != JsonValueKind.Array)
         {
             return [];

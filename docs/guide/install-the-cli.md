@@ -26,7 +26,7 @@ Sections 1 to 5 are alternative install methods: follow exactly one. The last th
 
 ### 1. Install the Local .NET Tool
 
-Choose the local tool when the repository should pin the release, so every machine and every CI run restores the same version. From the consumer root, create the tool manifest when the repository has none, then install the release you want:
+Choose the local tool when the repository pins the release, so every machine and every CI run restores the same version. From the consumer root, create the tool manifest when the repository has none, then install the release you want:
 
 ```bash
 dotnet new tool-manifest
@@ -45,7 +45,7 @@ dotnet tool install --global LiteSpec.Cli --version 7.0.0
 litespec --version
 ```
 
-Move it to another release with `dotnet tool update --global LiteSpec.Cli --version <version>`, and remove it with `dotnet tool uninstall --global LiteSpec.Cli`.
+Move it to another release with `dotnet tool update --global LiteSpec.Cli --version <version>`, and remove it with `dotnet tool uninstall --global LiteSpec.Cli`. For example, a contributor who reviews several consumers from one laptop installs the global tool once and runs `litespec rules <path>` in each checkout.
 
 ### 3. Run a Release Without Installing It
 

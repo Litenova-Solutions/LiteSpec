@@ -14,7 +14,7 @@ public sealed class LinkDirectionCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "cites": ["use-case/lending.borrow"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["use-case/lending.borrow"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "link-direction-invalid");
@@ -46,7 +46,7 @@ public sealed class LinkDirectionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goal.yaml"), "{}"),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "cites": ["goal/faster-pickup"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["goal/faster-pickup"]}"""));
 
         Assert.DoesNotContain("link-direction-invalid", TestModel.Codes(model));
     }

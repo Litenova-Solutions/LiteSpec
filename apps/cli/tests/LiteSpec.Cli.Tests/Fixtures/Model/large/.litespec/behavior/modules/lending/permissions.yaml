@@ -1,28 +1,24 @@
 type: permission-set
 title: Permissions
-records:
-- type: permission
-  id: permission/borrow-copy
+permissions:
+- id: permission/borrow-copy
   title: Borrow copy
   meaning: Borrow an available copy.
   grantedTo:
   - role/reader
   - role/librarian
-- type: permission
-  id: permission/read-loans
+- id: permission/read-loans
   title: Read loans
   meaning: Read own loans.
   grantedTo:
   - role/reader
   - role/librarian
-- type: permission
-  id: permission/manage-copies
+- id: permission/manage-copies
   title: Manage copies
   meaning: Register and retire copies.
   grantedTo:
   - role/librarian
-- type: permission
-  id: permission/place-hold
+- id: permission/place-hold
   title: Place hold
   meaning: Place and cancel holds.
   grantedTo:

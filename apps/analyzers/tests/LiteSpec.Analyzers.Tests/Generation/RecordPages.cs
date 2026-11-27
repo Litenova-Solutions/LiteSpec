@@ -98,7 +98,7 @@ internal static class RecordPages
             entries.Add("{\"type\": \"permission\", \"id\": \"" + id + "\", \"title\": \"A permission\", \"meaning\": \"Its meaning.\"}");
         }
 
-        return Page("{\"type\": \"permission-set\", \"records\": [" + string.Join(", ", entries) + "]}");
+        return Page("{\"type\": \"permission-set\", \"permissions\": [" + string.Join(", ", entries) + "]}");
     }
 
     /// <summary>Builds a permission entry with the group, risks and granted roles the record states. The reach comes from the roles that grant it.</summary>
@@ -133,7 +133,7 @@ internal static class RecordPages
     /// <param name="entries">The entry objects.</param>
     /// <returns>The page text.</returns>
     public static string PermissionFactsPage(params string[] entries) =>
-        Page("{\"type\": \"permission-set\", \"records\": [" + string.Join(", ", entries) + "]}");
+        Page("{\"type\": \"permission-set\", \"permissions\": [" + string.Join(", ", entries) + "]}");
 
     /// <summary>Builds a role page with the scope the record states.</summary>
     /// <param name="id">The role identifier.</param>

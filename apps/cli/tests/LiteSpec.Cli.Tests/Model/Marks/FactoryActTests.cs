@@ -106,7 +106,7 @@ public sealed class FactoryActTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "meaning": "An order was submitted.",
-                  "carries": [
+                  "fields": [
                     "orderId"
                   ]
                 }
@@ -130,9 +130,8 @@ public sealed class FactoryActTests
                   "writes": [
                     "aggregate/lending.order"
                   ],
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/submit-order.submitted",
                       "title": "Submitted",
                       "owner": "lending-team",
@@ -158,9 +157,8 @@ public sealed class FactoryActTests
                   "writes": [
                     "aggregate/lending.order"
                   ],
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/renew-order.renewed",
                       "title": "Renewed",
                       "owner": "lending-team",

@@ -1,10 +1,10 @@
 # Release Manifest
 
-`litespec.manifest.yaml` is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release's real values and states what each field drives.
+`litespec.manifest.yaml` is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension. A consumer pins the whole release and records the version it reviewed. This page lists every field with the current release real values and what each field drives.
 
 ## Reference
 
-A consumer selects from this manifest: the [supported scope](../core/scope.md) page states how a selection is made, and the [stacks](../core/stacks.md) page states what a selection applies. The [project file](project-file.md) page states what a consumer records, the [init](../tools/init.md) page states how a new project starts from a preset, the [model](../tools/model.md) page states how a selection is validated, and the [validate](../maintain/validate.md) page states how the manifest itself is checked.
+A consumer selects from this manifest. The [supported scope](../core/scope.md) page shows how a selection is made, and the [stacks](../core/stacks.md) page shows what a selection applies. The [project file](project-file.md) page lists what a consumer records, the [init](../tools/init.md) page shows how a new project starts from a preset, the [model](../tools/model.md) page shows how a selection is validated, and the [validate](../maintain/validate.md) page shows how the manifest itself is checked.
 
 ### File Location and Schema
 
@@ -12,10 +12,10 @@ A consumer selects from this manifest: the [supported scope](../core/scope.md) p
 |:---|:---|
 | Path | `litespec.manifest.yaml` at the repository root |
 | Schema | `schemas/litespec-manifest.schema.yaml` |
-| Current version | `6.0.0` |
+| Current version | `7.0.0` |
 | Schema version | `6` |
 
-The current release is `6.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
+The current release is `7.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
 
 ### Top-Level Fields
 
@@ -32,13 +32,12 @@ The current release is `6.0.0`. Each release is a complete contract that states 
 | `stack` | object | no | none |
 | `packages` | object | no | none |
 | `uiBaseline` | object | yes | none |
-| `uiBaselineSvelte` | object | no | none |
 
-What each field means and what reads it:
+What each field means and what reads it. The list below covers every top-level field in table order.
 
 - `$schema` holds the editor hint that points at the manifest schema. Only the editor reads it.
 - `schemaVersion` is the constant `6`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
-- `version` is the release version, currently `"6.0.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
+- `version` is the release version, currently `"7.0.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
 - `name` is the distribution name, currently `"litespec"`.
 - `agentsEntry` points at the agent entry page, currently `"AGENTS.md"`. The authoring validator checks that the path exists.
 - `stacks` lists the stacks the release ships, by stack id. See the stacks table below.
@@ -46,25 +45,22 @@ What each field means and what reads it:
 - `extensions` lists the extensions the release ships, by extension id. See the extensions table below.
 - `stack` pins the toolchain versions. See the pins section below.
 - `packages` pins the package versions. See the pins section below.
-- `uiBaseline` pins the controlled React baseline that `litespec model check` checks the shared package against. See the baseline section below.
-- `uiBaselineSvelte` pins the controlled Svelte baseline. It has the same shape as `uiBaseline`, with the Svelte system names.
+- `uiBaseline` pins the controlled Svelte baseline that `litespec model check` checks the shared package against. See the baseline section below.
 
 ### Stacks
 
-| Stack | Folder | Requires | Pairs with |
-|:---|:---|:---|:---|
-| `dotnet` | `docs/backend/dotnet` | none | any backend |
-| `react` | `docs/frontend/web/react` | none | any backend |
-| `svelte` | `docs/frontend/web/svelte` | none | any backend |
-| `blazor` | `docs/frontend/blazor` | none | any backend |
-| `android` | `docs/frontend/mobile/android` | none | any backend |
+| Stack | Folder | Kind |
+|:---|:---|:---|
+| `dotnet` | `docs/packs/dotnet` | backend |
+| `svelte` | `docs/packs/svelte` | frontend |
+| `android` | `docs/packs/android` | frontend |
 
-Each entry holds `folder`, which is required, and the optional `requires` and `pairsWith` lists. The folder is the stack folder under `docs/backend/` or `docs/frontend/`, and it holds a `stack.md` page: the [.NET stack](../packs/dotnet/stack.md), the [Svelte stack](../packs/svelte/stack.md), and the [Android stack](../packs/android/stack.md). `requires` names the stacks a project also selects with this one, and `pairsWith` names the only backend stacks a frontend stack works beside; absent `pairsWith` means any backend. This release ships no `requires` and no `pairsWith` values.
+Each entry holds `folder` with the stack kind, `backend` or `frontend`. The folder is the stack folder, and it holds a `stack.md` page: the [.NET stack](../packs/dotnet/stack.md), the [Svelte stack](../packs/svelte/stack.md), and the [Android stack](../packs/android/stack.md).
 
 What the field drives:
 
-- Selection: the folder chain decides which pages apply when a consumer names the stack. A selection applies the stack folder, every folder above it up to its area root, and their subfolders that hold no stack. `litespec/core/stacks#apply-the-complete-stack` requires the whole selection.
-- Validation: `litespec model check` refuses a stack id the manifest does not ship. The authoring validator reports a stack folder that sits outside `docs/backend/` or `docs/frontend/`, a folder that does not exist, and a folder that holds no `stack.md`.
+- Selection: the folder chain decides which pages apply when a consumer names the stack. A selection applies the stack folder, every folder above it up to its area root, and their subfolders holding no stack. `litespec/core/stacks#apply-the-complete-stack` covers the whole selection.
+- Validation: `litespec model check` refuses a stack id the manifest does not ship. The authoring validator reports a stack folder that does not exist and a stack folder that holds no `stack.md`.
 
 ### Shapes
 
@@ -73,7 +69,7 @@ What the field drives:
 | `server` | `1` | none |
 | `client-only` | `0` | `docs/core/backend-architecture.md`, `docs/core/backend-domain.md`, `docs/core/backend-application.md` |
 
-Each entry holds `backendStacks`, which is required, and the optional `backendPages` list. The `server` shape names exactly one backend stack. The `client-only` shape names no backend stack and still applies the four backend pages in the table, because a client-only product keeps a domain model. The authoring validator requires each backend page to sit directly in `docs/backend/`.
+Each entry holds `backendStacks` with the optional `backendPages` list. The `server` shape names exactly one backend stack. The `client-only` shape carries no backend stack and still applies the three backend pages in the table, since a client-only product keeps a domain model.
 
 What the field drives:
 
@@ -85,31 +81,18 @@ What the field drives:
 
 | Extension | Path | Scope | Switches on |
 |:---|:---|:---|:---|
-| `bdd` | `docs/packs/dotnet/ext/bdd.md` | `local` | `scenario` |
+| `delivery` | `docs/ext/delivery.md` | `project` | `setting`, `runbook` |
+| `ai-mcp` | `docs/ext/ai-mcp.md` | `project` | none |
 | `compat` | `docs/ext/compat.md` | `project` | none |
-| `cache` | `docs/ext/cache.md` | `local` | `setting` |
-| `concurrency` | `docs/ext/concurrency.md` | `local` | `setting` |
-| `lifecycle` | `docs/ext/lifecycle.md` | `local` | `setting` |
-| `integrations` | `docs/ext/integrations.md` | `local` | none |
-| `audit` | `docs/ext/audit.md` | `project` | none |
-| `locale` | `docs/ext/locale.md` | `project` | none |
-| `mcp` | `docs/ext/mcp.md` | `project` | none |
-| `tenancy` | `docs/ext/tenancy.md` | `project` | none |
-| `plans` | `docs/ext/plans.md` | `project` | none |
-| `outbox` | `docs/ext/outbox.md` | `local` | `event`, `setting`, `runbook` |
 | `realtime` | `docs/ext/realtime.md` | `local` | none |
-| `jobs` | `docs/ext/jobs.md` | `local` | `setting`, `runbook` |
-| `stage` | `docs/ext/stage.md` | `project` | none |
-| `devices` | `docs/ext/devices.md` | `local` | none |
-| `customer-rules` | `docs/ext/customer-rules.md` | `project` | none |
-| `ai` | `docs/ext/ai.md` | `local` | none |
+| `plans` | `docs/ext/plans.md` | `project` | none |
 
-Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` under `docs/packs/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `flow` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `domain-event`, `setting`, and `runbook` for `outbox`. `replaces` names the baseline provisions an extension supersedes, and the manifest holds the list. The [extensions index](../ext/README.md) states each extension with its activation criterion.
+Each entry holds `path` with the optional `activationScope`, `applicableKinds`, and `switchesOn`. The path is the extension page under `docs/ext/`, and the file name is the extension id. The scope is `project` for a selection covering the whole project, or `local` for one covering the named records. The kinds name the record types a local extension applies to, such as `use-case` and `flow` for `realtime`. `switchesOn` names the record types a selection turns on, such as `setting` and `runbook` for `delivery`. The [extensions index](../ext/README.md) lists each extension with its activation criterion.
 
 What the field drives:
 
-- Selection: naming an extension id in `selectedExtensions` applies its page. `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting every extension whose criteria apply and none whose do not.
-- Validation: `litespec model check` refuses an id the manifest does not ship and rejects a selection whose stack does not support the extension. The authoring validator checks each path, scope, kind list, and replacement id.
+- Selection: naming an extension id in `selectedExtensions` applies its page. `litespec/core/scope#select-conditional-extensions-explicitly` covers selecting every extension with met criteria and none with unmet criteria.
+- Validation: `litespec model check` refuses an id the manifest does not ship. The authoring validator checks each path, scope, and kind list.
 
 ### Version Pins
 
@@ -249,46 +232,46 @@ The `stack` object pins the toolchain this release builds with, and the `package
 
 What the pins drive:
 
-- Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/principles#locate-package-versions-in-the-manifest` requires the pins over prose, examples, and agent memory.
+- Resolution: every SDK, framework, and package version resolves from the manifest. `litespec/core/principles#locate-package-versions-in-the-manifest` points to the pins over prose, examples, and agent memory.
 - UI validation: `litespec model check` reads the pinned npm packages and the baselines below when it checks the shared package and the stylesheets.
 - Floor: the outbox, auditing and problem details provisions need the LiteBus packages pinned at `8.0.0-preview.8`.
 
 ### UI Baselines
 
-The `uiBaseline` object pins the controlled React baseline, and `uiBaselineSvelte` pins the controlled Svelte baseline with the same fields. The values below are the real values of the current release.
+The `uiBaseline` object pins the controlled Svelte baseline. The tables below list the real values of the current release.
 
-| Item | React value | Svelte value |
-|:---|:---|:---|
-| `platform` | `react` | `svelte` |
-| `system` | `shadcn/ui` | `shadcn-svelte` |
-| `styling` | `tailwindcss-v4` | `tailwindcss-v4` |
-| `base` | `base-ui` | `bits-ui` |
-| `style` | `nova` | `nova` |
-| `cssVariables` | `true` | `true` |
-| `baseColor` | `neutral` | `neutral` |
-| `theme` | `neutral` | `neutral` |
-| `chartColor` | `neutral` | `neutral` |
-| `font` | `geist` | `geist` |
-| `fontHeading` | `inherit` | `inherit` |
-| `icons` | `lucide` | `lucide` |
-| `radius` | `default` | `default` |
-| `menuAccent` | `subtle` | `subtle` |
-| `menuColor` | `default` | `default` |
-| `componentsStyle` | `base-nova` | `base-nova` |
-| `sourceModel` | `shared-ui-package` | `shared-ui-package` |
-| `profiles` | `public-light`, `application-balanced`, `admin-dense` | `public-light`, `application-balanced`, `admin-dense` |
-| `nativeBoundary` | `separate-platform-profile` | `separate-platform-profile` |
+| Item | Value |
+|:---|:---|
+| `platform` | `svelte` |
+| `system` | `shadcn-svelte` |
+| `styling` | `tailwindcss-v4` |
+| `base` | `bits-ui` |
+| `style` | `nova` |
+| `cssVariables` | `true` |
+| `baseColor` | `neutral` |
+| `theme` | `neutral` |
+| `font` | `geist` |
+| `fontHeading` | `inherit` |
+| `icons` | `lucide` |
+| `radius` | `default` |
+| `menuAccent` | `subtle` |
+| `menuColor` | `default` |
+| `componentsStyle` | `base-nova` |
+| `sourceModel` | `shared-ui-package` |
+| `nativeBoundary` | `separate-platform-profile` |
 
-The `registry` block names the component source:
+The `registry` block names the component source. The table below lists its three fields.
 
-| Item | React value | Svelte value |
-|:---|:---|:---|
-| `name` | `shadcn` | `shadcn-svelte` |
-| `url` | `https://ui.shadcn.com` | `https://shadcn-svelte.com/registry` |
-| `allowAdditional` | `true` | `true` |
+| Item | Value |
+|:---|:---|
+| `name` | `shadcn-svelte` |
+| `url` | `https://shadcn-svelte.com/registry` |
+| `allowAdditional` | `true` |
 
-`litespec model check` selects the baseline by the shared package platform: a Svelte package reads `uiBaselineSvelte`, and any other package reads `uiBaseline`. It checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives` requires the one shared package, and `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream` requires the pin.
+`litespec model check` checks the registry configuration, the source lock, the design contract, the token stylesheet, and each frontend boundary against the baseline. `litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives` covers the one shared package, and `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream` covers the pin.
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `6.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Standards/Pages/StackSelection.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Validate/Repository/ManifestValidator.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Model/Ui/UiValidator.cs`. The `cache` and `bdd` extensions show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.
+The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `7.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Standards/Pages/StackSelection.cs`, and the manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Validate/Repository/ManifestValidator.cs`.
+
+The consumer checks follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs`, and the baseline checks follow `apps/cli/src/LiteSpec.Cli/Model/Ui/UiValidator.cs`. All five extensions live under `docs/ext/`, one page per extension id.

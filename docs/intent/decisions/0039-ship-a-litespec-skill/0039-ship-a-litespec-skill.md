@@ -19,7 +19,7 @@ LiteSpec compared 2 options for installing the skill. The table sets each option
 
 ## Decision
 
-LiteSpec ships one generated skill named `litespec`, installed as a copy for each agent at project and global scope. The command `litespec skill add` installs it. The project copy carries the release stamp, and the global copy names no release.
+LiteSpec ships one generated skill named `litespec`, installed as a copy for each agent at project and global scope. The command `litespec skill add` installs it. The project copy carries the release stamp, and the global copy lists no release.
 
 Every copy carries the generated marker that the command reads back. `model render` rewrites the project copies, and `model check` reports drift.
 

@@ -1,12 +1,12 @@
 # Overview
 
-The Quality pages state what a release proves beyond its behavior: who may act and what happens to sensitive data, how the product runs, which checks each pull request runs, and how each scenario is proved.
-
-A page applies when the project claims the record layer its rules govern, as the Layer Claims table shows. A project that runs in production also selects the [Delivery extension](../ext/delivery.md), which adds the release gate, deployment, recovery, and alerting regime.
+The Quality pages state what a release proves beyond its behavior: who acts and what happens to sensitive data, how the product runs, which checks each pull request runs, and how each scenario is proved. A page applies when the project claims the record layer its rules govern, as the Layer Claims table shows. A project that runs in production also selects the Delivery extension, which adds the release gate, deployment, recovery, and alerting regime.
 
 ## How the Pages Fit Together
 
-[Security](security.md) answers who acts, what each operation touches, and what it keeps. [Operations](operations.md) states how the product runs after release. [Local Development](development.md) states how a developer starts the stack locally and keeps development shortcuts out of release builds. [Continuous Integration](ci.md) states the gates each pull request runs for its changed areas, and [Testing](testing.md) states the cross-stack rules that prove each scenario. Read them in that order when setting up a new consumer: the product boundary first, then its operation, then local development, then the checks and proofs that guard both.
+[Security](security.md) answers who acts, what each operation touches, and what it keeps. [Operations](operations.md) states how the product runs after release. [Local Development](development.md) states how a developer starts the stack locally and keeps development shortcuts out of release builds.
+
+[Continuous Integration](ci.md) states the gates each pull request runs for its changed areas, and [Testing](testing.md) states the cross-stack rules that prove each scenario. Read them in that order when setting up a new consumer: the product boundary first, then its operation, then local development, then the checks and proofs that guard both.
 
 ## Layer Claims
 
@@ -20,7 +20,7 @@ Every Quality page assigns each of its rules to a record layer. A rule applies w
 | [Continuous Integration](ci.md) | Implementation | `implementation` |
 | [Testing](testing.md) | Proof | `proof` |
 
-A project that claims a layer as `own` does not apply the LiteSpec rules for that layer, except rules that state `trace: yes`. The [layer claims section](../core/scope.md#layer-claims) states this behavior.
+A project that claims a layer as `own` leaves the LiteSpec rules for that layer out, except rules that state `trace: yes`. The layer claims section states this behavior.
 
 ## Pages
 

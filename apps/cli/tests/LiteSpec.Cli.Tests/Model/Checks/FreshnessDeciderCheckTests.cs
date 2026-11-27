@@ -223,7 +223,7 @@ public sealed class FreshnessDeciderCheckTests
         "use-case",
         "use-case/reporting.total-spending",
         Path.Combine(root, ".litespec", "behavior", "modules", "reporting", "use-cases", "total-spending", "total-spending.yaml"),
-        """{"summary": "Finance reads the reimbursed spending.", "kind": "query", "reads": ["read-model/reporting.reimbursed-expense"], "output": {"include": {"rows": {"fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal"}], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + rowsDecidedBy + "\"}" + """}, "total": {"fields": [{"name": "total", "meaning": "The total paid.", "type": "decimal"}], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + totalDecidedBy + "\"}" + """}}}}""");
+        """{"summary": "Finance reads the reimbursed spending.", "kind": "query", "reads": ["read-model/reporting.reimbursed-expense"], "outputs": {"include": {"rows": {"fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal"}], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + rowsDecidedBy + "\"}" + """}, "total": {"fields": [{"name": "total", "meaning": "The total paid.", "type": "decimal"}], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + totalDecidedBy + "\"}" + """}}}}""");
 
     /// <summary>A command of the reporting module, which decides no figure the spending expense owns.</summary>
     /// <param name="root">The consumer folder.</param>
@@ -243,7 +243,7 @@ public sealed class FreshnessDeciderCheckTests
         "use-case",
         "use-case/reporting.total-spending",
         Path.Combine(root, ".litespec", "behavior", "modules", "reporting", "use-cases", "total-spending", "total-spending.yaml"),
-        """{"summary": "Finance reads the reimbursed spending.", "kind": "query", "reads": ["read-model/reporting.reimbursed-expense"], "output": {"include": {"rows": {"fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal"}], "classification": "internal", "reads": [""" + "\"" + reads + "\"]" + """, "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + decidedBy + "\"" + """}}}}}""");
+        """{"summary": "Finance reads the reimbursed spending.", "kind": "query", "reads": ["read-model/reporting.reimbursed-expense"], "outputs": {"include": {"rows": {"fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal"}], "classification": "internal", "reads": [""" + "\"" + reads + "\"]" + """, "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + decidedBy + "\"" + """}}}}}""");
 
     /// <summary>The reporting read model of reimbursed expenses, keyed by the spending expense.</summary>
     /// <param name="root">The consumer folder.</param>

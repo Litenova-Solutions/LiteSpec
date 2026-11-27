@@ -3,8 +3,8 @@ id: actor/reader
 title: Reader
 kind: person
 holds:
-  - role/reader
+- role/reader
 responsibilities:
-  - Borrows copies.
+- Borrows copies.
 knowledge:
-  - The product assumes the reader knows the copy to borrow.
+- The product assumes the reader knows the copy to borrow.

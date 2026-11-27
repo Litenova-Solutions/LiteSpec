@@ -2,7 +2,6 @@ type: use-case
 id: use-case/spending.export-expenses
 title: Export Expenses
 summary: Finance collects the approved expenses so the payout batch can run.
-exposure: Signed-in finance staff reach this query through the expenses app under the export-expenses permission. A wrong file pays the wrong expenses, so the file carries every approved expense of the period and nothing else.
 kind: query
 access:
   grant: permission/export-expenses
@@ -11,16 +10,16 @@ serves:
 - step/export-approved-expenses.export-batch
 fulfills:
 - requirement/approval.decided-within-five-days
-reachedThrough:
+via:
 - entry-point/claimwick-app
-output:
+outputs:
   include:
     file:
       fields:
       - name: rows
         meaning: The set of rows with one row per approved expense.
         type: list
-        rowShape:
+        items:
           fields:
           - name: expenseId
             meaning: The approved expense.
@@ -56,6 +55,8 @@ paging:
   reason: one file holds every approved expense of the period
 reads:
 - aggregate/spending.expense
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
 steps:
 - statement: Finance asks for the approved expenses of the period.
   cites:
@@ -70,22 +71,20 @@ steps:
   - aggregate/spending.expense
 edgeCases:
 - Spending refuses an export with no approved expense with `spending.nothing-approved`.
-records:
-- type: result
-  id: result/export-expenses.exported
+results:
+- id: result/export-expenses.exported
   title: Exported
   outcome: success
   meaning: The approved expenses are exported.
-- type: result
-  id: result/export-expenses.nothing-approved
+- id: result/export-expenses.nothing-approved
   title: Nothing Approved
   outcome: refusal
   refusal: refusal/spending.nothing-approved
-  sentence: No approved expense awaits export, so there is no batch to send.
-  sentences:
+  message: No approved expense awaits export, so there is no batch to send.
+  translations:
     nl: Er wacht geen goedgekeurde uitgave op export, dus er is geen batch om te verzenden.
-- type: scenario
-  id: scenario/export-expenses.exporting-approved-expenses-succeeds
+scenarios:
+- id: scenario/export-expenses.exporting-approved-expenses-succeeds
   title: Exporting Approved Expenses Succeeds
   given: Two expenses were approved this week.
   when: Finance exports the approved expenses.
@@ -93,8 +92,7 @@ records:
   result: result/export-expenses.exported
   exercises:
   - rule/expense.export-carries-approved
-- type: scenario
-  id: scenario/export-expenses.exporting-with-nothing-approved-is-refused
+- id: scenario/export-expenses.exporting-with-nothing-approved-is-refused
   title: Exporting with Nothing Approved Is Refused
   given: No expense was approved this week.
   when: Finance exports the approved expenses.

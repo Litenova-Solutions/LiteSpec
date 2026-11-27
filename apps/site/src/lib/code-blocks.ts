@@ -1,5 +1,5 @@
 // Wraps Shiki-highlighted code blocks in a figure with a header strip that
-// shows the language name and a copy button. Plain wireframe text blocks are
+// shows the language name and a copy button. Plain text blocks are
 // plain pre elements without the astro-code class, so they pass through.
 import { escape } from "./html";
 import { paths } from "./icons";

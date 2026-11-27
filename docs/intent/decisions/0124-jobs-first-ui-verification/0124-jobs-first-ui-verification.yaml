@@ -1,0 +1,20 @@
+type: decision
+id: decision/0124-jobs-first-ui-verification
+title: Organize UI Around Jobs and Visual Verification
+context: "Decision 0028 limited each pattern to a Default and two options, and decision 0117 stated composition as checked structure over ASCII wireframes. Both judged structure on paper: neither opened a route in a browser, and the listed screen faults kept shipping."
+options:
+  - name: "Organize screens around jobs with locked archetypes and rendered-page proof"
+    pros: "Each screen serves one job with a known shape. The audit opens every route and reports what the rendered page shows."
+    cons: "Six archetypes to keep, and a browser audit to run per product."
+  - name: "Keep the pattern catalog with three options per pattern"
+    pros: "Owners keep a choice per pattern, and no new tooling is needed."
+    cons: "Guidance the agent never meets on a route file cannot shape the screen it builds."
+  - name: "Keep ASCII wireframes as the checked blueprint"
+    pros: "Wireframes stay cheap text files with a structure check."
+    cons: "Twelve thousand lines of ASCII describe structure no reader can see, and the rendered page still goes unopened."
+choice: "Organize screens around jobs with locked archetypes and rendered-page proof"
+consequences: "Screens organize around jobs with six locked page archetypes: `HomePage`, `ListPage`, `WorkPage`, `RecordPage`, `SettingsPage`, and `FormPage`. Records name the job and the archetype for each screen. The command `litespec ui audit` opens each route at phone, laptop, and wide widths and reports the rendered-page codes. Geometry and multimodal review confirm spacing and grouping from screenshots. Claimwick expense screens follow the six shapes."
+reopenedWhen: "A product job fits none of the six shapes with evidence, or rendered-page proof duplicates route-suite assertions closely enough that one of the two stops earning its keep."
+supersedes:
+- decision/0028-one-default-and-two-pattern-options
+- decision/0117-compose-screens-from-checked-structure

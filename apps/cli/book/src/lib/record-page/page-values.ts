@@ -38,14 +38,13 @@ export function objectList(f: RecordFields | null | undefined, name: string): Re
 /** The fields the use-case renderer reads. */
 export interface UseCaseFields {
   kind?: string;
-  input: RecordFields[];
-  output: unknown;
+  inputs: RecordFields[];
+  outputs: unknown;
   effects: RecordFields[];
   writes: string[];
   reads: string[];
   access?: RecordFields;
-  reachedThrough: string[];
-  background?: string;
+  via: string[];
   audit?: RecordFields;
 }
 
@@ -53,14 +52,13 @@ export interface UseCaseFields {
 export function useCaseFields(f: RecordFields): UseCaseFields {
   return {
     kind: stringField(f, "kind"),
-    input: objectList(f, "input"),
-    output: f.output,
+    inputs: objectList(f, "inputs"),
+    outputs: f.outputs,
     effects: objectList(f, "effects"),
     writes: stringList(f, "writes"),
     reads: stringList(f, "reads"),
     access: objectField(f, "access"),
-    reachedThrough: stringList(f, "reachedThrough"),
-    background: stringField(f, "background"),
+    via: stringList(f, "via"),
     audit: objectField(f, "audit"),
   };
 }
@@ -382,7 +380,7 @@ export function idemTileOf(f: RecordFields): { value: string; hint: string } | n
     value: esc(mode && isIdempotencyMode(mode) ? IDEM_MODES[mode] : capitalize(i.mode)),
     hint: [
       i.key ? `<span class="${codeCls}">${esc(i.key)}</span>` : "",
-      i.keyScope ? "scoped to " + esc(i.keyScope) : "",
+      i.scope ? "scoped to " + esc(i.scope) : "",
       i.reason ? esc(i.reason) : "",
     ]
       .filter(Boolean)
@@ -451,8 +449,8 @@ export function effectCondHtml(e: RecordFields) {
 }
 
 /** Whether a browser page can reach the record: a screen hangs below one of its entry points. */
-export function browserReached(reachedThrough: string[], hasScreenBelow: (entryId: string) => boolean): boolean {
-  return reachedThrough.some((x) => hasScreenBelow(stripStep(x)));
+export function browserReached(via: string[], hasScreenBelow: (entryId: string) => boolean): boolean {
+  return via.some((x) => hasScreenBelow(stripStep(x)));
 }
 
 /** What one flow step's server line reads: whether it is coded, and how many of its scenarios pass. */

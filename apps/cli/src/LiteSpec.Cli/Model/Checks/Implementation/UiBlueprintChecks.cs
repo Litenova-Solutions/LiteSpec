@@ -23,13 +23,13 @@ internal static class UiBlueprintChecks
     /// <summary>The field naming the screens a person reaches from a screen in one step.</summary>
     private const string LeadsToField = "leadsTo";
 
-    /// <summary>The field carrying the sentence a person reads when a result reaches them.</summary>
-    private const string SentenceField = "sentence";
-
     /// <summary>The field carrying the other spellings of a glossary term.</summary>
     private const string AliasesField = "aliases";
 
-    /// <summary>Reports screen-primary-action-unknown, screen-unreachable, screen-dead-end, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
+    /// <summary>The maximum number of offered commands on any non-hub screen.</summary>
+    private const int MaxScreenCommands = 4;
+
+    /// <summary>Reports screen-primary-action-unknown, screen-unreachable, screen-dead-end, screen-command-limit, wording-alias, refusal-sentence-missing and sentence-language-missing.</summary>
     /// <param name="model">The loaded project model that holds every screen, result and glossary term.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -37,9 +37,48 @@ internal static class UiBlueprintChecks
         CheckPrimaryActions(model, findings);
         CheckUnreachable(model, findings);
         CheckDeadEnd(model, findings);
+        CheckCommandBudget(model, findings);
         CheckWordingAliases(model, findings);
         CheckRefusalSentences(model, findings);
         CheckSentenceLanguages(model, findings);
+    }
+
+    /// <summary>Reports each non-hub screen that offers more than four command use cases.</summary>
+    /// <param name="model">The loaded project model that holds every screen and use case.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckCommandBudget(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var screen in ScreenRecords(model).OrderBy(screen => screen.Id, StringComparer.Ordinal))
+        {
+            var archetype = screen.Field(RecordFields.Archetype);
+
+            if (string.Equals(archetype, "HomePage", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var commands = 0;
+
+            foreach (var offerId in screen.Ids(RecordFields.Offers))
+            {
+                if (model.ById.TryGetValue(offerId, out var useCase)
+                    && useCase.Type == RecordTypes.UseCase
+                    && string.Equals(useCase.Field(RecordFields.Kind), "query", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                commands++;
+            }
+
+            if (commands > MaxScreenCommands)
+            {
+                findings.Add(new Finding(
+                    "screen-command-limit",
+                    $"Screen '{screen.Id}' offers {commands} commands; split it so each non-hub screen offers at most {MaxScreenCommands} commands.",
+                    screen.File, screen.Line, SubjectOf(screen)));
+            }
+        }
     }
 
     /// <summary>Reports each screen no other screen leads to that is not its entry point's start.</summary>
@@ -260,10 +299,10 @@ internal static class UiBlueprintChecks
     private static void CheckSentenceWording(ProjectModel model, List<(string Alias, string Term, Regex Match)> aliases, List<Regex> shields, List<Finding> findings)
     {
         foreach (var result in model.Records
-            .Where(record => record.Type == RecordTypes.Result && record.Field(SentenceField) is { Length: > 0 })
+            .Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Message) is { Length: > 0 })
             .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            var sentence = result.Field(SentenceField)!;
+            var sentence = result.Field(RecordFields.Message)!;
 
             foreach (var (alias, term, match) in aliases)
             {
@@ -333,7 +372,7 @@ internal static class UiBlueprintChecks
                 .Where(result => result.Type == RecordTypes.Result && !result.Derived && result.Field(RecordFields.Outcome) == "refusal")
                 .OrderBy(result => result.Id, StringComparer.Ordinal))
             {
-                if (result.Field(SentenceField) is { Length: > 0 } sentence && sentence.Trim().Length > 0)
+                if (result.Field(RecordFields.Message) is { Length: > 0 } sentence && sentence.Trim().Length > 0)
                 {
                     continue;
                 }
@@ -416,7 +455,7 @@ internal static class UiBlueprintChecks
     {
         var required = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        foreach (var pointId in useCase.Ids(RecordFields.ReachedThrough))
+        foreach (var pointId in useCase.Ids(RecordFields.Via))
         {
             if (!model.ById.TryGetValue(pointId, out var point) || point.Type != RecordTypes.EntryPoint)
             {
@@ -447,7 +486,7 @@ internal static class UiBlueprintChecks
         var present = new HashSet<string>(StringComparer.Ordinal);
 
         if (result.Raw.ValueKind != JsonValueKind.Object
-            || !result.Raw.TryGetProperty(RecordFields.Sentences, out var sentences)
+            || !result.Raw.TryGetProperty(RecordFields.Translations, out var sentences)
             || sentences.ValueKind != JsonValueKind.Object)
         {
             return present;

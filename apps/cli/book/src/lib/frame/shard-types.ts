@@ -364,7 +364,7 @@ export interface ReachClaim {
 
 /** One measured observation of a goal: when, what was read and where it came from. */
 export interface GoalObservation {
-  date: string;
+  observedOn: string;
   value: string;
   source: string;
 }

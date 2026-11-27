@@ -235,8 +235,9 @@ public sealed class RulesCommandTests
             "--full");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Rationale: When one endpoint class serves several operations", result.Output);
-        Assert.Contains("Example: At startup, the application discovers endpoint implementations", result.Output);
+        // --full prints each provision with its Rationale and Example lines; the wording belongs to the pages.
+        Assert.Matches(@"(?m)^\s*Rationale: \S", result.Output);
+        Assert.Matches(@"(?m)^\s*Example: \S", result.Output);
     }
 
     /// <summary>A convention whose scope matches the path prints beside the LiteSpec provisions.</summary>

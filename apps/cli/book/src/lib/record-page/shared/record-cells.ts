@@ -100,7 +100,7 @@ export function fieldType(book: Book, x: RecordFields): string {
 export function idemHint(i: RecordFields): string {
   return [
     i.key ? codeOf(i.key) : "",
-    i.keyScope ? "scoped to " + esc(i.keyScope) : "",
+    i.scope ? "scoped to " + esc(i.scope) : "",
     i.reason ? esc(i.reason) : "",
   ]
     .filter(Boolean)

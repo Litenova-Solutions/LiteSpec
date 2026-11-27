@@ -10,7 +10,7 @@ export interface Group {
   key: string;
   label: string;
   icon: IconName;
-  /** The first folders under docs/ this group holds, such as backend. */
+  /** The first folders under docs/ this group holds, such as core. */
   areas: string[];
 }
 
@@ -23,7 +23,7 @@ export const groups: Group[] = [
   { key: "learn", label: "Learn", icon: "learn", areas: ["learn", "example"] },
   { key: "tutorial", label: "Tutorial", icon: "start", areas: ["tutorial"] },
   { key: "guides", label: "Guides", icon: "file", areas: ["guide"] },
-  { key: "standard", label: "Standard", icon: "core", areas: ["core", "backend", "frontend", "quality", "workspace", "ext"] },
+  { key: "standard", label: "Standard", icon: "core", areas: ["core", "packs", "quality", "workspace", "ext"] },
   { key: "reference", label: "Reference", icon: "book", areas: ["reference", "tools", "analyzers", "maintain"] },
 ];
 
@@ -33,8 +33,7 @@ export function groupOf(area: string): Group {
 
 const AREA_LABELS: Record<string, string> = {
   core: "Core",
-  backend: "Backend",
-  frontend: "Frontend",
+  packs: "Packs",
   quality: "Quality",
   workspace: "Workspace",
   ext: "Extensions",
@@ -57,9 +56,10 @@ export function areaLabel(area: string): string {
 const byFile = new Map(pages.map((page) => [page.file, page]));
 
 /** A folder's overview page: its stack page, its README, or the page beside the
- *  folder that carries its name, such as frontend/patterns.md for frontend/patterns/. */
+ *  folder that carries its name, such as packs/svelte.md for packs/svelte/. */
 export function folderOverview(dir: string): Page | undefined {
-  return byFile.get(`${dir}/stack.md`) ?? byFile.get(`${dir}/README.md`) ?? byFile.get(`${dir}.md`);
+  // A section index README (titled Overview) leads its folder; a stack folder without one opens on its stack page.
+  return byFile.get(`${dir}/README.md`) ?? byFile.get(`${dir}/stack.md`) ?? byFile.get(`${dir}.md`);
 }
 
 /** A group's overview page: the README of the first of its areas that has one. */

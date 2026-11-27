@@ -358,9 +358,9 @@ static class GeneratePlan
         return values;
     }
 
-    /// <summary>The English sentence by refusal code, the first result in identifier order stating one.</summary>
+    /// <summary>The English message by refusal code, the first result in identifier order stating one.</summary>
     /// <param name="model">The built project model holding the result records.</param>
-    /// <returns>The sentence by refusal code.</returns>
+    /// <returns>The message by refusal code.</returns>
     private static Dictionary<string, string> RefusalSentences(ProjectModel model)
     {
         var sentences = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -372,12 +372,12 @@ static class GeneratePlan
             if (result.Field(RecordFields.Outcome) != "refusal"
                 || result.Field(RecordFields.Refusal) is not { Length: > 0 } refusal
                 || !refusal.StartsWith("refusal/", StringComparison.Ordinal)
-                || result.Field(RecordFields.Sentence) is not { Length: > 0 } sentence)
+                || result.Field(RecordFields.Message) is not { Length: > 0 } message)
             {
                 continue;
             }
 
-            sentences.TryAdd(refusal["refusal/".Length..], sentence);
+            sentences.TryAdd(refusal["refusal/".Length..], message);
         }
 
         return sentences;

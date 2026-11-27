@@ -47,7 +47,7 @@ public sealed class ModelQueryLinkedByTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         model.Records.Add(Rec(
             "use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"),
-            """{"summary": "Spending reads the expense.", "kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            """{"summary": "Spending reads the expense.", "kind": "query", "via": ["module/reporting"]}"""));
         model.Records.Add(Rec(
             "use-case", "use-case/reporting.record-reimbursement", Path.Combine(temp.Path, "record.yaml"),
             """{"summary": "Reporting records the reimbursement.", "kind": "command", "effects": [{"queries": "use-case/spending.read-expense", "timing": "inline"}]}"""));
@@ -81,10 +81,10 @@ public sealed class ModelQueryLinkedByTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         model.Records.Add(Rec(
             "use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
-            """{"summary": "Spending reimburses the expense.", "kind": "command", "reachedThrough": ["module/reporting"]}"""));
+            """{"summary": "Spending reimburses the expense.", "kind": "command", "via": ["module/reporting"]}"""));
         model.Records.Add(Rec(
             "use-case", "use-case/reporting.confirm-payout", Path.Combine(temp.Path, "confirm.yaml"),
-            """{"summary": "Reporting confirms the payout.", "kind": "command", "effects": [{"commands": "use-case/spending.reimburse-expense", "timing": "inline"}]}"""));
+            """{"summary": "Reporting confirms the payout.", "kind": "command", "effects": [{"runs": "use-case/spending.reimburse-expense", "timing": "inline"}]}"""));
 
         var holder = RecordQuery.Query(model, "use-case/reporting.confirm-payout");
 

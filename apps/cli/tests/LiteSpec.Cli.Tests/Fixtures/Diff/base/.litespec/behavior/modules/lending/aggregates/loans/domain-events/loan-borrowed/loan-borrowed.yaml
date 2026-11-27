@@ -2,8 +2,8 @@ type: domain-event
 id: domain-event/loan.loan-borrowed
 title: Loan borrowed
 meaning: A copy was lent.
-carries:
-  - loanId
-  - copyId
-  - readerId
-  - dueDate
+fields:
+- loanId
+- copyId
+- readerId
+- dueDate

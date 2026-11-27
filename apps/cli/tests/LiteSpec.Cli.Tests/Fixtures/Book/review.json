@@ -275,7 +275,7 @@
         "check": "k6 desk-wait p(95)<120",
         "runsOn": "nightly",
         "evidence": "https://example.com/runs/desk-wait",
-        "cites": [
+        "basedOn": [
           "feature/self-checkout"
         ],
         "questions": [
@@ -289,7 +289,7 @@
         ]
       },
       "links": {
-        "cites": [
+        "basedOn": [
           "feature/self-checkout"
         ]
       }
@@ -313,12 +313,12 @@
         "status": "approved",
         "kind": "functional",
         "statement": "Every copy has one home shelf.",
-        "cites": [
+        "basedOn": [
           "feature/self-checkout"
         ]
       },
       "links": {
-        "cites": [
+        "basedOn": [
           "feature/self-checkout"
         ]
       }
@@ -348,12 +348,12 @@
             "effectiveFrom": "2026-01-01"
           }
         ],
-        "cites": [
+        "basedOn": [
           "feature/self-checkout"
         ]
       },
       "links": {
-        "cites": [
+        "basedOn": [
           "feature/self-checkout"
         ]
       }
@@ -389,17 +389,11 @@
             "failure": "The desk renews the loan."
           }
         ],
-        "cites": [
-          "requirement/self-checkout.max-wait"
-        ],
         "finishedWhen": "The member leaves the desk with the copy before closing."
       },
       "links": {
         "actor": [
           "actor/member"
-        ],
-        "cites": [
-          "requirement/self-checkout.max-wait"
         ]
       }
     },
@@ -631,7 +625,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -640,7 +634,7 @@
         "fulfills": [
           "requirement/self-checkout.max-wait"
         ],
-        "input": [
+        "inputs": [
           {
             "name": "memberId",
             "meaning": "Who borrows.",
@@ -650,7 +644,7 @@
             "required": true
           }
         ],
-        "output": [
+        "outputs": [
           {
             "name": "loanId",
             "meaning": "The new loan.",
@@ -666,7 +660,7 @@
         ]
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -781,7 +775,9 @@
         "audience": [
           "actor/member"
         ],
-        "channel": "email",
+        "channels": [
+          "email"
+        ],
         "template": "due-reminder",
         "fulfills": [
           "requirement/self-checkout.max-wait"
@@ -834,8 +830,8 @@
         "title": "Copy Unavailable",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.copy-not-available",
-        "sentence": "This copy is on loan to another member."
+        "refusal": "refusal/lending.copy-not-available",
+        "message": "This copy is on loan to another member."
       },
       "links": {}
     },
@@ -925,7 +921,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A copy was lent.",
-        "carries": [
+        "fields": [
           {
             "name": "copyId",
             "type": "id",
@@ -958,7 +954,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A loan approaches its due date.",
-        "carries": [
+        "fields": [
           {
             "name": "loanId",
             "type": "id",
@@ -1323,7 +1319,7 @@
         "id": "person/mara",
         "name": "Mara",
         "actor": "actor/member",
-        "partyOf": "party/riverside-branch",
+        "party": "party/riverside-branch",
         "does": "Borrows a copy and returns it on time."
       },
       "links": {}
@@ -1343,7 +1339,7 @@
         "type": "occasion",
         "id": "occasion/late-return",
         "title": "A late return",
-        "date": "2026-03-10",
+        "occursOn": "2026-03-10",
         "involves": [
           "person/mara"
         ],

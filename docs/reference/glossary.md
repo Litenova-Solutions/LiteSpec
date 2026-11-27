@@ -608,7 +608,7 @@ Source: LiteSpec.
 
 ### External System
 
-One outside system the product exchanges messages with. It stands alone and names no actor. A system calling the product reaches it through an API entry point.
+One outside system the product exchanges messages with. It stands alone and lists no actor. A system calling the product reaches it through an API entry point.
 
 Layer: Behavior.
 

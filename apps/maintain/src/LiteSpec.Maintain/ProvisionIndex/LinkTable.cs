@@ -34,8 +34,8 @@ static partial class LinkTable
     /// <summary>The annotation keys a link property carries.</summary>
     static readonly string[] AnnotationKeys = [ReadsAsKey, ReadBackAsKey];
 
-    /// <summary>The properties that hold no link: the record's own identifier and type, and the value shapes of inputs and outputs.</summary>
-    static readonly HashSet<string> ShapeProperties = new(["id", "type", "input", "output", "fields", "of"], StringComparer.Ordinal);
+    /// <summary>The properties that hold no link: the record's own identifier and type, and the value shapes of inputs, outputs, fields, and items.</summary>
+    static readonly HashSet<string> ShapeProperties = new(["id", "type", "inputs", "outputs", "fields", "items"], StringComparer.Ordinal);
 
     /// <summary>The prefix of a local schema reference.</summary>
     const string DefPrefix = "#/$defs/";

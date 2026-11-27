@@ -46,7 +46,7 @@ public sealed class TenantSettingCheckTests
     public void OperatorSettingWithoutChangeUseCasePasses()
     {
         var model = ModelWith(
-            """{"valueType": "integer", "default": 5, "setBy": "operator", "configurationPath": "Lending:MaxRenewals", "outOfRange": "refuse"}""",
+            """{"value": {"type": "integer", "default": 5, "outOfRange": "refuse"}, "setBy": "operator", "configurationPath": "Lending:MaxRenewals"}""",
             null);
 
         Assert.Empty(Findings(model));
@@ -89,5 +89,5 @@ public sealed class TenantSettingCheckTests
     /// <summary>One tenant setting with the fields its type requires.</summary>
     /// <returns>The setting record fields as JSON.</returns>
     static string TenantSetting() =>
-        """{"valueType": "integer", "default": 5, "setBy": "tenant", "outOfRange": "refuse"}""";
+        """{"value": {"type": "integer", "default": 5, "outOfRange": "refuse"}, "setBy": "tenant"}""";
 }

@@ -78,7 +78,7 @@ public sealed class RetentionEnforcedByTests
         $$"""
         {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
          "dataClasses": [{"name": "Borrower identity", "classification": "personal", "fields": [],
-           "onErasure": "erase", "basis": ["constraint/borrower-privacy"], "purpose": "Keep the borrower identity for the loan file.",
+           "onErasure": "erase", "basedOn": ["constraint/borrower-privacy"], "purpose": "Keep the borrower identity for the loan file.",
            "period": "P7Y", "periodStartsAt": "domain-event/lending.loan-borrowed", "enforcedBy": ["{{enforcer}}"]}]}
         """;
 
@@ -98,5 +98,5 @@ public sealed class RetentionEnforcedByTests
         "domain-event",
         "domain-event/lending.loan-borrowed",
         Path.Combine(root, "borrowed.yaml"),
-        """{"meaning": "A copy was lent.", "carries": [{"name": "loanId", "type": "id"}]}""");
+        """{"meaning": "A copy was lent.", "fields": [{"name": "loanId", "type": "id"}]}""");
 }

@@ -81,7 +81,7 @@ public sealed class BookContractTests
     {
         string[] expected = ["adapter", "aggregate-method", "aggregate-root", "automation", "domain-service", "endpoint", "event", "handler", "job", "port", "reaction", "result", "route", "rule-exception"];
         Assert.Equal(expected, BookImplKinds.All.OrderBy(kind => kind, StringComparer.Ordinal).ToList());
-        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"reachedThrough": ["entry-point/library-app"]}""");
+        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"via": ["entry-point/library-app"]}""");
         var model = NewModel(useCase);
         (model["code"] as JsonObject)!["handlers"] = new JsonArray(new JsonObject
         {

@@ -2,7 +2,7 @@ type: domain-event
 id: domain-event/receipt.attached
 title: Receipt Attached
 meaning: A receipt was attached.
-carries:
+fields:
 - name: receiptId
   type: id
   identifies: aggregate/spending.receipt

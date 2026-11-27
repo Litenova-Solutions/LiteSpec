@@ -94,6 +94,21 @@ internal static class StandardsValidator
                 Add(relative, PageText.LineNumber(prose, nonAscii), MaintainerDiagnostics.Codes.ProseNonAscii, PageText.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
+            // Long paragraphs and banned phrases are mechanical style-card
+            // lints over the same prose, so they run beside the ASCII scan.
+            if (ProseLints.IsProseTarget(relative))
+            {
+                foreach (var paragraph in ProseLints.FindLongParagraphs(reader))
+                {
+                    Add(relative, paragraph.FirstLine, MaintainerDiagnostics.Codes.ProseParagraphLength, $"prose paragraph holds {paragraph.WordCount} words; at most {ProseLints.MaxParagraphWords}");
+                }
+
+                foreach (var hit in ProseLints.FindBannedPhrases(reader))
+                {
+                    Add(relative, hit.Line, MaintainerDiagnostics.Codes.ProseBannedPhrase, $"banned phrase \"{hit.Phrase}\"");
+                }
+            }
+
             parsedPages.Add(new ParsedPage(relative, reader, context.Pages.ParsePage(relative, reader)));
         }
 
@@ -180,7 +195,7 @@ internal static class StandardsValidator
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.yaml", "litespec.manifest.yaml");
         context.Manifest.CheckSchemaIds();
         context.Fields.CheckFieldNaming();
-        context.Fields.CheckFieldTable();
+        context.Fields.CheckFieldCatalog();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.yaml", "templates/consumer/project.yaml");

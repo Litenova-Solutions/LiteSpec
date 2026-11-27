@@ -1,0 +1,17 @@
+type: decision
+id: decision/0122-isolate-three-stack-packs
+title: Isolate Three Stack Packs and Retire Blazor React
+context: "One tree carried five frontend targets, so every shared page served several stacks and no page spoke to one owner. Blazor and React carried dated templates with no active consumer, while the dotnet, svelte, and android stacks each needed their own guides, templates, and checks."
+options:
+  - name: "Ship three isolated Stack Packs and remove Blazor and React"
+    pros: "Each stack owner reads one folder with its own guides and templates. Shared pages stay small because stack detail moves out."
+    cons: "A team on a removed stack migrates or stays on an older release."
+  - name: "Keep all five targets in one tree"
+    pros: "No team migrates, and every option stays listed."
+    cons: "Every page serves several stacks, and dated templates stay beside current ones."
+  - name: "Merge all stacks into one generic guide"
+    pros: "One guide to keep."
+    cons: "Stack facts blur, and owners cannot tell which rule covers their code."
+choice: "Ship three isolated Stack Packs and remove Blazor and React"
+consequences: "LiteSpec ships three Stack Packs: `dotnet`, `svelte`, and `android`. Selecting a stack applies its folder with the shared folders above it. Blazor and React leave the tree with their templates, guides, and checks. Five optional extensions remain: `delivery`, `ai-mcp`, `compat`, `realtime`, and `plans`. Claimwick builds on `dotnet` with a `svelte` web client as the example."
+reopenedWhen: "A new frontend target gains an active consumer with its own templates and checks, or a removed stack regains one."

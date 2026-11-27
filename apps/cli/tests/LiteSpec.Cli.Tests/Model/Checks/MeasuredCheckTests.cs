@@ -126,7 +126,7 @@ public sealed class MeasuredCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "cites": ["decision/0001-loan-period"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "basedOn": ["decision/0001-loan-period"]}"""),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days", "reopenedWhen": "Queues pass one hundred a day."}"""));
 
         Assert.DoesNotContain("statement-measure-missing", TestModel.Codes(model));

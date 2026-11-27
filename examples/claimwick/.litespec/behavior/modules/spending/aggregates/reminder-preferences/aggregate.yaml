@@ -28,7 +28,7 @@ dataClasses:
   fields:
   - manager
   onErasure: erase
-  basis:
+  basedOn:
   - requirement/approval-reminders.remind-approver-after-three-days
   period:
     mode: none
@@ -43,7 +43,7 @@ dataClasses:
   - reason
   - updatedAt
   onErasure: erase
-  basis:
+  basedOn:
   - requirement/approval-reminders.remind-approver-after-three-days
   period:
     mode: none

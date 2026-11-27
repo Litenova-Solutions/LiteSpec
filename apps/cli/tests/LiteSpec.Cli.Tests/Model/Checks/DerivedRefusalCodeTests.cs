@@ -97,7 +97,7 @@ public sealed class DerivedRefusalCodeTests
             id: use-case/lending.borrow-copy
             title: Borrow copy
             kind: command
-            input:
+            inputs:
               - name: branch
                 meaning: The branch lending the copy.
                 type: text
@@ -219,7 +219,7 @@ public sealed class DerivedRefusalCodeTests
             id: use-case/lending.borrow-copy
             title: Borrow copy
             kind: command
-            input:
+            inputs:
               - name: copyId
                 meaning: The copy the reader borrows.
                 type: id

@@ -88,4 +88,8 @@ litespec api explore --base-url http://localhost:5000 --seed 7 --steps 50
 
 ## Underneath
 
-The command reads the OpenAPI document, resolves its schema, parameter, and request-body references, and lists the callable operations in document order. It first calls each parameterless GET once, collecting ids from the answers, then picks random operations for the remaining steps from `new Random(seed)`, so the same seed against the same data replays the same calls. Each call fills path parameters from the collected ids, builds its query string and JSON body from the resolved schemas with mostly valid-looking values and boundary values with a small probability, and sends the walk headers and cookies. One call may take 30 seconds; the client follows no redirects and keeps no cookie jar. The OpenAPI document and health routes are never walked. The reports land as `explore.md` and `explore.json` in the output folder. Nothing beneath this command is separately runnable.
+The command reads the OpenAPI document, resolves its schema, parameter, and request-body references, and lists the callable operations in document order. It first calls each parameterless GET once, collecting ids from the answers, then picks random operations for the remaining steps from `new Random(seed)`, so the same seed against the same data replays the same calls.
+
+Each call fills path parameters from the collected ids, builds its query string and JSON body from the resolved schemas with mostly valid-looking values and boundary values with a small probability, and sends the walk headers and cookies. One call may take 30 seconds; the client follows no redirects and keeps no cookie jar.
+
+The OpenAPI document and health routes are never walked. The reports land as `explore.md` and `explore.json` in the output folder. Nothing beneath this command is separately runnable.

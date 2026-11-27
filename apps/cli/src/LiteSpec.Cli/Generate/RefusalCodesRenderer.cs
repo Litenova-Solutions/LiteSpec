@@ -4,7 +4,7 @@ namespace LiteSpec.Cli.Generate;
 
 /// <summary>
 ///     Renders the refusal codes the records declare: per module a C# constant class, and
-///     for a TypeScript stack one file with the codes, their union type, and the sentences
+///     for a TypeScript stack one file with the codes, their union type, and the messages
 ///     the refusal results state.
 /// </summary>
 /// <follows>litespec/core/model#generate-record-determined-code-from-the-records</follows>
@@ -51,10 +51,10 @@ static class RefusalCodesRenderer
 
     /// <summary>
     ///     Renders every refusal code as TypeScript: a const object of codes, their union
-    ///     type, and a map from each code to the English sentence its refusal results state.
+    ///     type, and a map from each code to the English message its refusal results state.
     /// </summary>
     /// <param name="entries">Every declared refusal.</param>
-    /// <param name="sentences">The English sentence by refusal code, for the codes whose results state one.</param>
+    /// <param name="sentences">The English message by refusal code, for the codes whose results state one.</param>
     /// <returns>The file text with LF line endings.</returns>
     public static string RenderTypeScript(
         IReadOnlyList<RefusalEntry> entries,

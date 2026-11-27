@@ -30,7 +30,7 @@ public sealed class QueryEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Consumer(temp.Path, "use-case/reporting.record-reimbursement", """{"kind": "command", "steps": [{"statement": "Reporting records the reimbursement."}], "effects": [{"queries": "use-case/spending.read-expense", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "reachedThrough": ["module/finance"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "via": ["module/finance"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "query-target-invalid");
         Assert.Equal("use-case/reporting.record-reimbursement", finding.Subject);
@@ -45,7 +45,7 @@ public sealed class QueryEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Consumer(temp.Path, "use-case/reporting.record-reimbursement", """{"kind": "command", "steps": [{"statement": "Reporting records the reimbursement."}], "effects": [{"queries": "use-case/spending.read-expense", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, finding =>
             finding.Code is "query-target-invalid" or "query-consumer-missing");
@@ -61,7 +61,7 @@ public sealed class QueryEdgeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/reporting.confirm-expense", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "reactions.yaml"), """{"triggeredBy": ["module-event/spending.expense-reimbursed"], "effects": [{"queries": "use-case/spending.read-expense"}], "outcomes": [{"name": "completed", "meaning": "The expense is confirmed."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "state", "recognizedBy": "state"}}"""),
             TestModel.Record("module-event", "module-event/spending.expense-reimbursed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events.yaml"), """{"summary": "The expense was reimbursed."}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, finding =>
             finding.Code is "query-target-invalid" or "query-consumer-missing");
@@ -76,7 +76,7 @@ public sealed class QueryEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Consumer(temp.Path, "use-case/reporting.record-reimbursement", """{"kind": "command", "steps": [{"statement": "Reporting records the reimbursement."}], "effects": [{"queries": "use-case/reporting.read-ledger", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/reporting.read-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "read-ledger.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/reporting.read-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "read-ledger.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "query-target-invalid");
         Assert.Equal("use-case/reporting.record-reimbursement", finding.Subject);
@@ -93,7 +93,7 @@ public sealed class QueryEdgeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/reporting.confirm-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "reactions.yaml"), """{"triggeredBy": ["module-event/spending.expense-reimbursed"], "effects": [{"queries": "use-case/reporting.read-ledger"}], "outcomes": [{"name": "completed", "meaning": "The ledger is confirmed."}], "onFailure": {"mode": "discard"}, "idempotency": {"mode": "state", "recognizedBy": "state"}}"""),
             TestModel.Record("module-event", "module-event/spending.expense-reimbursed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "module-events.yaml"), """{"summary": "The expense was reimbursed."}"""),
-            TestModel.Record("use-case", "use-case/reporting.read-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "read-ledger.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/reporting.read-ledger", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "read-ledger.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "query-target-invalid");
         Assert.Equal("reaction/reporting.confirm-ledger", finding.Subject);
@@ -109,7 +109,7 @@ public sealed class QueryEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Consumer(temp.Path, "use-case/reporting.record-reimbursement", """{"kind": "command", "steps": [{"statement": "Reporting records the reimbursement."}]}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "query-consumer-missing");
         Assert.Equal("use-case/spending.read-expense", finding.Subject);

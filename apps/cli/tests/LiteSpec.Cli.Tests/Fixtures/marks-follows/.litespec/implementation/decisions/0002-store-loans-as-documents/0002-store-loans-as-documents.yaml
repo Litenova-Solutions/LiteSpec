@@ -3,8 +3,8 @@ id: decision/0002-store-loans-as-documents
 title: Store loans as documents
 context: Loans needed one persistence shape for reads and writes.
 options:
-  - name: Documents
-    pros: Loans read as one document
-    cons: Cross-loan queries need an index
+- name: Documents
+  pros: Loans read as one document
+  cons: Cross-loan queries need an index
 consequences: The document store owns loan persistence.
 reopenedWhen: Cross-loan queries pass one hundred a day

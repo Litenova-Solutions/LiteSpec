@@ -3,13 +3,15 @@
 **Stack:** svelte
 **Concern:** frontend-ui
 
-A route in the Svelte frontend carries metadata that decides what links and search show for it. This page adds the metadata rule for Svelte routes: every public route defines its title, description, canonical address, and indexing policy, and every private route refuses indexing.
+A Svelte route meets the reader through its link text and its search result. This page is for developers who define route titles and indexing for a Svelte frontend. A public route without a title shows a bare address, and a private console address in search results exposes what readers treat as private.
 
 ## Concepts
 
-### Rules the Svelte Stack Follows
+### How Routes Describe Themselves
 
-Each route prefetches its data before it draws, reads it back from the route cache, validates its address parameters against a schema, ships each route and each language as its own chunk, preloads on intent, keeps authenticated caching explicit, holds proxy behavior at the edge, builds the server data cache per request, and shares one layout for a shell. The Svelte stack adds only the metadata rule this page states.
+A public route carries a title, a description, a canonical address, and an indexing policy. Search results and shared links read those four values. A console route carries a `noindex` marker, so search tools skip the address.
+
+A failing route draws the shared problem state on the error surface. The Claimwick expense list shows that state with its trace identifier when the list load fails. One surface keeps every failure in the same shape with the same recovery.
 
 ## Standards
 
@@ -23,7 +25,7 @@ Each route prefetches its data before it draws, reads it back from the route cac
 
 **Statement:** A public route MUST define its title, its description, its canonical address, and its indexing policy, while a private route refuses indexing.
 
-**Rationale:** A public route's title, description, canonical address, and indexing policy are what a search result and a shared link show. Without them, the result shows only a bare address. A private route refuses indexing, because an indexed console address exposes to search what a signed-in user believes is private.
+**Rationale:** Link text and search results read the title, description, canonical address, and indexing policy. A bare address tells the reader nothing about the page behind it. An indexed console address puts a signed-in view in public search, so private routes carry `noindex`.
 
 **Example:** A channel route states `og:*` tags and one alternate per language. A console route carries a `noindex` meta tag in its document.
 
@@ -39,9 +41,9 @@ Each route prefetches its data before it draws, reads it back from the route cac
 
 **Statement:** A route failure MUST render on `+error.svelte`, which draws the shared problem state.
 
-**Rationale:** One error surface gives every route failure the same problem state and the same recovery.
+**Rationale:** One error surface gives every route failure the same problem state and the same recovery. Readers learn one shape and follow one path back to working state.
 
-**Example:** When the Claimwick expense list fails, `+error.svelte` shows the shared problem state with its trace identifier.
+**Example:** When the Claimwick expense list fails, `+error.svelte` shows the shared problem state with its trace identifier. The reader copies the identifier for support and follows the recovery action on the page.
 
 **Reviewed for:** Does every route failure render on the stated error surface? Check the error handling of each route.
 

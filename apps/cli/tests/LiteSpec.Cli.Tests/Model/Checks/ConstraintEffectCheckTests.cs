@@ -18,7 +18,7 @@ public sealed class ConstraintEffectCheckTests
     public void CitingRequirementMissingFromEffectReportsNothing()
     {
         using var temp = TestCli.Temp("checks");
-        var findings = Checker.Check(Model(temp.Path, Explanation("A receipt is kept for seven years."), cites: ["constraint/tax-receipt-retention"])).Findings;
+        var findings = Checker.Check(Model(temp.Path, Explanation("A receipt is kept for seven years."), basedOn: ["constraint/tax-receipt-retention"])).Findings;
 
         Assert.DoesNotContain(findings, found => found.Message.Contains("Effect on the Product", StringComparison.Ordinal));
     }
@@ -29,7 +29,7 @@ public sealed class ConstraintEffectCheckTests
     public void NamedRequirementThatDoesNotCiteReportsNothing()
     {
         using var temp = TestCli.Temp("checks");
-        var findings = Checker.Check(Model(temp.Path, Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."), cites: [])).Findings;
+        var findings = Checker.Check(Model(temp.Path, Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."), basedOn: [])).Findings;
 
         Assert.DoesNotContain(findings, found => found.Message.Contains("Effect on the Product", StringComparison.Ordinal));
     }
@@ -43,7 +43,7 @@ public sealed class ConstraintEffectCheckTests
         var findings = Checker.Check(Model(
             temp.Path,
             Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."),
-            cites: ["constraint/tax-receipt-retention"])).Findings;
+            basedOn: ["constraint/tax-receipt-retention"])).Findings;
 
         Assert.DoesNotContain(findings, found => found.Message.Contains("Effect on the Product", StringComparison.Ordinal));
     }
@@ -51,11 +51,11 @@ public sealed class ConstraintEffectCheckTests
     /// <summary>A model with one applying constraint, one citing requirement and the explanation given.</summary>
     /// <param name="root">The temporary project root.</param>
     /// <param name="explanation">The constraint explanation text.</param>
-    /// <param name="cites">The constraint identifiers the requirement cites.</param>
+    /// <param name="basedOn">The constraint identifiers the requirement cites.</param>
     /// <returns>The model.</returns>
-    static ProjectModel Model(string root, string explanation, string[] cites)
+    static ProjectModel Model(string root, string explanation, string[] basedOn)
     {
-        var citesJson = string.Join(", ", cites.Select(cite => $"\"{cite}\""));
+        var basedOnJson = string.Join(", ", basedOn.Select(link => $"\"{link}\""));
 
         return TestModel.Model(
             TestModel.Config(root),
@@ -64,7 +64,7 @@ public sealed class ConstraintEffectCheckTests
                 "constraint/tax-receipt-retention",
                 Path.Combine(root, "tax-receipt-retention.yaml"),
                 1,
-                """{"authority": "National tax law.", "sources": [{"name": "national-tax-law", "url": "https://example.com/tax-law", "readOn": "2026-02-10"}], "kind": "legal", "applies": true, "appliesBecause": "We store receipts.", "coverage": "Business receipts.", "obligations": [{"statement": "Businesses keep receipts for seven years.", "sources": ["national-tax-law"]}], "productEffect": "A receipt is kept for seven years."}""",
+                """{"authority": "National tax law.", "sources": [{"name": "national-tax-law", "url": "https://example.com/tax-law", "readOn": "2026-02-10"}], "kind": "legal", "applies": true, "appliesBecause": "We store receipts.", "scope": "Business receipts.", "obligations": [{"statement": "Businesses keep receipts for seven years.", "sources": ["national-tax-law"]}], "productEffect": "A receipt is kept for seven years."}""",
                 Path.Combine(root, "tax-receipt-retention.md"),
                 explanation),
             TestModel.Record(
@@ -72,6 +72,6 @@ public sealed class ConstraintEffectCheckTests
                 "requirement/approval.above-threshold-receipt",
                 Path.Combine(root, "above-threshold-receipt.yaml"),
                 1,
-                $$"""{"kind": "functional", "statement": "An expense above the receipt threshold carries a receipt.", "rationale": "Proof keeps the tax file defensible.", "cites": [{{citesJson}}]}"""));
+                $$"""{"kind": "functional", "statement": "An expense above the receipt threshold carries a receipt.", "rationale": "Proof keeps the tax file defensible.", "basedOn": [{{basedOnJson}}]}"""));
     }
 }

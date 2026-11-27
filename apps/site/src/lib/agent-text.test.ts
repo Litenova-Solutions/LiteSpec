@@ -46,14 +46,14 @@ describe("page description", () => {
 
   it("rewrites relative page links to absolute raw URLs", () => {
     const page = {
-      file: "docs/frontend/web/sample.md",
+      file: "docs/packs/svelte/sample.md",
       title: "Sample",
       style: "standard",
-      intent: "See [Web UI](ui.md) and the [React Stack](react/stack.md).",
+      intent: "See [Components](components.md) and the [Svelte Stack](stack.md).",
     } as Page;
     assert.strictEqual(
       describePage(page),
-      `See [Web UI](${SITE_ORIGIN}/${version}/frontend/web/ui.md) and the [React Stack](${SITE_ORIGIN}/${version}/frontend/web/react/stack.md).`,
+      `See [Components](${SITE_ORIGIN}/${version}/packs/svelte/components.md) and the [Svelte Stack](${SITE_ORIGIN}/${version}/packs/svelte/stack.md).`,
     );
   });
 
@@ -111,10 +111,10 @@ describe("agent protocol region", () => {
       packageVersion: "$&1.0-rc.1",
       size: "large",
       shape: "server",
-      stacks: "dotnet, react",
-      extensions: "audit",
+      stacks: "dotnet, svelte",
+      extensions: "delivery",
       layers: "intent and behavior: litespec, implementation and proof: own",
-      docs: "https://litespec.dev/7.0.0/select/server.dotnet.react/llms.txt",
+      docs: "https://litespec.dev/7.0.0/select/server.dotnet.svelte/llms.txt",
       command: "litespec",
     });
     assert.ok(out.includes("$&1.0-rc.1=$&1.0-rc.1"), out);
@@ -131,12 +131,12 @@ describe("agent protocol region", () => {
     const filled = selectionValues({
       size: "large",
       shape: "server",
-      stacks: ["dotnet", "react"],
-      extensions: ["audit", "cache"],
-      selectionKey: "server.dotnet.react",
+      stacks: ["dotnet", "svelte"],
+      extensions: ["delivery", "ai-mcp"],
+      selectionKey: "server.dotnet.svelte",
     });
-    assert.strictEqual(filled.stacks, "dotnet, react");
-    assert.strictEqual(filled.extensions, "audit, cache");
+    assert.strictEqual(filled.stacks, "dotnet, svelte");
+    assert.strictEqual(filled.extensions, "delivery, ai-mcp");
     const bare = selectionValues({ size: "small", shape: "server", stacks: ["dotnet"], extensions: [], selectionKey: "server.dotnet" });
     assert.strictEqual(bare.extensions, "none");
   });
@@ -147,7 +147,7 @@ describe("agent protocol region", () => {
   });
 
   it("joins a selection key from its shape and stacks", () => {
-    assert.strictEqual(formatSelectionKey("server", ["dotnet", "react"]), "server.dotnet.react");
+    assert.strictEqual(formatSelectionKey("server", ["dotnet", "svelte"]), "server.dotnet.svelte");
     assert.strictEqual(formatSelectionKey("server", []), "server");
   });
 });
@@ -213,7 +213,7 @@ describe("selection index", () => {
   });
 
   it("groups the selection pages by artifact kind", () => {
-    const selection = selections().find((entry) => selectionKey(entry) === "server.dotnet.react")!;
+    const selection = selections().find((entry) => selectionKey(entry) === "server.dotnet.svelte")!;
     const text = selectionLlmsText(selection);
     assert.ok(text.includes("## By Artifact"), text);
     assert.ok(!text.includes("- any:"), "an any line is listed");

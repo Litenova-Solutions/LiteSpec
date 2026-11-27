@@ -1,12 +1,14 @@
 # Formats
 
-Every file a LiteSpec tool reads or writes has one format. Every format a person writes has one schema, a contract stating its exact shape, that the checking command and the editor both validate. The format list names each file, who writes it, its envelope, the command that reads or checks it, and its schema with a real example. A consumer author uses it to wire editor validation and to look up a field; a tool author uses it to find which command owns which file.
+Every file a LiteSpec tool reads or writes has one format. Every format a person writes has one schema, a contract stating its exact shape, which the checking command and the editor both validate. The format list names each file, who writes it, its envelope, the command checking it, and its schema with a real example.
+
+A consumer author uses the list to wire editor validation and to look up a field. A tool author uses it to find which command owns each file.
 
 ## Reference
 
-People write YAML, and programs exchange JSON. A file a person edits is YAML: it states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, as `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml` requires. A file one program writes for another stays JSON.
+People write YAML, and programs exchange JSON. A file a person edits is YAML: it states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, as `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml` states. A file one program writes for another stays JSON.
 
-Every schema lives in `schemas/` at the repository root, written as YAML in JSON Schema draft 2020-12, and carries an `$id` equal to its published URL, so the copy at `https://litespec.dev/<version>/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../maintain/validate.md) and [model](../tools/model.md) pages state the commands that check each file.
+Every schema lives in `schemas/` at the repository root, written as YAML in JSON Schema draft 2020-12, with an `$id` equal to its published URL. The copy at `https://litespec.dev/<version>/schemas/<file>` and the file in `schemas/` state the same contract, and the [validate](../maintain/validate.md) and [model](../tools/model.md) pages list the commands checking each file.
 
 ### Format List
 
@@ -31,7 +33,7 @@ Every schema lives in `schemas/` at the repository root, written as YAML in JSON
 | Checked by | `litespec-maintain validate` |
 | Published URL | `https://litespec.dev/<version>/schemas/litespec-manifest.schema.yaml` |
 
-The schema states every field; read it at [litespec-manifest.schema.yaml](../../schemas/litespec-manifest.schema.yaml).
+The schema states every field, and the table above names the file, the target, the checker, and the URL. Read the full shape at [litespec-manifest.schema.yaml](../../schemas/litespec-manifest.schema.yaml).
 
 ### Consumer Project Schema
 
@@ -42,7 +44,7 @@ The schema states every field; read it at [litespec-manifest.schema.yaml](../../
 | Checked by | `litespec model check`, and `litespec-maintain validate` for the template copy |
 | Published URL | `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml` |
 
-The schema states every field; read it at [litespec-project.schema.yaml](../../schemas/litespec-project.schema.yaml). The [project file](project-file.md) states how the file is written and validated, with a complete example and the validation messages.
+The schema states every field, and the table above names the file, the target, the checker, and the URL. Read the full shape at [litespec-project.schema.yaml](../../schemas/litespec-project.schema.yaml). The [project file](project-file.md) shows how the file is written and validated, with a complete example and the validation messages.
 
 ### Record Schema
 
@@ -53,7 +55,7 @@ The schema states every field; read it at [litespec-project.schema.yaml](../../s
 | Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/<version>/schemas/record.schema.yaml` |
 
-The schema carries one page variant per record type and page style, with the identifier patterns and shared shapes beside the variants in `$defs`; read it at [record.schema.yaml](../../schemas/record.schema.yaml). The [record folders](folders.md) state where each record type lives, and the [consumer templates](../../templates/consumer/README.md) show every field of each type.
+The schema carries one page variant per record type and page style, with the identifier patterns and shared shapes beside the variants in `$defs`. Read the full shape at [record.schema.yaml](../../schemas/record.schema.yaml). The [record folders](folders.md) list where each record type lives, and the [consumer templates](../../templates/consumer/README.md) show every field of each type.
 
 ### Glossary Schema
 
@@ -64,7 +66,7 @@ The schema carries one page variant per record type and page style, with the ide
 | Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/<version>/schemas/glossary.schema.yaml` |
 
-The schema states every field; read it at [glossary.schema.yaml](../../schemas/glossary.schema.yaml).
+The schema states every field, and the table above names the file, the target, the checker, and the URL. Read the full shape at [glossary.schema.yaml](../../schemas/glossary.schema.yaml).
 
 ### Design Contract Schema
 
@@ -75,7 +77,7 @@ The schema states every field; read it at [glossary.schema.yaml](../../schemas/g
 | Checked by | `litespec model check` (`litespec/packs/svelte/ui-primitives#declare-one-visual-reference`) |
 | Published URL | `https://litespec.dev/<version>/schemas/design-contract.schema.yaml` |
 
-The schema states every field; read it at [design-contract.schema.yaml](../../schemas/design-contract.schema.yaml).
+The schema states every field, and the table above names the file, the target, the checker, and the URL. Read the full shape at [design-contract.schema.yaml](../../schemas/design-contract.schema.yaml).
 
 ### UI Pattern Catalog Schema
 
@@ -86,7 +88,7 @@ The schema states every field; read it at [design-contract.schema.yaml](../../sc
 | Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/<version>/schemas/ui-pattern-catalog.schema.yaml` |
 
-The schema states every field; read it at `ui-pattern-catalog.schema.yaml`.
+The schema states every field, and the table above names the file, the target, the checker, and the URL. Read the full shape at `ui-pattern-catalog.schema.yaml`.
 
 ### UI Source Lock Schema
 
@@ -97,7 +99,7 @@ The schema states every field; read it at `ui-pattern-catalog.schema.yaml`.
 | Checked by | `litespec model check` (`litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream`) |
 | Published URL | `https://litespec.dev/<version>/schemas/ui-source-lock.schema.yaml` |
 
-The schema states every field; read it at [ui-source-lock.schema.yaml](../../schemas/ui-source-lock.schema.yaml).
+The schema states every field, and the table above names the file, the target, the checker, and the URL. Read the full shape at [ui-source-lock.schema.yaml](../../schemas/ui-source-lock.schema.yaml).
 
 ### Check Result Schema
 
@@ -108,8 +110,8 @@ The schema states every field; read it at [ui-source-lock.schema.yaml](../../sch
 | Checked by | `litespec model check`, which reports `proof-invalid` for a file that fails it |
 | Published URL | `https://litespec.dev/<version>/schemas/check-result.schema.yaml` |
 
-A check result is program output, so it stays JSON, while the schema is YAML like every other schema. The [model](../tools/model.md) page states how a result proves the record it names.
+A check result is program output, so it stays JSON, while the schema is YAML like every other schema. The [model](../tools/model.md) page shows how a result proves the record it names.
 
 ## Notes
 
-A schema states one exact shape per release, with no compatible range between releases. A consumer adopting a later release absorbs every difference at that moment, under `litespec/core/authoring#publish-each-release-as-a-complete-contract` and `litespec/core/authoring#exclude-cross-release-compatibility-work`. When the published copy and the repository copy disagree, the repository copy wins, because every check reads `schemas/` from the checkout its own tool belongs to.
+A schema states one exact shape per release, with no compatible range between releases. A consumer adopting a later release takes in every difference at that moment, under `litespec/core/authoring#publish-each-release-as-a-complete-contract` and `litespec/core/authoring#exclude-cross-release-compatibility-work`. When the published copy and the repository copy disagree, the repository copy wins, since every check reads `schemas/` from the checkout its own tool belongs to.

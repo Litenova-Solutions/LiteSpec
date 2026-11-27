@@ -1,18 +1,17 @@
 type: use-case
 id: use-case/lending.extend-loan
 title: Extend loan
-exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong extension keeps a copy past its due date.
 kind: command
 access:
   grant: permission/borrow-copy
   tenant: own
 fulfills:
 - requirement/borrowing.loan-period-days
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-extended
-input:
+inputs:
 - name: loanId
   meaning: The loan the reader extends.
   type: id
@@ -29,16 +28,16 @@ input:
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The reader extends the loan before its due date.
-records:
-- type: result
-  id: result/extend-loan.extended
+results:
+- id: result/extend-loan.extended
   title: Extended
   outcome: success
   meaning: The loan is extended.
-- type: result
-  id: result/extend-loan.extension-refused
+- id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
   refusal: refusal/lending.extension-refused

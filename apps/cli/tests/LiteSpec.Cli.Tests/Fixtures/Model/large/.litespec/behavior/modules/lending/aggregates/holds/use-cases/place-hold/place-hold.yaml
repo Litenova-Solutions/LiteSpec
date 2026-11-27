@@ -1,7 +1,6 @@
 type: use-case
 id: use-case/lending.place-hold
 title: Place hold
-exposure: A signed-in reader reaches this command through the library app under the place-hold permission. A wrong hold blocks the copy for other readers.
 kind: command
 access:
   grant: permission/place-hold
@@ -10,11 +9,11 @@ serves:
 - step/borrow-and-return.place-hold
 fulfills:
 - requirement/borrowing.hold-pickup-window
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/hold.hold-placed
-input:
+inputs:
 - name: copyId
   meaning: The copy the reader places a hold on.
   type: id
@@ -33,29 +32,28 @@ input:
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The reader places a hold on the copy.
-records:
-- type: result
-  id: result/place-hold.placed
+results:
+- id: result/place-hold.placed
   title: Placed
   outcome: success
   meaning: The hold is placed.
-- type: result
-  id: result/place-hold.hold-already-waiting
+- id: result/place-hold.hold-already-waiting
   title: Hold already waiting
   outcome: refusal
   refusal: refusal/lending.hold-already-waiting
-  sentence: You already have a hold waiting for this copy.
-- type: scenario
-  id: scenario/place-hold.placing-a-hold-succeeds
+  message: You already have a hold waiting for this copy.
+scenarios:
+- id: scenario/place-hold.placing-a-hold-succeeds
   title: Placing a hold succeeds
   given: A copy is on loan to another reader.
   when: The reader places a hold.
   then: The hold is placed.
   result: result/place-hold.placed
-- type: scenario
-  id: scenario/place-hold.placing-a-duplicate-hold-is-refused
+- id: scenario/place-hold.placing-a-duplicate-hold-is-refused
   title: Placing a duplicate hold is refused
   given: A hold already waits for the reader's copy.
   when: The reader places another hold.

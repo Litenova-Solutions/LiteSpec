@@ -660,7 +660,7 @@ internal static class FolderChecks
 
         // An inbound event carries no translates: it sits under the aggregate of
         // its receiving module whose use case it runs.
-        if (record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Action) == "receive")
+        if (record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Direction) == "receive")
         {
             CheckInboundEventAggregate(model, record, module, written, findings);
             return;

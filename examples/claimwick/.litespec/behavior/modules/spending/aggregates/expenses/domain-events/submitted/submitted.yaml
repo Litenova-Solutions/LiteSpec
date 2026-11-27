@@ -2,7 +2,7 @@ type: domain-event
 id: domain-event/expense.submitted
 title: Expense Submitted
 meaning: An expense was submitted.
-carries:
+fields:
 - name: expenseId
   type: id
   identifies: aggregate/spending.expense
@@ -15,7 +15,7 @@ carries:
   identifies: actor/employee
 - name: lineItemIds
   type: list
-  rowShape:
+  items:
     fields:
     - name: lineItemId
       meaning: One line of the submitted expense.

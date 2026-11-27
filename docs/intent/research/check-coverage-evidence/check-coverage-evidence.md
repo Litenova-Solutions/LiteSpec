@@ -42,4 +42,4 @@ The recommendation has 2 refinements (`model`, `checker`). The cheap measurable 
 
 The record names 4 sources, all read on 30 October 2026. They are the tools model page (`docs/tools/model.md`), the checker code (`apps/cli/src/LiteSpec.Cli/Model/Checker.cs`), the finding code (`apps/model/src/LiteSpec.Model/Findings/Finding.cs`), and the suppression code (`apps/model/src/LiteSpec.Model/Findings/Suppression.cs`). Each finding cites the sources that support it.
 
-The record names no disagreement between its sources. It also names no claim that it could not confirm. Its counts come from one consumer's built model on one day.
+The record lists no disagreement between its sources. It also lists no claim that it could not confirm. Its counts come from one consumer's built model on one day.

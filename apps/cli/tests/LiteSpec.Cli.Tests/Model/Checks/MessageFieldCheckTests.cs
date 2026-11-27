@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the message field checks: every command or query type carries the fields its use case input names, and every result type carries the fields its output names.</summary>
+/// <summary>Proves the message field checks: every command or query type carries the fields its use case inputs name, and every result type carries the fields its outputs name.</summary>
 public sealed class MessageFieldCheckTests
 {
     /// <summary>A message carrying every declared input reports nothing.</summary>
@@ -16,7 +16,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}, {"name": "loanDays", "type": "integer"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copyId", "type": "id"}, {"name": "loanDays", "type": "integer"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, int LoanDays);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -29,7 +29,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}, {"name": "dueDate", "type": "date"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copyId", "type": "id"}, {"name": "dueDate", "type": "date"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId);");
 
         var finding = Assert.Single(Run(model, "input-field-drift"));
@@ -46,7 +46,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copyId", "type": "id"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, DateTimeOffset HandledAt);");
 
         var finding = Assert.Single(Run(model, "input-field-drift"));
@@ -63,7 +63,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copy", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copy", "type": "id"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -76,7 +76,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "deposit", "type": "money"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "deposit", "type": "money"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(decimal Deposit, string Currency);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -89,7 +89,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "deposit", "type": "money"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "deposit", "type": "money"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Money Deposit);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -102,7 +102,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "note", "type": "text"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "note", "type": "text"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(int Note);");
 
         var finding = Assert.Single(Run(model, "input-field-drift"));
@@ -119,7 +119,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "borrowedAt", "type": "date-time"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "borrowedAt", "type": "date-time"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(DateTimeOffset BorrowedAt);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -132,7 +132,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}]}""", "AbsentCommand");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copyId", "type": "id"}]}""", "AbsentCommand");
 
         Assert.Empty(Run(model, "input-field-drift"));
     }
@@ -147,7 +147,7 @@ public sealed class MessageFieldCheckTests
         var model = FieldModel(
             temp.Path,
             folder,
-            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}, {"name": "dueDate", "type": "date"}]}}}}""",
+            """{"kind": "query", "outputs": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}, {"name": "dueDate", "type": "date"}]}}}}""",
             "AbsentQuery");
         WriteSource(folder, "BorrowCopyQueryHandler.cs", """
             internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
@@ -170,7 +170,7 @@ public sealed class MessageFieldCheckTests
         var model = FieldModel(
             temp.Path,
             folder,
-            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}, {"name": "dueDate", "type": "date"}]}}}}""",
+            """{"kind": "query", "outputs": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}, {"name": "dueDate", "type": "date"}]}}}}""",
             "AbsentQuery");
         WriteSource(folder, "BorrowCopyQueryHandler.cs", """
             internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
@@ -197,7 +197,7 @@ public sealed class MessageFieldCheckTests
         var model = FieldModel(
             temp.Path,
             folder,
-            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}, "receipt": {"fields": [{"name": "receiptNo", "type": "text"}]}}}}""",
+            """{"kind": "query", "outputs": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}, "receipt": {"fields": [{"name": "receiptNo", "type": "text"}]}}}}""",
             "AbsentQuery");
         WriteSource(folder, "BorrowCopyQueryHandler.cs", """
             internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
@@ -222,7 +222,7 @@ public sealed class MessageFieldCheckTests
         var model = FieldModel(
             temp.Path,
             folder,
-            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}, "receipt": {"fields": [{"name": "receiptNo", "type": "text"}]}}}}""",
+            """{"kind": "query", "outputs": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}, "receipt": {"fields": [{"name": "receiptNo", "type": "text"}]}}}}""",
             "AbsentQuery");
         WriteSource(folder, "BorrowCopyQueryHandler.cs", """
             internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
@@ -261,7 +261,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}], "idempotency": {"mode": "key", "key": "{copyId}", "keyScope": "account", "replay": "returns-first-result"}}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copyId", "type": "id"}], "idempotency": {"mode": "key", "key": "{copyId}", "scope": "account", "replay": "returns-first-result"}}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, string IdempotencyKey);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -274,7 +274,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "input": [{"name": "copyId", "type": "id"}], "idempotency": {"mode": "none", "reason": "Each run lends another copy."}}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "inputs": [{"name": "copyId", "type": "id"}], "idempotency": {"mode": "none", "reason": "Each run lends another copy."}}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, string IdempotencyKey);");
 
         var finding = Assert.Single(Run(model, "input-field-drift"));
@@ -291,7 +291,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "query", "input": [{"name": "copyId", "type": "id"}], "paging": {"mode": "pages", "order": "Due date, soonest first.", "cursor": "The due date and identity of the last row.", "defaultLimit": 25, "maxLimit": 100}}""", "BorrowCopyQuery");
+        var model = FieldModel(temp.Path, folder, """{"kind": "query", "inputs": [{"name": "copyId", "type": "id"}], "paging": {"mode": "pages", "order": "Due date, soonest first.", "cursor": "The due date and identity of the last row.", "defaultLimit": 25, "maxLimit": 100}}""", "BorrowCopyQuery");
         WriteSource(folder, "BorrowCopyQuery.cs", "internal sealed record BorrowCopyQuery(Guid CopyId, string Cursor, int Limit);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -304,7 +304,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "query", "input": [{"name": "copyId", "type": "id"}], "paging": {"mode": "pages", "order": "Due date, soonest first.", "offset": "The row number the page starts at.", "defaultLimit": 25, "maxLimit": 100}}""", "BorrowCopyQuery");
+        var model = FieldModel(temp.Path, folder, """{"kind": "query", "inputs": [{"name": "copyId", "type": "id"}], "paging": {"mode": "pages", "order": "Due date, soonest first.", "offset": "The row number the page starts at.", "defaultLimit": 25, "maxLimit": 100}}""", "BorrowCopyQuery");
         WriteSource(folder, "BorrowCopyQuery.cs", "internal sealed record BorrowCopyQuery(Guid CopyId, int Offset, int Limit);");
 
         Assert.Empty(Run(model, "input-field-drift"));
@@ -317,7 +317,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "query", "input": [{"name": "copyId", "type": "id"}], "paging": {"mode": "none", "reason": "The query returns one loan."}}""", "BorrowCopyQuery");
+        var model = FieldModel(temp.Path, folder, """{"kind": "query", "inputs": [{"name": "copyId", "type": "id"}], "paging": {"mode": "none", "reason": "The query returns one loan."}}""", "BorrowCopyQuery");
         WriteSource(folder, "BorrowCopyQuery.cs", "internal sealed record BorrowCopyQuery(Guid CopyId, string Cursor);");
 
         var finding = Assert.Single(Run(model, "input-field-drift"));
@@ -337,7 +337,7 @@ public sealed class MessageFieldCheckTests
         var model = FieldModel(
             temp.Path,
             folder,
-            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}}}, "paging": {"mode": "pages", "order": "Due date, soonest first.", "cursor": "The due date and identity of the last row.", "defaultLimit": 25, "maxLimit": 100}}""",
+            """{"kind": "query", "outputs": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}}}, "paging": {"mode": "pages", "order": "Due date, soonest first.", "cursor": "The due date and identity of the last row.", "defaultLimit": 25, "maxLimit": 100}}""",
             "AbsentQuery");
         WriteSource(folder, "BorrowCopyQueryHandler.cs", """
             internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
@@ -360,7 +360,7 @@ public sealed class MessageFieldCheckTests
         var model = FieldModel(
             temp.Path,
             folder,
-            """{"kind": "query", "output": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}}}}""",
+            """{"kind": "query", "outputs": {"include": {"loan": {"fields": [{"name": "copyId", "type": "id"}]}}}}""",
             "AbsentQuery");
         WriteSource(folder, "BorrowCopyQueryHandler.cs", """
             internal sealed class BorrowCopyQueryHandler : IQueryHandler<BorrowCopyQuery, BorrowCopyQueryResult>
@@ -385,7 +385,7 @@ public sealed class MessageFieldCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         WriteProject(temp.Path, "term/workspace");
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "input": [{"name": "copyId", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "inputs": [{"name": "copyId", "type": "id"}]}""");
         AddTerm(model, temp.Path);
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, Guid WorkspaceId);");
 
@@ -400,7 +400,7 @@ public sealed class MessageFieldCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         WriteProject(temp.Path, "term/workspace");
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "input": [{"name": "copyId", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "inputs": [{"name": "copyId", "type": "id"}]}""");
         AddTerm(model, temp.Path);
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, Guid Workspace);");
 
@@ -414,7 +414,7 @@ public sealed class MessageFieldCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "input": [{"name": "copyId", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "inputs": [{"name": "copyId", "type": "id"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, Guid WorkspaceId);");
 
         var finding = Assert.Single(Run(model, "input-field-drift"));
@@ -432,7 +432,7 @@ public sealed class MessageFieldCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         WriteProject(temp.Path, "term/workspace");
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "public"}, "input": [{"name": "copyId", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "public"}, "inputs": [{"name": "copyId", "type": "id"}]}""");
         AddTerm(model, temp.Path);
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, Guid WorkspaceId);");
 
@@ -451,7 +451,7 @@ public sealed class MessageFieldCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         WriteProject(temp.Path, "term/workspace");
-        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "input": [{"name": "copyId", "type": "id"}]}""");
+        var model = FieldModel(temp.Path, folder, """{"kind": "command", "access": {"grant": "permission/lend-copy", "tenant": "own"}, "inputs": [{"name": "copyId", "type": "id"}]}""");
         WriteSource(folder, "BorrowCopyCommand.cs", "internal sealed record BorrowCopyCommand(Guid CopyId, Guid WorkspaceId);");
 
         var unknown = Assert.Single(Run(model, "reference-unknown"));

@@ -1,0 +1,17 @@
+type: decision
+id: decision/0126-consolidate-everyday-capabilities-into-core
+title: Consolidate Everyday Capabilities into Core
+context: "Nineteen extensions covered everyday needs such as audit trails, tenancy, and scheduled work, so nearly every project selected nearly every extension. Selection lists grew long while the fields already lived in Core schemas."
+options:
+  - name: "Fold everyday capabilities into Core and keep five optional extensions"
+    pros: "Typical projects select stacks only. Optional surface stays small and honest."
+    cons: "Core grows, and a minimal project carries fields it never uses."
+  - name: "Keep all nineteen extensions optional"
+    pros: "Core stays small, and each project picks exactly what it needs."
+    cons: "Nearly every project picks nearly every extension, so selection is theater."
+  - name: "Fold everything into Core with no extensions"
+    pros: "No selection at all."
+    cons: "Genuinely optional needs such as billing plans and live push burden every project."
+choice: "Fold everyday capabilities into Core and keep five optional extensions"
+consequences: "Core absorbs `audit`, `tenancy`, `concurrency`, `jobs`, `outbox`, `integrations`, `locale`, and `lifecycle`: their fields and rules live in Core behavior, persistence, and security guides. Five extensions stay optional: `delivery`, `ai-mcp`, `compat`, `realtime`, and `plans`. Dormant extensions such as `cache`, `customer-rules`, `devices`, and `queues` retire, with any durable rule folded into Core or a Stack Pack. Claimwick uses Core audit and tenancy with no extension selected."
+reopenedWhen: "A folded capability proves optional in practice with measured non-use, or a retired extension regains an active consumer."

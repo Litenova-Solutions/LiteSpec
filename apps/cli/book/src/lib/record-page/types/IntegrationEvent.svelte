@@ -9,11 +9,11 @@
   import { clsTag, codeOf, fieldType, muted, td, thRow } from "../shared/record-cells";
   import { objectList, stringField } from "../page-values";
 
-  // An integration event: its identity and trust, and the payload it carries.
+  // An integration event: its identity and trust, and the fields it carries.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f: RecordFields = $derived(r.fields ?? {});
-  const payload = $derived(objectList(f, "payload"));
+  const fields = $derived(objectList(f, "fields"));
   const eventType = $derived(stringField(f, "eventType") ?? "");
   const translates = $derived(stringField(f, "translates"));
   const trust = $derived(stringField(f, "trust"));
@@ -31,7 +31,6 @@
   function payloadQualifiers(p: RecordFields): string {
     const quals = [
       p.required === true ? "required" : p.required === false ? "optional" : "",
-      p.many ? "many" : "",
     ].filter(Boolean);
     return quals.length ? muted(quals.map(esc).join(" &middot; ")) : "";
   }
@@ -47,12 +46,12 @@
     {#if dataschemaHtml}<DefinitionRow label="Dataschema" html={dataschemaHtml} />{/if}
   </DefinitionList>
 </PageSection>
-{#if payload.length}
-  <PageSection blockKey="pay" heading="payload" count={payload.length}>
+{#if fields.length}
+  <PageSection blockKey="pay" heading="fields" count={fields.length}>
     <DataTable
       head={["Name", "Type", "Meaning", "Classification"]}
-      caption={`Payload of ${r.title}`}
-      rows={payload.map((p) => [
+      caption={`Fields of ${r.title}`}
+      rows={fields.map((p) => [
         thRow(codeOf(stringField(p, "name") ?? "") + payloadQualifiers(p)),
         td(fieldType(book, p)),
         td(esc(stringField(p, "meaning") ?? "")),

@@ -6,7 +6,6 @@ route: /expenses/{expenseId}
 offers:
 - use-case/spending.approve-expense
 - use-case/spending.attach-receipt
-- use-case/spending.erase-personal-data
 - use-case/spending.refuse-expense
 - use-case/spending.reimburse-expense
 primaryAction: use-case/spending.approve-expense
@@ -19,13 +18,12 @@ fulfills:
 - requirement/ui-reflow
 - requirement/ui-target-size
 - requirement/ui-text-contrast
-pageFrame:
-  pattern: record-page
-  option: summary-sections-aside-for-history
 leadsTo:
+- screen/claimwick-app.expense-erasure
 - screen/claimwick-app.expense-list
-task: The reader checks the expense, then acts depending on who they are and what the state permits.
-displayStates:
+job: The reader checks the expense, then acts depending on who they are and what the state permits.
+archetype: RecordPage
+states:
 - name: Loading
   shows: The expense facts show as placeholders while the expense loads.
 - name: Missing

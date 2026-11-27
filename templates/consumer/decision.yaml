@@ -3,26 +3,26 @@ id: decision/<number>-<name>
 title: <Title in Title Case>
 summary: <the choice, in one sentence, or remove this line>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 kind: <provider|package|format|boundary|topology|replacement, or remove this line>
 context: <the situation that forced the choice, in one to three sentences>
 options:
-- name: <option name>
-  pros: <what speaks for it>
-  cons: <what speaks against it>
-- name: <option name>
-  pros: <what speaks for it>
-  cons: <what speaks against it>
+  - name: <option name>
+    pros: <what speaks for it>
+    cons: <what speaks against it>
+  - name: <option name>
+    pros: <what speaks for it>
+    cons: <what speaks against it>
 choice: <the selected option>
 consequences: <what follows from the choice for the product, the team and the code>
 reopenedWhen: <what would reopen the choice>
 admits:
-- package: <nuget:Name or npm:name>
-  layer: <layer the package lives in, or remove this line>
-  license: <license id, or remove this line>
-  location: <where the package is used, or remove this line>
-  failureBehavior: <what happens when the package fails, or remove this line>
+  - package: <nuget:Name or npm:name>
+    layer: <layer the package lives in, or remove this line>
+    license: <license id, or remove this line>
+    location: <where the package is used, or remove this line>
+    onFailure: <what happens when the package fails, or remove this line>
 basedOn:
-- <constraint, research, direction or requirement id, or remove this line>
+  - <constraint, research, direction or requirement id, or remove this line>
 supersedes:
-- decision/<number>-<name, or remove this line>
+  - decision/<number>-<name, or remove this line>

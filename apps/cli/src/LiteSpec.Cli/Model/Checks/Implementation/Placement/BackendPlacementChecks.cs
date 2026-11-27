@@ -655,20 +655,12 @@ internal static class BackendPlacementChecks
             AddGovernedAggregate(model, governed, path.Module!, accepted);
         }
 
-        if (record.Field(RecordFields.Kind) == "atomicity")
-        {
-            foreach (var bound in record.Ids(RecordFields.Binds))
-            {
-                AddGovernedAggregate(model, bound, path.Module!, accepted);
-            }
-        }
-
         return accepted;
     }
 
-    /// <summary>Adds the aggregate a governed or bound record enforces in, when it sits in the rule module.</summary>
-    /// <param name="model">The loaded project model that resolves the governed or bound record.</param>
-    /// <param name="id">The governed or bound record identifier.</param>
+    /// <summary>Adds the aggregate a governed record enforces in, when it sits in the rule module.</summary>
+    /// <param name="model">The loaded project model that resolves the governed record.</param>
+    /// <param name="id">The governed record identifier.</param>
     /// <param name="module">The module the rule's folder path states.</param>
     /// <param name="accepted">The accepted aggregate folder names, receiving the enforcing aggregate.</param>
     private static void AddGovernedAggregate(ProjectModel model, string id, string module, List<string> accepted)

@@ -1,8 +1,13 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Cli.Model.Screens;
+using LiteSpec.Cli.Model.Ui;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
@@ -17,7 +22,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <follows>litespec/core/edges#give-every-page-its-screen-record</follows>
 internal static class ScreenChecks
 {
-    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, reader-missing, proves-duplicate and a route outside its stack's routes root.</summary>
+    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, reader-missing, proves-duplicate, a route outside its stack's routes root, frontend-refusal-unknown and frontend-permission-unknown.</summary>
     /// <param name="model">The loaded project model that holds every record, each screen and each browser test.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -32,7 +37,78 @@ internal static class ScreenChecks
         CheckProvesDuplicated(model, findings);
         CheckRouteSuiteMarks(model, findings);
         CheckFrontendMarkScope(model, findings);
+        CheckFrontendRefusals(model, findings);
+        CheckFrontendPermissions(model, findings);
+        CheckRouteBudgets(model, findings);
     }
+
+    /// <summary>The maximum number of lines in one Svelte route file before splitting the screen.</summary>
+    private const int MaxRouteLines = 350;
+
+    /// <summary>The maximum number of top-level surface sections, cards or drawers in one route file.</summary>
+    private const int MaxScreenSections = 3;
+
+    /// <summary>Reports each Svelte route file that exceeds the route line budget or top-level section budget.</summary>
+    /// <param name="model">The loaded project model that holds each frontend.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRouteBudgets(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var frontend in model.Config.Frontends.OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(frontend.Path) || !Directory.Exists(frontend.Path))
+            {
+                continue;
+            }
+
+            foreach (var file in Ui.FileWalk.Walk(frontend.Path, path =>
+                string.Equals(Path.GetFileName(path), "+page.svelte", StringComparison.OrdinalIgnoreCase))
+                .Order(StringComparer.Ordinal))
+            {
+                string[] lines;
+
+                try
+                {
+                    lines = File.ReadAllLines(file);
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    continue;
+                }
+
+                if (lines.Length > MaxRouteLines)
+                {
+                    findings.Add(new Finding(
+                        "route-line-limit",
+                        $"Route '{PathText.Relative(model.Config.Root, file)}' is {lines.Length} lines long; keep each route at or below {MaxRouteLines} lines.",
+                        file, 1, null)
+                    {
+                        Reader = Finding.TypeScriptReader,
+                        ReaderIsQualified = model.TypeScriptQualified,
+                    });
+                }
+
+                var stripped = CommentStripped(string.Join('\n', lines));
+                var sections = SurfaceContainerPattern().Count(stripped);
+
+                if (sections > MaxScreenSections)
+                {
+                    findings.Add(new Finding(
+                        "screen-section-limit",
+                        $"Route '{PathText.Relative(model.Config.Root, file)}' renders {sections} surface sections; keep each screen at or below {MaxScreenSections} sections.",
+                        file, 1, null)
+                    {
+                        Reader = Finding.TypeScriptReader,
+                        ReaderIsQualified = model.TypeScriptQualified,
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>Matches top-level surface container tags in a Svelte route template.</summary>
+    /// <returns>The compiled surface container regex.</returns>
+    private static Regex SurfaceContainerPattern() =>
+        new(@"<(?:SectionCard|Card\.Root|Drawer)\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>
     ///     A frontend mark naming a use case or screen outside that frontend's
@@ -65,7 +141,7 @@ internal static class ScreenChecks
 
                 var inScope = record.Type switch
                 {
-                    RecordTypes.UseCase => record.Ids(RecordFields.ReachedThrough).Any(entryPoints.Contains),
+                    RecordTypes.UseCase => record.Ids(RecordFields.Via).Any(entryPoints.Contains),
                     RecordTypes.Screen => FrontendRecords.EntryPointOf(record) is { } point && entryPoints.Contains(point),
                     _ => true,
                 };
@@ -385,7 +461,7 @@ internal static class ScreenChecks
 
                 var servedByBrowser = model.Records
                     .Where(record => record.Type == RecordTypes.UseCase && record.Ids(RecordFields.Serves).Contains(step, StringComparer.Ordinal))
-                    .Any(useCase => useCase.Ids(RecordFields.ReachedThrough).Any(id =>
+                    .Any(useCase => useCase.Ids(RecordFields.Via).Any(id =>
                         model.ById.TryGetValue(id, out var point)
                         && point.Type == RecordTypes.EntryPoint
                         && point.Field(RecordFields.Kind) is "browser" or "device"));
@@ -506,6 +582,239 @@ internal static class ScreenChecks
                 ReaderIsQualified = extra.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
             });
         }
+    }
+
+    /// <summary>Reports each refusal code a browser test names that no use case refusal declares.</summary>
+    /// <param name="model">The loaded project model that holds every result record and browser test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendRefusals(ProjectModel model, List<Finding> findings)
+    {
+        var declared = DeclaredRefusalCodes(model);
+
+        foreach (var test in model.BrowserTests
+            .OrderBy(candidate => candidate.File, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.Line))
+        {
+            foreach (var code in test.Codes.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+            {
+                if (declared.Contains(code))
+                {
+                    continue;
+                }
+
+                findings.Add(new Finding(
+                    "frontend-refusal-unknown",
+                    $"Browser test '{test.Title}' names refusal code '{code}', which no use case refusal declares.",
+                    test.File, test.Line, null)
+                {
+                    Reader = test.Reader,
+                    ReaderIsQualified = test.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
+                });
+            }
+        }
+    }
+
+    /// <summary>Every refusal code the use cases declare: each refusal result's wire code, each derived generic code, and the seven generic codes no file writes.</summary>
+    /// <param name="model">The loaded project model that holds every result record and derived refusal.</param>
+    /// <returns>The declared refusal codes.</returns>
+    private static HashSet<string> DeclaredRefusalCodes(ProjectModel model)
+    {
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var result in model.Records
+            .Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal"))
+        {
+            if (RefusalCode.Of(result) is { } code)
+            {
+                declared.Add(code);
+            }
+        }
+
+        foreach (var codes in model.DerivedRefusals.Values)
+        {
+            declared.UnionWith(codes);
+        }
+
+        declared.UnionWith(Refusals.RefusalSetReader.DerivedCodes);
+
+        return declared;
+    }
+
+    /// <summary>Reports each permission a frontend source names that no permission record declares.</summary>
+    /// <param name="model">The loaded project model that holds every permission record and frontend.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendPermissions(ProjectModel model, List<Finding> findings)
+    {
+        var declared = DeclaredPermissionIds(model);
+
+        foreach (var frontend in model.Config.Frontends.OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
+        {
+            foreach (var file in FrontendSources(model, frontend).Order(StringComparer.Ordinal))
+            {
+                CheckFrontendPermissionFile(model, frontend.Name, file, declared, findings);
+            }
+        }
+    }
+
+    /// <summary>Every permission identifier the permission records declare.</summary>
+    /// <param name="model">The loaded project model that holds every permission set record.</param>
+    /// <returns>The declared permission identifiers.</returns>
+    private static HashSet<string> DeclaredPermissionIds(ProjectModel model)
+    {
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records
+            .Where(candidate => candidate.Type == RecordTypes.PermissionSet
+                && candidate.Raw.ValueKind == JsonValueKind.Object))
+        {
+            if (!record.Raw.TryGetProperty(RecordFields.Permissions, out var permissions)
+                || permissions.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in permissions.EnumerateArray())
+            {
+                if (Str(entry, RecordFields.Id) is { Length: > 0 } id
+                    && Identifiers.TrySplit(id, out var prefix, out _, out var name)
+                    && prefix == "permission"
+                    && name.Length > 0)
+                {
+                    declared.Add(id);
+                }
+            }
+        }
+
+        return declared;
+    }
+
+    /// <summary>Every authored frontend source that can name a permission: the Svelte, TypeScript and JavaScript sources beside the generated records file and client, and the .NET and Kotlin sources.</summary>
+    /// <param name="model">The loaded project model that supplies the consumer root.</param>
+    /// <param name="frontend">The frontend whose sources are wanted.</param>
+    /// <returns>The absolute source file paths.</returns>
+    private static List<string> FrontendSources(ProjectModel model, FrontendConfig frontend)
+    {
+        if (!Directory.Exists(frontend.Path))
+        {
+            return [];
+        }
+
+        var generated = frontend.Client?.Generated;
+
+        return Ui.FileWalk.Walk(frontend.Path, file =>
+            {
+                var extension = Path.GetExtension(file);
+
+                if (!string.Equals(extension, ".svelte", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".ts", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".js", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".cs", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".razor", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".kt", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                if (string.Equals(Path.GetFileName(file), "litespec-records.ts", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                return generated is null || !Ui.FileWalk.Within(generated, file);
+            })
+            .Select(file => Path.GetFullPath(file))
+            .ToList();
+    }
+
+    /// <summary>Reports each permission identifier the frontend file names outside comments that no permission record declares, once per identifier per line.</summary>
+    /// <param name="model">The loaded project model that supplies the consumer root and reader qualification.</param>
+    /// <param name="frontend">The frontend name the finding names.</param>
+    /// <param name="file">The absolute source file path.</param>
+    /// <param name="declared">The declared permission identifiers.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendPermissionFile(ProjectModel model, string frontend, string file, HashSet<string> declared, List<Finding> findings)
+    {
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        var reported = new HashSet<(int Line, string Id)>();
+
+        foreach (Match match in PermissionReference().Matches(CommentStripped(text)))
+        {
+            var id = match.Value;
+
+            if (declared.Contains(id) || !reported.Add((LineOf(text, match.Index), id)))
+            {
+                continue;
+            }
+
+            var line = LineOf(text, match.Index);
+            var typescript = IsWebSource(file);
+
+            findings.Add(new Finding(
+                "frontend-permission-unknown",
+                $"Frontend '{frontend}' names permission '{id}', which no permission record declares.",
+                file, line, null)
+            {
+                Reader = typescript ? Finding.TypeScriptReader : Finding.RoslynReader,
+                ReaderIsQualified = typescript ? model.TypeScriptQualified : true,
+            });
+        }
+    }
+
+    /// <summary>A permission reference: the permission prefix with a kebab-case name.</summary>
+    /// <returns>The permission reference pattern.</returns>
+    private static Regex PermissionReference() =>
+        new(@"permission/[a-z0-9][a-z0-9-]*", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>The source with its line, block and markup comments removed, so a commented permission names nothing.</summary>
+    /// <param name="text">The source text.</param>
+    /// <returns>The source text without comments.</returns>
+    private static string CommentStripped(string text) =>
+        CommentPattern().Replace(text, match => new string(' ', match.Length));
+
+    /// <summary>The comment spans of the frontend sources: line comments, block comments and markup comments.</summary>
+    /// <returns>The comment pattern.</returns>
+    private static Regex CommentPattern() =>
+        new(@"//[^\n]*|/\*.*?\*/|<!--.*?-->", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+    /// <summary>Whether the file is a web source the TypeScript reader owns: Svelte, TypeScript or JavaScript.</summary>
+    /// <param name="file">The source file path.</param>
+    /// <returns>True for web sources; otherwise false.</returns>
+    private static bool IsWebSource(string file)
+    {
+        var extension = Path.GetExtension(file);
+
+        return string.Equals(extension, ".svelte", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(extension, ".ts", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(extension, ".js", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>The 1-based line of a match in the source text.</summary>
+    /// <param name="text">The source text.</param>
+    /// <param name="index">The match index the line is wanted for.</param>
+    /// <returns>The 1-based line number.</returns>
+    private static int LineOf(string text, int index)
+    {
+        var line = 1;
+
+        for (var at = 0; at < index && at < text.Length; at++)
+        {
+            if (text[at] == '\n')
+            {
+                line++;
+            }
+        }
+
+        return line;
     }
 
     /// <summary>The reader of the route that marks the screen, or TypeScript when none does.</summary>

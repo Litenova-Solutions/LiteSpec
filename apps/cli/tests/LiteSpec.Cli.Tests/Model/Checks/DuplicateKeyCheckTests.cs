@@ -36,27 +36,27 @@ public sealed class DuplicateKeyCheckTests
     [InlineData(
         "external-system",
         "external-system/card-gateway",
-        """{"operations": [{"name": "charge-card", "action": "send"}, {"name": "charge-card", "action": "send"}]}""",
+        """{"operations": [{"name": "charge-card", "direction": "send"}, {"name": "charge-card", "direction": "send"}]}""",
         "Record 'external-system/card-gateway' names operation name 'charge-card' twice.")]
     [InlineData(
         "integration-event",
         "integration-event/copy-returned",
-        """{"payload": [{"name": "copyId", "meaning": "The copy."}, {"name": "copyId", "meaning": "The copy again."}]}""",
+        """{"fields": [{"name": "copyId", "meaning": "The copy."}, {"name": "copyId", "meaning": "The copy again."}]}""",
         "Record 'integration-event/copy-returned' names field name 'copyId' twice.")]
     [InlineData(
         "use-case",
         "use-case/lending.borrow-copy",
-        """{"kind": "command", "input": [{"name": "copyId", "meaning": "The copy."}, {"name": "copyId", "meaning": "The copy again."}]}""",
+        """{"kind": "command", "inputs": [{"name": "copyId", "meaning": "The copy."}, {"name": "copyId", "meaning": "The copy again."}]}""",
         "Record 'use-case/lending.borrow-copy' names field name 'copyId' twice.")]
     [InlineData(
         "use-case",
         "use-case/lending.borrow-copy",
-        """{"kind": "command", "output": [{"name": "loanId", "meaning": "The loan."}, {"name": "loanId", "meaning": "The loan again."}]}""",
+        """{"kind": "command", "outputs": [{"name": "loanId", "meaning": "The loan."}, {"name": "loanId", "meaning": "The loan again."}]}""",
         "Record 'use-case/lending.borrow-copy' names field name 'loanId' twice.")]
     [InlineData(
         "use-case",
         "use-case/lending.list-loans",
-        """{"kind": "query", "output": {"include": {"summary": {"fields": [{"name": "total", "meaning": "The count."}, {"name": "total", "meaning": "The count again."}]}}}}""",
+        """{"kind": "query", "outputs": {"include": {"summary": {"fields": [{"name": "total", "meaning": "The count."}, {"name": "total", "meaning": "The count again."}]}}}}""",
         "Record 'use-case/lending.list-loans' names field name 'total' twice in output group 'summary'.")]
     public void RepeatedKeyReportsRecordKeyDuplicate(string type, string id, string json, string message)
     {
@@ -117,7 +117,7 @@ public sealed class DuplicateKeyCheckTests
                 "use-case",
                 "use-case/lending.list-loans",
                 Path.Combine(temp.Path, ".litespec", "record.yaml"),
-                """{"kind": "query", "output": {"include": {"summary": {"fields": [{"name": "total", "meaning": "The count."}]}, "detail": {"fields": [{"name": "total", "meaning": "The count in detail."}]}}}}"""));
+                """{"kind": "query", "outputs": {"include": {"summary": {"fields": [{"name": "total", "meaning": "The count."}]}, "detail": {"fields": [{"name": "total", "meaning": "The count in detail."}]}}}}"""));
 
         Assert.DoesNotContain("record-key-duplicate", TestModel.Codes(model));
     }

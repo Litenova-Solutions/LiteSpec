@@ -53,7 +53,7 @@ internal static class AccessChecks
                 continue;
             }
 
-            var reached = useCase.Ids(RecordFields.ReachedThrough);
+            var reached = useCase.Ids(RecordFields.Via);
 
             foreach (var grant in LinkStrings(access, RecordFields.Grant))
             {
@@ -78,6 +78,7 @@ internal static class AccessChecks
             }
 
             CheckRecentSignIn(model, useCase, access, findings);
+            CheckTenantReason(useCase, access, findings);
             CheckSelfScope(model, useCase, access, findings);
             CheckPreconditions(model, useCase, access, applied, findings);
 
@@ -105,7 +106,7 @@ internal static class AccessChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRecentSignIn(ProjectModel model, Record useCase, JsonElement access, List<Finding> findings)
     {
-        if (Str(access, RecordFields.RecentSignIn) is not { } window
+        if (Str(access, RecordFields.RecentSignInWindow) is not { } window
             || !window.StartsWith(RecordTypes.Setting + "/", StringComparison.Ordinal))
         {
             return;
@@ -118,13 +119,50 @@ internal static class AccessChecks
 
         if (setting.Type != RecordTypes.Setting)
         {
-            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignInWindow '{window}', which is no setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
             return;
         }
 
-        if (setting.Field(RecordFields.ValueType) is { } valueType && valueType != "duration")
+        if (SettingValueType(setting) is { } valueType && valueType != "duration")
         {
-            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignIn '{window}', which is no duration setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            findings.Add(new Finding("record-invalid", $"Use case '{useCase.Id}' names recentSignInWindow '{window}', which is no duration setting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+        }
+    }
+
+    /// <summary>
+    ///     Reads the value type a setting declares in its value object.
+    /// </summary>
+    /// <param name="setting">The setting record whose value type is read.</param>
+    /// <returns>The value type name, or null when the setting carries none.</returns>
+    private static string? SettingValueType(Record setting)
+    {
+        if (setting.Raw.ValueKind != JsonValueKind.Object
+            || !setting.Raw.TryGetProperty(RecordFields.Value, out var value)
+            || value.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return Str(value, RecordFields.Type);
+    }
+
+    /// <summary>
+    ///     Reports a use case with tenant none or cross that states no tenant reason.
+    /// </summary>
+    /// <param name="useCase">The use case record whose tenant reach is judged.</param>
+    /// <param name="access">The access object of the use case.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckTenantReason(Record useCase, JsonElement access, List<Finding> findings)
+    {
+        if (Str(access, RecordFields.Tenant) is not { } tenant
+            || (tenant != "none" && tenant != "cross"))
+        {
+            return;
+        }
+
+        if (Str(access, RecordFields.TenantReason) is not { Length: > 0 })
+        {
+            findings.Add(new Finding("tenant-reason-missing", $"Use case '{useCase.Id}' runs with tenant '{tenant}' but states no tenant reason.", useCase.File, useCase.Line, SubjectOf(useCase)));
         }
     }
 
@@ -143,7 +181,7 @@ internal static class AccessChecks
             return;
         }
 
-        var input = useCase.Objects(RecordFields.Input)
+        var input = useCase.Objects(RecordFields.Inputs)
             .FirstOrDefault(entry => Str(entry, RecordFields.Name) == name);
 
         if (input.ValueKind != JsonValueKind.Object)

@@ -151,8 +151,8 @@ public sealed class CompletionTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Feature(temp.Path),
-            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""),
-            Requirement(temp.Path, "requirement/borrowing.no-card", """{"cites": ["feature/borrowing"]}"""),
+            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"basedOn": ["feature/borrowing"]}"""),
+            Requirement(temp.Path, "requirement/borrowing.no-card", """{"basedOn": ["feature/borrowing"]}"""),
             TestModel.Record("waiver", "waiver/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"kind": "gap", "appliesTo": ["requirement/borrowing.no-card"], "waives": ["requirement-fulfillment-missing"], "reason": "The card check ships later.", "closedBy": ["requirement/borrowing.no-card"], "exit": "The card check ships.", "expiresOn": "2099-01-01"}"""),
             UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
@@ -186,7 +186,7 @@ public sealed class CompletionTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Feature(temp.Path),
-            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""));
+            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"basedOn": ["feature/borrowing"]}"""));
 
         CompletionCalculator.Compute(model);
 
@@ -210,7 +210,7 @@ public sealed class CompletionTests
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/borrow", Path.Combine(temp.Path, "goal.yaml"), "{}"),
             Feature(temp.Path),
-            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""));
+            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"basedOn": ["feature/borrowing"]}"""));
 
         CompletionCalculator.Compute(model);
 

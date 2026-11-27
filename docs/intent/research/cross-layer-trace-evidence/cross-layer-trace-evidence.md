@@ -50,4 +50,4 @@ The record names 3 repository sources, all read on 30 October 2026. They are the
 
 The Answer cites the schema's `servesArray`, but the record schema is not in the sources list. The specifications disagree on `serves`. The link-type table allows a flow, and the schema allows only a step or a goal. The record reports this disagreement and does not settle it.
 
-The record names no claim that it could not confirm. Its counts come from one consumer's built model on one day.
+The record lists no claim that it could not confirm. Its counts come from one consumer's built model on one day.

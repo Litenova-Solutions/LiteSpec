@@ -4,7 +4,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the refusal meaning checks: a refusal result names its refusal and sentence without a meaning, a refusal-set entry owns the meaning without a problem type, and the problem type of a code joins the declared base with the code's part after its module.</summary>
+/// <summary>Proves the refusal meaning checks: a refusal result names its refusal and message without a meaning, a refusal-set entry owns the meaning without a problem type, and the problem type of a code joins the declared base with the code's part after its module.</summary>
 public sealed class RefusalMeaningCheckTests
 {
     /// <summary>A refusal result with a meaning reports record-invalid, because the module's refusal set holds the meaning.</summary>
@@ -15,7 +15,7 @@ public sealed class RefusalMeaningCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("result", "result/approve-expense.receipt-missing", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt.", "sentence": "Add a receipt to file this expense."}"""));
+            TestModel.Record("result", "result/approve-expense.receipt-missing", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt.", "message": "Add a receipt to file this expense."}"""));
 
         Assert.Contains("record-invalid", TestModel.Codes(model));
     }
@@ -28,7 +28,7 @@ public sealed class RefusalMeaningCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("result", "result/approve-expense.receipt-missing", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing", "sentence": "Add a receipt to file this expense."}"""));
+            TestModel.Record("result", "result/approve-expense.receipt-missing", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing", "message": "Add a receipt to file this expense."}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
@@ -67,7 +67,7 @@ public sealed class RefusalMeaningCheckTests
     public void RefusalSetEntryWithoutProblemTypeReads()
     {
         using var temp = TestCli.Temp("checks");
-        WriteRefusalSet(temp.Path, """{"records": [{"id": "refusal/spending.receipt-missing", "title": "Receipt Missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}]}""");
+        WriteRefusalSet(temp.Path, """{"refusals": [{"id": "refusal/spending.receipt-missing", "title": "Receipt Missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}]}""");
 
         var problems = new List<Finding>();
         var entries = RefusalSetReader.Read(TestModel.Config(temp.Path), problems);
@@ -85,7 +85,7 @@ public sealed class RefusalMeaningCheckTests
     public void RefusalSetEntryWithForeignCodeReportsInvalid()
     {
         using var temp = TestCli.Temp("checks");
-        WriteRefusalSet(temp.Path, """{"records": [{"id": "refusal/payouts.receipt-missing", "title": "Receipt Missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}]}""");
+        WriteRefusalSet(temp.Path, """{"refusals": [{"id": "refusal/payouts.receipt-missing", "title": "Receipt Missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}]}""");
 
         var problems = new List<Finding>();
         var entries = RefusalSetReader.Read(TestModel.Config(temp.Path), problems);

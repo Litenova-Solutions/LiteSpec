@@ -1,6 +1,6 @@
 type: refusal-set
 summary: The refusals the loan aggregate raises.
-records:
+refusals:
 - id: refusal/lending.copy-not-available
   title: Copy Not Available
   meaning: The copy is unavailable.

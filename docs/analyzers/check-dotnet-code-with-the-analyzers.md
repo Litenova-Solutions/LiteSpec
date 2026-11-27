@@ -8,7 +8,7 @@ You need:
 
 - The .NET 10 SDK, which the manifest names as the .NET stack release.
 - A solution laid out with the business projects and hosts that [the .NET architecture page](../packs/dotnet/architecture.md) requires: the Kernel, Platform, and module projects, plus a WebApi host for composition and HTTP plumbing.
-- One shared build file imported by every project, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../packs/dotnet/config.md#centralize-nuget-versions) describes.
+- One shared build file imported by every project, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../packs/dotnet/config.md) describes.
 
 ## Procedure
 
@@ -36,7 +36,7 @@ A rule only runs in the layers its provision covers, so next confirm that every 
 
 #### Resolve File Layers
 
-The analyzers read the layer from the file's top folder in the module, as the [Analyzers overview](README.md) describes; test files resolve as Test. A module project names no layer itself: each of its files takes its layer from its folder. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../packs/dotnet/architecture.md).
+The analyzers read the layer from the file's top folder in the module, as the [Analyzers overview](README.md) describes; test files resolve as Test. A module project lists no layer itself: each of its files takes its layer from its folder. This step puts in place the Kernel, Platform, and module projects with their hosts from [the .NET architecture page](../packs/dotnet/architecture.md).
 
 #### Check the Record Layer Claims
 

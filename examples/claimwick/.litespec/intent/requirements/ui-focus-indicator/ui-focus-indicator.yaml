@@ -10,5 +10,5 @@ response: Every focus indicator meets its contrast limit against the surface bes
 measure: Lowest contrast ratio of a focus indicator against the surface beside it, per declared scheme
 target: At least 3:1
 check: token-limits
-cites:
+basedOn:
 - goal/decided-in-days

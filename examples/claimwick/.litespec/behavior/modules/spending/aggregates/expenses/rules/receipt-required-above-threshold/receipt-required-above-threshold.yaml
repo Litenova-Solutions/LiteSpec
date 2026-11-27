@@ -7,9 +7,6 @@ governs:
 - use-case/spending.submit-expense
 - aggregate/spending.expense
 - aggregate/spending.policy
-binds:
-- aggregate/spending.expense
-- aggregate/spending.policy
 refusal: refusal/spending.receipt-missing
 basedOn: []
 fulfills:

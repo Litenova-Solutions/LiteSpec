@@ -2,16 +2,7 @@ type: aggregate
 id: aggregate/lending.loan
 title: Loan
 states:
-  - name: Active
-    meaning: The loan is open.
-  - name: Returned
-    meaning: The copy came back.
-records:
-- type: rule
-  id: rule/loan.copy-available
-  title: Copy available
-  kind: precondition
-  statement: A borrowed copy is available.
-  governs:
-    - use-case/lending.borrow-copy
-  refusal: lending.copy-not-available
+- name: Active
+  meaning: The loan is open.
+- name: Returned
+  meaning: The copy came back.

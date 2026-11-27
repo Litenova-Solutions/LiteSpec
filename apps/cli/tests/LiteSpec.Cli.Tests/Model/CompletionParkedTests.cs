@@ -188,7 +188,7 @@ public sealed class CompletionParkedTests
             "requirement",
             id,
             Path.Combine(root, id.Replace('/', '.') + ".yaml"),
-            """{"kind": "functional", "statement": "A reader borrows one copy.", "cites": ["feature/borrowing"]}""");
+            """{"kind": "functional", "statement": "A reader borrows one copy.", "basedOn": ["feature/borrowing"]}""");
 
     static LiteSpec.Cli.Model.Records.Record Feature(string root) =>
         TestModel.Record("feature", "feature/borrowing", Path.Combine(root, "feature.yaml"), """{"advances": ["goal/borrow"]}""");

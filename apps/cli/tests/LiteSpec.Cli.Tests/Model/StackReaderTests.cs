@@ -370,7 +370,7 @@ public sealed class StackReaderTests
             "grant": "permission/read-loans",
             "tenant": "own"
           },
-          "reachedThrough": [
+          "via": [
             "entry-point/library-app"
           ],
           "serves": [
@@ -382,9 +382,8 @@ public sealed class StackReaderTests
               "cites": ["result/review-loans.reviewed"]
             }
           ],
-          "records": [
+          "results": [
             {
-              "type": "result",
               "id": "result/review-loans.reviewed",
               "title": "Reviewed",
               "owner": "lending-team",
@@ -430,12 +429,9 @@ public sealed class StackReaderTests
           "status": "reviewed",
           "entryPoint": "entry-point/library-app",
           "route": "/loans",
-          "pageFrame": {
-            "pattern": "list-page",
-            "option": "search-and-a-state-filter-only"
-          },
-          "task": "The reader reviews their loans and opens one to read it.",
-          "displayStates": [
+          "archetype": "ListPage",
+          "job": "The reader reviews their loans and opens one to read it.",
+          "states": [
             {
               "name": "Empty",
               "shows": "The screen says there are no loans to review."

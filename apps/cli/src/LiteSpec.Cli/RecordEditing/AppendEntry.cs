@@ -223,15 +223,23 @@ static partial class AppendEntry
             return null;
         }
 
-        if (!node.TryGetPropertyValue("records", out var found) || found is null)
+        var listKey = placement switch
         {
-            node["records"] = new JsonArray(entry);
+            Placement.Success or Placement.Refusal => RecordFields.Results,
+            Placement.Scenario => RecordFields.Scenarios,
+            Placement.Entry => RecordFields.Permissions,
+            _ => RecordFields.Results,
+        };
+
+        if (!node.TryGetPropertyValue(listKey, out var found) || found is null)
+        {
+            node[listKey] = new JsonArray(entry);
             return RecordFile.Write(node);
         }
 
         if (found is not JsonArray records)
         {
-            error = "The file's records field is not an array.";
+            error = $"The file's {listKey} field is not an array.";
             return null;
         }
 
@@ -267,17 +275,19 @@ static partial class AppendEntry
     {
         var entry = new JsonObject
         {
-            ["type"] = "result",
             ["id"] = id,
             ["title"] = title,
             ["outcome"] = outcome,
         };
 
+        // A refusal result names its refusal and carries no meaning; a success states its meaning.
         if (outcome == "refusal")
         {
             entry["refusal"] = "refusal/" + code!;
+            return entry;
         }
-        else if (code is not null)
+
+        if (code is not null)
         {
             entry["codes"] = new JsonArray(code);
         }
@@ -294,7 +304,6 @@ static partial class AppendEntry
     /// <returns>The scenario entry object.</returns>
     static JsonObject ScenarioEntry(string id, string title, string result) => new JsonObject
     {
-        ["type"] = "scenario",
         ["id"] = id,
         ["title"] = title,
         ["given"] = "The starting state holds.",
@@ -351,18 +360,6 @@ static partial class AppendEntry
     /// <returns>The group number of the entry.</returns>
     static int GroupOf(JsonNode? entry)
     {
-        var type = entry is JsonObject record
-            && record.TryGetPropertyValue("type", out var kind)
-            && kind is JsonValue value
-            && value.TryGetValue<string>(out var name)
-                ? name
-                : null;
-
-        if (type != "result")
-        {
-            return 2;
-        }
-
         var outcome = entry is JsonObject result
             && result.TryGetPropertyValue("outcome", out var held)
             && held is JsonValue text

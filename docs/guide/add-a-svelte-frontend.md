@@ -1,6 +1,6 @@
 # Add a Svelte Frontend
 
-Add a Svelte frontend to a consumer whose backend use cases already run: the stack entry, the application tree with its mirrored paths, the floorplan-composed routes, and the pinned baseline. The frontend keeps the same shape as the React frontend in the tutorial: one web application tree, with routes that mirror the backend use case paths they serve. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Add a Svelte frontend to a consumer whose backend use cases already run. You add the stack entry, the application tree with its mirrored paths, the floorplan-composed routes, and the pinned baseline. The frontend keeps the same shape as the React frontend in the tutorial: one web application tree, with routes that mirror the backend use case paths they serve. Each step names the standard it satisfies, and this guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -13,21 +13,10 @@ Read the [web structure](../packs/svelte/structure.md) and the [web UI](../packs
 
 ## Procedure
 
-### Declare the Svelte Stack
-
-List the `svelte` stack in `.litespec/project.yaml`, matching the stack entries of the `dotnet-svelte` preset on the [initialize command](../tools/init.md) page. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
-
-### Declare the Application Tree
-
-Declare the web application tree and mirror the backend use case path for each route as the [web structure](../packs/svelte/structure.md) page states. Check that each route lives at the mirrored path. This satisfies `litespec/packs/svelte/structure#use-the-frontend-application-tree`.
-
-### Compose Each Route from One Floorplan
-
-Compose each route from one floorplan, as the [UI](../core/ui-ia.md) page states. This satisfies `litespec/core/ui-ia#compose-each-route-from-one-locked-archetype`.
-
-### Pin the Baseline in the Shared Package
-
-Pin the shadcn-svelte baseline in the shared package as the [web UI](../packs/svelte/ui-primitives.md) page states. This satisfies `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream`.
+1. List the `svelte` stack in `.litespec/project.yaml`, matching the stack entries of the `dotnet-svelte` preset on the [initialize command](../tools/init.md) page. For example, a Claimwick consumer that already serves the React tree adds `svelte` beside it and keeps the backend entry untouched. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
+2. Declare the web application tree and mirror the backend use case path for each route as the [web structure](../packs/svelte/structure.md) page states. Check that each route lives at the mirrored path. For example, the route that serves the expense submit use case lives at the web path that mirrors the submit use case path. This satisfies `litespec/packs/svelte/structure#use-the-frontend-application-tree`.
+3. Compose each route from one floorplan, as the [UI](../core/ui-ia.md) page states. For example, the expense list route composes the list floorplan and fills only its declared slots. This satisfies `litespec/core/ui-ia#compose-each-route-from-one-locked-archetype`.
+4. Pin the shadcn-svelte baseline in the shared package as the [web UI](../packs/svelte/ui-primitives.md) page states. For example, the shared package records the pinned baseline version, and the expense form builds from its controls. This satisfies `litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream`.
 
 ## Check
 

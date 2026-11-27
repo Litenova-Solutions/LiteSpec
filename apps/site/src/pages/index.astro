@@ -6,7 +6,7 @@ import { softwareSource, website } from "../lib/seo";
 import Icon from "../components/Icon.astro";
 
 const description =
-  "LiteSpec is a versioned specification for building business applications with AI coding agents: architecture, code, records, and tests, in a form agents can read and tools can verify.";
+  "LiteSpec is a versioned specification for building business applications with AI coding agents: the shared core, the dotnet, svelte, and android stack packs, records, and tests, in a form agents can read and tools can verify.";
 ---
 
 <Base title="LiteSpec - Standard for Agent-Built Apps" description={description} jsonLd={[website, softwareSource]}>
@@ -14,7 +14,7 @@ const description =
     <div class="hero-body">
       <a class="hero-ver" href="https://github.com/Litenova-Solutions/LiteSpec/blob/main/CHANGELOG.md"><span class="dot" aria-hidden="true"></span>LiteSpec v{version}<span class="hero-ver-more">What is new</span><Icon name="arrow" class="icon-sm" /></a>
       <h1>The Specification Standard for Building Business Applications with AI Agents</h1>
-      <p class="tagline">LiteSpec is a versioned specification standard for building one bounded-context business application with AI coding agents. Agents load the rules that apply to your stack; tools check that the code follows them.</p>
+      <p class="tagline">LiteSpec is a versioned specification standard for building one bounded-context business application with AI coding agents. Agents load the core and the stack packs your project selects; tools check that the code follows them.</p>
       <div class="actions">
         <a class="btn btn-lg" href={`/${version}/learn/`}>Start learning</a>
         <a class="btn btn-outline btn-lg" href={`/${version}/select/`}>Connect your agent</a>

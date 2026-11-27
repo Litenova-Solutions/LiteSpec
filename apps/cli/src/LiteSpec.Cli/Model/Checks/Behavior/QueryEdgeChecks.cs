@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The query-edge checks: every queries edge names another module's query use case that lists the calling module in reachedThrough, and every module a use case lists queries it from a record.</summary>
+/// <summary>The query-edge checks: every queries edge names another module's query use case that lists the calling module in via, and every module a use case lists queries it from a record.</summary>
 /// <follows>litespec/core/backend-application#ask-another-module-one-question-through-a-decision-port</follows>
 internal static class QueryEdgeChecks
 {
@@ -18,7 +18,7 @@ internal static class QueryEdgeChecks
         CheckPublicQueriesCalled(model, findings);
     }
 
-    /// <summary>Reports a queries edge naming a record that is no query use case, a query of the calling module itself, or a query whose reachedThrough does not name the calling module.</summary>
+    /// <summary>Reports a queries edge naming a record that is no query use case, a query of the calling module itself, or a query whose via does not name the calling module.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckQueriesTargets(ProjectModel model, List<Finding> findings)
@@ -70,15 +70,15 @@ internal static class QueryEdgeChecks
                 }
 
                 if (module is { Length: > 0 }
-                    && !resolved.Ids(RecordFields.ReachedThrough).Contains($"module/{module}", StringComparer.Ordinal))
+                    && !resolved.Ids(RecordFields.Via).Contains($"module/{module}", StringComparer.Ordinal))
                 {
-                    findings.Add(new Finding("query-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' queries '{target}', whose reachedThrough names no 'module/{module}'.", holder.File, holder.Line, SubjectOf(holder)));
+                    findings.Add(new Finding("query-target-invalid", $"{Label(holder.Type)} '{holder.Id}' in module '{module}' queries '{target}', whose via names no 'module/{module}'.", holder.File, holder.Line, SubjectOf(holder)));
                 }
             }
         }
     }
 
-    /// <summary>Reports a use case naming a module in reachedThrough that queries it from no record of that module.</summary>
+    /// <summary>Reports a use case naming a module in via that queries it from no record of that module.</summary>
     /// <param name="model">The loaded project model that holds every use case, reaction and job.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPublicQueriesCalled(ProjectModel model, List<Finding> findings)
@@ -105,20 +105,20 @@ internal static class QueryEdgeChecks
             {
                 if (!queried.Contains((module, useCase.Id)))
                 {
-                    findings.Add(new Finding("query-consumer-missing", $"Use case '{useCase.Id}' is reached through 'module/{module}', which queries it from no record.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("query-consumer-missing", $"Use case '{useCase.Id}' is reached via 'module/{module}', which queries it from no record.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 }
             }
         }
     }
 
-    /// <summary>The modules a use case lists in reachedThrough.</summary>
-    /// <param name="useCase">The use case record whose reachedThrough is read.</param>
+    /// <summary>The modules a use case lists in via.</summary>
+    /// <param name="useCase">The use case record whose via is read.</param>
     /// <returns>Each module name the use case lists, once.</returns>
     private static HashSet<string> ModulesOf(Record useCase)
     {
         var modules = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var id in useCase.Ids(RecordFields.ReachedThrough))
+        foreach (var id in useCase.Ids(RecordFields.Via))
         {
             if (Identifiers.TrySplit(Identifiers.BaseId(id), out var prefix, out _, out var name)
                 && prefix == RecordTypes.Module

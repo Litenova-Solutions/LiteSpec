@@ -11,6 +11,12 @@ namespace LiteSpec.Cli.Book.Output;
 /// <follows>litespec/core/model#point-every-book-entry-to-its-source</follows>
 static class BookEdges
 {
+    /// <summary>The child entry arrays a parent holds: they sit below it in the outline and carry their own links.</summary>
+    static readonly HashSet<string> ChildKeys = new(StringComparer.Ordinal)
+    {
+        "results", "scenarios", "refusals", "permissions", "entryPoints",
+    };
+
     /// <summary>The outgoing edges of every record from its fields and computed calls.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="details">The details built so far, per record id.</param>
@@ -41,9 +47,9 @@ static class BookEdges
 
             if (!string.IsNullOrEmpty(type) && pair.Value["fields"] is JsonObject fields)
             {
-                // A page's records are its entries: they sit below it in the outline and
-                // carry their own links, so the page does not link to them.
-                foreach (var field in fields.Where(field => field.Key != "records"))
+                // A record's child entries sit below it in the outline and
+                // carry their own links, so the record does not link to them.
+                foreach (var field in fields.Where(field => !ChildKeys.Contains(field.Key)))
                 {
                     ScanFields(field.Value, type + "." + field.Key, id, index, Add);
                 }

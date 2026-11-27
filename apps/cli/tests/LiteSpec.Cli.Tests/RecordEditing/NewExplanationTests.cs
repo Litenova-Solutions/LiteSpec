@@ -133,8 +133,8 @@ public sealed class NewExplanationTests
     /// <summary>Each explanation template opens with its paragraph and carries exactly the fixed sections of its record type, in order.</summary>
     /// <param name="type">The record type whose template is read.</param>
     /// <param name="sections">The fixed sections the writing standard gives the type, in order.</param>
-    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
-    /// <proves>litespec/core/writing#open-each-explanation-file-with-a-paragraph</proves>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    /// <proves>litespec/core/writing#write-human-docs-for-the-cold-reader</proves>
     [Theory(DisplayName = "each explanation template carries exactly the fixed sections of its record type")]
     [MemberData(nameof(ExplanationTemplates))]
     public void ExplanationTemplatesCarryTheirFixedSections(string type, string[] sections) =>

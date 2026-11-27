@@ -48,4 +48,4 @@ The record names 2 repository sources read on 30 October 2026: the core model pa
 
 The sample counts come from the mockup's `data.json`. The sample contains 1,381 of 21,548 records, with 1,988 more outside stubs. The record measured placement in the sample only, so it states nothing about the full outline.
 
-The record reports that the builder disagrees with the provisions, and it treats the provisions as the standard. It names no disagreement between the 2 sources.
+The record reports that the builder disagrees with the provisions, and it treats the provisions as the standard. It lists no disagreement between the 2 sources.

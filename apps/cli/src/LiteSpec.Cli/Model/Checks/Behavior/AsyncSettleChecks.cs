@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 internal static class AsyncSettleChecks
 {
     /// <summary>The reaction and job field naming the visible states of the settled aggregate.</summary>
-    const string Settles = "settles";
+    const string Settles = "tracksState";
 
     /// <summary>The settles field naming the state the run leaves.</summary>
     const string Pending = "pending";

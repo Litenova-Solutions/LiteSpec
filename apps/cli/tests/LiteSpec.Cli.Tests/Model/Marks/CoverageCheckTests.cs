@@ -226,9 +226,8 @@ public sealed class CoverageCheckTests
                       "owner": "lending-team",
                       "status": "reviewed",
                       "kind": "command",
-                      "records": [
+                      "results": [
                         {
-                          "type": "result",
                           "id": "result/USECASE.done",
                           "title": "Done",
                           "owner": "lending-team",
@@ -255,7 +254,7 @@ public sealed class CoverageCheckTests
                       "owner": "lending-team",
                       "status": "reviewed",
                       "kind": "scheduled",
-                      "schedule": {"every": "P1D", "timezone": "UTC"},
+                      "schedule": {"every": "P1D", "timeZone": "UTC"},
                       "selection": "Copies past their due date.",
                       "effects": [{"runs": "use-case/lending.RUNS", "timing": "inline"}],
                       "outcomes": [{"name": "completed", "meaning": "The sweep handled the due copies."}],
@@ -379,9 +378,8 @@ public sealed class CoverageCheckTests
                 {
                   "type": "entry-point-set",
                   "title": "Entry points",
-                  "records": [
+                  "entryPoints": [
                     {
-                      "type": "entry-point",
                       "id": "entry-point/identity-app",
                       "title": "Identity app",
                       "kind": "browser",
@@ -406,10 +404,9 @@ public sealed class CoverageCheckTests
                     {"statement": "The provider redirects the browser to the host callback."},
                     {"statement": "Identity completes the sign in and opens the session."}
                   ],
-                  "reachedThrough": ["entry-point/identity-app"],
-                  "records": [
+                  "via": ["entry-point/identity-app"],
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/complete-sign-in.signed-in",
                       "title": "Signed in",
                       "outcome": "success",

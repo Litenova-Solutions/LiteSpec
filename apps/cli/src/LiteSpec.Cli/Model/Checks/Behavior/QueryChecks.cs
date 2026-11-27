@@ -31,7 +31,7 @@ internal static class QueryChecks
     /// <returns>True when the output holds a non-empty include object; otherwise false.</returns>
     private static bool HasIncludeGroups(Record query) =>
         query.Raw.ValueKind == JsonValueKind.Object
-        && query.Raw.TryGetProperty(RecordFields.Output, out var output)
+        && query.Raw.TryGetProperty(RecordFields.Outputs, out var output)
         && output.ValueKind == JsonValueKind.Object
         && output.TryGetProperty(RecordFields.Include, out var include)
         && include.ValueKind == JsonValueKind.Object
@@ -60,7 +60,7 @@ internal static class QueryChecks
         foreach (var query in model.Records.Where(record => record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "query"))
         {
             if (query.Raw.ValueKind != JsonValueKind.Object
-                || !query.Raw.TryGetProperty(RecordFields.Output, out var output)
+                || !query.Raw.TryGetProperty(RecordFields.Outputs, out var output)
                 || output.ValueKind != JsonValueKind.Object
                 || !output.TryGetProperty(RecordFields.Include, out var include)
                 || include.ValueKind != JsonValueKind.Object)

@@ -65,14 +65,14 @@
 {#if ops.length}
   <PageSection blockKey="ops" heading="operations" count={ops.length}>
     <DataTable
-      head={["Operation", "Action", "Timeout", "On timeout", "On unknown"]}
+      head={["Operation", "Direction", "Timeout", "On timeout", "On unknown"]}
       caption={`Operations of ${r.title}`}
       rows={ops.map((o) => [
         thRow(
           codeOf(String(o.name ?? "")) +
             (o.response ? muted(esc(String(o.response))) : ""),
         ),
-        td(tag(o.action === "receive" ? "Receives" : "Sends", "cool", "sm", o.action === "receive" ? "g:receive" : "g:send")),
+        td(tag(o.direction === "receive" ? "Receives" : "Sends", "cool", "sm", o.direction === "receive" ? "g:receive" : "g:send")),
         td(esc(duration(stringField(o, "timeout") ?? ""))),
         td(opCell(o, "onTimeout")),
         td(opCell(o, "onUnknown")),

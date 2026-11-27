@@ -20,7 +20,7 @@ LiteSpec compared 3 options for where the scope of a grant lives. The table sets
 
 ## Decision
 
-The role holds the scope of its grant. An actor's `holds` entry names the role only, and a permission names no scope. The instance that a person holds a role for, such as a particular tenant or team, is runtime data held by role assignments.
+The role holds the scope of its grant. An actor's `holds` entry states the role only, and a permission lists no scope. The instance that a person holds a role for, such as a particular tenant or team, is runtime data held by role assignments.
 
 A permission naming two roles at different levels in `grantedTo` takes its reach from the role the caller holds. Holding a permission never bypasses a rule refusal, because a permission allows a call and the call still meets every rule.
 

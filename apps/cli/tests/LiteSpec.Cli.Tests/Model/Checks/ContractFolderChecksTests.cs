@@ -8,7 +8,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, an On fact folder per fact with the event and its payload parts, and public use case folders, no interface, no stray command, each public use case message at its Contracts path, and each declared fact with its folder.</summary>
+/// <summary>Proves the Contracts closed set: aggregate folders with the identifier, an On fact folder per fact with the event and its fields, and public use case folders, no interface, no stray command, each public use case message at its Contracts path, and each declared fact with its folder.</summary>
 public sealed class ContractFolderChecksTests
 {
     /// <summary>An Aggregate Folder With Identifier Facts And Public Query Reports Nothing.</summary>
@@ -234,7 +234,7 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "reachedThrough": ["module/finance"]}""", temp.Path));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "via": ["module/finance"]}""", temp.Path));
         var borrow = ContractsFolder(temp.Path, "Loans", "BorrowCopy");
         Directory.CreateDirectory(borrow);
         File.WriteAllText(Path.Combine(borrow, "BorrowCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
@@ -250,7 +250,7 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "reachedThrough": ["module/finance"]}""", temp.Path));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "via": ["module/finance"]}""", temp.Path));
         var borrow = ContractsFolder(temp.Path, "Loans", "BorrowCopy");
         Directory.CreateDirectory(borrow);
         File.WriteAllText(Path.Combine(borrow, "BorrowCopyCommand.cs"), "namespace Library.Lending.Contracts.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
@@ -287,7 +287,7 @@ public sealed class ContractFolderChecksTests
     {
         using var temp = TestCli.Temp("placement");
         var model = FolderModel(temp.Path);
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "reachedThrough": ["module/finance"]}""", temp.Path));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", "lending", "aggregates/loans/use-cases/borrow-copy", """{"kind": "command", "via": ["module/finance"]}""", temp.Path));
         var useCase = Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Application", "Loans", "BorrowCopy");
         Directory.CreateDirectory(useCase);
         File.WriteAllText(Path.Combine(useCase, "BorrowCopyCommand.cs"), "namespace Library.Lending.Application.Loans.BorrowCopy;\n\npublic sealed record BorrowCopyCommand(Guid CopyId);\n");
@@ -467,8 +467,8 @@ public sealed class ContractFolderChecksTests
     {
         model.Records.Add(Rec("module", "module/lending", "lending", "", """{"summary": "Lending lends copies to readers."}""", root));
         model.Records.Add(Rec("aggregate", "aggregate/lending.loan", "lending", "aggregates/loans", """{"summary": "A lent copy."}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.read-loan", "lending", "aggregates/loans/use-cases/read-loan", """{"kind": "query", "reachedThrough": ["module/finance"]}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.read-ledger", "lending", "use-cases/read-ledger", """{"kind": "query", "reachedThrough": ["module/finance"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.read-loan", "lending", "aggregates/loans/use-cases/read-loan", """{"kind": "query", "via": ["module/finance"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.read-ledger", "lending", "use-cases/read-ledger", """{"kind": "query", "via": ["module/finance"]}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.retire-copy", "lending", "aggregates/loans/use-cases/retire-copy", """{"kind": "command"}""", root));
     }
 

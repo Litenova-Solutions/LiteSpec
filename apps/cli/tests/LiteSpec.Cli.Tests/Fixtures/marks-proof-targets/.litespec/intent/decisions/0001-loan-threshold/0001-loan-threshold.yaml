@@ -3,10 +3,10 @@ id: decision/0001-loan-threshold
 title: Loan threshold
 context: The borrow form needed one threshold for open loans.
 options:
-  - name: Five loans
-    pros: Readers borrow enough for a term
-    cons: Popular copies wait longer
+- name: Five loans
+  pros: Readers borrow enough for a term
+  cons: Popular copies wait longer
 consequences: The borrow form refuses a sixth loan.
 reopenedWhen: Holds pass one hundred a day
 decides:
-  - requirement/borrowing.borrow-form
+- requirement/borrowing.borrow-form

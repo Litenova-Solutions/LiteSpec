@@ -84,12 +84,12 @@ internal static class IdempotencyKeyChecks
         };
 
     /// <summary>The input field names of a record.</summary>
-    /// <param name="record">The record whose input array is read.</param>
+    /// <param name="record">The record whose inputs array is read.</param>
     /// <returns>The input field names in written order.</returns>
     private static List<string> InputNames(Record record)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
-            || !record.Raw.TryGetProperty(RecordFields.Input, out var input)
+            || !record.Raw.TryGetProperty(RecordFields.Inputs, out var input)
             || input.ValueKind != JsonValueKind.Array)
         {
             return [];
@@ -135,7 +135,7 @@ internal static class IdempotencyKeyChecks
                 continue;
             }
 
-            var listName = @event.Type == RecordTypes.DomainEvent ? RecordFields.Carries : RecordFields.Payload;
+            var listName = RecordFields.Fields;
 
             if (@event.Raw.ValueKind == JsonValueKind.Object
                 && @event.Raw.TryGetProperty(listName, out var list)
@@ -154,7 +154,7 @@ internal static class IdempotencyKeyChecks
         return fields;
     }
 
-    /// <summary>The input field names of the use cases a job runs or commands.</summary>
+    /// <summary>The input field names of the use cases a job runs.</summary>
     /// <param name="model">The loaded project model that resolves the run use cases.</param>
     /// <param name="job">The job whose run effects are read.</param>
     /// <returns>The field names the job's run window carries.</returns>
@@ -164,8 +164,7 @@ internal static class IdempotencyKeyChecks
 
         foreach (var effect in EffectEntries(job))
         {
-            foreach (var id in LinkStrings(effect, RecordFields.Runs)
-                .Concat(LinkStrings(effect, RecordFields.Commands)))
+            foreach (var id in LinkStrings(effect, RecordFields.Runs))
             {
                 if (model.ById.TryGetValue(Identifiers.BaseId(id), out var useCase)
                     && useCase.Type == RecordTypes.UseCase)

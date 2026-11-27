@@ -2,7 +2,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.RecordEditing;
 
-/// <summary>Tests for <c>litespec rename</c> moving the records homed to the renamed record to the new prefix.</summary>
+/// <summary>Tests for <c>litespec rename</c> moving the results and scenarios homed to the renamed record to the new prefix.</summary>
 public sealed class RenameEntriesTests
 {
     const string Loans = ".litespec/behavior/modules/lending/aggregates/loans/use-cases";
@@ -86,32 +86,35 @@ public sealed class RenameEntriesTests
                 "grant": "permission/borrow-copy",
                 "tenant": "own"
               },
-              "records": [
+              "results": [
                 {
-                  "type": "result",
                   "id": "result/borrow-copy.borrowed",
                   "title": "Borrowed",
                   "outcome": "success",
                   "meaning": "The copy is lent."
                 },
                 {
-                  "type": "result",
                   "id": "result/borrow-copy.copy-unavailable",
                   "title": "Copy unavailable",
                   "outcome": "refusal",
-                  "refusal": "refusal/lending.copy-not-available",
-                  "meaning": "The copy is unavailable."
-                },
+                  "refusal": "refusal/lending.copy-not-available"
+                }
+              ],
+              "scenarios": [
                 {
-                  "type": "scenario",
                   "id": "scenario/borrow-copy.borrowing-succeeds",
                   "title": "Borrowing succeeds",
+                  "given": "A copy sits available.",
+                  "when": "The reader borrows the copy.",
+                  "then": "The loan is active.",
                   "result": "result/borrow-copy.borrowed"
                 },
                 {
-                  "type": "scenario",
                   "id": "scenario/borrow-copy.borrowing-without-the-grant-is-refused",
                   "title": "Borrowing without the grant is refused",
+                  "given": "The reader holds no grant.",
+                  "when": "The reader borrows the copy.",
+                  "then": "The borrow is refused.",
                   "result": "result/borrow-copy.forbidden"
                 }
               ]
@@ -136,9 +139,8 @@ public sealed class RenameEntriesTests
               "id": "use-case/lending.post",
               "title": "Post",
               "kind": "command",
-              "records": [
+              "results": [
                 {
-                  "type": "result",
                   "id": "result/post.placed",
                   "title": "Placed",
                   "outcome": "success",
@@ -153,9 +155,8 @@ public sealed class RenameEntriesTests
               "id": "use-case/lending.post-entry",
               "title": "Post entry",
               "kind": "command",
-              "records": [
+              "results": [
                 {
-                  "type": "result",
                   "id": "result/post-entry.placed",
                   "title": "Placed",
                   "outcome": "success",

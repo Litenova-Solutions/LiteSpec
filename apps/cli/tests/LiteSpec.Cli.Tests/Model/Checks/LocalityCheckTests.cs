@@ -51,7 +51,7 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"action": "send"}"""),
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "send"}"""),
             TestModel.Record("reaction", "reaction/finance.notify-on-loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "reactions", "notify-on-loan-borrowed.yaml"), """{"triggeredBy": ["integration-event/loan-borrowed"]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
@@ -67,7 +67,7 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/finance"]}"""));
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "via": ["module/finance"]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
     }
@@ -82,7 +82,7 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/finance"]}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "via": ["module/finance"]}"""),
             TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
@@ -100,7 +100,7 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/reporting", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "read-loan.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""),
             TestModel.Record("use-case", "use-case/finance.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-repayment.yaml"), """{"kind": "command", "effects": [{"queries": "use-case/lending.read-loan", "timing": "inline"}]}"""));
 
         var findings = Checker.Check(model).Findings
@@ -110,27 +110,27 @@ public sealed class LocalityCheckTests
         Assert.Equal("query-target-invalid", finding.Code);
     }
 
-    /// <summary>Commands Edge To Listed Public Command Passes.</summary>
+    /// <summary>Runs Edge To Listed Public Command Passes.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void CommandsEdgeToListedPublicCommandPasses()
+    public void RunsEdgeToListedPublicCommandPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "reachedThrough": ["module/finance"]}"""),
-            TestModel.Record("reaction", "reaction/finance.record-on-borrow", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-on-borrow.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"commands": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "via": ["module/finance"]}"""),
+            TestModel.Record("reaction", "reaction/finance.record-on-borrow", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-on-borrow.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
         Assert.DoesNotContain("command-target-invalid", TestModel.Codes(model));
     }
 
-    /// <summary>Commands Edge To Unlisted Command Reports Once.</summary>
+    /// <summary>Runs Edge To Unlisted Command Reports Once.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void CommandsEdgeToUnlistedCommandReportsOnce()
+    public void RunsEdgeToUnlistedCommandReportsOnce()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -138,8 +138,8 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/reporting", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""),
-            TestModel.Record("reaction", "reaction/finance.record-on-borrow", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-on-borrow.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"commands": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "via": ["module/reporting"]}"""),
+            TestModel.Record("reaction", "reaction/finance.record-on-borrow", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-on-borrow.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
 
         var findings = Checker.Check(model).Findings
             .Where(found => found.Subject == "reaction/finance.record-on-borrow"
@@ -322,30 +322,30 @@ public sealed class LocalityCheckTests
         Assert.DoesNotContain("module-dependency-invalid", TestModel.Codes(model));
     }
 
-    /// <summary>Commands Cycle Reports.</summary>
+    /// <summary>Runs Cycle Reports.</summary>
     /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
     [Fact]
-    public void CommandsCycleReports()
+    public void RunsCycleReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/finance.record-fine", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/finance.record-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-fine.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/finance.record-fine", "timing": "inline"}]}"""),
+            TestModel.Record("use-case", "use-case/finance.record-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-fine.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "module-dependency-invalid");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("module/finance", finding.Subject);
-        Assert.Contains("'module/finance' commands 'use-case/lending.borrow-copy'", finding.Message, StringComparison.Ordinal);
-        Assert.Contains("'module/lending' commands 'use-case/finance.record-fine'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("'module/finance' runs 'use-case/lending.borrow-copy'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("'module/lending' runs 'use-case/finance.record-fine'", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>One Way Commands Edge Passes.</summary>
+    /// <summary>One Way Runs Edge Passes.</summary>
     /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
     [Fact]
-    public void OneWayCommandsEdgePasses()
+    public void OneWayRunsEdgePasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -353,7 +353,7 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("use-case", "use-case/finance.record-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-fine.yaml"), """{"kind": "command", "effects": [{"commands": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
+            TestModel.Record("use-case", "use-case/finance.record-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "record-fine.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.borrow-copy", "timing": "inline"}]}"""));
 
         Assert.DoesNotContain("module-dependency-invalid", TestModel.Codes(model));
     }
@@ -391,8 +391,8 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml"), """{"carries": ["loanId"]}"""),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"action": "send", "translates": "domain-event/loan.loan-borrowed"}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml"), """{"fields": ["loanId"]}"""),
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "send", "translates": "domain-event/loan.loan-borrowed"}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""),
             TestModel.Record("use-case", "use-case/finance.record-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "use-cases", "record-loan", "record-loan.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""));
 
@@ -412,8 +412,8 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml"), """{"carries": ["loanId"]}"""),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"action": "send", "translates": "domain-event/loan.loan-borrowed"}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "domain-events", "loan-borrowed", "loan-borrowed.yaml"), """{"fields": ["loanId"]}"""),
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{"direction": "send", "translates": "domain-event/loan.loan-borrowed"}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"kind": "command", "raises": ["domain-event/loan.loan-borrowed"]}"""));
 
         Assert.DoesNotContain("event-publisher-invalid", TestModel.Codes(model));

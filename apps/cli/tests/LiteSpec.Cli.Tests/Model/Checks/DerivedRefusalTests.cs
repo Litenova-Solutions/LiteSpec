@@ -19,7 +19,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.limit-per-branch"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.limit-per-branch"], "origin": "caller", "classification": "internal"}]}""");
         var rule = TestModel.Record(
             "rule",
             "rule/loan.limit-per-branch",
@@ -84,7 +84,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.limit-per-branch"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.limit-per-branch"], "origin": "caller", "classification": "internal"}]}""");
         var rule = TestModel.Record(
             "rule",
             "rule/loan.limit-per-branch",
@@ -129,7 +129,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
         var rule = TestModel.Record(
             "rule",
             "rule/loan.unknown-copy",
@@ -149,7 +149,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.copy-closed"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.copy-closed"], "origin": "caller", "classification": "internal"}]}""");
         var rule = WithModule(
             TestModel.Record(
                 "rule",
@@ -171,7 +171,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
         var rule = TestModel.Record(
             "rule",
             "rule/loan.unknown-copy",
@@ -191,7 +191,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
         var rule = TestModel.Record(
             "rule",
             "rule/loan.unknown-copy",
@@ -211,7 +211,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.limit-per-branch"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "branch", "meaning": "The branch lending the copy.", "type": "text", "required": true, "rules": ["rule/loan.limit-per-branch"], "origin": "caller", "classification": "internal"}]}""");
         var rule = WithModule(
             TestModel.Record(
                 "rule",
@@ -263,7 +263,7 @@ public sealed class DerivedRefusalTests
             "use-case",
             "use-case/lending.borrow-copy",
             Path.Combine(temp.Path, "copy.yaml"),
-            """{"kind": "command", "input": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
+            """{"kind": "command", "inputs": [{"name": "copyId", "meaning": "The copy the reader borrows.", "type": "id", "identifies": "aggregate/lending.copy", "required": true, "rules": ["rule/loan.unknown-copy"], "origin": "caller", "classification": "internal"}]}""");
         var rule = TestModel.Record(
             "rule",
             "rule/loan.unknown-copy",

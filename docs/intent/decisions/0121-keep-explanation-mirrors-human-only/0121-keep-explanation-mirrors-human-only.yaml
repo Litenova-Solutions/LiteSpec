@@ -1,0 +1,19 @@
+type: decision
+id: decision/0121-keep-explanation-mirrors-human-only
+title: Keep Explanation Mirrors Human Only
+context: "Decision 0095 made every explanation file restate its record so agents could build from YAML alone, and it coupled the mirrors to checks. In practice authors updated one copy and forgot the other, and checks read prose they should never have judged."
+options:
+  - name: "Records carry the specification, mirrors stay human-only and unchecked"
+    pros: "Agents build from fields alone. People keep context and examples. No check reads prose."
+    cons: "Two copies to update in one change, and drift shows only on review."
+  - name: "Keep mirrors coupled to checks"
+    pros: "Drift fails fast in the toolchain."
+    cons: "Checks judge prose style, and authors write to satisfy the checker instead of the reader."
+  - name: "Drop explanation files and keep only the records"
+    pros: "One copy of every fact and nothing to drift."
+    cons: "People lose the context, reasons and examples that make a specification readable cold."
+choice: "Records carry the specification, mirrors stay human-only and unchecked"
+consequences: "The records state the whole specification in fields an agent and a check can read. Each explanation file restates the same specification for people, adds no fact, and changes in the same commit as its record. No check reads a `.md` mirror: `validate` and `model check` read YAML fields only. Claimwick explanation files follow the same rule."
+reopenedWhen: "Authors routinely leave mirrors out of step with their records, or a fact proves impossible to state in a field."
+supersedes:
+- decision/0095-keep-the-whole-specification-in-the-records

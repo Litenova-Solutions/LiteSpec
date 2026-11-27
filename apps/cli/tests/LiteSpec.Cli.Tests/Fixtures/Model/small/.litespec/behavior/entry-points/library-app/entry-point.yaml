@@ -1,8 +1,7 @@
 type: entry-point-set
 title: Entry points
-records:
-- type: entry-point
-  id: entry-point/library-app
+entryPoints:
+- id: entry-point/library-app
   title: Library app
   kind: api
   authentication:

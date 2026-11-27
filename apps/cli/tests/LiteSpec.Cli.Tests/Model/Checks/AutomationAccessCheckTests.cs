@@ -8,7 +8,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>
-///     Proves the automation access checks: a reaction or job that runs, commands, or queries a use case
+///     Proves the automation access checks: a reaction or job that runs or queries a use case
 ///     whose access admits no system identity is reported, and a system or anonymous grant, or runsAs system
 ///     beside the grant, passes. The tests call the check directly, so they hold with or without its
 ///     registration in the check order.
@@ -53,16 +53,16 @@ public sealed class AutomationAccessCheckTests
         Assert.Equal("job/spending.erase-expired-personal-data", finding.Subject);
     }
 
-    /// <summary>A reaction commanding a permission-granted use case of another module is reported.</summary>
+    /// <summary>A reaction running a permission-granted use case of another module is reported.</summary>
     /// <proves>litespec/core/access#admit-the-system-identity-on-every-system-run-use-case</proves>
-    [Fact(DisplayName = "A reaction commanding a permission-granted use case is reported")]
-    public void ReactionCommandingPermissionGrantedUseCaseIsReported()
+    [Fact(DisplayName = "A reaction running a permission-granted use case of another module is reported")]
+    public void ReactionRunningPermissionGrantedUseCaseOfAnotherModuleIsReported()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            RunnerReaction(temp.Path, "reaction/reporting.confirm-payout-on-expense-reimbursed", "commands", "use-case/spending.reimburse-expense"),
-            TestModel.Record("use-case", "use-case/spending.reimburse-expense", ProviderFile(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "steps": [{"statement": "Spending reimburses the expense."}], "reachedThrough": ["module/reporting"], "access": {"grant": "permission/post-reimbursement", "tenant": "own"}}"""));
+            RunnerReaction(temp.Path, "reaction/reporting.confirm-payout-on-expense-reimbursed", "runs", "use-case/spending.reimburse-expense"),
+            TestModel.Record("use-case", "use-case/spending.reimburse-expense", ProviderFile(temp.Path, "reimburse-expense.yaml"), """{"kind": "command", "steps": [{"statement": "Spending reimburses the expense."}], "via": ["module/reporting"], "access": {"grant": "permission/post-reimbursement", "tenant": "own"}}"""));
 
         var findings = Run(model);
 
@@ -79,7 +79,7 @@ public sealed class AutomationAccessCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             RunnerReaction(temp.Path, "reaction/reporting.confirm-payout-on-expense-reimbursed", "queries", "use-case/spending.read-expense"),
-            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "steps": [{"statement": "Spending reads the expense."}], "reachedThrough": ["module/reporting"], "access": {"grant": "permission/read-expense", "tenant": "own"}}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "steps": [{"statement": "Spending reads the expense."}], "via": ["module/reporting"], "access": {"grant": "permission/read-expense", "tenant": "own"}}"""));
 
         var findings = Run(model);
 
@@ -164,7 +164,7 @@ public sealed class AutomationAccessCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/reporting.confirm-payout", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "reporting", "confirm-payout.yaml"), """{"kind": "command", "steps": [{"statement": "Reporting confirms the payout."}], "effects": [{"queries": "use-case/spending.read-expense", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "steps": [{"statement": "Spending reads the expense."}], "reachedThrough": ["module/reporting"], "access": {"grant": "permission/read-expense", "tenant": "own"}}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", ProviderFile(temp.Path, "read-expense.yaml"), """{"kind": "query", "steps": [{"statement": "Spending reads the expense."}], "via": ["module/reporting"], "access": {"grant": "permission/read-expense", "tenant": "own"}}"""));
 
         Assert.DoesNotContain(Run(model), finding => finding.Code == "system-access-missing");
     }
@@ -230,7 +230,7 @@ public sealed class AutomationAccessCheckTests
     /// <summary>One runner reaction with one edge to the target, in the folder its identifier names.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <param name="id">The record id.</param>
-    /// <param name="verb">The edge verb: runs, commands, or queries.</param>
+    /// <param name="verb">The edge verb: runs or queries.</param>
     /// <param name="target">The edge target identifier.</param>
     /// <returns>The record in its module folder.</returns>
     static LiteSpec.Cli.Model.Records.Record RunnerReaction(string root, string id, string verb, string target) =>
@@ -239,7 +239,7 @@ public sealed class AutomationAccessCheckTests
     /// <summary>One runner job with one edge to the target, in the folder its identifier names.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <param name="id">The record id.</param>
-    /// <param name="verb">The edge verb: runs, commands, or queries.</param>
+    /// <param name="verb">The edge verb: runs or queries.</param>
     /// <param name="target">The edge target identifier.</param>
     /// <returns>The record in its module folder.</returns>
     static LiteSpec.Cli.Model.Records.Record RunnerJob(string root, string id, string verb, string target) =>

@@ -3,17 +3,13 @@
 **Stack:** svelte
 **Concern:** frontend-ui
 
-Every screen in a Svelte frontend draws with composites from one shared UI package: the shared building blocks for layout and interaction. No application draws its own.
-
-This page states the Svelte mechanism for shared UI: where the primitives come from, which raw elements page code refuses, where the allowed exceptions live, how component boundaries stay typed, and which route checks the Svelte stack runs.
+Every Svelte screen draws with composites from one shared UI package. This page is for developers who write route and module code in a Svelte frontend. A hand-built element beside the composites splits the product into two looks, and review loses the single list of replacements.
 
 ## Concepts
 
-### Primitives, Composites, and Page Code
+### How Page Code Meets the Shared Package
 
-The registry CLI writes the primitives into one folder nobody edits by hand. The composites sit beside them in the same shared package and import them.
-
-Page code declares no layout or interactive element, and each refusal names the composite to use. The table below is the whole list: every refused element with its replacement.
+The registry CLI writes the primitives into one folder that stays untouched by hand. The composites sit beside the primitives in the same shared package and import them. Page code declares layout and interaction through the composites, and each refusal in the table below names the composite to use.
 
 | Refused | Use instead |
 |:---|:---|
@@ -25,17 +21,15 @@ Page code declares no layout or interactive element, and each refusal names the 
 | `table` | `DataTable` |
 | `img` | the shared image component |
 
-Text elements stay available for prose: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry sentences, not layout or interaction. The floorplan owns the `h1`. Anything else follows the same rule: page code declares no other element, and the author adds a composite or a visual file instead.
+The table above lists every refused element with its replacement. Prose elements stay available for sentences: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry sentences, not layout or interaction. The floorplan owns the `h1`, and a drawing outside the composites lives in a visual file instead of a new element.
 
-### Style, Checks, and Raw Content
+### How Style and Raw Content Stay Reviewable
 
-Class names merge through the one merge helper the shared package exports, with every merge or variant helper import inside it.
+Class names merge through the one merge helper the shared package exports. Every merge or variant helper import lives inside that helper. The Claimwick expense status chip toggles its overdue tone with `class:overdue`.
 
-A drawing no composite makes lives in a visual file, which draws with semantic theme tokens only.
+Raw HTML passes through `{@html}`, the one template tag a search finds. Stored rich content renders under its recorded sanitization decision. A visible card, panel, or section title renders as a heading at its level, and the route suite resolves each as a heading.
 
-A visible card, panel, or section title renders as a heading at its correct level, and the route suite resolves each as a heading. The route suite checks keyboard reach, visible focus, target size, and status announcements on every route.
-
-Stored rich content renders only under its recorded sanitization decision.
+The route suite checks keyboard reach, visible focus, target size, and status announcements on every route. Visual files draw with semantic theme tokens. Trusted Types in report-only mode comes first, with enforcement once every reported sink passes through the named policy.
 
 ## Standards
 
@@ -49,7 +43,7 @@ Stored rich content renders only under its recorded sanitization decision.
 
 **Statement:** Route and module code MUST pass the ESLint rules that refuse raw layout and interactive elements, class and style bindings, and layout utilities outside visual files, with each refusal naming the composite to use.
 
-**Rationale:** A lint gate that only refuses leaves the author searching the shared package for the replacement. A refusal that names the composite tells the author the replacement in the error itself. Visual files stay allowlisted, because a drawing no composite makes has no composite to name. This gates the refusals the table above states: no raw elements, no class names, and no layout utilities outside visual files.
+**Rationale:** A refusal without a replacement leaves the author searching the shared package. A refusal that names the composite tells the author the replacement inside the error itself. Visual files stay allowlisted because a drawing outside the composites has no composite to name.
 
 **Reviewed for:** Does any refused element, binding, or layout utility show in the consumer's lint output outside visual files in route and module code? Check the lint output the consumer's configuration produces in CI.
 
@@ -63,9 +57,9 @@ Stored rich content renders only under its recorded sanitization decision.
 
 **Statement:** A component MUST type its props, its events, and its snippets under strict mode.
 
-**Rationale:** An untyped prop fails at the call site the next author writes, after writing the code that uses it. Strict mode turns that failure into a build error at the author's own call. Typed events and snippets do the same for what the component reports and what it lets callers fill in.
+**Rationale:** An untyped prop fails at the call site the next author writes, after the code that uses it. Strict mode turns that failure into a build error at the author's own call. Typed events and snippets do the same for what the component reports and what callers fill in.
 
-**Example:** A Svelte component types its props and derives its total.
+**Example:** A Svelte component types its props and derives its total. The snippet below shows typed props with derived state for an order line.
 
 ```svelte
 <script lang="ts">
@@ -90,7 +84,7 @@ Stored rich content renders only under its recorded sanitization decision.
 
 **Deviation:** A frontend whose framework runtime or a required library writes markup through a sink the named policy cannot cover keeps the directive in report-only mode and records the sink in its sanitization decision.
 
-**Rationale:** A recorded sanitizer protects only the calls that remember to use it. Trusted Types makes the browser refuse any raw string written into `innerHTML` or a similar sink, so a component that forgets the sanitizer fails in testing instead of in a staff member's browser. A team first sends the policy as `Content-Security-Policy-Report-Only`, reads the reports, and enforces it once every reported sink passes through the named policy.
+**Rationale:** A recorded sanitizer protects only the calls that remember it. Trusted Types turns the browser into a second check: a raw string outside the named policy fails in testing instead of in a reader browser. A team ships report-only first, reads the reports, and enforces the policy once every reported sink passes through the named policy.
 
 **Reviewed for:** Does every raw markup sink run inside the named policy, with the frontend sending the Trusted Types directive? Check the Content Security Policy header and the violation reports.
 
@@ -104,9 +98,9 @@ Stored rich content renders only under its recorded sanitization decision.
 
 **Statement:** A class or style binding MUST use `class`, `class:`, `style`, or `style:`.
 
-**Rationale:** Fixed forms keep styling in one vocabulary that the lint and a reviewer can read.
+**Rationale:** Fixed forms keep styling in one vocabulary. The lint and a reviewer read the same four bindings on every component.
 
-**Example:** The Claimwick expense status chip toggles its overdue tone with `class:overdue`.
+**Example:** The Claimwick expense status chip toggles its overdue tone with `class:overdue`. The binding reads as a class toggle beside the chip markup.
 
 **Reviewed for:** Does every class or style binding use the stated form? Check the component markup.
 
@@ -120,9 +114,9 @@ Stored rich content renders only under its recorded sanitization decision.
 
 **Statement:** A file that holds a drawing no composite makes MUST end with `.visual.svelte`.
 
-**Rationale:** The suffix identifies the one place outside the composites, so a search finds every custom drawing in one pass.
+**Rationale:** The suffix marks the one place outside the composites. A search over the suffix finds every custom drawing in one pass.
 
-**Example:** The Claimwick receipt sparkline lives in `ExpenseSparkline.visual.svelte`.
+**Example:** The Claimwick receipt sparkline lives in `ExpenseSparkline.visual.svelte`. The suffix tells review that the file draws outside the composites.
 
 **Reviewed for:** Does every file holding a custom drawing end with the stated suffix? Check the component folders.
 
@@ -136,9 +130,9 @@ Stored rich content renders only under its recorded sanitization decision.
 
 **Statement:** A component MUST pass raw HTML to the page only through `{@html}`.
 
-**Rationale:** One named sink gives every raw HTML write a name a search finds, so a review can check each use. Stored rich content renders only under its recorded sanitization decision.
+**Rationale:** One named sink gives every raw HTML write a name a search finds, so review checks each use. Stored rich content renders under its recorded sanitization decision.
 
-**Example:** The Claimwick expense note passes its sanitized HTML through `{@html}`, matching its recorded sanitization decision.
+**Example:** The Claimwick expense note passes its sanitized HTML through `{@html}`, matching its recorded sanitization decision. Review finds the write by searching for the sink name.
 
 **Reviewed for:** Does every raw HTML write go through the stated sink? Check for raw markup in the component files.
 

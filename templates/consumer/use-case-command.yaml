@@ -2,177 +2,165 @@ type: use-case
 id: use-case/<module>.<name>
 title: <Title in Title Case>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 summary: <what this command changes for its actor, or remove this line>
-exposure: <who reaches it, through what, and what a bad call costs, or remove this line>
 kind: <command>
 access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
-  recentSignIn: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
+  recentSignInWindow: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
   scope: <self, when the caller acts only on the record identifying them, or remove this line>
   identityInput: <input carrying the caller identity, or remove this line>
   preconditions:
-  - rule/<home>.<name, or remove this line>
+    - rule/<home>.<name, or remove this line>
   runsAs: <system, when a reaction or job runs this use case beside its person grant, or remove this line>
 serves:
-- step/<flow>.<act>
+  - step/<flow>.<act>
 fulfills:
-- requirement/<feature>.<name, or remove this line>
+  - requirement/<feature>.<name, or remove this line>
 computedBy:
-- rule/<home>.<name, or remove this line>
-reachedThrough:
-- entry-point/<name>
-# http applies when an api or browser entry point reaches the use case.
+  - rule/<home>.<name, or remove this line>
+via:
+  - entry-point/<name>
 http:
   method: <GET|POST|PUT|PATCH|DELETE>
   route: <route template, such as /expenses/{expenseId}>
   created: <created location, such as /expenses/{expenseId}, or remove this line>
 raises:
-- domain-event/<aggregate>.<name, or remove this line>
+  - domain-event/<aggregate>.<name, or remove this line>
 steps:
-- statement: <one step, in one sentence naming who acts>
-  cites:
-  - rule/<home>.<name, or remove this line>
+  - statement: <one step, in one sentence naming who acts>
+    cites:
+      - rule/<home>.<name, or remove this line>
 edgeCases:
-- <one unusual path, in one sentence, or remove this line>
-input:
-- name: <field name>
-  meaning: <what the field holds>
-  type: id
-  identifies: <identified record id>
-  required: <true|false, or remove this line>
-  rules:
-  - rule/<home>.<name, or remove this line>
-  origin: <caller|claim|derived|verified-claim>
-  classification: <public|internal|personal|sensitive>
-- name: <field name>
-  meaning: <what the field holds>
-  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
-  required: <true|false, or remove this line>
-  origin: <caller|claim|derived|verified-claim>
-  classification: <public|internal|personal|sensitive>
-- name: <field name>
-  meaning: <what the field holds>
-  type: choice
-  choices:
-  - <allowed value>
-  origin: <caller|claim|derived|verified-claim>
-  classification: <public|internal|personal|sensitive>
-# A file field carries contentTypes and maxSize instead of identifies. An origin of verified-claim carries verifiedBy.
-output:
-- name: <field name>
-  meaning: <what the field holds>
-  type: id
-  identifies: aggregate/module.name
-  many: false
+  - <one unusual path, in one sentence, or remove this line>
+inputs:
+  - name: <field name>
+    meaning: <what the field holds>
+    type: id
+    identifies: <identified record id>
+    required: <true|false, or remove this line>
+    rules:
+      - rule/<home>.<name, or remove this line>
+    origin: <caller|claim|derived|verified-claim>
+    classification: <public|internal|personal|sensitive>
+  - name: <field name>
+    meaning: <what the field holds>
+    type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+    required: <true|false, or remove this line>
+    origin: <caller|claim|derived|verified-claim>
+    classification: <public|internal|personal|sensitive>
+  - name: <field name>
+    meaning: <what the field holds>
+    type: choice
+    choices:
+      - <allowed value>
+    origin: <caller|claim|derived|verified-claim>
+    classification: <public|internal|personal|sensitive>
+outputs:
+  - name: <field name>
+    meaning: <what the field holds>
+    type: id
+    identifies: aggregate/module.name
 paging:
   mode: pages
   order: <how rows order>
   cursor: <what the cursor holds>
   defaultLimit: <rows per page>
   maxLimit: <largest accepted limit>
-# A command changes one aggregate. Another aggregate follows through a reaction to the domain event.
 writes:
-- aggregate/<module>.<name>
+  - aggregate/<module>.<name>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
+  - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 consistency:
   mode: <atomic|per-record>
   boundBy:
-  - rule/<home>.<name, or remove this line>
+    - rule/<home>.<name, or remove this line>
   guards:
-  - aggregate/<module>.<name, or remove this line>
-# conflicts applies only when the project selects the concurrency extension.
+    - aggregate/<module>.<name, or remove this line>
 conflicts:
   subject: <what overlaps>
   winner: <first-write|last-write|merge>
   refusal: refusal/<module>.<name>
 effects:
-- sends: notification/<module>.<name>
-  timing: <inline|after-commit|async>
-  onFailure:
-    mode: <retry|skip-and-log|discard>
-    retry:
-      maxAttempts: <how many tries>
-      initialDelay: <first wait, such as PT1M>
-      maxDelay: <longest wait, such as PT1H>
-      backoff: <exponential|fixed>
-    ifExhausted: dead-letter
-    deadLetter:
-      after: <how long the failure is kept, such as P1D>
-      action: <what happens to the exhausted effect>
-    surfacesIn: entry-point/<name, or remove this line>
-    runbook: runbook/<name, or remove this line>
-  onExhausted: <what the caller sees after every retry, or remove this line>
-  before: <what runs before the effect, or remove this line>
-  forEach: <what the effect repeats over, or remove this line>
-- calls: external-system/<name>#<operation>
-  timing: <inline|after-commit|async>
-- queries: use-case/<module>.<name>
-  timing: <inline|after-commit|async>
-# A use case sends no command: commands belong on a reaction or a job.
+  - sends: notification/<module>.<name>
+    timing: <inline|after-commit|async>
+    onFailure:
+      mode: <retry|skip-and-log|discard>
+      retry:
+        maxAttempts: <how many tries>
+        initialDelay: <first wait, such as PT1M>
+        maxDelay: <longest wait, such as PT1H>
+        backoff: <exponential|fixed>
+      ifExhausted: dead-letter
+      deadLetter:
+        after: <how long the failure is kept, such as P1D>
+        action: <what happens to the exhausted effect>
+      surfacesIn: entry-point/<name, or remove this line>
+      runbook: runbook/<name, or remove this line>
+    onExhausted: <what the caller sees after every retry, or remove this line>
+    before: <what runs before the effect, or remove this line>
+    forEach: <what the effect repeats over, or remove this line>
+  - calls: external-system/<name>#<operation>
+    timing: <inline|after-commit|async>
+  - queries: use-case/<module>.<name>
+    timing: <inline|after-commit|async>
 idempotency:
   mode: <key|state|none>
   key: <key template over input fields, such as order-{orderId}>
-  keyScope: <tenant|account|login|global, or remove this line>
+  scope: <tenant|account|login|global, or remove this line>
   replay: <returns-first-result|refuses|acts-again, or remove this line>
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this command needs no idempotency, or remove this line>
 consentRule: rule/<home>.<name, or remove this line>
-# audit applies only when the project selects the audit extension. An exempt command carries exemptBecause instead of level, category, target and target kind.
 audit:
   level: <required|optional|none>
   category: <the audit category, or remove this line when the level is none>
   target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
   targetKind: <what the audit trail records for this command>
-background: <what the caller sees while the command runs on, or remove this line>
-records:
-- type: result
-  id: result/<use-case>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  outcome: success
-  meaning: <the ending, in one sentence>
-  recorded: <true|false, or remove this line>
-  codes:
-  - <recorded outcome code, or remove this block>
-- type: result
-  id: result/<use-case>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  outcome: refusal
-  refusal: refusal/<module>.<name>
-  sentence: <what the person reads, in the product language, or remove this line>
-  sentences:
-    nl: <the sentence in Dutch>
-  recorded: <true|false, or remove this line>
-  codes:
-  - <recorded outcome code, or remove this block>
-- type: scenario
-  id: scenario/<use-case>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  given: <the situation>
-  when: <the action>
-  then: <the expected ending>
-  result: result/<use-case>.<name>
-  exercises:
-  - rule/<home>.<name, or remove this line>
-  competesWith: use-case/<module>.<name, or remove this line>
-  examples:
-  - <field>: <value>
-- type: scenario
-  id: scenario/<use-case>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  given: <the situation>
-  when: <the action>
-  then: <the expected ending>
-  outcome: completed
-  exercises:
-  - rule/<home>.<name, or remove this line>
+results:
+  - id: result/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    outcome: success
+    meaning: <the ending, in one sentence>
+    recorded: <true|false, or remove this line>
+    codes:
+      - <recorded outcome code, or remove this block>
+  - id: result/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    outcome: refusal
+    refusal: refusal/<module>.<name>
+    message: <what the person reads, in the product language, or remove this line>
+    translations:
+      nl: <the sentence in Dutch>
+    recorded: <true|false, or remove this line>
+    codes:
+      - <recorded outcome code, or remove this block>
+scenarios:
+  - id: scenario/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the action>
+    then: <the expected ending>
+    result: result/<use-case>.<name>
+    exercises:
+      - rule/<home>.<name, or remove this line>
+    competesWith: use-case/<module>.<name, or remove this line>
+    examples:
+      - <field>: <value>
+  - id: scenario/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the action>
+    then: <the expected ending>
+    outcome: completed
+    exercises:
+      - rule/<home>.<name, or remove this line>

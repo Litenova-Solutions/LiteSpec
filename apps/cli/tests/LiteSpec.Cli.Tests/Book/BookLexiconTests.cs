@@ -15,12 +15,12 @@ public sealed class BookLexiconTests
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var links = lexicon.ToJson()["links"]!.AsArray();
-        var answers = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "answers")!.AsObject();
-        Assert.Equal("answers", answers["forward"]!.GetValue<string>());
-        Assert.Equal("is answered by", answers["inverse"]!.GetValue<string>());
+        var solves = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "solves")!.AsObject();
+        Assert.Equal("solves", solves["forward"]!.GetValue<string>());
+        Assert.Equal("is solved by", solves["inverse"]!.GetValue<string>());
         Assert.Equal(
             new List<string> { "flow" },
-            answers["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+            solves["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
     }
 
     /// <summary>An aggregate transition mover reads as its transitions row, with or without the leading record type.</summary>
@@ -60,9 +60,9 @@ public sealed class BookLexiconTests
         Assert.Equal("queries", forward);
         Assert.Equal("is queried by", inverse);
 
-        Assert.True(lexicon.TryPhrase("use-case.effects.commands", "use-case", out forward, out inverse));
-        Assert.Equal("commands", forward);
-        Assert.Equal("is commanded by", inverse);
+        Assert.True(lexicon.TryPhrase("reaction.effects.runs", "reaction", out forward, out inverse));
+        Assert.Equal("runs", forward);
+        Assert.Equal("is run by", inverse);
 
         Assert.True(lexicon.TryPhrase("access.grant", "use-case", out forward, out inverse));
         Assert.Equal("is granted through", forward);
@@ -71,7 +71,7 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.TryPhrase("except.unknown", "requirement", out _, out _));
     }
 
-    /// <summary>Compensation, freshness, binds and waiver-closure links read in both directions, in the schema's own phrases.</summary>
+    /// <summary>Compensation, freshness, governs and waiver-closure links read in both directions, in the schema's own phrases.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void NewLinksReadInBothDirections()
@@ -96,12 +96,12 @@ public sealed class BookLexiconTests
             "read-model",
             decidedBy["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
 
-        var binds = Row("binds");
-        Assert.Equal("binds", binds["forward"]!.GetValue<string>());
-        Assert.Equal("is bound by", binds["inverse"]!.GetValue<string>());
+        var governs = Row("governs");
+        Assert.Equal("governs", governs["forward"]!.GetValue<string>());
+        Assert.Equal("is governed by", governs["inverse"]!.GetValue<string>());
         Assert.Equal(
             new List<string> { "rule" },
-            binds["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+            governs["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
 
         var closedBy = Row("closedBy");
         Assert.Equal("is closed by", closedBy["forward"]!.GetValue<string>());
@@ -133,11 +133,11 @@ public sealed class BookLexiconTests
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
-        Assert.True(lexicon.TryPhrase("output.include.orders.freshness.decidedBy", "use-case", out var forward, out var inverse));
+        Assert.True(lexicon.TryPhrase("outputs.include.orders.freshness.decidedBy", "use-case", out var forward, out var inverse));
         Assert.Equal("is decided by", forward);
         Assert.Equal("decides", inverse);
 
-        Assert.True(lexicon.TryPhrase("use-case.output.include.orders.freshness.decidedBy", "use-case", out forward, out inverse));
+        Assert.True(lexicon.TryPhrase("use-case.outputs.include.orders.freshness.decidedBy", "use-case", out forward, out inverse));
         Assert.Equal("is decided by", forward);
         Assert.Equal("decides", inverse);
 
@@ -196,13 +196,13 @@ public sealed class BookLexiconTests
         Assert.Equal(
             new List<string>
             {
-                "requirement", "rule", "domain-event", "product", "permission", "result", "scenario",
-                "entry-point", "goal", "direction", "constraint", "research", "decision",
-                "problem", "feature", "actor", "role", "flow", "module", "knowledge-area", "aggregate", "use-case",
-                "reaction", "job", "notification", "external-system", "module-event", "integration-event",
-                "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
-                "setting", "reference-data", "refusal-set", "index", "tutorial", "how-to", "reference",
-                "command", "configuration", "glossary",
+                "requirement", "rule", "domain-event", "product", "goal", "direction", "constraint",
+                "research", "decision", "problem", "feature", "actor", "role", "flow", "module",
+                "knowledge-area", "aggregate", "use-case", "result", "scenario", "reaction", "job",
+                "notification", "external-system", "module-event", "integration-event", "read-model",
+                "runbook", "waiver", "permission-set", "permission", "entry-point", "entry-point-set",
+                "screen", "setting", "reference-data", "refusal-set", "index", "tutorial", "how-to",
+                "reference", "command", "configuration", "glossary",
             },
             terms.Carriers.ToList());
     }
@@ -214,9 +214,9 @@ public sealed class BookLexiconTests
     {
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
-        var basedOn = lexicon.Links.Single(link => link.Field == "basedOn");
+        var basedOn = lexicon.Links.Single(link => link.Field == "basedOn" && link.Forward == "is based on");
         Assert.Equal(
-            new List<string> { "requirement", "rule", "constraint", "decision", "external-system" },
+            new List<string> { "requirement", "rule", "constraint", "decision", "flow", "external-system" },
             basedOn.Carriers.ToList());
         Assert.True(lexicon.TryPhrase("basedOn", "decision", out var forward, out var inverse));
         Assert.Equal("is based on", forward);
@@ -308,11 +308,10 @@ public sealed class BookLexiconTests
         Assert.Equal("Skipped when", lexicon.Fields["skippedWhen"]);
         Assert.Equal("Runs", lexicon.Fields["runs"]);
         Assert.Equal("Publishes", lexicon.Fields["publishes"]);
-        Assert.Equal("Binds", lexicon.Fields["binds"]);
+        Assert.Equal("Governs", lexicon.Fields["governs"]);
         Assert.Equal("Compensates", lexicon.Fields["compensates"]);
         Assert.Equal("Decided by", lexicon.Fields["decidedBy"]);
         Assert.Equal("Exercises", lexicon.Fields["exercises"]);
-        Assert.Equal("Background", lexicon.Fields["background"]);
         Assert.Equal("Purpose", lexicon.Fields["purpose"]);
         Assert.Equal("Period", lexicon.Fields["period"]);
         Assert.Equal("Type", lexicon.Fields["type"]);
@@ -395,6 +394,8 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("approvedOn"));
         Assert.False(lexicon.Fields.ContainsKey("approvedHash"));
         Assert.False(lexicon.Fields.ContainsKey("reviewBy"));
+        Assert.False(lexicon.Fields.ContainsKey("background"));
+        Assert.False(lexicon.Fields.ContainsKey("binds"));
     }
 
     /// <summary>Each glossary term carries its definition, layer and source; aliases, rejected words and the home line stay out.</summary>

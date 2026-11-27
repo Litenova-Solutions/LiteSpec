@@ -116,7 +116,7 @@ export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
 /** The prose fields a type without its own renderer shows, in display order. */
 export const PROSE_ORDER = [
   "summary", "purpose", "whatHappens", "offering", "position", "refusals", "situation", "whyItMatters",
-  "consequences", "delivery", "exposure", "exitWhen", "impact", "prerequisites", "procedure",
+  "consequences", "delivery", "exitWhen", "impact", "prerequisites", "procedure",
   "verification", "recovery", "escalation",
-  "workaround", "cost", "scope", "coverage", "productEffect", "context", "compatibility", "task",
+  "workaround", "cost", "scope", "productEffect", "context", "compatibility", "job",
 ];

@@ -54,7 +54,7 @@ public sealed class ReactionTriggerCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "meaning": "A copy was lent.", "fields": []}"""),
             TestModel.Record("use-case", "use-case/lending.notify-overdue", Path.Combine(temp.Path, "notify.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
         Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
@@ -84,8 +84,8 @@ public sealed class ReactionTriggerCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.assign-seat-on-seat-sold", Path.Combine(temp.Path, "assign.yaml"), """{"status": "reviewed", "triggeredBy": ["domain-event/ticket.seat-sold", "domain-event/ticket.seat-released"], "effects": [{"runs": "use-case/lending.assign-seat", "timing": "async"}]}"""),
-            TestModel.Record("domain-event", "domain-event/ticket.seat-sold", Path.Combine(temp.Path, "sold.yaml"), """{"status": "reviewed", "meaning": "A seat was sold.", "carries": []}"""),
-            TestModel.Record("domain-event", "domain-event/ticket.seat-released", Path.Combine(temp.Path, "released.yaml"), """{"status": "reviewed", "meaning": "A sold seat was released.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/ticket.seat-sold", Path.Combine(temp.Path, "sold.yaml"), """{"status": "reviewed", "meaning": "A seat was sold.", "fields": []}"""),
+            TestModel.Record("domain-event", "domain-event/ticket.seat-released", Path.Combine(temp.Path, "released.yaml"), """{"status": "reviewed", "meaning": "A sold seat was released.", "fields": []}"""),
             TestModel.Record("use-case", "use-case/lending.assign-seat", Path.Combine(temp.Path, "assign-seat.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
         Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));

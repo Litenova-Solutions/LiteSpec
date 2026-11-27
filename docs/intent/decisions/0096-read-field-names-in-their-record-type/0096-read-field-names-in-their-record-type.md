@@ -41,4 +41,4 @@ The provision is `litespec/core/language#read-each-field-name-in-its-record-type
 
 This decision reopens when a record type needs a field whose meaning no existing name carries naturally, or when readers misread a name shared across types.
 
-Either case means the names no longer read plainly in their records. The team then decides again whether one name keeps one meaning.
+Either case means the names stop reading plainly in their records. The team then decides again whether one name keeps one meaning.

@@ -2,12 +2,12 @@ type: goal
 id: goal/<name>
 title: <Title in Title Case>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 summary: <why this outcome matters, or remove this line>
 statement: <the measurable outcome, in one sentence>
 measure: <how the team reads the outcome>
 target: <the value the outcome must reach>
 observations:
-- date: <date measured, such as 2026-02-10>
-  value: <measured value>
-  source: <where the value was read>
+  - observedOn: <date measured, such as 2026-02-10>
+    value: <measured value>
+    source: <where the value was read>

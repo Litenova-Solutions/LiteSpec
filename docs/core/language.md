@@ -4,28 +4,33 @@
 
 **Concern:** records
 
-A project names fields, records, identifiers, finding codes, and tool names. This page states the grammar for those names: the form each field name, text kind, value, record name, identifier, and finding code takes.
-
-Authors and agents apply these forms to every record field, value, identifier, finding code, and tool name. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files, and documents.
+A project names fields, records, identifiers, finding codes, and tool names. This page states the grammar for those names: the form each field name, text kind, value, record name, identifier, and finding code takes. Authors and agents apply these forms to each record field, value, identifier, finding code, and tool name.
 
 ## Concepts
 
-### The Eight Word Classes
+### Word Classes and Canonical Vocabulary
 
-Every field name belongs to one of eight word classes. The class decides the name's form, and the reading test tells whether a name belongs to its class. One grammar covers every field with no list of exceptions, and each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons.
+Each field name belongs to one of fifteen word classes. The class decides the name's form, and the reading test tells whether a name belongs to its class. One grammar covers each field with no list of exceptions, and each class answers one question about the field. The same canonical word carries context-specific values and shapes per record type: `states` holds lifecycle states on `aggregate` and UI states on `screen`, `scope` holds coverage on `constraint` and key scope on `idempotency`, and `fields` holds typed members on events, read models, and object shapes.
 
-| Class | Form | Reading test | Examples |
-|:---|:---|:---|:---|
-| 1. Identity | fixed words | none | `type`, `id`, `title`, `terms`, `records` |
-| 2. Link to many records | active present-tense verb | "flow serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `writes`, `waives`, `requires` |
-| 3. Link to one record in a role | singular noun naming the role | "the flow's actor is traveller" | `actor`, `audience`, `fallback`, `runbook`, `result`, `host`, `refusal` |
-| 4. Link where the target acts on this record | `<participle>By`, `<participle>Through`, `<participle>In` or `<participle>From`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `movedBy`, `boundBy`, `widenedBy`, `triggeredBy`, `reachedThrough`, `surfacesIn` |
-| 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `action`, `trust`, `reach`, `lifecycle`, `level` |
-| 6. Prose | singular noun for what the text is; plural noun for a list of sentences | "its statement is ..." | `statement`, `meaning`, `rationale`, `summary`, `conclusion`, `failure` |
-| 7. Condition | `<verb, participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen`, `runsWhen` |
-| 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `exemptBecause`, `reason` |
+| Class | Exact Form | Value Shape | Canonical Words | Rejected Synonyms | Examples |
+|:---|:---|:---|:---|:---|:---|
+| 1. Identity | Fixed nouns | String ID or Title Case text | `type`, `id`, `title`, `name`, `summary` | `label`, `heading`, `desc` | `type: use-case`, `id: use-case/books.create-business` |
+| 2. Classification | Single canonical noun | Closed-set enum string | `kind`, `mode`, `level`, `trust`, `reach`, `classification` | `form`, `subtype`, `shape`, `strategy`, `policyType` | `use-case.kind: command`, `idempotency.mode: key` |
+| 3. Structure and Child Collections | Typed plural nouns | Array of objects or child entries | `inputs`, `outputs`, `fields`, `states`, `transitions`, `steps`, `results`, `scenarios`, `refusals`, `permissions`, `rows`, `parts`, `parameters`, `options`, `operations`, `branches` | `records`, `carries`, `payload`, `input`, `output`, `displayStates`, `rowShape`, `params` | `use-case.inputs`, `use-case.results`, `domain-event.fields`, `screen.states` |
+| 4. Forward Link | Active present-tense verb | Typed ID or array of typed IDs | `fulfills`, `advances`, `solves`, `serves`, `governs`, `raises`, `reads`, `writes`, `offers`, `leadsTo`, `calls`, `sends`, `runs`, `translates`, `compensates`, `waives`, `dependsOn`, `identifies`, `exercises`, `affects`, `holds`, `allows`, `requires` | `binds`, `answers`, `commands`, `of` | `use-case.raises`, `rule.governs`, `screen.offers` |
+| 5. Authority and Inverse Link | `basedOn`, `<participle>By`, or `via` | Typed ID or array of typed IDs | `basedOn`, `triggeredBy`, `movedBy`, `enforcedBy`, `releasedBy`, `removedBy`, `erasedBy`, `verifiedBy`, `computedBy`, `decidedBy`, `keyedBy`, `setBy`, `closedBy`, `widenedBy`, `boundBy`, `via` | `basis`, `cites`, `through`, `arrivesThrough`, `reachedThrough`, `deliveredThrough` | `rule.basedOn`, `reaction.triggeredBy`, `use-case.via` |
+| 6. Role Link | Singular role noun | Single typed ID | `actor`, `audience`, `result`, `refusal`, `fallback`, `runbook`, `host`, `aggregate`, `consentRule`, `primaryAction`, `setting`, `term`, `party` | `requiresConsent`, `recentSignIn`, `partyOf` | `scenario.result`, `rule.refusal`, `person.party` |
+| 7. Data Type and Constraints | Plain technical nouns | Enum or typed scalar or object | `type`, `items`, `choices`, `bounds`, `minLength`, `maxLength`, `minItems`, `unique`, `matches`, `unit`, `default`, `contentTypes`, `maxSize` | `valueType`, `many`, `rowShape`, `range` | `type: list` with `items: { type: text }`, `setting.type: duration` |
+| 8. Condition | `<verb/participle/adjective>When` (or `condition` in exception) | Present-tense clause without leading "when" | `startedWhen`, `finishedWhen`, `frozenWhen`, `skippedWhen`, `suppressedWhen`, `reopenedWhen`, `exitWhen`, `visibleWhen`, `runsWhen`, `reauthenticateWhen` | `exit`, `reauthenticationTriggers`, `if*` | `waiver.exitWhen`, `entry-point.reauthenticateWhen` |
+| 9. Reason | `reason`, `rationale`, or `<participle>Because` | Clause without leading "because" | `reason`, `rationale`, `appliesBecause`, `exemptBecause` | `why`, `justification` | `audit.exemptBecause`, `waiver.reason` |
+| 10. Dates and Durations | `*On`, `*From`/`*To`, `*Window`/`*Timeout`/`*Delay`/`duration` | ISO 8601 `YYYY-MM-DD` or `P...`/`PT...` | `readOn`, `publishedOn`, `expiresOn`, `heldOn`, `liftedOn`, `observedOn`, `occursOn`, `effectiveFrom`, `effectiveTo`, `today`, `timeout`, `idleTimeout`, `lifetime`, `recentSignInWindow`, `duration`, `period`, `initialDelay`, `maxDelay`, `within`, `every`, `after` | Bare `date` on recorded facts, free-text durations | `waiver.expiresOn`, `externalOperation.timeout: PT5S` |
+| 11. Time Zone | Exact camelCase | IANA zone string | `timeZone` | `timezone`, `tz` | `schedule.timeZone`, `cast.timeZone` |
+| 12. Booleans | Bare present-tense predicate | `true` or `false` | `applies`, `required`, `secret`, `dated`, `recorded`, `retryable`, `belongsToTeam`, `inclusive` | `is*`, `has*` | `constraint.applies: true`, `refusal.retryable: false` |
+| 13. Prose and Localized Copy | Plain singular or plural noun | Sentence or localized map | `statement`, `meaning`, `summary`, `conclusion`, `context`, `consequences`, `impact`, `task`, `message`, `translations`, `obligations`, `responsibilities`, `openQuestions`, `excludes` | `sentence`, `sentences`, `openPoints`, `exposure`, `background` | `result.message`, `result.translations.nl` |
+| 14. Scope and Boundaries | Canonical noun | String or structured scope | `scope`, `boundary`, `covers`, `excludes`, `paths` | `coverage`, `keyScope` | `constraint.scope`, `role.scope`, `idempotency.scope` |
+| 15. Mechanics and Policies | Canonical nouns | Structured object or enum | `access`, `audit`, `idempotency`, `consistency`, `conflicts`, `paging`, `schedule`, `retry`, `onFailure`, `deadLetter`, `erasure`, `freshness`, `tracksState`, `direction` | `settles`, `failureBehavior`, `action` | `reaction.tracksState`, `integration-event.direction` |
 
-Dates and booleans follow the classes. A recorded date ends in `On` (`readOn`, `expiresOn`), and a date that opens a validity span is named `effectiveFrom`. A boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix. For example, the Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
+One canonical word per structural role is used everywhere: `kind`, `mode`, `fields`, `states`, `scope`, `basedOn`, `via`, `message`, and `timeZone` take no substitute from the rejected column. Singular names hold one value or object and plural names hold arrays: `inputs`, `outputs`, `channels`, `fields`, `results`, `scenarios`. A field named after a record type holds links or child entries of that type, not prose. `*When` holds a condition clause, `*Because` holds a reason clause, `*On`, `*From`, and `*To` hold ISO 8601 dates, and `*Window`, `*Timeout`, `*Delay`, and `duration` hold ISO 8601 durations. Gherkin keeps `given`, `when`, and `then`, and CloudEvents keeps `eventType`, `source`, `subject`, and `dataschema`. The Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
 ### Kinds of Text
 
@@ -43,17 +48,17 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 | A title | The record's name in Title Case, no period | `use-case/orders.place-order` is titled "Place Order" |
 | A finding message | One present-tense sentence of fact | "Requirement 'booking.service-fee' is fulfilled by no Behavior record." |
 
-Gherkin fields follow the forms Gherkin sets: `given` is the starting state (present tense, or past tense for an earlier act), `when` is one act by a named actor (present tense), and `then` is the observable outcome (present tense, without "should").
+Gherkin fields follow the forms Gherkin sets: `given` gives the starting state (present tense, or past tense for an earlier act), `when` gives one act by a named actor (present tense), and `then` gives the observable outcome in the present tense, with no modal verb.
 
 A result's `meaning` says what is now true (success) or what the caller is told (refusal).
 
-Record values use the third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business, and no record says "you"; tutorial and how-to pages may. Capitalized modal words belong only to LiteSpec's own provisions; a project record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
+Record values use the third person. Intent chapter prose (The Situation, What We Do) says "we" for the business, and no record says "you". Tutorial and how-to pages address the reader directly. Capitalized modal words belong only to LiteSpec's own provisions; a project record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
 
-Quantities use standard units: dates are ISO 8601 dates, durations are ISO 8601 durations (`P7Y`, `PT10M`), and money is `{ amount, currency }` with an ISO 4217 code. How prose writes a number with its unit follows the [Writing Standard](writing.md).
+Quantities use standard units: dates are ISO 8601 dates, durations are ISO 8601 durations (`P7Y`, `PT10M`), and money is `{ amount, currency }` with an ISO 4217 code. Prose writes each number with its unit, as the [Writing Standard](writing.md) states.
 
 ### Value Style
 
-Values are read far more than they are written, in records, in the book, and in tool output. Each value below takes the form its row states, so a period or a capital letter is never a styling choice but part of the value. The last column names the mechanical test the value meets.
+Values are read far more than they are written, in records, in the book, and in tool output. Each value below takes the form its row states, so a period or a capital letter counts as part of the value, not a styling choice. The last column names the mechanical test the value meets.
 
 | Field | Write it as | Test |
 |:---|:---|:---|
@@ -65,7 +70,7 @@ Values are read far more than they are written, in records, in the book, and in 
 | `meaning` | A noun phrase starting with "A" or "An", no leading verb, at most 25 words; a domain-event or result `meaning` states its sentence in its text-kind form | Starts with A, An or The, or ends in a period for a domain event or a result; word count |
 | `rationale`, `*Because` | A clause completing "because ..." | Does not start with "because" |
 | `*When`, `condition` | A clause completing "when ..." | Does not start with "when" or "if" |
-| `failure` | What the person sees and can do next, present tense, never a code or a rule | Contains no refusal-code pattern |
+| `failure` | What the person sees and does next, present tense, never a code or a rule | Contains no refusal-code pattern |
 | `title` | Title Case noun phrase, no period | Title Case; no final period |
 
 ### Names for Records
@@ -75,7 +80,7 @@ Each record type takes the name form its row states, in the word class that fits
 | Type | Name form | Example |
 |:---|:---|:---|
 | goal | outcome noun phrase | `more-completed-bookings` |
-| direction | the way the product may grow, as a noun phrase | `group-bookings` |
+| direction | the way the product grows, as a noun phrase | `group-bookings` |
 | problem | the pain as a short clause | `rooms-sell-out-at-checkout` |
 | feature | the offer as a noun phrase | `room-hold` |
 | requirement | the assertion | `room-held-during-checkout` |
@@ -112,15 +117,21 @@ American spelling is the project spelling for field names and enum values: `lice
 
 Names an outside standard fixes stay exactly as that standard spells them. Gherkin fixes `given`, `when`, and `then`, and CloudEvents fixes its attribute names; these are the only names outside the word classes.
 
+Authored prose uses ASCII. Declared content paths carrying another language sit outside that check; documents about that content stay inside it.
+
+### How the Project Glossary Guides Prose
+
+The project glossary lists each term with the synonyms it rejects, the scope of each rejection, and mannered terms with the literal words to use instead. Each rejection lists in `except` the compounds where a rejected word names another concept. Terms that differ only in hyphenation, spelling variant, plurality, or a compound split resolve to one spelling: the notification `send-receiptreminder-confirmation` and the reaction `send-receipt-reminder-on-expense-submitted` pick one form. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
+
 ### Identifier Forms
 
 An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row.
 
 A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, a step home is a flow name, and a domain-event home is an aggregate name. A reaction, job, read-model, notification, setting, or reference-data table takes the module that owns it as its home. An integration event has no module home.
 
-A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names are unique per record type, not across the product, so `actor/owner` and `role/owner` coexist.
+A use-case name is unique among use cases, so a result cites only that name; an aggregate name is unique among aggregates, so a rule cites only that name. Names stay unique per record type, not across the product, so `actor/owner` and `role/owner` coexist.
 
-A rule name keeps the negation its statement makes. A flow step identifier is `step/<flow>.<act>`, where `<act>` is the step's act as a verb phrase in kebab case, taken from the words of the step's title. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios may point at derived results, which are never written as records.
+A rule name keeps the negation its statement makes. A flow step identifier is `step/<flow>.<act>`, where `<act>` is the step's act as a verb phrase in kebab case, taken from the words of the step's title. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios point at derived results, which stay unwritten as records.
 
 ### Name Rules
 
@@ -135,11 +146,11 @@ Names stay unique per record type, not across the product.
 
 ### Wire Codes
 
-A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape, and they stay unchanged once clients read them. A renamed code breaks every deployed reader that compares the old value, and no record tells the reader the new value.
+A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape, and they stay unchanged once clients read them. A renamed code breaks each deployed reader that compares the old value, and no record tells the reader the new value.
 
 ### Resolution
 
-Resolution means every identifier citation names a record that exists. The model check fails a citation that names no written record, so a citation points only at a record someone wrote. Shared provisions keep their published `litespec/<page>#<slug>` form.
+Resolution means every identifier citation names a record that exists. The model check fails a citation that points at no written record, so a citation points only at a record someone wrote. Shared provisions keep their published `litespec/<page>#<slug>` form.
 
 ### Finding Codes and Tool Names
 
@@ -162,13 +173,13 @@ A finding code has the form `<subject>-<problem>`: the subject is a record type,
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
-| `unlisted` | a citing thing is missing from the list that should name it | `constraint-effect-unlisted` |
+| `unlisted` | a citing thing is missing from the list that names it | `constraint-effect-unlisted` |
 | `uncited` | a named thing does not cite back | `constraint-effect-uncited` |
 | `unchanged` | a value still holds what its template wrote | `template-value-unchanged` |
 | `break` | a contract the base published no longer holds | `contract-break` |
-| `foreign` | a link reaches into another module where only its own module may be named | `reaction-trigger-foreign` |
+| `foreign` | a link reaches into another module where only its own module belongs | `reaction-trigger-foreign` |
 | `uncarried` | a published field is carried by no field of its source | `event-field-uncarried` |
-| `unexercised` | a rule is shown by no scenario that should show it | `scenario-rule-unexercised` |
+| `unexercised` | a rule is shown by no scenario that shows it | `scenario-rule-unexercised` |
 | `unhandled` | a declared trigger is answered by no handler | `reaction-trigger-unhandled` |
 | `unbacked` | a fixed section whose backing fields are all empty or absent | `explanation-section-unbacked` |
 | `unreserved` | a cast person's email sits on a domain no reserved test domain covers | `cast-identity-unreserved` |
@@ -197,7 +208,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
-**Rationale:** One grammar means a reader who learned `serves` on a flow understands `serves` on a use case the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
+**Rationale:** One grammar means a reader who learned `serves` on a flow reads `serves` on a use case the same way. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
 
 **Example:** The Claimwick flow `submit-an-expense` names its goal in `serves` and states each step in `statement`.
 
@@ -209,13 +220,15 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Strength:** required
 
-**Statement:** Every field name MUST carry the one meaning and shape the field table states for it, reading naturally in each record type that carries it, and hold links to a record type when it names that type, in the singular or the plural.
+**Statement:** Every field name MUST use its canonical word for its structural role and read naturally in its record type's context, with the context-specific value shape the FieldCatalog states for its record type.
 
-**Rationale:** A reader meets a field inside one record, so each name reads naturally where it stands. Its meaning and shape stay fixed across every record type: one name carries one meaning, so `excludes` states what a record does not cover on a product, a feature, a module, a role, an aggregate, an entry point, and a permission set alike, and `key` carries only an idempotency key. The field table holds one row per field name with its meaning, its shape, and the record types that use it. One concept keeps one name, so `summary` and `fulfills` read the same everywhere, and a name that names a record type, such as `rules`, always holds links to that type. A Claimwick constraint states its legal rules in `obligations`, because `rules` holds links to rule records. Settled by [decision/0096-read-field-names-in-their-record-type](decision/0096-read-field-names-in-their-record-type).
+**Rationale:** A reader meets a field inside one record, so each name reads naturally where it stands. The same canonical word carries context-specific values and shapes per record type: `states` holds lifecycle states on `aggregate` and UI states on `screen`, `scope` holds coverage on `constraint` and key scope on `idempotency`, and `fields` holds typed members on events, read models, and object shapes. The FieldCatalog registers every field per `(RecordType, FieldName)` with its word class, shape, and meaning, while retired synonyms such as `coverage`, `displayStates`, `keyScope`, `valueType`, `basis`, `payload`, `rowShape`, and `records` fail validation.
+
+A name that names a record type, such as `rules`, always holds links to that type. A Claimwick constraint states its legal rules in `obligations`, because `rules` holds links to rule records. This provision supersedes the global single-shape choice that locked one shape per name, settled by [decision/0123-name-fields-in-record-context](../intent/decisions/0123-name-fields-in-record-context/0123-name-fields-in-record-context.md).
 
 **Example:** A module states what its area covers in `covers` and what it does not cover in `excludes`. An actor states the acts the product holds it to in `responsibilities`, the one record type that carries that name. A setting names its configuration path in `configurationPath`, and a research source carries its label in `name`.
 
-**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date, and reports a field name defined with two shapes and a field outside the field table. One meaning per name is held by the table itself, which carries exactly one row per field name.
+**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field named after a record type that holds anything but links to that type, for a link verb that holds no links, and for a date name that holds no date; reports strict camelCase, abbreviation, and American spelling breaks; reports `is*` and `has*` prefixes on booleans; reports `*When` and `*Because` fields holding non-strings, `*On`, `effectiveFrom`, and `effectiveTo` fields holding non-`isoDate` values, and `*Timeout`, `*Window`, `*Delay`, and `duration` fields holding non-durations; and reports a retired synonym (`coverage`, `displayStates`, `keyScope`, `valueType`, `basis`, `payload`, `rowShape`, `records`) and a field outside the contextual FieldCatalog registered per `(RecordType, FieldName)`.
 
 ### Name a Boolean as a Predicate
 
@@ -225,7 +238,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every boolean field MUST read as a present-tense predicate that is true about the record when the value is true.
 
-**Rationale:** A boolean without a prefix is a fact about the record: `applies` says the constraint applies, and `recorded` says the entry is recorded. An `is` or `has` prefix adds a word that repeats what the value already says. The predicate form keeps every boolean readable in a sentence about its record.
+**Rationale:** A boolean without a prefix is a fact about the record: `applies` says the constraint applies, and `recorded` says the entry is recorded. An `is` or `has` prefix adds a word that repeats what the value already says. The predicate form keeps each boolean readable in a sentence about its record.
 
 **Example:** Claimwick marks an applying constraint with `applies: true` instead of `isApplicable: true`.
 
@@ -245,20 +258,6 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 
-### Write Each Text Kind in Its Own Form
-
-**ID:** `litespec/core/language#write-each-text-kind-in-its-own-form`
-
-**Strength:** required
-
-**Statement:** Every project text MUST use the form the text-kind table gives its kind.
-
-**Rationale:** Each kind of text has one reader and one job: a requirement promises, a domain event reports, and a runbook step instructs. One form per kind means the tense and voice show what the text does from its form alone. Record values stay in the third person, Intent chapter prose says `we` for the business, and no record says `you`; tutorial and how-to pages may.
-
-**Example:** A Claimwick requirement states "An expense above the threshold waits for its approver."
-
-**Reviewed for:** Does every text use the form of its kind? Check the statements, steps, and meanings the change adds against the text-kind table.
-
 ### Write Each Value in the Value Style
 
 **ID:** `litespec/core/language#write-each-value-in-the-value-style`
@@ -267,25 +266,11 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every `statement`, `meaning`, `rationale`, `*Because`, `*When`, `condition`, `failure`, and `title` value MUST use the value style the value-style table states.
 
-**Rationale:** Values are read far more than they are written, in records, in the book, and in tool output. One written form per value means a period or a capital letter is never a styling choice but part of the value. The value-style table ends each row with the mechanical test the value meets. Settled by [decision/0011-one-grammar-for-names-and-values](decision/0011-one-grammar-for-names-and-values) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
+**Rationale:** Values are read far more than they are written, in records, in the book, and in tool output. One written form per value means a period or a capital letter counts as part of the value, not a styling choice. The value-style table ends each row with the mechanical test the value meets. Settled by [decision/0011-one-grammar-for-names-and-values](decision/0011-one-grammar-for-names-and-values) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
 
 **Example:** A Claimwick flow step states "The traveller pays for the booking."
 
 **Reviewed for:** Does every statement, meaning, rationale, condition, failure, and title value use its row's style? Check the values the change adds against the value-style table.
-
-### Write Quantities in Standard Units
-
-**ID:** `litespec/core/language#write-quantities-in-standard-units`
-
-**Strength:** required
-
-**Statement:** Every quantity in a record MUST use an ISO 8601 date, an ISO 8601 duration, an amount with an ISO 4217 currency, or a number with its unit.
-
-**Rationale:** Free-text quantities vary with local habits: one record writes `7 years`, another writes `seven years`, and a check matches neither. ISO dates, ISO durations, and ISO currency codes give every quantity one written form across records and tools. Prose keeps numbers readable by writing each with its unit.
-
-**Example:** Claimwick holds a room for `PT10M` and writes "95 percent of checkouts complete" in prose.
-
-**Reviewed for:** Does every quantity use a standard unit? Check the dates, durations, money values, and numbers the change adds.
 
 ### Write in American English
 
@@ -295,7 +280,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every field name and enum value MUST use American spelling.
 
-**Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another split every search and every listing. American spelling is the project spelling for field names and enum values; prose spelling follows the [Writing Standard](writing.md). Each British form is a rejected word beside its American spelling.
+**Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another splits each search and each listing. American spelling is the project spelling for field names and enum values; prose spelling follows the [Writing Standard](writing.md). Each British form is a rejected word beside its American spelling.
 
 **Example:** Claimwick writes `license` and `pseudonymize` in field names, values, and prose.
 
@@ -309,7 +294,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every name an outside standard fixes MUST stay exactly as that standard spells it.
 
-**Rationale:** A name an outside standard fixes belongs to that standard: renaming `given` to fit the word classes breaks every Gherkin reader. The grammar stays complete by exempting exactly these names instead of adding a list of exceptions. Gherkin and CloudEvents names are the only exemptions.
+**Rationale:** A name an outside standard fixes belongs to that standard: renaming `given` to fit the word classes breaks each Gherkin reader. The grammar stays complete by exempting exactly these names instead of adding a list of exceptions. Gherkin and CloudEvents names are the only exemptions.
 
 **Example:** A Claimwick scenario keeps `given`, `when`, and `then`, which the word-class table gives no class.
 
@@ -337,7 +322,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every finding message MUST state one present-tense fact that opens with the subject title and its quoted identifier.
 
-**Rationale:** A message that states a fact reads the same in the terminal and the book: both show what is true. Advice belongs in the finding table on the [model command page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
+**Rationale:** A message that states a fact reads the same in the terminal and the book: both show what is true. Advice belongs in the finding table on the [model command page](../tools/model.md), where it is written once beside the code instead of repeated in each occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
 **Example:** A flow step with no serving use case reports `Flow step 'step/book-a-room.confirm-booking' is served by no use case.`
 
@@ -351,7 +336,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** Every subcommand MUST read as a verb and every flag as the mode or value it sets.
 
-**Rationale:** A verb names what the command does, so `check` names an action without reading its arguments. A flag that names its mode or value reads the same way at every call site, and kebab-case keeps multiword flags writable without quotes. Stable exit codes let scripts distinguish a clean run, a blocking finding, and bad arguments.
+**Rationale:** A verb names what the command does, so `check` names an action without reading its arguments. A flag that names its mode or value reads the same way at each call site, and kebab-case keeps multiword flags writable without quotes. Stable exit codes let scripts distinguish a clean run, a blocking finding, and bad arguments.
 
 **Example:** The release check runs as `litespec model check --release` and exits 1 on a blocking finding.
 
@@ -365,7 +350,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** A record identifier MUST name exactly one record.
 
-**Rationale:** An identifier used twice names two records at once, so every citation of it points to both records. One use per identifier keeps each citation single-valued.
+**Rationale:** An identifier used twice names two records at once, so each citation of it points to both records. One use per identifier keeps each citation single-valued.
 
 **Example:** Two records named `use-case/spending.submit-expense` leave the model check reporting the duplicate on the second record.
 
@@ -379,7 +364,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** A wire code MUST stay unchanged once clients read it.
 
-**Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
+**Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks each deployed reader that compares the old value, with no record the reader opens to learn the new one.
 
 **Reviewed for:** Does any wire code in the contract break the values deployed clients branch on? Check the wire codes in the contract against the deployed clients.
 
@@ -403,21 +388,9 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** A shared provision citation MUST use its published identifier.
 
-**Rationale:** A shared provision is cited across projects, so its identifier looks the same everywhere. The published `litespec/<page>#<slug>` form stays fixed, while project records use the type forms above.
+**Rationale:** A shared provision is cited across projects, so its identifier reads the same everywhere. The published `litespec/<page>#<slug>` form stays fixed, while project records use the type forms above.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
-
-### Exclude Declared Content Paths from the ASCII Check
-
-**ID:** `litespec/core/language#exclude-declared-content-paths-from-the-ascii-check`
-
-**Strength:** required
-
-**Statement:** An ASCII check MUST exclude only the natural-language content paths that the project record declares.
-
-**Rationale:** A product whose subject is another language carries that language in its content files, where a diacritic is part of a word rather than a styling choice. Excluding only the declared content paths keeps the check strict everywhere else: documents about that content stay in scope, so styled prose filed beside content still meets the check.
-
-**Reviewed for:** Does any non-ASCII prose sit outside the paths the project record declares? Check the content files against the declaration.
 
 ### Record the Project Vocabulary as Data
 
@@ -439,65 +412,6 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Checked by:** `litespec model check` reports `glossary-invalid` for a glossary that fails the glossary schema.
 
-### Reject a Recorded Synonym Inside Its Scope
-
-**ID:** `litespec/core/language#reject-a-recorded-synonym-inside-its-scope`
-
-**Strength:** required
-
-**Statement:** Authored prose MUST NOT use a synonym that the project glossary rejects for the scope the page sits in.
-
-**Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly uses two words for one concept. A synonym that is a defined term elsewhere costs the most, because one word then names two things and every reader guesses which one.
-
-**Reviewed for:** Does any word on the page use a synonym the glossary rejects for this scope? Check the page against the project glossary.
-
-### State Mannered Terms Literally
-
-**ID:** `litespec/core/language#state-mannered-terms-literally`
-
-**Strength:** required
-
-**Statement:** Authored prose MUST NOT use a mannered term the project glossary lists.
-
-**Rationale:** A metaphor or stock phrase hides what the project means: each reader understands a different act behind the same phrase. The glossary lists each mannered term with the literal phrase that carries its meaning, so the check names the mannered term and the plain words to use instead.
-
-**Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
-
-**Reviewed for:** Does any mannered term stand where the glossary asks for the literal word? Check the page against the project glossary.
-
-### List the Compounds a Rejection Does Not Cover
-
-**ID:** `litespec/core/language#list-the-compounds-a-rejection-does-not-cover`
-
-**Strength:** required
-
-**Statement:** A glossary rejection MUST list, in `except`, every compound in which a rejected word names a concept other than the one the rejection is about.
-
-**Rationale:** A rejection matches a word, and a word can belong to more than one term: Claimwick rejects `docket` in favor of `receipt` for payment proof while a docket still names the shipping list. Without the `except` list, the check would force the project to rename an unrelated concept or drop a sound rejection.
-
-**Example:** The exemption covers the compound only, so the bare word stays rejected.
-
-```json
-{ "word": "docket", "reason": "one word for a payment receipt and a shipping list",
-  "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
-```
-
-**Reviewed for:** Does any compound use a rejected word for another concept without an `except` entry? Check the compounds against the rejection's `except` list.
-
-### Review Each Term for Its Lookalikes
-
-**ID:** `litespec/core/language#review-each-term-for-its-lookalikes`
-
-**Strength:** required
-
-**Statement:** A project MUST resolve each pair of terms that differ only in hyphenation, spelling variant, plurality, or a compound split.
-
-**Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
-
-**Example:** The notification `send-receiptreminder-confirmation` and the reaction `send-receipt-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
-
-**Reviewed for:** Does any term differ from another only in hyphenation, spelling, plurality, or a compound split? Check the terms the change adds against the glossary.
-
 ### Use the Declared Record Identifier Grammar
 
 **ID:** `litespec/core/language#use-the-declared-record-identifier-grammar`
@@ -506,7 +420,7 @@ Book labels come from the Links table's reads-as phrases and the glossary only.
 
 **Statement:** A consumer record identifier MUST use the form the Project Model states for its type, as `type/home.name` in kebab-case, with its name in the name form the record-name table gives its type and one to six lowercase hyphenated words.
 
-**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table: a reader who sees `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [Project Model](model.md) states the form each type uses, and the Identifier Forms section above states the name rules and checks.
+**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table: a reader who sees `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records. One grammar for each record kind keeps identifiers writable by hand and checkable by tool. The [Project Model](model.md) states the form each type uses, and the Identifier Forms section above states the name rules and checks.
 
 A name in the word class of what the record is shows the type without opening the record: a verb opens a use case, a noun phrase opens a goal, and a past participle opens a domain event. One name form per type keeps listings scannable and citations writable by hand. The record-name table lists the Intent, Behavior, and governance forms together. Settled by [decision/0077-use-the-standard-term-for-each-concept](decision/0077-use-the-standard-term-for-each-concept).
 

@@ -2,7 +2,7 @@ type: domain-event
 id: domain-event/loan.loan-extended
 title: Loan extended
 meaning: A loan was extended.
-carries:
+fields:
   - name: loanId
     type: text
   - name: newDueDate

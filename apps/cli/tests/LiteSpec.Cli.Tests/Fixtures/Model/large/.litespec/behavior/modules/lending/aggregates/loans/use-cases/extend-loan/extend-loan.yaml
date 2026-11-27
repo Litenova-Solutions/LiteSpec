@@ -1,7 +1,6 @@
 type: use-case
 id: use-case/lending.extend-loan
 title: Extend loan
-exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong extension keeps a copy past its due date.
 kind: command
 access:
   grant: permission/borrow-copy
@@ -10,11 +9,11 @@ serves:
 - step/borrow-and-return.renew-loan
 fulfills:
 - requirement/borrowing.loan-period-days
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-extended
-input:
+inputs:
 - name: loanId
   meaning: The loan the reader extends.
   type: id
@@ -31,29 +30,28 @@ input:
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The reader extends the loan before its due date.
-records:
-- type: result
-  id: result/extend-loan.extended
+results:
+- id: result/extend-loan.extended
   title: Extended
   outcome: success
   meaning: The loan is extended.
-- type: result
-  id: result/extend-loan.extension-refused
+- id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
   refusal: refusal/lending.extension-refused
-  sentence: This loan is past its due date, so it cannot be extended.
-- type: scenario
-  id: scenario/extend-loan.extending-an-active-loan-succeeds
+  message: This loan is past its due date, so it cannot be extended.
+scenarios:
+- id: scenario/extend-loan.extending-an-active-loan-succeeds
   title: Extending an active loan succeeds
   given: A reader holds an active loan.
   when: The reader extends the loan.
   then: The loan is extended.
   result: result/extend-loan.extended
-- type: scenario
-  id: scenario/extend-loan.extending-loan-past-due-refused
+- id: scenario/extend-loan.extending-loan-past-due-refused
   title: Extending a loan past its due date is refused
   given: A loan passed its due date.
   when: The reader extends the loan.

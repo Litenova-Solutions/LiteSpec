@@ -21,11 +21,9 @@ serves:
 - step/borrow-and-return.place-hold
 - step/borrow-and-return.cancel-hold
 - step/borrow-and-return.retire-copy
-pageFrame:
-  pattern: home-page
-  option: work-first-tiles-second
-task: The reader borrows, extends, lists and returns copies and places holds, and the librarian registers and retires copies.
-displayStates:
+job: The reader borrows, extends, lists and returns copies and places holds, and the librarian registers and retires copies.
+archetype: HomePage
+states:
 - name: Empty
   shows: The screen says no loan is active and points to borrowing.
 - name: Loading

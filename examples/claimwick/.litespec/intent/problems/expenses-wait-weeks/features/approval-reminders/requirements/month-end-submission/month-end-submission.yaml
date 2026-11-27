@@ -9,5 +9,5 @@ environment: Normal operation, one application instance down
 response: Each submission is stored and acknowledged
 measure: "Share of submissions acknowledged within two seconds: at least 99 percent"
 check: month-end-load
-cites:
+basedOn:
 - feature/approval-reminders

@@ -28,7 +28,7 @@ A flow's Example starts from `startedWhen` and performs its steps in order. Each
 
 ## Consequences
 
-`record-invalid` reports a flow without `startedWhen`, a `betweenSteps` field, or a branch that lacks a field. `record-invalid` reports a branch whose step names no step of the flow. The book renders the start before the steps and each branch as a sentence after them.
+`record-invalid` reports a flow without `startedWhen`, a `betweenSteps` field, or a branch that lacks a field. `record-invalid` reports a branch whose step lists no step of the flow. The book renders the start before the steps and each branch as a sentence after them.
 
 `litespec/core/intent#state-when-each-flow-starts` and `litespec/core/intent#branch-a-flow-only-between-its-steps` are required. `litespec/core/intent#reach-each-finish-condition-through-a-step` and `litespec/core/intent#state-each-flow-blocker-as-a-step-failure` are reviewed for. The provision that leads each flow toward the record it exists for names `branches` in place of `betweenSteps`.
 

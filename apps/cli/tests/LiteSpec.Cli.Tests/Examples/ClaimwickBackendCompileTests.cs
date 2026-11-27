@@ -301,6 +301,27 @@ public sealed class ClaimwickBackendCompileTests
             public interface IEventHandler<in TEvent> : IAsyncMessageHandler<TEvent>
                 where TEvent : notnull;
         }
+
+        namespace LiteBus.Messaging.Abstractions.Tenancy
+        {
+            public interface ITenancyDefinition<in TMessage> : IMessageDefinition<TMessage, TenancyDeclaration>
+                where TMessage : notnull
+            {
+                TenancyDeclaration Tenancy { get; }
+            }
+
+            public sealed class TenancyDeclaration
+            {
+                public bool RequiresTenant { get; }
+
+                private TenancyDeclaration(bool requiresTenant)
+                {
+                    RequiresTenant = requiresTenant;
+                }
+
+                public static TenancyDeclaration Required() => new(true);
+            }
+        }
         """;
 
     /// <summary>A faithful copy of the one OpenAPI API the Claimwick host calls, from Microsoft.AspNetCore.OpenApi 10.0 (<c>Microsoft.AspNetCore.Builder.OpenApiEndpointRouteBuilderExtensions.MapOpenApi</c>), with a minimal body. The package is not referenced: its source generator and framework reference would change the test output the CLI runs from.</summary>

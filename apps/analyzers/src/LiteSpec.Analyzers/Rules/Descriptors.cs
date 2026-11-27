@@ -462,6 +462,12 @@ internal static class Descriptors
         "'{0}' builds a knowledge key from a string literal; read knowledge by role and date",
         "Code outside a knowledge set reads knowledge by role and date through the model; it never builds a knowledge key from a string literal.");
 
+    /// <summary>The LS2041 descriptor: Closed-set Code compared or carried as a string literal.</summary>
+    public static readonly DiagnosticDescriptor LS2041 = Create("LS2041", LayersCategory, ClosedSets,
+        "Closed-set Code compared or carried as a string literal",
+        "'{0}' writes the Code of '{1}' as a string literal; {2}",
+        "Code outside a closed set names the typed case or a synced constant, never a string literal: a comparison against Code branches on the case type or compares a CodeValue constant, and a refusal carries its code from the synced refusal constant, so a renamed code fails the build instead of reaching production.");
+
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,
         "Asynchronous method name lacks Async",

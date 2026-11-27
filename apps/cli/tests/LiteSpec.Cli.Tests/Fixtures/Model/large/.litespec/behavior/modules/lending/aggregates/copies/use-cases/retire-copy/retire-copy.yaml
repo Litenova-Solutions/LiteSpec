@@ -1,7 +1,6 @@
 type: use-case
 id: use-case/lending.retire-copy
 title: Retire copy
-exposure: A signed-in librarian reaches this command through the library app under the manage-copies permission. A wrong retirement removes a copy readers can still borrow.
 kind: command
 access:
   grant: permission/manage-copies
@@ -10,36 +9,35 @@ serves:
 - step/borrow-and-return.retire-copy
 fulfills:
 - requirement/borrowing.copy-shelf-home
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/copy.copy-retired
 idempotency:
   mode: none
   reason: Each call retires its own copy, and retiring a copy on loan is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The librarian retires the copy from lending.
-records:
-- type: result
-  id: result/retire-copy.retired
+results:
+- id: result/retire-copy.retired
   title: Retired
   outcome: success
   meaning: The copy is retired.
-- type: result
-  id: result/retire-copy.copy-on-loan
+- id: result/retire-copy.copy-on-loan
   title: Copy on loan
   outcome: refusal
   refusal: refusal/lending.copy-on-loan
-  sentence: This copy is on loan, so it cannot be retired until it is returned.
-- type: scenario
-  id: scenario/retire-copy.retiring-an-available-copy-succeeds
+  message: This copy is on loan, so it cannot be retired until it is returned.
+scenarios:
+- id: scenario/retire-copy.retiring-an-available-copy-succeeds
   title: Retiring an available copy succeeds
   given: A copy sits available past weeding.
   when: The librarian retires the copy.
   then: The copy is retired.
   result: result/retire-copy.retired
-- type: scenario
-  id: scenario/retire-copy.retiring-copy-on-loan-refused
+- id: scenario/retire-copy.retiring-copy-on-loan-refused
   title: Retiring a copy on loan is refused
   given: A reader holds a copy on loan.
   when: The librarian retires the copy.

@@ -12,17 +12,18 @@ serves:
   - step/borrow-and-return.borrow-copy
 fulfills:
   - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
   - entry-point/library-app
 raises: []
-records:
-  - type: result
-    id: result/borrow-copy.archived
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+results:
+  - id: result/borrow-copy.archived
     title: Archived
     outcome: success
     meaning: The archived copy is lent.
-  - type: scenario
-    id: scenario/borrow-copy.archiving-a-borrow-succeeds
+scenarios:
+  - id: scenario/borrow-copy.archiving-a-borrow-succeeds
     title: Archiving a borrow succeeds
     given: An archived copy sits available.
     when: The reader borrows the copy.

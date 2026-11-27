@@ -2,23 +2,22 @@ type: use-case
 id: use-case/reporting.list-reimbursed-expenses
 title: List Reimbursed Expenses
 summary: Finance lists the reimbursed expenses with the employee each one was paid to.
-exposure: Signed-in finance staff reach this query through the expenses app under the list-reimbursed-expenses permission. Each row names the employee who was paid, so the list stays inside finance.
 kind: query
 access:
   grant: permission/list-reimbursed-expenses
   tenant: own
 fulfills:
 - requirement/approval.reimbursed-expenses-listed
-reachedThrough:
+via:
 - entry-point/claimwick-app
-output:
+outputs:
   include:
     rows:
       fields:
       - name: expenses
         meaning: The set of rows with one row per reimbursed expense, newest first.
         type: list
-        rowShape:
+        items:
           fields:
           - name: expenseId
             meaning: The reimbursed expense.
@@ -62,6 +61,8 @@ reads:
 effects:
 - queries: use-case/spending.read-expense
   timing: inline
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
 steps:
 - statement: Finance asks for the reimbursed expenses.
   cites:
@@ -73,14 +74,13 @@ steps:
   cites:
   - result/list-reimbursed-expenses.listed
   - read-model/reporting.reimbursed-expense
-records:
-- type: result
-  id: result/list-reimbursed-expenses.listed
+results:
+- id: result/list-reimbursed-expenses.listed
   title: Listed
   outcome: success
   meaning: The reimbursed expenses are listed.
-- type: scenario
-  id: scenario/list-reimbursed-expenses.listing-reimbursed-expenses-succeeds
+scenarios:
+- id: scenario/list-reimbursed-expenses.listing-reimbursed-expenses-succeeds
   title: Listing Reimbursed Expenses Succeeds
   given: Finance reimbursed two expenses.
   when: Finance lists the reimbursed expenses.

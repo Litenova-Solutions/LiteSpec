@@ -14,5 +14,3 @@ options:
 choice: One transaction writing both aggregates
 consequences: use-case/spending.attach-receipt writes aggregate/spending.expense and aggregate/spending.receipt in one transaction under rule/spending.receipt-attached-atomically. A later move of the receipt boundary reopens this choice.
 reopenedWhen: The receipt boundary moves into the expense aggregate, or the expense link tolerates landing after the receipt.
-basedOn:
-- requirement/approval.above-threshold-receipt

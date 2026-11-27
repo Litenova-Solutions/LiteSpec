@@ -738,7 +738,7 @@ internal static class MarkChecks
                 continue;
             }
 
-            var entry = useCase.Ids(RecordFields.ReachedThrough).FirstOrDefault(id =>
+            var entry = useCase.Ids(RecordFields.Via).FirstOrDefault(id =>
                 model.ById.TryGetValue(id, out var point)
                 && point.Type == RecordTypes.EntryPoint
                 && point.Field(RecordFields.Kind) is "browser" or "api");
@@ -863,7 +863,7 @@ internal static class MarkChecks
                 continue;
             }
 
-            var entries = useCase.Ids(RecordFields.ReachedThrough).Where(id =>
+            var entries = useCase.Ids(RecordFields.Via).Where(id =>
                 model.ById.TryGetValue(id, out var point)
                 && point.Type == RecordTypes.EntryPoint
                 && point.Field(RecordFields.Kind) is "browser" or "device").ToList();

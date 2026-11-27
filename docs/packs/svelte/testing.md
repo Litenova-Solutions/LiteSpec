@@ -3,15 +3,13 @@
 **Stack:** svelte
 **Concern:** tests
 
-The Svelte frontend proves pure logic in Vitest beside the module under test, and navigation and integration in Playwright against the running system.
-
-This page states where each kind runs on the Svelte stack: the runners, the libraries, the commands, and the lint rule that rejects a test with no assertion.
+A Svelte frontend proves logic close to the code and proves navigation against the running system. This page is for developers who place Vitest and Playwright tests in a Svelte frontend. A test in the wrong runner proves the wrong thing, and a suite without assertions raises coverage while proving nothing.
 
 ## Concepts
 
-### Test Kinds
+### Where Each Test Runs
 
-Each kind of test runs in one place on the Svelte stack:
+Each kind of test runs in one place on the Svelte stack. The table below names each kind with its runner:
 
 | Kind | Where it runs |
 |:---|:---|
@@ -20,17 +18,15 @@ Each kind of test runs in one place on the Svelte stack:
 | Route contract | Playwright against a running stack |
 | Evidence | Playwright against a running stack |
 
-### Runners and Libraries
+Pure logic sits beside its module in Vitest. Navigation and integration run against the running system in Playwright, and the route contract visits every address. The Claimwick expense page test runs with the real query library and replaces only the network call.
 
-Pure logic runs in Vitest beside its module. Navigation and integration run in Playwright against a running stack, and the route contract visits every address. Browser suites run through the Playwright CLI, addressable per route and per file:
+### How Suites Stay Honest
+
+Suites that touch HTTP answer through `msw` handlers generated from the published OpenAPI document, in the browser worker and the Node server alike. The workspace keeps one mock-generation command and regenerates the handlers from the contract. The module mirror check runs as a Vitest structure test over the backend module tree.
 
 ```text
 pnpm --filter @claimwick/web exec playwright test --project=routes --grep "expenses list keeps the route contract"
 ```
-
-Component and logic tests that need HTTP answer through `msw` handlers generated from the published OpenAPI document, running in the browser worker and the Node server alike. The workspace keeps one mock-generation command that regenerates them, and the libraries tests keep follow `litespec/packs/svelte/testing#keep-web-test-mocks-to-the-stack-libraries`, per `litespec/quality/testing#use-one-mock-rule-for-every-stack`.
-
-The module mirror check runs as a Vitest structure test resolving each folder against the backend module tree:
 
 ```typescript
 test("every module folder names a backend use case, and no folder is named for nothing", () => {
@@ -38,15 +34,13 @@ test("every module folder names a backend use case, and no folder is named for n
 });
 ```
 
-A declared refusal is reached and asserted by its result code through the refusal helper:
-
 ```typescript
 await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTER_ACTION });
 ```
 
-Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines`. Calculation properties run on fast-check inside Vitest with seed cases from the examples table, per `litespec/core/testing#prove-every-calculation-with-property-tests`.
+The browser command above runs one route contract by name. The structure test above resolves each folder against the backend tree. The refusal helper above asserts the declared result code for a refused action.
 
-Element queries follow the [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles): role, label, name, or visible text first, scoped to one floorplan through its `data-floorplan` attribute.
+Changed TypeScript lines run under StrykerJS in incremental mode. Calculation properties run on fast-check inside Vitest with seed cases from the examples table. Element queries follow role, label, name, or visible text first, scoped through `data-floorplan`.
 
 ## Standards
 
@@ -60,7 +54,7 @@ Element queries follow the [Testing Library guiding principles](https://testing-
 
 **Statement:** Lint MUST fail a Vitest or Playwright test that contains no `expect` assertion, through the `expect-expect` rule.
 
-**Rationale:** A test that calls code and asserts nothing passes unless something throws: it raises coverage while proving nothing. The `expect-expect` rule of the Vitest ESLint plugin reports each such test before it runs, at no measurable cost. The rule is free and maintained under MIT.
+**Rationale:** A test without an assertion passes unless something throws. It raises coverage while proving nothing about the code under test. The `expect-expect` rule of the Vitest ESLint plugin reports each such test in the lint output.
 
 **Checked by:** `pnpm eslint` reports `vitest/expect-expect` for each test that contains no assertion.
 
@@ -74,9 +68,9 @@ Element queries follow the [Testing Library guiding principles](https://testing-
 
 **Statement:** A test MUST NOT replace Svelte, SvelteKit, the query library, or the form library.
 
-**Rationale:** Those libraries are the stack's own behavior, and a stand-in for any of them tests the stand-in instead of the screen.
+**Rationale:** Those libraries form the stack behavior the screen depends on. A stand-in for one of them tests the stand-in instead of the screen.
 
-**Example:** The Claimwick expense page test runs against the real query library, replacing only the network call.
+**Example:** The Claimwick expense page test runs against the real query library, replacing only the network call. The test proves the screen, not a copy of the stack.
 
 **Reviewed for:** Does any test replace a library the stack keeps? Check the mocks in each test file.
 

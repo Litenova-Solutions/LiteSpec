@@ -297,7 +297,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("[G]", finding);
         Assert.Contains("decision/0099-admit-extra-package", finding);
         Assert.Contains("nuget:UnknownLib", finding);
-        Assert.Contains("failureBehavior", finding);
+        Assert.Contains("onFailure", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
@@ -417,7 +417,7 @@ public sealed class DependencyCheckTests
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
-        Assert.Contains("failureBehavior", finding);
+        Assert.Contains("onFailure", finding);
     }
 
     /// <summary>A CycloneDX direct package with no pin and no admission reports dependency-undeclared.</summary>
@@ -681,9 +681,9 @@ public sealed class DependencyCheckTests
             + "}\n";
     }
 
-    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "failureBehavior": "The download fails and the page stays readable."}]""";
+    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "onFailure": "The download fails and the page stays readable."}]""";
 
     const string IncompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process"}]""";
 
-    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "failureBehavior": "The download fails and the page stays readable."}]""";
+    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "onFailure": "The download fails and the page stays readable."}]""";
 }

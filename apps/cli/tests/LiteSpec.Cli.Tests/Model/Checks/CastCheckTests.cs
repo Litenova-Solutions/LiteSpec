@@ -11,7 +11,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 ///     Proves the cast checks: a person's email sits on a reserved test domain, each cast entry is cited by a
 ///     record or a seeds mark, and each seeds mark names a cast entry.
 /// </summary>
-/// <follows>litespec/core/writing#keep-the-cast-out-of-production-code</follows>
+/// <follows>litespec/quality/development#seed-only-development-and-test-environments</follows>
+/// <follows>litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed</follows>
 public sealed class CastCheckTests
 {
     /// <summary>The cast record file the fixture cast sits in.</summary>
@@ -20,7 +21,6 @@ public sealed class CastCheckTests
     /// <summary>The reserved-domain rule recognizes the RFC 2606 and RFC 6761 test domains and no other.</summary>
     /// <param name="domain">The domain after the at sign.</param>
     /// <param name="reserved">Whether the domain is reserved.</param>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
     [Theory(DisplayName = "reserved test domains are recognized and public domains are not")]
     [InlineData("example.com", true)]
     [InlineData("example.net", true)]
@@ -37,7 +37,6 @@ public sealed class CastCheckTests
         Assert.Equal(reserved, CastChecks.IsReservedDomain(domain));
 
     /// <summary>A person whose email sits on a public domain is flagged at cast-identity-unreserved.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
     [Fact(DisplayName = "a person email on a public domain is flagged")]
     public void PublicEmailDomainIsFlagged()
     {
@@ -48,7 +47,6 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A person whose email sits on a reserved test domain is not flagged.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
     [Fact(DisplayName = "a person email on a reserved test domain is not flagged")]
     public void ReservedEmailDomainIsNotFlagged()
     {
@@ -59,7 +57,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A cast entry that no record or seeds mark cites is flagged at cast-entry-unused.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#resolve-every-page-link</proves>
     [Fact(DisplayName = "a cast entry that nothing cites is flagged as unused")]
     public void UncitedEntryIsFlagged()
     {
@@ -70,7 +68,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A cast entry that a record field cites by its identifier is used.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#resolve-every-page-link</proves>
     [Fact(DisplayName = "a cast entry a record cites by its identifier is used")]
     public void EntryCitedByIdentifierIsUsed()
     {
@@ -86,7 +84,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A person named by its exact name in another record's field is used.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#resolve-every-page-link</proves>
     [Fact(DisplayName = "a person named by its exact name in a record is used")]
     public void PersonNamedInARecordIsUsed()
     {
@@ -98,7 +96,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A name inside a longer word is no exact name: Ava does not name Avalon.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#resolve-every-page-link</proves>
     [Fact(DisplayName = "a name inside a longer word names no person")]
     public void NameInsideALongerWordIsNotUse()
     {
@@ -110,7 +108,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A person named only in an explanation file is unused: no check reads the explanation.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#split-record-fields-from-explanation</proves>
     [Fact(DisplayName = "a person named only in an explanation file is unused")]
     public void PersonNamedOnlyInAnExplanationIsUnused()
     {
@@ -123,7 +121,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>The cast's own explanation names its people without using them, so it cannot make an entry used.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#split-record-fields-from-explanation</proves>
     [Fact(DisplayName = "the cast explanation does not count as a use")]
     public void CastExplanationDoesNotCountAsAUse()
     {
@@ -135,24 +133,24 @@ public sealed class CastCheckTests
         Assert.Contains("Cast entry 'person/ava' is cited by no record or code mark.", Messages(model));
     }
 
-    /// <summary>A person whose partyOf names no record is an unknown reference, found by the existing citation check.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
-    [Fact(DisplayName = "a person whose partyOf names no record is an unknown reference")]
-    public void PartyOfNamingNoRecordIsAnUnknownReference()
+    /// <summary>A person whose party names no record is an unknown reference, found by the existing citation check.</summary>
+    /// <proves>litespec/core/model#resolve-every-page-link</proves>
+    [Fact(DisplayName = "a person whose party names no record is an unknown reference")]
+    public void PartyNamingNoRecordIsAnUnknownReference()
     {
         using var temp = TestCli.Temp("cast-party-unknown");
         var person = TestModel.Record(
             "person",
             "person/ava",
             CastFile,
-            """{"name":"Ava","partyOf":"party/nowhere","does":"Travels.","email":"ava@harbor-and-pine.example"}""");
+            """{"name":"Ava","party":"party/nowhere","does":"Travels.","email":"ava@harbor-and-pine.example"}""");
         var model = TestModel.Model(TestModel.Config(temp.Path), Cast(), person);
 
         Assert.Contains("Record 'person/ava' cites 'party/nowhere', which no record holds.", Messages(model));
     }
 
     /// <summary>The cast explanation that cites an entry by its identifier is ignored: no check reads the explanation.</summary>
-    /// <proves>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</proves>
+    /// <proves>litespec/core/model#split-record-fields-from-explanation</proves>
     [Fact(DisplayName = "the cast explanation citing an entry by its identifier is ignored")]
     public void CastExplanationCitingAnIdentifierIsIgnored()
     {
@@ -165,7 +163,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A seeds mark that names a cast entry uses it.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed</proves>
     [Fact(DisplayName = "a seeds mark naming a cast entry uses it")]
     public void SeedsMarkUsesTheEntry()
     {
@@ -180,7 +178,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A seeds mark that names no cast entry is an unknown mark.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed</proves>
     [Fact(DisplayName = "a seeds mark naming no cast entry is an unknown mark")]
     public void SeedsMarkNamingNothingIsUnknown()
     {
@@ -192,7 +190,7 @@ public sealed class CastCheckTests
     }
 
     /// <summary>A seeds mark naming the cast page itself is unknown: the page is no entry.</summary>
-    /// <proves>litespec/core/writing#keep-the-cast-out-of-production-code</proves>
+    /// <proves>litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed</proves>
     [Fact(DisplayName = "a seeds mark naming the cast page is an unknown mark")]
     public void SeedsMarkNamingTheCastPageIsUnknown()
     {

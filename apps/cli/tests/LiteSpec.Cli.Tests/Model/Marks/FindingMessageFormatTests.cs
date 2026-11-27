@@ -187,15 +187,15 @@ public sealed class FindingMessageFormatTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("entry-point", "entry-point/app", Path.Combine(root, "app.yaml"), """{"status": "reviewed", "kind": "browser"}"""));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "kind": "query", "reachedThrough": ["entry-point/app"], "serves": ["step/walk.start-walk"]}"""));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "kind": "query", "via": ["entry-point/app"], "serves": ["step/walk.start-walk"]}"""));
         model.Records.Add(Rec("flow", "flow/walk", Path.Combine(root, "walk.yaml"), """{"status": "reviewed", "actor": ["actor/employee"], "steps": [{"id": "step/walk.start-walk", "title": "Start Walk", "statement": "The employee starts the walk."}]}"""));
         model.Records.Add(Rec("step", "step/walk.start-walk", Path.Combine(root, "walk.yaml"), """{"status": "reviewed", "title": "Start Walk", "statement": "The employee starts the walk."}"""));
         model.Records.Add(Rec("result", "result/list-loans.refused", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "outcome": "refusal", "meaning": "The listing is refused.", "refusal": "refusal/lending.refused"}"""));
         model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "given": "A loan.", "when": "The employee lists loans.", "then": "Both are listed.", "result": "result/list-loans.listed"}"""));
         model.Records.Add(Rec("result", "result/list-loans.listed", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "outcome": "success", "meaning": "The loans are listed."}"""));
         model.Records.Add(Rec("screen", "screen/app.loans", Path.Combine(root, "loans.yaml"), """{"status": "reviewed", "entryPoint": ["entry-point/app"], "offers": ["use-case/lending.list-loans"], "serves": []}"""));
-        model.Records.Add(Rec("setting", "setting/lending.loan-limit", Path.Combine(root, "limit.yaml"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer"}"""));
-        model.Records.Add(Rec("setting", "setting/lending.hold-window", Path.Combine(root, "window.yaml"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer", "configurationPath": "Lending:HoldWindow"}"""));
+        model.Records.Add(Rec("setting", "setting/lending.loan-limit", Path.Combine(root, "limit.yaml"), """{"status": "reviewed", "setBy": "operator", "value": {"type": "integer"}}"""));
+        model.Records.Add(Rec("setting", "setting/lending.hold-window", Path.Combine(root, "window.yaml"), """{"status": "reviewed", "setBy": "operator", "value": {"type": "integer"}, "configurationPath": "Lending:HoldWindow"}"""));
         model.Records.Add(Rec("requirement", "requirement/performance.list-loans-latency", Path.Combine(root, "latency.yaml"), """{"status": "reviewed", "kind": "quality", "statement": "Listing loans answers fast.", "measure": "p99 under 300 ms."}"""));
         model.Records.Add(Rec(
             "decision", "decision/0002-keep-loans-as-documents",

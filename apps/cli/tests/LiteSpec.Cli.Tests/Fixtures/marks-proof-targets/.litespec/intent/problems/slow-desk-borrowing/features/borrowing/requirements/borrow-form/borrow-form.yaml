@@ -4,4 +4,4 @@ title: Borrow form
 kind: functional
 statement: A reader borrows an available copy through the app.
 rationale: Members borrow from the app without visiting the desk.
-cites: []
+basedOn: []

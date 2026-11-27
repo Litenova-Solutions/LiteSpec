@@ -1,4 +1,6 @@
 using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
@@ -7,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
-/// <summary>The refusal declaration check: every refusal code a handler, a root method it calls or a one-hop helper throws is one its use case declares in a result.</summary>
+/// <summary>The refusal declaration check: every refusal code a handler, a root method it calls or a one-hop helper throws is one its use case declares in a result, and every code a module's code throws is one its refusal catalog declares, and conversely.</summary>
 /// <follows>litespec/core/backend-application#return-only-declared-results-and-refusals</follows>
 internal static class RefusalDeclarationChecks
 {
@@ -57,7 +59,121 @@ internal static class RefusalDeclarationChecks
                 }
             }
         }
+
+        CheckCatalogDrift(model, findings);
     }
+
+    /// <summary>
+    ///     Reports each refusal code a module's code throws that the module's refusal catalog does not
+    ///     declare, and each catalog entry the module's code never throws. Only literals in a declaring
+    ///     position state a code of their own; a composed code reads as thrown through its key.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every refusal set and the scanned code.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckCatalogDrift(ProjectModel model, List<Finding> findings)
+    {
+        if (model.Config.Layers.Implementation != LayerPractice.LiteSpec)
+        {
+            return;
+        }
+
+        var catalogued = model.RefusalSets
+            .GroupBy(entry => entry.Module, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.ToDictionary(entry => entry.Code, entry => entry, StringComparer.Ordinal),
+                StringComparer.Ordinal);
+
+        var thrown = ThrownCatalogCodes(model);
+
+        foreach (var (code, folder, file, line) in thrown
+            .OrderBy(entry => entry.File, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Line)
+            .ThenBy(entry => entry.Code, StringComparer.Ordinal))
+        {
+            if (IsComposedThrown(model, code))
+            {
+                continue;
+            }
+
+            var module = catalogued.Keys.FirstOrDefault(key => SameName(folder, key));
+
+            if (module is null || !catalogued[module].ContainsKey(code))
+            {
+                findings.Add(new Finding(
+                    "refusal-catalog-drift",
+                    $"Module '{folder}' throws refusal '{code}', which its refusal catalog does not declare.",
+                    file,
+                    line,
+                    null));
+            }
+        }
+
+        var thrownCodes = new HashSet<string>(thrown.Select(entry => entry.Code), StringComparer.Ordinal);
+
+        foreach (var entry in model.RefusalSets
+            .OrderBy(set => set.Module, StringComparer.Ordinal)
+            .ThenBy(set => set.Code, StringComparer.Ordinal))
+        {
+            if (!thrownCodes.Contains(entry.Code) && !IsComposedThrown(model, entry.Code))
+            {
+                findings.Add(new Finding(
+                    "refusal-catalog-drift",
+                    $"Module '{entry.Module}' declares refusal '{entry.Code}', which its code never throws.",
+                    entry.File,
+                    entry.Line,
+                    null));
+            }
+        }
+    }
+
+    /// <summary>Every dotted refusal code the module code states in a declaring position, with its module, file and line.</summary>
+    /// <param name="model">The loaded project model that holds each declaring code literal.</param>
+    /// <returns>Each thrown code with the module its file sits in.</returns>
+    private static List<(string Code, string Module, string File, int Line)> ThrownCatalogCodes(ProjectModel model)
+    {
+        var thrown = new List<(string Code, string Module, string File, int Line)>();
+
+        foreach (var literal in model.Code.Literals
+            .Where(literal => literal.Declares)
+            .OrderBy(literal => literal.File, StringComparer.Ordinal)
+            .ThenBy(literal => literal.Line))
+        {
+            if (!literal.Value.Contains('.'))
+            {
+                continue;
+            }
+
+            if (SourceRoots.ModulePath(model.Config, literal.File) is not { } segments)
+            {
+                continue;
+            }
+
+            thrown.Add((literal.Value, segments[0], literal.File, literal.Line));
+        }
+
+        return thrown;
+    }
+
+    /// <summary>Whether a folder name and a module name spell one name: case, hyphens and underscores ignored.</summary>
+    /// <param name="folder">The module folder name as written on disk.</param>
+    /// <param name="name">The module name the refusal set declares.</param>
+    /// <returns>True when both names agree with case, hyphens and underscores ignored; otherwise false.</returns>
+    private static bool SameName(string folder, string name)
+    {
+        var left = folder.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+        var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+
+        return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Whether a code reads as thrown through a composed refusal template whose key the code declares.</summary>
+    /// <param name="model">The loaded project model that holds the composed templates and key literals.</param>
+    /// <param name="code">The refusal code under test.</param>
+    /// <returns>True when a composed template matches the code with a declared key; otherwise false.</returns>
+    private static bool IsComposedThrown(ProjectModel model, string code) =>
+        model.Config.RefusalComposed.Any(template =>
+            RefusalTemplate.TryMatch(template, code, out var key) && model.Code.KeyLiterals.Contains(key));
 
     /// <summary>
     ///     Every refusal code a use case declares: its written refusal results plus the derived

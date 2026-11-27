@@ -5,7 +5,7 @@ terms:
 - <term id, or remove this line>
 actor: actor/<name>
 summary: <the path the actor takes, from its start to its end>
-# A flow carries serves or answers, never both.
+# A flow carries serves, solves, or basedOn.
 serves:
 - goal/<name>
 startedWhen: <the state the actor starts from>

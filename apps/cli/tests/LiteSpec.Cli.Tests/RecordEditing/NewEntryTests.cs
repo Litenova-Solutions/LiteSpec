@@ -23,13 +23,12 @@ public sealed class NewEntryTests
         {
           "type": "permission-set",
           "title": "Permissions",
-          "records": [
+          "permissions": [
             {
-              "type": "permission",
               "id": "permission/submit-expense",
               "title": "Submit expense",
               "meaning": "Submit an expense and attach receipts.",
-              "scope": "self"
+              "grantedTo": ["role/owner"]
             }
           ]
         }

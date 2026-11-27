@@ -180,7 +180,7 @@ export function versionLlmsText(): string {
   return finish(lines);
 }
 
-/** "Server with dotnet and react": the human title of a selection. */
+/** "Server with dotnet and svelte": the human title of a selection. */
 export function selectionTitle(selection: Selection): string {
   const shape = selection.shape === "server" ? "Server" : "Client-only";
   return `${shape} with ${selection.stacks.join(" and ")}`;
@@ -192,7 +192,7 @@ function stackRole(id: string): string {
   return "stack";
 }
 
-/** "A server project using the dotnet backend stack and the react frontend stack." */
+/** "A server project using the dotnet backend stack and the svelte frontend stack." */
 export function selectionLine(selection: Selection): string {
   const shape = selection.shape === "server" ? "A server project" : "A client-only project";
   const stacks = selection.stacks.map((id) => `the ${id} ${stackRole(id)} stack`);
@@ -307,13 +307,6 @@ export function selectionLlmsText(selection: Selection): string {
     lines.push(`- [${page?.title ?? id}](${absoluteUrl(layerUrl(`ext/${id}`))})`);
   }
   lines.push("");
-  if (selection.stacks.some((stack) => frontendStacks.includes(stack))) {
-    lines.push("## UI Pattern Groups", "");
-    for (const layer of layers().filter((entry) => entry.key.startsWith("patterns/"))) {
-      lines.push(`- [${layer.title}](${absoluteUrl(layerUrl(layer.key))})`);
-    }
-    lines.push("");
-  }
   lines.push(
     "## How to Read This",
     "",

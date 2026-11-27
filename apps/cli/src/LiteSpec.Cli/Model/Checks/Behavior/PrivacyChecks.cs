@@ -65,7 +65,7 @@ internal static class PrivacyChecks
         ExceptionsOf(element),
         Str(element, RecordFields.Period),
         Str(element, RecordFields.PeriodStartsAt),
-        LinkStrings(element, RecordFields.Basis));
+        LinkStrings(element, RecordFields.BasedOn));
 
     /// <summary>Reads the field exceptions of one data class object.</summary>
     /// <param name="element">The JSON object that holds the exceptions array.</param>

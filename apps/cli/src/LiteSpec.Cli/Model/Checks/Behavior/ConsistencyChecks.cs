@@ -162,12 +162,15 @@ internal static class ConsistencyChecks
                     continue;
                 }
 
-                var binds = rule.Ids(RecordFields.Binds).Order(StringComparer.Ordinal).ToList();
+                var binds = rule.Ids(RecordFields.Governs)
+                    .Where(id => Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix == RecordTypes.Aggregate)
+                    .Order(StringComparer.Ordinal)
+                    .ToList();
                 var written = writes.Order(StringComparer.Ordinal).ToList();
 
                 if (binds.Count > 0 && !binds.SequenceEqual(written, StringComparer.Ordinal))
                 {
-                    findings.Add(new Finding("atomicity-drift", $"Use case '{useCase.Id}' writes '{string.Join("', '", written)}' but its rule '{cited}' binds '{string.Join("', '", binds)}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("atomicity-drift", $"Use case '{useCase.Id}' writes '{string.Join("', '", written)}' but its rule '{cited}' governs '{string.Join("', '", binds)}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
                 }
             }
         }
@@ -180,11 +183,13 @@ internal static class ConsistencyChecks
     {
         foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "atomicity"))
         {
-            var binds = rule.Ids(RecordFields.Binds);
+            var binds = rule.Ids(RecordFields.Governs)
+                .Where(id => Identifiers.TrySplit(id, out var prefix, out _, out _) && prefix == RecordTypes.Aggregate)
+                .ToList();
 
             if (binds.Count > 4)
             {
-                findings.Add(new Finding("atomicity-invalid", $"Rule '{rule.Id}' binds {binds.Count} aggregates.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("atomicity-invalid", $"Rule '{rule.Id}' governs {binds.Count} aggregates.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
 

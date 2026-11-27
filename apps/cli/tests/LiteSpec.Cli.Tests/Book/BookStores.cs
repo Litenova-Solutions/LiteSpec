@@ -51,7 +51,8 @@ static class BookStores
 
             if (type == RecordTypes.Flow)
             {
-                Add(answeredBy, IdsOf(record, "answers"), id);
+                Add(answeredBy, IdsOf(record, "solves"), id);
+                Add(answeredBy, IdsOf(record, "basedOn"), id);
             }
         }
 

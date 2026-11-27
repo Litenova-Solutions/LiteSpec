@@ -1,7 +1,6 @@
 type: use-case
 id: use-case/lending.list-loans
 title: List loans
-exposure: A signed-in reader reaches this query through the library app under the read-loans permission. The list shows only that reader's own loans, so a wrong filter would show another reader's loans.
 kind: query
 access:
   grant: permission/read-loans
@@ -10,10 +9,10 @@ serves:
 - step/borrow-and-return.review-loans
 fulfills:
 - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
 - entry-point/library-app
 raises: []
-input:
+inputs:
 - name: readerId
   meaning: The signed-in reader whose loans are listed, read from verified claims.
   type: id
@@ -22,14 +21,13 @@ input:
   origin: verified-claim
   verifiedBy: entry-point/library-app
   classification: personal
-output:
+outputs:
   include:
     rows:
       fields:
       - name: loans
         type: list
-        meaning: "One row per loan: its identity, copy, reader, and due date."
-        rowShape:
+        items:
           fields:
           - name: loan
             type: id
@@ -49,6 +47,7 @@ output:
             type: date
             required: true
             meaning: The day the loan is due.
+        meaning: "One row per loan: its identity, copy, reader, and due date."
       classification: internal
       reads:
       - aggregate/lending.loan
@@ -58,8 +57,7 @@ output:
       fields:
       - name: holds
         type: list
-        meaning: "One row per waiting hold: its identity and copy."
-        rowShape:
+        items:
           fields:
           - name: hold
             type: id
@@ -71,6 +69,7 @@ output:
             identifies: aggregate/lending.copy
             required: true
             meaning: The copy on hold.
+        meaning: "One row per waiting hold: its identity and copy."
       classification: internal
       reads:
       - aggregate/lending.hold
@@ -82,16 +81,17 @@ paging:
   cursor: The due date and loan identity of the last row.
   defaultLimit: 25
   maxLimit: 100
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
 steps:
 - statement: The reader lists their own loans.
-records:
-- type: result
-  id: result/list-loans.listed
+results:
+- id: result/list-loans.listed
   title: Listed
   outcome: success
   meaning: The loans are listed.
-- type: scenario
-  id: scenario/list-loans.listing-own-loans-succeeds
+scenarios:
+- id: scenario/list-loans.listing-own-loans-succeeds
   title: Listing own loans succeeds
   given: A reader holds two active loans.
   when: The reader lists their loans.

@@ -61,7 +61,7 @@ public sealed class DomainEventOutcomeCheckTests
             TestModel.Config(temp.Path),
             Undecided(temp.Path),
             TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, "external.yaml"),
-                """{"action": "send", "translates": "domain-event/loan.loan-borrowed"}"""));
+                """{"direction": "send", "translates": "domain-event/loan.loan-borrowed"}"""));
 
         Assert.DoesNotContain("domain-event-outcome-missing", TestModel.Codes(model));
         Assert.DoesNotContain("domain-event-outcome-drift", TestModel.Codes(model));
@@ -76,7 +76,7 @@ public sealed class DomainEventOutcomeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": [], "ignored": true}"""));
+                """{"meaning": "A copy was lent.", "fields": [], "ignored": true}"""));
 
         Assert.DoesNotContain("domain-event-outcome-missing", TestModel.Codes(model));
         Assert.DoesNotContain("domain-event-outcome-drift", TestModel.Codes(model));
@@ -91,7 +91,7 @@ public sealed class DomainEventOutcomeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": [], "ignored": true}"""),
+                """{"meaning": "A copy was lent.", "fields": [], "ignored": true}"""),
             TestModel.Record("reaction", "reaction/lending.notify-reader-on-borrow", Path.Combine(temp.Path, "notify.yaml"),
                 """{"triggeredBy": ["domain-event/loan.loan-borrowed"]}"""));
 
@@ -110,7 +110,7 @@ public sealed class DomainEventOutcomeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": [], "ignored": true}"""),
+                """{"meaning": "A copy was lent.", "fields": [], "ignored": true}"""),
             TestModel.Record("module-event", "module-event/lending.loan-borrowed", Path.Combine(temp.Path, "module.yaml"),
                 """{"translates": "domain-event/loan.loan-borrowed"}"""));
 
@@ -121,5 +121,5 @@ public sealed class DomainEventOutcomeCheckTests
         "domain-event",
         "domain-event/loan.loan-borrowed",
         Path.Combine(root, "borrowed.yaml"),
-        """{"meaning": "A copy was lent.", "carries": []}""");
+        """{"meaning": "A copy was lent.", "fields": []}""");
 }

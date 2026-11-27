@@ -3,15 +3,20 @@
 **Stack:** any
 **Concern:** workspace
 
-Each provision carries scope fields that file it by situation: the stack, the concern, the artifact, the record layer it governs, whether it traces that layer to the records, and how binding it is. Each page states the rules for one concern, but an agent changing one file needs every rule for that situation. You set these values when you write or grade a provision. The provision index carries them, so the CLI lists the provisions that apply to one path and shows which record layer each provision belongs to.
+Each provision carries scope fields filing it by situation: the stack, the concern, the artifact, the record layer it governs, whether it traces that layer to the records, and how binding it is. This page states those fields and the scope block each page declares. Each page states the rules for one concern, but an agent changing one file needs every rule for that situation. Set these values when writing or grading a provision. The provision index carries them, so the CLI lists the provisions applying to one path and shows which record layer each provision belongs to.
 
 ## Concepts
 
 ### The Six Fields
 
-A provision is one rule in the standard, and each provision carries six scope fields that name the situation it governs. The page declares the stack and concern once for all its provisions. A single provision narrows the stack or names an artifact where it governs less than the whole page.
+A provision is one rule in the standard, and each provision carries six scope fields naming the situation it governs. The page declares the stack and concern once for all its provisions. A single provision narrows the stack or names an artifact where it governs less than the whole page.
 
-The `layer` field names the record layer the provision governs, `trace` says whether the provision ties that layer back to the records, and `strength` grades how binding it is. The [project scope page](scope.md#layer-claims) states which layers a project claims.
+```yaml
+paths:
+  behaviorDocs: .litespec/behavior
+```
+
+The project record above points at one Behavior tree, the same way each provision points at its situation: the `layer` field names the record layer the provision governs, and `trace` says whether the provision ties that layer back to the records. The [project scope page](scope.md#layer-claims) states which layers a project claims.
 
 | Field | Answers | Values |
 |:---|:---|:---|
@@ -45,7 +50,7 @@ The `concern` field names the part of the system a provision governs:
 | `web-api` | HTTP endpoints and their contracts |
 | `frontend-ui` | Components, routes, and rendering |
 | `frontend-data` | Client state, the cache, and generated clients |
-| `tests` | The suites that prove behavior |
+| `tests` | The suites proving behavior |
 | `records` | Specification records and standards pages |
 | `workspace` | Repository shape, packages, and configuration |
 | `operations` | Releases, deployment, and support |
@@ -83,7 +88,7 @@ The `record:` prefix marks the difference between a record and its code. The val
 
 When one rule governs several code kinds, the provision lists them separated by commas, for example `artifact: command-handler, query-handler`. A file matches when its kind is one of the listed kinds.
 
-The value `any` stands alone and names no kind. A file matches when its concern is the provision's concern. On a page where another provision names a kind, `artifact: any` marks a provision with concern-wide scope.
+The value `any` stands alone and carries no kind. A file matches when its concern is the provision's concern. On a page where another provision names a kind, `artifact: any` marks a provision with concern-wide scope.
 
 Every code kind names files the CLI classifies from the path, so a kind with no classifiable files gets no value in this table.
 
@@ -96,12 +101,12 @@ The `layer` field names the record layer a provision governs:
 | `any` | Every record layer: a provision about the record model as a whole |
 | `intent` | The Intent records: the outcomes and problems the product answers |
 | `behavior` | The Behavior records: what the software does, holds, and enforces |
-| `implementation` | The code that serves the Behavior records, and the practice LiteSpec gives for that code |
-| `proof` | The tests and runs that prove the Behavior scenarios, and the practice LiteSpec gives for them |
+| `implementation` | The code serving the Behavior records, and the practice LiteSpec gives for that code |
+| `proof` | The tests and runs proving the Behavior scenarios, and the practice LiteSpec gives for them |
 
-A trace of `yes` marks a provision that ties its layer back to the records, such as a code mark naming its Behavior record or a test run proving a scenario. A trace of `no` marks LiteSpec's own practice for the layer without such a link.
+A trace of `yes` marks a provision tying its layer back to the records, such as a code mark naming its Behavior record or a test run proving a scenario. A trace of `no` marks LiteSpec's own practice for the layer without such a link.
 
-For a project that claims Implementation or Proof with `own`, only provisions with trace `yes` apply. For a project that claims the layer with `litespec`, provisions apply whatever their trace. The [project scope page](scope.md#layer-claims) states the layer claims.
+For a project claiming Implementation or Proof with `own`, only provisions with trace `yes` apply. For a project claiming the layer with `litespec`, provisions apply whatever their trace. The [project scope page](scope.md#layer-claims) states the layer claims.
 
 ### Page Layer
 
@@ -117,7 +122,7 @@ Each page gives its provisions one default record layer. The default comes from 
 | Any other page whose concern is `tests` | `proof` |
 | Every other standards page | `implementation` |
 
-Every provision takes its trace from its page, which is `no`, unless it states otherwise. A provision states its own layer on its Applies to line only when that layer differs from the page default. It states `trace: yes` only where it ties its layer back to the records. A stack page takes its layer from this table like any other page: `implementation`, or `proof` when its concern is `tests`.
+Every provision takes its trace from its page, which is `no`, unless it states otherwise. A provision states its own layer on its Applies to line when that layer differs from the page default. It states `trace: yes` where it ties its layer back to the records. A stack page takes its layer from this table like any other page: `implementation`, or `proof` when its concern is `tests`.
 
 ### Strength Values
 
@@ -125,19 +130,19 @@ The `strength` field grades how binding a provision is:
 
 | Value | Meaning |
 |:---|:---|
-| `required` | Follow it; set it aside only through a [waiver](waivers.md) whose `waives` names the provision, with a reason. |
+| `required` | Follow it; set it aside through a [waiver](waivers.md) whose `waives` names the provision, with a reason. |
 | `default` | Follow it unless the project chooses otherwise, and record the choice. |
 | `advisory` | Experience; apply it with judgement and record nothing. |
 
-### Assigning Strength
+Grading starts with a mechanical pass. A provision with `Checked by`, or a rule on a checked boundary, takes `required`. A convention or a pattern takes `default`. General knowledge, and a provision whose Statement uses `SHOULD`, takes `advisory`. Each area pass then settles its pages honestly: most provisions bind, and generic restatements earn `advisory`.
 
-Grading starts with a mechanical pass. A provision with `Checked by`, or a rule on a checked boundary, takes `required`. A convention or a pattern takes `default`. General knowledge, and a provision whose Statement uses `SHOULD`, take `advisory`. Each area pass then settles its pages honestly: most provisions earn `required` or `default`, and generic restatements earn `advisory`.
+A provision restating an outside standard becomes a link to its source instead. A provision a stack page repeats from a base page merges into the base one. Each rule keeps one home.
 
-A provision that restates an outside standard becomes a link to its source instead. A provision that a stack page repeats from a base page merges into the base one. Each rule keeps one home.
+A project setting a rule aside records a waiver naming it with a reason. A project choosing otherwise than a `default` provision records its choice where the provision names. An `advisory` provision asks for no record, which sets the two strengths apart.
 
 ### Where Scope Is Written
 
-Each page that owns provisions declares its `stack` and `concern` once. The two lines sit directly under its title: a `**Stack:**` line and a `**Concern:**` line. Together they form the Scope block. Each line names one or more values separated by commas:
+Each page owning provisions declares its `stack` and `concern` once. The two lines sit directly under its title: a `**Stack:**` line and a `**Concern:**` line. Together they form the Scope block. Each line names one or more values separated by commas:
 
 ```markdown
 # Domain Layer
@@ -148,24 +153,24 @@ Each page that owns provisions declares its `stack` and `concern` once. The two 
 
 A page without provisions carries no Scope block, such as a tutorial, a how-to, an explanation, a reference, a command, or an index page.
 
-A provision adds an `**Applies to:**` line only when it is narrower than its page, or when its layer or trace differs from its page. The line names `stack`, `artifact`, `layer`, or `trace` in that order, separated by `; `. For example, `artifact: aggregate` narrows to aggregates, and `artifact: aggregate; layer: implementation; trace: yes` also moves the layer.
+A provision adds an `**Applies to:**` line when it is narrower than its page, or when its layer or trace differs from its page. The line names `stack`, `artifact`, `layer`, or `trace` in that order, separated by `; `. For example, `artifact: aggregate` narrows to aggregates, and `artifact: aggregate; layer: implementation; trace: yes` also moves the layer.
 
-An `artifact` field names one kind, several kinds separated by commas, `any`, or one or more `record:<type>` values separated by commas. Narrower means each named field holds a subset of the page values. The `artifact` field always narrows, because the page names none.
+An `artifact` field names one kind, several kinds separated by commas, `any`, or one or more `record:<type>` values separated by commas. Narrower means each named field holds a subset of the page values. The `artifact` field narrows in every case, since the page names none.
 
-The value `any` holds the page scope in the field. A provision governing every file of its layer states `artifact: any` on a page where another provision names a kind, and carries no line on a page where no provision names one. A provision states `layer` only when it differs from its page layer, and `trace` only when it is `yes`, since the page trace is `no`. Each of these fields names exactly one value.
+The value `any` holds the page scope in the field. A provision governing every file of its layer states `artifact: any` on a page where another provision names a kind, and carries no line on a page where no provision names one. A provision states `layer` when it differs from its page layer, and `trace` when it is `yes`, since the page trace is `no`. Each of these fields names exactly one value.
 
-Every provision carries its `**Strength:**` line directly after its ID line, before `Applies to`. The [authoring standard](authoring.md) states the full provision layout.
+Every provision carries its `**Strength:**` line directly after its ID line, before Applies to. The [authoring standard](authoring.md) states the full provision layout.
 
 `litespec-maintain provisions` writes the stack, concern, artifact, layer, trace, and strength of every provision into the provision index and its data file. It places the layer and trace right after the artifact. It also states the checked share of rules for each page in the index, so the CLI reads one file instead of parsing every page.
 
 ### Scope Diagnostics
 
-These checks report scope defects that belong to no single provision. They are listed here instead of beside one.
+These checks report scope defects belonging to no single provision. They are listed here instead of beside one.
 
 | Code | Meaning |
 |:---|:---|
 | `SCOPE_ARTIFACT` | A provision names no artifact on a page where another provision names one. |
-| `SCOPE_BLOCK` | A page that owns provisions carries no Scope block, or the block names no stack or no concern. |
+| `SCOPE_BLOCK` | A page owning provisions carries no Scope block, or the block names no stack or no concern. |
 | `SCOPE_VALUE` | A Scope block or an Applies to line names a value outside this page's tables, or an Applies to line names a `layer` or `trace` value outside its values, or names more than one value for either. |
 | `SCOPE_NARROW` | An Applies to line is as wide as its page, widens it, or repeats the layer or trace of its page. |
 | `STRENGTH_LINE` | A provision carries no Strength line, or the line names a value outside `required`, `default`, and `advisory`. |
@@ -180,7 +185,7 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** Each page that owns provisions MUST declare its stack and concern in a `**Stack:**` line and a `**Concern:**` line directly under its title.
 
-**Rationale:** Without it, the page's provisions stay unfiled. Retrieval cannot tell which change they govern, so it shows them everywhere or nowhere. One block under the title tells every reader and tool which situation the page governs, with no need to read further. Declaring both fields once keeps the page, rather than each provision, as the home of the shared scope.
+**Rationale:** Without the block, the page's provisions stay unfiled. Retrieval has no way to tell which change they govern, so it shows them everywhere or nowhere. One block under the title tells every reader and tool which situation the page governs, with no need to read further. Declaring both fields once keeps the page, rather than each provision, as the home of the shared scope.
 
 **Checked by:** `litespec-maintain validate` emits no `SCOPE_BLOCK` diagnostic.
 
@@ -192,7 +197,7 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** A Scope block and an Applies to line MUST use only the stack, concern, artifact, layer, and trace values this page lists.
 
-**Rationale:** Retrieval matches situations to values. A value invented on one page matches nothing, and its provisions never surface for the change they govern. One closed vocabulary keeps every value comparable across pages. A new situation earns its value on this page first, then uses it on its page.
+**Rationale:** Retrieval matches situations to values. A value invented on one page matches nothing, and its provisions surface for no change they govern. One closed vocabulary keeps every value comparable across pages. A new situation earns its value on this page first, then uses it on its page.
 
 **Example:** A provision about the expense aggregate narrows with `artifact: aggregate` rather than inventing `artifact: receipt`. A provision about marks on a record-model page states `trace: yes` rather than inventing a trace value.
 
@@ -206,7 +211,7 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** A provision MUST carry an Applies to line only when its scope is narrower than its page scope, its layer or trace differs from its page, or it marks its concern-wide scope with `artifact: any` on a page where another provision names a kind.
 
-**Rationale:** The page scope already governs every provision on the page. Repeating it on each provision gives one fact two homes, and the copies disagree at the next edit. Widening it misfiles the provision under situations the page never governed. A line that appears only when narrower, at a different layer or trace, or marking concern-wide scope beside a named kind keeps retrieval exact.
+**Rationale:** The page scope already governs every provision on the page. Repeating it on each provision gives one fact two homes, and the copies disagree at the next edit. Widening it misfiles the provision under situations outside the page. A line appearing only when narrower, at a different layer or trace, or marking concern-wide scope beside a named kind keeps retrieval exact.
 
 **Example:** On a page scoped to `concern: domain`, a provision for aggregates carries `**Applies to:** artifact: aggregate`. A provision for the whole domain concern carries no line. On an application page where a provision names `artifact: validator`, a provision for the whole application concern carries `**Applies to:** artifact: any`. On a record-model page, a provision about marks carries `**Applies to:** layer: implementation; trace: yes`.
 
@@ -220,7 +225,7 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** On a page where one provision names an `artifact`, every provision MUST name the kinds of file it governs, or `artifact: any` when it governs every file of its layer.
 
-**Rationale:** `litespec rules` matches a provision to a file by the kind of file the provision names. A provision naming none on a page of named kinds matches every file of the layer. A handler receives the validator and port provisions beside its own, and an agent reads provisions that do not govern the file in front of it.
+**Rationale:** The `litespec rules` command matches a provision to a file by the kind of file the provision names. A provision naming none on a page of named kinds matches every file of the layer. A handler receives the validator and port provisions beside its own, and an agent reads provisions outside the file in front of it.
 
 **Example:** On the application page, the provision for validators names `artifact: validator`. The provision for the whole application concern names `artifact: any`. Running `litespec rules` on a command handler returns the second and leaves out the first.
 
@@ -234,9 +239,9 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** Every provision MUST carry the record layer of its page, or state its own layer as a `layer` field on its Applies to line when that layer differs from its page layer; a provision that ties its layer to the records states `trace: yes` on that line.
 
-**Rationale:** A tool reporting only the part of the record model a project claims reads each provision's layer and trace from the provision index. A provision with no layer, or with a layer copied from its page, gives the tool no exact part to report. The page gives the default, one field states the exception, and the index carries the result beside the artifact, so no reader composes the layer by hand.
+**Rationale:** A tool reporting the part of the record model a project claims reads each provision's layer and trace from the provision index. A provision with no layer, or with a layer copied from its page, gives the tool no exact part to report. The page gives the default, one field states the exception, and the index carries the result beside the artifact, so no reader composes the layer by hand.
 
-**Example:** A provision about expense records on a page under `docs/core/` carries `any` from its page and states no field. A provision that requires code marks on the same page states `**Applies to:** layer: implementation; trace: yes`. Its index row carries `implementation` and `yes`.
+**Example:** A provision about expense records on a page under `docs/core/` carries `any` from its page and states no field. A provision requiring code marks on the same page states `**Applies to:** layer: implementation; trace: yes`. Its index row carries `implementation` and `yes`.
 
 **Checked by:** `litespec-maintain validate` emits no `SCOPE_VALUE` diagnostic for a `layer` or `trace` value.
 
@@ -248,7 +253,7 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** A project that sets aside a provision of Strength `required` MUST record a waiver whose `waives` names the provision, with a reason.
 
-**Rationale:** A rule binds every project it reaches. If a project quietly skips a required rule, its records claim it follows the standard when it doesn't. The [waiver record](waivers.md) names the provision and the reason. A gap waiver's expiry date marks a gap the team means to close, so the waiver stays visible and ends instead of lingering.
+**Rationale:** A rule binds every project it reaches. A project quietly skipping a binding rule claims it follows the standard in records saying otherwise. The [waiver record](waivers.md) names the provision and the reason. A gap waiver's expiry date marks a gap the team means to close, so the waiver stays visible and ends instead of lingering.
 
 **Example:** Claimwick ships its weekend export without the review step. It records a waiver whose `waives` names the authorization provision and whose reason states the choice.
 
@@ -262,7 +267,7 @@ These checks report scope defects that belong to no single provision. They are l
 
 **Statement:** A project that chooses otherwise than a provision of Strength default MUST record its choice where the provision names.
 
-**Rationale:** Without the record, a reader cannot tell a deliberate choice from a provision nobody read. A default holds until the project says otherwise in writing. The provision names the recording place in its Replacement, so each choice sits where its provision points. An advisory provision asks for no record, which is what sets the two strengths apart.
+**Rationale:** Without the record, a reader cannot tell a deliberate choice from a provision nobody read. A default holds until the project says otherwise in writing. The provision names the recording place in its Replacement, so each choice sits where its provision points. An advisory provision asks for no record, which sets the two strengths apart.
 
 **Example:** A project keeps its pattern catalog outside the default path, and records the path in `paths.uiPatterns`, as the provision's Replacement names.
 
@@ -276,25 +281,4 @@ None.
 
 This informative example demonstrates `litespec/core/scopes#declare-the-page-scope`, `litespec/core/scopes#use-only-declared-scope-values`, and `litespec/core/scopes#state-applies-to-only-when-narrower`.
 
-A .NET domain page opens with its Scope block, and its aggregate provision narrows to that artifact:
-
-```markdown
-# Domain Layer
-
-**Stack:** dotnet
-**Concern:** domain
-
-### Guard Each Aggregate Boundary
-
-**ID:** `litespec/core/backend-domain#guard-each-aggregate-boundary`
-
-**Strength:** required
-
-**Applies to:** artifact: aggregate
-
-**Statement:** An aggregate MUST guard every change through its root.
-
-**Rationale:** Changes that pass outside the root skip the checks the aggregate holds.
-
-**Reviewed for:** Which aggregate changes pass outside the root? Look at the callers of each aggregate.
-```
+A .NET domain page opens with a Scope block naming `dotnet` and `domain`. A provision governing aggregates carries `**Applies to:** artifact: aggregate`, using a value from the artifact table, while a provision governing the whole domain concern carries no Applies to line. On a record-model page, a provision about code marks carries `**Applies to:** layer: implementation; trace: yes`.

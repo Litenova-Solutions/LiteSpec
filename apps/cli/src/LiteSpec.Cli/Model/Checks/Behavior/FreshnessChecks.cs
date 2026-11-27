@@ -76,7 +76,7 @@ internal static class FreshnessChecks
     private static List<KeyValuePair<string, JsonElement>> IncludeGroups(Record query)
     {
         if (query.Raw.ValueKind == JsonValueKind.Object
-            && query.Raw.TryGetProperty(RecordFields.Output, out var output)
+            && query.Raw.TryGetProperty(RecordFields.Outputs, out var output)
             && output.ValueKind == JsonValueKind.Object
             && output.TryGetProperty(RecordFields.Include, out var include)
             && include.ValueKind == JsonValueKind.Object)

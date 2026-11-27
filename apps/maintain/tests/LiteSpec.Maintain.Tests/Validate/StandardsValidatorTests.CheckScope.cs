@@ -27,14 +27,14 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
-    /// <summary>Provision checked at large size or with an extension without the extension clause.</summary>
+    /// <summary>Provision checked at large size without the size clause on result-scenario-missing.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "provision checked at large size or with an extension without the extension clause")]
     public void CheckScopeSizeExtensionMissing() => Check(
         root =>
         {
             var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec model check` reports `result-scenario-missing` for a written result no scenario shows.");
-            page = StandardsFixture.ReplaceFirst(page, "**Statement:** Consumers MUST keep the topic inside its declared boundary.", "**Statement:** At large size, each written result MUST be shown by at least one scenario of its use case.");
+            page = StandardsFixture.ReplaceFirst(page, "**Statement:** Consumers MUST keep the topic inside its declared boundary.", "**Statement:** Each written result MUST be shown by at least one scenario of its use case.");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
         },
         [MaintainerDiagnostics.Codes.ProvisionCheckScope]);

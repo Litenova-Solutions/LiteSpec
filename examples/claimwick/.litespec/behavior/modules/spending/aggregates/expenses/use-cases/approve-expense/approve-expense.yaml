@@ -2,7 +2,6 @@ type: use-case
 id: use-case/spending.approve-expense
 title: Approve Expense
 summary: A manager decides a submitted expense so the employee learns the outcome.
-exposure: A signed-in manager reaches this command through the expenses app under the approve-expense permission. A wrong approval sends an out-of-policy expense toward payment, so the decision needs a manager who is not the submitter.
 kind: command
 access:
   grant: permission/approve-expense
@@ -11,11 +10,11 @@ serves:
 - step/submit-and-reimburse.decide-expense
 fulfills:
 - requirement/approval.nobody-approves-own-expense
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises:
 - domain-event/expense.approved
-input:
+inputs:
 - name: expense
   meaning: The submitted expense to approve.
   type: id
@@ -65,30 +64,27 @@ steps:
   - aggregate/spending.expense
 edgeCases:
 - Spending refuses approval of the manager's own expense with `spending.own-expense`.
-records:
-- type: result
-  id: result/approve-expense.approved
+results:
+- id: result/approve-expense.approved
   title: Approved
   outcome: success
   meaning: The expense is approved.
-- type: result
-  id: result/approve-expense.own-expense
+- id: result/approve-expense.own-expense
   title: Own Expense
   outcome: refusal
   refusal: refusal/spending.own-expense
-  sentence: You submitted this expense, so another manager must decide it.
-  sentences:
+  message: You submitted this expense, so another manager must decide it.
+  translations:
     nl: Je hebt deze uitgave zelf ingediend, dus een andere manager moet erover beslissen.
-- type: result
-  id: result/approve-expense.not-submitted
+- id: result/approve-expense.not-submitted
   title: Not Submitted
   outcome: refusal
   refusal: refusal/spending.not-submitted
-  sentence: This expense is already decided, so there is nothing to approve.
-  sentences:
+  message: This expense is already decided, so there is nothing to approve.
+  translations:
     nl: Over deze uitgave is al beslist, dus er valt niets meer goed te keuren.
-- type: scenario
-  id: scenario/approve-expense.approving-a-submitted-expense-succeeds
+scenarios:
+- id: scenario/approve-expense.approving-a-submitted-expense-succeeds
   title: Approving a Submitted Expense Succeeds
   given: An employee submitted an expense with its receipt.
   when: The manager approves the expense.
@@ -97,8 +93,7 @@ records:
   exercises:
   - rule/expense.approver-is-not-submitter
   - rule/expense.decided-from-submitted
-- type: scenario
-  id: scenario/approve-expense.approving-an-own-expense-is-refused
+- id: scenario/approve-expense.approving-an-own-expense-is-refused
   title: Approving an Own Expense Is Refused
   given: A manager submitted an expense with its receipt.
   when: The manager approves the expense.
@@ -106,8 +101,7 @@ records:
   result: result/approve-expense.own-expense
   exercises:
   - rule/expense.approver-is-not-submitter
-- type: scenario
-  id: scenario/approve-expense.approving-a-decided-expense-is-refused
+- id: scenario/approve-expense.approving-a-decided-expense-is-refused
   title: Approving a Decided Expense Is Refused
   given: A manager approved an expense.
   when: The manager approves the expense again.

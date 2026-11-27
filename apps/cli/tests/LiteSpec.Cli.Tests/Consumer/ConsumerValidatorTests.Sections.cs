@@ -137,14 +137,14 @@ public sealed partial class ConsumerValidatorTests
     static void AsQuery(JsonObject meta)
     {
         meta["kind"] = "query";
-        meta["output"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","reads":["aggregate/orders.order-claim"],"freshness":{"mode":"immediate"}}}}""");
+        meta["outputs"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","reads":["aggregate/orders.order-claim"],"freshness":{"mode":"immediate"}}}}""");
     }
 
     /// <summary>Drops every refusal result from the page's records, leaving successes.</summary>
     /// <param name="meta">The page record fields to mutate.</param>
     static void DropRefusals(JsonObject meta)
     {
-        if (meta["records"] is not JsonArray records)
+        if (meta["results"] is not JsonArray records)
         {
             return;
         }
@@ -152,7 +152,6 @@ public sealed partial class ConsumerValidatorTests
         for (var index = records.Count - 1; index >= 0; index--)
         {
             if (records[index] is JsonObject entry
-                && (string?)entry["type"] == "result"
                 && (string?)entry["outcome"] == "refusal")
             {
                 records.RemoveAt(index);
@@ -195,7 +194,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/constraints/tax-retention/tax-retention.yaml",
-            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","sources":[{"name":"tax-guidance","url":"https://example.com/tax","readOn":"2026-01-01"}],"kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","coverage":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","sources":[{"name":"tax-guidance","url":"https://example.com/tax","readOn":"2026-01-01"}],"kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","scope":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
@@ -208,7 +207,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/constraints/tax-retention/tax-retention.yaml",
-            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","summary":"The tax office requires receipts for seven years.","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","coverage":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","summary":"The tax office requires receipts for seven years.","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","scope":"The rule covers receipts. The shop holds only the receipts of orders it sells.","obligations":[{"statement":"The shop keeps its receipts for seven years.","sources":["tax-guidance"]}],"productEffect":"The shop keeps each receipt for seven years."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'sources'");
     }
 
@@ -249,7 +248,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml",
-            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"step/submit-and-reimburse.submit-claim","title":"Submit Claim","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            """{"type":"flow","id":"flow/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"step/submit-and-reimburse.submit-claim","title":"Submit Claim","statement":"The customer submits the order.","actor":"actor/customer"}]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'startedWhen'");
     }
 

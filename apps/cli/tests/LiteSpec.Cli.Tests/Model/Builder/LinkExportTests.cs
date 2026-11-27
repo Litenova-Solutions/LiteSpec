@@ -188,10 +188,12 @@ public sealed class LinkExportTests
           "type": "setting",
           "id": "setting/lending.loan-days",
           "title": "Loan Days",
-          "valueType": "integer",
-          "default": 21,
-          "range": "7..60",
-          "unit": "days",
+          "value": {
+            "type": "integer",
+            "default": 21,
+            "range": "7..60",
+            "unit": "days"
+          },
           "setBy": "product"
         }
         """;

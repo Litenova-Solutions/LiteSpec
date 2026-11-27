@@ -32,7 +32,7 @@ public sealed class RequirementPageTests
 
         Assert.Equal(1, result.Status);
         Assert.Contains("[record-invalid]", result.Output);
-        Assert.Contains("a requirement is a record file of its own at <feature folder>/<name>/<name>.yaml", result.Output);
+        Assert.Contains("unknown property 'records'", result.Output);
     }
 
     /// <summary>A requirement whose identifier names a feature other than its folder's is reported as identifier-invalid.</summary>

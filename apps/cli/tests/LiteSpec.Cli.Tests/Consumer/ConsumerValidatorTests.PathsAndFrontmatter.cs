@@ -188,8 +188,8 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateMeta(
             folder.Path,
             ".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
-            meta => ((JsonObject)((JsonArray)meta["records"]!)[0]!).Remove("outcome"));
-        AssertProblem(RunConsumer(folder.Path), "/records/0");
+            meta => ((JsonObject)((JsonArray)meta["results"]!)[0]!).Remove("outcome"));
+        AssertProblem(RunConsumer(folder.Path), "/results/0");
     }
 
     /// <summary>Retired page type from the old model.</summary>

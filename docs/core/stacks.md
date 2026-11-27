@@ -1,9 +1,10 @@
 # Technology Stacks
 
 **Stack:** any
+
 **Concern:** workspace
 
-A stack binds the specification to one technology: the backend stack lives under `packs/dotnet/`, and a frontend stack under `packs/svelte/` or `packs/android/`. Selecting a stack applies exactly the pages, version pins, and checks that technology needs: the provisions in its folder and above it, the pins in the manifest, and replacements that name every baseline provision they replace.
+A stack binds the specification to one technology: the backend stack lives under `packs/dotnet/`, and a frontend stack under `packs/svelte/` or `packs/android/`. Selecting a stack applies exactly the pages, version pins, and checks that technology needs. This page states what a stack folder holds, where versions come from, and what each selection covers. It is for the team choosing its technologies, and for the agent resolving which pages apply.
 
 ## Concepts
 
@@ -11,25 +12,31 @@ A stack binds the specification to one technology: the backend stack lives under
 
 A stack is one folder with a `stack.md` page. That page states what the stack adds: its provisions, its version pins, and its checks. The standard ships three stacks: `docs/packs/dotnet/`, `docs/packs/svelte/`, and `docs/packs/android/`.
 
-Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. It also applies the subfolders of those folders that hold no stack of their own. For example, a pack folder such as `components/` holds no `stack.md`, so it applies with its stack.
+```yaml
+stacks:
+- dotnet
+- svelte
+```
 
-[Supported Scope](scope.md) states how size, shape, and stacks combine into one selection.
+Claimwick names the two stacks above in its project file. Each one applies its folder and every folder above it, so a stack restates no inherited principle. It also applies the subfolders of those folders holding no stack of their own. For example, a pack folder such as `components/` holds no `stack.md`, so it applies with its stack.
+
+[Supported Scope](scope.md) states how size, shape, and stacks combine into one selection. A deeper page replaces the provisions it names, and everything it leaves unnamed keeps applying.
 
 ### Where Versions Come From
 
-The standards-selected stack versions resolve from `litespec.manifest.yaml`, which owns the pins, as `litespec/core/principles#locate-package-versions-in-the-manifest` states. One source for every pin keeps each consumer on the same tested combination. A version copied from anywhere else, prose, an example, a package search, or agent memory, drifts from the pin with the next edit. Consumer dependencies still live in package manifests and lockfiles.
+The standards-selected stack versions resolve from `litespec.manifest.yaml`, which owns the pins. One source for every pin keeps each consumer on the same tested combination. A version copied from anywhere else, prose, an example, a package search, or agent memory, drifts from the pin with the next edit. Consumer dependencies still live in package manifests and lockfiles.
 
-### How a Replacement Names What It Changes
+### How a Change Names Its Boundary
 
-Baseline behavior sometimes gives way to an extension or a waiver. A replacement then names every baseline provision ID it replaces, so reviewers see the exact boundary of the change, and everything unnamed stays active.
+Baseline behavior gives way to an extension or a waiver at times. A change then names every baseline provision ID it replaces, so reviewers see the exact boundary of the change, and everything unnamed stays active.
 
-A waiver names the provision in `waives`; there is no separate type or folder. `rules <path>` shows the waiver in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named.
+A waiver names the provision in `waives`; there is no separate type or folder. The command `rules <path>` shows the waiver in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension also states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
-Each extension also states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
+Each selected stack stays visible: `.litespec/project.yaml` names each one, and the root `AGENTS.md` names the solution, the applications, and the commands. A visible selection tells an agent which placeholders to resolve without inferring them from the directory tree, where folders outnumber stacks or names overlap. It also tells a human reader what the project runs before opening any code. A project naming its selection elsewhere records an explicit local convention saying so.
 
 ### Selection Diagnostics
 
-A selection can name a stack, shape, page, or extension that no page applies. The checks below report those dead selections, so they sit here instead of beside one provision.
+A selection names a stack, shape, page, or extension no page applies at times. The checks below report those dead selections, so they sit here instead of beside one provision.
 
 | Family | Meaning | Codes |
 |:---|:---|:---|
@@ -48,34 +55,10 @@ A selection can name a stack, shape, page, or extension that no page applies. Th
 
 **Statement:** A consumer selecting a stack MUST apply the pages in its folder, every folder above it, and their subfolders that hold no stack.
 
-**Rationale:** The stack is the unit of conformance: a consumer cannot claim a stack while silently omitting an applicable page. Applying the folder, every folder above it, and their stackless subfolders keeps inherited principles in force without restating them. A deeper page replaces only the provisions it names, so everything it leaves unnamed keeps applying.
+**Rationale:** The stack is the unit of conformance: a consumer claims no stack while silently omitting an applicable page. Applying the folder, every folder above it, and their stackless subfolders keeps inherited principles in force without restating them. A deeper page replaces the provisions it names, so everything it leaves unnamed keeps applying. Settled by decision/0122-isolate-three-stack-packs.
 
 **Reviewed for:** Does the project apply every page its stack selection brings in? Compare the files against the stack folders, the folders above them, and their stackless subfolders.
 
-### Name Every Provision a Replacement Replaces
-
-**ID:** `litespec/core/stacks#name-every-provision-a-replacement-replaces`
-
-**Strength:** required
-
-**Statement:** An extension or a waiver MUST name every baseline provision ID it replaces.
-
-**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A waiver names the provision in `waives`, and `rules <path>` shows the waiver in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
-
-**Reviewed for:** Does every extension and waiver name each baseline provision it replaces? Check each replacement against the baseline provisions it touches.
-
 ## Conventions
 
-### Keep the Stack Visible
-
-**ID:** `litespec/core/stacks#keep-the-stack-visible`
-
-**Strength:** default
-
-**Default:** Name each selected stack in `.litespec/project.yaml` and the solution, applications, and commands in the root `AGENTS.md`.
-
-**Replacement:** A consumer can replace this default with an explicit local convention.
-
-**Rationale:** When `.litespec/project.yaml` names each selected stack and the root `AGENTS.md` names the solution, applications, and commands, an agent resolves the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. A visible selection also tells a human reader what the project runs before opening any code.
-
-**Reviewed for:** Does `.litespec/project.yaml` name each selected stack, and does the root `AGENTS.md` name the solution, applications, and commands? Check both files against the project layout.
+None.

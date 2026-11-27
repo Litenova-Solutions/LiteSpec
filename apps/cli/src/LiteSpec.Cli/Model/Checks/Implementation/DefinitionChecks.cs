@@ -2,6 +2,8 @@ using System.Text.Json;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
+using LiteSpec.Standards;
+using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
@@ -12,11 +14,13 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 internal static class DefinitionChecks
 {
     /// <summary>
-    ///     Reports every message without its definitions, and every definition that disagrees with its use case
-    ///     record: the authorization policy against access.grant, the audit declaration against audit, and the
-    ///     idempotency declaration against idempotency. Definitions carry no mark; each use case's definitions
-    ///     are found from the message type its handler handles, in the handler's own Application folder.
-    ///     A use case without a handler keeps no definition rule, and a query keeps only authorization.
+    ///     Reports every message without its definitions, every definition that disagrees with its use case
+    ///     record: the authorization policy against access.grant, the audit declaration against audit, the
+    ///     tenancy declaration against access.tenant, and the idempotency declaration against idempotency,
+    ///     and every hand-enforced authorization or tenancy policy no record declares. Definitions carry no
+    ///     mark; each use case's definitions are found from the message type its handler handles, in the
+    ///     handler's own Application folder. A use case without a handler keeps no definition rule, and a
+    ///     query keeps only authorization and tenancy.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and each handler with its message type.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -45,8 +49,11 @@ internal static class DefinitionChecks
 
             CheckAuthorization(model, handler, record, folder, findings);
             CheckAudit(handler, record, folder, findings);
+            CheckTenancy(handler, record, folder, findings);
             CheckIdempotency(handler, record, folder, findings);
         }
+
+        CheckHandPolicies(model, findings);
     }
 
     /// <summary>Reports the missing authorization definition, and the authorization policy that misses the record's grant.</summary>
@@ -212,6 +219,11 @@ internal static class DefinitionChecks
 
         if (!File.Exists(file))
         {
+            if (AuditExemptOf(record))
+            {
+                return;
+            }
+
             findings.Add(new Finding(
                 "definition-missing",
                 $"Message '{message}' has no Audit definition for '{record.Id}'.",
@@ -297,6 +309,325 @@ internal static class DefinitionChecks
                 file,
                 1,
                 record.Id));
+        }
+    }
+
+    /// <summary>Reports the missing tenancy definition, and the tenancy declaration that misses the record's tenant reach or reason.</summary>
+    /// <param name="handler">The handler whose message names the definition.</param>
+    /// <param name="record">The use case record holding access.tenant.</param>
+    /// <param name="folder">The Application folder holding the handler and its definitions.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckTenancy(CodeHandler handler, Record record, string folder, List<Finding> findings)
+    {
+        if (TenantOf(record) is not { } tenant)
+        {
+            return;
+        }
+
+        var message = handler.MessageType;
+        var definition = message + "TenancyDefinition";
+        var file = Path.Combine(folder, definition + ".cs");
+
+        if (!File.Exists(file))
+        {
+            findings.Add(new Finding(
+                "definition-missing",
+                $"Message '{message}' has no Tenancy definition for '{record.Id}'.",
+                handler.File,
+                1,
+                record.Id));
+            return;
+        }
+
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if (!text.Contains("ITenancyDefinition", StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "definition-drift",
+                $"Tenancy definition '{definition}' implements no ITenancyDefinition for '{record.Id}'.",
+                file,
+                1,
+                record.Id));
+            return;
+        }
+
+        if (TenantMarker(tenant) is not { } marker || !text.Contains(marker, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "definition-drift",
+                $"Tenancy definition '{definition}' declares no {tenant} tenancy for '{record.Id}'.",
+                file,
+                1,
+                record.Id));
+            return;
+        }
+
+        if (TenantReasonOf(record) is { } reason && !text.Contains(reason, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "definition-drift",
+                $"Tenancy definition '{definition}' states no reason '{reason}' for the {tenant} tenant of '{record.Id}'.",
+                file,
+                1,
+                record.Id));
+        }
+    }
+
+    /// <summary>The tenant reach the use case record states in access.tenant, or null when it states none.</summary>
+    /// <param name="record">The use case record.</param>
+    /// <returns>The tenant reach string, or null.</returns>
+    private static string? TenantOf(Record record)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
+            || access.ValueKind != JsonValueKind.Object
+            || !access.TryGetProperty(RecordFields.Tenant, out var tenant)
+            || tenant.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return tenant.GetString();
+    }
+
+    /// <summary>The tenant reason the use case record states in access.tenantReason, or null when it states none.</summary>
+    /// <param name="record">The use case record.</param>
+    /// <returns>The tenant reason string, or null.</returns>
+    private static string? TenantReasonOf(Record record)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
+            || access.ValueKind != JsonValueKind.Object
+            || !access.TryGetProperty(RecordFields.TenantReason, out var reason)
+            || reason.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return reason.GetString();
+    }
+
+    /// <summary>The declaration marker a tenancy text carries for a tenant reach, or null for an unknown reach.</summary>
+    /// <param name="tenant">The tenant reach the use case record states.</param>
+    /// <returns>The marker naming the reach in a TenancyDeclaration, or null.</returns>
+    private static string? TenantMarker(string tenant) => tenant switch
+    {
+        "own" => "Required",
+        "cross" => "CrossTenant",
+        "none" => ".None(",
+        "public" => "Public",
+        _ => null,
+    };
+
+    /// <summary>Reports every authorization policy and tenancy attribute the endpoint and handler code enforces by hand that no record declares.</summary>
+    /// <param name="model">The loaded project model that holds every permission record, use case grant, endpoint and handler.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckHandPolicies(ProjectModel model, List<Finding> findings)
+    {
+        var declared = DeclaredPolicies(model);
+
+        var files = model.Code.Endpoints.Select(endpoint => endpoint.File)
+            .Concat(model.Code.Handlers.Select(handler => handler.File))
+            .Where(file => file.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(file => file, StringComparer.Ordinal)
+            .ToList();
+
+        foreach (var file in files)
+        {
+            string[] lines;
+
+            try
+            {
+                lines = File.ReadAllLines(file);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            for (var index = 0; index < lines.Length; index++)
+            {
+                CheckHandPolicyLine(model, file, index + 1, lines[index].Trim(), declared, findings);
+            }
+        }
+    }
+
+    /// <summary>Reports a hand-enforced policy one code line names that no record declares.</summary>
+    /// <param name="model">The loaded project model that supplies the consumer root for relative paths.</param>
+    /// <param name="file">The code file holding the line.</param>
+    /// <param name="line">The 1-based line number.</param>
+    /// <param name="text">The trimmed code line.</param>
+    /// <param name="declared">The policy names the records declare.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckHandPolicyLine(ProjectModel model, string file, int line, string text, HashSet<string> declared, List<Finding> findings)
+    {
+        if (text.Contains("[TenantRequired", StringComparison.Ordinal) || text.Contains("[CrossTenant", StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(
+                "policy-undeclared",
+                $"Code enforces tenancy by hand in '{PathText.Relative(model.Config.Root, file)}', which no record declares. Declare the tenant reach on the use case record and write its Tenancy definition.",
+                file,
+                line,
+                null));
+            return;
+        }
+
+        var policy = PolicyOf(text);
+
+        if (policy is null || declared.Contains(policy))
+        {
+            return;
+        }
+
+        findings.Add(new Finding(
+            "policy-undeclared",
+            $"Code enforces authorization policy '{policy}' in '{PathText.Relative(model.Config.Root, file)}', which no record declares. Declare the policy on a use case grant or a permission record, or stop enforcing it.",
+            file,
+            line,
+            null));
+    }
+
+    /// <summary>The policy name one code line enforces by hand, or null when it enforces none.</summary>
+    /// <param name="text">The trimmed code line.</param>
+    /// <returns>The enforced policy name, or null.</returns>
+    private static string? PolicyOf(string text)
+    {
+        var start = text.IndexOf("RequireAuthorization(", StringComparison.Ordinal);
+
+        if (start >= 0)
+        {
+            return QuotedAfter(text, start + "RequireAuthorization(".Length);
+        }
+
+        var authorize = text.IndexOf("[Authorize", StringComparison.Ordinal);
+
+        if (authorize < 0)
+        {
+            return null;
+        }
+
+        var named = text.IndexOf("Policy", authorize, StringComparison.Ordinal);
+
+        if (named >= 0)
+        {
+            var equals = text.IndexOf('=', named);
+
+            if (equals >= 0)
+            {
+                return QuotedAfter(text, equals + 1);
+            }
+        }
+
+        var open = text.IndexOf('(', authorize);
+
+        return open >= 0 ? QuotedAfter(text, open + 1) : null;
+    }
+
+    /// <summary>The first quoted string at or after a position, or null when none follows.</summary>
+    /// <param name="text">The code line to read.</param>
+    /// <param name="start">The position to read from.</param>
+    /// <returns>The quoted string, or null.</returns>
+    private static string? QuotedAfter(string text, int start)
+    {
+        var open = text.IndexOf('"', start);
+
+        if (open < 0)
+        {
+            return null;
+        }
+
+        var close = text.IndexOf('"', open + 1);
+
+        return close > open + 1 ? text[(open + 1)..close] : null;
+    }
+
+    /// <summary>Every policy name the records declare: each permission and each use case grant, with the Pascal spelling of each kebab-case name.</summary>
+    /// <param name="model">The loaded project model that holds every permission record and use case record.</param>
+    /// <returns>The declared policy names.</returns>
+    private static HashSet<string> DeclaredPolicies(ProjectModel model)
+    {
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type == RecordTypes.PermissionSet
+                && record.Raw.ValueKind == JsonValueKind.Object
+                && record.Raw.TryGetProperty(RecordFields.Permissions, out var permissions)
+                && permissions.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var entry in permissions.EnumerateArray())
+                {
+                    if (RecordEntries.Str(entry, RecordFields.Id) is { Length: > 0 } id
+                        && Identifiers.TrySplit(id, out var prefix, out _, out var name)
+                        && prefix == "permission"
+                        && name.Length > 0)
+                    {
+                        declared.Add(name);
+                        declared.Add(Naming.Pascal(name));
+                    }
+                }
+            }
+
+            if (record is { Type: RecordTypes.UseCase, Derived: false })
+            {
+                foreach (var policy in GrantPolicies(record))
+                {
+                    declared.Add(policy);
+                }
+            }
+        }
+
+        return declared;
+    }
+
+    /// <summary>The policy names one use case record declares through its access grant.</summary>
+    /// <param name="record">The use case record whose grant is read.</param>
+    /// <returns>The declared policy names.</returns>
+    private static IEnumerable<string> GrantPolicies(Record record)
+    {
+        if (GrantOf(record) is not { } grant)
+        {
+            yield break;
+        }
+
+        if (grant.StartsWith("permission/", StringComparison.Ordinal))
+        {
+            var permission = grant["permission/".Length..];
+
+            yield return permission;
+            yield return Naming.Pascal(permission);
+        }
+        else if (grant.StartsWith("self(permission/", StringComparison.Ordinal) && grant.EndsWith(')'))
+        {
+            var permission = grant["self(permission/".Length..^1];
+
+            yield return "Self";
+            yield return permission;
+            yield return Naming.Pascal(permission);
+        }
+        else if (grant == "anonymous")
+        {
+            yield return "Anonymous";
+        }
+        else if (grant == "system")
+        {
+            yield return "System";
+        }
+
+        if (RecentSignInOf(record) is not null)
+        {
+            yield return "RecentSignIn";
         }
     }
 
@@ -491,7 +822,7 @@ internal static class DefinitionChecks
         if (record.Raw.ValueKind != JsonValueKind.Object
             || !record.Raw.TryGetProperty(RecordFields.Access, out var access)
             || access.ValueKind != JsonValueKind.Object
-            || !access.TryGetProperty(RecordFields.RecentSignIn, out var window)
+            || !access.TryGetProperty(RecordFields.RecentSignInWindow, out var window)
             || window.ValueKind != JsonValueKind.String)
         {
             return null;

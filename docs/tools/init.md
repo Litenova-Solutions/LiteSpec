@@ -16,7 +16,7 @@ Run this command once in an empty folder, then validate the new project with `li
 
 It writes `.litespec/project.yaml` into the consumer root: it reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, writes the `layers` the preset declares, then writes the project size, the name, and `reviewedLiteSpecVersion`.
 
-When a preset names no stacks or no frontends, the project file has neither: a server project without a frontend omits `frontends`. The command refuses to overwrite an existing project file.
+When a preset lists no stacks or no frontends, the project file has neither: a server project without a frontend omits `frontends`. The command refuses to overwrite an existing project file.
 
 Five presets ship with the release:
 
@@ -28,7 +28,7 @@ Five presets ship with the release:
 | `android-client` | `client-only` | `android` | `android` at `apps/mobile/src/{name}.Android` on `android` | `intent`, `behavior`, `implementation`, `proof` |
 | `records` | `server` | none | none | `intent`, `behavior` |
 
-The `records` preset claims `intent` and `behavior` in `layers` and names no stacks and no frontends. Every other preset keeps the layers of the template, which claims all four. Every written project file validates against `schemas/litespec-project.schema.yaml`.
+The `records` preset claims `intent` and `behavior` in `layers` and lists no stacks and no frontends. Every other preset keeps the layers of the template, which claims all four. Every written project file validates against `schemas/litespec-project.schema.yaml`.
 
 Beyond the project file, the command copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the cast at `.litespec/cast.yaml`, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. Files that already exist are left alone.
 

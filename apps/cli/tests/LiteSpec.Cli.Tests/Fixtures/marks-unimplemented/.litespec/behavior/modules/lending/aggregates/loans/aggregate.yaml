@@ -2,5 +2,5 @@ type: aggregate
 id: aggregate/lending.loan
 title: Loan
 states:
-  - name: Active
-    meaning: The loan is open.
+- name: Active
+  meaning: The loan is open.

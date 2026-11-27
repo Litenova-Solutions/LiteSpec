@@ -22,6 +22,22 @@ public static class RecordFiles
         (RecordFields.Figures, RecordTypes.Figure),
     ];
 
+    /// <summary>
+    ///     The typed child arrays of each container page type, with the entry type each list
+    ///     defaults to: a use case holds results and scenarios, a reaction or job holds scenarios,
+    ///     a permission set holds permissions, and an entry point set holds entry points. An entry
+    ///     states no type when it is the type its list holds.
+    /// </summary>
+    public static readonly IReadOnlyList<(string PageType, string Field, string EntryType)> ChildLists =
+    [
+        (RecordTypes.UseCase, RecordFields.Results, RecordTypes.Result),
+        (RecordTypes.UseCase, RecordFields.Scenarios, RecordTypes.Scenario),
+        (RecordTypes.Reaction, RecordFields.Scenarios, RecordTypes.Scenario),
+        (RecordTypes.Job, RecordFields.Scenarios, RecordTypes.Scenario),
+        (RecordTypes.PermissionSet, RecordFields.Permissions, RecordTypes.Permission),
+        (RecordTypes.EntryPointSet, RecordFields.EntryPoints, RecordTypes.EntryPoint),
+    ];
+
     /// <summary>Whether the path names a record file: a <c>.yaml</c> file, in any letter case.</summary>
     /// <param name="path">The file path.</param>
     /// <returns>True for a <c>.yaml</c> file; otherwise false.</returns>
@@ -99,47 +115,42 @@ public static class RecordFiles
             records.Add(record);
         }
 
-        // A refusal set lists codes, not records: its entries are read by the refusal reader.
-        if (root.Kind == JsonKind.Object
-            && type != RecordTypes.RefusalSet
-            && root.TryGetProperty(RecordFields.Records, out var entries)
-            && entries.Kind == JsonKind.Array)
+        // A container page holds its entries in typed child arrays: each list defaults its
+        // entries to the type the list holds, and a stated type must name that type. A refusal
+        // set lists codes, not records: its entries are read by the refusal reader.
+        if (root.Kind == JsonKind.Object && type is not null)
         {
-            foreach (var entry in entries.Items)
+            foreach (var (pageType, field, entryType) in ChildLists)
             {
-                if (entry.Kind != JsonKind.Object)
+                if (type != pageType
+                    || !root.TryGetProperty(field, out var entries)
+                    || entries.Kind != JsonKind.Array)
                 {
                     continue;
                 }
 
-                var entryType = StringOf(entry, RecordFields.Type);
-
-                if (entryType is null || !RecordTypes.All.Contains(entryType))
+                foreach (var entry in entries.Items)
                 {
-                    problems.Add(new Finding(
-                        "record-invalid",
-                        $"Entry type '{entryType ?? "missing"}' is not a record type.",
-                        path,
-                        entry.Line,
-                        pageId));
-                    continue;
+                    if (entry.Kind != JsonKind.Object)
+                    {
+                        continue;
+                    }
+
+                    var stated = StringOf(entry, RecordFields.Type);
+
+                    if (stated is not null && stated != entryType)
+                    {
+                        problems.Add(new Finding(
+                            "record-invalid",
+                            $"Entry in '{field}' states type '{stated}'; a '{field}' entry is a '{entryType}'.",
+                            path,
+                            entry.Line,
+                            pageId));
+                        continue;
+                    }
+
+                    records.Add(new IndexRecord(entry, path, entry.Line, true, pageId, entryType));
                 }
-
-                // A requirement is a page of its own in its feature's folder, never an entry of a feature file.
-                if (entryType == RecordTypes.Requirement)
-                {
-                    var name = StringOf(entry, RecordFields.Id) ?? "requirement";
-
-                    problems.Add(new Finding(
-                        "record-invalid",
-                        $"Requirement '{name}' sits in the records of '{System.IO.Path.GetFileName(path)}'; a requirement is a record file of its own at <feature folder>/<name>/<name>.yaml.",
-                        path,
-                        entry.Line,
-                        pageId));
-                    continue;
-                }
-
-                records.Add(new IndexRecord(entry, path, entry.Line, true, pageId));
             }
         }
 

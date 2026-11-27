@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves a send of another module's public query or command answers to a declared queries or commands edge, and a declared edge is sent.</summary>
+/// <summary>Proves a send of another module's public query or command answers to a declared queries or runs edge, and a declared edge is sent.</summary>
 public sealed class EffectEdgeCheckTests
 {
     /// <summary>Handler Querying A Declared Public Query Passes.</summary>
@@ -19,7 +19,7 @@ public sealed class EffectEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/reporting.record-repayment", Path.Combine(temp.Path, "record.yaml"), """{"kind": "command", "effects": [{"queries": "use-case/spending.read-expense", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/reporting.record-repayment", "reporting", "record-repayment", "RecordRepayment", "command", file,
             Dispatches: [new CodeDispatch("queries", "ReadExpenseQuery", "", file, 13)]));
@@ -38,7 +38,7 @@ public sealed class EffectEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/reporting.record-repayment", Path.Combine(temp.Path, "record.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/reporting.record-repayment", "reporting", "record-repayment", "RecordRepayment", "command", file,
             Dispatches: [new CodeDispatch("queries", "ReadExpenseQuery", "", file, 13)]));
@@ -56,24 +56,24 @@ public sealed class EffectEdgeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/reporting.record-repayment", Path.Combine(temp.Path, "record.yaml"), """{"kind": "command", "effects": [{"queries": "use-case/spending.read-expense", "timing": "inline"}]}"""),
-            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "reachedThrough": ["module/reporting"]}"""));
+            TestModel.Record("use-case", "use-case/spending.read-expense", Path.Combine(temp.Path, "read.yaml"), """{"kind": "query", "via": ["module/reporting"]}"""));
         model.Code.Handlers.Add(new CodeHandler(
             "use-case/reporting.record-repayment", "reporting", "record-repayment", "RecordRepayment", "command", file));
 
         Assert.Contains("effect-unimplemented", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction Commanding A Declared Public Command Passes.</summary>
+    /// <summary>Reaction Running A Declared Public Command Passes.</summary>
     /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
-    public void ReactionCommandingADeclaredPublicCommandPasses()
+    public void ReactionRunningADeclaredPublicCommandPasses()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ReimburseOnPayoutReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""),
-            TestModel.Record("reaction", "reaction/reporting.reimburse-on-payout", Path.Combine(temp.Path, "reimburse.yaml"), """{"triggeredBy": ["domain-event/payout.payout-confirmed"], "effects": [{"commands": "use-case/spending.reimburse-expense"}]}"""));
+            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "via": ["module/reporting"]}"""),
+            TestModel.Record("reaction", "reaction/reporting.reimburse-on-payout", Path.Combine(temp.Path, "reimburse.yaml"), """{"triggeredBy": ["domain-event/payout.payout-confirmed"], "effects": [{"runs": "use-case/spending.reimburse-expense"}]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "ReimburseOnPayoutReaction", file, 3, null, "reaction/reporting.reimburse-on-payout",
             Dispatches: [new CodeDispatch("runs", "ReimburseExpenseCommand", "", file, 9)]));
@@ -82,16 +82,16 @@ public sealed class EffectEdgeCheckTests
         Assert.DoesNotContain("effect-unimplemented", TestModel.Codes(model));
     }
 
-    /// <summary>Reaction Commanding Without A Declared Edge Reports.</summary>
+    /// <summary>Reaction Running Without A Declared Edge Reports.</summary>
     /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
-    public void ReactionCommandingWithoutADeclaredEdgeReports()
+    public void ReactionRunningWithoutADeclaredEdgeReports()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ReimburseOnPayoutReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""),
+            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "via": ["module/reporting"]}"""),
             TestModel.Record("reaction", "reaction/reporting.reimburse-on-payout", Path.Combine(temp.Path, "reimburse.yaml"), """{"triggeredBy": ["domain-event/payout.payout-confirmed"], "effects": [{"sends": "notification/reporting.payout-done"}]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "ReimburseOnPayoutReaction", file, 3, null, "reaction/reporting.reimburse-on-payout",
@@ -100,17 +100,17 @@ public sealed class EffectEdgeCheckTests
         Assert.Contains("effect-undeclared", TestModel.Codes(model));
     }
 
-    /// <summary>Declared Commands Edge No Code Sends Reports.</summary>
+    /// <summary>Declared Runs Edge No Code Sends Reports.</summary>
     /// <proves>litespec/core/backend-application#dispatch-only-declared-effect-edges</proves>
     [Fact]
-    public void DeclaredCommandsEdgeNoCodeSendsReports()
+    public void DeclaredRunsEdgeNoCodeSendsReports()
     {
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ReimburseOnPayoutReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "reachedThrough": ["module/reporting"]}"""),
-            TestModel.Record("reaction", "reaction/reporting.reimburse-on-payout", Path.Combine(temp.Path, "reimburse.yaml"), """{"triggeredBy": ["domain-event/payout.payout-confirmed"], "effects": [{"commands": "use-case/spending.reimburse-expense"}]}"""));
+            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "via": ["module/reporting"]}"""),
+            TestModel.Record("reaction", "reaction/reporting.reimburse-on-payout", Path.Combine(temp.Path, "reimburse.yaml"), """{"triggeredBy": ["domain-event/payout.payout-confirmed"], "effects": [{"runs": "use-case/spending.reimburse-expense"}]}"""));
         model.Code.Reactions.Add(new CodeReaction(
             "ReimburseOnPayoutReaction", file, 3, null, "reaction/reporting.reimburse-on-payout"));
 
@@ -126,7 +126,7 @@ public sealed class EffectEdgeCheckTests
         var file = Path.Combine(temp.Path, "SendDueReminderReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "loan-due.yaml"), """{"deliveredThrough": "external-system/mail-relay"}"""),
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "loan-due.yaml"), """{"via": "external-system/mail-relay"}"""),
             TestModel.Record("reaction", "reaction/lending.send-due-reminder", Path.Combine(temp.Path, "send-due-reminder.yaml"), """{"triggeredBy": ["domain-event/loan.loan-due"], "effects": [{"sends": "notification/lending.loan-due"}]}"""));
         var port = Path.Combine(temp.Path, "IMailRelay.cs");
         File.WriteAllText(port, "namespace Library.Lending.Ports.MailRelay;\n\npublic interface IMailRelay\n{\n}\n");
@@ -148,7 +148,7 @@ public sealed class EffectEdgeCheckTests
         var file = Path.Combine(temp.Path, "SendDueReminderReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "loan-due.yaml"), """{"deliveredThrough": "external-system/mail-relay"}"""),
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "loan-due.yaml"), """{"via": "external-system/mail-relay"}"""),
             TestModel.Record("reaction", "reaction/lending.send-due-reminder", Path.Combine(temp.Path, "send-due-reminder.yaml"), """{"triggeredBy": ["domain-event/loan.loan-due"], "effects": [{"sends": "notification/lending.loan-due"}]}"""));
         var port = Path.Combine(temp.Path, "IEventBus.cs");
         File.WriteAllText(port, "namespace Library.Lending.Ports.EventBus;\n\npublic interface IEventBus\n{\n}\n");
@@ -234,7 +234,6 @@ public sealed class EffectEdgeCheckTests
                   "type": "use-case",
                   "id": "use-case/books.post-entry",
                   "title": "Post entry",
-                  "exposure": "A signed-in bookkeeper reaches this command through the books app under the post-entry permission.",
                   "kind": "command",
                   "access": {"grant": "permission/post-entry", "tenant": "own"},
                   "steps": [{"statement": "The bookkeeper posts the entry in the day's currency."}],

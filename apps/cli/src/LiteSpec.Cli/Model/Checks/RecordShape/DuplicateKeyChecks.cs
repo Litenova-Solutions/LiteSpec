@@ -41,11 +41,11 @@ internal static class DuplicateKeyChecks
                     break;
 
                 case RecordTypes.IntegrationEvent:
-                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Payload), RecordFields.Name, "field name", null, findings);
+                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Fields), RecordFields.Name, "field name", null, findings);
                     break;
 
                 case RecordTypes.UseCase:
-                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Input), RecordFields.Name, "field name", null, findings);
+                    CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Inputs), RecordFields.Name, "field name", null, findings);
                     CheckOutputKeys(record, findings);
                     break;
             }
@@ -53,14 +53,14 @@ internal static class DuplicateKeyChecks
     }
 
     /// <summary>
-    ///     Reports the field names of a use case output: a command output is one list of fields,
-    ///     a query output names one list of fields for each group in its include map.
+    ///     Reports the field names of a use case outputs: a command outputs is one list of fields,
+    ///     a query outputs names one list of fields for each group in its include map.
     /// </summary>
-    /// <param name="record">The use case record whose output is read.</param>
+    /// <param name="record">The use case record whose outputs are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckOutputKeys(Record record, List<Finding> findings)
     {
-        if (!record.Raw.TryGetProperty(RecordFields.Output, out var output))
+        if (!record.Raw.TryGetProperty(RecordFields.Outputs, out var output))
         {
             return;
         }

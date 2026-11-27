@@ -1,15 +1,15 @@
 type: integration-event
 id: integration-event/loan-shipped
 title: Loan shipped
-action: send
+direction: send
 eventType: library.loan.shipped
 source: library-api
 subject: loan
-payload:
-  - name: loanId
-    meaning: The lent loan.
-    classification: internal
-    type: id
-    identifies: aggregate/lending.loan
+fields:
+- name: loanId
+  meaning: The lent loan.
+  classification: internal
+  type: id
+  identifies: aggregate/lending.loan
 translates: domain-event/loan.loan-borrowed
 compatibility: The payload may gain a new field. No field may be removed or renamed.

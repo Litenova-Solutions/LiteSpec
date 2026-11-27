@@ -24,7 +24,7 @@ internal static class RulesContractCard
     static readonly Regex ConstImplements = new("\\bimplements\\s*:\\s*[\"']([^\"']+)[\"']", RegexOptions.Compiled);
 
     /// <summary>The effect verbs in record order.</summary>
-    static readonly string[] EffectVerbs = ["runs", "sends", "calls", "queries", "commands"];
+    static readonly string[] EffectVerbs = ["runs", "sends", "calls", "queries"];
 
     /// <summary>The access field naming the identity the use case runs as beside its grant.</summary>
     const string RunsAs = "runsAs";
@@ -193,7 +193,7 @@ internal static class RulesContractCard
             lines.Add(string.Join("; ", head));
         }
 
-        foreach (var entry in Objects(root, RecordFields.Input))
+        foreach (var entry in Objects(root, RecordFields.Inputs))
         {
             var name = Text(entry, RecordFields.Name);
             var type = Text(entry, RecordFields.Type);
@@ -210,13 +210,8 @@ internal static class RulesContractCard
 
         lines.AddRange(OutputLines(root));
 
-        foreach (var entry in Objects(root, RecordFields.Records))
+        foreach (var entry in Objects(root, RecordFields.Results))
         {
-            if (Text(entry, RecordFields.Type) != RecordTypes.Result)
-            {
-                continue;
-            }
-
             var resultId = Text(entry, RecordFields.Id);
             var outcome = Text(entry, RecordFields.Outcome);
 
@@ -228,7 +223,7 @@ internal static class RulesContractCard
             if (outcome == "refusal")
             {
                 var code = RefusalCode.CodeOf(Text(entry, RecordFields.Refusal));
-                var sentence = Text(entry, RecordFields.Sentence);
+                var sentence = Text(entry, RecordFields.Message);
                 lines.Add(sentence.Length > 0
                     ? $"refusal {resultId}: {code} - {sentence}"
                     : $"refusal {resultId}: {code}");
@@ -268,13 +263,8 @@ internal static class RulesContractCard
 
         ListLine(lines, root, RecordFields.ComputedBy);
 
-        foreach (var entry in Objects(root, RecordFields.Records))
+        foreach (var entry in Objects(root, RecordFields.Scenarios))
         {
-            if (Text(entry, RecordFields.Type) != RecordTypes.Scenario)
-            {
-                continue;
-            }
-
             var scenarioId = Text(entry, RecordFields.Id);
             var scenarioTitle = Text(entry, RecordFields.Title);
 
@@ -337,7 +327,7 @@ internal static class RulesContractCard
     {
         var lines = new List<string>();
 
-        if (!root.TryGetProperty(RecordFields.Output, out var output))
+        if (!root.TryGetProperty(RecordFields.Outputs, out var output))
         {
             return lines;
         }

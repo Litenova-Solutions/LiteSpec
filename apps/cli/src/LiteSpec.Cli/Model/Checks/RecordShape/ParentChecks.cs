@@ -107,19 +107,19 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a flow whose reason, serves or answers, names no goal, problem or constraint.</summary>
+    /// <summary>Reports a flow whose reason, serves, solves or basedOn, names no goal, problem or constraint.</summary>
     /// <param name="model">The loaded project model that resolves each reason target.</param>
-    /// <param name="record">The flow record whose serves and answers fields are inspected.</param>
+    /// <param name="record">The flow record whose serves, solves and basedOn fields are inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFlowParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        var reasons = record.Ids(RecordFields.Serves).Concat(record.Ids(RecordFields.Answers)).ToList();
+        var reasons = record.Ids(RecordFields.Serves).Concat(record.Ids(RecordFields.Solves)).Concat(record.Ids(RecordFields.BasedOn)).ToList();
 
         if (reasons.Count == 0)
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"Flow '{record.Id}' has no parent and names neither 'serves' nor 'answers'.",
+                $"Flow '{record.Id}' has no parent and names neither 'serves', 'solves' nor 'basedOn'.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }

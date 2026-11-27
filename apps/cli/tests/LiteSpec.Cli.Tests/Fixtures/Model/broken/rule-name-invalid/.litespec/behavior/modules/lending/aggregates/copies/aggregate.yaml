@@ -9,13 +9,13 @@ states:
   - name: Retired
     meaning: The copy left lending.
 records:
-- type: rule
-  id: rule/copy.has-one-home-shelf
-  title: Has one home shelf
-  kind: invariant
-  statement: A copy has no home shelf when retired.
-  governs:
-    - use-case/lending.register-copy
-  basedOn: []
-  fulfills:
-    - requirement/borrowing.copy-shelf-home
+  - type: rule
+    id: rule/copy.has-one-home-shelf
+    title: Has one home shelf
+    kind: invariant
+    statement: A copy has no home shelf when retired.
+    governs:
+      - use-case/lending.register-copy
+    basedOn: []
+    fulfills:
+      - requirement/borrowing.copy-shelf-home

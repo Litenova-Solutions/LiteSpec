@@ -2,62 +2,58 @@ type: use-case
 id: use-case/<module>.<name>
 title: <Title in Title Case>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 summary: <what this query returns for its actor, or remove this line>
-exposure: <who reaches it, through what, and what a wrong answer costs, or remove this line>
 kind: <query>
 access:
   grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
   tenant: <own|cross|public|none>
-  recentSignIn: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
+  recentSignInWindow: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
   scope: <self, when the caller acts only on the record identifying them, or remove this line>
   identityInput: <input carrying the caller identity, or remove this line>
   preconditions:
-  - rule/<home>.<name, or remove this line>
+    - rule/<home>.<name, or remove this line>
   runsAs: <system, when a reaction or job runs this use case beside its person grant, or remove this line>
 serves:
-- step/<flow>.<act>
+  - step/<flow>.<act>
 fulfills:
-- requirement/<feature>.<name, or remove this line>
+  - requirement/<feature>.<name, or remove this line>
 computedBy:
-- rule/<home>.<name, or remove this line>
-reachedThrough:
-- entry-point/<name>
-# http applies when an api or browser entry point reaches the use case.
+  - rule/<home>.<name, or remove this line>
+via:
+  - entry-point/<name>
 http:
   method: <GET|POST|PUT|PATCH|DELETE>
   route: <route template, such as /expenses/{expenseId}>
 raises:
-- domain-event/<aggregate>.<name, or remove this line>
+  - domain-event/<aggregate>.<name, or remove this line>
 steps:
-- statement: <one step, in one sentence naming who acts>
-  cites:
-  - rule/<home>.<name, or remove this line>
+  - statement: <one step, in one sentence naming who acts>
+    cites:
+      - rule/<home>.<name, or remove this line>
 edgeCases:
-- <one unusual path, in one sentence, or remove this line>
-input:
-- name: <field name>
-  meaning: <what the field holds>
-  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
-  required: <true|false, or remove this line>
-  origin: <caller|claim|derived|verified-claim>
-  classification: <public|internal|personal|sensitive>
-# A file field carries contentTypes and maxSize, a choice field carries choices, and an id field carries identifies. An origin of verified-claim carries verifiedBy.
-output:
+  - <one unusual path, in one sentence, or remove this line>
+inputs:
+  - name: <field name>
+    meaning: <what the field holds>
+    type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+    required: <true|false, or remove this line>
+    origin: <caller|claim|derived|verified-claim>
+    classification: <public|internal|personal|sensitive>
+outputs:
   include:
     <group>:
       fields:
-      - name: <field name>
-        meaning: <what the field holds>
-        type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
-        identifies: <identified record id, or remove this line>
-        many: <true|false, or remove this line>
-      - name: <field name>
-        meaning: <what the field holds>
-        type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+        - name: <field name>
+          meaning: <what the field holds>
+          type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+          identifies: <identified record id, or remove this line>
+        - name: <field name>
+          meaning: <what the field holds>
+          type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
       classification: <public|internal|personal|sensitive>
       reads:
-      - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>>
+        - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>>
       freshness:
         mode: <immediate|snapshot|eventual>
         within: <how old a reading may be, such as PT5S, or remove this line>
@@ -71,43 +67,38 @@ paging:
   defaultLimit: <rows per page>
   maxLimit: <largest accepted limit>
 writes:
-- aggregate/<module>.<name, or remove this line>
+  - aggregate/<module>.<name, or remove this line>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
+  - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
 effects:
-- sends: notification/<module>.<name>
-  timing: <inline|after-commit|async>
-- queries: use-case/<module>.<name>
-  timing: <inline|after-commit|async>
-# A use case sends no command: commands belong on a reaction or a job.
-# A query carries no idempotency, consistency or conflicts; see use-case-command.yaml.
+  - sends: notification/<module>.<name>
+    timing: <inline|after-commit|async>
+  - queries: use-case/<module>.<name>
+    timing: <inline|after-commit|async>
 consentRule: rule/<home>.<name, or remove this line>
-# audit applies only when the project selects the audit extension. An exempt query carries exemptBecause instead of level, category, target and target kind.
 audit:
   level: <required|optional|none>
   category: <the audit category, or remove this line when the level is none>
   target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
   targetKind: <what the audit trail records for this query>
-background: <what the caller sees while the query runs on, or remove this line>
-records:
-- type: result
-  id: result/<use-case>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  outcome: success
-  meaning: <the ending, in one sentence>
-  recorded: <true|false, or remove this line>
-  codes:
-  - <recorded outcome code, or remove this block>
-- type: scenario
-  id: scenario/<use-case>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  given: <the situation>
-  when: <the action>
-  then: <the expected ending>
-  result: result/<use-case>.<name>
-  exercises:
-  - rule/<home>.<name, or remove this line>
+results:
+  - id: result/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    outcome: success
+    meaning: <the ending, in one sentence>
+    recorded: <true|false, or remove this line>
+    codes:
+      - <recorded outcome code, or remove this block>
+scenarios:
+  - id: scenario/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the action>
+    then: <the expected ending>
+    result: result/<use-case>.<name>
+    exercises:
+      - rule/<home>.<name, or remove this line>

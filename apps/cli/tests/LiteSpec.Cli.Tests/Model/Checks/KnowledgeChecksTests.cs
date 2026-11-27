@@ -41,7 +41,7 @@ public sealed class KnowledgeChecksTests
         Assert.Contains("holds no row of variant 'netherlands' named by knowledge area 'knowledge-area/travel'", finding.Message);
     }
 
-    /// <summary>Rows naming a variant on a table stating no variation report knowledge-variation-undeclared at tier G.</summary>
+    /// <summary>Rows naming a variant on a table stating no variesBy report knowledge-variation-undeclared at tier G.</summary>
     /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void UndeclaredVariationReports()
@@ -55,7 +55,7 @@ public sealed class KnowledgeChecksTests
         var finding = Assert.Single(VariationFindings(model));
         Assert.Equal("G", finding.Tier);
         Assert.Equal("reference-data/travel.per-diem-rates", finding.Subject);
-        Assert.Contains("holds rows naming a variant while the table states no variation dimension", finding.Message);
+        Assert.Contains("holds rows naming a variant while the table states no variesBy dimension", finding.Message);
     }
 
     /// <summary>A shared table under a varying area, with no dimension and no variant rows, passes.</summary>
@@ -96,7 +96,7 @@ public sealed class KnowledgeChecksTests
         Assert.Empty(VariationFindings(model));
     }
 
-    /// <summary>A module-owned table stating variation reports record-invalid: only knowledge tables vary.</summary>
+    /// <summary>A module-owned table stating variesBy reports record-invalid: only knowledge tables vary.</summary>
     /// <proves>litespec/core/knowledge#give-each-knowledge-area-one-model</proves>
     [Fact]
     public void ModuleTableWithVariationReportsInvalid()
@@ -113,7 +113,7 @@ public sealed class KnowledgeChecksTests
                 "reference-data",
                 "reference-data/spending.decision-target",
                 Path.Combine(temp.Path, ".litespec", "behavior", "modules", "spending", "reference-data", "decision-target", "decision-target.yaml"),
-                "{\"summary\": \"How many business days an approval may take.\", \"variation\": \"country\", \"rows\": [" + Row("5", "2026-01-01") + "]}"));
+                "{\"summary\": \"How many business days an approval may take.\", \"variesBy\": \"country\", \"rows\": [" + Row("5", "2026-01-01") + "]}"));
 
         var findings = Checker.Check(model).Findings
             .Where(found => found.Code == "record-invalid" && found.Subject == "reference-data/spending.decision-target")
@@ -217,6 +217,6 @@ public sealed class KnowledgeChecksTests
         "reference-data/travel.per-diem-rates",
         Path.Combine(root, ".litespec", "behavior", "knowledge", "travel", "reference-data", "per-diem-rates", "per-diem-rates.yaml"),
         "{\"summary\": \"The daily allowance per country.\", \"unit\": \"EUR per day\""
-        + (varies ? ", \"variation\": \"country\"" : "")
+        + (varies ? ", \"variesBy\": \"country\"" : "")
         + ", \"rows\": [" + string.Join(", ", rows) + "]}");
 }

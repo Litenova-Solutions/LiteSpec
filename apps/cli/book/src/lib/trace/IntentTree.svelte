@@ -79,7 +79,7 @@
     if (t === "goal") return book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature");
     if (t === "direction") return [...book.ins(id, "basedOn"), ...book.ins(id, "cites")];
     if (t === "feature") return book.kids(id).filter((x) => book.typeOf(x) === "requirement");
-    if (t === "requirement") return book.ins(id, "cites").filter((x) => book.typeOf(x) === "flow");
+    if (t === "requirement") return book.ins(id, "basedOn").filter((x) => book.typeOf(x) === "flow");
     return [];
   }
 

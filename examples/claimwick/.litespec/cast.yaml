@@ -13,21 +13,21 @@ people:
   id: person/ava
   name: Ava
   actor: actor/employee
-  partyOf: party/harbor-and-pine
+  party: party/harbor-and-pine
   email: ava@harbor-and-pine.example
   does: Travels to clients and submits her expenses with the receipt attached.
 - type: person
   id: person/ben
   name: Ben
   actor: actor/manager
-  partyOf: party/harbor-and-pine
+  party: party/harbor-and-pine
   email: ben@harbor-and-pine.example
   does: Is Ava's manager, and approves her expenses within days.
 - type: person
   id: person/cara
   name: Cara
   actor: actor/finance
-  partyOf: party/harbor-and-pine
+  party: party/harbor-and-pine
   email: cara@harbor-and-pine.example
   does: Works in finance, and reimburses the approved expenses on Fridays.
 occasions:

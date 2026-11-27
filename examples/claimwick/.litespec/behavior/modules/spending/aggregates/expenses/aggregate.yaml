@@ -56,7 +56,7 @@ dataClasses:
   fields:
   - employee
   onErasure: pseudonymize
-  basis:
+  basedOn:
   - requirement/approval.erased-after-retention
   period: P7Y
   periodStartsAt: domain-event/expense.reimbursed
@@ -70,7 +70,7 @@ dataClasses:
   - receipt
   - state
   onErasure: retain
-  basis:
+  basedOn:
   - constraint/tax-receipt-retention
   period: P7Y
   periodStartsAt: domain-event/expense.reimbursed

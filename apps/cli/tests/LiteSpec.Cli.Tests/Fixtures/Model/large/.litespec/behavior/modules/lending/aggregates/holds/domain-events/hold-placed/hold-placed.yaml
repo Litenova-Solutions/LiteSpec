@@ -2,7 +2,7 @@ type: domain-event
 id: domain-event/hold.hold-placed
 title: Hold placed
 meaning: A hold was placed.
-carries:
+fields:
 - name: holdId
   type: text
 - name: copyId

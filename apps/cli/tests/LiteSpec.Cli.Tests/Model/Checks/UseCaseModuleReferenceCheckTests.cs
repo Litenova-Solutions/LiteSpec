@@ -12,7 +12,7 @@ public sealed class UseCaseModuleReferenceCheckTests
     [Fact]
     public void InputToAnotherModuleWithoutDependencyReports()
     {
-        var model = ModelWith("""{"kind": "command", "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine"}]}""", []);
+        var model = ModelWith("""{"kind": "command", "inputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine"}]}""", []);
 
         var finding = Assert.Single(Findings(model));
         Assert.Equal("G", finding.Tier);
@@ -35,7 +35,7 @@ public sealed class UseCaseModuleReferenceCheckTests
     [Fact]
     public void OutputToAnotherModuleWithoutDependencyReports()
     {
-        var model = ModelWith("""{"kind": "query", "output": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine"}]}""", []);
+        var model = ModelWith("""{"kind": "query", "outputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine"}]}""", []);
 
         Assert.Single(Findings(model));
     }
@@ -45,7 +45,7 @@ public sealed class UseCaseModuleReferenceCheckTests
     [Fact]
     public void OpaqueInputWithoutDependencyPasses()
     {
-        var model = ModelWith("""{"kind": "command", "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
+        var model = ModelWith("""{"kind": "command", "inputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
 
         Assert.Empty(Findings(model));
     }
@@ -55,7 +55,7 @@ public sealed class UseCaseModuleReferenceCheckTests
     [Fact]
     public void OpaqueOutputWithoutDependencyPasses()
     {
-        var model = ModelWith("""{"kind": "command", "output": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
+        var model = ModelWith("""{"kind": "command", "outputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
 
         Assert.Empty(Findings(model));
     }
@@ -65,10 +65,10 @@ public sealed class UseCaseModuleReferenceCheckTests
     [Fact]
     public void OpaqueInputWithReadOfAggregateReports()
     {
-        var model = ModelWith("""{"kind": "command", "reads": ["aggregate/finance.overdue-fine"], "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
+        var model = ModelWith("""{"kind": "command", "reads": ["aggregate/finance.overdue-fine"], "inputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}]}""", []);
 
         var finding = Assert.Single(Findings(model));
-        Assert.Contains("in 'input'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("in 'inputs'", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>An opaque input still reports when a step cites the named aggregate.</summary>
@@ -76,10 +76,10 @@ public sealed class UseCaseModuleReferenceCheckTests
     [Fact]
     public void OpaqueInputWithStepCitingAggregateReports()
     {
-        var model = ModelWith("""{"kind": "command", "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}], "steps": [{"statement": "Record the fine.", "cites": ["aggregate/finance.overdue-fine"]}]}""", []);
+        var model = ModelWith("""{"kind": "command", "inputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine", "held": "opaque"}], "steps": [{"statement": "Record the fine.", "cites": ["aggregate/finance.overdue-fine"]}]}""", []);
 
         var finding = Assert.Single(Findings(model));
-        Assert.Contains("in 'input'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("in 'inputs'", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>The same references pass once the module declares the dependency.</summary>
@@ -89,7 +89,7 @@ public sealed class UseCaseModuleReferenceCheckTests
     {
         var model = ModelWith(
             """
-            {"kind": "command", "input": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine"}], "steps": [{"statement": "Record the fine.", "cites": ["rule/finance.fine-is-due"]}]}
+            {"kind": "command", "inputs": [{"name": "fine", "type": "id", "identifies": "aggregate/finance.overdue-fine"}], "steps": [{"statement": "Record the fine.", "cites": ["rule/finance.fine-is-due"]}]}
             """,
             ["module/finance"]);
 
@@ -106,7 +106,7 @@ public sealed class UseCaseModuleReferenceCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "record-repayment", "record-repayment.yaml"), """{"kind": "command", "input": [{"name": "loan", "type": "id", "identifies": "aggregate/lending.loan"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.record-repayment", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "record-repayment", "record-repayment.yaml"), """{"kind": "command", "inputs": [{"name": "loan", "type": "id", "identifies": "aggregate/lending.loan"}]}"""));
 
         Assert.Empty(Findings(model));
     }

@@ -582,11 +582,13 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        foreach (var file in Directory.GetFiles(schemas, "*.schema.yaml").OrderBy(name => name, StringComparer.Ordinal))
+        // The schema ships as one composed record schema plus fragment schemas
+        // under schemas/fragments/, so every fragment carries the same
+        // published-home $id rule as a top-level schema.
+        foreach (var file in Directory.GetFiles(schemas, "*.schema.yaml", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
         {
-            var name = Path.GetFileName(file);
-            var relative = $"schemas/{name}";
-            var expected = $"{SchemaHome}{version}/schemas/{name}";
+            var relative = PathText.Relative(root, file).Replace('\\', '/');
+            var expected = $"{SchemaHome}{version}/{relative}";
             string? id;
             try
             {

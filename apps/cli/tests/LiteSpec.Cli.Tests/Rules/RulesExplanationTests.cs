@@ -21,8 +21,8 @@ public sealed class RulesExplanationTests
         Assert.Contains(
             "Rules for .litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.md (concern: records, artifact: problem)",
             result.Output);
-        Assert.Contains("litespec/core/writing#give-each-explanation-file-its-fixed-sections", result.Output);
-        Assert.Contains("litespec/core/writing#write-for-the-reader-who-arrives-cold", result.Output);
+        Assert.Contains("litespec/core/writing#write-human-docs-for-the-cold-reader", result.Output);
+        Assert.Contains("litespec/core/writing#write-machine-read-fields-in-present-tense", result.Output);
     }
 
     /// <summary>A decision explanation lists the decision writing provision through its sibling record type.</summary>

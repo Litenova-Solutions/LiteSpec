@@ -5,8 +5,6 @@ kind: invariant
 statement: A copy barcode names one copy across the library.
 governs:
 - aggregate/lending.copy
-binds:
-- aggregate/lending.copy
 basedOn: []
 fulfills:
 - requirement/borrowing.copy-shelf-home

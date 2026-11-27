@@ -17,7 +17,8 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}, "idempotency": {"mode": "key", "key": "expense-id", "keyScope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}, "idempotency": {"mode": "key", "key": "expense-id", "scope": "tenant"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "(AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\" }).WithTargetFrom<BorrowCopyCommand>(command => command.CopyId)");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.Idempotent(Key.From(\"expense-id\"))");
@@ -33,6 +34,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
 
         var finding = Assert.Single(Run(model));
 
@@ -49,6 +51,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
 
         var finding = Assert.Single(Run(model));
@@ -66,6 +69,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
 
         Assert.Empty(Run(model));
@@ -79,6 +83,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"refuse-expense\"))");
 
         var finding = Assert.Single(Run(model));
@@ -96,6 +101,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(LendingPermissions.ApproveExpense)");
 
         Assert.Empty(Run(model));
@@ -109,6 +115,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(LendingPermissions.RefuseExpense)");
 
         var finding = Assert.Single(Run(model));
@@ -126,6 +133,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Public() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized()");
 
         var finding = Assert.Single(Run(model));
@@ -143,6 +151,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Public() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Anonymous)");
 
         Assert.Empty(Run(model));
@@ -156,6 +165,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Public() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Exempt(\"The catalog is open to every caller.\")");
 
         Assert.Empty(Run(model));
@@ -169,6 +179,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "anonymous", "tenant": "public"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Public() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
 
         var finding = Assert.Single(Run(model));
@@ -185,7 +196,8 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "signed-in", "tenant": "own", "recentSignIn": "setting/security.recent-sign-in-window"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "signed-in", "tenant": "own", "recentSignInWindow": "setting/security.recent-sign-in-window"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized()");
 
         var finding = Assert.Single(Run(model));
@@ -203,6 +215,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"exemptBecause": "reading only"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "(AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\" }).WithTargetFrom<BorrowCopyCommand>(command => command.CopyId)");
 
@@ -221,6 +234,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"exemptBecause": "reading only"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"Reads leave their trail in the loan states and events.\")");
 
@@ -235,6 +249,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"Reads leave their trail in the loan states and events.\")");
 
@@ -253,6 +268,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Audited(\"use-case/lending.borrow-copy\")");
 
@@ -271,6 +287,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\", TargetKind = \"copy\" }");
         File.WriteAllText(Path.Combine(folder, "BorrowCopyCommandHandler.cs"), "internal sealed class BorrowCopyCommandHandler\n{\n    private void Handle() => _audit.WithTarget(copy.Id);\n}\n");
@@ -286,6 +303,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"The hold only prepares use-case/lending.borrow-copy; the borrowing records the change once it completes.\")");
         WriteDefinition(folder, "ReserveCopyCommandAuditDefinition.cs", "(AuditDeclaration.Audited(\"use-case/lending.borrow-copy\") with { Category = \"lending\" }).WithTargetFrom<ReserveCopyCommand>(command => command.CopyId)");
@@ -301,6 +319,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "audit": {"level": "required", "targetKind": "expense"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandAuditDefinition.cs", "AuditDeclaration.Exempt(\"The hold only prepares use-case/lending.borrow-copy; the borrowing records the change once it completes.\")");
 
@@ -319,6 +338,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "none", "reason": "reading only"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.Idempotent(Key.From(\"copy-id\"))");
 
@@ -336,7 +356,8 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         File.WriteAllText(
             Path.Combine(folder, "BorrowCopyCommandIdempotencyDefinition.cs"),
@@ -352,7 +373,8 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.NotIdempotent()");
 
@@ -371,6 +393,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "none", "reason": "reading only"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "new Exempt<IdempotencyDeclaration>(\"Each call lends its own copy, and lending an unavailable copy is refused.\")");
 
@@ -385,6 +408,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "state", "recognizedBy": "the copy already lent to the member", "replay": "returns-first-result"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "declarations.Exempt<IdempotencyDeclaration>(\"recognized by state: the copy already lent to the member\")");
 
@@ -399,6 +423,7 @@ public sealed class DefinitionCheckTests
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
         var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "state", "recognizedBy": "the copy already lent to the member", "replay": "returns-first-result"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "IdempotencyDeclaration.Idempotent(Key.From(\"copy-id\"))");
 
@@ -416,7 +441,8 @@ public sealed class DefinitionCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var folder = ApplicationFolder(temp.Path);
-        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "keyScope": "tenant"}}""");
+        var model = DefinitionModel(temp.Path, folder, """{"access": {"grant": "permission/approve-expense", "tenant": "own"}, "idempotency": {"mode": "key", "key": "copy-id", "scope": "tenant"}}""");
+        WriteDefinition(folder, "BorrowCopyCommandTenancyDefinition.cs", "TenancyDeclaration.Required() : ITenancyDefinition<BorrowCopyCommand>");
         WriteDefinition(folder, "BorrowCopyCommandAuthorizationDefinition.cs", "AuthorizationDeclaration.Authorized(AccessPolicies.Permission(\"approve-expense\"))");
         WriteDefinition(folder, "BorrowCopyCommandIdempotencyDefinition.cs", "new Exempt<IdempotencyDeclaration>(\"Each call lends its own copy, and lending an unavailable copy is refused.\")");
 

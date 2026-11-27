@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Readers.Seeds;
 ///     tags of C# files and the <c>// litespec: seeds</c> line comments of TypeScript files. Each mark
 ///     names the cast entries a development seed or fixture uses, through the shared mark parser.
 /// </summary>
-/// <follows>litespec/core/writing#keep-the-cast-out-of-production-code</follows>
+/// <follows>litespec/quality/development#seed-only-development-and-test-environments</follows>
 static class SeedMarkReader
 {
     /// <summary>The C# extension, which carries the documentation tags.</summary>

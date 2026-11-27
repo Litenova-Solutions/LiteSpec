@@ -4,21 +4,19 @@
 
 **Concern:** workspace
 
-This page defines how the shared [Naming and Code Style](../../workspace/naming.md) rules apply to C# in a .NET backend. It covers file names, cancellation tokens, implementation style, and architectural names.
+This page states how C# code is named and styled in a .NET backend. It is for developers who name files, write handlers, and review C# diffs. A reader finds any type by its file, and one shared style keeps generated and hand-written code consistent.
 
 ## Concepts
 
 ### Files and Style
 
-A C# file uses the exact name of its primary type, so a reader finds any type by its file. Only a small private or file-scoped nested type stays with its owner; anything bigger gets its own file under its own name.
+A C# file carries the exact name of its primary type, so a reader and a tool find the type by the path. Two top-level types in one file break that lookup and merge their histories in review. Only a small private or file-scoped nested type stays with its owner; anything bigger gets its own file under its own name.
 
-A method that takes a cancellation token places it last and names it `cancellationToken`. Callers then pass cancellation without reading the signature.
-
-File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
+A method taking a cancellation token places it last and names it `cancellationToken`. Callers then pass cancellation without reading the signature. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
 
 ### C# Role Names
 
-The Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page lists the suffixes for handlers, endpoints, reactions, and jobs. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and each module project carries one entry type.
+The Role Suffixes table on the shared [Naming and Code Style](../../workspace/naming.md) page lists the suffixes for handlers, endpoints, reactions, and jobs. The table below adds the C#-specific names: the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and each module project carries one entry type. Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
 
 | Role | Pattern | Example |
 |:---|:---|:---|
@@ -26,8 +24,6 @@ The Role Suffixes table on the shared [Naming and Code Style](../../workspace/na
 | API mapping class | `{UseCase}ApiMappings` | `CreateDraftApiMappings` |
 | Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
 | Module entry type | `{Module}Module` | `SpendingModule` |
-
-Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
 
 ## Standards
 
@@ -53,7 +49,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Rationale:** A token in a fixed trailing position lets every caller pass cancellation without reading the signature, and one name lets every reader tell the token from the data beside it. A token in the middle of a signature is passed in the wrong position, and a renamed token hides what it is at the call site.
 
-**Example:** `SubmitExpenseCommandHandler.HandleAsync` takes `SubmitExpenseCommand command` and then `CancellationToken cancellationToken`, so a caller passes the data first and cancellation last.
+**Example:** `SubmitExpenseCommandHandler.HandleAsync` takes `SubmitExpenseCommand` and then `CancellationToken cancellationToken`, so a caller passes the data first and cancellation last.
 
 **Checked by:** `dotnet build` reports `LS3002` for a cancellation token that is misplaced or misnamed.
 
@@ -77,7 +73,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Statement:** An event type MUST end in the suffix of its kind: `DomainEvent` for a domain event, `ModuleEvent` for a module event, and `IntegrationEvent` for an integration event.
 
-**Rationale:** A codebase holds all three kinds at once: the domain event an aggregate raises for its own module, the module event other modules consume, and the integration event that leaves the product. A bare `Event` suffix, or no suffix, never says which contract the type carries: whether the fact stays inside its module, is versioned for other modules, or has external consumers. The kind suffix puts that answer in the name, beside the `Command`, `Query`, `Result`, and `Id` suffixes the Role Suffixes table assigns. eShopOnContainers names its events `DomainEvent` and `IntegrationEvent` the same way.
+**Rationale:** A codebase holds all three kinds at once: the domain event an aggregate raises for its own module, the module event other modules consume, and the integration event leaving the product. A bare `Event` suffix, or no suffix, does not say which contract the type carries: whether the fact stays inside its module, is versioned for other modules, or has external consumers. The kind suffix puts that answer in the name, beside the `Command`, `Query`, `Result`, and `Id` suffixes the Role Suffixes table assigns.
 
 **Example:** In the Claimwick product, the expense aggregate raises `ExpenseApprovedDomainEvent` from `Domain/Expenses/Events/`, and the spending Contracts project publishes `ExpenseReimbursedModuleEvent` from `Contracts/Expenses/OnExpenseReimbursed/` for the reporting module. A reaction keeps the fact without the suffix: `SubmitPayoutOnExpenseApprovedHandler` answers the approval.
 
@@ -103,7 +99,9 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 ## Reference Example
 
-This informative example demonstrates `litespec/packs/dotnet/naming#match-c-files-and-primary-types`, `litespec/packs/dotnet/naming#put-the-cancellation-token-last`, `litespec/workspace/naming#use-architectural-suffixes`, and `litespec/workspace/naming#keep-namespaces-aligned-with-folders`.
+This informative example demonstrates `litespec/packs/dotnet/naming#match-c-files-and-primary-types`, `litespec/packs/dotnet/naming#put-the-cancellation-token-last`, and `litespec/workspace/naming#use-architectural-suffixes`.
+
+The namespace follows the folder path, as the shared [Naming and Code Style](../../workspace/naming.md) page describes.
 
 ```csharp
 namespace Example.Posts.Application.CreateDraft;

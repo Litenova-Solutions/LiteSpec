@@ -74,7 +74,7 @@ static class ConsumerFixture
             """),
         new(".litespec/intent/problems/slow-delivery/features/pricing/requirements/flat-fee/flat-fee.yaml",
             """
-            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"],"basedOn":["decision/0001-launch"]}
+            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"basedOn":["decision/0001-launch"]}
             """,
             null),
         new(".litespec/intent/decisions/0001-launch/0001-launch.yaml",
@@ -128,12 +128,12 @@ static class ConsumerFixture
             null),
         new(".litespec/behavior/modules/orders/permissions.yaml",
             """
-            {"type":"permission-set","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed.","grantedTo":["role/customer"]}]}
+            {"type":"permission-set","id":"permissions","title":"Permissions","permissions":[{"id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed.","grantedTo":["role/customer"]}]}
             """,
             null),
         new(".litespec/behavior/entry-points/web/entry-point.yaml",
             """
-            {"type":"entry-point-set","title":"Entry points","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","kind":"browser","authentication":["session"],"audience":["actor/customer"]}]}
+            {"type":"entry-point-set","title":"Entry points","entryPoints":[{"id":"entry-point/web","title":"Web shop","kind":"browser","authentication":["session"],"audience":["actor/customer"]}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/module.yaml",
@@ -148,7 +148,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/refusals.yaml",
             """
-            {"type":"refusal-set","summary":"The refusals the orders module returns.","records":[{"id":"refusal/orders.cancel-refused","title":"Cancel Refused","meaning":"The shipment already left, so the cancel is refused."}]}
+            {"type":"refusal-set","summary":"The refusals the orders module returns.","refusals":[{"id":"refusal/orders.cancel-refused","title":"Cancel Refused","meaning":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/rules/cancel-before-shipment-only/cancel-before-shipment-only.yaml",
@@ -158,7 +158,7 @@ static class ConsumerFixture
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/domain-events/order-canceled/order-canceled.yaml",
             """
-            {"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":[{"name":"orderId","type":"text"}]}
+            {"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","fields":[{"name":"orderId","type":"text"}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
@@ -187,7 +187,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"input":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","identifies":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","keyScope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","category":"monetary-action","targetKind":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"steps":[{"statement":"The customer sends the order identifier.","cites":["aggregate/orders.order-claim"]},{"statement":"Orders checks the cancel rule against the shipment.","cites":["rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders refuses the cancel with `orders.cancel-refused` when the shipment already left.","cites":["result/cancel-order.cancel-refused","rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders cancels the claim and raises the canceled event.","cites":["result/cancel-order.order-canceled","domain-event/order-claim.order-canceled","aggregate/orders.order-claim"]}],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","refusal":"refusal/orders.cancel-refused","sentence":"The shipment already left, so the cancel is refused."}]}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"via":["entry-point/web"],"inputs":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","identifies":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","category":"monetary-action","targetKind":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"steps":[{"statement":"The customer sends the order identifier.","cites":["aggregate/orders.order-claim"]},{"statement":"Orders checks the cancel rule against the shipment.","cites":["rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders refuses the cancel with `orders.cancel-refused` when the shipment already left.","cites":["result/cancel-order.cancel-refused","rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders cancels the claim and raises the canceled event.","cites":["result/cancel-order.order-canceled","domain-event/order-claim.order-canceled","aggregate/orders.order-claim"]}],"results":[{"id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","refusal":"refusal/orders.cancel-refused","message":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
     ];

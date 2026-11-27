@@ -6,7 +6,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The automation access checks: every use case a reaction or job runs, commands, or queries admits the system identity through its grant or runsAs.</summary>
+/// <summary>The automation access checks: every use case a reaction or job runs or queries admits the system identity through its grant or runsAs.</summary>
 /// <follows>litespec/core/access#admit-the-system-identity-on-every-system-run-use-case</follows>
 internal static class AutomationAccessChecks
 {
@@ -14,9 +14,9 @@ internal static class AutomationAccessChecks
     private const string RunsAs = "runsAs";
 
     /// <summary>The edge verbs that send a use case with no person behind the call.</summary>
-    private static readonly string[] SystemStartedVerbs = [RecordFields.Runs, RecordFields.Commands, RecordFields.Queries];
+    private static readonly string[] SystemStartedVerbs = [RecordFields.Runs, RecordFields.Queries];
 
-    /// <summary>Reports each reaction or job that runs, commands, or queries a use case whose access admits no system identity.</summary>
+    /// <summary>Reports each reaction or job that runs or queries a use case whose access admits no system identity.</summary>
     /// <param name="model">The loaded project model that holds every reaction, job, and use case.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)

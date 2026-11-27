@@ -13,10 +13,10 @@ serves:
 fulfills:
   - requirement/borrowing.max-active-loans
   - requirement/borrowing.list-loans-latency
-reachedThrough:
+via:
   - entry-point/library-app
 raises: []
-output:
+outputs:
   include:
     rows:
       fields:
@@ -33,14 +33,13 @@ paging:
   cursor: The due date and loan identity of the last row.
   defaultLimit: 25
   maxLimit: 100
-records:
-  - type: result
-    id: result/list-loans.listed
+results:
+  - id: result/list-loans.listed
     title: Listed
     outcome: success
     meaning: The loans are listed.
-  - type: scenario
-    id: scenario/list-loans.listing-own-loans-succeeds
+scenarios:
+  - id: scenario/list-loans.listing-own-loans-succeeds
     title: Listing own loans succeeds
     given: A reader holds two active loans.
     when: The reader lists their loans.

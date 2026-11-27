@@ -1,6 +1,6 @@
 type: refusal-set
 summary: The refusals the policy aggregate raises.
-records:
+refusals:
 - id: refusal/spending.negative-threshold
   title: Negative Threshold
   meaning: The threshold of {threshold} is negative.

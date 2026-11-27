@@ -131,7 +131,6 @@ static class AppendListEntry
 
         var entry = new JsonObject
         {
-            ["type"] = "permission",
             ["id"] = entryId,
             ["title"] = AppendEntry.TitleFrom(name),
             ["meaning"] = "This permission allows the action.",

@@ -15,7 +15,7 @@ public sealed class IdentifiedPartCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "line-item", "identity": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true}]}"""));
 
         Assert.False(Reports(model, "reference-unknown", "#line-item"));
     }
@@ -29,7 +29,7 @@ public sealed class IdentifiedPartCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "line-item", "identity": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#no-such-part", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#no-such-part", "required": true}]}"""));
 
         Assert.True(Reports(model, "reference-unknown", "names part 'no-such-part' the aggregate does not declare"));
     }
@@ -43,7 +43,7 @@ public sealed class IdentifiedPartCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "line-item"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true}]}"""));
 
         Assert.True(Reports(model, "reference-unknown", "names part 'line-item' the aggregate declares without identity"));
     }
@@ -57,7 +57,7 @@ public sealed class IdentifiedPartCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person"}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "actor/reader#line-item", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", Path.Combine(temp.Path, "change.yaml"), """{"kind": "command", "steps": [{"statement": "The reader changes one line of the loan."}], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "actor/reader#line-item", "required": true}]}"""));
 
         Assert.True(Reports(model, "reference-unknown", "names a part of 'actor/reader', which is no aggregate"));
     }
@@ -85,8 +85,8 @@ public sealed class IdentifiedPartCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "line-item", "identity": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", UseCaseFile(temp.Path, "change-line.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true, "origin": "caller", "classification": "internal"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "output": {"include": {"loan": {"fields": [{"name": "lineItemId", "meaning": "The read line.", "type": "id", "identifies": "aggregate/lending.loan#line-item"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", UseCaseFile(temp.Path, "change-line.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true, "origin": "caller", "classification": "internal"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "via": ["entry-point/library-app"], "outputs": {"include": {"loan": {"fields": [{"name": "lineItemId", "meaning": "The read line.", "type": "id", "identifies": "aggregate/lending.loan#line-item"}]}}}}"""));
 
         Assert.False(Reports(model, "caller-identifier-unreachable", "change-line"));
         Assert.False(Reports(model, "reference-unknown", "#line-item"));
@@ -102,7 +102,7 @@ public sealed class IdentifiedPartCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "line-item", "identity": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", UseCaseFile(temp.Path, "change-line.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true, "origin": "caller", "classification": "internal"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", UseCaseFile(temp.Path, "change-line.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true, "origin": "caller", "classification": "internal"}]}"""));
 
         Assert.True(Reports(model, "caller-identifier-unreachable", "aggregate/lending.loan#line-item"));
         Assert.False(Reports(model, "reference-unknown", "#line-item"));
@@ -118,8 +118,8 @@ public sealed class IdentifiedPartCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "audience": ["actor/reader"]}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan runs."}], "parts": [{"name": "line-item", "identity": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.change-line", UseCaseFile(temp.Path, "change-line.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true, "origin": "caller", "classification": "internal"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "reachedThrough": ["entry-point/library-app"], "output": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
+            TestModel.Record("use-case", "use-case/lending.change-line", UseCaseFile(temp.Path, "change-line.yaml"), """{"kind": "command", "via": ["entry-point/library-app"], "inputs": [{"name": "line", "meaning": "The line to change.", "type": "id", "identifies": "aggregate/lending.loan#line-item", "required": true, "origin": "caller", "classification": "internal"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.read-loan", UseCaseFile(temp.Path, "read-loan.yaml"), """{"kind": "query", "via": ["entry-point/library-app"], "outputs": {"include": {"loan": {"fields": [{"name": "loanId", "meaning": "The read loan.", "type": "id", "identifies": "aggregate/lending.loan"}]}}}}"""));
 
         Assert.True(Reports(model, "caller-identifier-unreachable", "aggregate/lending.loan#line-item"));
     }

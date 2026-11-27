@@ -10,8 +10,8 @@ namespace LiteSpec.Cli.Model.Checks.Intent;
 ///     The cast checks: a person's address sits on a reserved test domain, every cast entry is
 ///     cited by a record or a seeds mark, and every seeds mark names a cast entry.
 /// </summary>
-/// <follows>litespec/core/writing#keep-the-cast-out-of-production-code</follows>
-/// <follows>litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record</follows>
+/// <follows>litespec/quality/development#seed-only-development-and-test-environments</follows>
+/// <follows>litespec/quality/development#add-a-missing-example-fact-to-the-cast-not-to-the-seed</follows>
 internal static class CastChecks
 {
     /// <summary>The domains RFC 2606 reserves for documentation and examples.</summary>

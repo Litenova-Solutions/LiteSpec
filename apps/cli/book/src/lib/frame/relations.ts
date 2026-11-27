@@ -99,12 +99,13 @@ export function upOneFor(
   if (MODULE_MEMBER_TYPES.includes(type)) {
     return known(outsFor(readers, id, "fulfills")) ?? known(outsFor(readers, id, "serves"));
   }
-  if (type === "flow") return known(outsFor(readers, id, "serves")) ?? known(outsFor(readers, id, "answers"));
+  if (type === "flow")
+    return known(outsFor(readers, id, "serves")) ?? known(outsFor(readers, id, "solves")) ?? known(outsFor(readers, id, "basedOn"));
   if (type === "decision")
     return known(
       insFor(readers, id, "basedOn").filter((x) => readers.typeOf(x) === "rule" || readers.typeOf(x) === "requirement"),
     );
-  if (type === "requirement") return known(outsFor(readers, id, "cites"));
+  if (type === "requirement") return known(outsFor(readers, id, "basedOn"));
   if (type === "feature") return known(outsFor(readers, id, "advances"));
   if (type === "domain-event") {
     const first = insFor(readers, id, "raises")[0];

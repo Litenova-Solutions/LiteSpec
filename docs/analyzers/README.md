@@ -20,7 +20,7 @@ A project that claims neither layer runs no rule, and the generator writes no so
 
 The analyzers work out each file's layer from its top folder in the module. A file under a `Domain/`, `Application/`, `Ports/`, `Infrastructure/`, or `WebApi/` folder takes that layer. Test files take Test.
 
-Three assembly name suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` names no layer: each of its files takes its layer from its folder, as above.
+Three assembly name suffixes name project roles: `Shop.Kernel` reads as Domain, so the business values answer the Domain rules; `Shop.Platform` reads as Infrastructure; and `Shop.Api` reads as WebApi beside the `WebApi` and `Worker` hosts. A module project such as `Shop.Orders` lists no layer: each of its files takes its layer from its folder, as above.
 
 A knowledge model project under a `Knowledge/` folder named `<Product>.<Area>` reads as Domain, so its code answers the Domain rules. A knowledge set project named `<Product>.<Area>.<Variant>` holds data only and reads as no layer, so only `LS2039` checks its files.
 

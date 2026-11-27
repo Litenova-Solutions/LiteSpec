@@ -1,11 +1,11 @@
 type: integration-event
 id: integration-event/loan-borrowed
 title: Loan borrowed
-action: send
+direction: send
 eventType: lending.loan-borrowed
 source: lending-api
 subject: loan
-payload:
+fields:
   - name: loanId
     meaning: The loan that opened.
     classification: internal

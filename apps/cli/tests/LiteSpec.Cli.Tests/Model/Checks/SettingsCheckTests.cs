@@ -380,12 +380,14 @@ public sealed class SettingsCheckTests
             + "  \"type\": \"setting\",\n"
             + "  \"id\": \"" + id + "\",\n"
             + "  \"title\": \"" + title + "\",\n"
-            + "  \"valueType\": \"integer\",\n"
-            + "  \"default\": 5,\n"
-            + "  \"range\": \"1-10\",\n"
-            + "  \"unit\": \"loans\",\n"
+            + "  \"value\": {\n"
+            + "    \"type\": \"integer\",\n"
+            + "    \"default\": 5,\n"
+            + "    \"range\": \"1-10\",\n"
+            + "    \"unit\": \"loans\",\n"
+            + "    \"outOfRange\": \"refuse\"\n"
+            + "  },\n"
             + "  \"setBy\": \"" + setBy + "\"" + pathLine + ",\n"
-            + "  \"outOfRange\": \"refuse\",\n"
             + "  \"fulfills\": [\n"
             + "    \"requirement/borrowing.max-active-loans\"\n"
             + "  ]\n"
@@ -394,9 +396,7 @@ public sealed class SettingsCheckTests
 
     static string NotificationJson(string id, string title, string template, params string[] parameters)
     {
-        var paramsJson = parameters.Length == 0
-            ? ""
-            : ",\n  \"parameters\": [\n" + string.Join(",\n", parameters.Select(parameter => "    \"" + parameter + "\"")) + "\n  ]";
+        var paramsList = string.Join(", ", parameters.Select(parameter => "\"" + parameter + "\""));
 
         return "{\n"
             + "  \"type\": \"notification\",\n"
@@ -404,9 +404,12 @@ public sealed class SettingsCheckTests
             + "  \"title\": \"" + title + "\",\n"
             + "  \"template\": \"" + template + "\",\n"
             + "  \"audience\": [\n    \"actor/reader\"\n  ],\n"
-            + "  \"channel\": [\n    \"email\"\n  ],\n"
-            + "  \"consent\": \"Readers accept notices at signup.\",\n"
-            + "  \"frequency\": \"once\"" + paramsJson + ",\n"
+            + "  \"channels\": [\n    \"email\"\n  ],\n"
+            + "  \"via\": \"external-system/text-gateway\",\n"
+            + "  \"frequency\": \"once\",\n"
+            + "  \"deduplicationKey\": \"loan-due per loan\",\n"
+            + "  \"parameters\": [" + paramsList + "],\n"
+            + "  \"locale\": \"en\",\n"
             + "  \"fulfills\": [\n    \"requirement/borrowing.max-active-loans\"\n  ]\n"
             + "}\n";
     }

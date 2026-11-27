@@ -87,8 +87,8 @@ public sealed partial class ConsumerValidatorTests
     /// <param name="result">The result id the appended scenario ends in.</param>
     static void ScenarioResult(JsonObject meta, string result)
     {
-        var entry = (JsonObject)ConsumerFixture.Meta("""{"type":"scenario","id":"scenario/cancel-order.canceling-after-shipment-is-refused","title":"Canceling After Shipment Is Refused","given":"The shipment already left the shop.","when":"The customer asks to cancel the claim.","then":"The cancel is refused.","result":"result/cancel-order.forbidden"}""");
+        var entry = (JsonObject)ConsumerFixture.Meta("""{"id":"scenario/cancel-order.canceling-after-shipment-is-refused","title":"Canceling After Shipment Is Refused","given":"The shipment already left the shop.","when":"The customer asks to cancel the claim.","then":"The cancel is refused.","result":"result/cancel-order.forbidden"}""");
         entry["result"] = result;
-        ((JsonArray)meta["records"]!).Add(entry);
+        ((JsonArray)(meta["scenarios"] ??= new JsonArray())).Add(entry);
     }
 }

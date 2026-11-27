@@ -19,6 +19,6 @@ admits:
   layer: Infrastructure
   license: MIT
   location: in-process
-  failureBehavior: the receipt download fails and the expense stays readable
+  onFailure: the receipt download fails and the expense stays readable
 basedOn:
 - constraint/tax-receipt-retention

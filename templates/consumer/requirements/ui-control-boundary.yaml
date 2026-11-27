@@ -10,5 +10,5 @@ response: Every control boundary meets its contrast limit against its surface
 measure: Lowest contrast ratio of a control boundary against its surface, per declared scheme
 target: At least 3:1
 check: token-limits
-cites:
-- "<constraint, goal or problem>"
+basedOn:
+  - <constraint, goal or problem>

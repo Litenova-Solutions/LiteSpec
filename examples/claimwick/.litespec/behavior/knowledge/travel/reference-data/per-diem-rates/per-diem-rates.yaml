@@ -6,7 +6,7 @@ unit: EUR per day
 requiredRoles:
 - full-day
 - partial-day
-variation: country
+variesBy: country
 rows:
 - value: 28
   key: de-full-day

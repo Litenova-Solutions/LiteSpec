@@ -4,6 +4,6 @@ title: Nightly due scan
 kind: scheduled
 schedule:
   every: P1D
-  timezone: Europe/Amsterdam
+  timeZone: Europe/Amsterdam
 effects:
-  - sends: notification/lending.loan-due
+- sends: notification/lending.loan-due

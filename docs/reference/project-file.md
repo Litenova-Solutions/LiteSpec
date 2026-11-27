@@ -1,10 +1,10 @@
 # Project File
 
-`.litespec/project.yaml` is the single record of what a consumer project selected: its size, shape, stacks, extensions, paths, and pinned release. A consumer project is an application repository built against one pinned LiteSpec release. The team edits the file when the selection changes, and validates it with `litespec model check` before relying on it.
+`.litespec/project.yaml` is the single record of what a consumer project selected: its size, shape, stacks, extensions, paths, and pinned release. A consumer project is an application repository built against one pinned release. The team edits the file when the selection changes, and validates it with `litespec model check` before relying on it.
 
 ## Reference
 
-The [supported scope](../core/scope.md) page states which sizes, shapes, stacks, and extensions a project can select. The [stacks](../core/stacks.md) page states what selecting a stack applies. The [init](../tools/init.md) page states how a new file is written, and the [model](../tools/model.md) page states how the file is validated and how paths feed the project model. Terms such as stack, shape, size, extension, and preset follow the [glossary](glossary.md).
+The [supported scope](../core/scope.md) page lists which sizes, shapes, stacks, and extensions a project selects from. The [stacks](../core/stacks.md) page shows what selecting a stack applies. The [init](../tools/init.md) page shows how a new file is written, and the [model](../tools/model.md) page shows how the file is validated and how paths feed the project model. Terms such as stack, shape, size, extension, and preset follow the [glossary](glossary.md).
 
 ### File Location and Schema
 
@@ -19,7 +19,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 
 ### Top-Level Fields
 
-The schema states every top-level field, its type, and whether it is required; read it at [litespec-project.schema.yaml](../../schemas/litespec-project.schema.yaml). `litespec model check` checks the selection, and the model builder reads the size, shape, stacks, layers, and paths from the same file.
+The schema states every top-level field with its type and presence; read it at [litespec-project.schema.yaml](../../schemas/litespec-project.schema.yaml). `litespec model check` checks the selection, and the model builder reads the size, shape, stacks, layers, and paths from the same file.
 
 ### The `layers` Object
 
@@ -39,7 +39,7 @@ The schema states the step classes that tune how the model builder confirms proo
 
 ### The `dependencies` Object
 
-The schema states the licenses the project accepts. A shipped package under any other license needs an admitting decision naming it.
+The schema states the licenses the project accepts. A shipped package under any other license pairs with an admitting decision naming it.
 
 ### The `screenshots` Object
 
@@ -63,7 +63,7 @@ The schema states the files of the workspace's one shared UI package. `litespec 
 
 ### A `frontends` Entry
 
-The schema states every field of a frontend entry. The model builder reads each frontend's directory, route suite, and visual goldens from it, and `litespec model check` checks the platform value, the shared package a controlled frontend needs, and the stylesheet path.
+The schema states every field of a frontend entry. The model builder reads each frontend directory, route suite, and visual goldens from it, and `litespec model check` checks the platform value, the shared package a controlled frontend uses, and the stylesheet path.
 
 ### A `selectedExtensions` Entry
 
@@ -71,13 +71,15 @@ The schema states the extension id, the criterion that was met, and the `release
 
 ### Placeholders and the Init Fill
 
-The template names the project as `__PROJECT__` in paths and package names. `litespec init` fills every `__PROJECT__` value with the `--name` value, or with the root folder name when `--name` is omitted. In an npm package scope such as `@__PROJECT__/ui`, it writes that name in lowercase kebab case, because npm names are lowercase. After writing the file, it prints `Next step: dotnet litespec model check`. `litespec model check` treats a leftover placeholder as an error and names each one:
+The template names the project as `__PROJECT__` in paths and package names. `litespec init` fills every `__PROJECT__` value with the `--name` value, or with the root folder name when `--name` is omitted. In an npm package scope such as `@__PROJECT__/ui`, it writes that name in lowercase kebab case, since npm names are lowercase. After writing the file, it prints `Next step: dotnet litespec model check`.
+
+`litespec model check` treats a leftover placeholder as an error and names each one:
 
 ```text
 .litespec/project.yaml: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
 ```
 
-A preset without a controlled web frontend, such as `android-client`, declares no package that a frontend uses, so `litespec init` removes `ui` and `paths.uiPatterns` from the written file in that case.
+A preset with no controlled web frontend, such as `android-client`, carries no shared package, so `litespec init` removes `ui` and `paths.uiPatterns` from the written file in that case.
 
 ### A Complete Example
 
@@ -131,7 +133,7 @@ ui:
 selectedExtensions: []
 ```
 
-The other two presets differ only in shape, stacks, frontends, and the shared package. `android-client` selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{ProjectName}.Android`, with no `ui` and no `uiPatterns`. The [init](../tools/init.md) page states each preset; the records preset selects shape `server`, the `intent` and `behavior` layers, and no stacks or frontends.
+The `android-client` preset differs in shape, stacks, frontends, and the shared package: it selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{name}.Android`, with no `ui` and no `uiPatterns`. The [init](../tools/init.md) page lists each preset; the records preset selects shape `server`, the `intent` and `behavior` layers, and no stacks or frontends.
 
 ### Validation Errors
 
@@ -145,9 +147,9 @@ The other two presets differ only in shape, stacks, frontends, and the shared pa
 | A stack id is unknown | `.litespec/project.yaml: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A client-only project names a backend stack | `.litespec/project.yaml: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A server names zero or two backend stacks | `.litespec/project.yaml: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| An extension id is unknown | `.litespec/project.yaml: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, bdd, cache, compat, concurrency, customer-rules, delivery, devices, integrations, jobs, lifecycle, locale, mcp, outbox, plans, realtime, stage, tenancy` |
-| A frontend declares no platform | `.litespec/project.yaml: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A frontend names a stack the project does not select | `.litespec/project.yaml: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| An extension id is unknown | `.litespec/project.yaml: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai-mcp, compat, delivery, plans, realtime` |
+| A frontend declares no platform | `.litespec/project.yaml: frontend 'web' declares no 'platform'; one of svelte, android is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A frontend names a stack the project does not select | `.litespec/project.yaml: frontend 'web' platform 'android' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A controlled frontend has no shared package | `.litespec/project.yaml: 1 controlled frontend(s) and no 'ui.package'; the shared UI package every controlled web frontend composes is undeclared` |
 | A configured path does not exist | `.litespec/project.yaml: paths.docs 'docs' does not exist; the page scan finds no record to check` |
 
@@ -155,4 +157,4 @@ The last row stands for every configured path: the message names the field, the 
 
 ## Notes
 
-The fields are stated in `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-svelte.yaml`, `templates/presets/android-client.yaml`, and `templates/presets/records.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words, and the project file carries no setting for that bound.
+The fields are stated in `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-svelte.yaml`, `templates/presets/android-client.yaml`, and `templates/presets/records.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words. The project file carries no setting for that bound.

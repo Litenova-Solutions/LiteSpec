@@ -10,24 +10,24 @@ access:
   tenant: own
 fulfills:
   - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
   - entry-point/library-app
 raises:
   - domain-event/loan.loan-borrowed
-records:
-  - type: result
-    id: result/borrow-copy.borrowed
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+results:
+  - id: result/borrow-copy.borrowed
     title: Borrowed
     outcome: success
     meaning: The copy is lent.
-  - type: result
-    id: result/borrow-copy.copy-unavailable
+  - id: result/borrow-copy.copy-unavailable
     title: Copy unavailable
     outcome: refusal
     code: lending.copy-not-available
     meaning: The copy is unavailable.
-  - type: scenario
-    id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
+scenarios:
+  - id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
     title: Borrowing an available copy succeeds
     given: A copy sits available on its shelf.
     when: The reader borrows the copy.

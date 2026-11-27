@@ -28,7 +28,7 @@ A problem explanation carries Affected Users, Failure Cases, Example (optional),
 
 Its opening paragraph states what the sufferer cannot reliably do, the gap that causes it and what they lose or risk. Each failure that can happen on its own gets its own entry, with how the sufferer finds it and what follows when they do not.
 
-Each claim stays within its evidence, an estimate is named as an estimate, and an evidence entry shows the pain, never only that a solution can be built. Each failure case gets one resolution criterion: an observable outcome for the sufferer that names no feature or implementation.
+Each claim stays within its evidence, an estimate is named as an estimate, and an evidence entry shows the pain, never only that a solution can be built. Each failure case gets one resolution criterion: an observable outcome for the sufferer that lists no feature or implementation.
 
 A problem title names the failure or its consequence, never a theme or a feature.
 

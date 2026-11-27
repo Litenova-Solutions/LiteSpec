@@ -5,9 +5,9 @@ summary: The reminder names the expense and its waiting time. Each waiting expen
 template: approval-reminder-manager
 audience:
 - actor/manager
-channel:
+channels:
 - email
-deliveredThrough: external-system/mail-relay
+via: external-system/mail-relay
 consentRule: rule/spending.suppressed-manager-gets-no-reminder
 frequency: once
 deduplicationKey: approval-reminder-{expenseId}

@@ -17,7 +17,7 @@ page
     action "Refuse Expense"
     action "Attach Receipt"
     action "Reimburse Expense"
-    action destructive "Erase Personal Data"
+    link "Erase personal data"
   split 2:1
     region "The expense"
       fact "Spender" "Ava"
@@ -31,7 +31,7 @@ page
     message "You submitted this expense, so another manager must decide it." critical
 ```
 
-Each action shows only when the expense state permits it: approval and refusal on a submitted expense, reimbursement on an approved one, and erasure past its retention.
+Each action shows only when the expense state permits it: approval and refusal on a submitted expense and reimbursement on an approved one. Past its retention, the page links to the erasure form.
 
 ## States
 

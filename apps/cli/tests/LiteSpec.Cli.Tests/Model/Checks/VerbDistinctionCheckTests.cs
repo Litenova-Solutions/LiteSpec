@@ -86,23 +86,16 @@ public sealed class VerbDistinctionCheckTests
     public void RetiredSynonymsMatchTheUseCasesPage()
     {
         var page = File.ReadAllText(Path.Combine(TestCli.Repository, "docs", "core", "use-cases.md"));
-        var body = Regex.Match(page, @"The baseline vocabulary retires these synonyms: (?<body>.*?)\. A project may", RegexOptions.Singleline).Groups["body"].Value;
+        var table = Regex.Match(page, @"\| Retired synonyms \| Become \|\s*\n(?<body>.*?)\n\n", RegexOptions.Singleline).Groups["body"].Value;
         var expected = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        foreach (var clause in body.Split(';'))
+        foreach (Match row in Regex.Matches(table, @"^\| (?<retired>[^|]+)\| (?<baseline>[^|]+)\|", RegexOptions.Multiline))
         {
-            var verbs = Regex.Matches(clause, "`(?<verb>[a-z-]+)`").Select(match => match.Groups["verb"].Value).ToList();
+            var baseline = Regex.Match(row.Groups["baseline"].Value, "`(?<verb>[a-z-]+)`").Groups["verb"].Value;
 
-            if (verbs.Count < 2)
+            foreach (Match synonym in Regex.Matches(row.Groups["retired"].Value, "`(?<verb>[a-z-]+)`"))
             {
-                continue;
-            }
-
-            var baseline = verbs[^1];
-
-            foreach (var synonym in verbs.Take(verbs.Count - 1))
-            {
-                expected[synonym] = baseline;
+                expected[synonym.Groups["verb"].Value] = baseline;
             }
         }
 

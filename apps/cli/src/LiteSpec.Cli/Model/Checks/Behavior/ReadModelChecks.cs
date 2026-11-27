@@ -202,7 +202,7 @@ internal static class ReadModelChecks
             return names;
         }
 
-        if (published.Raw.TryGetProperty(RecordFields.Payload, out var payload)
+        if (published.Raw.TryGetProperty(RecordFields.Fields, out var payload)
             && payload.ValueKind == JsonValueKind.Array)
         {
             foreach (var entry in payload.EnumerateArray())
@@ -227,7 +227,7 @@ internal static class ReadModelChecks
         if (model.ById.TryGetValue(Identifiers.BaseId(id), out var record)
             && (record.Type == RecordTypes.ModuleEvent
                 || (record.Type == RecordTypes.IntegrationEvent
-                    && record.Field(RecordFields.Action) == "send")))
+                    && record.Field(RecordFields.Direction) == "send")))
         {
             source = record;
             return true;

@@ -31,7 +31,7 @@ dataClasses:
   fields:
   - borrower-email
   onErasure: erase
-  basis:
+  basedOn:
   - requirement/borrowing.loan-period-days
   purpose: Send overdue notices to readers.
   period: P30D

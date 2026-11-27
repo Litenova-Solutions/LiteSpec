@@ -2,48 +2,44 @@ type: aggregate
 id: aggregate/<module>.<name>
 title: <Title in Title Case>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 summary: <what this aggregate keeps true, or remove this line>
 parts:
-- <child entity or value object name, or remove this line>
+  - <child entity or value object name, or remove this line>
 states:
-- name: <State>
-  meaning: <what makes it true>
+  - name: <State>
+    meaning: <what makes it true>
 transitions:
-- from: <state, or - for creation>
-  to: <state>
-  movedBy: <use-case/<module>.<name>, or remove this line>
-  after: <delay before a timed move, such as P7Y, or remove this line>
+  - from: <state, or - for creation>
+    to: <state>
+    movedBy: <use-case/<module>.<name>, or remove this line>
+    after: <delay before a timed move, such as P7Y, or remove this line>
 data:
-- name: <field name>
-  meaning: <what the field holds>
-  classification: <public|internal|personal|sensitive>
-  dataClass: <data class name>
+  - name: <field name>
+    meaning: <what the field holds>
+    classification: <public|internal|personal|sensitive>
+    dataClass: <data class name>
 dataClasses:
-- name: <data class name>
-  classification: <public|internal|personal|sensitive>
-  fields:
-  - <field name>
-  onErasure: <erase|pseudonymize|anonymize|retain|exempt>
-  basis:
-  - <constraint, requirement or decision id>
-  period: <how long the class is kept, such as P7Y>
-  periodStartsAt: <domain event, module event, integration event or aggregate date field starting the period, or a range such as creation to erasure>
-  # A start counted from a calendar end names its event and rounding instead:
-  # periodStartsAt:
-  #   event: domain-event/<aggregate>.<name>
-  #   rounding: <financial-year-end|calendar-year-end>
-  enforcedBy:
-  - <job/<module>.<name> or use-case/<module>.<name>>
-  purpose: <why the data is kept>
-  reason: <why this class is exempt, or remove this line>
-  reach: <own-tenant|subject-wide|platform-wide, or remove this line>
-  exceptions:
-  - field: <field name>
+  - name: <data class name>
+    classification: <public|internal|personal|sensitive>
+    fields:
+      - <field name>
     onErasure: <erase|pseudonymize|anonymize|retain|exempt>
-  retentionHolds:
-  - reason: <why deletion pauses>
-    heldOn: <date the hold starts, such as 2026-03-02>
-    liftedOn: <date the hold ends, or remove this line>
+    basedOn:
+      - <constraint, requirement or decision id>
+    period: <how long the class is kept, such as P7Y>
+    periodStartsAt: <domain event, module event, integration event or aggregate date field starting the period, or a range such as creation to erasure>
+    enforcedBy:
+      - <job/<module>.<name> or use-case/<module>.<name>>
+    purpose: <why the data is kept>
+    reason: <why this class is exempt, or remove this line>
+    reach: <own-tenant|subject-wide|platform-wide, or remove this line>
+    exceptions:
+      - field: <field name>
+        onErasure: <erase|pseudonymize|anonymize|retain|exempt>
+    retentionHolds:
+      - reason: <why deletion pauses>
+        heldOn: <date the hold starts, such as 2026-03-02>
+        liftedOn: <date the hold ends, or remove this line>
 excludes:
-- <one thing the aggregate does not hold, in one sentence, or remove this line>
+  - <one thing the aggregate does not hold, in one sentence, or remove this line>

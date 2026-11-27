@@ -2,7 +2,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the async settle checks against hand-built models: a declared settles on a reaction or job running a use case writing an aggregate names the pending, done and refused states the run settles, entered and distinct.</summary>
+/// <summary>Proves the async settle checks against hand-built models: a declared tracksState on a reaction or job running a use case writing an aggregate names the pending, done and refused states the run tracks, entered and distinct.</summary>
 public sealed class AsyncSettleCheckTests
 {
     /// <summary>The finding codes the async settle checks report.</summary>
@@ -33,12 +33,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready", "refused": "Lapsed"},
+                 "tracksState": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready", "refused": "Lapsed"},
                  "outcomes": [
                   {"name": "completed", "meaning": "The hold was confirmed."},
                   {"name": "failed", "meaning": "The hold lapsed with no copy."}],
@@ -73,7 +73,7 @@ public sealed class AsyncSettleCheckTests
             TestModel.Record("job", "job/lending.erase-expired-borrower", Path.Combine(temp.Path, "job.yaml"), """
                 {"kind": "scheduled", "schedule": {"every": "P1D"},
                  "effects": [{"runs": "use-case/lending.erase-expired-loan", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.loan", "pending": "Active", "done": "Erased"},
+                 "tracksState": {"aggregate": "aggregate/lending.loan", "pending": "Active", "done": "Erased"},
                  "outcomes": [
                   {"name": "completed", "meaning": "Expired loans were erased."},
                   {"name": "nothing-selected", "meaning": "No loan was past retention."},
@@ -84,20 +84,20 @@ public sealed class AsyncSettleCheckTests
         Assert.DoesNotContain(TestModel.Codes(model), code => AsyncSettleCodes.Contains(code, StringComparer.Ordinal));
     }
 
-    /// <summary>A reaction running no use case settles nothing and reports no async settle finding without settles.</summary>
+    /// <summary>A reaction running no use case settles nothing and reports no async settle finding without tracksState.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
-    public void SendOnlyReactionWithoutSettlesPasses()
+    public void SendOnlyReactionWithoutTracksStatePasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """
-                {"meaning": "A copy was lent.", "carries": []}
+                {"meaning": "A copy was lent.", "fields": []}
                 """),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "notice.yaml"), """
-                {"summary": "The due notice.", "template": "loan-due", "audience": ["actor/reader"], "channel": ["mail"],
-                 "deliveredThrough": "external-system/mail-relay", "frequency": "once", "deduplicationKey": "loan-due-{loanId}",
+                {"summary": "The due notice.", "template": "loan-due", "audience": ["actor/reader"], "channels": ["email"],
+                 "via": "external-system/mail-relay", "frequency": "once", "deduplicationKey": "loan-due-{loanId}",
                  "parameters": [], "locale": "en"}
                 """),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "remind.yaml"), """
@@ -110,7 +110,7 @@ public sealed class AsyncSettleCheckTests
         Assert.DoesNotContain(TestModel.Codes(model), code => AsyncSettleCodes.Contains(code, StringComparer.Ordinal));
     }
 
-    /// <summary>A reaction running a use case that writes nothing settles nothing and reports no async settle finding without settles.</summary>
+    /// <summary>A reaction running a use case that writes nothing settles nothing and reports no async settle finding without tracksState.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
     public void ReactionRunningAUseCaseThatWritesNothingPasses()
@@ -122,7 +122,7 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": []}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.record-scan-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
@@ -134,10 +134,10 @@ public sealed class AsyncSettleCheckTests
         Assert.DoesNotContain(TestModel.Codes(model), code => AsyncSettleCodes.Contains(code, StringComparer.Ordinal));
     }
 
-    /// <summary>A reaction running a use case that writes an aggregate without settles states nothing and reports no async settle finding.</summary>
+    /// <summary>A reaction running a use case that writes an aggregate without tracksState states nothing and reports no async settle finding.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
-    public void RunWithoutSettlesPasses()
+    public void RunWithoutTracksStatePasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -152,7 +152,7 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
@@ -164,10 +164,10 @@ public sealed class AsyncSettleCheckTests
         Assert.DoesNotContain(TestModel.Codes(model), code => AsyncSettleCodes.Contains(code, StringComparer.Ordinal));
     }
 
-    /// <summary>Settles naming one state as both pending and done reports async-pending-missing.</summary>
+    /// <summary>TracksState naming one state as both pending and done reports async-pending-missing.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
-    public void SettlesNamingOneStateTwiceReportsPendingMissing()
+    public void TracksStateNamingOneStateTwiceReportsPendingMissing()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -187,12 +187,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.hold", "pending": "Ready", "done": "Ready"},
+                 "tracksState": {"aggregate": "aggregate/lending.hold", "pending": "Ready", "done": "Ready"},
                  "outcomes": [
                   {"name": "completed", "meaning": "The hold was confirmed."},
                   {"name": "retry-scheduled", "meaning": "Another attempt is scheduled."}],
@@ -202,7 +202,7 @@ public sealed class AsyncSettleCheckTests
         Assert.Contains("async-pending-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Settles naming a pending state that only the settled run enters reports async-pending-missing.</summary>
+    /// <summary>TracksState naming a pending state that only the settled run enters reports async-pending-missing.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
     public void PendingEnteredOnlyByTheSettledRunReportsPendingMissing()
@@ -223,12 +223,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready", "refused": "Lapsed"},
+                 "tracksState": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready", "refused": "Lapsed"},
                  "outcomes": [{"name": "completed", "meaning": "The hold was confirmed."}],
                  "onFailure": {"mode": "skip-and-log"}}
                 """));
@@ -236,10 +236,10 @@ public sealed class AsyncSettleCheckTests
         Assert.Contains("async-pending-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Settles naming a state the aggregate does not hold reports reference-unknown.</summary>
+    /// <summary>TracksState naming a state the aggregate does not hold reports reference-unknown.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
-    public void SettlesNamingAnUnknownStateReportsReferenceUnknown()
+    public void TracksStateNamingAnUnknownStateReportsReferenceUnknown()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -259,12 +259,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.hold", "pending": "Queued", "done": "Ready"},
+                 "tracksState": {"aggregate": "aggregate/lending.hold", "pending": "Queued", "done": "Ready"},
                  "outcomes": [
                   {"name": "completed", "meaning": "The hold was confirmed."},
                   {"name": "retry-scheduled", "meaning": "Another attempt is scheduled."}],
@@ -274,10 +274,10 @@ public sealed class AsyncSettleCheckTests
         Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
-    /// <summary>Settles naming an aggregate the run does not write reports async-pending-missing.</summary>
+    /// <summary>TracksState naming an aggregate the run does not write reports async-pending-missing.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
-    public void SettlesNamingAnotherAggregateReportsPendingMissing()
+    public void TracksStateNamingAnotherAggregateReportsPendingMissing()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -297,12 +297,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.loan", "pending": "Placed", "done": "Ready"},
+                 "tracksState": {"aggregate": "aggregate/lending.loan", "pending": "Placed", "done": "Ready"},
                  "outcomes": [{"name": "completed", "meaning": "The hold was confirmed."}],
                  "onFailure": {"mode": "skip-and-log"}}
                 """));
@@ -335,12 +335,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready"},
+                 "tracksState": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready"},
                  "outcomes": [
                   {"name": "completed", "meaning": "The hold was confirmed."},
                   {"name": "failed", "meaning": "The hold could not be confirmed."}],
@@ -350,7 +350,7 @@ public sealed class AsyncSettleCheckTests
         Assert.Contains("async-refused-unrecorded", TestModel.Codes(model));
     }
 
-    /// <summary>Settles naming the done state again as refused reports async-refused-unrecorded.</summary>
+    /// <summary>TracksState naming the done state again as refused reports async-refused-unrecorded.</summary>
     /// <proves>litespec/core/automation#settle-every-async-outcome-in-visible-states</proves>
     [Fact]
     public void RefusedRepeatingTheDoneStateReportsRefusedUnrecorded()
@@ -373,12 +373,12 @@ public sealed class AsyncSettleCheckTests
                 {"kind": "command", "writes": ["aggregate/lending.hold"]}
                 """),
             TestModel.Record("domain-event", "domain-event/copy.copy-returned", Path.Combine(temp.Path, "returned.yaml"), """
-                {"meaning": "A copy was returned.", "carries": []}
+                {"meaning": "A copy was returned.", "fields": []}
                 """),
             TestModel.Record("reaction", "reaction/lending.confirm-hold-on-copy-returned", Path.Combine(temp.Path, "reaction.yaml"), """
                 {"triggeredBy": ["domain-event/copy.copy-returned"],
                  "effects": [{"runs": "use-case/lending.confirm-hold", "timing": "async"}],
-                 "settles": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready", "refused": "Ready"},
+                 "tracksState": {"aggregate": "aggregate/lending.hold", "pending": "Placed", "done": "Ready", "refused": "Ready"},
                  "outcomes": [{"name": "completed", "meaning": "The hold was confirmed."}],
                  "onFailure": {"mode": "skip-and-log"}}
                 """));

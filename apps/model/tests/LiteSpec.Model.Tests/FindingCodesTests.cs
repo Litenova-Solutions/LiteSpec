@@ -189,7 +189,7 @@ public sealed class FindingCodesTests
     [InlineData("record-invalid", RecordLayer.Any, false, null)]
     [InlineData("quality-alert-missing", RecordLayer.Any, false, "delivery")]
     [InlineData("alert-link-missing", RecordLayer.Any, false, "delivery")]
-    [InlineData("audit-missing", RecordLayer.Behavior, false, "audit")]
+    [InlineData("audit-missing", RecordLayer.Behavior, false, null)]
     [InlineData("statement-measure-missing", RecordLayer.Proof, false, null)]
     [InlineData("rule-sibling-uncited", RecordLayer.Behavior, false, null)]
     [InlineData("exercises-uncited", RecordLayer.Behavior, false, null)]
@@ -205,6 +205,16 @@ public sealed class FindingCodesTests
     [InlineData("scenario-result-unknown", RecordLayer.Behavior, false, null)]
     [InlineData("link-direction-invalid", RecordLayer.Any, false, null)]
     [InlineData("folder-ungrouped", RecordLayer.Implementation, false, null)]
+    [InlineData("tenant-reason-missing", RecordLayer.Behavior, false, null)]
+    [InlineData("refusal-catalog-drift", RecordLayer.Implementation, true, null)]
+    [InlineData("policy-undeclared", RecordLayer.Implementation, true, null)]
+    [InlineData("frontend-refusal-unknown", RecordLayer.Implementation, true, null)]
+    [InlineData("frontend-permission-unknown", RecordLayer.Implementation, true, null)]
+    [InlineData("openapi-contract-drift", RecordLayer.Implementation, true, null)]
+    [InlineData("screen-command-limit", RecordLayer.Behavior, false, null)]
+    [InlineData("screen-section-limit", RecordLayer.Implementation, true, null)]
+    [InlineData("route-line-limit", RecordLayer.Implementation, true, null)]
+    [InlineData("mcp-tool-unmounted", RecordLayer.Implementation, true, "ai-mcp")]
     public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);
@@ -290,7 +300,7 @@ public sealed class FindingCodesTests
         return ProblemWords.Any(word => code.Length > word.Length + 1 && code.EndsWith("-" + word, StringComparison.Ordinal));
     }
 
-    /// <summary>Gets the problem words of the finding-code grammar, as the problem-word table on the record language page lists them.</summary>
+    /// <summary>Gets the problem words of the finding-code grammar: the problem-word table on the record language page, with the v7 contract's new words.</summary>
     static HashSet<string> ProblemWords { get; } = new(StringComparer.Ordinal)
     {
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
@@ -298,7 +308,7 @@ public sealed class FindingCodesTests
         "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
         "foreign", "uncarried", "unexercised", "unhandled", "vague", "wide", "written",
         "unreachable", "alias", "failed", "dead-end", "unselected", "unbacked", "ungrouped", "unreserved",
-        "shown",
+        "shown", "limit", "unmounted",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

@@ -19,8 +19,8 @@ public sealed class CompensationCheckTests
             TestModel.Record("use-case", "use-case/lending.reserve-copy", Path.Combine(temp.Path, "reserve.yaml"), """{"kind": "command", "raises": ["domain-event/reservation.reserved"]}"""),
             TestModel.Record("use-case", "use-case/lending.record-charge-failure", Path.Combine(temp.Path, "failure.yaml"), """{"kind": "command", "raises": ["domain-event/charge.charge-failed"]}"""),
             TestModel.Record("use-case", "use-case/lending.release-copy", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("domain-event", "domain-event/reservation.reserved", Path.Combine(temp.Path, "reserved.yaml"), """{"meaning": "A copy was reserved.", "carries": []}"""),
-            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/reservation.reserved", Path.Combine(temp.Path, "reserved.yaml"), """{"meaning": "A copy was reserved.", "fields": []}"""),
+            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.release-copy-on-charge-failed", Path.Combine(temp.Path, "compensate.yaml"), """{"triggeredBy": ["domain-event/charge.charge-failed"], "effects": [{"runs": "use-case/lending.release-copy", "timing": "async"}], "compensates": "use-case/lending.reserve-copy"}"""));
 
         Assert.DoesNotContain(TestModel.Codes(model), code => CompensationCodes.Contains(code, StringComparer.Ordinal));
@@ -35,7 +35,7 @@ public sealed class CompensationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.notify-overdue", Path.Combine(temp.Path, "notify.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was lent.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "A copy was lent.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"triggeredBy": ["domain-event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
 
         Assert.DoesNotContain(TestModel.Codes(model), code => CompensationCodes.Contains(code, StringComparer.Ordinal));
@@ -51,7 +51,7 @@ public sealed class CompensationCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.list-copies", Path.Combine(temp.Path, "list.yaml"), """{"kind": "query"}"""),
             TestModel.Record("use-case", "use-case/lending.release-copy", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.release-copy-on-charge-failed", Path.Combine(temp.Path, "compensate.yaml"), """{"triggeredBy": ["domain-event/charge.charge-failed"], "effects": [{"runs": "use-case/lending.release-copy", "timing": "async"}], "compensates": "use-case/lending.list-copies"}"""));
 
         Assert.Contains("compensation-target-invalid", TestModel.Codes(model));
@@ -66,7 +66,7 @@ public sealed class CompensationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.reserve-copy", Path.Combine(temp.Path, "reserve.yaml"), """{"kind": "command", "raises": ["domain-event/reservation.reserved"]}"""),
-            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.reserve-copy-on-charge-failed", Path.Combine(temp.Path, "compensate.yaml"), """{"triggeredBy": ["domain-event/charge.charge-failed"], "effects": [{"runs": "use-case/lending.reserve-copy", "timing": "async"}], "compensates": "use-case/lending.reserve-copy"}"""));
 
         Assert.Contains("compensation-target-invalid", TestModel.Codes(model));
@@ -82,7 +82,7 @@ public sealed class CompensationCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.reserve-copy", Path.Combine(temp.Path, "reserve.yaml"), """{"kind": "command", "raises": ["domain-event/reservation.reserved"]}"""),
             TestModel.Record("use-case", "use-case/lending.release-copy", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("domain-event", "domain-event/reservation.reserved", Path.Combine(temp.Path, "reserved.yaml"), """{"meaning": "A copy was reserved.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/reservation.reserved", Path.Combine(temp.Path, "reserved.yaml"), """{"meaning": "A copy was reserved.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.release-copy-on-reserved", Path.Combine(temp.Path, "compensate.yaml"), """{"triggeredBy": ["domain-event/reservation.reserved"], "effects": [{"runs": "use-case/lending.release-copy", "timing": "async"}], "compensates": "use-case/lending.reserve-copy"}"""));
 
         Assert.Contains("compensation-trigger-invalid", TestModel.Codes(model));
@@ -97,7 +97,7 @@ public sealed class CompensationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.release-copy", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "carries": []}"""),
+            TestModel.Record("domain-event", "domain-event/charge.charge-failed", Path.Combine(temp.Path, "failed.yaml"), """{"meaning": "The charge failed.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.release-copy-on-charge-failed", Path.Combine(temp.Path, "compensate.yaml"), """{"triggeredBy": ["domain-event/charge.charge-failed"], "effects": [{"runs": "use-case/lending.release-copy", "timing": "async"}], "compensates": "use-case/lending.no-such-step"}"""));
 
         Assert.Contains("reference-unknown", TestModel.Codes(model));

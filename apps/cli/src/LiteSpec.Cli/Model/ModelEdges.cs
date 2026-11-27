@@ -146,7 +146,7 @@ static class ModelEdges
             }
         }
 
-        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls, RecordFields.Queries, RecordFields.Commands })
+        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls, RecordFields.Queries })
         {
             foreach (var target in EffectsVerbIds(record, verb))
             {

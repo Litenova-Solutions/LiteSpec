@@ -5,8 +5,6 @@ kind: precondition
 statement: A manager holding a reminder preference gets no approval reminder.
 governs:
 - aggregate/spending.reminder-preference
-binds:
-- aggregate/spending.reminder-preference
 basedOn: []
 source: product-choice
 fulfills:

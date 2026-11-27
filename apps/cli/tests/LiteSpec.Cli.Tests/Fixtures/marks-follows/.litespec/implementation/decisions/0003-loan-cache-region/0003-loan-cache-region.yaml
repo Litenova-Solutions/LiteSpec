@@ -3,8 +3,8 @@ id: decision/0003-loan-cache-region
 title: Loan cache region
 context: Loan reads needed one cache region with simple eviction.
 options:
-  - name: One region
-    pros: Eviction stays simple
-    cons: Hot loans evict cold ones
+- name: One region
+  pros: Eviction stays simple
+  cons: Hot loans evict cold ones
 consequences: No code follows this decision yet.
 reopenedWhen: Cache misses pass one percent

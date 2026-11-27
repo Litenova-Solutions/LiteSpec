@@ -1,19 +1,17 @@
 type: entry-point-set
 title: Entry points
-records:
-  - type: entry-point
-    id: entry-point/library-app
-    title: Library app
-    kind: browser
-    authentication:
-      - session
-    audience:
-      - actor/reader
-  - type: entry-point
-    id: entry-point/library-api
-    title: Library API
-    kind: api
-    authentication:
-      - token
-    audience:
-      - actor/reader
+entryPoints:
+- id: entry-point/library-app
+  title: Library app
+  kind: browser
+  authentication:
+  - session
+  audience:
+  - actor/reader
+- id: entry-point/library-api
+  title: Library API
+  kind: api
+  authentication:
+  - token
+  audience:
+  - actor/reader

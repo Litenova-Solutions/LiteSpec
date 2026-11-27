@@ -99,7 +99,7 @@ const skillCommand = `${SITE_DEFAULT_COMMAND} skill add`;
 
 const title = pageTitle("Use with Agents");
 const description =
-  "Set up an AI coding agent to follow LiteSpec: read how it works, start a session with one prompt, or answer four questions and commit the block they produce to your project's AGENTS.md file.";
+  "Set up an AI coding agent to follow LiteSpec: pick the core and stack packs your project uses, install the skill, and verify each change with the rules and the model check.";
 ---
 
 <Base title={title} description={description} active="agents" jsonLd={[webPage({ title: "Use with Agents", description, path: `/${version}/select/` }), breadcrumbs([{ name: "LiteSpec", path: "/" }, { name: "Use with Agents", path: `/${version}/select/` }])]}>
@@ -204,6 +204,17 @@ const description =
               </div>
               <pre class="select-output-body"><code>{skillCommand}</code></pre>
             </section>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-n" aria-hidden="true">4</span>
+          <div class="step-body">
+            <div class="step-head">
+              <h2>Verify Each Change</h2>
+              <p>
+                Before the agent reports done, it runs the rules for each file it edited and the model check for the project. The rules list the provisions that govern the change. The model check reports findings that block the change until they are fixed or covered.
+              </p>
+            </div>
           </div>
         </li>
       </ol>

@@ -331,7 +331,7 @@ public sealed class RecordFolderLayoutTests
             TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
             TestModel.Record("use-case", "use-case/books.record-payout", useCase, """{"kind": "command"}"""),
             TestModel.Record("reaction", "reaction/books.settle-payout", reaction, """{"triggeredBy": ["integration-event/payout-settled"], "effects": [{"runs": "use-case/books.record-payout"}]}"""),
-            TestModel.Record("integration-event", "integration-event/payout-settled", file, """{"action": "receive"}"""));
+            TestModel.Record("integration-event", "integration-event/payout-settled", file, """{"direction": "receive"}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -361,7 +361,7 @@ public sealed class RecordFolderLayoutTests
             TestModel.Record("aggregate", "aggregate/books.fine", fines, "{}"),
             TestModel.Record("use-case", "use-case/books.record-payout", useCase, """{"kind": "command"}"""),
             TestModel.Record("reaction", "reaction/books.settle-payout", reaction, """{"triggeredBy": ["integration-event/payout-settled"], "effects": [{"runs": "use-case/books.record-payout"}]}"""),
-            TestModel.Record("integration-event", "integration-event/payout-settled", file, """{"action": "receive"}"""));
+            TestModel.Record("integration-event", "integration-event/payout-settled", file, """{"direction": "receive"}"""));
 
         Assert.DoesNotContain(Run(model), found => found.Code == "record-placement-invalid");
     }

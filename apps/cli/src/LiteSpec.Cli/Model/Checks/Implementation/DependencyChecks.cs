@@ -17,7 +17,7 @@ internal static class DependencyChecks
     /// <summary>The four facts every admits entry names.</summary>
     private static readonly string[] AdmissionFacts =
     [
-        "layer", "license", "location", "failureBehavior",
+        "layer", "license", "location", "onFailure",
     ];
 
     /// <summary>SPDX expression operators: every other token is a license identifier.</summary>

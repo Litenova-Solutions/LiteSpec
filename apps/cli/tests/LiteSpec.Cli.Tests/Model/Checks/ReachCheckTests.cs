@@ -45,7 +45,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "cites": ["problem/ghost-pain"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["problem/ghost-pain"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
@@ -183,7 +183,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"),
-            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "cites": ["research/ghost-study"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy.", "basedOn": ["research/ghost-study"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));

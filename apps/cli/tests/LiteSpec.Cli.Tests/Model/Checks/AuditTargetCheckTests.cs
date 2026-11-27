@@ -11,7 +11,6 @@ public sealed class AuditTargetCheckTests
     public void AuditedCommandChangingRecordWithoutTargetReportsMissing()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
@@ -26,7 +25,6 @@ public sealed class AuditTargetCheckTests
     public void AuditedCommandWithoutWritesAndTargetPasses()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.export-expenses", Path.Combine(temp.Path, "export.yaml"),
@@ -41,7 +39,6 @@ public sealed class AuditTargetCheckTests
     public void ExemptCommandPasses()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"),
@@ -60,7 +57,6 @@ public sealed class AuditTargetCheckTests
     public void LevelNoneCommandPasses()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.list-expenses", Path.Combine(temp.Path, "list.yaml"),
@@ -79,11 +75,10 @@ public sealed class AuditTargetCheckTests
     public void TargetNamingNoInputReportsUnknown()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "input": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "payment", "targetKind": "aggregate/spending.expense"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "payment", "targetKind": "aggregate/spending.expense"}}"""));
 
         Assert.Contains("audit-target-unknown", TestModel.Codes(model));
     }
@@ -94,11 +89,10 @@ public sealed class AuditTargetCheckTests
     public void TargetNamingInputWithoutIdentifiesReportsUnknown()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "input": [{"name": "note", "meaning": "The payment note.", "type": "text", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "note", "targetKind": "aggregate/spending.expense"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "inputs": [{"name": "note", "meaning": "The payment note.", "type": "text", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "note", "targetKind": "aggregate/spending.expense"}}"""));
 
         Assert.Contains("audit-target-unknown", TestModel.Codes(model));
     }
@@ -109,11 +103,10 @@ public sealed class AuditTargetCheckTests
     public void TargetKindDifferingFromIdentifiesReportsDrift()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "input": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "expense", "targetKind": "aggregate/spending.payment"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "expense", "targetKind": "aggregate/spending.payment"}}"""));
 
         Assert.Contains("audit-target-kind-drift", TestModel.Codes(model));
     }
@@ -124,11 +117,10 @@ public sealed class AuditTargetCheckTests
     public void MatchingTargetPasses()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "input": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "expense", "targetKind": "aggregate/spending.expense"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "expense", "targetKind": "aggregate/spending.expense"}}"""));
 
         var codes = TestModel.Codes(model);
 
@@ -146,7 +138,7 @@ public sealed class AuditTargetCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "audit": {"level": "required", "category": "monetary-action", "targetKind": "aggregate/spending.expense"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": "expense", "targetKind": "aggregate/spending.expense"}}"""));
 
         var codes = TestModel.Codes(model);
 
@@ -162,11 +154,10 @@ public sealed class AuditTargetCheckTests
     public void CompositeTargetWithTwoIdentifiedInputsPasses()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.attach-receipt", Path.Combine(temp.Path, "attach.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.receipt"], "input": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}, {"name": "receipt", "meaning": "The receipt.", "type": "id", "identifies": "aggregate/spending.receipt", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": ["expense", "receipt"], "targetKind": "aggregate/spending.receipt"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.receipt"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}, {"name": "receipt", "meaning": "The receipt.", "type": "id", "identifies": "aggregate/spending.receipt", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": ["expense", "receipt"], "targetKind": "aggregate/spending.receipt"}}"""));
 
         var codes = TestModel.Codes(model);
 
@@ -181,11 +172,10 @@ public sealed class AuditTargetCheckTests
     public void CompositeTargetNamingInputWithoutIdentifiesReportsUnknown()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.attach-receipt", Path.Combine(temp.Path, "attach.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.receipt"], "input": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}, {"name": "note", "meaning": "The note.", "type": "text", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": ["expense", "note"], "targetKind": "aggregate/spending.receipt"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.receipt"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}, {"name": "note", "meaning": "The note.", "type": "text", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": ["expense", "note"], "targetKind": "aggregate/spending.receipt"}}"""));
 
         Assert.Contains("audit-target-unknown", TestModel.Codes(model));
     }
@@ -196,11 +186,10 @@ public sealed class AuditTargetCheckTests
     public void CompositeTargetWithStatedKindPassesDrift()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.attach-receipt", Path.Combine(temp.Path, "attach.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.receipt"], "input": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}, {"name": "receipt", "meaning": "The receipt.", "type": "id", "identifies": "aggregate/spending.receipt", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": ["expense", "receipt"], "targetKind": "aggregate/spending.attachment"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.receipt"], "inputs": [{"name": "expense", "meaning": "The expense.", "type": "id", "identifies": "aggregate/spending.expense", "origin": "caller", "classification": "internal"}, {"name": "receipt", "meaning": "The receipt.", "type": "id", "identifies": "aggregate/spending.receipt", "origin": "caller", "classification": "internal"}], "audit": {"level": "required", "category": "monetary-action", "target": ["expense", "receipt"], "targetKind": "aggregate/spending.attachment"}}"""));
 
         var codes = TestModel.Codes(model);
 
@@ -215,11 +204,10 @@ public sealed class AuditTargetCheckTests
     public void FromOutputTargetNamingOutputFieldPasses()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "output": [{"name": "expenseId", "meaning": "The submitted expense.", "type": "id", "identifies": "aggregate/spending.expense"}], "audit": {"level": "required", "category": "monetary-action", "target": {"from": "output", "field": "expenseId"}, "targetKind": "aggregate/spending.expense"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "outputs": [{"name": "expenseId", "meaning": "The submitted expense.", "type": "id", "identifies": "aggregate/spending.expense"}], "audit": {"level": "required", "category": "monetary-action", "target": {"from": "outputs", "field": "expenseId"}, "targetKind": "aggregate/spending.expense"}}"""));
 
         var codes = TestModel.Codes(model);
 
@@ -228,32 +216,17 @@ public sealed class AuditTargetCheckTests
         Assert.DoesNotContain("audit-target-kind-drift", codes);
     }
 
-    /// <summary>A target read from an output field the use case carries no output for reports audit-target-unknown.</summary>
+    /// <summary>A target read from an output field the use case declares no outputs for reports audit-target-unknown.</summary>
     /// <proves>litespec/core/use-cases#state-the-audit-position-of-every-command</proves>
     [Fact]
     public void FromOutputTargetNamingNoOutputFieldReportsUnknown()
     {
         using var temp = TestCli.Temp("checks");
-        SelectExtensions(temp.Path, "audit");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"),
-                """{"kind": "command", "writes": ["aggregate/spending.expense"], "output": [{"name": "expenseId", "meaning": "The submitted expense.", "type": "id", "identifies": "aggregate/spending.expense"}], "audit": {"level": "required", "category": "monetary-action", "target": {"from": "output", "field": "connectionId"}, "targetKind": "aggregate/spending.expense"}}"""));
+                """{"kind": "command", "writes": ["aggregate/spending.expense"], "outputs": [{"name": "expenseId", "meaning": "The submitted expense.", "type": "id", "identifies": "aggregate/spending.expense"}], "audit": {"level": "required", "category": "monetary-action", "target": {"from": "outputs", "field": "connectionId"}, "targetKind": "aggregate/spending.expense"}}"""));
 
         Assert.Contains("audit-target-unknown", TestModel.Codes(model));
-    }
-
-    /// <summary>Selects the extensions in the consumer declaration the config reads.</summary>
-    /// <param name="root">The consumer root folder.</param>
-    /// <param name="ids">The extension ids to select.</param>
-    static void SelectExtensions(string root, params string[] ids)
-    {
-        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
-
-        var entries = string.Join(
-            "\n",
-            ids.Select(id => $"  - id: {id}\n    criterion: The product needs the {id} extension."));
-
-        File.WriteAllText(Path.Combine(root, ".litespec", "project.yaml"), "selectedExtensions:\n" + entries + "\n");
     }
 }

@@ -17,7 +17,7 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": []}"""));
+                """{"meaning": "A copy was lent.", "fields": []}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(temp.Path, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
 
         var missing = Checker.Check(model).Findings.Single(finding => finding.Code == "outbox-decision-missing");
@@ -35,7 +35,7 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": [], "ignored": true}"""));
+                """{"meaning": "A copy was lent.", "fields": [], "ignored": true}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(temp.Path, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
         model.Code.OutboxDecisions.Add(new CodeOutboxDecision("LoanBorrowedEvent", Path.Combine(temp.Path, "OutboxComposition.cs"), 5, Ignored: false));
 
@@ -55,7 +55,7 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": []}"""),
+                """{"meaning": "A copy was lent.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.notify-reader-on-borrow", Path.Combine(temp.Path, "notify.yaml"),
                 """{"triggeredBy": ["domain-event/loan.loan-borrowed"]}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(temp.Path, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
@@ -77,7 +77,7 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": []}"""),
+                """{"meaning": "A copy was lent.", "fields": []}"""),
             TestModel.Record("reaction", "reaction/lending.notify-reader-on-borrow", Path.Combine(temp.Path, "notify.yaml"),
                 """{"triggeredBy": ["domain-event/loan.loan-borrowed"]}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(temp.Path, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
@@ -97,7 +97,7 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": [], "ignored": true}"""));
+                """{"meaning": "A copy was lent.", "fields": [], "ignored": true}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(temp.Path, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
         model.Code.OutboxDecisions.Add(new CodeOutboxDecision("LoanBorrowedEvent", Path.Combine(temp.Path, "OutboxComposition.cs"), 5, Ignored: true));
 
@@ -114,7 +114,7 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": []}"""));
+                """{"meaning": "A copy was lent.", "fields": []}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanBorrowedEvent", Path.Combine(temp.Path, "LoanBorrowedEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
 
         Assert.DoesNotContain("outbox-decision-drift", TestModel.Codes(model));
@@ -131,9 +131,9 @@ public sealed class OutboxDecisionCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "borrowed.yaml"),
-                """{"meaning": "A copy was lent.", "carries": []}"""),
+                """{"meaning": "A copy was lent.", "fields": []}"""),
             TestModel.Record("domain-event", "domain-event/loan.loan-returned", Path.Combine(temp.Path, "returned.yaml"),
-                """{"meaning": "A copy was returned.", "carries": []}"""));
+                """{"meaning": "A copy was returned.", "fields": []}"""));
         model.Code.Events.Add(new CodeDomainEvent("LoanEvent", Path.Combine(temp.Path, "Borrowing", "LoanEvent.cs"), 3, "domain-event/loan.loan-borrowed"));
         model.Code.Events.Add(new CodeDomainEvent("LoanEvent", Path.Combine(temp.Path, "Returns", "LoanEvent.cs"), 3, "domain-event/loan.loan-returned"));
 

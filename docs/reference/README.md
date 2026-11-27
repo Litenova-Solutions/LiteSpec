@@ -1,6 +1,6 @@
 # Overview
 
-Reference pages state the exact values behind the names the rules use: what each term means, which page owns each provision ID, which fields each project file holds, and which URLs the published site serves. Open them for lookup in the middle of other work, not for reading in order. They add no rules of their own; each rule lives on the standards page the value points to.
+Reference pages list the exact values the rules point to: the meaning of each term, the page behind each provision ID, and the fields of each project file. You open them to look one value up in the middle of other work, instead of reading them in order. They add no rules of their own; each rule stays on the standards page the value cites.
 
 ## Terms and Provisions
 

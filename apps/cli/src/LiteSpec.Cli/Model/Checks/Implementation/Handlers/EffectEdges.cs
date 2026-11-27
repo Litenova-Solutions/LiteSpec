@@ -44,14 +44,14 @@ internal static class EffectEdges
         return edges;
     }
 
-    /// <summary>Every edge a reaction or job declares: its runs, sends, calls, queries and commands.</summary>
+    /// <summary>Every edge a reaction or job declares: its runs, sends, calls and queries.</summary>
     /// <param name="record">The reaction or job record whose edge fields are read.</param>
     /// <returns>Each declared edge verb with its target identifier.</returns>
     internal static List<(string Verb, string Target)> HolderEdges(Record record)
     {
         var edges = new List<(string Verb, string Target)>();
 
-        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls, RecordFields.Queries, RecordFields.Commands })
+        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls, RecordFields.Queries })
         {
             foreach (var id in record.EdgeIds(verb))
             {
@@ -64,8 +64,7 @@ internal static class EffectEdges
 
     /// <summary>
     ///     Whether a declared edge of the same verb names the dispatch's target. A runs dispatch
-    ///     answers to a runs edge for its own module's command and to a commands edge for another
-    ///     module's public command, a queries dispatch answers to a queries edge, and a calls
+    ///     answers to a runs edge, a queries dispatch answers to a queries edge, and a calls
     ///     dispatch answers to a calls edge or to a sends edge whose notification the called port
     ///     delivers. An event publish is never declared: no record names it, because a module event
     ///     and an outbound integration event are published by the use cases whose raised event they
@@ -79,7 +78,7 @@ internal static class EffectEdges
         dispatch.Verb switch
         {
             "runs" => ResolveMessageUseCases(model, dispatch.Target)
-                .Any(id => edges.Any(edge => (edge.Verb == "runs" || edge.Verb == "commands") && edge.Target == id)),
+                .Any(id => edges.Any(edge => edge.Verb == "runs" && edge.Target == id)),
             "queries" => ResolveMessageUseCases(model, dispatch.Target)
                 .Any(id => edges.Any(edge => edge.Verb == "queries" && edge.Target == id)),
             "publishes" => false,
@@ -204,7 +203,7 @@ internal static class EffectEdges
         return Naming.Kebab(name) == operation;
     }
 
-    /// <summary>Whether the called port delivers the notification a sends edge names: the port's marked external system is the system the notification names in deliveredThrough. A port named for its record delivers notifications under that name, so the call answers to the sends edge without a calls edge.</summary>
+    /// <summary>Whether the called port delivers the notification a sends edge names: the port's marked external system is the system the notification names in via. A port named for its record delivers notifications under that name, so the call answers to the sends edge without a calls edge.</summary>
     /// <param name="model">The loaded project model that holds every notification and each marked port.</param>
     /// <param name="portKind">The called port type name the dispatch carries.</param>
     /// <param name="id">The declared notification edge target identifier.</param>
@@ -213,7 +212,7 @@ internal static class EffectEdges
     {
         if (!model.ById.TryGetValue(id, out var notification)
             || notification.Type != RecordTypes.Notification
-            || notification.Field(RecordFields.DeliveredThrough) is not { } system)
+            || notification.Field(RecordFields.Via) is not { } system)
         {
             return false;
         }

@@ -1,6 +1,6 @@
 type: refusal-set
 summary: The refusals the expense aggregate raises.
-records:
+refusals:
 - id: refusal/spending.own-expense
   title: Own Expense
   meaning: The approver submitted the expense.

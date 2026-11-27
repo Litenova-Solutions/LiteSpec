@@ -107,7 +107,7 @@ public sealed class DirectionCheckTests
             TestModel.Record("decision", "decision/0001-submitter-as-person", PathAt(temp.Path, ".litespec", "intent", "decisions", "0001-submitter-as-person.yaml"),
                 """{"basedOn": ["direction/contractor-expenses"]}"""),
             TestModel.Record("requirement", "requirement/approval.submitter-named", PathAt(temp.Path, ".litespec", "intent", "problems", "expenses-wait-weeks", "features", "approval.yaml"),
-                """{"kind": "functional", "statement": "Each expense names the person who submitted it.", "cites": ["direction/contractor-expenses"], "basedOn": ["decision/0001-submitter-as-person"]}"""));
+                """{"kind": "functional", "statement": "Each expense names the person who submitted it.", "basedOn": ["decision/0001-submitter-as-person", "direction/contractor-expenses"]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, found =>
             found.Code is "reference-unknown" or "link-unknown" && found.Message.Contains("direction/contractor-expenses", StringComparison.Ordinal));

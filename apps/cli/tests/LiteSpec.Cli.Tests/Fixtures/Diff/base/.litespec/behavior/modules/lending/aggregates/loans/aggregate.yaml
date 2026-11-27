@@ -2,22 +2,22 @@ type: aggregate
 id: aggregate/lending.loan
 title: Loan
 states:
-  - name: Active
-    meaning: The loan is open.
-  - name: Returned
-    meaning: The copy came back.
-  - name: Overdue
-    meaning: The loan passed its due date.
+- name: Active
+  meaning: The loan is open.
+- name: Returned
+  meaning: The copy came back.
+- name: Overdue
+  meaning: The loan passed its due date.
 transitions:
-  - from: Active
-    to: Returned
-    movedBy: use-case/lending.borrow-copy
-  - from: Active
-    to: Overdue
+- from: Active
+  to: Returned
+  movedBy: use-case/lending.borrow-copy
+- from: Active
+  to: Overdue
 data:
-  - name: dueDate
-    meaning: When the copy is due.
-    classification: internal
+- name: dueDate
+  meaning: When the copy is due.
+  classification: internal
 records:
 - type: rule
   id: rule/loan.has-one-borrower
@@ -25,17 +25,17 @@ records:
   kind: invariant
   statement: A loan has one borrower.
   governs:
-    - use-case/lending.borrow-copy
+  - use-case/lending.borrow-copy
   basedOn: []
   fulfills:
-    - requirement/borrowing.max-active-loans
+  - requirement/borrowing.max-active-loans
 - type: rule
   id: rule/loan.scan-before-leaving
   title: Scan before leaving
   kind: precondition
   statement: A borrowed copy never leaves unscanned.
   governs:
-    - use-case/lending.borrow-copy
+  - use-case/lending.borrow-copy
   basedOn: []
   fulfills:
-    - requirement/borrowing.loan-period-days
+  - requirement/borrowing.loan-period-days

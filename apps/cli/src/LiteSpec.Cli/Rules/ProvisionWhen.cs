@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Rules;
 ///     Evaluates a provision's applicability condition against the records a rules target marks.
 ///     Query and command read the use-case kind, upload reads a caller file input, document-number
 ///     reads a legal number signal, erasure reads an erase, pseudonymize or anonymize signal,
-///     cross-module reads a queries or commands edge to another module's public use case,
+///     cross-module reads a queries or runs edge to another module's public use case,
 ///     project holds for no record, and audit-adoption reads the decision the audit selection names.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -23,11 +23,10 @@ internal static class ProvisionWhen
     /// <param name="Kind">The use-case or job kind, or empty.</param>
     /// <param name="Title">The record title.</param>
     /// <param name="Summary">The record summary, or empty.</param>
-    /// <param name="Exposure">The record exposure, or empty.</param>
     /// <param name="Inputs">The use-case inputs with their origin.</param>
     /// <param name="Outputs">The output names and meanings.</param>
     /// <param name="Queries">The effects.queries targets.</param>
-    /// <param name="Commands">The effects.commands targets.</param>
+    /// <param name="Runs">The effects.runs targets.</param>
     /// <param name="IsAudited">Whether the use case declares an audit entry that is not exempt.</param>
     /// <param name="HasConcurrency">Whether the use case declares conflicts or client-key idempotency.</param>
     /// <param name="Tenant">The declared access.tenant scope, or empty.</param>
@@ -37,11 +36,10 @@ internal static class ProvisionWhen
         string Kind,
         string Title,
         string Summary,
-        string Exposure,
         IReadOnlyList<RecordInput> Inputs,
         IReadOnlyList<string> Outputs,
         IReadOnlyList<string> Queries,
-        IReadOnlyList<string> Commands,
+        IReadOnlyList<string> Runs,
         bool IsAudited,
         bool HasConcurrency,
         string Tenant);
@@ -89,7 +87,7 @@ internal static class ProvisionWhen
             "erasure" => records.Any(record =>
                 (record.Type == "use-case" || record.Type == "job") && ErasesPersonalData(record)),
             "cross-module" => records.Any(record =>
-                (record.Type == "use-case" || record.Type == "reaction" || record.Type == "job") && (record.Queries.Count > 0 || record.Commands.Count > 0)),
+                (record.Type == "use-case" || record.Type == "reaction" || record.Type == "job") && (record.Queries.Count > 0 || record.Runs.Count > 0)),
             "cross-tenant" => records.Any(record =>
                 record.Type == "use-case" && record.Tenant.Length > 0 && record.Tenant is not "own" and not "none"),
             "project" => false,
@@ -216,7 +214,7 @@ internal static class ProvisionWhen
     /// <returns>True when the record names erasure, pseudonymizing or anonymizing.</returns>
     static bool ErasesPersonalData(RecordFields record)
     {
-        var text = record.Id + " " + record.Title + " " + record.Summary + " " + record.Exposure;
+        var text = record.Id + " " + record.Title + " " + record.Summary;
 
         return Contains(text, "erase") || Contains(text, "pseudonym") || Contains(text, "anonym");
     }
@@ -237,11 +235,10 @@ internal static class ProvisionWhen
         Text(root, "kind"),
         Text(root, "title"),
         Text(root, "summary"),
-        Text(root, "exposure"),
         InputsOf(root),
         OutputsOf(root),
         QueriesOf(root),
-        CommandsOf(root),
+        RunsOf(root),
         IsAuditedOf(root),
         HasConcurrencyOf(root),
         TenantOf(root));
@@ -276,12 +273,12 @@ internal static class ProvisionWhen
     /// <returns>The inputs, or empty when the record holds none.</returns>
     static List<RecordInput> InputsOf(JsonElement root)
     {
-        if (!root.TryGetProperty("input", out var input) || input.ValueKind != JsonValueKind.Array)
+        if (!root.TryGetProperty("inputs", out var inputs) || inputs.ValueKind != JsonValueKind.Array)
         {
             return [];
         }
 
-        return input.EnumerateArray()
+        return inputs.EnumerateArray()
             .Where(entry => entry.ValueKind == JsonValueKind.Object)
             .Select(entry => new RecordInput(Text(entry, "name"), Text(entry, "meaning"), Text(entry, "origin")))
             .Where(entry => entry.Name.Length > 0)
@@ -293,22 +290,22 @@ internal static class ProvisionWhen
     /// <returns>Each output name and meaning.</returns>
     static List<string> OutputsOf(JsonElement root)
     {
-        if (!root.TryGetProperty("output", out var output))
+        if (!root.TryGetProperty("outputs", out var outputs))
         {
             return [];
         }
 
-        if (output.ValueKind == JsonValueKind.Array)
+        if (outputs.ValueKind == JsonValueKind.Array)
         {
-            return output.EnumerateArray()
+            return outputs.EnumerateArray()
                 .Where(entry => entry.ValueKind == JsonValueKind.Object)
                 .SelectMany(entry => new[] { Text(entry, "name"), Text(entry, "meaning") })
                 .Where(text => text.Length > 0)
                 .ToList();
         }
 
-        if (output.ValueKind == JsonValueKind.Object
-            && output.TryGetProperty("include", out var include)
+        if (outputs.ValueKind == JsonValueKind.Object
+            && outputs.TryGetProperty("include", out var include)
             && include.ValueKind == JsonValueKind.Object)
         {
             var texts = new List<string>();
@@ -337,14 +334,14 @@ internal static class ProvisionWhen
     /// <returns>Each queries edge target.</returns>
     static List<string> QueriesOf(JsonElement root) => EffectsVerbOf(root, "queries");
 
-    /// <summary>The effects.commands targets of a use case, reaction or job.</summary>
+    /// <summary>The effects.runs targets of a reaction or job.</summary>
     /// <param name="root">The parsed record object.</param>
-    /// <returns>Each commands edge target.</returns>
-    static List<string> CommandsOf(JsonElement root) => EffectsVerbOf(root, "commands");
+    /// <returns>Each runs edge target.</returns>
+    static List<string> RunsOf(JsonElement root) => EffectsVerbOf(root, "runs");
 
     /// <summary>The targets of one edge verb in the effects entries of a use case, reaction or job.</summary>
     /// <param name="root">The parsed record object.</param>
-    /// <param name="verb">The edge verb to read: queries or commands.</param>
+    /// <param name="verb">The edge verb to read: queries or runs.</param>
     /// <returns>Each edge target the verb names.</returns>
     static List<string> EffectsVerbOf(JsonElement root, string verb)
     {

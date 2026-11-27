@@ -10,5 +10,5 @@ response: Every pointer target meets the minimum size or spacing
 measure: Pointer targets below the minimum size and spacing
 target: Zero targets
 check: route-suite
-cites:
+basedOn:
 - goal/decided-in-days

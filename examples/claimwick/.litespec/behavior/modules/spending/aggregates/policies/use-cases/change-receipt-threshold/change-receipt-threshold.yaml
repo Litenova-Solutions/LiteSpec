@@ -2,7 +2,6 @@ type: use-case
 id: use-case/spending.change-receipt-threshold
 title: Change Receipt Threshold
 summary: A manager sets the receipt threshold so small expenses stay light to submit.
-exposure: A signed-in manager reaches this command through the expenses app under the manage-policy permission. A bad threshold asks for proof on every tiny expense or lets large ones go without, so the value stays inside the agreed range.
 kind: command
 access:
   grant: permission/manage-policy
@@ -11,10 +10,10 @@ serves:
 - step/set-receipt-threshold.set-threshold
 fulfills:
 - requirement/approval.above-threshold-receipt
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises: []
-input:
+inputs:
 - name: threshold
   meaning: The new receipt threshold with its currency.
   type: money
@@ -42,22 +41,20 @@ steps:
   cites:
   - result/change-receipt-threshold.threshold-set
   - aggregate/spending.policy
-records:
-- type: result
-  id: result/change-receipt-threshold.threshold-set
+results:
+- id: result/change-receipt-threshold.threshold-set
   title: Threshold Set
   outcome: success
   meaning: The receipt threshold is set.
-- type: result
-  id: result/change-receipt-threshold.negative-threshold
+- id: result/change-receipt-threshold.negative-threshold
   title: Negative Threshold
   outcome: refusal
   refusal: refusal/spending.negative-threshold
-  sentence: Enter a threshold of zero or more.
-  sentences:
+  message: Enter a threshold of zero or more.
+  translations:
     nl: Voer een drempel van nul of meer in.
-- type: scenario
-  id: scenario/change-receipt-threshold.setting-the-threshold-succeeds
+scenarios:
+- id: scenario/change-receipt-threshold.setting-the-threshold-succeeds
   title: Setting the Threshold Succeeds
   given: Finance agreed a new receipt threshold with the managers.
   when: The manager sets the receipt threshold.
@@ -65,8 +62,7 @@ records:
   result: result/change-receipt-threshold.threshold-set
   exercises:
   - rule/policy.threshold-never-negative
-- type: scenario
-  id: scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused
+- id: scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused
   title: Setting a Negative Threshold Is Refused
   given: Finance agreed a new receipt threshold with the managers.
   when: The manager sets a negative receipt threshold.

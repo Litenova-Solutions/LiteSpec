@@ -74,7 +74,7 @@ public sealed class ErasureCheckTests
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
              "data": [{"name": "borrower-email", "meaning": "The address notices go to.", "classification": "personal"}],
              "dataClasses": [{"name": "Borrower identity", "classification": "personal", "fields": ["borrower-email"],
-               "onErasure": "erase", "basis": "business", "enforcedBy": "record-expiry"}]}
+               "onErasure": "erase", "basedOn": "business", "enforcedBy": "record-expiry"}]}
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -94,7 +94,7 @@ public sealed class ErasureCheckTests
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
              "data": [{"name": "borrower-email", "meaning": "The address notices go to.", "classification": "personal"}],
              "dataClasses": [{"name": "Borrower identity", "classification": "personal", "fields": ["shelf"],
-               "onErasure": "erase", "basis": "business", "enforcedBy": "record-expiry",
+               "onErasure": "erase", "basedOn": "business", "enforcedBy": "record-expiry",
                "exceptions": [{"field": "borrower-email", "onErasure": "pseudonymize"}]}]}
             """;
         var model = TestModel.Model(
@@ -113,7 +113,7 @@ public sealed class ErasureCheckTests
         var json = """
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
              "dataClasses": [{"name": "Borrower identity", "classification": "personal",
-               "onErasure": "erase", "basis": "business"}]}
+               "onErasure": "erase", "basedOn": "business"}]}
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),

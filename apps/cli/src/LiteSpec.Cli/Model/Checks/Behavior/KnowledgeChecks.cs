@@ -7,14 +7,14 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The knowledge variation checks: every table whose rows name a variant states its dimension, only knowledge tables vary, and every variant a knowledge area names holds rows in each varying table.</summary>
+/// <summary>The knowledge variation checks: every table whose rows name a variant states its variesBy dimension, only knowledge tables vary, and every variant a knowledge area names holds rows in each varying table.</summary>
 /// <follows>litespec/core/knowledge#give-each-knowledge-area-one-model</follows>
 internal static class KnowledgeChecks
 {
     /// <summary>A kebab-case dimension or variant name: a lowercase letter or digit opening, then lowercase letters, digits or hyphens.</summary>
     private static readonly Regex KebabName = new("^[a-z0-9][a-z0-9-]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>Reports a reference-data table whose rows name a variant while the table states no variation dimension, and the misshapen variation a table states: a dimension or variant outside kebab-case, variation on a module-owned table, a stated dimension with no varying row, and rows with and without variant in one table.</summary>
+    /// <summary>Reports a reference-data table whose rows name a variant while the table states no variesBy dimension, and the misshapen variesBy a table states: a dimension or variant outside kebab-case, variesBy on a module-owned table, a stated dimension with no varying row, and rows with and without variant in one table.</summary>
     /// <param name="model">The loaded project model that holds every reference-data record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunVariationUndeclared(ProjectModel model, List<Finding> findings)
@@ -35,13 +35,13 @@ internal static class KnowledgeChecks
             }
 
             var named = rows.Count(row => Str(row, RecordFields.Variant) is { Length: > 0 });
-            var declared = table.Field(RecordFields.Variation) is { Length: > 0 };
+            var declared = table.Field(RecordFields.VariesBy) is { Length: > 0 };
 
             if (named > 0 && !declared)
             {
                 findings.Add(new Finding(
                     "knowledge-variation-undeclared",
-                    $"Reference data '{table.Id}' holds rows naming a variant while the table states no variation dimension.",
+                    $"Reference data '{table.Id}' holds rows naming a variant while the table states no variesBy dimension.",
                     table.File,
                     table.Line,
                     SubjectOf(table)));
@@ -51,7 +51,7 @@ internal static class KnowledgeChecks
             {
                 findings.Add(new Finding(
                     "record-invalid",
-                    $"Reference data '{table.Id}' states variation '{table.Field(RecordFields.Variation)}' but no row names a variant.",
+                    $"Reference data '{table.Id}' states variesBy '{table.Field(RecordFields.VariesBy)}' but no row names a variant.",
                     table.File,
                     table.Line,
                     SubjectOf(table)));
@@ -125,7 +125,7 @@ internal static class KnowledgeChecks
             }
 
             // A table that states no dimension, or whose rows name no variant, varies by nothing: only a varying table owes every listed variant its rows.
-            if (table.Field(RecordFields.Variation) is not { Length: > 0 } || held.Count == 0)
+            if (table.Field(RecordFields.VariesBy) is not { Length: > 0 } || held.Count == 0)
             {
                 continue;
             }
@@ -145,16 +145,16 @@ internal static class KnowledgeChecks
         }
     }
 
-    /// <summary>Reports a variation dimension outside lowercase kebab-case.</summary>
+    /// <summary>Reports a variesBy dimension outside lowercase kebab-case.</summary>
     /// <param name="table">The reference-data record whose dimension is judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckVariationShape(Record table, List<Finding> findings)
     {
-        if (table.Field(RecordFields.Variation) is { } variation && !KebabName.IsMatch(variation))
+        if (table.Field(RecordFields.VariesBy) is { } variation && !KebabName.IsMatch(variation))
         {
             findings.Add(new Finding(
                 "record-invalid",
-                $"Reference data '{table.Id}' states variation '{variation}' outside lowercase kebab-case.",
+                $"Reference data '{table.Id}' states variesBy '{variation}' outside lowercase kebab-case.",
                 table.File,
                 table.Line,
                 SubjectOf(table)));
@@ -185,7 +185,7 @@ internal static class KnowledgeChecks
         }
     }
 
-    /// <summary>Reports a module-owned table that states variation or holds rows naming a variant: only knowledge tables vary, so the table moves to a knowledge area.</summary>
+    /// <summary>Reports a module-owned table that states variesBy or holds rows naming a variant: only knowledge tables vary, so the table moves to a knowledge area.</summary>
     /// <param name="model">The loaded project model that resolves the module named by the home.</param>
     /// <param name="table">The reference-data record whose home is inspected.</param>
     /// <param name="rows">The row objects in written order.</param>
@@ -204,7 +204,7 @@ internal static class KnowledgeChecks
             return false;
         }
 
-        var declared = table.Field(RecordFields.Variation) is { Length: > 0 };
+        var declared = table.Field(RecordFields.VariesBy) is { Length: > 0 };
         var named = rows.Any(row => Str(row, RecordFields.Variant) is { Length: > 0 });
 
         if (!declared && !named)
@@ -214,14 +214,14 @@ internal static class KnowledgeChecks
 
         var detail = (declared, named) switch
         {
-            (true, true) => $"states variation '{table.Field(RecordFields.Variation)}' and holds rows naming a variant",
-            (true, false) => $"states variation '{table.Field(RecordFields.Variation)}'",
+            (true, true) => $"states variesBy '{table.Field(RecordFields.VariesBy)}' and holds rows naming a variant",
+            (true, false) => $"states variesBy '{table.Field(RecordFields.VariesBy)}'",
             _ => "holds rows naming a variant",
         };
 
         findings.Add(new Finding(
             "record-invalid",
-            $"Reference data '{table.Id}' is owned by module '{home}' and {detail}; module-owned tables state no variation and name no variant.",
+            $"Reference data '{table.Id}' is owned by module '{home}' and {detail}; module-owned tables state no variesBy and name no variant.",
             table.File,
             table.Line,
             SubjectOf(table)));

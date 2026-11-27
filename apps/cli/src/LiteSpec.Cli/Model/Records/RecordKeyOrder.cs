@@ -19,7 +19,7 @@ static class RecordKeyOrder
     static readonly string[] Links = ["risk", "terms"];
 
     /// <summary>The keys that close every record.</summary>
-    static readonly string[] Tail = ["records"];
+    static readonly string[] Tail = ["results", "scenarios", "refusals", "permissions", "entryPoints"];
 
     /// <summary>Each type's own fields in schema order, read once.</summary>
     static readonly Lazy<Dictionary<string, IReadOnlyList<string>>> Orders = new(Load);

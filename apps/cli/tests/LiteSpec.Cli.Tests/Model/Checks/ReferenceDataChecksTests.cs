@@ -396,8 +396,8 @@ public sealed class ReferenceDataChecksTests
         "use-case",
         $"use-case/spending.{name}",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "use-cases", name, name + ".yaml"),
-        """{"summary": "Pay the fine.", "kind": "command", "exposure": "A reader pays their own fine.", "reachedThrough": ["entry-point/spending-app"], "computedBy": ["rule/spending.fine-total"], "input": [""" + input + "]"
-        + (output is null ? "" : ", \"output\": [" + output + "]")
+        """{"summary": "Pay the fine.", "kind": "command", "via": ["entry-point/spending-app"], "computedBy": ["rule/spending.fine-total"], "inputs": [""" + input + "]"
+        + (output is null ? "" : ", \"outputs\": [" + output + "]")
         + """, "steps": [{"statement": "The reader pays the fine."}]}""");
 
     /// <summary>One query of the spending module computing the fine total, with one output field in its output group.</summary>
@@ -409,5 +409,5 @@ public sealed class ReferenceDataChecksTests
         "use-case",
         $"use-case/spending.{name}",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "use-cases", name, name + ".yaml"),
-        """{"summary": "Report the fines.", "kind": "query", "exposure": "A reader reads their own fines.", "reachedThrough": ["entry-point/spending-app"], "computedBy": ["rule/spending.fine-total"], "output": {"include": {"all": {"fields": [""" + output + """], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "immediate"}}}}, "steps": [{"statement": "The reader reads the fines."}]}""");
+        """{"summary": "Report the fines.", "kind": "query", "via": ["entry-point/spending-app"], "computedBy": ["rule/spending.fine-total"], "outputs": {"include": {"all": {"fields": [""" + output + """], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "immediate"}}}}, "steps": [{"statement": "The reader reads the fines."}]}""");
 }

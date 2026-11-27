@@ -28,7 +28,7 @@ static class Checker
     /// <summary>Fields the semantic hash skips: identity and nested entries, which carry their own hash.</summary>
     internal static readonly HashSet<string> HashExcluded = new(StringComparer.Ordinal)
     {
-        "type", "id", "title", "records",
+        "type", "id", "title", "results", "scenarios", "refusals", "permissions", "entryPoints",
     };
 
     /// <summary>

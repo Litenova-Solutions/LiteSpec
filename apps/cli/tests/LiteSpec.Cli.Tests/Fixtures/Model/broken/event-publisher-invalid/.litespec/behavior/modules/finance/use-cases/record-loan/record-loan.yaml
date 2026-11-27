@@ -8,16 +8,15 @@ steps:
 access:
   grant: permission/borrow-copy
   tenant: own
-reachedThrough:
-- entry-point/library-app
+via:
+  - entry-point/library-app
 raises:
-- domain-event/loan.loan-borrowed
+  - domain-event/loan.loan-borrowed
 idempotency:
   mode: none
   reason: Each call records its own loan.
-records:
-- type: result
-  id: result/record-loan.recorded
-  title: Recorded
-  outcome: success
-  meaning: The loan is recorded.
+results:
+  - id: result/record-loan.recorded
+    title: Recorded
+    outcome: success
+    meaning: The loan is recorded.

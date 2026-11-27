@@ -7,21 +7,21 @@ requiredRoles:
 - car
 - motorcycle
 - bicycle
-variation: country
+variesBy: country
 rows:
-- value: 0.30
+- value: 0.3
   key: de-car-2026
   role: car
   variant: germany
   effectiveFrom: 2026-01-01
   source: decision/0003-travel-rates
-- value: 0.20
+- value: 0.2
   key: de-motorcycle-2026
   role: motorcycle
   variant: germany
   effectiveFrom: 2026-01-01
   source: decision/0003-travel-rates
-- value: 0.10
+- value: 0.1
   key: de-bicycle-2026
   role: bicycle
   variant: germany
@@ -39,7 +39,7 @@ rows:
   variant: netherlands
   effectiveFrom: 2026-01-01
   source: decision/0003-travel-rates
-- value: 0.10
+- value: 0.1
   key: nl-bicycle-2026
   role: bicycle
   variant: netherlands

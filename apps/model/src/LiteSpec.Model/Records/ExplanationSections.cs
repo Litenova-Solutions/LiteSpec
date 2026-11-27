@@ -12,7 +12,7 @@ namespace LiteSpec.Model;
 ///     unbacked-section check skips it: Capabilities and Consumers restate computed facts, and
 ///     Example only illustrates.
 /// </summary>
-/// <follows>litespec/core/writing#give-each-explanation-file-its-fixed-sections</follows>
+/// <follows>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</follows>
 /// <follows>litespec/core/model#keep-the-whole-specification-in-the-records</follows>
 public static class ExplanationSections
 {
@@ -33,7 +33,7 @@ public static class ExplanationSections
             [RecordTypes.Goal] = Of(("Target", false, new[] { "target" }), ("Measurement", false, new[] { "measure", "observations" })),
             [RecordTypes.Direction] = Of(),
             [RecordTypes.Problem] = Of(("Affected Users", false, new[] { "affects" }), ("Failure Cases", false, new[] { "failureCases" }), ("Example", true, []), ("Current Workaround", false, new[] { "workaround" }), ("Cost", false, new[] { "cost" }), ("Evidence", false, new[] { "evidence" }), ("Resolution Criteria", false, new[] { "resolutionCriteria" })),
-            [RecordTypes.Constraint] = Of(("Scope", false, new[] { "coverage" }), ("Rules", false, new[] { "obligations" }), ("Effect on the Product", false, new[] { "productEffect" }), ("Open Points", true, new[] { "openPoints" })),
+            [RecordTypes.Constraint] = Of(("Scope", false, new[] { "scope" }), ("Rules", false, new[] { "obligations" }), ("Effect on the Product", false, new[] { "productEffect" }), ("Open Questions", true, new[] { "openQuestions" })),
             [RecordTypes.Research] = Of(("Findings", false, new[] { "findings" }), ("Open Questions", true, new[] { "openQuestions" }), ("Source Notes", true, new[] { "sources" })),
             [RecordTypes.Decision] = Of(("Context", false, new[] { "context" }), ("Options", false, new[] { "options" }), ("Decision", false, new[] { "choice" }), ("Consequences", false, new[] { "consequences" }), ("Evidence", true, new[] { "basedOn" }), ("Revisit Conditions", false, new[] { "reopenedWhen" })),
             [RecordTypes.Feature] = Of(("Capabilities", false, []), ("Success Criteria", false, new[] { "successCriteria" }), ("Boundaries", false, new[] { "excludes" }), ("Example", true, [])),
@@ -45,18 +45,18 @@ public static class ExplanationSections
             [RecordTypes.KnowledgeArea] = Of(("Variants", false, new[] { "variants" }), ("Example", true, [])),
             [RecordTypes.Aggregate] = Of(("Lifecycle", false, new[] { "states", "transitions" }), ("Data and Retention", false, new[] { "data", "dataClasses" }), ("Example", true, []), ("Excludes", true, new[] { "excludes" })),
             [RecordTypes.UseCase] = Of(("Flow", false, new[] { "steps" }), ("Example", true, []), ("Edge Cases", true, new[] { "edgeCases" })),
-            [RecordTypes.Rule] = Of(("Rationale", false, new[] { "rationale", "basedOn", "cites" }), ("Example", true, []), ("Limits", true, [])),
+            [RecordTypes.Rule] = Of(("Rationale", false, new[] { "rationale", "basedOn" }), ("Example", true, []), ("Limits", true, [])),
             [RecordTypes.DomainEvent] = Of(("Example", true, [])),
             [RecordTypes.Reaction] = Of(("Trigger and Effect", false, new[] { "triggeredBy", "effects", "outcomes" }), ("Failure Handling", false, new[] { "onFailure" }), ("Example", true, [])),
             [RecordTypes.Job] = Of(("Invocation", false, new[] { "kind", "schedule", "runsWhen" }), ("Failure Handling", false, new[] { "onFailure" }), ("Example", true, [])),
-            [RecordTypes.Notification] = Of(("Content", false, new[] { "template", "parameters", "locale" }), ("Delivery", false, new[] { "channel", "deliveredThrough", "frequency" }), ("Example", false, [])),
+            [RecordTypes.Notification] = Of(("Content", false, new[] { "template", "parameters", "locale" }), ("Delivery", false, new[] { "channels", "via", "frequency" }), ("Example", false, [])),
             [RecordTypes.ModuleEvent] = Of(("Consumers", false, []), ("Compatibility", false, new[] { "compatibility" }), ("Example", true, [])),
             [RecordTypes.IntegrationEvent] = Of(("Consumers", false, []), ("Compatibility", false, new[] { "compatibility" }), ("Example", false, [])),
             [RecordTypes.ReadModel] = Of(("Sources", false, new[] { "fields", "keyedBy" }), ("Freshness", false, new[] { "freshness" }), ("Example", true, [])),
             [RecordTypes.ReferenceData] = Of(("Values", false, new[] { "unit", "rows" }), ("Example", true, [])),
             [RecordTypes.ExternalSystem] = Of(("Use", false, new[] { "summary" }), ("Data Shared", false, new[] { "processes", "erasure" }), ("Failure Handling", false, new[] { "operations" })),
-            [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticationTriggers" }), ("Excludes", true, new[] { "excludes" })),
-            [RecordTypes.Screen] = Of(("Task", false, new[] { "task" }), ("States", false, new[] { "displayStates" }), ("Example", false, [])),
+            [RecordTypes.EntryPoint] = Of(("Audience", false, new[] { "audience" }), ("Authentication", false, new[] { "authentication", "session", "reauthenticateWhen" }), ("Excludes", true, new[] { "excludes" })),
+            [RecordTypes.Screen] = Of(("Job", false, new[] { "job" }), ("States", false, new[] { "states" }), ("Example", false, [])),
             [RecordTypes.PermissionSet] = Of(("Risk", false, new[] { "risk" }), ("Boundaries", true, new[] { "excludes" })),
             [RecordTypes.Setting] = Of(("Defaults", false, new[] { "default", "range", "unit" }), ("Changes", true, new[] { "setBy" })),
 

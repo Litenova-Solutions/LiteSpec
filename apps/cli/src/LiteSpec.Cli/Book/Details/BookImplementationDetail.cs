@@ -153,8 +153,8 @@ static class BookImplementationDetail
         {
             var fields = BookRender.Fields(record);
             var links = BookRender.Links(record);
-            impl = (fields?["reachedThrough"] as JsonArray)?.Count > 0
-                || (links?["reachedThrough"] as JsonArray)?.Count > 0;
+            impl = (fields?["via"] as JsonArray)?.Count > 0
+                || (links?["via"] as JsonArray)?.Count > 0;
         }
 
         return new JsonObject

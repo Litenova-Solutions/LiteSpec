@@ -27,7 +27,7 @@ Explanatory prose stays hand-written.
 `validate` reports these problems:
 
 - A cited finding code that the finding table lacks.
-- A `Checked by` line that names no finding code.
+- A `Checked by` line that lists no finding code.
 - A cited template that does not exist.
 - An example record ID that the example lacks.
 - A page that the index omits.

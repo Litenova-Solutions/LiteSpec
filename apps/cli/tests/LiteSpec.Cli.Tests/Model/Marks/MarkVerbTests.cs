@@ -107,17 +107,17 @@ public sealed class MarkVerbTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/borrow-copy.borrowed",
                       "title": "Borrowed",
                       "owner": "lending-team",
                       "outcome": "success",
                       "meaning": "The copy is lent."
-                    },
+                    }
+                  ],
+                  "scenarios": [
                     {
-                      "type": "scenario",
                       "id": "scenario/borrow-copy.borrowing-succeeds",
                       "title": "Borrowing succeeds",
                       "owner": "lending-team",

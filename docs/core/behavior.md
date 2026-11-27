@@ -1,16 +1,15 @@
 # Behavior Records
 
 **Stack:** any
-
 **Concern:** records
 
-Behavior records state how the system acts to keep the promises Intent records: the words it uses, the areas it divides into, the things it keeps consistent, the rules that hold, and the behavior it defines with its endings and examples. Agents write Behavior from Intent, and code carries it out. The [model page](model.md) states the shared record rules, the [intent page](intent.md) states the promises Behavior answers to, and the [record language page](language.md) states how each field, value, and record name is written.
+This page states how Behavior records describe the system that keeps the Intent promises. It is for agents who write Behavior from Intent and for reviewers who check each record. A missing Behavior detail leaves each implementer guessing, and two guesses about the same promise diverge.
 
 ## Concepts
 
 ### The Behavior Pages
 
-Five pages hold the Behavior records, each owning its records. This page holds the overview, the mapping from records to design, and the rules that span pages.
+Five pages carry the Behavior records, and each record lives on one of them. This page carries the overview, the mapping from records to design, and the rules that span pages.
 
 | Page | Holds |
 |:---|:---|
@@ -22,27 +21,25 @@ Five pages hold the Behavior records, each owning its records. This page holds t
 
 ### Modules as Product Areas
 
-A module names one product area of the bounded context. It is declared in Behavior, at `.litespec/behavior/modules/<module>/module.yaml`, beside the aggregates it groups, because a module is a code boundary with dependencies. Intent holds the product reasons for the area, not the boundary itself.
+A module names one product area of the bounded context. It is declared in Behavior, at `.litespec/behavior/modules/<module>/module.yaml`, beside the aggregates it groups. Intent carries the product reasons for the area, and Behavior carries the code boundary with its dependencies.
 
 One name runs through every layer:
 
 ```text
 .litespec/intent/problems/<problem>/features/<name>/   features with their requirements
-.litespec/behavior/modules/<module>/...        module, aggregates and use cases
-src/<Layer>/<Module>/<Aggregates>/<UseCase>     code
+.litespec/behavior/modules/<module>/...                 module, aggregates and use cases
+src/<Layer>/<Module>/<Aggregates>/<UseCase>              code
 ```
 
-A reader finds a use case by module, then aggregate, then use case. Intent holds no module folder: each feature sits in the `features/` folder of the one problem it answers, while the Behavior records that fulfill its requirements name the module.
+A reader finds a use case by module, then aggregate, then use case. Intent carries no module folder. Each feature sits in the `features/` folder of the one problem it answers, while the Behavior records fulfilling its requirements name the module.
 
-The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level instead of inside a module that borrows it.
+The module is also the seam where a monolith later splits into services. Cross-cutting work, such as accessibility or security, sits at product level instead of inside a module that borrows it.
 
-A folder under `behavior/modules/` that names no declared module gets a blocking finding, so a stray folder cannot pose as an area.
-
-A record under a module is linked from another module only along a declared module dependency, through a module event, or through an integration event, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states. A product-level record may be linked from one module or many.
+A folder under `behavior/modules/` with a name outside the declared modules gets a blocking finding, so a stray folder looks like an area under review. A record under a module links from another module along a declared module dependency, through a module event, or through an integration event, as `litespec/core/model#connect-across-modules-only-through-declared-dependencies` states. A product-level record links from one module or many.
 
 ### Spec to Design Mapping
 
-The specification names only what carries business meaning. Child entities and value objects are design choices inside an aggregate, so they appear in code and the glossary, never as records.
+The specification names what carries business meaning. Child entities and value objects are design choices inside an aggregate, so they live in code and the glossary, outside the records. A record for each of them triples the tree without adding one decision a reviewer judges.
 
 Each record maps to one design pattern, and the stack pages state the code form of each pattern:
 
@@ -56,10 +53,10 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | rule, invariant | an invariant checked on every change |
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
-| rule, precondition spanning aggregates | a read of the guarding aggregate named in `reads`, with `consistency: { mode: atomic, boundBy: <rule>, guards: [<aggregate>] }`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
-| rule, atomicity | one atomic write group across the aggregates it binds |
+| rule, precondition spanning aggregates | a read of the guarding aggregate named in `reads`, with `consistency: { mode: atomic, boundBy: <rule>, guards: [<aggregate>] }`; a stored constraint only where the guard is one stored value, and a reaction or job only where eventual consistency fits |
+| rule, atomicity | one atomic write group across the aggregates it governs |
 | rule, reservation | a held claim with its release |
-| rule, frozen-value | a frozen commercial value with its history |
+| rule, frozen-value | a commercial value with its history |
 | domain event | a domain event raised through the root |
 | integration event | a published fact in CloudEvents form |
 | module event | a fact one module publishes for the other modules of the same product, naming the fields of the domain event it carries |
@@ -68,7 +65,7 @@ Each record maps to one design pattern, and the stack pages state the code form 
 | reaction | one reaction answering its events |
 | job, scheduled | one job running on its schedule |
 | job, one-off | one job running once |
-| read model | one module's copy of another module's published facts, with one projection per source event |
+| read model | one module copy of another module published facts, with one projection per source event |
 | notification | one rendered message to its audience |
 | setting | one operator configuration value with its range and setter |
 | result | one ending per result, each refusal with its code |
@@ -76,9 +73,11 @@ Each record maps to one design pattern, and the stack pages state the code form 
 
 ### Quotas and Rate Limits
 
-A quota a customer's plan sets is a rule: it bounds what the customer may do, refuses with a refusal, and differs by plan.
+A quota from a customer plan is a rule. It bounds what the customer does, refuses with a refusal, and differs by plan. A technical rate limit protects the platform, not the plan, so it is declared in the extensions instead of as a rule.
 
-A technical rate limit protects the platform, not the plan, so it is declared in the extensions rather than as a rule.
+### Examples from the Cast
+
+Fields state rules, states, and mappings, while an occasion drawn from the one shared cast lets a reviewer judge the behavior against the world it serves. Each module, aggregate, and use-case explanation file carries an Example section drawn from the cast. The section stays out where no case adds to the records. A project naming other records for the Example section states that shape in its own documentation.
 
 ## Standards
 
@@ -92,50 +91,20 @@ A technical rate limit protects the platform, not the plan, so it is declared in
 
 **Statement:** A module MUST state its `summary` and its `dependsOn` in fields.
 
-**Rationale:** The module names one product area of the bounded context, so Intent, Behavior, and code share one name for one area. `summary` states what the area covers in one place, and `dependsOn` names the modules it builds on, so a reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** The module names one product area, so Intent, Behavior, and code share one name for one area. The `summary` states what the area covers in one place, and `dependsOn` names the modules it builds on. Readers learn where each area sits once and find its records under one folder. Settled by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
 **Example:** The spending module covers expenses, receipts, and the policy, with an empty `dependsOn` where it stands alone.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a module record file missing a required field.
 
-### Keep Design Choices Out of the Records
-
-**ID:** `litespec/core/behavior#keep-design-choices-out-of-the-records`
-
-**Strength:** required
-
-**Applies to:** artifact: aggregate, value-object, record:term
-
-**Statement:** Child entities and value objects MUST appear only in code and the glossary, never as records.
-
-**Rationale:** The design inside an aggregate changes without changing its business meaning, so a record for every child entity and value object would triple the tree in size without adding one decision a reviewer judges. Keeping those choices in code and the glossary puts them where builders and readers meet them, and leaves records for what carries business meaning.
-
-**Example:** Order lines live as a child of the order aggregate, and money as a value with its glossary entry; neither is a record.
-
-**Reviewed for:** Does any record page declare a child entity or value object as a record type? Check the record types against the aggregate pages.
-
 ## Conventions
 
-### Illustrate Pages with Examples from the Cast
-
-**ID:** `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`
-
-**Strength:** default
-
-**Applies to:** artifact: record:use-case, record:module, record:aggregate
-
-**Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the cast, removed where no case adds to the records.
-
-**Replacement:** A project names the records that carry an Example section in its documentation.
-
-**Rationale:** Fields state rules, states, and mappings, but none says when the behavior happens or who is under pressure while it runs. An occasion drawn from the one shared cast lets a reviewer judge the behavior against the world it serves, and lets readers carry the same people and figures from page to page.
-
-**Reviewed for:** Does every module, aggregate, and use-case explanation file carry an Example section from the cast where a case would add to the records? Check the Example sections against the record files, or against the recorded project convention.
+None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/model#connect-every-behavior-record-to-intent`, `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`, `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`, `litespec/core/use-cases#bound-every-caller-supplied-input-value`, `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands`, `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/use-cases#name-the-idempotency-of-every-command`, `litespec/core/use-cases#state-the-audit-position-of-every-command`, `litespec/core/use-cases#end-every-use-case-in-named-results`, `litespec/core/use-cases#order-every-refusal-list-by-precedence`, `litespec/core/use-cases#name-the-result-each-scenario-ends-in`, `litespec/core/use-cases#prove-every-written-result-with-a-scenario`, `litespec/core/use-cases#write-every-scenario-in-given-when-then`, `litespec/core/use-cases#exercise-rules-from-scenarios`, `litespec/core/use-cases#share-scenario-setup-in-background`, `litespec/core/use-cases#record-attempts-behind-recorded-refusals`, `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`, `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/access#authenticate-every-caller-through-a-declared-authentication-kind`, `litespec/core/access#authorize-every-use-case-through-a-declared-grant`, `litespec/core/access#scope-every-grant-to-its-tenant-reach`, `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`, `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`, `litespec/core/edges#give-each-entry-point-a-kind`, `litespec/core/edges#give-every-screen-a-route-or-a-host`, and `litespec/core/edges#match-a-screens-offers-to-its-calls`.
+This informative example demonstrates `litespec/core/behavior#shape-each-module-page`, `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/access#declare-access-on-every-use-case`, `litespec/core/edges#describe-every-integration-event-the-product-sends-or-receives`, and `litespec/core/edges#give-every-screen-a-route-or-a-host`. It shows how one module page gathers the behavior its area promises.
 
-**Hold queue.** A reader who finds the copy lent places a hold. The place-hold command serves the hold flow step and fulfills the pickup-window requirement. It declares the place-hold permission with own tenant scope in `access`, and the library browser entry point that reaches it carries session auth. Its caller-supplied pickup code declares its type, with the code-shape rule bounding it. The write commits atomically over the hold aggregate, and the hold-placed integration event, declared with its typed payload and trust, is emitted after commit. The derived refusals come first, then the written refusals in precedence order, ahead of the hold-placed result. Each scenario states its given, when, and then from the shared background, names the rules it exercises, and ends in a named result, so every written result meets its scenario. The command audits at required level, with idempotency keyed on the request.
+**Hold queue.** A reader who finds the copy lent places a hold. The place-hold command serves the hold flow step and fulfills the pickup-window requirement. It declares the place-hold permission with tenant scope in `access`, and the library browser entry point reaching it carries session authentication.
 
-**Self-checkout scan.** A kiosk records each scan attempt. The record-self-checkout-scan command arrives through the device entry point with a system grant. It writes each attempt on its own, and keys idempotency on `{nonce}` scoped to the login. Its recorded refusals for unknown, retired, and already-lent barcodes store each attempt with its reason, while malformed scans store nothing. Its checked-out result lists the `borrow` and `renew` codes. A retired barcode refusal names its replacement and is never reused. The kiosk screen carries its address and offers the scan use case.
+**Self-checkout scan.** A kiosk records each scan attempt. The record-self-checkout-scan command arrives through the device entry point with a system grant. The hold-placed integration event, declared with its typed payload and trust, goes out after commit. The kiosk screen carries its route and offers the scan use case.

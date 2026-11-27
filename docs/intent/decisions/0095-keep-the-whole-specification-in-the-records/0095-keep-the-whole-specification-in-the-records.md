@@ -30,11 +30,11 @@ Keeping them in step is the author's discipline: a change to a record updates it
 
 Explanation files stay optional unless the project lists the layer in `explanations.layers` in `.litespec/project.yaml`. No record type requires one on its own any more.
 
-The fixed H2 sections of each record type stay, as the human reading structure. Each section now explains named fields; the section table on the writing page pairs every section with its fields.
+The fixed H2 sections of each record type stay, as the human reading structure. Each section now explains named fields, as `litespec/core/model#require-explanation-files-on-the-layers-a-project-names` requires.
 
 ## Consequences
 
-The records state the whole specification under `litespec/core/model#keep-the-whole-specification-in-the-records`, and `litespec/core/writing#explain-the-same-specification-the-records-state` replaces the provision that told explanation files to interpret fields and never restate them, so an explanation file restates and elaborates its record, adds no fact, and contradicts no field. `litespec/core/writing#update-a-record-and-its-explanation-together` requires both to change in one commit.
+The records state the whole specification under `litespec/core/model#keep-the-whole-specification-in-the-records`, and `litespec/core/writing#write-human-docs-for-the-cold-reader` replaces the provision that told explanation files to interpret fields and never restate them, so an explanation file restates and elaborates its record, adds no fact, and contradicts no field. Both change in one commit, so the restatement stays equal to its record.
 
 Intent records gain fields. A problem states `failureCases`, `workaround`, `cost` and `resolutionCriteria`. A constraint states `coverage`, `obligations`, `productEffect` and `openPoints`. Research states `findings` and `openQuestions`, and each source may carry a `note`. A feature states `successCriteria` and `excludes`. An actor states `responsibilities` and `knowledge`. A role states `excludes`. A decision states `context`.
 

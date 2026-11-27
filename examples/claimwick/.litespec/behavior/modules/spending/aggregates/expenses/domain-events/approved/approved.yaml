@@ -2,7 +2,7 @@ type: domain-event
 id: domain-event/expense.approved
 title: Expense Approved
 meaning: An expense was approved.
-carries:
+fields:
 - name: expenseId
   type: id
   identifies: aggregate/spending.expense

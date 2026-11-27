@@ -65,6 +65,6 @@ litespec model check --module spending
 litespec model edges
 ```
 
-## Run Rules After Every Edit
+## Agent Hooks and MCP
 
-The guide [Run Rules After Every Edit](https://litespec.dev/latest/guide/run-rules-after-every-edit/) shows how to run `rules <path>` after every edit and `model check --since <base>` at the end of a session. It gives one recipe for Claude Code hooks and one for an OpenCode plugin. The same page as plain Markdown lives at `https://litespec.dev/latest/guide/run-rules-after-every-edit.md`.
+The guide [Agent Hooks and MCP](https://litespec.dev/latest/guide/agent-hooks-and-mcp/) shows how to run `rules <path>` after every edit and `model check --since <base>` at the end of a session. It gives one recipe for Claude Code hooks and one for an OpenCode plugin. The same page as plain Markdown lives at `https://litespec.dev/latest/guide/agent-hooks-and-mcp.md`.

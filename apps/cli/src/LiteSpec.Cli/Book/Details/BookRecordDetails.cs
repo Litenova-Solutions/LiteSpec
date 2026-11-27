@@ -226,9 +226,10 @@ static class BookRecordDetails
 
     /// <summary>
     ///     Joins the refusal set's meaning onto one refusal result and derives its problem type:
-    ///     the project's problem type base followed by the code's part after its module, or the
-    ///     short part alone when the project declares no base. A result that states its own
-    ///     meaning keeps it.
+    ///     the result names its refusal record, the code is the refusal id's part after its
+    ///     slash, and the problem type is the project's problem type base followed by the
+    ///     code's part after its module, or the short part alone when the project declares
+    ///     no base. A result that states its own meaning keeps it.
     /// </summary>
     /// <param name="detail">The detail being built.</param>
     /// <param name="type">The record type.</param>
@@ -242,7 +243,14 @@ static class BookRecordDetails
         }
 
         if (!string.Equals(BookRender.StrProp(fields, "outcome"), "refusal", StringComparison.Ordinal)
-            || BookRender.StrProp(fields, "code") is not { Length: > 0 } code)
+            || BookRender.StrProp(fields, "refusal") is not { Length: > 0 } refusal)
+        {
+            return;
+        }
+
+        var slash = refusal.IndexOf('/');
+        var code = slash >= 0 && slash + 1 < refusal.Length ? refusal[(slash + 1)..] : refusal;
+        if (code.Length == 0)
         {
             return;
         }
@@ -404,7 +412,7 @@ static class BookRecordDetails
             {
                 observations.Add((JsonNode)new JsonObject
                 {
-                    ["date"] = entry["date"]?.DeepClone(),
+                    ["observedOn"] = entry["observedOn"]?.DeepClone(),
                     ["value"] = entry["value"]?.DeepClone(),
                     ["source"] = entry["source"]?.DeepClone(),
                 });

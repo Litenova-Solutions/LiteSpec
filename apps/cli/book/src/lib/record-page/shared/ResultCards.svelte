@@ -19,9 +19,9 @@
     return GENERIC_SUFFIXES.some((s) => id.endsWith(s));
   }
 
-  function sentenceOf(id: string | null | undefined): string {
+  function messageOf(id: string | null | undefined): string {
     if (!id) return "";
-    const s = book.get(stripStep(id))?.fields?.sentence;
+    const s = book.get(stripStep(id))?.fields?.message;
     return typeof s === "string" ? s : "";
   }
 
@@ -37,11 +37,11 @@
     head={["Outcome", "Result", "Meaning", "Code"]}
     {caption}
     rows={items.map((x) => {
-      const sentence = sentenceOf(x.id ?? null);
+      const message = messageOf(x.id ?? null);
       return [
         td(outcomeTag(x.outcome)),
         td(resultCell(x)),
-        td(esc(x.meaning) + (sentence ? muted(`&ldquo;${esc(sentence)}&rdquo;`) : "")),
+        td(esc(x.meaning) + (message ? muted(`&ldquo;${esc(message)}&rdquo;`) : "")),
         td(x.code ? codeOf(x.code) : ""),
       ];
     })}

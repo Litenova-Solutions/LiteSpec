@@ -1,27 +1,24 @@
 # Mobile Data and State
 
 **Stack:** android
+
 **Concern:** frontend-data
 
-In a mobile app, every use case runs through an Application handler, the one place where that use case is defined. Every piece of state carries a declared classification that decides whether it persists, stays on the device, or recomputes.
-
-These rules cover the mobile store, storage, and client. A team that applies them while writing handlers and screens keeps one definition of each use case and one source of each value.
+This page states where a mobile app keeps state, how screens read it, and how the app reaches the server. It is for developers who write handlers, stores, and screen code in a mobile consumer. One definition per use case and one source per value keep the app consistent when storage fails or the network drops.
 
 ## Concepts
 
 ### How State Is Classified
 
-A classification decides what happens to each piece of state: whether it persists, stays on the device, or recomputes. Durable state is what the user made: it persists, carries a version, and exports. Device-local state persists but stays on the device, excluded from export. Derived state is computed from durable state and persists nowhere.
+Durable state is the work the user created: it persists with a version and it travels in an export. Device-local state persists on the device and stays out of exports. Derived state is a value computed from durable state at read time, and it persists nowhere.
 
-For example, the expense report the user files is durable state: the user built it, and it must survive a restart and an export. An expense total is derived state: it is derived from the report lines each time it is read.
+The Claimwick expense report shows the split. The filed report is durable state with a version, and its photographed receipts sit beside it. The expense total is derived state, computed from the report lines each time a screen reads it.
 
 ### How Screens Reach Data
 
-Screens call Application handlers and read the typed store. The store loads once at startup, and screens show a loading state until it is ready.
+Screens call Application handlers and read the typed store. The store loads once at startup, and screens show a loading state until it turns ready. The shape keeps slow storage off the render path and keeps half-loaded state off the screen.
 
-A handler returns a typed result naming success and each refusal, so the screen maps every refusal to its message.
-
-On the `server` shape, the handler reaches the backend through the generated client in `{ProjectName}.Client`, which owns the base address, the credentials, the headers, and the mapping from a failure to a result.
+A handler answers with a typed result that names success and each named refusal. Each screen maps each refusal to its message. On the `server` shape the handler reaches the backend through the generated client in `{ProjectName}.Client`, which owns the base address, the credentials, the headers, and the mapping from a failure to a result.
 
 ## Standards
 
@@ -33,7 +30,7 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Statement:** Persisted state MUST load once at startup into a typed store that screens read from, with screens showing a loading state until it is ready.
 
-**Rationale:** Storage reads are slow and can fail, so the app reads once at startup into a typed store that screens read from. A screen that reads storage on render pays an input-output call per frame and can render half-loaded state. A screen renders its loading state until the store finishes loading, so it never shows an unloaded store as ready.
+**Rationale:** Storage reads are slow and they fail, so one load at startup bounds the failure to one place. A screen that reads storage on render pays input-output on every frame and shows half-loaded state. A loading state until the store turns ready keeps the screen honest about what it holds.
 
 **Reviewed for:** Does all persisted state load once at startup into the typed store, with screens showing a loading state until it is ready? Check the startup sequence and the screen loading states.
 
@@ -45,9 +42,9 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Statement:** Persisted state and media the user adds MUST live in the app's private storage, written atomically.
 
-**Rationale:** App-private storage keeps the user's data inside the app's own sandbox, away from other apps and from the shared media library. A crash mid-write leaves a half-written file, so each write lands in a temporary file that then replaces the target, keeping the previous complete file until the new one is whole. Media the user adds travels with the state that references it, so an export or a reinstall keeps both together.
+**Rationale:** Private storage keeps user data inside the app sandbox, away from other apps and the shared media library. Each write lands in a temporary file that replaces the target, so a crash mid-write leaves the prior complete file. Media beside the state it belongs to keeps exports whole.
 
-**Example:** A filed Claimwick expense report persists as versioned durable state in app-private storage, with its photographed receipts beside it in the same private files.
+**Example:** A filed Claimwick expense report persists as versioned durable state in app-private storage. Its photographed receipts sit beside it in the same private files, so an export keeps both together.
 
 **Reviewed for:** Does all persisted state and user-added media live in app-private storage, written through a temporary file? Check the storage writes.
 
@@ -59,7 +56,7 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Statement:** Media picked from the device MUST be copied into app-private storage on import rather than kept as a reference to the picker's URI.
 
-**Rationale:** The platform can revoke a picker's URI when the picker closes, and the source file can move or vanish. A screen holding only the URI shows a broken image after either. Copying the media into app-private storage on import keeps the app's copy under the app's own control.
+**Rationale:** The platform revokes a picker URI when the picker closes, and the source file moves or disappears. A screen holding only the URI shows a broken image after either event. A copy under app-private storage stays under app control from import on.
 
 **Reviewed for:** Does every media import copy the media into app-private storage instead of storing the picker's URI? Check the media imports.
 
@@ -71,7 +68,7 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Statement:** A handler MUST return a typed result union covering success and each named refusal, with each screen mapping every refusal to a message.
 
-**Rationale:** Signaling a refusal through `null`, an empty collection, or a bare boolean tells the caller that something was refused but not what. Every caller then guesses, and two callers guess differently. A typed result union names success and each refusal, so each screen maps every refusal to the message the application holds for it, with one failure type per refusal.
+**Rationale:** A null, an empty collection, or a bare boolean tells the caller that something failed without saying what. Each caller then guesses, and two callers guess differently. A typed union names success and each refusal, so each screen maps each outcome to the message the app holds for it.
 
 **Reviewed for:** Does every handler return a typed union of success and each named refusal, with every screen mapping each refusal to a message? Check the handler result types and the screens.
 
@@ -83,7 +80,7 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Statement:** A `server` consumer's app MUST call the backend only through the generated client in `{ProjectName}.Client`.
 
-**Rationale:** The generated client owns the base address, the credentials, the headers, and the mapping from a failure to a result. A call that builds its own request opts out of all four at once: it can point at the wrong host, miss the session, and surface a raw failure outside the handler's result shape. Routing every backend call through the one client keeps those decisions in one place.
+**Rationale:** The generated client owns the base address, the credentials, the headers, and the mapping from a failure to a result. A call that builds its own request steps outside all four at once: it points at the wrong host, misses the session, and surfaces a raw failure. One client keeps those four decisions in one place.
 
 **Reviewed for:** Does every backend call in a `server` app go through the generated client in `{ProjectName}.Client`? Check the backend call sites.
 
@@ -99,8 +96,8 @@ On the `server` shape, the handler reaches the backend through the generated cli
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A command queued offline runs later against state the user cannot see, so an expense submitted on a train can land after its trip closed or its approval policy changed. Showing the failure state keeps the refusal on the screen that caused it, and queuing nothing keeps every command tied to the screen that sent it. A project that needs offline capture writes its own convention with its replay rules, instead of letting each screen improvise a queue.
+**Rationale:** A queued offline command runs later against state the user had no chance to see, so an expense filed on a train lands after its trip closed. Showing the failure state keeps the refusal on the screen that sent it. A project that needs offline capture writes its own convention with its replay rules.
 
-**Example:** With no network, filing expense EXP-1042 for the Rotterdam client visit shows the failure state on the expense screen and sends nothing; the user submits the expense again when the network returns.
+**Example:** With no network, filing expense EXP-1042 for the Rotterdam client visit shows the failure state on the expense screen and sends nothing. The user submits the expense again when the network returns.
 
 **Reviewed for:** While offline, does every screen show its failure state and queue only what a recorded local convention names with its replay order? Check the command call sites and the offline screens.

@@ -7,16 +7,16 @@ using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the read-model checks: each read-model field is taken from a payload field of an outbound integration event, each personal field names its erasing event, each read model is read, and each read model is keyed by another module's aggregate.</summary>
+/// <summary>Proves the read-model checks: each read-model field is taken from a fields entry of an outbound integration event, each personal field names its erasing event, each read model is read, and each read model is keyed by another module's aggregate.</summary>
 public sealed class ReadModelCheckTests
 {
     /// <summary>The four finding codes the read-model checks report.</summary>
     static readonly string[] ReadModelCodes = ["reference-unknown", "read-model-erasure-missing", "read-model-unused", "read-model-key-invalid"];
 
-    /// <summary>A read-model field taken from the employee payload field of the reimbursed event, internal.</summary>
+    /// <summary>A read-model field taken from the employee fields entry of the reimbursed event, internal.</summary>
     const string EmployeeField = """{"name": "employeeId", "meaning": "The employee who was paid.", "type": "id", "from": "integration-event/expense-reimbursed#employeeId", "classification": "internal"}""";
 
-    /// <summary>A read-model field taken from the employee payload field of the reimbursed event, personal.</summary>
+    /// <summary>A read-model field taken from the employee fields entry of the reimbursed event, personal.</summary>
     const string PersonalEmployeeField = """{"name": "employeeId", "meaning": "The employee who was paid.", "type": "id", "from": "integration-event/expense-reimbursed#employeeId", "classification": "personal"}""";
 
     /// <summary>A read model clean of every read-model finding: an outbound event, a reading use case, and a key of another module.</summary>
@@ -66,10 +66,10 @@ public sealed class ReadModelCheckTests
         Assert.Contains(ReadModelFindings(model), found => found.Code == "reference-unknown");
     }
 
-    /// <summary>A field naming a payload field the event does not carry reports reference-unknown.</summary>
+    /// <summary>A field naming a fields entry the event does not carry reports reference-unknown.</summary>
     /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
-    public void FieldNamingAMissingPayloadFieldReportsSourceUnknown()
+    public void FieldNamingAMissingFieldsEntryReportsSourceUnknown()
     {
         using var temp = TestCli.Temp("checks");
         const string accountField = """{"name": "accountId", "meaning": "The account.", "type": "id", "from": "integration-event/expense-reimbursed#accountId", "classification": "internal"}""";
@@ -233,15 +233,15 @@ public sealed class ReadModelCheckTests
     static List<Finding> ReadModelFindings(ProjectModel model) =>
         Checker.Check(model).Findings.Where(found => ReadModelCodes.Contains(found.Code, StringComparer.Ordinal)).ToList();
 
-    /// <summary>The outbound integration event of the spending module that a read model reads, with its payload.</summary>
+    /// <summary>The outbound integration event of the spending module that a read model reads, with its fields.</summary>
     /// <param name="root">The consumer folder.</param>
-    /// <param name="action">Whether the product sends or receives the event.</param>
+    /// <param name="direction">Whether the product sends or receives the event.</param>
     /// <returns>The integration event record.</returns>
-    static Record ReimbursedEvent(string root, string action = "send") => TestModel.Record(
+    static Record ReimbursedEvent(string root, string direction = "send") => TestModel.Record(
         "integration-event",
         "integration-event/expense-reimbursed",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "integration-events", "expense-reimbursed", "expense-reimbursed.yaml"),
-        "{\"action\": \"" + action + "\", \"translates\": \"domain-event/spending.expense-reimbursed\", \"payload\": [{\"name\": \"employeeId\", \"meaning\": \"The employee who was paid.\", \"classification\": \"personal\", \"type\": \"id\", \"required\": true}, {\"name\": \"amount\", \"meaning\": \"The amount paid.\", \"classification\": \"internal\", \"type\": \"money\", \"required\": true}]}");
+        "{\"direction\": \"" + direction + "\", \"translates\": \"domain-event/spending.expense-reimbursed\", \"fields\": [{\"name\": \"employeeId\", \"meaning\": \"The employee who was paid.\", \"classification\": \"personal\", \"type\": \"id\", \"required\": true}, {\"name\": \"amount\", \"meaning\": \"The amount paid.\", \"classification\": \"internal\", \"type\": \"money\", \"required\": true}]}");
 
     /// <summary>The outbound integration event that erases an expense held in the read model.</summary>
     /// <param name="root">The consumer folder.</param>
@@ -250,16 +250,16 @@ public sealed class ReadModelCheckTests
         "integration-event",
         "integration-event/expense-erased",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "integration-events", "expense-erased", "expense-erased.yaml"),
-        """{"action": "send", "translates": "domain-event/spending.expense-erased", "payload": [{"name": "expenseId", "meaning": "The erased expense.", "classification": "internal", "type": "id", "required": true}]}""");
+        """{"direction": "send", "translates": "domain-event/spending.expense-erased", "fields": [{"name": "expenseId", "meaning": "The erased expense.", "classification": "internal", "type": "id", "required": true}]}""");
 
-    /// <summary>The domain event the reimbursed integration event translates, carrying the payload fields.</summary>
+    /// <summary>The domain event the reimbursed integration event translates, carrying the fields.</summary>
     /// <param name="root">The consumer folder.</param>
     /// <returns>The domain event record.</returns>
     static Record ReimbursedDomainEvent(string root) => TestModel.Record(
         "domain-event",
         "domain-event/spending.expense-reimbursed",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "expense-reimbursed", "expense-reimbursed.yaml"),
-        """{"meaning": "An expense was reimbursed.", "carries": [{"name": "employeeId", "type": "id"}, {"name": "amount", "type": "money"}]}""");
+        """{"meaning": "An expense was reimbursed.", "fields": [{"name": "employeeId", "type": "id"}, {"name": "amount", "type": "money"}]}""");
 
     /// <summary>The domain event the erased integration event translates, carrying the erased expense.</summary>
     /// <param name="root">The consumer folder.</param>
@@ -268,7 +268,7 @@ public sealed class ReadModelCheckTests
         "domain-event",
         "domain-event/spending.expense-erased",
         Path.Combine(root, ".litespec", "behavior", "modules", "spending", "aggregates", "expenses", "domain-events", "expense-erased", "expense-erased.yaml"),
-        """{"meaning": "An expense was erased.", "carries": [{"name": "expenseId", "type": "id"}]}""");
+        """{"meaning": "An expense was erased.", "fields": [{"name": "expenseId", "type": "id"}]}""");
 
     /// <summary>The spending aggregate the read model is keyed by.</summary>
     /// <param name="root">The consumer folder.</param>

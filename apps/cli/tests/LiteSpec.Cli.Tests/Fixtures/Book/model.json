@@ -94,47 +94,6 @@
             "name": "Retired",
             "meaning": "The copy left lending."
           }
-        ],
-        "records": [
-          {
-            "type": "rule",
-            "id": "rule/copy.has-one-home-shelf",
-            "title": "Has one home shelf",
-            "owner": "lending-team",
-            "status": "approved",
-            "kind": "invariant",
-            "statement": "A copy has one home shelf.",
-            "governs": [
-              "use-case/lending.register-copy"
-            ],
-            "basedOn": [],
-            "fulfills": [
-              "requirement/hold-queue.copy-shelf-home"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/copy.copy-registered",
-            "title": "Copy registered",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A copy was registered.",
-            "carries": [
-              "copyId",
-              "shelf"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/copy.copy-retired",
-            "title": "Copy retired",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A copy was retired.",
-            "carries": [
-              "copyId"
-            ]
-          }
         ]
       },
       "links": {}
@@ -169,49 +128,6 @@
             "name": "Canceled",
             "meaning": "The reader gave up the hold."
           }
-        ],
-        "records": [
-          {
-            "type": "rule",
-            "id": "rule/hold.names-one-copy",
-            "title": "Names one copy",
-            "owner": "lending-team",
-            "status": "approved",
-            "kind": "invariant",
-            "statement": "A hold names one copy.",
-            "governs": [
-              "use-case/lending.place-hold"
-            ],
-            "refusal": "refusal/lending.hold-already-waiting",
-            "basedOn": [],
-            "fulfills": [
-              "requirement/hold-queue.hold-pickup-window"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/hold.hold-placed",
-            "title": "Hold placed",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A hold was placed.",
-            "carries": [
-              "holdId",
-              "copyId",
-              "readerId"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/hold.hold-canceled",
-            "title": "Hold canceled",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A hold was canceled.",
-            "carries": [
-              "holdId"
-            ]
-          }
         ]
       },
       "links": {}
@@ -245,79 +161,6 @@
           {
             "name": "Overdue",
             "meaning": "The loan passed its due date."
-          }
-        ],
-        "records": [
-          {
-            "type": "rule",
-            "id": "rule/loan.has-one-borrower",
-            "title": "Has one borrower",
-            "owner": "lending-team",
-            "status": "approved",
-            "kind": "invariant",
-            "statement": "A loan has one borrower.",
-            "governs": [
-              "use-case/lending.borrow-copy"
-            ],
-            "refusal": "refusal/lending.copy-not-available",
-            "basedOn": [],
-            "fulfills": [
-              "requirement/hold-queue.max-active-loans"
-            ]
-          },
-          {
-            "type": "rule",
-            "id": "rule/loan.borrowed-copy-never-leaves-unscanned",
-            "title": "Borrowed copy never leaves unscanned",
-            "owner": "lending-team",
-            "status": "approved",
-            "kind": "precondition",
-            "statement": "A borrowed copy never leaves unscanned.",
-            "governs": [
-              "use-case/lending.borrow-copy"
-            ],
-            "basedOn": [],
-            "fulfills": [
-              "requirement/hold-queue.loan-period-days"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/loan.loan-borrowed",
-            "title": "Loan borrowed",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A copy was lent.",
-            "carries": [
-              "loanId",
-              "copyId",
-              "readerId",
-              "dueDate"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/loan.loan-returned",
-            "title": "Loan returned",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A copy was returned.",
-            "carries": [
-              "loanId",
-              "returnedAt"
-            ]
-          },
-          {
-            "type": "domain-event",
-            "id": "domain-event/loan.loan-extended",
-            "title": "Loan extended",
-            "owner": "lending-team",
-            "status": "approved",
-            "meaning": "A loan was extended.",
-            "carries": [
-              "loanId",
-              "newDueDate"
-            ]
           }
         ]
       },
@@ -652,7 +495,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A copy was registered.",
-        "carries": [
+        "fields": [
           "copyId",
           "shelf"
         ]
@@ -677,7 +520,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A copy was retired.",
-        "carries": [
+        "fields": [
           "copyId"
         ]
       },
@@ -701,7 +544,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A hold was canceled.",
-        "carries": [
+        "fields": [
           "holdId"
         ]
       },
@@ -725,7 +568,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A hold was placed.",
-        "carries": [
+        "fields": [
           "holdId",
           "copyId",
           "readerId"
@@ -751,7 +594,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A copy was lent.",
-        "carries": [
+        "fields": [
           "loanId",
           "copyId",
           "readerId",
@@ -778,7 +621,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A loan was extended.",
-        "carries": [
+        "fields": [
           "loanId",
           "newDueDate"
         ]
@@ -803,7 +646,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "meaning": "A copy was returned.",
-        "carries": [
+        "fields": [
           "loanId",
           "returnedAt"
         ]
@@ -925,9 +768,6 @@
             "statement": "The librarian retires a worn copy.",
             "actor": "actor/librarian"
           }
-        ],
-        "cites": [
-          "requirement/hold-queue.max-active-loans"
         ]
       },
       "links": {
@@ -940,9 +780,6 @@
           "use-case/lending.place-hold",
           "use-case/lending.cancel-hold",
           "use-case/lending.retire-copy"
-        ],
-        "cites": [
-          "requirement/hold-queue.max-active-loans"
         ]
       }
     },
@@ -1219,8 +1056,7 @@
         "owner": "lending-team",
         "status": "approved",
         "kind": "functional",
-        "statement": "A copy lives on one home shelf.",
-        "cites": []
+        "statement": "A copy lives on one home shelf."
       },
       "links": {}
     },
@@ -1242,8 +1078,7 @@
         "owner": "lending-team",
         "status": "approved",
         "kind": "functional",
-        "statement": "A ready hold waits seven days.",
-        "cites": []
+        "statement": "A ready hold waits seven days."
       },
       "links": {}
     },
@@ -1266,7 +1101,6 @@
         "status": "approved",
         "kind": "functional",
         "statement": "A loan lasts 21 days.",
-        "cites": [],
         "basedOn": [
           "decision/0001-loan-period"
         ]
@@ -1295,8 +1129,7 @@
         "owner": "lending-team",
         "status": "approved",
         "kind": "functional",
-        "statement": "A reader holds at most five active loans.",
-        "cites": []
+        "statement": "A reader holds at most five active loans."
       },
       "links": {}
     },
@@ -1365,7 +1198,7 @@
         "title": "Copy unavailable",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.copy-not-available",
+        "refusal": "refusal/lending.copy-not-available",
         "meaning": "The copy is unavailable."
       },
       "links": {}
@@ -1408,7 +1241,7 @@
         "title": "Hold ended",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.hold-not-waiting",
+        "refusal": "refusal/lending.hold-not-waiting",
         "meaning": "The hold already left the queue."
       },
       "links": {}
@@ -1451,7 +1284,7 @@
         "title": "Extension refused",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.extension-refused",
+        "refusal": "refusal/lending.extension-refused",
         "meaning": "The extension is refused."
       },
       "links": {}
@@ -1494,7 +1327,7 @@
         "title": "Hold already waiting",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.hold-already-waiting",
+        "refusal": "refusal/lending.hold-already-waiting",
         "meaning": "A hold is already waiting."
       },
       "links": {}
@@ -1537,7 +1370,7 @@
         "title": "Copy already registered",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.copy-already-registered",
+        "refusal": "refusal/lending.copy-already-registered",
         "meaning": "The copy is already registered."
       },
       "links": {}
@@ -1580,7 +1413,7 @@
         "title": "Copy on loan",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.copy-on-loan",
+        "refusal": "refusal/lending.copy-on-loan",
         "meaning": "The copy is on loan."
       },
       "links": {}
@@ -1623,7 +1456,7 @@
         "title": "Loan inactive",
         "owner": "lending-team",
         "outcome": "refusal",
-        "code": "lending.loan-not-active",
+        "refusal": "refusal/lending.loan-not-active",
         "meaning": "The loan is inactive."
       },
       "links": {}
@@ -2032,7 +1865,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2041,43 +1874,13 @@
         "fulfills": [
           "requirement/hold-queue.max-active-loans"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/borrow-copy.borrowed",
-            "title": "Borrowed",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The copy is lent."
-          },
-          {
-            "type": "result",
-            "id": "result/borrow-copy.copy-unavailable",
-            "title": "Copy unavailable",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.copy-not-available",
-            "meaning": "The copy is unavailable."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
-            "title": "Borrowing an available copy succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A copy sits available on its shelf.",
-            "when": "The reader borrows the copy.",
-            "result": "result/borrow-copy.borrowed",
-            "then": "The loan is active."
-          }
-        ],
         "access": {
           "grant": "permission/borrow-copy",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2107,7 +1910,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2116,43 +1919,13 @@
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/cancel-hold.canceled",
-            "title": "Canceled",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The hold is canceled."
-          },
-          {
-            "type": "result",
-            "id": "result/cancel-hold.hold-ended",
-            "title": "Hold ended",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.hold-not-waiting",
-            "meaning": "The hold already left the queue."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/cancel-hold.canceling-a-waiting-hold-succeeds",
-            "title": "Canceling a waiting hold succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A reader holds a waiting hold.",
-            "when": "The reader cancels the hold.",
-            "result": "result/cancel-hold.canceled",
-            "then": "The hold is canceled."
-          }
-        ],
         "access": {
           "grant": "permission/place-hold",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2182,7 +1955,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2191,43 +1964,13 @@
         "fulfills": [
           "requirement/hold-queue.loan-period-days"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/extend-loan.extended",
-            "title": "Extended",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The loan is extended."
-          },
-          {
-            "type": "result",
-            "id": "result/extend-loan.extension-refused",
-            "title": "Extension refused",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.extension-refused",
-            "meaning": "The extension is refused."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/extend-loan.extending-an-active-loan-succeeds",
-            "title": "Extending an active loan succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A reader holds an active loan.",
-            "when": "The reader extends the loan.",
-            "result": "result/extend-loan.extended",
-            "then": "The loan is extended."
-          }
-        ],
         "access": {
           "grant": "permission/borrow-copy",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2257,33 +2000,12 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "query",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [],
         "fulfills": [
           "requirement/hold-queue.max-active-loans"
-        ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/list-loans.listed",
-            "title": "Listed",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The loans are listed."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/list-loans.listing-own-loans-succeeds",
-            "title": "Listing own loans succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A reader holds two active loans.",
-            "when": "The reader lists their loans.",
-            "result": "result/list-loans.listed",
-            "then": "Both loans are listed."
-          }
         ],
         "access": {
           "grant": "permission/read-loans",
@@ -2291,7 +2013,7 @@
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "fulfills": [
@@ -2318,7 +2040,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2327,43 +2049,13 @@
         "fulfills": [
           "requirement/hold-queue.hold-pickup-window"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/place-hold.placed",
-            "title": "Placed",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The hold is placed."
-          },
-          {
-            "type": "result",
-            "id": "result/place-hold.hold-already-waiting",
-            "title": "Hold already waiting",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.hold-already-waiting",
-            "meaning": "A hold is already waiting."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/place-hold.placing-a-hold-succeeds",
-            "title": "Placing a hold succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A copy is on loan to another reader.",
-            "when": "The reader places a hold.",
-            "result": "result/place-hold.placed",
-            "then": "The hold is placed."
-          }
-        ],
         "access": {
           "grant": "permission/place-hold",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2393,7 +2085,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2402,43 +2094,13 @@
         "fulfills": [
           "requirement/hold-queue.copy-shelf-home"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/register-copy.registered",
-            "title": "Registered",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The copy is registered."
-          },
-          {
-            "type": "result",
-            "id": "result/register-copy.copy-already-registered",
-            "title": "Copy already registered",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.copy-already-registered",
-            "meaning": "The copy is already registered."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/register-copy.registering-a-new-copy-succeeds",
-            "title": "Registering a new copy succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A new copy arrives at the desk.",
-            "when": "The librarian registers the copy.",
-            "result": "result/register-copy.registered",
-            "then": "The copy is registered."
-          }
-        ],
         "access": {
           "grant": "permission/manage-copies",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2468,7 +2130,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2477,43 +2139,13 @@
         "fulfills": [
           "requirement/hold-queue.copy-shelf-home"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/retire-copy.retired",
-            "title": "Retired",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The copy is retired."
-          },
-          {
-            "type": "result",
-            "id": "result/retire-copy.copy-on-loan",
-            "title": "Copy on loan",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.copy-on-loan",
-            "meaning": "The copy is on loan."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/retire-copy.retiring-an-available-copy-succeeds",
-            "title": "Retiring an available copy succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A copy sits available past weeding.",
-            "when": "The librarian retires the copy.",
-            "result": "result/retire-copy.retired",
-            "then": "The copy is retired."
-          }
-        ],
         "access": {
           "grant": "permission/manage-copies",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2543,7 +2175,7 @@
         "owner": "lending-team",
         "status": "reviewed",
         "kind": "command",
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2552,43 +2184,13 @@
         "fulfills": [
           "requirement/hold-queue.loan-period-days"
         ],
-        "records": [
-          {
-            "type": "result",
-            "id": "result/return-copy.returned",
-            "title": "Returned",
-            "owner": "lending-team",
-            "outcome": "success",
-            "meaning": "The copy is returned."
-          },
-          {
-            "type": "result",
-            "id": "result/return-copy.loan-inactive",
-            "title": "Loan inactive",
-            "owner": "lending-team",
-            "outcome": "refusal",
-            "code": "lending.loan-not-active",
-            "meaning": "The loan is inactive."
-          },
-          {
-            "type": "scenario",
-            "id": "scenario/return-copy.returning-a-borrowed-copy-succeeds",
-            "title": "Returning a borrowed copy succeeds",
-            "owner": "lending-team",
-            "status": "approved",
-            "given": "A reader holds an active loan.",
-            "when": "The reader returns the copy.",
-            "result": "result/return-copy.returned",
-            "then": "The loan is returned."
-          }
-        ],
         "access": {
           "grant": "permission/borrow-copy",
           "tenant": "own"
         }
       },
       "links": {
-        "reachedThrough": [
+        "via": [
           "entry-point/library-app"
         ],
         "raises": [
@@ -2733,7 +2335,9 @@
         "audience": [
           "actor/reader"
         ],
-        "channel": "email",
+        "channels": [
+          "email"
+        ],
         "template": "due-reminder"
       },
       "links": {

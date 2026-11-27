@@ -1,0 +1,9 @@
+type: rule
+id: rule/loan.copy-available
+title: Copy available
+kind: precondition
+statement: A borrowed copy is available.
+governs:
+- use-case/lending.borrow-copy
+refusal: refusal/lending.copy-not-available
+basedOn: []

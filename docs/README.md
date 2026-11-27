@@ -1,15 +1,10 @@
 # LiteSpec Documentation
 
-LiteSpec is a standard for building one business application from written rules that tools check. This index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.yaml` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
+LiteSpec is a standard for building one business application from written rules that tools check. This index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.yaml` (its size, shape, technology stacks, and extensions), so most readers need only a few groups. For example, a small server project with the dotnet and svelte stacks reads the Core pages plus the two stack packs, and skips the rest.
 
 ## Which Page Do You Want
 
-An **explanation** describes what LiteSpec is and how its parts fit, for a reader who is learning. Start with the [Learn overview](learn/README.md) when LiteSpec is new to you.
-A **tutorial** takes you to a first working result, one step at a time.
-A **how-to** solves one stated problem for a reader whose project already runs.
-A **reference** lists exact values, options, and defaults for lookup.
-A **command** page documents one command: its options, its exit codes, and what it runs underneath.
-A standards page states the provisions a reader cites for one concern.
+An **explanation** describes what LiteSpec is and how its parts fit, for a reader who is learning. Start with the [Learn overview](learn/README.md) when LiteSpec is new to you. A **tutorial** takes you to a first working result, one step at a time. A **how-to** solves one stated problem for a reader whose project already runs. A **reference** lists exact values, options, and defaults for lookup. A **command** page documents one command: its options, its exit codes, and what it runs underneath. A standards page states the provisions a reader cites for one concern.
 
 [Read the Standard](learn/reading-the-standard.md) explains which folders a selection applies and how a provision ID cites one rule.
 
@@ -26,7 +21,7 @@ The Standard group holds the `core`, `packs`, `quality`, `workspace`, and `ext` 
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
 - [Project Model](core/model.md): the four layers, the record types, their links, checks, and the book and diffs.
-- [Waivers](core/waivers.md): the one record that sets a provision, a page or a finding code aside, with its kind, its reason and, for a gap, its expiry and closing records.
+- [Waivers](core/waivers.md): the one record that sets a provision, a page or finding code aside, with its kind, its reason and, for a gap, its expiry and closing records.
 - [Record Layers](core/layers.md): the four record layers and the translation rules between them.
 - [Intent Layer](core/intent.md): where a consumer states why it exists and what it promises, and what Intent never holds.
 - [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.
@@ -71,7 +66,7 @@ The Standard group holds the `core`, `packs`, `quality`, `workspace`, and `ext` 
 
 ### Packs
 
-Each pack binds one stack to its technology: the .NET pack for the backend, and the Svelte and Android packs for the frontends. A project applies only the packs its stacks select.
+Each pack binds one stack to its technology: the .NET pack for the backend, and the Svelte and Android packs for the frontends. A project applies only the packs its stacks select. See the [Packs overview](packs/README.md) for the list.
 
 - [.NET Stack](packs/dotnet/stack.md): what the .NET backend binding covers and what the builder reads.
 - [Svelte Stack](packs/svelte/stack.md): what the Svelte web binding covers and what the builder reads.
@@ -172,13 +167,13 @@ This group follows one product end to end, from its first record to a passing ch
 - [Example overview](example/README.md): the Claimwick product the example follows, and the reading order for its pages.
 - [The Claimwick Product](example/the-product.md): the Intent records: brief, goal, problem, feature, requirements, research, decision, constraint, and flow.
 - [Modules and Records](example/modules-and-records.md): the Spending module as Behavior records: aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and settings around them.
-- [A Use Case in Code](example/a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
+- [A Use Case in Code](example/a-use-case-in-code.md): submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](example/the-screen.md): the expenses screen, the generated client it reads, the shared UI package it composes, and the full model check.
 - [The Model and Its Checks](example/model-and-checks.md): the findings that waivers cover, a waiver record, and a query of one record.
 
 ### Guides
 
-Tutorials take a reader to a first working result; how-to guides solve one stated problem in a running project. The [Guides overview](guide/README.md) states the order to follow them in.
+Tutorials take you to a first working result; how-to guides solve one stated problem in a running project. The [Guides overview](guide/README.md) states the order to follow them in.
 
 - [Guides overview](guide/README.md): tutorials for a first result, how-to guides for one goal in a running project.
 - [Start a Consumer Repository](tutorial/getting-started.md): start a small consumer repository through one coded use case.
@@ -194,7 +189,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Write a Research Record](guide/write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.
 - [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
-- [Run Rules After Every Edit](guide/run-rules-after-every-edit.md): run `rules` on each file after it is edited, and check the change set before the agent stops.
+- [Agent Hooks and MCP](guide/agent-hooks-and-mcp.md): run `rules` on each file after it is edited, and check the change set before the agent stops.
 - [Add a Stack or an Extension](guide/add-a-stack-or-extension.md): add a stack folder or an extension page to the release manifest.
 
 ## LiteSpec's Own Records

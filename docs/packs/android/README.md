@@ -11,3 +11,4 @@ The android pack binds LiteSpec to a native Android application built with .NET 
 - [Device](device.md): pickers, permissions, audio focus, and declared capabilities.
 - [UI Primitives](ui-primitives.md): single-job screens, bottom navigation, resource tokens, and visual calibration.
 - [Testing](testing.md): plain .NET core tests and on-device screen tests.
+- [Golden Slice](golden-slice.md): one complete end-to-end Android vertical slice in v7 style.

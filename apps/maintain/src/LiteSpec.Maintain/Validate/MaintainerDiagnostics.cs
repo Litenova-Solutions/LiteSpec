@@ -61,6 +61,8 @@ internal static class MaintainerDiagnostics
         Codes.PageTitleCount,
         Codes.PageUnknownSection,
         Codes.ProseNonAscii,
+        Codes.ProseBannedPhrase,
+        Codes.ProseParagraphLength,
         Codes.ProseNormativeLocation,
         Codes.ProvisionsStale,
         Codes.ProvisionCheckScope,
@@ -309,6 +311,12 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A non-ASCII character in prose.</summary>
         public const string ProseNonAscii = "PROSE_NON_ASCII";
+
+        /// <summary>A banned phrase in prose.</summary>
+        public const string ProseBannedPhrase = "PROSE_BANNED_PHRASE";
+
+        /// <summary>A prose paragraph over the word limit.</summary>
+        public const string ProseParagraphLength = "PROSE_PARAGRAPH_LENGTH";
 
         /// <summary>Normative vocabulary outside a provision assertion.</summary>
         public const string ProseNormativeLocation = "PROSE_NORMATIVE_LOCATION";

@@ -1,7 +1,6 @@
 type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
-exposure: A signed-in reader reaches this command through the library app under the borrow-copy permission. A wrong lending hands a copy to a reader already past the loan limit.
 kind: command
 access:
   grant: permission/borrow-copy
@@ -10,11 +9,11 @@ serves:
 - step/borrow-and-return.borrow-copy
 fulfills:
 - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
 - domain-event/loan.loan-borrowed
-input:
+inputs:
 - name: copyId
   meaning: The copy the reader borrows.
   type: id
@@ -35,29 +34,28 @@ reads:
 idempotency:
   mode: none
   reason: Each call lends its own copy, and lending an unavailable copy is refused.
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
 steps:
 - statement: The reader borrows the copy from the shelf.
-records:
-- type: result
-  id: result/borrow-copy.borrowed
+results:
+- id: result/borrow-copy.borrowed
   title: Borrowed
   outcome: success
   meaning: The copy is lent.
-- type: result
-  id: result/borrow-copy.copy-unavailable
+- id: result/borrow-copy.copy-unavailable
   title: Copy unavailable
   outcome: refusal
   refusal: refusal/lending.copy-not-available
-  sentence: This copy is not available, so it cannot be lent now.
-- type: scenario
-  id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
+  message: This copy is not available, so it cannot be lent now.
+scenarios:
+- id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
   title: Borrowing an available copy succeeds
   given: A copy sits available on its shelf.
   when: The reader borrows the copy.
   then: The loan is active.
   result: result/borrow-copy.borrowed
-- type: scenario
-  id: scenario/borrow-copy.borrowing-an-unavailable-copy-is-refused
+- id: scenario/borrow-copy.borrowing-an-unavailable-copy-is-refused
   title: Borrowing an unavailable copy is refused
   given: A copy is on loan to another reader.
   when: The reader borrows the copy.

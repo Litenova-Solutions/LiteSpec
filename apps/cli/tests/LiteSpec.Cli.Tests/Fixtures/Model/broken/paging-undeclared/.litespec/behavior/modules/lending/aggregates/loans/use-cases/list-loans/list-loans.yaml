@@ -9,54 +9,55 @@ access:
   grant: permission/read-loans
   tenant: own
 serves:
-- step/borrow-and-return.review-loans
+  - step/borrow-and-return.review-loans
 fulfills:
-- requirement/borrowing.max-active-loans
-reachedThrough:
-- entry-point/library-app
+  - requirement/borrowing.max-active-loans
+via:
+  - entry-point/library-app
 raises: []
-output:
+outputs:
   include:
     rows:
       fields:
-      - name: loans
-        type: list
-        meaning: "One row per loan: its identity, copy, reader, and due date."
-        rowShape:
-          fields:
-          - name: loan
-            type: id
-            identifies: aggregate/lending.loan
-            required: true
-            meaning: The loan identity.
-          - name: copy
-            type: id
-            identifies: aggregate/lending.copy
-            required: true
-            meaning: The copy on loan.
-          - name: reader
-            type: text
-            required: true
-            meaning: The reader holding the copy.
-          - name: dueDate
-            type: date
-            required: true
-            meaning: The day the loan is due.
+        - name: loans
+          type: list
+          items:
+            fields:
+              - name: loan
+                type: id
+                identifies: aggregate/lending.loan
+                required: true
+                meaning: The loan identity.
+              - name: copy
+                type: id
+                identifies: aggregate/lending.copy
+                required: true
+                meaning: The copy on loan.
+              - name: reader
+                type: text
+                required: true
+                meaning: The reader holding the copy.
+              - name: dueDate
+                type: date
+                required: true
+                meaning: The day the loan is due.
+          meaning: "One row per loan: its identity, copy, reader, and due date."
       classification: internal
       reads:
-      - aggregate/lending.loan
+        - aggregate/lending.loan
       freshness:
         mode: immediate
-records:
-- type: result
-  id: result/list-loans.listed
-  title: Listed
-  outcome: success
-  meaning: The loans are listed.
-- type: scenario
-  id: scenario/list-loans.listing-own-loans-succeeds
-  title: Listing own loans succeeds
-  given: A reader holds two active loans.
-  when: The reader lists their loans.
-  then: Both loans are listed.
-  result: result/list-loans.listed
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
+results:
+  - id: result/list-loans.listed
+    title: Listed
+    outcome: success
+    meaning: The loans are listed.
+scenarios:
+  - id: scenario/list-loans.listing-own-loans-succeeds
+    title: Listing own loans succeeds
+    given: A reader holds two active loans.
+    when: The reader lists their loans.
+    then: Both loans are listed.
+    result: result/list-loans.listed

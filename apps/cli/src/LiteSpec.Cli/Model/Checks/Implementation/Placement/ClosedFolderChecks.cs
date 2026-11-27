@@ -1048,7 +1048,7 @@ internal static class ClosedFolderChecks
         }
     }
 
-    /// <summary>The public use cases: query and command use cases whose reachedThrough names a consuming module, by module, aggregate, name, identifier and kind.</summary>
+    /// <summary>The public use cases: query and command use cases whose via names a consuming module, by module, aggregate, name, identifier and kind.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The module, aggregate, name, identifier and kind of each public use case placed in a module folder.</returns>
     private static List<(string Module, string? Aggregate, string Name, string Id, string Kind)> DeclaredPublicUseCases(ProjectModel model)
@@ -1059,7 +1059,7 @@ internal static class ClosedFolderChecks
         {
             if (record.Type != RecordTypes.UseCase
                 || record.Field(RecordFields.Kind) is not ("query" or "command")
-                || !record.Ids(RecordFields.ReachedThrough).Any(IsModuleId))
+                || !record.Ids(RecordFields.Via).Any(IsModuleId))
             {
                 continue;
             }

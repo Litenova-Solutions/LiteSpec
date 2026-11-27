@@ -3,7 +3,7 @@ id: job/lending.send-due-scan
 title: Daily due scan
 kind: scheduled
 schedule:
-  timezone: Europe/Amsterdam
+  timeZone: Europe/Amsterdam
 effects:
   - sends: notification/lending.loan-due
 fulfills:

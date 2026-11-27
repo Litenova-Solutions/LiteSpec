@@ -5,5 +5,5 @@ kind: quality
 statement: Search answers quickly.
 rationale: Slow search sends readers to the desk queue.
 measure: p95 latency
-cites: []
+basedOn: []
 by: under 200 ms

@@ -25,14 +25,12 @@ fulfills:
 - requirement/ui-reflow
 - requirement/ui-target-size
 - requirement/ui-text-contrast
-pageFrame:
-  pattern: list-page
-  option: search-and-a-state-filter-only
 leadsTo:
 - screen/claimwick-app.expense-record
 - screen/claimwick-app.new-expense
-task: The employee scans the list for one expense, opens it to read or act on it, or starts a new one.
-displayStates:
+job: The employee scans the list for one expense, opens it to read or act on it, or starts a new one.
+archetype: ListPage
+states:
 - name: Empty
   shows: The list says it is empty and points to the new expense form.
 - name: Loading

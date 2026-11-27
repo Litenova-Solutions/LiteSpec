@@ -86,15 +86,14 @@ public sealed class ReactionTriggerTests
             "grant": "system",
             "tenant": "own"
           },
-          "reachedThrough": [
+          "via": [
             "entry-point/library-app"
           ],
           "fulfills": [
             "requirement/borrowing.loan-period-days"
           ],
-          "records": [
+          "results": [
             {
-              "type": "result",
               "id": "result/notify-overdue.notified",
               "title": "Notified",
               "outcome": "success",

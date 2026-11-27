@@ -224,9 +224,8 @@ public sealed class ActCheckTests
                       "writes": [
                         "aggregate/lending.loan"
                       ],
-                      "records": [
+                      "results": [
                         {
-                          "type": "result",
                           "id": "result/USECASE.done",
                           "title": "Done",
                           "owner": "lending-team",
@@ -463,9 +462,8 @@ public sealed class ActCheckTests
                       "writes": [
                         "aggregate/lending.loan"
                       ],
-                      "records": [
+                      "results": [
                         {
-                          "type": "result",
                           "id": "result/USECASE.done",
                           "title": "Done",
                           "owner": "lending-team",
@@ -706,9 +704,8 @@ public sealed class ActCheckTests
                   "writes": [
                     "aggregate/lending.loan"
                   ],
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/borrow-copy.borrowed",
                       "title": "Borrowed",
                       "owner": "lending-team",
@@ -731,9 +728,8 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/fan-out.fanned-out",
                       "title": "Fanned out",
                       "owner": "lending-team",
@@ -861,9 +857,8 @@ public sealed class ActCheckTests
                   "writes": [
                     "aggregate/lending.loan"
                   ],
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/borrow-copy.borrowed",
                       "title": "Borrowed",
                       "owner": "lending-team",
@@ -899,7 +894,7 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "meaning": "A copy was lent.",
-                  "carries": [
+                  "fields": [
                     "loanId"
                   ]
                 }

@@ -5,8 +5,6 @@ kind: precondition
 statement: A borrowed copy never leaves unscanned.
 governs:
 - aggregate/lending.loan
-binds:
-- aggregate/lending.loan
 basedOn: []
 fulfills:
 - requirement/borrowing.loan-period-days

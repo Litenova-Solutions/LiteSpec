@@ -107,7 +107,7 @@ static class FrontendRecords
         [
             .. model.Records
                 .Where(record => record.Type == RecordTypes.UseCase
-                    && record.Ids(RecordFields.ReachedThrough).Any(entryPoints.Contains))
+                    && record.Ids(RecordFields.Via).Any(entryPoints.Contains))
                 .Select(record => record.Id)
                 .OrderBy(id => id, StringComparer.Ordinal),
         ];
@@ -216,10 +216,10 @@ static class FrontendRecords
 
     /// <summary>Tests whether a record is reached through a browser entry point.</summary>
     /// <param name="model">The built project model holding the entry points.</param>
-    /// <param name="record">The record whose reached-through ids are tested.</param>
-    /// <returns>True when one reached-through id names a browser entry point.</returns>
+    /// <param name="record">The record whose via ids are tested.</param>
+    /// <returns>True when one via id names a browser entry point.</returns>
     private static bool ReachedThroughBrowser(ProjectModel model, Record record) =>
-        record.Ids(RecordFields.ReachedThrough).Any(id =>
+        record.Ids(RecordFields.Via).Any(id =>
             model.ById.TryGetValue(id, out var point)
             && point.Type == RecordTypes.EntryPoint
             && point.Field(RecordFields.Kind) == "browser");

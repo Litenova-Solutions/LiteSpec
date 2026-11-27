@@ -2,41 +2,40 @@ type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
 kind: command
-steps:
-  - statement: The reader sends the copy to borrow.
-  - statement: Lending lends the copy and raises the borrowed event.
 access:
   grant: permission/borrow-copy
   tenant: own
 fulfills:
-  - requirement/borrowing.max-active-loans
-reachedThrough:
-  - entry-point/library-app
+- requirement/borrowing.max-active-loans
+via:
+- entry-point/library-app
 raises:
-  - domain-event/loan.loan-borrowed
-records:
-  - type: result
-    id: result/borrow-copy.borrowed
-    title: Borrowed
-    outcome: success
-    meaning: The copy is lent.
-  - type: result
-    id: result/borrow-copy.copy-unavailable
-    title: Copy unavailable
-    outcome: refusal
-    code: lending.copy-not-available
-    meaning: The copy is on loan.
-  - type: scenario
-    id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
-    title: Borrowing an available copy succeeds
-    given: An available copy sits on the shelf.
-    when: The reader borrows the copy.
-    then: The copy is lent.
-    result: result/borrow-copy.borrowed
-  - type: scenario
-    id: scenario/borrow-copy.borrowing-a-loaned-copy-refuses
-    title: Borrowing a loaned copy refuses
-    given: A copy is on loan.
-    when: The reader borrows the copy.
-    then: The reader is told the copy is on loan.
-    result: result/borrow-copy.copy-unavailable
+- domain-event/loan.loan-borrowed
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader sends the copy to borrow.
+- statement: Lending lends the copy and raises the borrowed event.
+results:
+- id: result/borrow-copy.borrowed
+  title: Borrowed
+  outcome: success
+  meaning: The copy is lent.
+- id: result/borrow-copy.copy-unavailable
+  title: Copy unavailable
+  outcome: refusal
+  code: lending.copy-not-available
+  meaning: The copy is on loan.
+scenarios:
+- id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
+  title: Borrowing an available copy succeeds
+  given: An available copy sits on the shelf.
+  when: The reader borrows the copy.
+  then: The copy is lent.
+  result: result/borrow-copy.borrowed
+- id: scenario/borrow-copy.borrowing-a-loaned-copy-refuses
+  title: Borrowing a loaned copy refuses
+  given: A copy is on loan.
+  when: The reader borrows the copy.
+  then: The reader is told the copy is on loan.
+  result: result/borrow-copy.copy-unavailable

@@ -94,7 +94,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Flow 'flow/borrow-and-return' has no parent and names neither 'serves' nor 'answers'.", finding.Message);
+        Assert.Equal("Flow 'flow/borrow-and-return' has no parent and names neither 'serves', 'solves' nor 'basedOn'.", finding.Message);
         Assert.Equal("flow/borrow-and-return", finding.Subject);
     }
 
@@ -201,7 +201,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}}"""),
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans"}"""),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser"}"""));
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
@@ -215,7 +215,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans", "pageFrame": {"pattern": "list-page", "option": "search-and-a-state-filter-only"}}"""));
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"route": "/loans"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
@@ -354,7 +354,7 @@ public sealed class ParentCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
-            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "fields": []}"""));
 
         Assert.DoesNotContain("record-placement-invalid", TestModel.Codes(model));
     }
@@ -367,7 +367,7 @@ public sealed class ParentCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("domain-event", "domain-event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
+            TestModel.Record("domain-event", "domain-event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "fields": []}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);

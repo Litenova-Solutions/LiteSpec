@@ -58,8 +58,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"valueType": "integer", "unit": "days"}"""),
-            TestModel.Record("setting", "setting/lending.late-fee", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"valueType": "money"}"""));
+            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"value": {"type": "integer", "unit": "days"}}"""),
+            TestModel.Record("setting", "setting/lending.late-fee", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"value": {"type": "money"}}"""));
 
         Assert.DoesNotContain("setting-unit-missing", TestModel.Codes(model));
     }
@@ -73,7 +73,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"valueType": "integer"}"""));
+            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"value": {"type": "integer"}}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "setting-unit-missing").Message;
         Assert.Contains("setting/lending.loan-period", message, StringComparison.Ordinal);
@@ -88,8 +88,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "events", "loan-borrowed.yaml"), """{"action": "send"}"""),
-            TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "claim-staged.yaml"), """{"action": "receive"}"""));
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "events", "loan-borrowed.yaml"), """{"direction": "send"}"""),
+            TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "claim-staged.yaml"), """{"direction": "receive"}"""));
 
         Assert.DoesNotContain("integration-event-name-invalid", TestModel.Codes(model));
     }
@@ -103,7 +103,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "refund-staged.yaml"), """{"action": "send"}"""));
+            TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "refund-staged.yaml"), """{"direction": "send"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "integration-event-name-invalid").Message;
         Assert.Contains("staged", message, StringComparison.Ordinal);

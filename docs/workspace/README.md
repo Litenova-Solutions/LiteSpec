@@ -1,6 +1,6 @@
 # Overview
 
-The Workspace pages define the shape every LiteSpec repository shares: one monorepo tree, names that state architectural role, the packages each layer from Domain to the API host may take, and one home for each configuration value. Every project applies them, whatever its size, shape, or technology stacks.
+The Workspace pages define the shape every LiteSpec repository shares: one monorepo tree, names that state architectural role, the packages each layer from Domain to the API host takes, and one home for each configuration value. Every project applies them, whatever its size, shape, or technology stacks.
 
 ## How the Pages Fit Together
 

@@ -121,9 +121,10 @@ public sealed class DecideTests
     {
         var page = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
         var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(page)).ToJson())!.AsObject();
-        record["records"]!.AsArray().Add(JsonNode.Parse("""
+        var scenarios = record["scenarios"] as JsonArray ?? new JsonArray();
+        record["scenarios"] = scenarios;
+        scenarios.Add(JsonNode.Parse("""
             {
-              "type": "scenario",
               "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
               "title": "Borrowing an available copy succeeds",
               "given": "A copy sits available on its shelf.",

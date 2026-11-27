@@ -57,8 +57,7 @@ internal static class EnforcementJobChecks
 
             foreach (var effect in EffectEntries(job))
             {
-                foreach (var id in LinkStrings(effect, RecordFields.Runs)
-                    .Concat(LinkStrings(effect, RecordFields.Commands)))
+                foreach (var id in LinkStrings(effect, RecordFields.Runs))
                 {
                     if (model.ById.TryGetValue(Identifiers.BaseId(id), out var useCase)
                         && useCase.Type == RecordTypes.UseCase)

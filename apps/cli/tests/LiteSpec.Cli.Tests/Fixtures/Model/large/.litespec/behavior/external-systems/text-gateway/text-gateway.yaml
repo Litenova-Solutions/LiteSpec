@@ -6,7 +6,7 @@ vendor: Messageline
 represents: actor/text-gateway
 operations:
 - name: send-overdue-notice
-  action: send
+  direction: send
   timeout: PT5S
   rejected: The gateway refuses the notice, which queues for the next run.
   accepted: The gateway accepts the notice and returns a delivery receipt.
@@ -15,7 +15,7 @@ operations:
   response: A delivery receipt.
   cache: none, every notice is sent once
 - name: receive-delivery-receipt
-  action: receive
+  direction: receive
   timeout: PT0S
   rejected: The receipt names no sent notice, so it is dropped.
   accepted: The receipt is recorded against the notice.

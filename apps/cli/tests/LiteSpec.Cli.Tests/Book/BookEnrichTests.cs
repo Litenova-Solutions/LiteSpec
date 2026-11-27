@@ -323,7 +323,7 @@ public sealed class BookEnrichTests
     {
         var screen = Record("screen", "screen/library.search", "Search", "approved", "approved", """{"entryPoint": "entry-point/library-app"}""");
         var entry = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
-        var useCase = Record("use-case", "use-case/lending.list-loans", "List Loans", "approved", "approved", """{"reachedThrough": ["entry-point/library-app"]}""");
+        var useCase = Record("use-case", "use-case/lending.list-loans", "List Loans", "approved", "approved", """{"via": ["entry-point/library-app"]}""");
         var model = NewModel(screen, entry, useCase);
         (model["screens"] as JsonArray)!.Add(new JsonObject
         {
@@ -357,7 +357,7 @@ public sealed class BookEnrichTests
     [Fact]
     public void ImplUsesModelLinesAndNullForImplements()
     {
-        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"reachedThrough": ["entry-point/library-app"]}""");
+        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"via": ["entry-point/library-app"]}""");
         var model = NewModel(useCase);
         (model["code"] as JsonObject)!["handlers"] = new JsonArray(new JsonObject
         {
@@ -538,7 +538,7 @@ public sealed class BookEnrichTests
         Assert.Equal("never", Str(Obj(Obj(details["rule/loan.ever-held"], "fields"), "releasedBy"), "mode"));
     }
 
-    /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, binds, exercises and typed references.</summary>
+    /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, governs, solves, exercises and typed references.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void Wave6LinkShapesFormRecordEdges()
@@ -551,7 +551,7 @@ public sealed class BookEnrichTests
             "Borrow Copy",
             "approved",
             "approved",
-            """{"input": [{"name": "roomId", "type": "id", "of": "aggregate/inventory.room", "required": true}]}""");
+            """{"inputs": [{"name": "roomId", "type": "id", "of": "aggregate/inventory.room", "required": true}]}""");
         var runner = Record("use-case", "use-case/lending.return-copy", "Return Copy", "approved", "approved");
         var due = Record("domain-event", "domain-event/loan.loan-due", "Loan Due", "approved", "approved");
         var reaction = Record(
@@ -575,8 +575,10 @@ public sealed class BookEnrichTests
             "Loan Borrowed",
             "approved",
             "approved",
-            """{"dataschema": "https://example.com/schemas/loan-borrowed.json", "payload": [{"name": "loanId", "type": "id", "of": "aggregate/lending.loan", "required": true}]}""");
-        var rule = Record("rule", "rule/loan.one-loan-per-copy", "One Loan Per Copy", "approved", "approved", """{"binds": ["aggregate/lending.loan", "aggregate/inventory.room"]}""");
+            """{"dataschema": "https://example.com/schemas/loan-borrowed.json", "fields": [{"name": "loanId", "type": "id", "of": "aggregate/lending.loan", "required": true}]}""");
+        var rule = Record("rule", "rule/loan.one-loan-per-copy", "One Loan Per Copy", "approved", "approved", """{"governs": ["aggregate/lending.loan", "aggregate/inventory.room"]}""");
+        var problem = Record("problem", "problem/slow-queues", "Slow Queues", "approved", "approved");
+        var flow = Record("flow", "flow/borrowing", "Borrowing", "approved", "approved", """{"solves": ["problem/slow-queues"]}""");
         var result = Record("result", "result/borrow-copy.borrowed", "Borrowed", "approved", "approved");
         var scenario = Record(
             "scenario",
@@ -587,7 +589,7 @@ public sealed class BookEnrichTests
             """{"result": "result/borrow-copy.borrowed", "exercises": ["rule/loan.one-loan-per-copy"], "given": "A copy sits available.", "when": "The member borrows.", "then": "The loan is active."}""");
         var entryPoint = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
         var runbook = Record("runbook", "runbook/overdue-notice", "Overdue Notice", "approved", "approved");
-        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, rule, result, scenario, entryPoint, runbook));
+        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, rule, result, scenario, entryPoint, runbook, problem, flow));
 
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "domain-event/loan.loan-due", "reaction.triggeredBy"));
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "use-case/lending.return-copy", "reaction.effects.runs"));
@@ -596,10 +598,11 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "runbook/overdue-notice", "reaction.onFailure.runbook"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "notification/lending.due-reminder", "job.effects.sends"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "runbook/overdue-notice", "job.runbook"));
-        Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "aggregate/lending.loan", "rule.binds"));
+        Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "aggregate/lending.loan", "rule.governs"));
+        Assert.True(HasEdge(Arr(details["flow/borrowing"], "out"), "problem/slow-queues", "flow.solves"));
         Assert.True(HasEdge(Arr(details["scenario/borrow-copy.borrowing-succeeds"], "out"), "rule/loan.one-loan-per-copy", "scenario.exercises"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "aggregate/inventory.room", "use-case.input.of"));
-        Assert.True(HasEdge(Arr(details["integration-event/loan-borrowed"], "out"), "aggregate/lending.loan", "integration-event.payload.of"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "aggregate/inventory.room", "use-case.inputs.of"));
+        Assert.True(HasEdge(Arr(details["integration-event/loan-borrowed"], "out"), "aggregate/lending.loan", "integration-event.fields.of"));
         Assert.Equal("https://example.com/schemas/loan-borrowed.json", Str(Obj(details["integration-event/loan-borrowed"], "fields"), "dataschema"));
     }
 
@@ -631,13 +634,13 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details[readModel], "in"), "use-case/lending.return-copy", "use-case.reads"));
     }
 
-    /// <summary>A refusal result joins the meaning its module's refusal set declares and the problem type from the project's base; an unknown code joins no meaning and a success keeps its own.</summary>
+    /// <summary>A refusal result joins the meaning its module's refusal set declares and the problem type from the project's base; an unknown refusal joins no meaning and a success keeps its own.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void RefusalResultJoinsMeaningAndProblemType()
     {
-        var refused = Record("result", "result/borrow-copy.copy-unavailable", "Copy Unavailable", "approved", "approved", """{"outcome": "refusal", "code": "lending.copy-not-available", "sentence": "This copy is on loan to another member."}""");
-        var unknown = Record("result", "result/borrow-copy.card-expired", "Card Expired", "approved", "approved", """{"outcome": "refusal", "code": "lending.card-expired"}""");
+        var refused = Record("result", "result/borrow-copy.copy-unavailable", "Copy Unavailable", "approved", "approved", """{"outcome": "refusal", "refusal": "refusal/lending.copy-not-available", "message": "This copy is on loan to another member."}""");
+        var unknown = Record("result", "result/borrow-copy.card-expired", "Card Expired", "approved", "approved", """{"outcome": "refusal", "refusal": "refusal/lending.card-expired"}""");
         var success = Record("result", "result/borrow-copy.borrowed", "Borrowed", "approved", "approved", """{"outcome": "success", "meaning": "The copy is lent."}""");
         var model = NewModel(refused, unknown, success);
         model["refusals"] = new JsonArray(new JsonObject
@@ -652,7 +655,7 @@ public sealed class BookEnrichTests
         var joined = Obj(details["result/borrow-copy.copy-unavailable"], "fields");
         Assert.Equal("The copy stays unavailable and the member is told it is on loan.", Str(joined, "meaning"));
         Assert.Equal("https://library.example/problems/copy-not-available", Str(joined, "problemType"));
-        Assert.Equal("This copy is on loan to another member.", Str(joined, "sentence"));
+        Assert.Equal("This copy is on loan to another member.", Str(joined, "message"));
 
         var missing = Obj(details["result/borrow-copy.card-expired"], "fields");
         Assert.Null(missing["meaning"]);
@@ -668,7 +671,7 @@ public sealed class BookEnrichTests
     [Fact]
     public void RefusalProblemTypeIsShortWithoutABase()
     {
-        var refused = Record("result", "result/borrow-copy.copy-unavailable", "Copy Unavailable", "approved", "approved", """{"outcome": "refusal", "code": "lending.copy-not-available"}""");
+        var refused = Record("result", "result/borrow-copy.copy-unavailable", "Copy Unavailable", "approved", "approved", """{"outcome": "refusal", "refusal": "refusal/lending.copy-not-available"}""");
         var model = NewModel(refused);
         model["refusals"] = new JsonArray(new JsonObject
         {

@@ -34,17 +34,17 @@ public sealed class ExtensionFieldCheckTests
         Assert.DoesNotContain("field-extension-unselected", TestModel.Codes(model));
     }
 
-    /// <summary>A command without audit passes the audit rule when the audit extension is not selected.</summary>
+    /// <summary>A command without audit reports audit-missing without the audit extension, because audit is core.</summary>
     /// <proves>litespec/core/audit#declare-which-commands-are-audited</proves>
     [Fact]
-    public void CommandWithoutAuditWithoutExtensionPassesMissing()
+    public void CommandWithoutAuditWithoutExtensionReportsMissing()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("audit-missing", TestModel.Codes(model));
+        Assert.Contains("audit-missing", TestModel.Codes(model));
     }
 
     /// <summary>A use case writing audit passes without the audit extension selected, because audit is core.</summary>

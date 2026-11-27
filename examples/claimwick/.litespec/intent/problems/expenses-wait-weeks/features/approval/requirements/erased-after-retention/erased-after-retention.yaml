@@ -4,5 +4,5 @@ title: Personal Data Erased After Retention
 kind: functional
 statement: The personal data of a decided expense is erased after its retention.
 rationale: Past its need, personal data is a risk with no use.
-cites:
+basedOn:
 - constraint/tax-receipt-retention

@@ -253,7 +253,7 @@ public sealed partial class StandardsValidatorTests
         },
         [], [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
-    /// <summary>Two record types sharing a field name with different shapes.</summary>
+    /// <summary>Two record types sharing a contextual field name with different shapes passes while a retired synonym fails.</summary>
     /// <proves>litespec/core/language#read-each-field-name-in-its-record-type</proves>
     [Fact(DisplayName = "two record types sharing a field name with different shapes")]
     public void TwoTypesSharingANameWithDifferentShapes() => Check(
@@ -261,8 +261,8 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
-                "\"betaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"states\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
+                "\"betaPage\":{\"type\":\"object\",\"properties\":{\"states\":{\"type\":\"object\"},\"displayStates\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
         [MaintainerDiagnostics.Codes.FieldNameShape]);
@@ -472,7 +472,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"$defs\":{" +
                 "\"reactionPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"note\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
-                "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
+                "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"governs\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
                 "\"scenarioEntry\":{\"type\":\"object\",\"properties\":{\"exercises\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/ruleId\"}}}}," +
                 "\"aggregateId\":{\"type\":\"string\"}," +
                 "\"ruleId\":{\"type\":\"string\"}," +
@@ -603,14 +603,14 @@ public sealed partial class StandardsValidatorTests
                 "\"required\":[\"type\",\"kind\"]," +
                 "\"properties\":{\"type\":{\"const\":\"domain-event\"}," +
                 "\"kind\":{\"enum\":[\"command\",\"query\"]}," +
-                "\"output\":{\"type\":\"object\"}}," +
+                "\"outputs\":{\"type\":\"object\"}}," +
                 "\"allOf\":[" +
                 "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"query\"}}}," +
-                "\"then\":{\"required\":[\"output\"]}}," +
+                "\"then\":{\"required\":[\"outputs\"]}}," +
                 "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"command\"}}}," +
-                "\"then\":{\"not\":{\"required\":[\"output\"]}}}]}}}");
+                "\"then\":{\"not\":{\"required\":[\"outputs\"]}}}]}}}");
             StandardsFixture.Write(root, "templates/consumer/domain-event.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"domain-event\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
+                "{\"type\":\"domain-event\",\"kind\":\"<command|query>\",\"outputs\":{\"include\":{}}}"));
         },
         []);
 

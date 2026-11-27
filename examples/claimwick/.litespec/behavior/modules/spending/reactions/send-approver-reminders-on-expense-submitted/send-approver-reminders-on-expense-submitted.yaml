@@ -36,14 +36,13 @@ onFailure:
 idempotency:
   mode: key
   key: approval-reminder-{expenseId}
-  keyScope: global
+  scope: global
 reads:
 - aggregate/spending.expense
 - aggregate/spending.reminder-preference
 - setting/spending.approval-reminder-delay
-records:
-- type: scenario
-  id: scenario/send-approver-reminders-on-expense-submitted.waiting-expense-earns-a-reminder
+scenarios:
+- id: scenario/send-approver-reminders-on-expense-submitted.waiting-expense-earns-a-reminder
   title: Waiting Expense Earns a Reminder
   given: An employee submitted an expense that waits past the reminder delay with no decision.
   when: The waiting time ends.
@@ -51,16 +50,14 @@ records:
   outcome: completed
   exercises:
   - rule/spending.suppressed-manager-gets-no-reminder
-- type: scenario
-  id: scenario/send-approver-reminders-on-expense-submitted.decided-expense-is-skipped
+- id: scenario/send-approver-reminders-on-expense-submitted.decided-expense-is-skipped
   title: Decided Expense Is Skipped
   given: A manager decided an expense before the waiting time ended.
   when: The waiting time ends.
   then: No reminder is sent for the expense.
   outcome: skipped
   exercises: []
-- type: scenario
-  id: scenario/send-approver-reminders-on-expense-submitted.suppressed-manager-gets-nothing
+- id: scenario/send-approver-reminders-on-expense-submitted.suppressed-manager-gets-nothing
   title: Suppressed Manager Gets Nothing
   given: An expense waits past the reminder delay and its approver holds a reminder preference.
   when: The waiting time ends.

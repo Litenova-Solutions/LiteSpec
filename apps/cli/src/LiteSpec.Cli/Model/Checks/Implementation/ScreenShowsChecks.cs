@@ -187,7 +187,7 @@ internal static class ScreenShowsChecks
             return names;
         }
 
-        if (useCase.Raw.TryGetProperty(RecordFields.Input, out var inputs) && inputs.ValueKind == JsonValueKind.Array)
+        if (useCase.Raw.TryGetProperty(RecordFields.Inputs, out var inputs) && inputs.ValueKind == JsonValueKind.Array)
         {
             foreach (var input in inputs.EnumerateArray())
             {
@@ -195,7 +195,7 @@ internal static class ScreenShowsChecks
             }
         }
 
-        if (!useCase.Raw.TryGetProperty(RecordFields.Output, out var output))
+        if (!useCase.Raw.TryGetProperty(RecordFields.Outputs, out var output))
         {
             return names;
         }
@@ -239,9 +239,9 @@ internal static class ScreenShowsChecks
         }
 
         if (field.ValueKind == JsonValueKind.Object
-            && field.TryGetProperty(RecordFields.RowShape, out var rows)
-            && rows.ValueKind == JsonValueKind.Object
-            && rows.TryGetProperty(RecordFields.Fields, out var leaves)
+            && field.TryGetProperty(RecordFields.Items, out var items)
+            && items.ValueKind == JsonValueKind.Object
+            && items.TryGetProperty(RecordFields.Fields, out var leaves)
             && leaves.ValueKind == JsonValueKind.Array)
         {
             foreach (var leaf in leaves.EnumerateArray())

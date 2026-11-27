@@ -1,0 +1,10 @@
+type: rule
+id: rule/loan.late-fee
+title: Late fee
+kind: calculation
+statement: A late fee is 10 cents per day past due.
+governs:
+- aggregate/lending.loan
+basedOn: []
+fulfills:
+- requirement/borrowing.loan-period-days

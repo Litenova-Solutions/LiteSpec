@@ -527,11 +527,9 @@ public sealed class OperationsCheckTests
           "response": "Each listing answers from the index.",
           "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
           "check": "list-loans-load",
-          "cites": [
-            "problem/slow-desk-loans"
-          ],
           "basedOn": [
-            "decision/0003-term-start-listing"
+            "decision/0003-term-start-listing",
+            "problem/slow-desk-loans"
           ]
         }
         """;

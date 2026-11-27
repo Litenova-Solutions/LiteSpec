@@ -2,35 +2,33 @@ type: reaction
 id: reaction/<module>.<name>
 title: <Title in Title Case>
 terms:
-- <term id, or remove this line>
+  - <term id, or remove this line>
 summary: <what answers what, and what it does in response, or remove this line>
 triggeredBy:
-- domain-event/<aggregate>.<name>
+  - domain-event/<aggregate>.<name>
 skippedWhen: <when the reaction stands down, or remove this line>
 compensates: use-case/<module>.<name, or remove this line>
 effects:
-- sends: notification/<module>.<name>
-  timing: <inline|after-commit|async, or remove this line>
-  onExhausted: <what happens after every retry, or remove this line>
-  before: <what runs before the effect, or remove this line>
-  forEach: <what the effect repeats over, or remove this line>
-# An effect runs a use case with runs, sends another module's public command with commands,
-# sends its public query with queries, or calls an outside operation with calls, instead of sends.
-- commands: use-case/<module>.<name>
-  timing: <inline|after-commit|async, or remove this line>
-- queries: use-case/<module>.<name>
-  timing: <inline|after-commit|async, or remove this line>
+  - sends: notification/<module>.<name>
+    timing: <inline|after-commit|async, or remove this line>
+    onExhausted: <what happens after every retry, or remove this line>
+    before: <what runs before the effect, or remove this line>
+    forEach: <what the effect repeats over, or remove this line>
+  - runs: use-case/<module>.<name>
+    timing: <inline|after-commit|async, or remove this line>
+  - queries: use-case/<module>.<name>
+    timing: <inline|after-commit|async, or remove this line>
 outcomes:
-- name: completed
-  meaning: <what completed means>
-- name: skipped
-  meaning: <what skipped means>
-- name: failed
-  meaning: <what failed means>
+  - name: completed
+    meaning: <what completed means>
+  - name: skipped
+    meaning: <what skipped means>
+  - name: failed
+    meaning: <what failed means>
 fulfills:
-- requirement/<feature>.<name, or remove this line>
+  - requirement/<feature>.<name, or remove this line>
 serves:
-- step/<flow>.<act>
+  - step/<flow>.<act>
 onFailure:
   mode: <retry|skip-and-log|discard>
   retry:
@@ -47,27 +45,25 @@ onFailure:
 idempotency:
   mode: <key|state|none>
   key: <key template, such as reminder-{expenseId}, or remove this line>
-  keyScope: <tenant|account|login|global, or remove this line>
+  scope: <tenant|account|login|global, or remove this line>
   replay: <returns-first-result|refuses|acts-again, or remove this line>
   recognizedBy: <the state that shows a repeat, or remove this line>
   reason: <why this reaction needs no idempotency, or remove this line>
 reads:
-- <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
-# settles names the visible states of the aggregate the run use case writes, and is removed when the reaction runs no use case writing an aggregate.
-settles:
+  - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
+tracksState:
   aggregate: aggregate/<module>.<name>
   pending: <state the run leaves>
   done: <state the run enters>
   refused: <state a terminal refusal enters, or remove this line when another attempt returns the run to pending>
-records:
-- type: scenario
-  id: scenario/<reaction>.<name>
-  title: <Title in Title Case>
-  terms:
-  - <term id, or remove this line>
-  given: <the situation>
-  when: <the trigger fires>
-  then: <the expected effect>
-  outcome: completed
-  exercises:
-  - rule/<home>.<name, or remove this line>
+scenarios:
+  - id: scenario/<reaction>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the trigger fires>
+    then: <the expected effect>
+    outcome: completed
+    exercises:
+      - rule/<home>.<name, or remove this line>

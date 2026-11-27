@@ -208,7 +208,7 @@ internal static class IntentChecks
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement
                      && record.Field(RecordFields.Kind) == "quality"))
         {
-            foreach (var id in requirement.Ids(RecordFields.Cites))
+            foreach (var id in requirement.Ids(RecordFields.BasedOn))
             {
                 moved.Add(id);
             }

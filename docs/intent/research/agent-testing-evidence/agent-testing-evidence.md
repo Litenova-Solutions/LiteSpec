@@ -18,4 +18,4 @@ The three papers are the only sources. Each was read on 10 November 2026 from it
 
 `hora-robbes-over-mocked` covers mock use and test-file changes in commits made by coding agents and by non-agents. `zhao-misguidance` covers misguided and bug-finding tests written from buggy code in LLMs. `impossiblebench` covers shortcuts taken on tests that conflict with the specification.
 
-The record names no disagreement between its sources. It cannot confirm the share of misguided tests that pass on the fixed version, and it cannot confirm a shortcut rate for agents.
+The record lists no disagreement between its sources. It cannot confirm the share of misguided tests that pass on the fixed version, and it cannot confirm a shortcut rate for agents.

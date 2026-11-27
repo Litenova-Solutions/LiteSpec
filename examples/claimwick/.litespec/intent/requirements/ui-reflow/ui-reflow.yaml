@@ -10,5 +10,5 @@ response: Every route shows its content with no clipping
 measure: Routes showing clipped content at 320 CSS pixels
 target: Zero routes
 check: route-suite
-cites:
+basedOn:
 - goal/decided-in-days

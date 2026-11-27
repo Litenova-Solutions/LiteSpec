@@ -40,7 +40,7 @@ static class UseCaseQueries
     public static bool HasValidatedInput(Record useCase)
     {
         if (useCase.Raw.ValueKind != System.Text.Json.JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Input, out var input)
+            || !useCase.Raw.TryGetProperty(RecordFields.Inputs, out var input)
             || input.ValueKind != System.Text.Json.JsonValueKind.Array)
         {
             return false;

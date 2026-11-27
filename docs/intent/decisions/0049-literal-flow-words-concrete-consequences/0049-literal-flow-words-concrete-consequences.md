@@ -24,7 +24,7 @@ LiteSpec compared 3 options for how far the replacement reaches. The table sets 
 
 An actor takes a flow, and the Links table reads is taken by and takes. The verb replaces walk everywhere it names a flow. Where walk names a plain action, such as walking a release build, the sentence names the literal act instead.
 
-The opening of each record and explanation file states the consequence at stake and for whom, with a concrete consequence in place of a generic reason. `litespec/core/writing#use-literal-words` gives the weak form "It matters because the figures must be correct" beside the strong form "A wrong box amount means a correction return, and a late return means a fine".
+The opening of each record and explanation file states the consequence at stake and for whom, with a concrete consequence in place of a generic reason. `litespec/core/writing#write-machine-read-fields-in-present-tense` gives the weak form "It matters because the figures must be correct" beside the strong form "A wrong box amount means a correction return, and a late return means a fine".
 
 Documentation pages keep why it matters where it describes a documentation page's own Intent section, since that guidance is for LiteSpec pages and not for records. Decision and research records keep the wording they were written with.
 

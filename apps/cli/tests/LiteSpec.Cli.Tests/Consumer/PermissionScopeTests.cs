@@ -73,7 +73,7 @@ public sealed class PermissionScopeTests
     }
 
     static JsonObject FirstPermission(JsonObject meta) =>
-        (JsonObject)((JsonArray)meta["records"]!)[0]!;
+        (JsonObject)((JsonArray)meta["permissions"]!)[0]!;
 
     /// <summary>Asserts a rejected record: exit 1 with at least one schema problem.</summary>
     /// <param name="result">The completed model check run.</param>

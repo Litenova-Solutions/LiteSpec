@@ -96,7 +96,7 @@ public sealed class TestedAssertionTests
           "kind": "quality",
           "statement": "Borrowing answers fast.",
           "rationale": "Readers leave when borrowing is slow.",
-          "cites": ["goal/more-borrowing"]
+          "basedOn": ["goal/more-borrowing"]
         }
         """;
 
