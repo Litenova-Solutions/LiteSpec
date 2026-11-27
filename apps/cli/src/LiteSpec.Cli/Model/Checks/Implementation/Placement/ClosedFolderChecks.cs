@@ -26,12 +26,6 @@ internal static partial class ClosedFolderChecks
         "Domain", "Values", "Auditing",
     };
 
-    /// <summary>Grouping folders under a Platform CountryPacks folder: one folder per pack sub-area.</summary>
-    static readonly HashSet<string> CountryPackAreas = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "Vat", "Charts", "Banking", "Filing", "Documents", "Country", "Retention",
-    };
-
     /// <summary>Grouping folders under the shared UI package components folder: one folder per component role.</summary>
     static readonly HashSet<string> UiComponentGroups = new(StringComparer.OrdinalIgnoreCase)
     {

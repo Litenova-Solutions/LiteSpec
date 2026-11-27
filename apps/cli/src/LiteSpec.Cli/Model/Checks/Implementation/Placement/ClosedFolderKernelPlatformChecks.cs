@@ -50,7 +50,7 @@ internal static partial class ClosedFolderChecks
 
             if (PlatformFolders.Contains(name))
             {
-                CheckCapabilityLevel(config, child, name, findings);
+                CheckCapabilityLevel(config, child, findings);
                 continue;
             }
 
@@ -68,34 +68,20 @@ internal static partial class ClosedFolderChecks
         }
     }
 
-    /// <summary>Reports every folder under one Platform capability outside its sub-areas, and the capability past 20 files with none. CountryPacks takes one folder per named pack area; any other capability groups into one folder per sub-area of its own naming.</summary>
+    /// <summary>Reports the Platform capability past 20 files with no sub-area folder. Every capability groups into one folder per sub-area of its own naming.</summary>
     /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
     /// <param name="capability">The absolute capability folder under the Platform root.</param>
-    /// <param name="name">The capability folder name as written on disk.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckCapabilityLevel(ConsumerConfig config, string capability, string name, List<Finding> findings)
+    private static void CheckCapabilityLevel(ConsumerConfig config, string capability, List<Finding> findings)
     {
         var children = ChildFolders(capability);
-        var packs = string.Equals(name, "CountryPacks", StringComparison.OrdinalIgnoreCase);
 
         foreach (var child in children)
         {
-            var area = Path.GetFileName(child);
-
-            if (packs && !CountryPackAreas.Contains(area))
-            {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no CountryPacks area; CountryPacks holds Vat/, Charts/, Banking/, Filing/, Documents/, Country/ and Retention/.", child, 1, null));
-                continue;
-            }
-
             CheckUseCaseFilesOnly(config, child, "grouping", findings);
         }
 
-        var remedy = packs
-            ? "group them into Vat/, Charts/, Banking/, Filing/ or Documents/"
-            : "group them into one folder per sub-area";
-
-        CheckUngrouped(config, capability, children, _ => true, remedy, findings, [".cs"]);
+        CheckUngrouped(config, capability, children, _ => true, "group them into one folder per sub-area", findings, [".cs"]);
     }
 
     /// <summary>Reports every folder under the Knowledge root that is neither a knowledge model nor a set of a model the folder holds, and every file directly at the root: the root holds one model project per area and one set project per variant.</summary>

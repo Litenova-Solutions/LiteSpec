@@ -625,7 +625,9 @@ One check owns this comparison, so each drift is reported once.
 
 Authority is the order that settles conflicts between records. Git is the decision record: a record in the repository is decided, and a record no longer wanted is deleted.
 
-Intent outranks Behavior. A lower record leaves a higher one standing: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. A contradiction is reported and resolved by updating or removing the inconsistent records. Inside one record, the stronger line wins over the weaker one. Several decisions decide one record at times: a retention decision and a rounding decision both decide `aggregate/spending.expense`. A decision that replaces another names it in `supersedes`; a superseded decision stays in the repository as context, and the book shows it as superseded, computed from the inverse link. Every other link is trace: it explains why a record exists, with no conflict role.
+Intent outranks Behavior. A lower record leaves a higher one standing: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. A contradiction is reported and resolved by updating or removing the inconsistent records. Inside one record, the stronger line wins over the weaker one.
+
+Several decisions decide one record at times: a retention decision and a rounding decision both decide `aggregate/spending.expense`. A decision that replaces another names it in `supersedes`; a superseded decision stays in the repository as context, and the book shows it as superseded, computed from the inverse link. Every other link is trace: it explains why a record exists, with no conflict role.
 
 A decision explains a choice. Goals, problems, features, flows, actors, research, and prose carry no authority, so they leave other records standing.
 
@@ -1033,7 +1035,9 @@ The reason a record exists can change while its content stays the same, so a lin
 
 **Statement:** A record MUST state the links and facts a reader needs to read it alone, with every stated fact the model can also derive held by a check that reports a difference.
 
-**Rationale:** An isolated file reads whole by eye and by tool, without opening the files it links to. The copy stays honest because a check compares it with its source on every run: `governs` against the links naming the rule, `via` and `access` against the entry points and permissions the use case declares, a field `classification` against its data class, a data class `fields` list against the fields naming the class, and a screen `serves` against the steps its use cases serve. Judgments stay computed and are never typed: completion, scope, proof status, counts, and censuses. Settled by [decision/0070-keep-one-source-for-each-fact](decision/0070-keep-one-source-for-each-fact).
+**Rationale:** An isolated file reads whole by eye and by tool, without opening the files it links to. The copy stays honest because a check compares it with its source on every run: `governs` against the links naming the rule, `via` and `access` against the entry points and permissions the use case declares, a field `classification` against its data class, a data class `fields` list against the fields naming the class, and a screen `serves` against the steps its use cases serve.
+
+Judgments stay computed and are never typed: completion, scope, proof status, counts, and censuses. Settled by [decision/0070-keep-one-source-for-each-fact](decision/0070-keep-one-source-for-each-fact).
 
 **Example:** The Claimwick submit-expense use case declares its entry points in `via`, and a check reports an entry point the explanation names that `via` lacks.
 

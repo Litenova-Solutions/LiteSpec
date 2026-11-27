@@ -48,9 +48,13 @@ The audit codes are:
 | `page-request-failed` | A fetch or XHR request the page makes to its own origin answers 5xx or fails at the network level while the page loads and settles. | Fix the endpoint the finding names, or catch the failure and show its problem state. |
 | `page-error-shown` | A visible `role="alert"` element holds text once the page settles. | Fix the failure the alert reports. |
 
-The primary action is read with `--primary-selector`, which defaults to `[data-variant=primary]`. The command prints one line per finding, then the finding count and the report path. `audit.json` in the output folder holds the base URL, the routes, the widths, the schemes, every finding, and the screenshot file names. Screenshots follow the capture pattern `{route}--{scheme}--{width}.png`, with the route slugged and the root route named `home`, so `expenses-new--light--390.png` shows `/expenses/new` at phone width in the light scheme.
+The primary action is read with `--primary-selector`, which defaults to `[data-variant=primary]`. The command prints one line per finding, then the finding count and the report path.
 
-The audit also writes the route-suite check result beside the report: `route-suite.json` under the project's `paths.checkResults` folder (`.litespec/proof/checks/` by default), holding `check`, `passed`, and `value` as `schemas/check-result.schema.yaml` states. `passed` is true when the audit reports no findings across every route it visited; `--fail-on none` keeps the exit code zero but still records `passed` false when findings exist. The model check reads the file like any other check result, so a passing audit run measures every requirement naming `route-suite`.
+`audit.json` in the output folder holds the base URL, the routes, the widths, the schemes, every finding, and the screenshot file names. Screenshots follow the capture pattern `{route}--{scheme}--{width}.png`, with the route slugged and the root route named `home`, so `expenses-new--light--390.png` shows `/expenses/new` at phone width in the light scheme.
+
+The audit also writes the route-suite check result beside the report: `route-suite.json` under the project's `paths.checkResults` folder (`.litespec/proof/checks/` by default), holding `check`, `passed`, and `value` as `schemas/check-result.schema.yaml` states.
+
+`passed` is true when the audit reports no findings across every route it visited; `--fail-on none` keeps the exit code zero but still records `passed` false when findings exist. The model check reads the file like any other check result, so a passing audit run measures every requirement naming `route-suite`.
 
 ## Arguments
 
@@ -102,4 +106,6 @@ litespec ui audit --root ../consumer --base-url http://localhost:4173 --storage-
 
 ## Underneath
 
-The command finds the browser as Chrome, then Edge, then Chromium, or takes the `--browser` executable, reporting when none is available. Install Google Chrome, Microsoft Edge, or Chromium, or pass `--browser <path>`. On Windows the search covers Program Files and LocalAppData, on macOS /Applications, and on Linux the PATH. Each page loads in a fresh target with its viewport and emulated scheme until the load event plus a quiet network, the embedded audit script reads the computed styles and text back as findings, and a full-page screenshot lands in the output folder. The report merges identical findings across widths and writes `audit.json` beside the screenshots. The command then writes `route-suite.json` into `paths.checkResults` with the run outcome. Nothing beneath this command is separately runnable.
+The command finds the browser as Chrome, then Edge, then Chromium, or takes the `--browser` executable, reporting when none is available. Install Google Chrome, Microsoft Edge, or Chromium, or pass `--browser <path>`. On Windows the search covers Program Files and LocalAppData, on macOS /Applications, and on Linux the PATH.
+
+Each page loads in a fresh target with its viewport and emulated scheme until the load event plus a quiet network, the embedded audit script reads the computed styles and text back as findings, and a full-page screenshot lands in the output folder. The report merges identical findings across widths and writes `audit.json` beside the screenshots. The command then writes `route-suite.json` into `paths.checkResults` with the run outcome. Nothing beneath this command is separately runnable.

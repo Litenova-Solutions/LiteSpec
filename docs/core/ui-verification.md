@@ -54,7 +54,9 @@ The owner gives plain visual feedback on the five golden screens ("too cramped",
 
 ### How Requirements Name Their Measures
 
-The six UI quality requirements init writes name two checks. The four contrast requirements name `token-limits`, which the model check runs itself: a requirement naming `token-limits` counts as measured when the token limit checks of the same run report no finding, and the token findings carry the failure when they report one, so no result file is needed. The two layout requirements name `route-suite`, which the rendered-page audit measures: each `litespec ui audit` run writes `route-suite.json` under `paths.checkResults`, and a passing run measures every requirement naming `route-suite`.
+The six UI quality requirements init writes name two checks. The four contrast requirements name `token-limits`, which the model check runs itself: a requirement naming `token-limits` counts as measured when the token limit checks of the same run report no finding, and the token findings carry the failure when they report one, so no result file is needed.
+
+The two layout requirements name `route-suite`, which the rendered-page audit measures: each `litespec ui audit` run writes `route-suite.json` under `paths.checkResults`, and a passing run measures every requirement naming `route-suite`.
 
 Claimwick's text contrast requirement names `token-limits` and stays measured while the token file meets every limit, and its reflow requirement names `route-suite` and stays measured while the latest audit reports no findings.
 

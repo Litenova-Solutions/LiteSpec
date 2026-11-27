@@ -2,7 +2,9 @@
 
 Turn an empty folder into a running consumer with the Health sample: start from the runnable starter, build and boot it, check the records and the generated files, run the scenario probes, and add the next use case with the scaffold command. A consumer is a project built against the LiteSpec standard. Follow these steps once, when you create the consumer.
 
-A use case is what the product does for one actor, a person or system using it. The model check is the tool that confirms the records, code, and tests agree. Every step runs on the same stack pair, the `dotnet` backend with a Svelte frontend, so every reader sees the same result. Each step names the standard it satisfies or the command page that states it; the tutorial adds no rule of its own.
+A use case is what the product does for one actor, a person or system using it. The model check is the tool that confirms the records, code, and tests agree. Every step runs on the same stack pair, the `dotnet` backend with a Svelte frontend, so every reader sees the same result.
+
+Each step names the standard it satisfies or the command page that states it; the tutorial adds no rule of its own.
 
 ## Prerequisites
 

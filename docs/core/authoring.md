@@ -699,7 +699,9 @@ The tools check each schema with LiteSpec's own evaluator, so running them needs
 
 **Statement:** The changelog for each LiteSpec release MUST list the provision identifiers the release adds, removes, and renames, generated from the provision index at the previous tag and the provision index of the release.
 
-**Rationale:** A consumer cites provision identifiers in code marks, records, and waivers. A release that removes or renames an identifier without naming it leaves every citation pointing at nothing, with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. The list derives from the two provision indexes, so a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
+**Rationale:** A consumer cites provision identifiers in code marks, records, and waivers. A release that removes or renames an identifier without naming it leaves every citation pointing at nothing, with no way to find what changed.
+
+The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. The list derives from the two provision indexes, so a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
 
 **Example:** `litespec-maintain changelog --from v3.0.0` writes the list into the changelog entry for a release, with `litespec/core/scope#claim-the-record-layers-the-project-uses` under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry.
 

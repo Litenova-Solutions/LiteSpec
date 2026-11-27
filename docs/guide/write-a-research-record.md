@@ -2,7 +2,9 @@
 
 Write one research record as a YAML file `<name>.yaml` and an explanation file `<name>.md`, answering one question with the sources that bear on it.
 
-A research record states what those sources establish and what they leave open, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source's statement from your inference. For example, the Claimwick approval-time study below answers how fast small companies decide expenses, and each step builds that record.
+A research record states what those sources establish and what they leave open, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source's statement from your inference.
+
+For example, the Claimwick approval-time study below answers how fast small companies decide expenses, and each step builds that record.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 

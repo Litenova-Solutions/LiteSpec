@@ -110,24 +110,37 @@ public sealed class FolderGroupingCheckTests
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
-        WriteSource(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CountryPacks", "Vat", "VatRates.cs"), "namespace Library.Platform.CountryPacks.Vat;\n\npublic sealed class VatRates\n{\n}\n");
+        WriteSource(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CountryPacks", "Tax", "TaxRates.cs"), "namespace Library.Platform.CountryPacks.Tax;\n\npublic sealed class TaxRates\n{\n}\n");
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>Platform Country Packs Area Outside Set Reports Drift.</summary>
+    /// <summary>Platform Country Packs Past Twenty Files Reports Ungrouped.</summary>
     /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void PlatformCountryPacksAreaOutsideSetReportsDrift()
+    public void PlatformCountryPacksPastTwentyFilesReportsUngrouped()
     {
         using var temp = TestCli.Temp("grouping");
         var model = GroupingModel(temp.Path);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CountryPacks", "Tax"));
+        WriteFiles(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CountryPacks"), "PackPart", 21, ".cs");
 
         var finding = Assert.Single(Run(model));
 
-        Assert.Equal("code-placement-drift", finding.Code);
-        Assert.Contains("Vat/, Charts/, Banking/, Filing/, Documents/, Country/ and Retention/", finding.Message, StringComparison.Ordinal);
+        Assert.Equal("folder-ungrouped", finding.Code);
+        Assert.Contains("one folder per sub-area", finding.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Platform Country Packs Past Twenty Files With Subarea Passes.</summary>
+    /// <proves>litespec/packs/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
+    [Fact]
+    public void PlatformCountryPacksPastTwentyFilesWithSubareaPasses()
+    {
+        using var temp = TestCli.Temp("grouping");
+        var model = GroupingModel(temp.Path);
+        WriteFiles(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CountryPacks"), "PackPart", 21, ".cs");
+        WriteSource(Path.Combine(temp.Path, "apps", "api", "src", "Library.Platform", "CountryPacks", "Tax", "TaxRates.cs"), "namespace Library.Platform.CountryPacks.Tax;\n\npublic sealed class TaxRates\n{\n}\n");
+
+        Assert.Empty(Run(model));
     }
 
     /// <summary>Platform Capability Past Twenty Files Reports Ungrouped.</summary>

@@ -1,6 +1,8 @@
 # Add a Stack or an Extension
 
-Add a stack or an extension to the LiteSpec release: write its pages, name them in `litespec.manifest.yaml`, and run the maintainer checks. A stack carries the rules for a backend or frontend technology, and an extension carries optional rules a project selects on top of its stacks. This guide is written for a LiteSpec maintainer, and it adds no rule of its own. For example, adding a new frontend stack follows the stack section below from its `stack.md` to a green validate run.
+Add a stack or an extension to the LiteSpec release: write its pages, name them in `litespec.manifest.yaml`, and run the maintainer checks. A stack carries the rules for a backend or frontend technology, and an extension carries optional rules a project selects on top of its stacks. This guide is written for a LiteSpec maintainer, and it adds no rule of its own.
+
+For example, adding a new frontend stack follows the stack section below from its `stack.md` to a green validate run.
 
 ## Prerequisites
 

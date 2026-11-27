@@ -2,7 +2,9 @@
 
 Write one feature as a record file, one requirement record per commitment, and an explanation file `<feature>.md`, so a developer can tell what to build and a tester can tell what passes.
 
-A feature is one offering that answers one problem and advances goals. It sits in the `features/` folder of the problem it answers: one record file at `.litespec/intent/problems/<problem>/features/<name>/<name>.yaml` states the offering and its links, and each commitment the feature makes is a requirement record in its own folder under the feature's `requirements/` folder. For example, the Claimwick approval feature answers the expenses-wait-weeks problem, and this guide builds its records step by step.
+A feature is one offering that answers one problem and advances goals. It sits in the `features/` folder of the problem it answers: one record file at `.litespec/intent/problems/<problem>/features/<name>/<name>.yaml` states the offering and its links, and each commitment the feature makes is a requirement record in its own folder under the feature's `requirements/` folder.
+
+For example, the Claimwick approval feature answers the expenses-wait-weeks problem, and this guide builds its records step by step.
 
 The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and this guide adds no rule of its own.
 

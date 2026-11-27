@@ -2,7 +2,9 @@
 
 Write one flow as a record file `<name>.yaml` and an explanation file `<name>.md`, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block.
 
-A flow states the path one actor takes toward one goal or one problem, from the state in which it starts to the state in which it ends, one step at a time. For example, the Claimwick submit-and-reimburse flow below follows an employee from an unpaid work cost to a paid reimbursement.
+A flow states the path one actor takes toward one goal or one problem, from the state in which it starts to the state in which it ends, one step at a time.
+
+For example, the Claimwick submit-and-reimburse flow below follows an employee from an unpaid work cost to a paid reimbursement.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 

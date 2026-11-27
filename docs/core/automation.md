@@ -287,7 +287,9 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Statement:** Each reaction and each job whose outcome a reader waits on MUST name in `settles` the aggregate it writes with its pending state and its done state, and its refused state except where another attempt returns the run to pending.
 
-**Rationale:** A result produced after the commit arrives later: the command commits, and a reaction or job settles the outcome afterwards. A reader meeting the record meanwhile sees neither done nor refused, and reads the absence as whichever ending fits the screen: a payout still travelling reads as refused, or a refused payout reads as still travelling. Naming the pending state the run leaves, the done state it enters, and the refused state a terminal refusal enters keeps the three endings apart on the written aggregate. Where every failure earns another attempt, the run returns to pending instead, and the declared retry states that no terminal refusal exists.
+**Rationale:** A result produced after the commit arrives later: the command commits, and a reaction or job settles the outcome afterwards. A reader meeting the record meanwhile sees neither done nor refused, and reads the absence as whichever ending fits the screen.
+
+Naming the pending state the run leaves, the done state it enters, and the refused state a terminal refusal enters keeps the three endings apart on the written aggregate. Where every failure earns another attempt, the run returns to pending instead, and the declared retry states that no terminal refusal exists.
 
 **Example:** Claimwick's erase job runs the erase-personal-data command over decided expenses past retention. It settles the expense from pending Reimbursed to done Erased, and lists no refused state: its retry returns each failed expense to Reimbursed for the next nightly run.
 
@@ -303,7 +305,9 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Statement:** Each read model MUST name in `keyedBy` an aggregate of another module and, on each field, name in `from` the module event or integration event and the published field the field comes from.
 
-**Rationale:** A read model is a copy, and a copy with no stated source drifts: nobody tells which event fills a field, so a renamed published field breaks the read model without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target. A read model keyed by its own module's aggregate copies state the module already reads directly. A use case names the read model in `reads`, and a read model no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model) and [decision/0084-give-read-models-their-semantics](decision/0084-give-read-models-their-semantics).
+**Rationale:** A read model is a copy, and a copy with no stated source drifts: nobody tells which event fills a field, so a renamed published field breaks the read model without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target.
+
+A read model keyed by its own module's aggregate copies state the module already reads directly. A use case names the read model in `reads`, and a read model no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-read-model](decision/0065-read-another-module-through-a-read-model) and [decision/0084-give-read-models-their-semantics](decision/0084-give-read-models-their-semantics).
 
 **Example:** `read-model/reporting.reimbursed-expense` is keyed by `aggregate/spending.expense`, and its `amount` field comes from `module-event/spending.expense-reimbursed#amount`.
 
@@ -383,7 +387,9 @@ A job names its runbook in `runbook`, and a reaction or job names its recovery i
 
 **Statement:** A reaction that undoes a committed step of a multi-step process MUST name the undone use case in `compensates`, run a use case other than the one it names, and answer an event the undone use case does not raise.
 
-**Rationale:** A multi-step process commits each step before the next runs, so a later failure rolls the earlier steps back nowhere, and each committed step needs an undo running only where a later step fails. Without the link, a reader sees a reaction running an undoing command and tells poorly which committed step it reverses. Running the named use case again redoes the step instead of undoing it, and answering an event the undone step raises undoes every success. Naming the undone step in `compensates` states the undo beside the reaction, with its own trigger and failure handling.
+**Rationale:** A multi-step process commits each step before the next runs, so a later failure rolls the earlier steps back nowhere, and each committed step needs an undo running only where a later step fails. Without the link, a reader sees a reaction running an undoing command and tells poorly which committed step it reverses. Running the named use case again redoes the step instead of undoing it, and answering an event the undone step raises undoes every success.
+
+Naming the undone step in `compensates` states the undo beside the reaction, with its own trigger and failure handling.
 
 **Example:** The library reserves a copy with `use-case/lending.reserve-copy`, which commits the reservation. Where the later charge fails, `use-case/lending.record-charge-failure` raises `domain-event/charge.charge-failed`. The reaction `reaction/lending.release-copy-on-charge-failed` answers that event, runs `use-case/lending.release-copy`, and carries `compensates: use-case/lending.reserve-copy`, so a reader sees which committed step the release undoes.
 

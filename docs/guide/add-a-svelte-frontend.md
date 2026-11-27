@@ -1,6 +1,8 @@
 # Add a Svelte Frontend
 
-Add a Svelte frontend to a consumer whose backend use cases already run. You add the stack entry, the application tree with its mirrored paths, the floorplan-composed routes, and the pinned baseline. The frontend keeps the same shape as the frontend in the tutorial: one web application tree, with routes that mirror the backend use case paths they serve. Each step names the standard it satisfies, and this guide adds no rule of its own.
+Add a Svelte frontend to a consumer whose backend use cases already run. You add the stack entry, the application tree with its mirrored paths, the floorplan-composed routes, and the pinned baseline. The frontend keeps the same shape as the frontend in the tutorial: one web application tree, with routes that mirror the backend use case paths they serve.
+
+Each step names the standard it satisfies, and this guide adds no rule of its own.
 
 ## Prerequisites
 

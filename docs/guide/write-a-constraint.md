@@ -1,6 +1,8 @@
 # Write a Constraint
 
-Write one constraint record, `<name>.yaml`, and its explanation file `<name>.md`, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect. A constraint states one outside rule, by law or by contract, that the product respects, and it says which product choices the rule takes away. For example, the Claimwick tax receipt rule below shows each step on one running case.
+Write one constraint record, `<name>.yaml`, and its explanation file `<name>.md`, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect. A constraint states one outside rule, by law or by contract, that the product respects, and it says which product choices the rule takes away.
+
+For example, the Claimwick tax receipt rule below shows each step on one running case.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 

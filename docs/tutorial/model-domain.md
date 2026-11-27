@@ -1,6 +1,8 @@
 # Model a Behavior Module
 
-Specify one behavior module from Intent, working through one kind of record at a time. A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, reactions, jobs, read models, notifications, settings, domain events, module events, and permissions into record files. The worked example is the spending module of the Claimwick product.
+Specify one behavior module from Intent, working through one kind of record at a time. A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, reactions, jobs, read models, notifications, settings, domain events, module events, and permissions into record files.
+
+The worked example is the spending module of the Claimwick product.
 
 Intent records say what the product promises; Behavior records say how the product keeps those promises. The model builder, the tool that checks the project, reads these record files. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
 

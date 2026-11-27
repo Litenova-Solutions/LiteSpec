@@ -183,10 +183,6 @@ fieldRenames:
   to: writes
   recordTypes: [use-case]
   note: One verb for the aggregates a command writes.
-- from: direction
-  to: action
-  recordTypes: [integration-event, external-system]
-  note: The operation field reads send or receive.
 findingCodes:
   renamed:
   - from: generated-drift
@@ -224,9 +220,32 @@ findingCodes:
   - compensation-target-invalid
   - compensation-trigger-invalid
   - event-field-uncarried
+  - audit-missing
+  - tenant-reason-missing
+  - refusal-catalog-drift
+  - policy-undeclared
+  - frontend-refusal-unknown
+  - frontend-permission-unknown
+  - openapi-contract-drift
+  - screen-command-limit
+  - screen-section-limit
+  - route-line-limit
+  - mcp-tool-unmounted
+  - probe-failed
+  - probe-unreachable
+  - access-limit-failed
+  - idempotency-failed
+  - input-handling-failed
+  - input-validation-failed
+  - snapshot-read-failed
+  - snapshot-missing
+  - production-readiness-failed
+  - path-failed
+  - stub-adapter-shown
+  - code-unimplemented
 analyzers:
   removed: [LS2017]
-  added: [LS2022, LS2025, LS2028]
+  added: [LS2022, LS2025, LS2028, LS2041]
   changed: [LS2007, LS2014, LS2019, LS2021]
 commandsRetired:
 - from: litespec generate

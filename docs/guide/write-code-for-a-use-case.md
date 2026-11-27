@@ -2,7 +2,9 @@
 
 Place each code element of a use case in its folder and give it the mark its record needs, following the table below, so you can add a use case without searching the stack pages for each placement rule.
 
-A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. For example, the Claimwick submit-expense use case spreads its command, handler, validator, result, endpoint, and tests across `Application/`, `WebApi/`, and `Domain/`, and each element points back at the same use-case record.
+A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer.
+
+For example, the Claimwick submit-expense use case spreads its command, handler, validator, result, endpoint, and tests across `Application/`, `WebApi/`, and `Domain/`, and each element points back at the same use-case record.
 
 ## Prerequisites
 

@@ -64,7 +64,7 @@ Sources: `litespec/core/maintaining#keep-consumers-out-of-litespec`, `litespec/c
 | Repository | You change | You run |
 |:---|:---|:---|
 | LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, `litespec-maintain changelog`, `litespec-maintain publish-local`, the tests |
-| A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec model check`, `dotnet litespec book`, `dotnet litespec rules`, and the gates its CI selects |
+| A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `litespec model check`, `litespec verify`, `litespec rules`, `litespec book`, and the gates its CI selects |
 
 In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate`, `provisions`, `changelog` and `publish-local`. Use `publish-local` to hand a consumer the current branch's CLI and analyzers through a local feed. With `--from-ci <run>`, it pins the consumer to the `release/*` build CI published to GitHub Packages instead of packing locally.
 
@@ -73,8 +73,8 @@ In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec
 In a consumer:
 
 1. Read the consumer's `AGENTS.md` and `.litespec/project.yaml`.
-2. Find the records the task touches with `litespec model query <id>`, read the query output, then the YAML record files themselves, which hold the whole specification, and their explanation files when you need the context they add.
-3. Before you generate files or change a public boundary, read the full standards pages those records cite.
+2. Prefer the warm model service over repeated shell calls: start `litespec serve` once per session and use its four tools (`litespec_task_packet` for the packet before an edit, `litespec_check` for the open findings on touched paths, `litespec_impact` before renaming a record, `litespec_verify_slice` after changing a use case). Without the service, find the records with `litespec model query <id>`, then read the YAML record files themselves, which hold the whole specification, and their explanation files when you need the context they add.
+3. Before you generate files or change a public boundary, read the full standards pages those records cite. Write new code with `litespec scaffold <use-case-id>`, which never overwrites an existing file, and derived data with `litespec sync`.
 4. Before you edit inside an extension's boundary, read the extension.
 5. Then look at neighboring files and follow a local pattern that complies.
 
@@ -96,7 +96,7 @@ Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#s
 
 ## Placing Records
 
-A record's folder says where its content belongs, and a link field says why the record exists. Nest a record under another record only when its whole content lies within that record. A record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field: a feature stands in the folder of the problem it answers and names the goal it advances in `advances`, and a flow sits under the product and names its goal in `serves` or its problem or constraint in `answers`.
+A record's folder says where its content belongs, and a link field says why the record exists. Nest a record under another record only when its whole content lies within that record. A record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field: a feature stands in the folder of the problem it answers and names the goal it advances in `advances`, and a flow sits under the product and names its goal in `serves`, its problem in `solves`, or its constraint in `basedOn`.
 
 Apply this when you add a record type, give a type a new parent or home in the Placement Table, or choose between the homes a type allows. A folder chosen for the reason a record exists, rather than for its content, is the defect.
 
@@ -107,7 +107,7 @@ Sources: `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-r
 1. Confirm the scope of the request and which repositories it touches.
 2. Read `git status` and leave unrelated work alone.
 3. Check the manifest before you change a dependency. Add a package only with owner approval.
-4. Run `litespec rules <path>` before editing a file.
+4. Run `litespec agent sync` when the project file or the release changes, and `litespec rules <path>` before editing a file.
 5. Change the record files, explanation files, code, tests, contracts and operations that belong together in one change.
 6. Keep your working files under `.agents/`.
 
@@ -122,9 +122,9 @@ Write every page, example, template, README and tool message by the [LiteSpec wr
 Each page uses the sections of its page style. A Standard states one testable obligation. Every provision states its strength and where it applies, and has the same layout, in this order:
 
 ```markdown
-### Keep Shared UI in One Package
+### Build Pages from Locked Primitives
 
-**ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
+**ID:** `litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives`
 
 **Strength:** required
 
@@ -221,7 +221,7 @@ pnpm --dir apps/site test && pnpm --dir apps/site build
 
 The full .NET suite is heavy on memory, so let CI run it: push the branch and read the run. CI splits the suite by test class into ten parallel shards with `.github/scripts/test-shard.sh`. Locally, run the build and only the tests of the classes you changed, with `dotnet test --project <test project> --filter-class "<namespace>.<class>"`.
 
-`litespec-maintain validate` checks schemas, manifest references, provision IDs, page contracts, pattern pages and their wireframes, links and verification marks.
+`litespec-maintain validate` checks schemas, manifest references, provision IDs, page contracts, links and verification marks.
 
 In a consumer, run the gates that the job table in [continuous integration](docs/quality/ci.md) selects for each changed area, Playwright for the browser flows the change affects, and the checks of every selected extension.
 
@@ -229,7 +229,7 @@ Sources: `litespec/core/authoring#run-repeatable-authoring-checks`, `litespec/co
 
 ## Finishing
 
-Compare what the change does with the active records. Report each exact command, its result, what the evidence covers, and every check you skipped with the reason. Name the provisions `rules` returned and how each was judged.
+Compare what the change does with the active records. Report each exact command (`litespec model check`, `litespec verify`, `litespec hook pre-stop`), its result, what the evidence covers, and every check you skipped with the reason. Name the provisions `rules` returned and how each was judged.
 
 Leave no placeholder implementation, `TODO` or untracked generated output.
 

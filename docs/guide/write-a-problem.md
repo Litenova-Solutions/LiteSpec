@@ -2,7 +2,9 @@
 
 Write one problem as a record file `<name>.yaml` and an explanation file `<name>.md`, so a reader who has never met you can understand the problem, judge its evidence, and propose a different solution.
 
-A problem states a pain that people outside your team have today, before any feature answers it. For example, the Claimwick problem is that employees wait weeks for expense decisions, and this guide builds that problem record step by step.
+A problem states a pain that people outside your team have today, before any feature answers it.
+
+For example, the Claimwick problem is that employees wait weeks for expense decisions, and this guide builds that problem record step by step.
 
 Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.
 

@@ -33,7 +33,9 @@ A deeper page is one sitting further down the documentation tree, such as a stac
 
 The [layers page](layers.md) states the closed specification: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests, as `litespec/core/layers#write-each-layer-from-the-layer-above-it` states.
 
-The Specify rule stops agents from deciding the figures the owner sets on their own. The [Intent page](intent.md) states the Specify boundary. Specify adds the detail the promise implies but leaves unstated: a detail is implied where every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise leaves unnamed. Something the upper layer states without implying, or leaves out entirely, turns into a question to the owner with a recommendation or a backlog item, not code, as `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` states.
+The Specify rule stops agents from deciding the figures the owner sets on their own. The [Intent page](intent.md) states the Specify boundary.
+
+Specify adds the detail the promise implies but leaves unstated: a detail is implied where every faithful fulfillment of the promise needs it and no actor meets it as an outcome, limit, or figure the promise leaves unnamed. Something the upper layer states without implying, or leaves out entirely, turns into a question to the owner with a recommendation or a backlog item, not code, as `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items` states.
 
 ### Side Effects That Need an Explicit Task Instruction
 
@@ -91,7 +93,9 @@ Test expected values come only from the scenario Then, not from code runs. Money
 
 **Statement:** An agent MUST query the project model for the records that cover the request, and read the query output, before changing behavior, access, a contract, or a trace link; a prose-only correction of an existing record needs only the record and its explanation file.
 
-**Rationale:** Without the query, an agent reads too little and invents the missing rules, or reads half the repository and buries the task in unrelated guidance. The query returns the smallest record set covering the request, with the links the builder joined between records, so the agent starts from decided Intent. A prose-only correction of an existing record needs no joined links: the record and its explanation file show the decided shape, and a query slows ordinary work without adding information. Settled by decision/0086-set-one-agent-authority-boundary.
+**Rationale:** Without the query, an agent reads too little and invents the missing rules, or reads half the repository and buries the task in unrelated guidance. The query returns the smallest record set covering the request, with the links the builder joined between records, so the agent starts from decided Intent.
+
+A prose-only correction of an existing record needs no joined links: the record and its explanation file show the decided shape, and a query slows ordinary work without adding information. Settled by decision/0086-set-one-agent-authority-boundary.
 
 **Example:** `litespec model query use-case/spending.submit-expense` returns the use case with its rules, results, and scenarios. A spelling fix in a setting record reads the record and its explanation file, then edits without querying the model.
 
@@ -243,7 +247,9 @@ Test expected values come only from the scenario Then, not from code runs. Money
 
 **Statement:** An agent MUST stay inside its authorized task and take no consequential action beyond it without an explicit task instruction that names the action and its bounds.
 
-**Rationale:** Inside the task, the agent applies an approved standard or decision, drafts records and proposed decisions, implements the change, and reports findings, including a failed check or a conflict between provisions. It approves no product-policy proposal of its own, widens no scope, invents no business value, and takes no consequential outside action beyond the task. Packages, migrations, authentication, a public API, production data, releases, spending, and outside calls changing state each need an explicit task instruction naming the action and its bounds, because none of them follows from the task text alone. Settled by decision/0086-set-one-agent-authority-boundary.
+**Rationale:** Inside the task, the agent applies an approved standard or decision, drafts records and proposed decisions, implements the change, and reports findings, including a failed check or a conflict between provisions. It approves no product-policy proposal of its own, widens no scope, invents no business value, and takes no consequential outside action beyond the task.
+
+Packages, migrations, authentication, a public API, production data, releases, spending, and outside calls changing state each need an explicit task instruction naming the action and its bounds, because none of them follows from the task text alone. Settled by decision/0086-set-one-agent-authority-boundary.
 
 **Example:** A task naming the migration and its scope approves it. A task silent on releases leaves a release unmade.
 
